@@ -4320,7 +4320,10 @@ const PROPOSAL_FONT_PLUS_V90=1;
 function styleTextV8414_(element,size,bold,color){
   const t=element.editAsText(),length=t.getText().length;if(!length)return element;t.setFontFamily('Arial').setFontSize((size||10)+PROPOSAL_FONT_PLUS_V90).setForegroundColor(color||'#222222');if(bold!==undefined)t.setBold(!!bold);return element;
 }
+// Khoảng hở trên/dưới mỗi ô bảng trong phiếu (mặc định Docs ~5pt, tăng thêm 2).
+const PROPOSAL_CELL_PAD_V90=7;
 function styleCellV8414_(cell,size,bold,background,align){
+  cell.setPaddingTop(PROPOSAL_CELL_PAD_V90).setPaddingBottom(PROPOSAL_CELL_PAD_V90);
   if(background)cell.setBackgroundColor(background);cell.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);
   const p=cell.getChild(0).asParagraph();if(align)p.setAlignment(align);styleTextV8414_(p,size,bold);return cell;
 }
@@ -4334,13 +4337,13 @@ function buildProposalDocV8414_(data){
   // Thông tin công ty: bảng 3 cột "Tên : Nội dung" (Địa chỉ / Điện thoại / Email / Website)
   const contact=[['Địa chỉ','52 Nguyễn Văn Linh, Đà Nẵng'],['Điện thoại','(0236) 3 888 000'],['Email','philong@philong.com.vn'],['Website','www.philong.com.vn','https://www.philong.com.vn']];
   const contactTbl=right.appendTable(contact.map(function(r){return [r[0],':',r[1]];}));contactTbl.setBorderWidth(0);contactTbl.setColumnWidth(0,54);contactTbl.setColumnWidth(1,8);contactTbl.setColumnWidth(2,148);
-  contact.forEach(function(r,i){for(let c=0;c<3;c++){const cell=contactTbl.getCell(i,c);cell.setPaddingTop(0).setPaddingBottom(0).setPaddingLeft(c===1?1:0).setPaddingRight(c===1?1:0);const q=cell.getChild(0).asParagraph();q.setSpacingBefore(0).setSpacingAfter(0);styleTextV8414_(q,8,c<2,c<2?'#111111':'#4B5B6B');q.editAsText().setFontFamily('Times New Roman');if(c===2&&r[2])q.editAsText().setLinkUrl(r[2]).setForegroundColor('#4B5B6B').setUnderline(false);}});
+  contact.forEach(function(r,i){for(let c=0;c<3;c++){const cell=contactTbl.getCell(i,c);cell.setPaddingTop(1).setPaddingBottom(1).setPaddingLeft(c===1?1:0).setPaddingRight(c===1?1:0);const q=cell.getChild(0).asParagraph();q.setSpacingBefore(0).setSpacingAfter(0);styleTextV8414_(q,8,c<2,c<2?'#111111':'#4B5B6B');q.editAsText().setFontFamily('Times New Roman');if(c===2&&r[2])q.editAsText().setLinkUrl(r[2]).setForegroundColor('#4B5B6B').setUnderline(false);}});
   body.appendHorizontalRule();
   const recipient=body.appendTable([['Kính gửi:','- Giám đốc Công ty TNHH Công Nghệ Tin Học Phi Long\n- Bộ phận quản lý']]);recipient.setBorderWidth(0);recipient.setColumnWidth(0,70);recipient.setColumnWidth(1,450);styleCellV8414_(recipient.getCell(0,0),10,true,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);styleCellV8414_(recipient.getCell(0,1),10,true,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);recipient.getCell(0,0).setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);recipient.getCell(0,1).setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
   const info=body.appendTable([['Ngày lập',proposalDateTextV8414_(data.date),'Người đề xuất',data.requester],['Phòng ban',data.department,'Loại đề xuất',data.typeLabel]]);info.setBorderWidth(.75);info.setColumnWidth(0,85);info.setColumnWidth(1,175);info.setColumnWidth(2,95);info.setColumnWidth(3,165);
   for(let r=0;r<2;r++)for(let c=0;c<4;c++)styleCellV8414_(info.getCell(r,c),9,c%2===0,c%2===0?'#F2F2F2':null,DocumentApp.HorizontalAlignment.LEFT);
-  let section=body.appendParagraph('NỘI DUNG');section.setSpacingBefore(7).setSpacingAfter(3);styleTextV8414_(section,11,true,'#9E1730');const contentTable=body.appendTable([[String(data.content||'')]]);contentTable.setBorderWidth(0).setBorderColor('#FFFFFF');contentTable.getCell(0,0).setBackgroundColor('#FFFFFF');styleCellV8414_(contentTable.getCell(0,0),9,false,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);
-  section=body.appendParagraph('CHI TIẾT ĐỀ XUẤT');section.setSpacingBefore(7).setSpacingAfter(3);styleTextV8414_(section,11,true,'#9E1730');
+  let section=body.appendParagraph('NỘI DUNG');section.setSpacingBefore(9).setSpacingAfter(5);styleTextV8414_(section,11,true,'#9E1730');const contentTable=body.appendTable([[String(data.content||'')]]);contentTable.setBorderWidth(0).setBorderColor('#FFFFFF');contentTable.getCell(0,0).setBackgroundColor('#FFFFFF');styleCellV8414_(contentTable.getCell(0,0),9,false,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);
+  section=body.appendParagraph('CHI TIẾT ĐỀ XUẤT');section.setSpacingBefore(9).setSpacingAfter(5);styleTextV8414_(section,11,true,'#9E1730');
   if(data.kind==='material'||data.kind==='purchase'){
     const matrix=[['TT','Nội dung / Mặt hàng','Số lượng','Đơn giá','Thành tiền']];let total=0;
     data.lines.forEach(function(x,i){const qty=Number(x.SO_LUONG||0),price=Number(x.DON_GIA||0),amount=Number(x.THANH_TIEN||0)||qty*price;total+=amount;matrix.push([String(i+1),String(data.itemName(x)||''),String(x.SO_LUONG||''),proposalMoneyV8414_(price),proposalMoneyV8414_(amount)]);});
@@ -4352,7 +4355,7 @@ function buildProposalDocV8414_(data){
     const x=data.detail,rows=data.kind==='maintenance'?[['Thiết bị',data.itemName(x)],['Khu vực',x.KHU_VUC||x.ID_KHU_VUC||''],['Hiện trạng',x.HIEN_TRANG||x.TINH_TRANG||''],['Phương án đề xuất',x.PHUONG_AN_DE_XUAT||''],['Chi phí dự kiến',proposalMoneyV8414_(x.CHI_PHI_DU_KIEN)]]:[['Thiết bị',data.itemName(x)],['Tình trạng',x.TINH_TRANG||x.HIEN_TRANG||''],['Lý do thanh lý',x.LY_DO||''],['Chi phí sửa dự kiến',proposalMoneyV8414_(x.CHI_PHI_SUA_DU_KIEN)],['Giá trị còn lại',proposalMoneyV8414_(x.GIA_TRI_CON_LAI)],['Giá đề xuất thanh lý',proposalMoneyV8414_(x.GIA_DE_XUAT_THANH_LY)]];
     const table=body.appendTable(rows);table.setBorderWidth(.75);table.setColumnWidth(0,145);table.setColumnWidth(1,375);for(let r=0;r<rows.length;r++){styleCellV8414_(table.getCell(r,0),9,true,'#F2F2F2',DocumentApp.HorizontalAlignment.LEFT);styleCellV8414_(table.getCell(r,1),9,false,null,DocumentApp.HorizontalAlignment.LEFT);}
   }
-  const note=body.appendParagraph('Ghi chú: '+String(data.note||''));note.setSpacingBefore(7).setSpacingAfter(7);styleTextV8414_(note,9,false);note.editAsText().setBold(0,'Ghi chú:'.length-1,true);
+  const note=body.appendParagraph('Ghi chú: '+String(data.note||''));note.setSpacingBefore(9).setSpacingAfter(9);styleTextV8414_(note,9,false);note.editAsText().setBold(0,'Ghi chú:'.length-1,true);
   const sign=body.appendTable([['','','']]);sign.setBorderWidth(0).setBorderColor('#FFFFFF');sign.setColumnWidth(0,173);sign.setColumnWidth(1,173);sign.setColumnWidth(2,174);
   ['NGƯỜI ĐỀ XUẤT','TRƯỞNG BỘ PHẬN','PHÊ DUYỆT'].forEach(function(label,c){
     const cell=sign.getCell(0,c);cell.setBackgroundColor('#FFFFFF').setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
