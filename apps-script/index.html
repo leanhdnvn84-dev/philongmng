@@ -3219,14 +3219,28 @@ html[data-theme="dark"] .pl-proposal-finance-metric.year strong{color:#69d2c6}
 #maintenancePlan .plw85-table>table{min-width:1600px!important}
 :is(#maintenanceLog,#maintenancePlan).pl-maint-work:not(.active){display:none!important}
 :is(#maintenanceLog,#maintenancePlan).pl-maint-work>.page-title,:is(#maintenanceLog,#maintenancePlan).pl-maint-work>.kpis,:is(#maintenanceLog,#maintenancePlan).pl-maint-work>.card{display:none!important}
-.pl-maint-work .plw85-side{display:flex!important;flex-direction:column;gap:8px;overflow:auto!important;min-height:0}
-.pl-maint-work .plw85-calendar,.pl-maint-work .ple-side-section{flex:0 0 auto}
-.pl-maint-work .plw85-side>.pl-maint-staff{flex:1 0 140px;height:auto!important;min-height:140px;margin-top:0;overflow:auto}
-.pl-maint-work .pl-maint-staff table{table-layout:fixed}
-.pl-maint-work .pl-maint-staff td{white-space:normal;overflow-wrap:anywhere}
-.pl-maint-work .plw85-calendar{margin-bottom:8px}.pl-maint-work .plw85-today{border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;width:100%}
-.pl-maint-work .ple-side-section{background:#fff;border:1px solid #bac3ce;padding:8px;margin:0 0 8px}
-.pl-maint-work .ple-filter label{font-size:13px}.pl-maint-work .ple-filter select{font-size:14px}
+/* Cột trái Nhật ký / Kế hoạch bảo trì: gọn, vừa một màn hình, không thanh cuộn */
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-side{display:flex!important;flex-direction:column;gap:6px;overflow:hidden!important;min-height:0;padding:6px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work :is(.plw85-calendar,.ple-side-section){flex:0 0 auto;margin:0!important}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-calendar{padding:4px 6px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-cal-head{height:24px;font-size:12px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-cal-head button{height:17px;width:21px;line-height:1}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-week{padding:3px 0 1px;font-size:11px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-week::after{content:none}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-day{min-height:20px;font-size:12px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-day b{height:11px;min-width:11px;font-size:8px;line-height:11px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-today{padding-top:3px;font-size:11px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;width:100%}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .ple-side-section{background:#fff;border:1px solid #bac3ce;padding:6px 8px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .ple-side-section h3{margin:0 0 4px;font-size:12px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .ple-side-section>p{display:none}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .ple-filter label{font-size:12px;margin:2px 0 1px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .ple-filter select{font-size:13px;height:28px!important;min-height:0!important;padding:0 6px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work :is(.ple-reset,.plc-reset){height:26px!important;min-height:0!important;margin-top:4px;padding:0 8px!important;font-size:12px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-side>.pl-maint-staff{flex:1 1 0;height:auto!important;min-height:0;margin-top:0;overflow:auto;scrollbar-width:none}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .plw85-side>.pl-maint-staff::-webkit-scrollbar{display:none}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .pl-maint-staff table{table-layout:fixed}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .pl-maint-staff th{padding:4px 8px;font-size:12px}
+:is(#maintenanceLog,#maintenancePlan).pl-maint-work .pl-maint-staff td{padding:5px 8px;font-size:13px;white-space:normal;overflow-wrap:anywhere}
 .pl-maint-work .plw85-search{position:absolute!important;left:16px!important;top:70px!important}
 .pl-maint-work .plw85-tools{overflow:visible!important;z-index:5}
 
