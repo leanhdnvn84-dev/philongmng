@@ -3929,10 +3929,10 @@ const EMAIL_ALERT_DEFAULTS_V84_ = Object.freeze([
 let EMAIL_SCHEMA_OK_V84_=false;
 function ensureEmailAlertSchemaV84_(force){
   if(EMAIL_SCHEMA_OK_V84_&&!force)return {ok:true,cached:true};
-  const flagKey='PL84:EMAIL_SCHEMA_OK',cache=CacheService.getScriptCache();
+  const flagKey='PL86:EMAIL_SCHEMA_OK',cache=CacheService.getScriptCache();
   if(!force&&cache.get(flagKey)){EMAIL_SCHEMA_OK_V84_=true;return {ok:true,cached:true};}
   const specs={
-    CAU_HINH_EMAIL_CANH_BAO:['ID','MA_CANH_BAO','TEN_CANH_BAO','BAT','SO_NGAY_BAO_TRUOC','GIO_GUI','EMAIL_QUAN_TRI','GHI_CHU'],
+    CAU_HINH_EMAIL_CANH_BAO:['ID','MA_CANH_BAO','TEN_CANH_BAO','BAT','SO_NGAY_BAO_TRUOC','GIO_GUI','EMAIL_QUAN_TRI','GHI_CHU','EMAIL_GUI','EMAIL_NHAN','GUI_NGUOI_THUC_HIEN','GUI_NGUOI_LAM_CUNG','GUI_NGUOI_GIAO'],
     NHAT_KY_EMAIL_CANH_BAO:['ID_EMAIL','NGAY_GUI','MA_CANH_BAO','MODULE','ID_BAN_GHI','NGUOI_NHAN','TIEU_DE','TRANG_THAI','SO_NGAY_CON_LAI','NOI_DUNG']
   };
   const added={};
@@ -3982,13 +3982,30 @@ function emailConfigV84_(){
   });
 }
 
+// Người nhận: nhân viên (theo mã hoặc họ tên; ô "người làm cùng" có thể chứa nhiều người, cách nhau , ;)
+// + danh sách email nhận thêm của cấu hình.
 function emailRecipientsV84_(ids, admin){
-  const out=[],emps=indexBy_(readObjects_(V22.SHEETS.employees),'ID');
+  const out=[],list=readObjects_(V22.SHEETS.employees),emps=indexBy_(list,'ID'),byName={};
+  list.forEach(function(e){const n=norm_(e.HO_TEN||e.TEN_NHAN_VIEN||'');if(n&&!byName[n])byName[n]=e;});
   const add=function(email){email=normalizeEmail_(email);if(email&&/^\S+@\S+\.\S+$/.test(email)&&out.indexOf(email)<0)out.push(email);};
-  (Array.isArray(ids)?ids:[ids]).forEach(function(id){if(id&&emps[id])add(emps[id].EMAIL);});
+  (Array.isArray(ids)?ids:[ids]).forEach(function(v){
+    String(v==null?'':v).split(/\s*[,;]\s*/).forEach(function(id){id=String(id||'').trim();if(!id)return;
+      if(/@/.test(id))return add(id);
+      const e=emps[id]||byName[norm_(id)];if(e)add(e.EMAIL);});
+  });
   String(admin||'').split(/[;,\s]+/).forEach(add);
   return out;
 }
+// Cờ gửi cho nhân viên theo vai trò (ô trống = mặc định: người thực hiện BẬT, người giao việc BẬT, người làm cùng TẮT).
+function emailFlagV86_(cfg,key,def){const v=String(cfg&&cfg[key]||'').trim();return v?emailAlertEnabledV84_({BAT:v}):def;}
+function emailPeopleV86_(cfg,roles){
+  const out=[];
+  if(emailFlagV86_(cfg,'GUI_NGUOI_THUC_HIEN',true))(roles.thucHien||[]).forEach(function(x){out.push(x)});
+  if(emailFlagV86_(cfg,'GUI_NGUOI_LAM_CUNG',false))(roles.lamCung||[]).forEach(function(x){out.push(x)});
+  if(emailFlagV86_(cfg,'GUI_NGUOI_GIAO',true))(roles.giao||[]).forEach(function(x){out.push(x)});
+  return out;
+}
+function emailAdminListV86_(cfg){return String(cfg&&(cfg.EMAIL_NHAN||cfg.EMAIL_QUAN_TRI)||'');}
 
 function normalizeEmailTimeV84_(value, fallback){
   const m=String(value||'').trim().match(/^([01]?\d|2[0-3]):([0-5]\d)/);
@@ -4003,7 +4020,8 @@ function emailConfigDueNowV84_(value){
   return Number(Utilities.formatDate(now,V22.TZ,'H'))*60+Number(Utilities.formatDate(now,V22.TZ,'m'))>=hm[0]*60+hm[1];
 }
 
-function emailAlertRowsV84_(code, admin, before){
+function emailAlertRowsV84_(code, admin, before, cfg){
+  cfg=cfg||{};
   const employees=readObjects_(V22.SHEETS.employees), empById=indexBy_(employees,'ID');
   const out=[], today=today_(), limit=addDays_(today,Number(before||0));
   const push=function(module,id,recipients,title,days,body){
@@ -4018,14 +4036,14 @@ function emailAlertRowsV84_(code, admin, before){
       const hit=code==='CONG_VIEC_QUA_HAN'?isOverdue:isOldAndIncomplete;
       if(!hit)return;
       const days=due?daysBetween_(today_(),due):null;
-      push('CONG_VIEC',r.ID,[r.ID_NGUOI_THUC_HIEN,r.ID_NGUOI_GIAO],code==='CONG_VIEC_QUA_HAN'?'Công việc quá hạn':'Công việc cũ chưa xong',days,'Nội dung: '+String(r.NOI_DUNG||'')+'\nHạn: '+(due||'Chưa có hạn'));
+      push('CONG_VIEC',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG,r.ID_NGUOI_LAM_CUNG],giao:[r.ID_NGUOI_GIAO]}),code==='CONG_VIEC_QUA_HAN'?'Công việc quá hạn':'Công việc cũ chưa xong',days,'Nội dung: '+String(r.NOI_DUNG||'')+'\nHạn: '+(due||'Chưa có hạn'));
     });
   } else if(code==='CVHN_CHUA_XONG'){
-    readObjects_(V22.SHEETS.daily).forEach(function(r){if(isCompletedStatus_(r.KET_QUA)||isCompletedStatus_(r.TRANG_THAI))return;push('CVHN_2026',r.ID,[r.ID_NGUOI_THUC_HIEN,r.ID_NGUOI_GIAO],'Công việc hằng ngày chưa xong',null,'Nội dung: '+String(r.NOI_DUNG||'')+'\nNgày: '+(dateOnly_(r.NGAY)||''));});
+    readObjects_(V22.SHEETS.daily).forEach(function(r){if(isCompletedStatus_(r.KET_QUA)||isCompletedStatus_(r.TRANG_THAI))return;push('CVHN_2026',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG,r.ID_NGUOI_LAM_CUNG],giao:[r.ID_NGUOI_GIAO]}),'Công việc hằng ngày chưa xong',null,'Nội dung: '+String(r.NOI_DUNG||'')+'\nNgày: '+(dateOnly_(r.NGAY)||''));});
   } else if(code==='BAO_TRI_SAP_HAN'||code==='BAO_TRI_DEN_HAN'){
-    getMaintenanceSchedulesComputed_().forEach(function(r){const d=Number(r.SO_NGAY_CON_LAI);if(!Number.isFinite(d))return;const hit=code==='BAO_TRI_SAP_HAN'?(d>=0&&d<=Number(before||7)):(d<=0);if(!hit)return;push('DM_LICH_BAO_TRI',r.ID_LICH,[r.ID_NGUOI_PHU_TRACH],'Bảo trì '+(d<0?'trễ hạn':d===0?'đến hạn':'sắp đến hạn'),d,'Khu vực: '+String(r.KHU_VUC_HIEN_THI||r.ID_KHU_VUC||'')+'\nHạng mục: '+String(r.HANG_MUC||r.ID_HANG_MUC||'')+'\nNgày kế tiếp: '+String(r.NGAY_KE_TIEP||''));});
+    getMaintenanceSchedulesComputed_().forEach(function(r){const d=Number(r.SO_NGAY_CON_LAI);if(!Number.isFinite(d))return;const hit=code==='BAO_TRI_SAP_HAN'?(d>=0&&d<=Number(before||7)):(d<=0);if(!hit)return;push('DM_LICH_BAO_TRI',r.ID_LICH,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_PHU_TRACH]}),'Bảo trì '+(d<0?'trễ hạn':d===0?'đến hạn':'sắp đến hạn'),d,'Khu vực: '+String(r.KHU_VUC_HIEN_THI||r.ID_KHU_VUC||'')+'\nHạng mục: '+String(r.HANG_MUC||r.ID_HANG_MUC||'')+'\nNgày kế tiếp: '+String(r.NGAY_KE_TIEP||''));});
   } else if(code==='NHAT_KY_BAO_TRI'){
-    readObjects_(V22.SHEETS.maintenanceLogs).forEach(function(r){const due=dateOnly_(r.NGAY_KE_TIEP),d=due?daysBetween_(today_(),due):null;if(d===null||d>Number(before||7))return;push('NHAT_KY_BAO_TRI',r.ID,[r.ID_NGUOI_THUC_HIEN],'Nhật ký bảo trì cần theo dõi',d,'Hạng mục: '+String(r.HANG_MUC_SNAPSHOT||'')+'\nNgày kế tiếp: '+due);});
+    readObjects_(V22.SHEETS.maintenanceLogs).forEach(function(r){const due=dateOnly_(r.NGAY_KE_TIEP),d=due?daysBetween_(today_(),due):null;if(d===null||d>Number(before||7))return;push('NHAT_KY_BAO_TRI',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG]}),'Nhật ký bảo trì cần theo dõi',d,'Hạng mục: '+String(r.HANG_MUC_SNAPSHOT||'')+'\nNgày kế tiếp: '+due);});
   } else if(code==='DE_XUAT_CHO_DUYET'){
     readObjects_(V22.SHEETS.proposals).forEach(function(r){if(!['CHO_DUYET','CHO_DUYET'].includes(norm_(r.TRANG_THAI)))return;push('DE_XUAT',r.ID,[],'Đề xuất đang chờ duyệt',null,'Nội dung: '+String(r.NOI_DUNG||r.TEN_DE_XUAT||''));});
   } else if(code==='KHO_VAT_TU_SAP_HET'){
@@ -4036,14 +4054,14 @@ function emailAlertRowsV84_(code, admin, before){
     readObjects_(V22.SHEETS.tenants).forEach(function(r){
       const due=dateOnly_(r.NGAY_KET_THUC),d=due?daysBetween_(today_(),due):null;
       if(d===null||d<0||d>Number(before||30))return;
-      push('KHACH_THUE',r.ID,[r.ID_NGUOI_PHU_TRACH,r.ID_NGUOI_QUAN_LY],'Khách đang thuê sắp hết hạn',d,
+      push('KHACH_THUE',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_PHU_TRACH,r.ID_NGUOI_QUAN_LY]}),'Khách đang thuê sắp hết hạn',d,
         'Khách thuê: '+String(r.TEN_KHACH_THUE||r.ID||'')+'\nNgày kết thúc thuê: '+due+'\nKhu vực: '+String(r.TANG_KHU_VUC||r.ID_KHU_VUC||''));
     });
   } else if(code==='KHACH_TIEM_NANG_DEN_HAN_LIEN_HE'||code==='KHACH_TIEM_NANG_QUA_HAN_LIEN_HE'){
     readObjects_(V22.SHEETS.prospects).forEach(function(r){
       const due=dateOnly_(r.NGAY_HEN_LIEN_HE),d=due?daysBetween_(today_(),due):null;
       if(d===null||(code==='KHACH_TIEM_NANG_DEN_HAN_LIEN_HE'?d!==0:d>=0))return;
-      push('KHACH_HANG_TIEM_NANG',r.ID,[r.ID_NGUOI_PHU_TRACH],
+      push('KHACH_HANG_TIEM_NANG',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_PHU_TRACH]}),
         code==='KHACH_TIEM_NANG_DEN_HAN_LIEN_HE'?'Khách hàng tiềm năng đến hạn liên hệ':'Khách hàng tiềm năng quá hạn liên hệ',d,
         'Khách hàng: '+String(r.TEN_KHACH_HANG||r.ID||'')+'\nNgười liên hệ: '+String(r.NGUOI_LIEN_HE||'')+'\nNgày hẹn liên hệ: '+due);
     });
@@ -4113,7 +4131,7 @@ function emailDigestTextV84_(list){
 
 function previewEmailAlertsV84(){
   const out=[];
-  emailConfigV84_().forEach(function(c){if(!emailAlertEnabledV84_(c))return;emailAlertRowsV84_(c.MA_CANH_BAO,c.EMAIL_QUAN_TRI,Number(c.SO_NGAY_BAO_TRUOC||0)).forEach(function(x){out.push(x);});});
+  emailConfigV84_().forEach(function(c){if(!emailAlertEnabledV84_(c))return;emailAlertRowsV84_(c.MA_CANH_BAO,emailAdminListV86_(c),Number(c.SO_NGAY_BAO_TRUOC||0),c).forEach(function(x){out.push(x);});});
   return {ok:true,count:out.length,rows:out,serverTime:nowStamp_()};
 }
 
@@ -4132,7 +4150,8 @@ function saveEmailAlertConfigAllV84_(input){
   if(lastRow<2)throw new Error('EMAIL_CONFIG_NOT_FOUND');
   const range=sh.getRange(1,1,lastRow,lastCol),values=range.getValues(),shown=range.getDisplayValues();
   const headers=values[0].map(function(h){return String(h||'').trim();}),ix=function(h){return headers.indexOf(h);};
-  const iId=ix('ID'),iBat=ix('BAT'),iDays=ix('SO_NGAY_BAO_TRUOC'),iTime=ix('GIO_GUI'),iMail=ix('EMAIL_QUAN_TRI');
+  const iId=ix('ID'),iBat=ix('BAT'),iDays=ix('SO_NGAY_BAO_TRUOC'),iTime=ix('GIO_GUI'),iMail=ix('EMAIL_QUAN_TRI'),iSend=ix('EMAIL_GUI'),iRecv=ix('EMAIL_NHAN'),iTh=ix('GUI_NGUOI_THUC_HIEN'),iLc=ix('GUI_NGUOI_LAM_CUNG'),iGiao=ix('GUI_NGUOI_GIAO');
+  const onOff=function(v){return String(v||'').trim()==='BẬT'?'BẬT':'TẮT'};
   let saved=0;
   for(let r=1;r<values.length;r++){
     if(iTime>=0)values[r][iTime]=normalizeEmailTimeV84_(shown[r][iTime],'07:00');
@@ -4140,7 +4159,13 @@ function saveEmailAlertConfigAllV84_(input){
     if(iBat>=0)values[r][iBat]=String(inp.BAT||'').trim()==='BẬT'?'BẬT':'TẮT';
     if(iDays>=0)values[r][iDays]=inp.SO_NGAY_BAO_TRUOC===''||inp.SO_NGAY_BAO_TRUOC==null?'':Math.max(0,parseInt(inp.SO_NGAY_BAO_TRUOC,10)||0);
     if(iTime>=0)values[r][iTime]=normalizeEmailTimeV84_(inp.GIO_GUI,values[r][iTime]);
-    if(iMail>=0)values[r][iMail]=String(inp.EMAIL_QUAN_TRI||'').trim();
+    if(iRecv>=0&&inp.EMAIL_NHAN!==undefined)values[r][iRecv]=String(inp.EMAIL_NHAN||'').trim();
+    if(iMail>=0&&inp.EMAIL_NHAN!==undefined)values[r][iMail]=String(inp.EMAIL_NHAN||'').trim();
+    else if(iMail>=0&&inp.EMAIL_QUAN_TRI!==undefined)values[r][iMail]=String(inp.EMAIL_QUAN_TRI||'').trim();
+    if(iSend>=0&&inp.EMAIL_GUI!==undefined)values[r][iSend]=String(inp.EMAIL_GUI||'').trim();
+    if(iTh>=0&&inp.GUI_NGUOI_THUC_HIEN!==undefined)values[r][iTh]=onOff(inp.GUI_NGUOI_THUC_HIEN);
+    if(iLc>=0&&inp.GUI_NGUOI_LAM_CUNG!==undefined)values[r][iLc]=onOff(inp.GUI_NGUOI_LAM_CUNG);
+    if(iGiao>=0&&inp.GUI_NGUOI_GIAO!==undefined)values[r][iGiao]=onOff(inp.GUI_NGUOI_GIAO);
     saved++;
   }
   if(!saved)throw new Error('EMAIL_CONFIG_NOT_FOUND');
@@ -4154,11 +4179,14 @@ function saveEmailAlertConfigAllV84_(input){
 function saveEmailAlertConfigV84_(input){return saveEmailAlertConfigAllV84_({rows:[input||{}]});}
 
 function sendTestEmailAlertV84_(input){
-  const recipients=emailRecipientsV84_([],String(input&&input.EMAIL_QUAN_TRI||''));
+  const recipients=emailRecipientsV84_([],String(input&&(input.EMAIL_NHAN||input.EMAIL_QUAN_TRI)||''));
   if(!recipients.length)throw new Error('EMAIL_TEST_RECIPIENT_REQUIRED');
-  MailApp.sendEmail({to:recipients.join(', '),name:'PHILONG BUILDING',subject:'[PHILONG BUILDING] Email kiểm tra',
+  const sender=String(input&&input.EMAIL_GUI||'').trim();
+  const mail={to:recipients.join(', '),name:'PHILONG BUILDING',subject:'[PHILONG BUILDING] Email kiểm tra',
     htmlBody:'<div style="font-family:Arial,sans-serif"><h3 style="color:#a71936">PHILONG BUILDING</h3><p>Email kiểm tra từ mục Cấu hình gửi email. Nếu bạn nhận được thư này, việc gửi cảnh báo đã hoạt động.</p><p style="color:#64748b">'+escHtmlV84_(nowStamp_())+'</p></div>',
-    body:'Email kiểm tra từ mục Cấu hình gửi email.\nThời gian: '+nowStamp_()});
+    body:'Email kiểm tra từ mục Cấu hình gửi email.\nThời gian: '+nowStamp_()};
+  if(/^\S+@\S+\.\S+$/.test(sender))mail.replyTo=sender;
+  MailApp.sendEmail(mail);
   return {ok:true,recipients:recipients,serverTime:nowStamp_()};
 }
 
@@ -4179,7 +4207,8 @@ function sendEmailAlertsV84(opts){
       if(!emailAlertEnabledV84_(c)){summary.push({code:code,status:'TAT'});return;}
       if(!now&&(!emailConfigDueNowV84_(c.GIO_GUI)||props.getProperty(runKey)===day)){summary.push({code:code,status:'CHO_GIO',gio:c.GIO_GUI});return;}
       let n=0;
-      emailAlertRowsV84_(code,c.EMAIL_QUAN_TRI,Number(c.SO_NGAY_BAO_TRUOC||0)).forEach(function(item){
+      emailAlertRowsV84_(code,emailAdminListV86_(c),Number(c.SO_NGAY_BAO_TRUOC||0),c).forEach(function(item){
+        item.EMAIL_GUI=String(c.EMAIL_GUI||'').trim();
         const key=code+'|'+item.ID_BAN_GHI;if(sentKeys[key])return;sentKeys[key]=true;
         const log={NGAY_GUI:stamp,MA_CANH_BAO:code,MODULE:item.MODULE,ID_BAN_GHI:item.ID_BAN_GHI,NGUOI_NHAN:item.NGUOI_NHAN,TIEU_DE:item.TIEU_DE,
           TRANG_THAI:item.NGUOI_NHAN?'DA_GUI':'BO_QUA_THIEU_EMAIL',SO_NGAY_CON_LAI:item.SO_NGAY_CON_LAI,NOI_DUNG:item.NOI_DUNG};
@@ -4194,7 +4223,11 @@ function sendEmailAlertsV84(opts){
       const list=byTo[to];
       if(mails>=quota){list.forEach(function(x){x.log.TRANG_THAI='HET_HAN_MUC';});return;}
       try{
-        MailApp.sendEmail({to:to,name:'PHILONG BUILDING',subject:'[PHILONG BUILDING] '+list.length+' cảnh báo cần xử lý · '+day,htmlBody:emailDigestHtmlV84_(list),body:emailDigestTextV84_(list)});
+        const sender=(list.find(function(x){return x.item.EMAIL_GUI})||{item:{}}).item.EMAIL_GUI;
+        const mail={to:to,name:'PHILONG BUILDING',subject:'[PHILONG BUILDING] '+list.length+' cảnh báo cần xử lý · '+day,htmlBody:emailDigestHtmlV84_(list),body:emailDigestTextV84_(list)};
+        // Email gửi: Apps Script luôn gửi từ tài khoản triển khai; địa chỉ "Email gửi" dùng làm địa chỉ trả lời (Reply-To).
+        if(sender&&/^\S+@\S+\.\S+$/.test(sender))mail.replyTo=sender;
+        MailApp.sendEmail(mail);
         mails++;
       }catch(e){list.forEach(function(x){x.log.TRANG_THAI='LOI';});}
     });
