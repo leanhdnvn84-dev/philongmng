@@ -4,7 +4,8 @@
   "description": "Công cụ phân tích index.html (không triển khai lên Apps Script)",
   "dependencies": {
     "acorn": "^8.14.0",
-    "acorn-walk": "^8.3.4"
+    "acorn-walk": "^8.3.4",
+    "postcss": "^8.5.28"
   },
   "devDependencies": {
     "playwright": "1.56.1"
