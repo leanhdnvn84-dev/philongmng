@@ -3405,7 +3405,7 @@ html#plMobileViewport[data-theme="dark"]{
   border:0!important;
 }
 #plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) :is(.pm-header,.pm-bubble,.pm-top,.subbar){display:none!important}
-#plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools,.plm-filterbar){display:none!important}
+#plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools,.plm-filterbar,.plm-datepick,.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){display:none!important}
 #plMobileViewport #plStartupGateV841592{padding:10px!important;overflow:auto!important}
 #plMobileViewport #plStartupGateV841592 .pl-startup-shell{width:100%!important;max-width:100%!important;padding:16px 10px!important;box-sizing:border-box}
 #plMobileViewport #plStartupGateV841592 .pl-startup-alert-grid{grid-template-columns:1fr!important;gap:8px!important}
@@ -3612,14 +3612,14 @@ html#plMobileViewport[data-theme="dark"]{
   left:12px;
   bottom:calc(12px + env(safe-area-inset-bottom));
   z-index:9100;
-  width:70px;
-  height:70px;
+  width:91px;
+  height:91px;
   border:0;
   border-radius:50%;
   background:var(--plm-accent);
   color:#fff;
   box-shadow:0 4px 14px rgba(0,0,0,.28);
-  font-size:39px;
+  font-size:51px;
   line-height:1;
 }
 #plMobileViewport .pm-bubble:active{transform:scale(.94)}
@@ -3628,12 +3628,12 @@ html#plMobileViewport[data-theme="dark"]{
   display:flex;
   flex-direction:column;
   position:fixed;
-  inset:auto auto calc(10px + 70px + 10px + env(safe-area-inset-bottom)) 10px;
+  inset:auto auto calc(10px + 91px + 10px + env(safe-area-inset-bottom)) 10px;
   width:max-content;
   min-width:250px;
   max-width:calc(100vw - 20px);
   height:auto;
-  max-height:calc(100dvh - 70px - 40px - env(safe-area-inset-bottom));
+  max-height:calc(100dvh - 91px - 40px - env(safe-area-inset-bottom));
   margin:0;
   padding:0;
   border:0;
@@ -10596,12 +10596,12 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   },60);
  }
  /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
- const FONT_PLUS=4,fontOrig=new Map();let fontOn=false;
+ const FONT_PLUS=4,STARTUP_PLUS=12,fontOrig=new Map(); // trang khởi động: +4 +12let fontOn=false;
  function fontBoost(on){
   if(fontOn===on)return;fontOn=on;
   const walk=rules=>{for(const r of rules){
    if(r.style){const st=r.style,pr=st.getPropertyPriority('font-size');
-    if(on){const m=/^(\d+(?:\.\d+)?)px$/.exec(st.getPropertyValue('font-size').trim());if(m){fontOrig.set(st,m[0]);st.setProperty('font-size',(+m[1]+FONT_PLUS)+'px',pr)}}
+    if(on){const m=/^(\d+(?:\.\d+)?)px$/.exec(st.getPropertyValue('font-size').trim());if(m){fontOrig.set(st,m[0]);st.setProperty('font-size',(+m[1]+FONT_PLUS+(/plStartupGate/.test(r.selectorText||'')?STARTUP_PLUS:0))+'px',pr)}}
     else if(fontOrig.has(st))st.setProperty('font-size',fontOrig.get(st),pr)}
    if(r.cssRules)walk(r.cssRules)}};
   for(const sh of document.styleSheets){try{walk(sh.cssRules)}catch(e){}}
