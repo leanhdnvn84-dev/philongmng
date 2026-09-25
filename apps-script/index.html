@@ -10959,7 +10959,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
 })();
 </script>
 <script id="pl-v210-catalog-no-action-columns">
-/* V210 — Danh mục: bỏ cột Thao tác khỏi DOM thật.
+/* V210 — TOÀN HỆ THỐNG: bỏ cột Thao tác khỏi DOM thật ở mọi bảng dữ liệu (Xem/Sửa/Xóa dùng thanh công cụ).
    Các renderer cũ vẫn được giữ nguyên để không thay đổi dữ liệu/quyền/nghiệp vụ;
    lớp này là điểm kiểm soát duy nhất cho 7 bảng Danh mục, luôn xóa cả <th> và
    các <td> cùng vị trí thay vì che bằng CSS. */
@@ -10979,12 +10979,14 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     rows.filter(row=>row.parentElement?.tagName==='TBODY').forEach(row=>[...row.cells].forEach((cell,index)=>{if(isActionCell(cell))indexes.add(index)}));
     [...indexes].sort((a,b)=>b-a).forEach(index=>rows.forEach(row=>{if(row.cells[index])row.deleteCell(index)}));
   }
-  function sweep(){IDS.forEach(id=>{const host=document.getElementById(id);if(host)host.querySelectorAll('table').forEach(removeActionColumn)})}
+  // Quét mọi bảng trong vùng dữ liệu (không đụng bảng trong form nhập liệu); gom nhiều thay đổi DOM vào một lần/frame.
+  function sweep(){document.querySelectorAll('main.container table').forEach(removeActionColumn)}
+  let queued=false;const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sweep()})};
   window.PL_NO_ACTION_TABLES_V209=IDS;
   window.PL_REMOVE_ACTION_COLUMN_V209=removeActionColumn;
-  window.PL_SHOULD_REMOVE_ACTION_COLUMN_V209=id=>IDS.has(String(id||''));
-  plDefineSteps_('catalogNoActionV210',{afterRenderGeneric:function(containerId){if(IDS.has(String(containerId||'')))sweep()}});
-  const start=()=>{sweep();if(!document.body)return;const observer=new MutationObserver(()=>sweep());observer.observe(document.body,{childList:true,subtree:true});};
+  window.PL_SHOULD_REMOVE_ACTION_COLUMN_V209=()=>true;
+  plDefineSteps_('catalogNoActionV210',{afterRenderGeneric:function(){sweep()}});
+  const start=()=>{sweep();if(!document.body)return;const observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 </script>
