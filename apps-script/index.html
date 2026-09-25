@@ -3742,10 +3742,12 @@ html#plMobileViewport[data-theme="dark"]{
   display:flex;
   flex-direction:column;
   position:fixed;
-  inset:auto 10px calc(10px + 54px + 10px + env(safe-area-inset-bottom)) 10px;
-  width:auto;
-  height:min(74dvh,560px);
-  max-height:min(74dvh,560px);
+  inset:auto auto calc(10px + 54px + 10px + env(safe-area-inset-bottom)) 10px;
+  width:max-content;
+  min-width:250px;
+  max-width:calc(100vw - 20px);
+  height:auto;
+  max-height:calc(100dvh - 54px - 40px - env(safe-area-inset-bottom));
   margin:0;
   padding:0;
   border:0;
@@ -3764,8 +3766,8 @@ html#plMobileViewport[data-theme="dark"]{
   background:var(--plm-accent);
   color:#fff;
 }
-#plMobileViewport .pm-panel h2{font-size:18px;color:#fff}
-#plMobileViewport .pm-panel .pm-close{width:28px;border:0;background:transparent;color:#fff;font-size:20px}
+#plMobileViewport .pm-panel h2{font-size:23px;color:#fff}
+#plMobileViewport .pm-panel .pm-close{width:36px;border:0;background:transparent;color:#fff;font-size:25px}
 #plMobileViewport .pm-panel-user{
   display:flex!important;
   align-items:center;
@@ -3779,32 +3781,33 @@ html#plMobileViewport[data-theme="dark"]{
 #plMobileViewport .pm-panel-user[hidden]{display:none!important}
 #plMobileViewport .pm-panel-user-avatar{flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:var(--plm-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
 #plMobileViewport .pm-panel-user-copy{display:flex;flex-direction:column;gap:1px;min-width:0}
-#plMobileViewport .pm-panel-user-copy b{font-size:16px;color:var(--plm-ink)}
-#plMobileViewport .pm-panel-user-copy small{font-size:12px;color:var(--plm-muted)}
-#plMobileViewport .pm-panel button{min-height:44px;font-size:15px!important}
+#plMobileViewport .pm-panel-user-copy b{font-size:21px;color:var(--plm-ink)}
+#plMobileViewport .pm-panel-user-copy small{font-size:17px;color:var(--plm-muted)}
+#plMobileViewport .pm-panel button{min-height:56px;font-size:20px!important}
 #plMobileViewport .pm-panel .pm-links{display:grid;gap:0}
-#plMobileViewport .pm-panel #pmPanelContent{min-height:0;flex:1 1 auto;overflow:auto;padding:0 12px 12px}
+#plMobileViewport .pm-panel #pmPanelContent{min-height:0;flex:1 1 auto;overflow:auto;padding:4px 16px 14px 12px}
 #plMobileViewport #pmPanel #mainNavigation{position:static!important;display:flex!important;flex-direction:column!important;width:100%!important;height:auto!important;max-height:none!important;padding:0!important;gap:0!important;overflow:visible!important;background:transparent!important;box-shadow:none!important;transform:none!important}
 #plMobileViewport #pmPanel .navitem{display:block!important;width:100%!important}
 #plMobileViewport #pmPanel .navitem>button{
   display:flex!important;
   align-items:center!important;
   width:100%!important;
-  min-height:48px!important;
-  padding:9px 4px!important;
+  min-height:60px!important;
+  padding:14px 8px 14px 4px!important;
   border:0!important;
   border-bottom:1px solid var(--plm-line)!important;
   border-radius:0!important;
+  white-space:nowrap!important;
   background:transparent!important;
   color:var(--plm-ink)!important;
   text-align:left!important;
 }
-#plMobileViewport #pmPanel .navitem:nth-child(1)>button::before{content:'🗂️';margin-right:11px;font-size:17px}
-#plMobileViewport #pmPanel .navitem:nth-child(2)>button::before{content:'🔧';margin-right:11px;font-size:17px}
-#plMobileViewport #pmPanel .navitem:nth-child(3)>button::before{content:'📝';margin-right:11px;font-size:17px}
-#plMobileViewport #pmPanel .navitem:nth-child(4)>button::before{content:'📦';margin-right:11px;font-size:17px}
-#plMobileViewport #pmPanel .navitem:nth-child(5)>button::before{content:'🏠';margin-right:11px;font-size:17px}
-#plMobileViewport #pmPanel .navitem:nth-child(6)>button::before{content:'📁';margin-right:11px;font-size:17px}
+#plMobileViewport #pmPanel .navitem:nth-child(1)>button::before{content:'🗂️';margin-right:12px;font-size:22px}
+#plMobileViewport #pmPanel .navitem:nth-child(2)>button::before{content:'🔧';margin-right:12px;font-size:22px}
+#plMobileViewport #pmPanel .navitem:nth-child(3)>button::before{content:'📝';margin-right:12px;font-size:22px}
+#plMobileViewport #pmPanel .navitem:nth-child(4)>button::before{content:'📦';margin-right:12px;font-size:22px}
+#plMobileViewport #pmPanel .navitem:nth-child(5)>button::before{content:'🏠';margin-right:12px;font-size:22px}
+#plMobileViewport #pmPanel .navitem:nth-child(6)>button::before{content:'📁';margin-right:12px;font-size:22px}
 #plMobileViewport #pmPanel .menu-panel{
   position:static!important;
   display:none!important;
@@ -3822,11 +3825,12 @@ html#plMobileViewport[data-theme="dark"]{
 #plMobileViewport #pmPanel .menu-panel button{
   display:block!important;
   width:100%!important;
-  min-height:42px!important;
-  padding:8px 4px!important;
+  min-height:54px!important;
+  padding:12px 8px 12px 4px!important;
   border:0!important;
   border-bottom:1px solid var(--plm-line)!important;
   background:transparent!important;
+  white-space:nowrap!important;
   color:var(--plm-ink)!important;
   text-align:left!important;
 }
