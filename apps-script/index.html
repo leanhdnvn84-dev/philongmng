@@ -10585,8 +10585,8 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
  const letters=b=>String(b?.textContent||'').replace(/[^\p{L}]/gu,'').toLowerCase();
  const toolBtn=(root,word)=>[...root.querySelectorAll(TOOLS+' button')].find(b=>!b.disabled&&letters(b)===word);
  function openView(row){
-  const root=row.closest('section.section')||active();if(!root)return;
-  const own=row.querySelector('.plm-actions :is(.v25-action.view,[data-pld-view],.view)');
+  const root=(row.isConnected&&row.closest('section.section'))||active();if(!root)return;
+  const own=row.isConnected&&row.querySelector('.plm-actions :is(.v25-action.view,[data-pld-view],.view)');
   const view=own||toolBtn(root,'xem');if(!view)return;
   view.click();
   setTimeout(()=>{
@@ -10607,6 +10607,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   for(const sh of document.styleSheets){try{walk(sh.cssRules)}catch(e){}}
   if(!on)fontOrig.clear();
  }
+ function quickCards(){if(!isMobile())return;const root=active();if(root)root.querySelectorAll('table').forEach(t=>{if(tableCanCard(t))card(t)})}
  function schedule(){if(!isMobile())return;clearTimeout(timer);timer=setTimeout(sync,120)}
  /* Gỡ mọi dấu vết mobile khi chuyển sang giao diện máy tính. */
  function clearMobile(){
@@ -10637,17 +10638,19 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   $('pmSearch')?.addEventListener('input',e=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>search(e.target.value),180)});
   $('pmTop')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
   $('pmMenuBubble')?.addEventListener('click',menu);
-  /* Chạm thẻ = chọn dòng (nút Xóa trên thanh công cụ dùng dòng này). */
+  /* Chạm thẻ = chọn dòng + mở Xem. Bắt ở pha capture: trang (vd. Công việc) vẽ lại
+     bảng ngay trong sự kiện click nên nếu chờ nổi bọt thì thẻ đã bị thay mất. */
   document.addEventListener('click',e=>{
    const row=e.target.closest('table.plm-cards tbody tr');
    if(!row||e.target.closest('button,a,input,select,textarea,[contenteditable="true"]'))return;
    row.parentElement?.querySelectorAll('tr.plm-selected').forEach(o=>{if(o!==row)o.classList.remove('plm-selected')});
    setCls(row,'plm-selected',true);
    setTimeout(()=>openView(row),0); // chạm thẻ = mở Xem
-  });
+  },true);
   /* Chỉ phản ứng khi thêm/bớt phần tử hoặc khi đổi trang (class của .section).
      Việc gắn class cho ô (của chính sync) không kích hoạt lại → không lặp. */
-  observer=new MutationObserver(recs=>{if(recs.some(r=>r.type==='childList'||r.target.matches?.('main.container>.section')))schedule()});
+  /* Bảng vừa vẽ lại → biến thành thẻ NGAY (trước khi trình duyệt vẽ) để không nháy dạng bảng thô. */
+  observer=new MutationObserver(recs=>{if(recs.some(r=>r.type==='childList'||r.target.matches?.('main.container>.section'))){quickCards();schedule()}});
   const main=document.querySelector('main.container');
   if(main)observer.observe(main,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
   if('ResizeObserver' in window)barsRO=new ResizeObserver(()=>{if(isMobile())bars()});
