@@ -29,6 +29,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style id="pl-v841613-unified-css">
+/* Form bảo trì (Nhật ký, Kế hoạch, Chu kỳ bảo trì): bỏ dòng ghi chú "ID được hệ thống tự sinh…". */
+#v17FormModal[data-form-page^="maintenance"] #v17FormHelp{display:none!important}
+/* Form bảo trì: ô Nội dung thực hiện (~3 dòng) và Ghi chú (~2 dòng) gọn lại; vẫn kéo giãn được. */
+#v17FormModal[data-form-page^="maintenance"] .v17-field textarea#v17_NOI_DUNG_THUC_HIEN{min-height:64px!important;height:64px!important}
+#v17FormModal[data-form-page^="maintenance"] .v17-field textarea#v17_GHI_CHU{min-height:44px!important;height:44px!important}
 
 /* Table palette: single owner for light-mode table surfaces and interactions. */
 html:not([data-theme="dark"]){--tbl-bg:#FFFFFF;--tbl-alt:#F8FAFC;--tbl-head:#EEF2F6;--tbl-title:#344054;--tbl-text:#172033;--tbl-line:#D8E1EB;--tbl-foot:#F1F5F9;--tbl-pending:#FFF3CD;--tbl-progress:#E8EEFF;--tbl-done:#DCFCE7;--tbl-error:#FEE2E2;--tbl-hover:#EFF6FF;--tbl-ring:#60A5FA;--tbl-selected:#CFE3FF;--tbl-accent:#2563EB}
@@ -9507,14 +9512,15 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     if(!items.length)return;
     const byKey={};items.forEach(item=>{const key=keyFromControl(item)||keyFromLabel(item,'maintenanceLog');if(key)byKey[key]=item});
     const top=document.createElement('section');top.className=PANE+' is-mlog-top';top.dataset.pane='top';
-    const topTitle=document.createElement('div');topTitle.className=TITLE;topTitle.textContent='Thông tin giao việc';top.appendChild(topTitle);
     ['ID_KHU_VUC','ID_HANG_MUC','NGAY_THUC_HIEN','ID_NGUOI_THUC_HIEN'].forEach(k=>{if(byKey[k])top.appendChild(byKey[k])});
     const content=document.createElement('section');content.className=PANE+' is-mlog-content';content.dataset.pane='content';
     const contentTitle=document.createElement('div');contentTitle.className=TITLE;contentTitle.textContent='Nội dung thực hiện';content.appendChild(contentTitle);
     ['DON_VI_THUC_HIEN','KET_QUA','NOI_DUNG_THUC_HIEN','GHI_CHU'].forEach(k=>{if(byKey[k])content.appendChild(byKey[k])});
     Object.keys(byKey).forEach(k=>{if(!top.contains(byKey[k])&&!content.contains(byKey[k]))content.appendChild(byKey[k])});
     grid.classList.add('pl-v841612-two-pane-grid');
-    grid.append(top,content);
+    // Hàng trên không còn tiêu đề; chỉ thêm khi thực sự có ô dữ liệu.
+    if(top.children.length)grid.append(top);
+    grid.append(content);
   }
   function applyForm(page){const root=document.getElementById('v17FormFields');if(!root)return;if(root.classList.contains('v84149-material-form')){const grid=root.querySelector(':scope > .v84149-master-grid');if(grid)grid.classList.add('pl-v841612-material-master');return}const resolvedPage=pageName(page||document.getElementById('v17FormModal')?.dataset?.formPage||'');if(resolvedPage==='maintenanceLog')return wrapMaintenanceLogGrid(root);wrapGrid(root,resolvedPage,'.v17-field',false)}
   function applyV25(page){wrapGrid(document.getElementById('v25ViewDetails'),pageName(page),'.v25-detail-row',true)}
