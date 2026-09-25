@@ -144,6 +144,25 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     .form-print-legal .form-print-long{min-height:0;background:#fff8f8;border-color:#d7c1c3}.form-print-legal span{color:#68798a;font-size:10px}
     @media(max-width:700px){.form-editor-page{min-height:0;padding:30px 20px}.form-editor-company{width:240px;max-width:100%;font-size:11px}.form-editor-meta,.form-editor-grid{grid-template-columns:1fr}.form-editor-meta label.full,.form-editor-field.full{grid-column:auto}.form-editor-actions{justify-content:stretch}.form-editor-actions .btn{flex:1}}
     @media print{.form-editor-page{width:210mm;min-height:297mm;margin:0;padding:15mm 16mm;box-shadow:none}.forms-processing>h2,.forms-processing>p{display:none}}
+    /* Form Modal Styles */
+    .form-modal-container{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:center;justify-content:center}
+    .form-modal-container.open{display:flex}
+    .form-modal-content{background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.3);width:90%;max-width:1200px;height:90vh;display:flex;flex-direction:column;overflow:hidden}
+    .form-modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e0e0e0;background:#f5f5f5;flex-shrink:0}
+    .form-modal-header h2{margin:0;font-size:18px;color:#333;flex:1}
+    .form-modal-close{background:0;border:0;font-size:24px;cursor:pointer;color:#666;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+    .form-modal-close:hover{color:#000;background:#e0e0e0;border-radius:4px}
+    .form-modal-body{flex:1;overflow-y:auto;padding:24px;background:#fff}
+    .form-modal-frame{width:100%;height:100%;border:0}
+    .form-modal-actions{display:flex;gap:8px;padding:16px 24px;border-top:1px solid #e0e0e0;background:#f5f5f5;flex-shrink:0;justify-content:flex-end}
+    .form-modal-actions button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;font-size:14px;transition:all 0.2s}
+    .form-modal-actions button:hover{background:#f0f0f0;border-color:#999}
+    .form-modal-actions button.primary{background:#1976d2;color:#fff;border-color:#1976d2}
+    .form-modal-actions button.primary:hover{background:#1565c0;border-color:#1565c0}
+    body[data-theme="light"] .form-modal-container{background:rgba(0,0,0,0.6)}
+    body[data-theme="light"] .form-modal-content{background:#fff;color:#000}
+    body[data-theme="light"] .form-modal-header{background:#f9f9f9;border-bottom-color:#ddd}
+    body[data-theme="light"] .form-modal-header h2{color:#222}
   </style>
 </head>
 <body>
@@ -227,7 +246,18 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
       </article>
     </section>
   </main>
-  <div id="modalBg" class="modal-bg"><div class="modal" id="modal"></div></div><div class="toast" id="toast"></div>
+  <div id="modalBg" class="modal-bg"><div class="modal" id="modal"></div></div>
+  <div class="form-modal-container" id="formModalContainer">
+    <div class="form-modal-content">
+      <header class="form-modal-header">
+        <h2 id="formModalTitle">Biểu mẫu</h2>
+        <button class="form-modal-close" id="formModalClose" type="button" aria-label="Đóng">✕</button>
+      </header>
+      <div class="form-modal-body" id="formModalBody"></div>
+      <div class="form-modal-actions" id="formModalActions"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
   <script>
   (function () {
     'use strict';
@@ -526,21 +556,23 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     function formEmployeeOptions(selected) { var wanted=normalize(selected&&typeof selected==='object'?selected.value:selected);return state.employees.map(function(person){var key=personKey(person);return '<option value="'+esc(key)+'" '+(normalize(key)===wanted?'selected':'')+'>'+esc(person.HO_VA_TEN||'Chưa có tên')+'</option>';}).join(''); }
     function openFormFullscreen(template,command) {
       if(!template)return;
-      var modal=document.getElementById('formModal');if(!modal){modal=document.createElement('div');modal.id='formModal';modal.className='form-modal-container';document.body.appendChild(modal);modal.addEventListener('click',function(e){if(e.target===modal)closeFormModal();});}
+      var container=document.getElementById('formModalContainer'),header=container.querySelector('.form-modal-header h2'),body=container.querySelector('.form-modal-body'),actions=container.querySelector('.form-modal-actions');
       var innerCmd=command||'view';
-      if(innerCmd==='edit'){modal.innerHTML='<div class="form-modal-content"><div class="form-modal-header"><button class="form-modal-close" data-close-form>←</button><h2>Sửa biểu mẫu</h2><div class="form-modal-actions"><button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-save>✓ Lưu & In</button></div></div><div class="form-modal-body">'+renderFormEditor(template)+'</div></div>';}
-      else {var data=previewFormPrintData(template);modal.innerHTML='<div class="form-modal-content"><div class="form-modal-header"><button class="form-modal-close" data-close-form>←</button><h2>'+esc(template.name)+'</h2><div class="form-modal-actions"><button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-edit>✎ Sửa</button></div></div><div class="form-modal-body"><iframe id="formModalFrame" class="form-modal-frame" title="Xem biểu mẫu"></iframe></div></div>';mountFormModalPreview(data);}
-      modal.classList.add('open');
+      header.textContent=innerCmd==='edit'?'Sửa biểu mẫu':template.name;
+      if(innerCmd==='edit'){body.innerHTML=renderFormEditor(template);actions.innerHTML='<button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-save>✓ Lưu & In</button>';}
+      else {var data=previewFormPrintData(template);body.innerHTML='<iframe id="formModalFrame" class="form-modal-frame" title="Xem biểu mẫu"></iframe>';actions.innerHTML='<button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-edit>✎ Sửa</button>';mountFormModalPreview(data);}
+      container.classList.add('open');
       addFormModalEvents(template);
     }
-    function closeFormModal() { var modal=document.getElementById('formModal');if(modal)modal.classList.remove('open'); }
+    function closeFormModal() { var container=document.getElementById('formModalContainer');if(container)container.classList.remove('open'); }
     function mountFormModalPreview(data) { var frame=document.getElementById('formModalFrame');if(!frame)return;frame.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){paginateFormPreviewFrame(frame);});});};frame.srcdoc=formPreviewDocument(data); }
     function addFormModalEvents(template) {
-      var modal=document.getElementById('formModal');if(!modal)return;
-      modal.querySelector('[data-close-form]').onclick=closeFormModal;
-      var printBtns=modal.querySelectorAll('[data-form-modal-print]');printBtns.forEach(function(btn){btn.onclick=function(){var form=modal.querySelector('#formsRequestForm'),data;if(form)data=formPrintDataFromForm(form);else data=previewFormPrintData(template);if(!data)return;btn.dataset.formModalPrint==='pdf'?printFormPdf(data):downloadFormWord(data);}});
-      var editBtn=modal.querySelector('[data-form-modal-edit]');if(editBtn)editBtn.onclick=function(){openFormFullscreen(template,'edit');};
-      var saveBtn=modal.querySelector('[data-form-modal-save]');if(saveBtn)saveBtn.onclick=function(){var form=modal.querySelector('#formsRequestForm'),data=formPrintDataFromForm(form);if(!data)return;state.lastFormPrintData=data;call('saveFormRequest',{_sessionToken:auth.token,templateId:data.templateId,title:data.title,date:data.dateValue,data:data.detailJson},function(){toast('Đã lưu biểu mẫu.');setTimeout(function(){printFormPdf(data);},400);},function(err){toast(err||'Lỗi khi lưu.',true);});};
+      var container=document.getElementById('formModalContainer');if(!container)return;
+      document.getElementById('formModalClose').onclick=closeFormModal;
+      var printBtns=container.querySelectorAll('[data-form-modal-print]');printBtns.forEach(function(btn){btn.onclick=function(){var form=container.querySelector('#formsRequestForm'),data;if(form)data=formPrintDataFromForm(form);else data=previewFormPrintData(template);if(!data)return;btn.dataset.formModalPrint==='pdf'?printFormPdf(data):downloadFormWord(data);}});
+      var editBtn=container.querySelector('[data-form-modal-edit]');if(editBtn)editBtn.onclick=function(){openFormFullscreen(template,'edit');};
+      var saveBtn=container.querySelector('[data-form-modal-save]');if(saveBtn)saveBtn.onclick=function(){var form=container.querySelector('#formsRequestForm'),data=formPrintDataFromForm(form);if(!data)return;state.lastFormPrintData=data;call('saveFormRequest',{_sessionToken:auth.token,templateId:data.templateId,title:data.title,date:data.dateValue,data:data.detailJson},function(){toast('Đã lưu biểu mẫu.');setTimeout(function(){printFormPdf(data);},400);},function(err){toast(err||'Lỗi khi lưu.',true);});};
+      container.addEventListener('click',function(e){if(e.target===container)closeFormModal();});
     }
     function renderFormsProcessing() {
       var panel=$('#formsProcessing'),command=state.formsCommand||'preview',template=formTemplateByClientId(state.formsTemplateId);panel.hidden=false;
@@ -681,7 +713,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     $('#attendanceRows').addEventListener('click',function(event){var button=event.target.closest('[data-leave-status]');if(!button)return;var status=button.dataset.leaveStatus,id=button.dataset.leaveId;if(!id)return;button.disabled=true;call('updateLeaveRequestStatus',{ID_DON_NGHI:id,TRANG_THAI:status},function(){toast(status+' đơn nghỉ thành công.');load();},function(error){button.disabled=false;toast(error||'Không thể xử lý đơn nghỉ.',true);});});
     document.querySelectorAll('[data-forms-tab]').forEach(function(button){button.addEventListener('click',function(){setFormsTab(button.dataset.formsTab);});});
     $('#formsActionMenu').addEventListener('click',function(event){var button=event.target.closest('[data-forms-command]');if(!button)return;var command=button.dataset.formsCommand;if(command==='refresh-forms'){load();return;}if(command==='new-form'){var item=formTemplateByClientId(state.formsTemplateId)||formTemplateRecords().find(function(row){return state.formsTab==='all'||row.tab===state.formsTab;})||formTemplateRecords()[0];state.formsTemplateId=item&&item.id||'';state.formsCommand='new';state.lastFormPrintData=null;renderFormsProcessing();}});
-    $('#formTemplateGrid').addEventListener('click',function(event){var button=event.target.closest('[data-form-select]');if(!button)return;state.formsTemplateId=button.dataset.formSelect||'';state.formsCommand='preview';state.lastFormPrintData=null;renderForms();});
+    $('#formTemplateGrid').addEventListener('click',function(event){var button=event.target.closest('[data-form-select]');if(!button)return;var template=formTemplateByClientId(button.dataset.formSelect||'');if(!template)return;openFormFullscreen(template,'view');});
     document.querySelector('.forms-preview-actions').addEventListener('click',function(event){var button=event.target.closest('[data-form-view-action]');if(!button||button.disabled)return;var action=button.dataset.formViewAction,template=formTemplateByClientId(state.formsTemplateId);if(action==='zoom-out'){setFormsPreviewZoom(state.formsPreviewZoom-10);return;}if(action==='zoom-in'){setFormsPreviewZoom(state.formsPreviewZoom+10);return;}if(action==='zoom-reset'){fitFormsPreviewZoom();return;}if(!template)return;if(action==='blank'){state.formsCommand='blank';state.lastFormPrintData=null;renderFormsProcessing();return;}if(action==='new'){state.formsCommand='new';state.lastFormPrintData=null;renderFormsProcessing();return;}var data=currentFormsPrintData();if(!data)return;if(action==='print')printFormPdf(data);else if(action==='word')downloadFormWord(data);});
     $('#formsProcessing').addEventListener('click',function(event){var draftPrint=event.target.closest('[data-form-print]');if(draftPrint){var draftData=formPrintDataFromForm($('#formsRequestForm'));if(!draftData)return;if(draftPrint.dataset.formPrint==='pdf')printFormPdf(draftData);else downloadFormWord(draftData);return;}var close=event.target.closest('[data-form-close]');if(close){state.formsCommand='preview';state.lastFormPrintData=null;renderFormsProcessing();return;}var create=event.target.closest('[data-form-new]');if(create){state.formsCommand='new';state.formsTemplateId=create.dataset.formNew||state.formsTemplateId;state.lastFormPrintData=null;renderFormsProcessing();}});
     $('#formsProcessing').addEventListener('submit',function(event){if(event.target.id!=='formsRequestForm')return;event.preventDefault();var form=event.target,printData=formPrintDataFromForm(form);if(!printData)return;var payload={ID_BIEU_MAU:printData.templateId,MA_NHAN_VIEN:printData.employeeCode,NGAY_LAP:printData.dateValue,TIEU_DE:printData.title,NOI_DUNG:printData.content,GHI_CHU:printData.note,DU_LIEU_MAU_JSON:printData.detailJson},save=form.querySelector('[type="submit"]');save.disabled=true;call('saveFormRequest',payload,function(result){printData.id=result&&result.id||'';state.lastFormPrintData=printData;state.formsCommand='saved';state.formsTemplateId=payload.ID_BIEU_MAU;toast('Đã lưu phiếu biểu mẫu ở trạng thái Nháp.');load();},function(error){save.disabled=false;toast(error||'Không thể lưu phiếu biểu mẫu.',true);});});
