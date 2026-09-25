@@ -3780,7 +3780,11 @@ html#plMobileViewport[data-theme="dark"]{
 }
 #plMobileViewport .pm-panel-user[hidden]{display:none!important}
 #plMobileViewport .pm-panel-user-avatar{flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:var(--plm-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
-#plMobileViewport .pm-panel-user-copy{display:flex;flex-direction:column;gap:1px;min-width:0}
+#plMobileViewport .pm-panel-user-copy{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 auto}
+#plMobileViewport .pm-panel .pm-theme{flex:0 0 46px;width:46px;height:46px;min-height:46px;margin-left:12px;border-radius:50%;border:1px solid #ffe29a;background:#f6c453;color:#3a2b00;font-size:24px!important;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#plMobileViewport .pm-panel .pm-theme::before{content:"☀"}
+html#plMobileViewport[data-theme="dark"] .pm-panel .pm-theme{background:#1b2330;border-color:#3d4d63;color:#f6c453}
+html#plMobileViewport[data-theme="dark"] .pm-panel .pm-theme::before{content:"☾"}
 #plMobileViewport .pm-panel-user-copy b{font-size:21px;color:var(--plm-ink)}
 #plMobileViewport .pm-panel-user-copy small{font-size:17px;color:var(--plm-muted)}
 #plMobileViewport .pm-panel button{min-height:56px;font-size:20px!important}
@@ -4256,7 +4260,7 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
 
 <header class="pm-header"><div class="pm-brand"><b>PHI LONG</b><span>TECHNOLOGY</span></div><input class="pm-search" id="pmSearch" type="search" placeholder="Tìm trang này…" aria-label="Tìm trong trang hiện tại"></header>
 <nav class="pm-nav" id="pmNav" aria-label="Điều hướng điện thoại"><button type="button" data-route="menu"><span>☰</span>Menu</button><button type="button" data-route="work"><span>✓</span>Công việc</button><button type="button" data-route="maintenanceLog"><span>⚙</span>Bảo trì</button><button type="button" data-route="equipment"><span>▣</span>Thiết bị</button><button type="button" data-route="account"><span>♙</span>Tài khoản</button></nav>
-<dialog class="pm-panel" id="pmPanel"><header><h2 id="pmPanelTitle"></h2><button type="button" class="pm-close" id="pmClose" aria-label="Đóng">×</button></header><div class="pm-panel-user" id="pmPanelUser" hidden><span class="pm-panel-user-avatar" aria-hidden="true">A</span><span class="pm-panel-user-copy"><b id="pmPanelUserName"></b><small id="pmPanelUserRole"></small></span></div><div id="pmPanelContent"></div></dialog><button type="button" class="pm-bubble" id="pmMenuBubble" aria-label="Mở menu điều hướng">☰</button><button type="button" class="pm-top" id="pmTop" aria-label="Lên đầu trang">↑</button>
+<dialog class="pm-panel" id="pmPanel"><header><h2 id="pmPanelTitle"></h2><button type="button" class="pm-close" id="pmClose" aria-label="Đóng">×</button></header><div class="pm-panel-user" id="pmPanelUser" hidden><span class="pm-panel-user-avatar" aria-hidden="true">A</span><span class="pm-panel-user-copy"><b id="pmPanelUserName"></b><small id="pmPanelUserRole"></small></span><button type="button" class="pm-theme" id="pmThemeToggle" aria-label="Đổi giao diện sáng / tối" onclick="window.toggleThemeV841534&&window.toggleThemeV841534()"></button></div><div id="pmPanelContent"></div></dialog><button type="button" class="pm-bubble" id="pmMenuBubble" aria-label="Mở menu điều hướng">☰</button><button type="button" class="pm-top" id="pmTop" aria-label="Lên đầu trang">↑</button>
 
 <header class="topbar menu-3d-v841436">
   <div class="brand" aria-label="PHI LONG TECHNOLOGY - Hệ thống quản lý"><div class="brand-text"><div class="brand-main">PHI LONG</div><div class="brand-sub">TECHNOLOGY</div></div></div>
