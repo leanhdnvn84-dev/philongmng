@@ -3810,14 +3810,14 @@ html[data-theme="dark"] .pl-data-footer{border-color:#39485a!important;backgroun
 #materialWarehouse .pvt-filter-stat b{display:block;margin-top:3px;color:#172033;font-size:15px;line-height:1.1}
 #materialWarehouse .pvt-filter-stat.warn b{color:#b86100}
 #materialWarehouse .pvt-filter-stat.danger b{color:#c5222f}
-#materialWarehouse .ple-grid>.ple-main{
+html:not(#plMobileViewport) #materialWarehouse .ple-grid>.ple-main{
   display:flex!important;grid-column:2!important;flex-direction:column!important;width:100%!important;height:100%!important;
 }
-#materialWarehouse .material-stock-card{
+html:not(#plMobileViewport) #materialWarehouse .material-stock-card{
   box-sizing:border-box!important;display:flex!important;flex:1 1 auto!important;flex-direction:column!important;
   width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important;
 }
-#materialWarehouse .material-stock-card>#materialTable{
+html:not(#plMobileViewport) #materialWarehouse .material-stock-card>#materialTable{
   box-sizing:border-box!important;flex:1 1 0!important;width:100%!important;height:auto!important;
   min-width:0!important;min-height:0!important;overflow:auto!important;overscroll-behavior:contain!important;
   -webkit-overflow-scrolling:touch!important;
@@ -11933,5 +11933,8 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active table.pl
 #plMobileViewport main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side).plm-filter-closed{position:sticky!important;top:calc(var(--plm-header-h) + var(--plm-subbar-h) + var(--plm-tools-h))!important;z-index:8300!important;padding-bottom:6px!important;box-shadow:0 6px 10px -8px rgba(15,23,42,.35)!important}
 #plMobileViewport main.container .section.active .plm-filter-closed>.plm-filterbar{position:static!important}
 html#plMobileViewport[data-theme="dark"] main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){background:#0d1117!important}
+
+/* Kho vật tư: các ô số (Tồn / Nhập / Xuất) kèm tên trường để khỏi nhầm */
+#plMobileViewport main.container #materialWarehouse.section.active table.plm-cards>tbody>tr>td.plm-meta::before{content:attr(data-plm-ic) " " attr(data-plm-label) ": "!important;display:inline!important}
 </style>
 </html>
