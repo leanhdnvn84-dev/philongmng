@@ -47,4 +47,5 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 - `gas-mock.js`: chạy Code.gs trong Node với Google Sheet giả (dữ liệu mẫu tất định).
 - `run.js`: mở index.html trong Chromium (desktop + mobile), đi qua mọi trang, bấm Xem/Sửa/Lưu/Thêm/Xóa/Tìm, mở khóa Hệ thống, chụp DOM đã chuẩn hóa.
 - So sánh: `node tools/harness/run.js <bản_cũ.html> outA && node tools/harness/run.js index.html outB && node tools/harness/compare.js outA outB`.
+- Khi so hai bản HTML khác nhau, đặt `SEED_HTML=<một file cố định>` để dữ liệu giả giống hệt nhau (dữ liệu giả sinh cột từ chữ trong HTML).
 - Cần `npm --prefix tools install`; Chromium: đặt `CHROMIUM=/đường/dẫn/chrome` nếu Playwright không tự tìm thấy.

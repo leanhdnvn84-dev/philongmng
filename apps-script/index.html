@@ -31,6 +31,21 @@
 <style id="pl-v841613-unified-css">
 /* Form bảo trì (Nhật ký, Kế hoạch, Chu kỳ bảo trì): bỏ dòng ghi chú "ID được hệ thống tự sinh…". */
 #v17FormModal[data-form-page^="maintenance"] #v17FormHelp{display:none!important}
+/* Xem Kế hoạch bảo trì: 6 thẻ KPI + lưới chi tiết 6 cột, vừa một màn hình. */
+.v25-view-kpis.pl-kpis-6{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+#v25ViewModal #v25ViewDetails.pl-plan-view6{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px!important}
+#v25ViewModal #v25ViewDetails.pl-plan-view6 .v25-detail-row{min-height:58px!important;margin:0!important}
+#v25ViewModal #v25ViewDetails.pl-plan-view6 .v25-detail-value{overflow-wrap:anywhere}
+/* Sửa Kế hoạch bảo trì: 4 ô trên một hàng, Ghi chú hết chiều ngang. */
+#v17FormModal #v17FormFields.pl-plan-edit-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
+#v17FormModal #v17FormFields.pl-plan-edit-grid>.v17-field{grid-column:auto!important;width:auto!important;margin:0!important}
+#v17FormModal #v17FormFields.pl-plan-edit-grid>.v17-field:has(textarea){grid-column:1/-1!important}
+/* Đề xuất mua vật tư: gọn ô Mục đích / Ghi chú để cả phiếu vừa một màn hình. */
+#v17FormModal textarea#v84149_reason,#v17FormModal textarea#v84149_note{min-height:44px!important;height:44px!important}
+/* Điện thoại: lưới Kế hoạch về 2 cột. */
+#plMobileViewport #v25ViewModal .v25-view-kpis.pl-kpis-6,#plMobileViewport #v25ViewModal #v25ViewDetails.pl-plan-view6,#plMobileViewport #v17FormModal #v17FormFields.pl-plan-edit-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#plMobileViewport #v25ViewModal #v25ViewDetails.pl-plan-view6>.v25-detail-row{grid-column:span 1!important}
+#plMobileViewport #v25ViewModal #v25ViewDetails.pl-plan-view6>.v25-detail-row:last-child{grid-column:1/-1!important}
 /* Form bảo trì: ô Nội dung thực hiện (~3 dòng) và Ghi chú (~2 dòng) gọn lại; vẫn kéo giãn được. */
 #v17FormModal[data-form-page^="maintenance"] .v17-field textarea#v17_NOI_DUNG_THUC_HIEN{min-height:64px!important;height:64px!important}
 #v17FormModal[data-form-page^="maintenance"] .v17-field textarea#v17_GHI_CHU{min-height:44px!important;height:44px!important}
@@ -5345,7 +5360,7 @@ function v17OpenForm(page,record){
 function v17OpenFormBase_(page,record){const cfg=V17_CONFIG[page];if(!cfg||cfg.readonly){v17Toast('Mục này hiện là dữ liệu hệ thống / tự động, không nhập trực tiếp.','err');return}record=record||null;V17.form={page,cfg,record};v841438MarkForm3d_(page);
  const fields=V17_FIELDS[cfg.fields]||[];document.getElementById('v17FormModule').textContent=(cfg.title||cfg.sheet||'NHẬP DỮ LIỆU').toUpperCase();document.getElementById('v17FormTitle').textContent=record?`Chỉnh sửa ${record.ID||record.ID_HANG_MUC||''}`:(cfg.add||cfg.title||'Thêm dữ liệu');
  document.getElementById('v17FormHelp').textContent=cfg.mode==='maintenanceLog'?'Nhật ký thực tế là mốc tính kỳ tiếp theo.':(cfg.mode==='recovery'?'Lưu thao tác sẽ đồng thời cập nhật trạng thái thiết bị.':'ID được hệ thống tự sinh. Dữ liệu lưu trực tiếp vào Google Sheets.');
- const formFields=document.getElementById('v17FormFields');formFields.classList.toggle('daily-form-grid',page==='daily');formFields.innerHTML=fields.map(f=>v17FieldHtml(f,record)).join('');if(page==='proposalDispose')v841494SyncDisposalDevice_(record?.ID_THIET_BI||'');
+ const formFields=document.getElementById('v17FormFields');formFields.classList.toggle('daily-form-grid',page==='daily');formFields.classList.remove('pl-plan-edit-grid');formFields.innerHTML=fields.map(f=>v17FieldHtml(f,record)).join('');if(page==='proposalDispose')v841494SyncDisposalDevice_(record?.ID_THIET_BI||'');
  const todayKeys=['NGAY_GIAO','NGAY','NGAY_DE_XUAT','NGAY_THUC_HIEN','NGAY_THU_HOI','NGAY_NHAP_KHO'];if(!record)todayKeys.forEach(k=>{const e=document.getElementById('v17_'+k);if(e&&!e.value)e.value=v17Today()});
  if(!record&&cfg.defaults)for(const [k,v] of Object.entries(cfg.defaults)){let e=document.getElementById('v17_'+k);if(e)e.value=v}
  if(!record&&page==='equipment'){const e=document.getElementById('v17_TRANG_THAI');if(e)e.value='TRONG_KHO'}
@@ -5365,7 +5380,7 @@ function v17CloseForm(){
   plStep_('formStateV25','afterCloseForm');
   plStep_('formStateV26','afterCloseForm');
 }
-function v17CloseFormBase_(){v17CloseMaterialSuggestions();const modal=document.getElementById('v17FormModal');modal?.classList.remove('active');if(modal)delete modal.dataset.formPage;document.body.style.overflow='';V17.form=null}
+function v17CloseFormBase_(){v17CloseMaterialSuggestions();document.getElementById('v17FormFields')?.classList.remove('pl-plan-edit-grid');const modal=document.getElementById('v17FormModal');modal?.classList.remove('active');if(modal)delete modal.dataset.formPage;document.body.style.overflow='';V17.form=null}
 function v8414SyncProposalDepartment_(employeeId){const e=v17AllEmployees().find(x=>String(x.ID||'')===String(employeeId||'')),box=document.getElementById('v17_PHONG_BAN');if(box)box.value=e?(e.PHONG_BAN||e.DON_VI||''):''}
 function v841494SyncDisposalDevice_(deviceId){const device=v17Devices().find(x=>String(x.ID||'')===String(deviceId||'')),name=document.getElementById('v17_TEN_THIET_BI'),stock=document.getElementById('v17_SO_LUONG_TON');if(name)name.value=device?(device.TEN_THIET_BI||device.LOAI_THIET_BI||deviceId||''):'';if(stock)stock.value=device?1:0}
 function v17ToggleMulti(key,event){event?.stopPropagation();const box=document.getElementById('v17_multi_'+key);if(!box)return;document.querySelectorAll('.v17-multi.open').forEach(x=>{if(x!==box)x.classList.remove('open')});box.classList.toggle('open')}
@@ -5388,7 +5403,7 @@ function v17OpenCustomExisting_(state){
   plStep_('equipmentForm','afterOpenCustom',state);
   plStep_('twoPaneV841612','afterOpenCustom',state);
 }
-function v17OpenCustomExistingBase_(state){const {cfg,record}=state;V17.form=state;v841438MarkForm3d_(state.page);document.getElementById('v17FormModule').textContent=cfg.sheet||cfg.title;document.getElementById('v17FormTitle').textContent='Chỉnh sửa '+(record?.ID||'');document.getElementById('v17FormHelp').textContent='Dữ liệu lưu trực tiếp vào Google Sheets.';const formFields=document.getElementById('v17FormFields');formFields.classList.toggle('daily-form-grid',state.page==='daily');formFields.innerHTML=(V17_FIELDS[cfg.fields]||[]).map(f=>v17FieldHtml(f,record)).join('');document.getElementById('v17FormModal').classList.add('active')}
+function v17OpenCustomExistingBase_(state){const {cfg,record}=state;V17.form=state;v841438MarkForm3d_(state.page);document.getElementById('v17FormModule').textContent=cfg.sheet||cfg.title;document.getElementById('v17FormTitle').textContent='Chỉnh sửa '+(record?.ID||'');document.getElementById('v17FormHelp').textContent='Dữ liệu lưu trực tiếp vào Google Sheets.';const formFields=document.getElementById('v17FormFields');formFields.classList.toggle('daily-form-grid',state.page==='daily');formFields.classList.remove('pl-plan-edit-grid');formFields.innerHTML=(V17_FIELDS[cfg.fields]||[]).map(f=>v17FieldHtml(f,record)).join('');document.getElementById('v17FormModal').classList.add('active')}
 /* v17SyncAddButton — ĐỊNH NGHĨA DUY NHẤT; nhãn ngắn V42 áp sau cùng. */
 function v17SyncAddButton(){v17SyncAddButtonLabel_();plStep_('subbarV42','afterSyncAddButton')}
 function v17SyncAddButtonLabel_(){const btn=document.getElementById('addBtn'),cfg=V17_CONFIG[APP.currentPage||'work'];if(!btn)return;if(!cfg||cfg.readonly){btn.style.display='none'}else{btn.style.display='';btn.textContent=cfg.add||'+ Thêm mới'}}
@@ -5941,7 +5956,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     const id=txt(idOf(r));
     const mk=(label,value,cls='')=>[label,txt(value),cls];
     if(containerId==='maintenanceLogTable')return [mk('Mã nhật ký',id),mk('Ngày thực hiện',dateText(r.NGAY_THUC_HIEN)),mk('Người thực hiện/theo dõi',r.NGUOI_THUC_HIEN||r.ID_NGUOI_THUC_HIEN),mk('Đơn vị bảo trì',r.DON_VI_THUC_HIEN),mk('Kết quả',r.KET_QUA,tone(r.KET_QUA))];
-    if(containerId==='maintenancePlanTable')return [mk('Mã lịch',r.ID_LICH||id),mk('Ngày kế hoạch',dateText(r.NGAY_KE_HOACH)),mk('Cảnh báo',r.CANH_BAO,tone(r.CANH_BAO)),mk('Trạng thái',r.TRANG_THAI,tone(r.TRANG_THAI))];
+    if(containerId==='maintenancePlanTable'){const left=first(r,['SO_NGAY_CON_LAI']);return [mk('Mã lịch',r.ID_LICH||id),mk('Ngày kế hoạch',dateText(r.NGAY_KE_HOACH||r.NGAY_KE_TIEP)),mk('Số ngày còn lại',left===''?'':left+' ngày',Number(left)<0?'danger':''),mk('Chu kỳ',first(r,['CHU_KY_NGAY','CHU_KY'])?first(r,['CHU_KY_NGAY','CHU_KY'])+' ngày':''),mk('Cảnh báo',r.CANH_BAO,tone(r.CANH_BAO)),mk('Trạng thái',r.TRANG_THAI,tone(r.TRANG_THAI))]}
     if(containerId==='daily')return [mk('Mã',id),mk('Ngày',dateText(r.NGAY)),mk('Kết quả',r.KET_QUA,tone(r.KET_QUA)),mk('Người thực hiện',r.NGUOI_THUC_HIEN||r.ID_NGUOI_THUC_HIEN)];
     if(containerId.startsWith('proposal'))return [mk('Mã đề xuất',id),mk('Ngày đề xuất',dateText(r.NGAY_DE_XUAT||r.NGAY)),mk('Trạng thái',r.TRANG_THAI,tone(r.TRANG_THAI)),mk('Loại',r.LOAI_DE_XUAT||r.LOAI||r.ID_DE_XUAT)];
     if(containerId==='equipmentTable'||containerId==='warehouseDeviceTable')return [mk('Mã thiết bị',id),mk('Tình trạng',r.TINH_TRANG,tone(r.TINH_TRANG)),mk('Người quản lý',r.NGUOI_QUAN_LY||r.ID_NGUOI_QUAN_LY),mk('Nơi sử dụng',r.NOI_SU_DUNG_HIEN_THI||r.DON_VI_SU_DUNG_HIEN_THI||r.KHU_VUC_HIEN_THI)];
@@ -5950,6 +5965,23 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     const st=first(r,['TRANG_THAI','TINH_TRANG','KET_QUA','CANH_BAO']);
     const who=first(r,['HO_TEN','TEN_THIET_BI','TEN_KHACH_THUE','TEN_HOP_DONG','NGUOI_PHU_TRACH','NGUOI_THUC_HIEN','ID_NGUOI_PHU_TRACH']);
     return [mk('Mã',id),mk('Ngày',d?dateText(d):'—'),mk('Trạng thái / Kết quả',st,tone(st)),mk('Thông tin chính',who)];
+  }
+  /* Xem Kế hoạch bảo trì: 6 ô/hàng, mỗi thông tin chỉ hiện một lần (Mã lịch, ngày kế hoạch,
+     cảnh báo, trạng thái, còn lại, chu kỳ đã nằm ở dải KPI phía trên). */
+  function planDetailHtml(r){
+    const cell=(label,value,span)=>`<div class="v25-detail-row" style="grid-column:span ${span||1}"><div class="v25-detail-label">${esc(label)}</div><div class="v25-detail-value">${esc(txt(value))}</div></div>`;
+    return [
+      cell('Hạng mục',first(r,['HANG_MUC_SNAPSHOT','HANG_MUC','TEN_HANG_MUC']),2),
+      cell('Tầng · Khu vực',first(r,['KHU_VUC_SNAPSHOT','KHU_VUC']),2),
+      cell('Công ty',first(r,['TEN_CONG_TY_SNAPSHOT','TEN_CONG_TY','CHI_TIET_KHU_VUC']),2),
+      cell('Ngày gốc gần nhất',dateText(r.NGAY_GOC_GAN_NHAT)),
+      cell('Ngày cảnh báo',dateText(r.NGAY_CANH_BAO)),
+      cell('Cảnh báo trước',first(r,['CANH_BAO_TRUOC_NGAY'])!==''?first(r,['CANH_BAO_TRUOC_NGAY'])+' ngày':''),
+      cell('Người phụ trách',first(r,['NGUOI_PHU_TRACH_HIEN_THI','NGUOI_PHU_TRACH','ID_NGUOI_PHU_TRACH'])),
+      cell('Nhật ký gần nhất',first(r,['ID_NHAT_KY_GAN_NHAT','ID_NHAT_KY_GOC'])),
+      cell('Mã hạng mục · khu vực',[r.ID_HANG_MUC,r.ID_KHU_VUC].filter(Boolean).join(' · ')),
+      cell('Ghi chú',r.GHI_CHU,6)
+    ].join('');
   }
   function titleFor(containerId){
     const m={daily:'Công việc hằng ngày',maintenanceLogTable:'Nhật ký bảo trì',maintenancePlanTable:'Kế hoạch bảo trì'};
@@ -5986,7 +6018,9 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     const modal=document.getElementById('v25ViewModal'),title=document.getElementById('v25ViewTitle'),sub=document.getElementById('v25ViewSub'),khost=document.getElementById('v25ViewKpis'),details=document.getElementById('v25ViewDetails'),edit=document.getElementById('v25ViewEditBtn');
     title.textContent='Xem '+titleFor(containerId);sub.textContent='Chi tiết bản ghi '+txt(idOf(r));
     khost.innerHTML=kpisFor(containerId,r).map(x=>`<div class="v25-view-kpi ${x[2]||''}"><small>${esc(x[0])}</small><strong title="${esc(x[1])}">${esc(x[1])}</strong></div>`).join('');
-    details.innerHTML=detailKeys(containerId,r).map(k=>`<div class="v25-detail-row"><div class="v25-detail-label">${esc(fieldLabel(k))}</div><div class="v25-detail-value">${renderCellValue(k,r[k])}</div></div>`).join('');
+    const plan6=containerId==='maintenancePlanTable';
+    khost.classList.toggle('pl-kpis-6',plan6);details.classList.toggle('pl-plan-view6',plan6);
+    if(plan6)details.innerHTML=planDetailHtml(r);else details.innerHTML=detailKeys(containerId,r).map(k=>`<div class="v25-detail-row"><div class="v25-detail-label">${esc(fieldLabel(k))}</div><div class="v25-detail-value">${renderCellValue(k,r[k])}</div></div>`).join('');
     if(canEdit(containerId)){edit.style.display='';edit.onclick=()=>editRecord(containerId,id)}else{edit.style.display='none';edit.onclick=null}
     modal.classList.add('active');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
   }
@@ -6143,6 +6177,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   }
   function firstValue(r,keys){for(const k of keys){if(r&&r[k]!==undefined&&r[k]!==null&&String(r[k]).trim()!=='')return r[k]}return''}
   function specialView(containerId,id,r){
+    document.getElementById('v25ViewKpis')?.classList.remove('pl-kpis-6');document.getElementById('v25ViewDetails')?.classList.remove('pl-plan-view6');
     const modal=document.getElementById('v25ViewModal'),title=document.getElementById('v25ViewTitle'),sub=document.getElementById('v25ViewSub'),khost=document.getElementById('v25ViewKpis'),details=document.getElementById('v25ViewDetails'),edit=document.getElementById('v25ViewEditBtn');
     if(!modal)return;
     title.textContent='Xem '+(TITLE_FOR[containerId]||'chi tiết');sub.textContent='Chi tiết bản ghi '+String(id||'');
@@ -6211,7 +6246,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     document.getElementById('v17FormTitle').textContent=containerId==='stockTxnTable'?'Sửa thông tin phiếu '+String(id||''):'Chỉnh sửa '+String(id||'');
     const safety={maintenancePlanTable:'Dữ liệu được ghi trực tiếp vào DM_LICH_BAO_TRI và tự tính lại ngày kế tiếp.',recoveryTable:'Không cho đổi mã thiết bị/trạng thái sau thu hồi để tránh lệch tài sản.',stockTxnTable:'Tồn kho sẽ được tính lại từ lịch sử nhập/xuất sau khi lưu.',permissionsTable:'Thay đổi quyền có hiệu lực sau khi tải lại nhóm Hệ thống.'};
     document.getElementById('v17FormHelp').textContent=containerId==='stockTxnTable'?(stockIsProposal(r)?'Phiếu tự động từ đề xuất: vật tư, loại giao dịch và số lượng đã khóa. Chỉ sửa thông tin phụ.':'Chỉ sửa ngày, người thực hiện, nội dung và ghi chú. Muốn đổi số lượng, dùng Điều chỉnh kho.'):(safety[containerId]||'Chỉnh sửa dữ liệu hiện có.');
-    const formFields=document.getElementById('v17FormFields');formFields.classList.toggle('daily-form-grid',containerId==='daily');formFields.innerHTML=fields.map(f=>v17FieldHtml(f,x)).join('');
+    const formFields=document.getElementById('v17FormFields');formFields.classList.toggle('daily-form-grid',containerId==='daily');formFields.classList.toggle('pl-plan-edit-grid',containerId==='maintenancePlanTable');formFields.innerHTML=fields.map(f=>v17FieldHtml(f,x)).join('');
     v841438MarkForm3d_(EDIT_STATE.page);document.getElementById('v17FormModal').classList.add('active');document.body.style.overflow='hidden';resetSpecialSave();
   }
   function adjustStock(id){
@@ -6219,7 +6254,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     v25CloseView&&v25CloseView();EDIT_TOKEN++;const fields=STOCK_ADJUST_FIELDS,token=EDIT_TOKEN,x=normalizeRecord(fields,{NGAY:localDate26(),LOAI_GIAO_DICH:r.LOAI_GIAO_DICH||'XUAT',ID_VAT_TU:r.ID_VAT_TU,SO_LUONG:r.SO_LUONG,ID_NGUOI_THUC_HIEN:r.ID_NGUOI_THUC_HIEN,LY_DO_DIEU_CHINH:''});
     EDIT_STATE={containerId:'stockTxnTable',id,record:r,fields,token,page:'materialWarehouse',mode:'adjust'};
     document.getElementById('v17FormModule').textContent='ĐIỀU CHỈNH KHO VẬT TƯ';document.getElementById('v17FormTitle').textContent='Điều chỉnh từ phiếu '+String(id||'');document.getElementById('v17FormHelp').textContent='Hệ thống tạo giao dịch mới, liên kết với phiếu gốc và không sửa lịch sử đã ghi.';
-    const formFields=document.getElementById('v17FormFields');formFields.classList.remove('daily-form-grid');formFields.innerHTML=`<div class="v841430-original"><small>Giao dịch gốc</small><b>${esc(r.LOAI_GIAO_DICH||'')} ${esc(r.SO_LUONG||0)} · ${esc(r.TEN_VAT_TU||r.ID_VAT_TU||'')}</b><span>Phiếu ${esc(id)}</span></div>`+fields.map(f=>v17FieldHtml(f,x)).join('')+'<div class="v841430-stock-preview" id="v841430StockPreview"></div>';
+    const formFields=document.getElementById('v17FormFields');formFields.classList.remove('daily-form-grid','pl-plan-edit-grid');formFields.innerHTML=`<div class="v841430-original"><small>Giao dịch gốc</small><b>${esc(r.LOAI_GIAO_DICH||'')} ${esc(r.SO_LUONG||0)} · ${esc(r.TEN_VAT_TU||r.ID_VAT_TU||'')}</b><span>Phiếu ${esc(id)}</span></div>`+fields.map(f=>v17FieldHtml(f,x)).join('')+'<div class="v841430-stock-preview" id="v841430StockPreview"></div>';
     v841438MarkForm3d_('materialWarehouse');document.getElementById('v17FormModal').classList.add('active');document.body.style.overflow='hidden';resetSpecialSave();
     ['v17_LOAI_GIAO_DICH','v17_ID_VAT_TU','v17_SO_LUONG'].forEach(k=>document.getElementById(k)?.addEventListener('input',updateStockPreviewV841430));updateStockPreviewV841430();
   }
@@ -6238,7 +6273,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     document.getElementById('v17FormModule').textContent='CHUYỂN THIẾT BỊ';
     document.getElementById('v17FormTitle').textContent='Chuyển thiết bị '+String(assetLabel||assetId||'');
     document.getElementById('v17FormHelp').textContent='Ghi vị trí/người dùng mới và lưu vào Lịch sử chuyển thiết bị. Thiết bị sẽ cập nhật ngay sau khi lưu.';
-    const formFields=document.getElementById('v17FormFields');formFields.classList.remove('daily-form-grid');formFields.innerHTML=fields.map(f=>v17FieldHtml(f,x)).join('');
+    const formFields=document.getElementById('v17FormFields');formFields.classList.remove('daily-form-grid','pl-plan-edit-grid');formFields.innerHTML=fields.map(f=>v17FieldHtml(f,x)).join('');
     v841438MarkForm3d_('equipment');document.getElementById('v17FormModal').classList.add('active');document.body.style.overflow='hidden';resetSpecialSave();
   };
   function editRecord(containerId,id){
@@ -9522,8 +9557,8 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     if(top.children.length)grid.append(top);
     grid.append(content);
   }
-  function applyForm(page){const root=document.getElementById('v17FormFields');if(!root)return;if(root.classList.contains('v84149-material-form')){const grid=root.querySelector(':scope > .v84149-master-grid');if(grid)grid.classList.add('pl-v841612-material-master');return}const resolvedPage=pageName(page||document.getElementById('v17FormModal')?.dataset?.formPage||'');if(resolvedPage==='maintenanceLog')return wrapMaintenanceLogGrid(root);wrapGrid(root,resolvedPage,'.v17-field',false)}
-  function applyV25(page){wrapGrid(document.getElementById('v25ViewDetails'),pageName(page),'.v25-detail-row',true)}
+  function applyForm(page){const root=document.getElementById('v17FormFields');if(!root)return;if(root.classList.contains('v84149-material-form')){root.classList.remove('pl-plan-edit-grid');const grid=root.querySelector(':scope > .v84149-master-grid');if(grid)grid.classList.add('pl-v841612-material-master');return}const resolvedPage=pageName(page||document.getElementById('v17FormModal')?.dataset?.formPage||'');root.classList.toggle('pl-plan-edit-grid',resolvedPage==='maintenancePlan');if(resolvedPage==='maintenanceLog')return wrapMaintenanceLogGrid(root);if(resolvedPage==='maintenancePlan')return;wrapGrid(root,resolvedPage,'.v17-field',false)}
+  function applyV25(page){const details=document.getElementById('v25ViewDetails');if(details&&details.classList.contains('pl-plan-view6'))return;wrapGrid(details,pageName(page),'.v25-detail-row',true)}
   function applyCustomViews(){wrapGrid(document.getElementById('plw85Fields'),'work','.plw85-field',true);wrapGrid(document.getElementById('pldDailyViewFields'),'daily','.pld-view-field',true)}
   function applyOperation(){const detail=document.querySelector('#operationModalV841420 .operation-detail-grid-v841420'),edit=document.getElementById('operationEditFormV841531');wrapGrid(detail,'operation','.operation-detail-item-v841420',true);wrapGrid(edit,'operation','.operation-edit-field-v841531',false);[detail,edit].forEach(grid=>{const image=grid?.querySelector(':scope > .operation-images-view-v841420,:scope > .operation-images-v841531');if(image){image.classList.add('pl-v841612-view-wide');grid.appendChild(image)}})}
   function schedule(page){requestAnimationFrame(()=>{applyForm(page);applyV25(page);applyCustomViews();applyOperation()})}

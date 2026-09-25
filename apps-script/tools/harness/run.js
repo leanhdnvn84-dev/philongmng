@@ -84,7 +84,7 @@ async function main() {
 
   for (const viewport of [{ name: 'desktop', width: 1440, height: 900 }, { name: 'mobile', width: 390, height: 844, isMobile: true }]) {
     if (ONLY && !ONLY.split(',').includes(viewport.name)) continue;
-    const backend = createBackend(codePath, htmlPath);
+    const backend = createBackend(codePath, process.env.SEED_HTML || htmlPath);
     const rpcLog = [];
     const errors = [];
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, isMobile: !!viewport.isMobile, hasTouch: !!viewport.isMobile, locale: 'vi-VN', timezoneId: 'Asia/Ho_Chi_Minh' });
