@@ -50,16 +50,12 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     /* R73: workspace Biểu mẫu gọn trong màn hình — danh sách rộng toàn màn hình. */
     #forms.view.active{display:flex;flex-direction:column;min-width:0;min-height:0;height:calc(100vh - 154px);overflow:hidden}
     .forms-workspace{display:grid;flex:1;grid-template-columns:1fr;gap:10px;height:auto;min-height:0;margin:0}
-    .forms-catalog-pane,.forms-preview-pane{min-width:0;min-height:0}
-    .forms-catalog-pane{display:flex;flex-direction:column;padding:12px;overflow:hidden}
+    .forms-catalog-pane{min-width:0;min-height:0;display:flex;flex-direction:column;padding:12px;overflow:hidden}
     .forms-preview-pane{display:none}
     .forms-catalog-pane .forms-title{flex:0 0 auto;margin-bottom:12px;padding-bottom:11px}
     .forms-catalog-pane .forms-title h2{font-size:17px}
     .forms-catalog-pane .forms-title p{max-width:245px;line-height:1.4}
     .forms-catalog-pane .forms-title>span{align-self:flex-start;white-space:nowrap}
-    .forms-catalog-toolbar{flex:0 0 auto;display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:6px;border:1px solid #334454;border-radius:9px;background:#0d151e}
-    .forms-catalog-toolbar .forms-zoom-button{width:34px;padding:8px 0;font-size:16px}
-    .forms-catalog-toolbar .forms-zoom-value{min-width:54px;padding-inline:7px}
     .forms-catalog-filter{flex:0 0 auto;display:grid;gap:8px;margin-bottom:10px}
     .forms-catalog-filter .field{width:100%}
     .forms-catalog-filter-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px}
@@ -77,19 +73,13 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     .form-template-group{display:inline-block;overflow:hidden;max-width:48%;border-radius:12px;padding:2px 6px;background:#20303e;color:#d9e3ec;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
     .form-template-standard{overflow:hidden;color:#ffaaa6;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
     body[data-theme="light"] .forms-catalog-pane{border-color:#d4dee7;background:#fff;box-shadow:0 8px 20px #4a5c7020}
-    body[data-theme="light"] .forms-catalog-toolbar{border-color:#d5dfe8;background:#fff;box-shadow:0 2px 8px #52667a12}
     body[data-theme="light"] .form-template-card{border-color:#d4dee7;background:#fff;color:#1c2c3b;box-shadow:0 4px 10px #52667a16}
     body[data-theme="light"] .form-template-card:hover{border-color:#d58b8e;background:#fffafa;box-shadow:0 8px 16px #52667a20}
     body[data-theme="light"] .form-template-card.active{border-color:#d55257;background:#fff5f5;box-shadow:inset 3px 0 #d55257,0 8px 16px #52667a20}
     body[data-theme="light"] .form-template-card .form-template-main b{color:#172536}
     body[data-theme="light"] .form-template-group{background:#edf2f6;color:#43586b}
     body[data-theme="light"] .form-template-standard{color:#9f1d25}
-    body[data-theme="light"] .forms-preview-toolbar,body[data-theme="light"] .forms-saved-banner{border-color:#d5dfe8;background:#f7f9fb}
-    body[data-theme="light"] .forms-preview-heading h2,body[data-theme="light"] .forms-saved-banner b{color:#172536}
-    body[data-theme="light"] .forms-preview-heading small{color:#9e242a}
-    body[data-theme="light"] .forms-preview-heading>span,body[data-theme="light"] .forms-saved-banner span{color:#68798a}
-    @media(max-width:1200px){.forms-workspace{grid-template-columns:1fr}}
-    @media(max-width:900px){#forms.view.active{height:auto;overflow:visible}.forms-workspace{flex:none;grid-template-columns:1fr;height:auto;min-height:0}}
+    @media(max-width:900px){#forms.view.active{height:auto;overflow:visible}.forms-workspace{flex:none;height:auto}}
     @media(max-width:620px){.forms-catalog-pane{padding:11px}}
   </style>
   <style>
@@ -139,9 +129,9 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     .form-modal-header-actions button:hover{background:#f0f0f0;border-color:#999}
     .form-modal-header-actions button.primary{background:#1976d2;color:#fff;border-color:#1976d2}
     .form-modal-header-actions button.primary:hover{background:#1565c0;border-color:#1565c0}
-    .form-modal-zoom-group{display:flex;gap:2px;align-items:center;border-left:1px solid #ddd;padding-left:12px;margin-left:6px}
-    .form-modal-zoom-button{width:32px;padding:6px 0!important;text-align:center;font-size:16px!important}
-    .form-modal-zoom-value{min-width:50px;text-align:center!important}
+    .form-modal-header-actions .fm-zoom{min-width:32px;padding:6px 8px;font-size:15px;line-height:1}
+    .form-modal-header-actions .fm-zoom-value{min-width:58px;font-size:13px}
+    .form-modal-header-actions .fm-sep{flex:0 0 1px;height:22px;margin:0 6px;background:#d5d5d5}
     .form-modal-close{background:0;border:0;font-size:20px;cursor:pointer;color:#666;padding:4px 8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
     .form-modal-close:hover{color:#000;background:#e0e0e0;border-radius:4px}
     .form-modal-body{flex:1;overflow-y:auto;padding:20px;background:#fff}
@@ -185,7 +175,6 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
       <section class="forms-workspace" aria-label="Không gian quản lý biểu mẫu">
         <aside class="card forms-catalog-pane">
           <div class="forms-title"><div><h2 id="formsListTitle">Danh sách biểu mẫu</h2><p id="formsListHint">Chọn một mẫu để xem trước.</p></div><span id="formsCount">0 mẫu</span></div>
-          <div class="forms-catalog-toolbar"><button class="btn forms-zoom-button" type="button" data-form-view-action="zoom-out" title="Thu nhỏ">−</button><button class="btn forms-zoom-value" type="button" data-form-view-action="zoom-reset" title="Vừa khung"><span id="formsZoomValue">100%</span></button><button class="btn forms-zoom-button" type="button" data-form-view-action="zoom-in" title="Phóng to">＋</button></div>
           <div class="forms-catalog-filter" id="formsToolbar"><div class="field"><input id="formsSearch" placeholder="Tìm tên hoặc nội dung mẫu..."></div><div class="forms-catalog-filter-row"><select class="select" id="formsStatus"><option value="">Tất cả trạng thái</option><option value="Đang sử dụng">Đang sử dụng</option><option value="Ngừng sử dụng">Ngừng sử dụng</option></select><button class="btn primary" id="formsFilterButton">⌕ Lọc</button><button class="btn" id="formsResetButton">↻</button></div></div>
           <div class="form-template-grid" id="formTemplateGrid" role="listbox" aria-label="Danh sách biểu mẫu"></div>
         </aside>
@@ -243,17 +232,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
         <div class="form-modal-header-left">
           <h2 id="formModalTitle">Biểu mẫu</h2>
         </div>
-        <div class="form-modal-header-actions" id="formModalActions">
-          <button type="button" data-action="zoom-out" title="Thu nhỏ">−</button>
-          <button type="button" data-action="zoom-reset" title="Vừa khung" class="form-modal-zoom-value">100%</button>
-          <button type="button" data-action="zoom-in" title="Phóng to">＋</button>
-          <div style="flex:1;min-width:0"></div>
-          <button type="button" data-action="new">＋ Tạo file mới</button>
-          <button type="button" data-action="blank">In mẫu trắng</button>
-          <button type="button" data-action="pdf">📄 PDF</button>
-          <button type="button" data-action="word">📝 Word</button>
-          <button type="button" data-action="edit" class="primary">✎ Sửa mẫu</button>
-        </div>
+        <div class="form-modal-header-actions" id="formModalActions"></div>
         <button class="form-modal-close" id="formModalClose" type="button" aria-label="Đóng">✕</button>
       </header>
       <div class="form-modal-body" id="formModalBody"></div>
@@ -264,7 +243,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
   (function () {
     'use strict';
     var auth = { token:'', user:null };
-    var state = { data:{}, loadedSheets:{}, loadingSheets:{}, employees:[], deptByCode:{}, positionByCode:{}, historyTag:'all', movementCommand:'', movementEmployee:'', attendanceTab:'leave', attendanceCommand:'', formsTab:'all', formsCommand:'', formsTemplateId:'', formsPreviewZoom:85, formsPreviewPageCount:0, lastFormPrintData:null, systemTab:'accounts', systemData:null, systemAccountEdit:'', systemLogRows:[] };
+    var state = { data:{}, loadedSheets:{}, loadingSheets:{}, employees:[], deptByCode:{}, positionByCode:{}, historyTag:'all', movementCommand:'', movementEmployee:'', attendanceTab:'leave', attendanceCommand:'', formsTab:'all', formsCommand:'', formsTemplateId:'', formsPreviewZoom:85, formModalZoom:100, formsPreviewPageCount:0, lastFormPrintData:null, systemTab:'accounts', systemData:null, systemAccountEdit:'', systemLogRows:[] };
     var systemPermissionActions = ['XEM','THEM','SUA','XOA','DUYET','XUAT_FILE'];
     var appBootstrapSheets = ['DM_NHAN_VIEN','DM_PHONG_BAN','DM_CHUC_VU','DM_BO_PHAN','TUYEN_DUNG_NHU_CAU','TUYEN_DUNG_UNG_VIEN'];
     var appLazySheets = { workhistory:['LICH_SU_CONG_VIEC'], attendance:['CC_CA_LAM_VIEC','CC_CHAM_CONG','CC_TANG_CA','CC_NGHI_PHEP','CC_BANG_CONG_THANG'], forms:['DM_BIEU_MAU'] };
@@ -560,21 +539,34 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
       if(!template)return;
       var container=document.getElementById('formModalContainer'),header=container.querySelector('.form-modal-header h2'),body=container.querySelector('.form-modal-body'),actions=container.querySelector('.form-modal-header-actions');
       var innerCmd=command||'view';
-      header.textContent=innerCmd==='edit'?'Sửa biểu mẫu':template.name;
-      if(innerCmd==='edit'){body.innerHTML=renderFormEditor(template);actions.innerHTML='<button type="button" data-form-modal-print="pdf">📄 PDF</button><button type="button" data-form-modal-print="word">📋 Word</button><button class="primary" type="button" data-form-modal-save>✓ Lưu & In</button>';}
-      else {var data=previewFormPrintData(template);body.innerHTML='<iframe id="formModalFrame" class="form-modal-frame" title="Xem biểu mẫu"></iframe>';actions.innerHTML='<button type="button" data-form-modal-print="pdf">📄 PDF</button><button type="button" data-form-modal-print="word">📋 Word</button><button class="primary" type="button" data-form-modal-edit>✎ Sửa</button>';mountFormModalPreview(data);}
+      header.textContent=innerCmd==='new'?'Tạo file mới – '+template.name:innerCmd==='edit'?'Sửa mẫu – '+template.name:template.name;
+      if(innerCmd==='new'||innerCmd==='edit'){body.innerHTML=renderFormEditor(template);actions.innerHTML='<button type="button" data-fm="view">← Xem mẫu</button><span class="fm-sep"></span><button type="button" data-fm="pdf">📄 PDF</button><button type="button" data-fm="word">📝 Word</button><button class="primary" type="button" data-fm="save">✓ Lưu & In</button>';}
+      else {body.innerHTML='<iframe id="formModalFrame" class="form-modal-frame" title="Xem biểu mẫu"></iframe>';actions.innerHTML='<button class="fm-zoom" type="button" data-fm="zoom-out" title="Thu nhỏ">−</button><button class="fm-zoom fm-zoom-value" type="button" data-fm="zoom-reset" title="Về 100%"><span id="formModalZoomValue">'+state.formModalZoom+'%</span></button><button class="fm-zoom" type="button" data-fm="zoom-in" title="Phóng to">＋</button><span class="fm-sep"></span><button type="button" data-fm="new">＋ Tạo file mới</button><button type="button" data-fm="blank">🖨 In mẫu trắng</button><button type="button" data-fm="pdf">📄 PDF</button><button type="button" data-fm="word">📝 Word</button><button class="primary" type="button" data-fm="edit">✎ Sửa mẫu</button>';mountFormModalPreview(previewFormPrintData(template));}
       container.classList.add('open');
-      addFormModalEvents(template);
+      bindFormModal(template);
     }
     function closeFormModal() { var container=document.getElementById('formModalContainer');if(container)container.classList.remove('open'); }
-    function mountFormModalPreview(data) { var frame=document.getElementById('formModalFrame');if(!frame)return;frame.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){paginateFormPreviewFrame(frame);});});};frame.srcdoc=formPreviewDocument(data); }
-    function addFormModalEvents(template) {
+    function mountFormModalPreview(data) { var frame=document.getElementById('formModalFrame');if(!frame)return;frame.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){paginateFormPreviewFrame(frame);applyFormModalZoom();});});};frame.srcdoc=formPreviewDocument(data); }
+    function applyFormModalZoom() {
+      var value=Math.max(50,Math.min(200,Math.round(Number(state.formModalZoom)||100)));state.formModalZoom=value;
+      var frame=document.getElementById('formModalFrame'),pages=frame&&frame.contentDocument&&frame.contentDocument.querySelector('.preview-pages');if(pages)pages.style.zoom=String(value/100);
+      var label=document.getElementById('formModalZoomValue');if(label)label.textContent=value+'%';
+    }
+    function bindFormModal(template) {
       var container=document.getElementById('formModalContainer');if(!container)return;
       document.getElementById('formModalClose').onclick=closeFormModal;
-      var printBtns=container.querySelectorAll('[data-form-modal-print]');printBtns.forEach(function(btn){btn.onclick=function(){var form=container.querySelector('#formsRequestForm'),data;if(form)data=formPrintDataFromForm(form);else data=previewFormPrintData(template);if(!data)return;btn.dataset.formModalPrint==='pdf'?printFormPdf(data):downloadFormWord(data);}});
-      var editBtn=container.querySelector('[data-form-modal-edit]');if(editBtn)editBtn.onclick=function(){openFormFullscreen(template,'edit');};
-      var saveBtn=container.querySelector('[data-form-modal-save]');if(saveBtn)saveBtn.onclick=function(){var form=container.querySelector('#formsRequestForm'),data=formPrintDataFromForm(form);if(!data)return;state.lastFormPrintData=data;call('saveFormRequest',{_sessionToken:auth.token,templateId:data.templateId,title:data.title,date:data.dateValue,data:data.detailJson},function(){toast('Đã lưu biểu mẫu.');setTimeout(function(){printFormPdf(data);},400);},function(err){toast(err||'Lỗi khi lưu.',true);});};
-      container.addEventListener('click',function(e){if(e.target===container)closeFormModal();});
+      container.onclick=function(e){if(e.target===container)closeFormModal();};
+      container.querySelector('.form-modal-header-actions').onclick=function(e){
+        var btn=e.target.closest('[data-fm]');if(!btn)return;var action=btn.dataset.fm,form=container.querySelector('#formsRequestForm'),data;
+        if(action==='zoom-out'||action==='zoom-in'){state.formModalZoom+=action==='zoom-in'?10:-10;applyFormModalZoom();return;}
+        if(action==='zoom-reset'){state.formModalZoom=100;applyFormModalZoom();return;}
+        if(action==='view'||action==='new'||action==='edit'){openFormFullscreen(template,action);return;}
+        if(action==='blank'){printFormPdf(blankFormPrintData(template));return;}
+        data=form?formPrintDataFromForm(form):previewFormPrintData(template);if(!data)return;
+        if(action==='pdf')printFormPdf(data);
+        else if(action==='word')downloadFormWord(data);
+        else if(action==='save'){state.lastFormPrintData=data;call('saveFormRequest',{_sessionToken:auth.token,templateId:data.templateId,title:data.title,date:data.dateValue,data:data.detailJson},function(){toast('Đã lưu biểu mẫu.');setTimeout(function(){printFormPdf(data);},400);},function(err){toast(err||'Lỗi khi lưu.',true);});}
+      };
     }
     function renderFormsProcessing() {
       var panel=$('#formsProcessing'),command=state.formsCommand||'preview',template=formTemplateByClientId(state.formsTemplateId);panel.hidden=false;
