@@ -4024,7 +4024,9 @@ function emailAlertRowsV84_(code, admin, before, cfg){
   cfg=cfg||{};
   const employees=readObjects_(V22.SHEETS.employees), empById=indexBy_(employees,'ID');
   const out=[], today=today_(), limit=addDays_(today,Number(before||0));
-  const push=function(module,id,recipients,title,days,body){
+  // Chỉ gửi khi cảnh báo là trễ hạn / quá hạn / sắp đến hạn (han=true) hoặc trạng thái "Chưa thực hiện".
+  const push=function(module,id,recipients,title,days,body,han,status){
+    if(!han&&norm_(status)!=='CHUA_THUC_HIEN')return;
     out.push({MA_CANH_BAO:code,MODULE:module,ID_BAN_GHI:String(id||''),NGUOI_NHAN:emailRecipientsV84_(recipients,admin).join(', '),TIEU_DE:title,SO_NGAY_CON_LAI:days===null||days===undefined?'':days,NOI_DUNG:body});
   };
   if(code==='CONG_VIEC_QUA_HAN'||code==='CONG_VIEC_CU_CHUA_XONG'){
@@ -4036,14 +4038,14 @@ function emailAlertRowsV84_(code, admin, before, cfg){
       const hit=code==='CONG_VIEC_QUA_HAN'?isOverdue:isOldAndIncomplete;
       if(!hit)return;
       const days=due?daysBetween_(today_(),due):null;
-      push('CONG_VIEC',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG,r.ID_NGUOI_LAM_CUNG],giao:[r.ID_NGUOI_GIAO]}),code==='CONG_VIEC_QUA_HAN'?'Công việc quá hạn':'Công việc cũ chưa xong',days,'Nội dung: '+String(r.NOI_DUNG||'')+'\nHạn: '+(due||'Chưa có hạn'));
+      push('CONG_VIEC',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG,r.ID_NGUOI_LAM_CUNG],giao:[r.ID_NGUOI_GIAO]}),code==='CONG_VIEC_QUA_HAN'?'Công việc quá hạn':'Công việc cũ chưa xong',days,'Nội dung: '+String(r.NOI_DUNG||'')+'\nHạn: '+(due||'Chưa có hạn'),days!==null&&days<=Number(before||0),r.TRANG_THAI||r.KET_QUA);
     });
   } else if(code==='CVHN_CHUA_XONG'){
-    readObjects_(V22.SHEETS.daily).forEach(function(r){if(isCompletedStatus_(r.KET_QUA)||isCompletedStatus_(r.TRANG_THAI))return;push('CVHN_2026',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG,r.ID_NGUOI_LAM_CUNG],giao:[r.ID_NGUOI_GIAO]}),'Công việc hằng ngày chưa xong',null,'Nội dung: '+String(r.NOI_DUNG||'')+'\nNgày: '+(dateOnly_(r.NGAY)||''));});
+    readObjects_(V22.SHEETS.daily).forEach(function(r){if(isCompletedStatus_(r.KET_QUA)||isCompletedStatus_(r.TRANG_THAI))return;push('CVHN_2026',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG,r.ID_NGUOI_LAM_CUNG],giao:[r.ID_NGUOI_GIAO]}),'Công việc hằng ngày chưa xong',null,'Nội dung: '+String(r.NOI_DUNG||'')+'\nNgày: '+(dateOnly_(r.NGAY)||''),false,r.TRANG_THAI||r.KET_QUA);});
   } else if(code==='BAO_TRI_SAP_HAN'||code==='BAO_TRI_DEN_HAN'){
-    getMaintenanceSchedulesComputed_().forEach(function(r){const d=Number(r.SO_NGAY_CON_LAI);if(!Number.isFinite(d))return;const hit=code==='BAO_TRI_SAP_HAN'?(d>=0&&d<=Number(before||7)):(d<=0);if(!hit)return;push('DM_LICH_BAO_TRI',r.ID_LICH,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_PHU_TRACH]}),'Bảo trì '+(d<0?'trễ hạn':d===0?'đến hạn':'sắp đến hạn'),d,'Khu vực: '+String(r.KHU_VUC_HIEN_THI||r.ID_KHU_VUC||'')+'\nHạng mục: '+String(r.HANG_MUC||r.ID_HANG_MUC||'')+'\nNgày kế tiếp: '+String(r.NGAY_KE_TIEP||''));});
+    getMaintenanceSchedulesComputed_().forEach(function(r){const d=Number(r.SO_NGAY_CON_LAI);if(!Number.isFinite(d))return;const hit=code==='BAO_TRI_SAP_HAN'?(d>=0&&d<=Number(before||7)):(d<=0);if(!hit)return;push('DM_LICH_BAO_TRI',r.ID_LICH,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_PHU_TRACH]}),'Bảo trì '+(d<0?'trễ hạn':d===0?'đến hạn':'sắp đến hạn'),d,'Khu vực: '+String(r.KHU_VUC_HIEN_THI||r.ID_KHU_VUC||'')+'\nHạng mục: '+String(r.HANG_MUC||r.ID_HANG_MUC||'')+'\nNgày kế tiếp: '+String(r.NGAY_KE_TIEP||''),true);});
   } else if(code==='NHAT_KY_BAO_TRI'){
-    readObjects_(V22.SHEETS.maintenanceLogs).forEach(function(r){const due=dateOnly_(r.NGAY_KE_TIEP),d=due?daysBetween_(today_(),due):null;if(d===null||d>Number(before||7))return;push('NHAT_KY_BAO_TRI',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG]}),'Nhật ký bảo trì cần theo dõi',d,'Hạng mục: '+String(r.HANG_MUC_SNAPSHOT||'')+'\nNgày kế tiếp: '+due);});
+    readObjects_(V22.SHEETS.maintenanceLogs).forEach(function(r){const due=dateOnly_(r.NGAY_KE_TIEP),d=due?daysBetween_(today_(),due):null;if(d===null||d>Number(before||7))return;push('NHAT_KY_BAO_TRI',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_THUC_HIEN],lamCung:[r.NGUOI_LAM_CUNG]}),'Nhật ký bảo trì cần theo dõi',d,'Hạng mục: '+String(r.HANG_MUC_SNAPSHOT||'')+'\nNgày kế tiếp: '+due,true);});
   } else if(code==='DE_XUAT_CHO_DUYET'){
     readObjects_(V22.SHEETS.proposals).forEach(function(r){if(!['CHO_DUYET','CHO_DUYET'].includes(norm_(r.TRANG_THAI)))return;push('DE_XUAT',r.ID,[],'Đề xuất đang chờ duyệt',null,'Nội dung: '+String(r.NOI_DUNG||r.TEN_DE_XUAT||''));});
   } else if(code==='KHO_VAT_TU_SAP_HET'){
@@ -4055,7 +4057,7 @@ function emailAlertRowsV84_(code, admin, before, cfg){
       const due=dateOnly_(r.NGAY_KET_THUC),d=due?daysBetween_(today_(),due):null;
       if(d===null||d<0||d>Number(before||30))return;
       push('KHACH_THUE',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_PHU_TRACH,r.ID_NGUOI_QUAN_LY]}),'Khách đang thuê sắp hết hạn',d,
-        'Khách thuê: '+String(r.TEN_KHACH_THUE||r.ID||'')+'\nNgày kết thúc thuê: '+due+'\nKhu vực: '+String(r.TANG_KHU_VUC||r.ID_KHU_VUC||''));
+        'Khách thuê: '+String(r.TEN_KHACH_THUE||r.ID||'')+'\nNgày kết thúc thuê: '+due+'\nKhu vực: '+String(r.TANG_KHU_VUC||r.ID_KHU_VUC||''),true);
     });
   } else if(code==='KHACH_TIEM_NANG_DEN_HAN_LIEN_HE'||code==='KHACH_TIEM_NANG_QUA_HAN_LIEN_HE'){
     readObjects_(V22.SHEETS.prospects).forEach(function(r){
@@ -4063,7 +4065,7 @@ function emailAlertRowsV84_(code, admin, before, cfg){
       if(d===null||(code==='KHACH_TIEM_NANG_DEN_HAN_LIEN_HE'?d!==0:d>=0))return;
       push('KHACH_HANG_TIEM_NANG',r.ID,emailPeopleV86_(cfg,{thucHien:[r.ID_NGUOI_PHU_TRACH]}),
         code==='KHACH_TIEM_NANG_DEN_HAN_LIEN_HE'?'Khách hàng tiềm năng đến hạn liên hệ':'Khách hàng tiềm năng quá hạn liên hệ',d,
-        'Khách hàng: '+String(r.TEN_KHACH_HANG||r.ID||'')+'\nNgười liên hệ: '+String(r.NGUOI_LIEN_HE||'')+'\nNgày hẹn liên hệ: '+due);
+        'Khách hàng: '+String(r.TEN_KHACH_HANG||r.ID||'')+'\nNgười liên hệ: '+String(r.NGUOI_LIEN_HE||'')+'\nNgày hẹn liên hệ: '+due,true);
     });
   }
   return out;
@@ -4072,7 +4074,7 @@ function emailAlertRowsV84_(code, admin, before, cfg){
 // ---------------------------------------------------------------------------
 // V85 EMAIL — đơn giản, nhanh:
 //  - Mỗi lượt chỉ gửi MỘT email tổng hợp cho mỗi người nhận (không còn 1 email/1 bản ghi).
-//  - Chống gửi lặp theo MA_CANH_BAO + ID_BAN_GHI trong ngày (đọc nhật ký 1 lần).
+//  - Chống gửi lặp theo MODULE + ID_BAN_GHI trong ngày (bản ghi khớp nhiều cảnh báo chỉ gửi 1 lần) (đọc nhật ký 1 lần).
 //  - Nhật ký ghi 1 lần (setValues), không khóa/sinh mã từng dòng.
 //  - Không lỡ giờ: đến giờ cấu hình mà hôm nay chưa chạy thì chạy ở lượt trigger kế tiếp.
 //  - "Gửi ngay" trên giao diện; trigger 15 phút tự tạo khi lưu có cảnh báo đang bật.
@@ -4087,7 +4089,7 @@ function emailSentTodayKeysV84_(){
     const st=norm_(x.TRANG_THAI);
     // CHO_GUI: nhật ký bản cũ ghi nhầm trạng thái cho email đã gửi.
     if(!String(x.NGAY_GUI||'').startsWith(day)||(st!=='DA_GUI'&&st!=='CHO_GUI'))return;
-    keys[String(x.MA_CANH_BAO||'')+'|'+String(x.ID_BAN_GHI||'')]=true;
+    keys[String(x.MODULE||'')+'|'+String(x.ID_BAN_GHI||'')]=true;
   });
   return keys;
 }
@@ -4209,7 +4211,7 @@ function sendEmailAlertsV84(opts){
       let n=0;
       emailAlertRowsV84_(code,emailAdminListV86_(c),Number(c.SO_NGAY_BAO_TRUOC||0),c).forEach(function(item){
         item.EMAIL_GUI=String(c.EMAIL_GUI||'').trim();
-        const key=code+'|'+item.ID_BAN_GHI;if(sentKeys[key])return;sentKeys[key]=true;
+        const key=item.MODULE+'|'+item.ID_BAN_GHI;if(sentKeys[key])return;sentKeys[key]=true;
         const log={NGAY_GUI:stamp,MA_CANH_BAO:code,MODULE:item.MODULE,ID_BAN_GHI:item.ID_BAN_GHI,NGUOI_NHAN:item.NGUOI_NHAN,TIEU_DE:item.TIEU_DE,
           TRANG_THAI:item.NGUOI_NHAN?'DA_GUI':'BO_QUA_THIEU_EMAIL',SO_NGAY_CON_LAI:item.SO_NGAY_CON_LAI,NOI_DUNG:item.NOI_DUNG};
         logs.push(log);n++;
