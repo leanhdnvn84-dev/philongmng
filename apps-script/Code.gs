@@ -4349,7 +4349,7 @@ function styleCellV8414_(cell,size,bold,background,align){
 }
 
 // Căn lại phiếu sau khi dựng: (1) bảng giãn đủ bề rộng trang (A4/Letter) để khối logo sát mép phải, thẳng với đường kẻ ngang;
-// (2) Docs luôn chèn 1 đoạn trống đầu tài liệu và giữa 2 bảng liền nhau -> thu nhỏ để không tạo khoảng hở.
+// (2) Docs luôn chèn 1 đoạn trống đầu tài liệu và 1 đoạn trống ngay sau mỗi bảng -> thu nhỏ để không tạo khoảng hở.
 function fitProposalLayoutV90_(body,header){
   const ET=DocumentApp.ElementType;let avail=527;try{avail=body.getPageWidth()-body.getMarginLeft()-body.getMarginRight();}catch(e){}
   const n=body.getNumChildren();
@@ -4358,8 +4358,8 @@ function fitProposalLayoutV90_(body,header){
     if(type===ET.TABLE){const tb=el.asTable(),cols=tb.getRow(0).getNumCells();let sum=0;for(let c=0;c<cols;c++)sum+=Number(tb.getColumnWidth(c))||0;
       if(sum>0&&Math.abs(avail-sum)>1){if(i===header.getParent().getChildIndex(header))tb.setColumnWidth(0,tb.getColumnWidth(0)+avail-sum);else for(let c=0;c<cols;c++)tb.setColumnWidth(c,tb.getColumnWidth(c)*avail/sum);}}
     else if(type===ET.PARAGRAPH){const p=el.asParagraph();if(p.getText())continue;let hr=false;for(let k=0;k<p.getNumChildren();k++)if(p.getChild(k).getType()===ET.HORIZONTAL_RULE)hr=true;if(hr)continue;
-      const prev=i?body.getChild(i-1).getType():null,next=i+1<n?body.getChild(i+1).getType():null;
-      if(i===0||(prev===ET.TABLE&&next===ET.TABLE)){p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);p.editAsText().setFontSize(1);}}
+      const prev=i?body.getChild(i-1).getType():null;
+      if(i===0||prev===ET.TABLE){p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);p.editAsText().setFontSize(1);}}
   }
 }
 
@@ -4376,7 +4376,7 @@ function buildProposalDocV8414_(data){
   // Docs luôn thêm 1 đoạn trống sau bảng lồng trong ô: thu nhỏ để không tạo khoảng hở dưới khối logo.
   const tail=right.getChild(right.getNumChildren()-1);if(tail.getType()===DocumentApp.ElementType.PARAGRAPH){const tp=tail.asParagraph();tp.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);tp.editAsText().setFontSize(1);}
   // Kéo phần thân lên sát dòng "Mã phiếu": bỏ khoảng hở dưới ô tiêu đề và quanh đường kẻ ngang.
-  left.setPaddingBottom(0);right.setPaddingBottom(0);const hrPara=body.appendHorizontalRule().getParent().asParagraph();hrPara.setSpacingBefore(2).setSpacingAfter(0).setLineSpacing(1);
+  left.setPaddingBottom(0);right.setPaddingBottom(0);const hrPara=body.appendHorizontalRule().getParent().asParagraph();hrPara.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);hrPara.editAsText().setFontSize(6);
   const recipient=body.appendTable([['Kính gửi:','- Giám đốc Công ty TNHH Công Nghệ Tin Học Phi Long\n- Bộ phận quản lý']]);recipient.setBorderWidth(0);recipient.setColumnWidth(0,70);recipient.setColumnWidth(1,450);styleCellV8414_(recipient.getCell(0,0),10,true,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);styleCellV8414_(recipient.getCell(0,1),10,true,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);recipient.getCell(0,0).setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);recipient.getCell(0,0).setPaddingTop(3);recipient.getCell(0,1).setPaddingTop(3);[0,1].forEach(function(c){const cell=recipient.getCell(0,c);styleTextV8414_(cell,10,true);for(let i=0;i<cell.getNumChildren();i++){const q=cell.getChild(i);if(q.getType()===DocumentApp.ElementType.PARAGRAPH)q.asParagraph().setSpacingBefore(0).setSpacingAfter(2).setLineSpacing(1.15);}});recipient.getCell(0,1).setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
   const info=body.appendTable([['Ngày lập',proposalDateTextV8414_(data.date),'Người đề xuất',data.requester],['Phòng ban',data.department,'Loại đề xuất',data.typeLabel]]);info.setBorderWidth(.75);info.setColumnWidth(0,85);info.setColumnWidth(1,175);info.setColumnWidth(2,95);info.setColumnWidth(3,165);
   for(let r=0;r<2;r++)for(let c=0;c<4;c++)styleCellV8414_(info.getCell(r,c),9,c%2===0,c%2===0?'#F2F2F2':null,DocumentApp.HorizontalAlignment.LEFT);
