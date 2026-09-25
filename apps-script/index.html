@@ -5654,8 +5654,17 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       if(date&&!date.value)date.value=v17Today();updatePlans(prefill.ID_LICH||prefill.ID||'');if(planSel)planSel.value=prefill.ID_LICH||prefill.ID||'';if(planSel)planSel._v22SelectedPlan=prefill;updateHint();
     }else{updateItems(itemSel.value);updatePlans(planSel&&planSel.value);updateHint()}
     // Sửa nhật ký đã có / Ghi nhận từ lịch: khóa Tầng·Khu vực, Hạng mục (và lịch liên kết) — nhật ký gắn cố định với cặp này.
-    const locked=!!(prefill&&(prefill.ID||prefill.ID_LICH));
-    [areaSel,itemSel,planSel].forEach(el=>{if(!el)return;el.disabled=locked;el.title=locked?'Không sửa được: nhật ký gắn cố định với khu vực và hạng mục này':''});
+    // Mọi trường hợp mở form với bản ghi (Sửa / Ghi nhận) đều khóa; giữ nguyên giá trị gốc kể cả khi
+    // khu vực/hạng mục không còn trong danh sách chọn (thêm lại đúng lựa chọn gốc).
+    const locked=!!prefill;
+    if(locked){
+      const keep=(sel,val,label)=>{if(!sel||val==null||String(val)==='')return;val=String(val);if(![...sel.options].some(o=>o.value===val))sel.insertAdjacentHTML('beforeend',`<option value="${esc(val)}">${esc(label||val)}</option>`);sel.value=val};
+      keep(areaSel,prefill.ID_KHU_VUC,prefill.KHU_VUC_SNAPSHOT||prefill.KHU_VUC);
+      keep(itemSel,prefill.ID_HANG_MUC,prefill.HANG_MUC_SNAPSHOT||prefill.HANG_MUC);
+      keep(planSel,prefill.ID_LICH,prefill.ID_LICH);
+      updateHint();
+    }
+    [areaSel,itemSel,planSel].forEach(el=>{if(!el)return;el.disabled=locked;el.title=locked?'Không sửa được: giữ nguyên khu vực và hạng mục gốc của nhật ký':''});
   }
 
   // Form Nhật ký: bắt buộc người thực hiện + kết quả để lịch sử có chất lượng.
