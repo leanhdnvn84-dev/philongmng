@@ -4348,6 +4348,21 @@ function styleCellV8414_(cell,size,bold,background,align){
   const p=cell.getChild(0).asParagraph();if(align)p.setAlignment(align);styleTextV8414_(p,size,bold);return cell;
 }
 
+// Căn lại phiếu sau khi dựng: (1) bảng giãn đủ bề rộng trang (A4/Letter) để khối logo sát mép phải, thẳng với đường kẻ ngang;
+// (2) Docs luôn chèn 1 đoạn trống đầu tài liệu và giữa 2 bảng liền nhau -> thu nhỏ để không tạo khoảng hở.
+function fitProposalLayoutV90_(body,header){
+  const ET=DocumentApp.ElementType;let avail=527;try{avail=body.getPageWidth()-body.getMarginLeft()-body.getMarginRight();}catch(e){}
+  const n=body.getNumChildren();
+  for(let i=0;i<n;i++){
+    const el=body.getChild(i),type=el.getType();
+    if(type===ET.TABLE){const tb=el.asTable(),cols=tb.getRow(0).getNumCells();let sum=0;for(let c=0;c<cols;c++)sum+=Number(tb.getColumnWidth(c))||0;
+      if(sum>0&&Math.abs(avail-sum)>1){if(i===header.getParent().getChildIndex(header))tb.setColumnWidth(0,tb.getColumnWidth(0)+avail-sum);else for(let c=0;c<cols;c++)tb.setColumnWidth(c,tb.getColumnWidth(c)*avail/sum);}}
+    else if(type===ET.PARAGRAPH){const p=el.asParagraph();if(p.getText())continue;let hr=false;for(let k=0;k<p.getNumChildren();k++)if(p.getChild(k).getType()===ET.HORIZONTAL_RULE)hr=true;if(hr)continue;
+      const prev=i?body.getChild(i-1).getType():null,next=i+1<n?body.getChild(i+1).getType():null;
+      if(i===0||(prev===ET.TABLE&&next===ET.TABLE)){p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);p.editAsText().setFontSize(1);}}
+  }
+}
+
 function buildProposalDocV8414_(data){
   const doc=DocumentApp.create('PHIEU_DE_XUAT_'+data.code),body=doc.getBody();body.clear();body.setMarginTop(31).setMarginBottom(31).setMarginLeft(34).setMarginRight(34);
   const header=body.appendTable([['','']]);header.setBorderWidth(0);header.setColumnWidth(0,334);header.setColumnWidth(1,186);
@@ -4386,6 +4401,7 @@ function buildProposalDocV8414_(data){
     for(let blank=0;blank<5;blank++){const blankLine=cell.appendParagraph('\u00A0');blankLine.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(0).setSpacingAfter(0);styleTextV8414_(blankLine,9,false);}
     if(c===0){const requesterLine=cell.appendParagraph(String(data.requester||''));requesterLine.setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingBefore(0).setSpacingAfter(0);styleTextV8414_(requesterLine,9,true);}
   });
+  fitProposalLayoutV90_(body,header);
   const footer=doc.addFooter();footer.setText('Biểu mẫu có giá trị khi được ký duyệt đầy đủ.');const footerParagraph=footer.getChild(0).asParagraph();footerParagraph.setAlignment(DocumentApp.HorizontalAlignment.CENTER);styleTextV8414_(footerParagraph,8,false);
   doc.saveAndClose();return doc.getId();
 }
