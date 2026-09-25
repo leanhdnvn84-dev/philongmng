@@ -7939,7 +7939,9 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     if(sub)sub.textContent=PVT_STATE.showAll?'Hiển thị tất cả mặt hàng (còn tồn và hết tồn), 50 mặt hàng mỗi trang':'Chỉ hiển thị mặt hàng còn tồn, 50 mặt hàng mỗi trang';
   }
   function renderMaterialWarehouse(){
-    const rows=activeMaterials();
+    let rows=activeMaterials();
+    // Không có mặt hàng còn tồn nhưng danh mục có dữ liệu → tự chuyển sang "Tất cả hàng" để không hiện trang trống.
+    if(!rows.length&&!PVT_STATE.showAll&&!PVT_STATE.nameQuery&&data().materials.some(r=>String(r.ID||'').trim())){PVT_STATE.showAll=true;syncShowAllBtn();rows=activeMaterials()}
     renderDataTable('materialTable',rows,MATERIAL_COLS);
     const view=V16_DATA.views.materialTable;if(view&&!view.v841413Complete){view.pageSize=50;view.page=1;view.query='';view.v56=null;view.v841413Complete=true;v16RenderGenericTable_('materialTable')}
     V16_DATA.activeView.materialWarehouse='materialTable';V16_DATA.pageViews.materialWarehouse=(V16_DATA.pageViews.materialWarehouse||[]).filter(k=>k==='materialTable');
@@ -10596,7 +10598,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   },60);
  }
  /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
- const FONT_PLUS=4,STARTUP_PLUS=12,fontOrig=new Map(); // trang khởi động: +4 +12let fontOn=false;
+ const FONT_PLUS=4,STARTUP_PLUS=12,fontOrig=new Map();let fontOn=false; // trang khởi động: +4 +12
  function fontBoost(on){
   if(fontOn===on)return;fontOn=on;
   const walk=rules=>{for(const r of rules){
