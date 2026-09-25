@@ -4350,13 +4350,13 @@ function styleCellV8414_(cell,size,bold,background,align){
 
 function buildProposalDocV8414_(data){
   const doc=DocumentApp.create('PHIEU_DE_XUAT_'+data.code),body=doc.getBody();body.clear();body.setMarginTop(31).setMarginBottom(31).setMarginLeft(34).setMarginRight(34);
-  const header=body.appendTable([['','']]);header.setBorderWidth(0);header.setColumnWidth(0,306);header.setColumnWidth(1,214);
+  const header=body.appendTable([['','']]);header.setBorderWidth(0);header.setColumnWidth(0,334);header.setColumnWidth(1,186);
   const left=header.getCell(0,0),right=header.getCell(0,1),title=left.getChild(0).asParagraph();left.setVerticalAlignment(DocumentApp.VerticalAlignment.BOTTOM);title.appendText('PHIẾU ĐỀ XUẤT');title.setSpacingBefore(0).setSpacingAfter(1);styleTextV8414_(title,20,true);const code=left.appendParagraph('Mã phiếu: '+data.code);code.setSpacingBefore(0).setSpacingAfter(0);styleTextV8414_(code,10,true);
   right.setVerticalAlignment(DocumentApp.VerticalAlignment.TOP).setPaddingLeft(0).setPaddingRight(0);
   const logo=proposalLogoBlobV8414_(),brand=right.getChild(0).asParagraph();brand.setAlignment(DocumentApp.HorizontalAlignment.LEFT).setSpacingAfter(3);if(logo){const image=brand.appendInlineImage(logo),w=image.getWidth()||640,h=image.getHeight()||200;image.setWidth(183);image.setHeight(Math.round(h*183/w));}else{brand.appendText('PHI LONG TECHNOLOGY');styleTextV8414_(brand,15,true,'#D71920');}
   // Thông tin công ty: bảng 3 cột "Tên : Nội dung" (Địa chỉ / Điện thoại / Email / Website)
   const contact=[['Địa chỉ','52 Nguyễn Văn Linh, Đà Nẵng'],['Điện thoại','(0236) 3 888 000'],['Email','philong@philong.com.vn'],['Website','www.philong.com.vn','https://www.philong.com.vn']];
-  const contactTbl=right.appendTable(contact.map(function(r){return [r[0],':',r[1]];}));contactTbl.setBorderWidth(0);contactTbl.setColumnWidth(0,54);contactTbl.setColumnWidth(1,8);contactTbl.setColumnWidth(2,148);
+  const contactTbl=right.appendTable(contact.map(function(r){return [r[0],':',r[1]];}));contactTbl.setBorderWidth(0);contactTbl.setColumnWidth(0,54);contactTbl.setColumnWidth(1,8);contactTbl.setColumnWidth(2,122);
   contact.forEach(function(r,i){for(let c=0;c<3;c++){const cell=contactTbl.getCell(i,c);cell.setPaddingTop(1).setPaddingBottom(1).setPaddingLeft(c===1?1:0).setPaddingRight(c===1?1:0);const q=cell.getChild(0).asParagraph();q.setSpacingBefore(0).setSpacingAfter(0);styleTextV8414_(q,8,c<2,c<2?'#111111':'#4B5B6B');q.editAsText().setFontFamily('Times New Roman');if(c===2&&r[2])q.editAsText().setLinkUrl(r[2]).setForegroundColor('#4B5B6B').setUnderline(false);}});
   // Docs luôn thêm 1 đoạn trống sau bảng lồng trong ô: thu nhỏ để không tạo khoảng hở dưới khối logo.
   const tail=right.getChild(right.getNumChildren()-1);if(tail.getType()===DocumentApp.ElementType.PARAGRAPH){const tp=tail.asParagraph();tp.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);tp.editAsText().setFontSize(1);}
