@@ -38,7 +38,15 @@
 /* Xem Kế hoạch bảo trì: 6 thẻ KPI + lưới chi tiết 6 cột, vừa một màn hình. */
 .v25-view-kpis.pl-kpis-6{grid-template-columns:repeat(6,minmax(0,1fr))!important}
 /* CHUẨN CHUNG kích thước ô Xem/Form: đổi 3 số này là áp dụng cho mọi khung. */
-:root{--pl-cell-h:48px;--pl-cell-gap:8px;--pl-cell-pad:6px}
+:root{--pl-cell-h:48px;--pl-cell-gap:8px;--pl-cell-pad:6px;--pl-text-h:calc(2 * 1.4em + 14px)}
+/* MỌI form nhập/sửa: ô nội dung (textarea) cao đúng 2 dòng, vẫn kéo giãn được khi cần. */
+:is(#v17FormModal,#operationEditModalV841531,#plActionDialog) textarea{min-height:var(--pl-text-h)!important;height:var(--pl-text-h)!important;line-height:1.4!important;resize:vertical!important}
+/* MỌI khung Xem: nội dung dài chỉ hiện 2 dòng, rê chuột để xem đủ. */
+:is(#v25ViewModal .v25-detail-value,#plw85View .plw85-field>div,#pldDailyView .pld-view-field>div,#operationModalV841420 .operation-detail-item-v841420>div){display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+:is(#v25ViewModal .v25-detail-value,#plw85View .plw85-field>div,#pldDailyView .pld-view-field>div,#operationModalV841420 .operation-detail-item-v841420>div):hover{-webkit-line-clamp:unset!important;overflow:visible!important}
+/* Form nhập/sửa gọn: ô và khoảng cách theo chuẩn chung. */
+#v17FormModal .v17-field{padding:var(--pl-cell-pad) 10px!important}
+#v17FormModal :is(.v17-form-grid,.pl-v841612-pane){gap:var(--pl-cell-gap)!important}
 #v25ViewModal #v25ViewDetails.pl-plan-view6{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:var(--pl-cell-gap)!important}
 #v25ViewModal .v25-detail-row{min-height:var(--pl-cell-h)!important;margin:0!important}
 #v25ViewModal .v25-detail-label{padding-top:var(--pl-cell-pad)!important;padding-bottom:0!important}
@@ -51,15 +59,11 @@
 #v17FormModal #v17FormFields.pl-plan-edit-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:var(--pl-cell-gap)!important}
 #v17FormModal #v17FormFields.pl-plan-edit-grid>.v17-field{grid-column:auto!important;width:auto!important;margin:0!important}
 #v17FormModal #v17FormFields.pl-plan-edit-grid>.v17-field:has(textarea){grid-column:1/-1!important}
-/* Đề xuất mua vật tư: gọn ô Mục đích / Ghi chú để cả phiếu vừa một màn hình. */
-#v17FormModal textarea#v84149_reason,#v17FormModal textarea#v84149_note{min-height:44px!important;height:44px!important}
+
 /* Điện thoại: lưới Kế hoạch về 2 cột. */
 #plMobileViewport #v25ViewModal .v25-view-kpis.pl-kpis-6,#plMobileViewport #v25ViewModal #v25ViewDetails.pl-plan-view6,#plMobileViewport #v17FormModal #v17FormFields.pl-plan-edit-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 #plMobileViewport #v25ViewModal #v25ViewDetails.pl-plan-view6>.v25-detail-row{grid-column:span 1!important}
 #plMobileViewport #v25ViewModal #v25ViewDetails.pl-plan-view6>.v25-detail-row:last-child{grid-column:1/-1!important}
-/* Form bảo trì: ô Nội dung thực hiện (~3 dòng) và Ghi chú (~2 dòng) gọn lại; vẫn kéo giãn được. */
-#v17FormModal[data-form-page^="maintenance"] .v17-field textarea#v17_NOI_DUNG_THUC_HIEN{min-height:64px!important;height:64px!important}
-#v17FormModal[data-form-page^="maintenance"] .v17-field textarea#v17_GHI_CHU{min-height:44px!important;height:44px!important}
 
 /* Table palette: single owner for light-mode table surfaces and interactions. */
 html:not([data-theme="dark"]){--tbl-bg:#FFFFFF;--tbl-alt:#F8FAFC;--tbl-head:#EEF2F6;--tbl-title:#344054;--tbl-text:#172033;--tbl-line:#D8E1EB;--tbl-foot:#F1F5F9;--tbl-pending:#FFF3CD;--tbl-progress:#E8EEFF;--tbl-done:#DCFCE7;--tbl-error:#FEE2E2;--tbl-hover:#EFF6FF;--tbl-ring:#60A5FA;--tbl-selected:#CFE3FF;--tbl-accent:#2563EB}
