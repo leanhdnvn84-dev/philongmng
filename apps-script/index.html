@@ -39,6 +39,12 @@
 .v25-view-kpis.pl-kpis-6{grid-template-columns:repeat(6,minmax(0,1fr))!important}
 /* CHUẨN CHUNG kích thước ô Xem/Form: đổi 3 số này là áp dụng cho mọi khung. */
 :root{--pl-cell-h:48px;--pl-cell-gap:8px;--pl-cell-pad:6px;--pl-text-h:calc(2 * 1.4em + 14px)}
+/* HỆ THỐNG: cột tự co giãn theo dữ liệu — cột ngắn (ngày, mã, họ tên) vừa chữ, cột dài (email, nội dung)
+   rộng tới tối đa 420px rồi cắt "…" (rê chuột xem đủ). Bỏ mọi độ rộng cố định cũ của bảng. */
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table{table-layout:auto!important;width:auto!important;min-width:100%!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) :is(th,td){width:auto!important;min-width:0!important;max-width:420px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) td:hover{white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) colgroup col{width:auto!important}
 /* MỌI form nhập/sửa: ô nội dung (textarea) cao đúng 2 dòng, vẫn kéo giãn được khi cần. */
 :is(#v17FormModal,#operationEditModalV841531,#plActionDialog) :is(.v17-field,.operation-edit-field-v841531,.v84149-master-grid,div) textarea{max-height:none;min-height:var(--pl-text-h)!important;height:var(--pl-text-h)!important;line-height:1.4!important;resize:vertical!important}
 /* MỌI khung Xem: nội dung dài chỉ hiện 2 dòng, rê chuột để xem đủ. */
