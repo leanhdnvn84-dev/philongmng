@@ -39,15 +39,14 @@
 .v25-view-kpis.pl-kpis-6{grid-template-columns:repeat(6,minmax(0,1fr))!important}
 /* CHUẨN CHUNG kích thước ô Xem/Form: đổi 3 số này là áp dụng cho mọi khung. */
 :root{--pl-cell-h:48px;--pl-cell-gap:8px;--pl-cell-pad:6px;--pl-text-h:calc(2 * 1.4em + 14px)}
-/* HỆ THỐNG: cột tự co giãn theo dữ liệu — cột ngắn (ngày, mã, họ tên) vừa chữ, cột dài (email, nội dung)
-   rộng tới tối đa 420px rồi cắt "…" (rê chuột xem đủ). Bỏ mọi độ rộng cố định cũ của bảng. */
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table{table-layout:auto!important;width:auto!important;min-width:100%!important}
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) :is(th,td){width:auto!important;min-width:0!important;max-width:420px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+/* HỆ THỐNG: cột tự co giãn theo dữ liệu — cột ngắn vừa chữ, cột dài tối đa 420px rồi cắt "…" (rê chuột xem đủ).
+   Riêng Nhật ký hệ thống (.pl-audit-fixed): bảng rộng 100%, cột theo tỉ lệ % do V210 gán qua colgroup. */
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) :is(th,td){min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 :is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) td:hover{white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere}
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) colgroup col{width:auto!important}
-/* Nhật ký hệ thống: bảng rộng 100%, cột theo tỉ lệ % (colgroup do V210 gán), không dùng px. */
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table:not(.pl-audit-fixed){table-layout:auto!important;width:auto!important;min-width:100%!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table:not(.pl-audit-fixed) :is(th,td){width:auto!important;max-width:420px!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table:not(.pl-audit-fixed) colgroup col{width:auto!important}
 #systemAudit table.pl-audit-fixed{table-layout:fixed!important;width:100%!important;min-width:0!important}
-#systemAudit table.pl-audit-fixed :is(th,td){max-width:none!important}
 /* MỌI form nhập/sửa: ô nội dung (textarea) cao đúng 2 dòng, vẫn kéo giãn được khi cần. */
 :is(#v17FormModal,#operationEditModalV841531,#plActionDialog) :is(.v17-field,.operation-edit-field-v841531,.v84149-master-grid,div) textarea{max-height:none;min-height:var(--pl-text-h)!important;height:var(--pl-text-h)!important;line-height:1.4!important;resize:vertical!important}
 /* MỌI khung Xem: nội dung dài chỉ hiện 2 dòng, rê chuột để xem đủ. */
@@ -6745,7 +6744,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     }
     /* These pages already have an explicit percentage grid (V210/V841489).
        Do not let the legacy pixel classifier overwrite their desktop columns. */
-    if(new Set(['pcccEmployeesTable','employeesTable','contractorsTable','suppliersTable','materialsTable','buildingAreasTable','maintenanceItemsTable','floorsTable','tenantsTable','prospectsTable']).has(key)){
+    if(new Set(['pcccEmployeesTable','employeesTable','contractorsTable','suppliersTable','materialsTable','buildingAreasTable','maintenanceItemsTable','floorsTable','tenantsTable','prospectsTable','auditArchiveTable']).has(key)){
       clearLegacyClasses(table);
       return;
     }
@@ -11021,9 +11020,10 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     const table=document.querySelector('#auditArchiveTable table');if(!table||!table.tHead)return;
     const cells=[...table.tHead.rows[0].cells];if(!cells.length)return;
     const pct=cells.map(c=>{const n=norm(c.textContent);const hit=AUDIT_WIDTHS.find(([k])=>n.includes(k));return hit?hit[1]:6});
-    const total=pct.reduce((a,b)=>a+b,0),key=pct.join(',');if(table.dataset.auditWidths===key)return;table.dataset.auditWidths=key;
-    table.querySelector('colgroup')?.remove();
-    table.insertAdjacentHTML('afterbegin','<colgroup>'+pct.map(p=>'<col style="width:'+(p*100/total).toFixed(2)+'%!important">').join('')+'</colgroup>');
+    const total=pct.reduce((a,b)=>a+b,0),key=pct.join(',');if(table.dataset.auditWidths===key&&table.querySelector(':scope>colgroup.pl-audit-cols'))return;table.dataset.auditWidths=key;
+    // Bỏ colgroup/độ rộng px của lớp cũ (pl47) — chỉ còn đúng một colgroup % của bảng này.
+    table.querySelectorAll(':scope>colgroup').forEach(g=>g.remove());table.style.removeProperty('width');table.style.removeProperty('min-width');
+    table.insertAdjacentHTML('afterbegin','<colgroup class="pl-audit-cols">'+pct.map(p=>'<col style="width:'+(p*100/total).toFixed(2)+'%">').join('')+'</colgroup>');
     table.classList.add('pl-audit-fixed');
   }
   function sweep(){document.querySelectorAll('main.container table').forEach(removeActionColumn);auditWidths()}

@@ -3639,7 +3639,9 @@ function getPageListV124(request){
   if(wantAll){number=1;size=Math.max(1,filtered.length)}
   const total=filtered.length,pages=Math.max(1,Math.ceil(total/size)),current=Math.min(number,pages),start=(current-1)*size,rows=v124ProjectRows_(filtered.slice(start,start+size),spec.columns);
   v124PathSet_(bundle,spec.path,rows);bundle.pagination={page:current,pageSize:size,total:total,totalPages:pages,hasNext:current<pages};bundle.listColumns=spec.columns||[];bundle.elapsedMs=Date.now()-started;bundle.serverPaged=true;bundle.cacheScope=spec.domain;
-  const text=JSON.stringify(bundle);if(text.length<70000)cache.put(cacheKey,text,spec.domain==='inventory'||spec.domain==='maintenance'?300:180);
+  // CacheService giới hạn 100KB tính theo BYTE (tiếng Việt UTF-8 tới 3 byte/ký tự). Ghi cache lỗi
+  // không được làm hỏng lượt tải (trước đây Nhật ký hệ thống lớn làm cache.put ném lỗi -> trang trống).
+  try{const text=JSON.stringify(bundle);if(text.length<90000&&Utilities.newBlob(text).getBytes().length<90000)cache.put(cacheKey,text,spec.domain==='inventory'||spec.domain==='maintenance'?300:180)}catch(ignore){}
   return bundle;
 }
 function getPageReferencesV124(page,force){
