@@ -11948,11 +11948,11 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active :is(.plw
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
 .pl-rpt{--r-bg:#fff;--r-soft:#f6f7f9;--r-line:#e3e6ea;--r-text:#1f2937;--r-mute:#6b7280;--r-acc:#9e1730;--r-ok:#15803d;--r-warn:#b45309;--r-bad:#b91c1c;--r-info:#1d4ed8;display:flex;flex-direction:column;gap:12px;color:var(--r-text)}
 html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155;--r-text:#e5e7eb;--r-mute:#9ca3af;--r-acc:#f47c95;--r-ok:#4ade80;--r-warn:#fbbf24;--r-bad:#f87171;--r-info:#93c5fd}
-.pl-rpt-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--r-bg);border:1px solid var(--r-line);border-radius:10px;padding:8px 10px}
-.pl-rpt-bar h2{margin:0 12px 0 0;font-size:17px;color:var(--r-acc);white-space:nowrap}
-.pl-rpt-bar :is(select,input){height:32px;border:1px solid var(--r-line);border-radius:7px;background:var(--r-soft);color:var(--r-text);padding:0 8px;font:inherit}
+.pl-rpt-bar{display:flex!important;flex-flow:row nowrap!important;overflow-x:auto;gap:8px;align-items:center;background:var(--r-bg);border:1px solid var(--r-line);border-radius:10px;padding:8px 10px}
+.pl-rpt-bar h2{flex:0 0 auto;margin:0 12px 0 0;font-size:17px;color:var(--r-acc);white-space:nowrap}
+.pl-rpt-bar>:is(select,input){flex:0 1 210px!important;width:auto!important;min-width:120px!important;max-width:240px!important;margin:0!important;height:32px!important;border:1px solid var(--r-line);border-radius:7px;background:var(--r-soft);color:var(--r-text);padding:0 8px;font:inherit}
 .pl-rpt-bar .sp{flex:1}
-.pl-rpt-bar button{height:32px;padding:0 12px;border:1px solid var(--r-line);border-radius:7px;background:var(--r-soft);color:var(--r-text);font-weight:700;cursor:pointer}
+.pl-rpt-bar button{flex:0 0 auto;white-space:nowrap;height:32px;padding:0 12px;border:1px solid var(--r-line);border-radius:7px;background:var(--r-soft);color:var(--r-text);font-weight:700;cursor:pointer}
 .pl-rpt-bar button.on{background:var(--r-acc);border-color:var(--r-acc);color:#fff}
 .pl-rpt-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
 .pl-rpt-kpi{background:var(--r-bg);border:1px solid var(--r-line);border-left:4px solid var(--r-mute);border-radius:10px;padding:8px 12px}
@@ -11963,7 +11963,7 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
 .pl-rpt-grid{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr);gap:12px;align-items:start}
 .pl-rpt-card{background:var(--r-bg);border:1px solid var(--r-line);border-radius:10px;overflow:hidden}
 .pl-rpt-card>h3{margin:0;padding:8px 12px;font-size:14px;color:var(--r-acc);border-bottom:1px solid var(--r-line);text-transform:uppercase}
-.pl-rpt-scroll{overflow:auto;max-height:calc(100vh - 330px)}
+.pl-rpt-scroll{overflow:auto;max-height:calc(100vh - 250px)}
 .pl-rpt table{width:100%;border-collapse:collapse;font-size:13px}
 .pl-rpt th{position:sticky;top:0;background:var(--r-soft);color:var(--r-mute);font-size:12px;text-align:left;padding:7px 8px;border-bottom:1px solid var(--r-line);white-space:nowrap;z-index:1}
 .pl-rpt td{padding:7px 8px;border-bottom:1px solid var(--r-line);vertical-align:top}
@@ -11984,7 +11984,7 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
 .pl-rpt-chart small{color:var(--r-mute);font-size:11px;white-space:nowrap}
 .pl-rpt-legend{display:flex;gap:14px;padding:6px 12px 10px;color:var(--r-mute);font-size:12px}
 .pl-rpt-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;background:var(--r-info)}.pl-rpt-legend i.d{background:var(--r-ok)}
-@media (max-width:900px){.pl-rpt-grid{grid-template-columns:1fr}.pl-rpt-scroll{max-height:none}.pl-rpt-bar h2{width:100%}.pl-rpt-bar .sp{display:none}}
+@media (max-width:900px){.pl-rpt-grid{grid-template-columns:1fr}.pl-rpt-scroll{max-height:none}.pl-rpt-bar .sp{display:none}}
 </style>
 <script>
 /* Báo cáo tiến độ (workProgress) + Báo cáo công việc (workReport): dữ liệu APP.core.work / APP.core.daily
@@ -12021,19 +12021,18 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
     const f=S.progress;el.querySelectorAll('[data-f]').forEach(x=>{if(x.dataset.f in f&&x.options.length)f[x.dataset.f]=x.value});
     const all=Array.isArray(core().work)?core().work:[],t=today();fillPeople(el.querySelector('[data-f="person"]'),all,f.person);
     const base=all.filter(r=>(!f.person||person(r)===f.person)&&(!f.level||fold(r.MUC_DO)===fold(f.level))).map(r=>({r,i:workInfo(r,t)}));
-    const open=base.filter(x=>!x.i.done),withDue=base.filter(x=>x.i.done&&x.i.han&&x.i.xong),onTime=withDue.filter(x=>!x.i.late).length;
+    const open=base.filter(x=>!x.i.done);
     const late=open.filter(x=>x.i.late),soon=open.filter(x=>!x.i.late&&x.i.left!==null&&x.i.left<=SOON);
     let list=f.state==='late'?late:f.state==='soon'?soon:f.state==='all'?base:open;
     const rank=x=>x.i.done?4:x.i.late?0:(x.i.left!==null&&x.i.left<=SOON)?1:x.i.st==='DANG THUC HIEN'?2:3;
     list=list.slice().sort((a,b)=>rank(a)-rank(b)||(a.i.late&&b.i.late?a.i.left-b.i.left:0)||String(a.i.han||'9999').localeCompare(String(b.i.han||'9999'))||(fold(b.r.MUC_DO)==='QUAN TRONG')-(fold(a.r.MUC_DO)==='QUAN TRONG'));
-    const kpis=kpi('Chưa thực hiện',open.filter(x=>x.i.st!=='DANG THUC HIEN').length,'')+kpi('Đang thực hiện',open.filter(x=>x.i.st==='DANG THUC HIEN').length,'info')+kpi('Sắp đến hạn',soon.length,'warn','trong '+SOON+' ngày tới')+kpi('Quá hạn',late.length,'bad')+kpi('Tỷ lệ đúng hạn',pctText(onTime,withDue.length),'ok',onTime+'/'+withDue.length+' việc đã xong có hạn');
     const rows=list.map(({r,i})=>{const due=i.done?`<span class="pl-rpt-tag ok">Xong ${show(i.xong)}</span>`:i.left===null?'<span class="pl-rpt-tag">Chưa có hạn</span>':i.left<0?`<span class="pl-rpt-tag bad">Trễ ${-i.left} ngày</span>`:i.left===0?'<span class="pl-rpt-tag warn">Hết hạn hôm nay</span>':`<span class="pl-rpt-tag ${i.left<=SOON?'warn':''}">Còn ${i.left} ngày</span>`;
       const bar=i.done?meter(100,'ok'):i.used===null?'<span class="pl-rpt-note">—</span>':meter(i.used,i.tone)+`<div class="pl-rpt-note">${i.used}% thời gian</div>`;
       return `<tr data-id="${esc(r.ID)}" data-src="work"><td>${fold(r.MUC_DO)==='QUAN TRONG'?'<span class="pl-rpt-tag bad">Quan trọng</span>':'<span class="pl-rpt-tag">Bình thường</span>'}</td><td><b>${esc(r.NOI_DUNG||'—')}</b>${r.TIEN_DO?`<div class="pl-rpt-note">Tiến độ: ${esc(r.TIEN_DO)}</div>`:''}</td><td>${esc(person(r))}</td><td class="c">${show(i.giao)}</td><td class="c">${show(i.han)}</td><td class="c">${due}</td><td>${bar}</td><td class="c"><span class="pl-rpt-tag ${i.tone}">${esc(r.TRANG_THAI||'—')}</span></td></tr>`}).join('');
     const byP={};base.forEach(x=>{const p=person(x.r),o=byP[p]||(byP[p]={p,todo:0,doing:0,late:0,done:0});if(x.i.done)o.done++;else{if(x.i.st==='DANG THUC HIEN')o.doing++;else o.todo++;if(x.i.late)o.late++}});
     const ps=Object.values(byP).sort((a,b)=>b.late-a.late||(b.todo+b.doing)-(a.todo+a.doing)),mx=Math.max(1,...ps.map(o=>o.todo+o.doing));
     const side=ps.map(o=>`<tr><td><b>${esc(o.p)}</b>${meter((o.todo+o.doing)/mx*100,o.late?'bad':'')}</td><td class="n">${o.todo}</td><td class="n">${o.doing}</td><td class="n" style="color:var(--r-bad)">${o.late||''}</td></tr>`).join('');
-    el.querySelector('.pl-rpt-body').innerHTML=`<div class="pl-rpt-kpis">${kpis}</div><div class="pl-rpt-grid"><section class="pl-rpt-card"><h3>Danh sách theo dõi · ${list.length} việc</h3><div class="pl-rpt-scroll">${list.length?`<table><thead><tr><th>Mức độ</th><th>Nội dung / tiến độ</th><th>Người thực hiện</th><th class="c">Ngày giao</th><th class="c">Hạn</th><th class="c">Còn lại</th><th>Thời gian đã dùng</th><th class="c">Trạng thái</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="pl-rpt-empty">Không có công việc theo điều kiện đã chọn.</div>'}</div></section><section class="pl-rpt-card"><h3>Khối lượng theo người</h3><div class="pl-rpt-scroll"><table><thead><tr><th>Người thực hiện</th><th class="n">Chưa làm</th><th class="n">Đang làm</th><th class="n">Quá hạn</th></tr></thead><tbody>${side||'<tr><td colspan="4" class="pl-rpt-empty">Không có dữ liệu.</td></tr>'}</tbody></table></div></section></div>`;
+    el.querySelector('.pl-rpt-body').innerHTML=`<div class="pl-rpt-grid"><section class="pl-rpt-card"><h3>Danh sách theo dõi · ${list.length} việc</h3><div class="pl-rpt-scroll">${list.length?`<table><thead><tr><th>Mức độ</th><th>Nội dung / tiến độ</th><th>Người thực hiện</th><th class="c">Ngày giao</th><th class="c">Hạn</th><th class="c">Còn lại</th><th>Thời gian đã dùng</th><th class="c">Trạng thái</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="pl-rpt-empty">Không có công việc theo điều kiện đã chọn.</div>'}</div></section><section class="pl-rpt-card"><h3>Khối lượng theo người</h3><div class="pl-rpt-scroll"><table><thead><tr><th>Người thực hiện</th><th class="n">Chưa làm</th><th class="n">Đang làm</th><th class="n">Quá hạn</th></tr></thead><tbody>${side||'<tr><td colspan="4" class="pl-rpt-empty">Không có dữ liệu.</td></tr>'}</tbody></table></div></section></div>`;
   }
 
   /* ---------- Báo cáo công việc ---------- */
