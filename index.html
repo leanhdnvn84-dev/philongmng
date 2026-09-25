@@ -145,24 +145,27 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     @media(max-width:700px){.form-editor-page{min-height:0;padding:30px 20px}.form-editor-company{width:240px;max-width:100%;font-size:11px}.form-editor-meta,.form-editor-grid{grid-template-columns:1fr}.form-editor-meta label.full,.form-editor-field.full{grid-column:auto}.form-editor-actions{justify-content:stretch}.form-editor-actions .btn{flex:1}}
     @media print{.form-editor-page{width:210mm;min-height:297mm;margin:0;padding:15mm 16mm;box-shadow:none}.forms-processing>h2,.forms-processing>p{display:none}}
     /* Form Modal Styles */
-    .form-modal-container{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:center;justify-content:center}
+    .form-modal-container{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:150000;display:none;align-items:center;justify-content:center}
     .form-modal-container.open{display:flex}
-    .form-modal-content{background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.3);width:90%;max-width:1200px;height:90vh;display:flex;flex-direction:column;overflow:hidden}
-    .form-modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e0e0e0;background:#f5f5f5;flex-shrink:0}
-    .form-modal-header h2{margin:0;font-size:18px;color:#333;flex:1}
-    .form-modal-close{background:0;border:0;font-size:24px;cursor:pointer;color:#666;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+    .form-modal-content{background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.3);width:90%;max-width:1200px;height:90vh;display:flex;flex-direction:column;overflow:hidden;z-index:150001}
+    .form-modal-header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid #e0e0e0;background:#f5f5f5;flex-shrink:0}
+    .form-modal-header-left{display:flex;align-items:center;flex:0 0 auto;min-width:0}
+    .form-modal-header h2{margin:0;font-size:16px;color:#333}
+    .form-modal-header-actions{display:flex;gap:6px;align-items:center;justify-content:center;flex:1;min-width:0;overflow-x:auto}
+    .form-modal-header-actions button{padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;font-size:13px;transition:all 0.2s;white-space:nowrap}
+    .form-modal-header-actions button:hover{background:#f0f0f0;border-color:#999}
+    .form-modal-header-actions button.primary{background:#1976d2;color:#fff;border-color:#1976d2}
+    .form-modal-header-actions button.primary:hover{background:#1565c0;border-color:#1565c0}
+    .form-modal-close{background:0;border:0;font-size:20px;cursor:pointer;color:#666;padding:4px 8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
     .form-modal-close:hover{color:#000;background:#e0e0e0;border-radius:4px}
-    .form-modal-body{flex:1;overflow-y:auto;padding:24px;background:#fff}
+    .form-modal-body{flex:1;overflow-y:auto;padding:20px;background:#fff}
     .form-modal-frame{width:100%;height:100%;border:0}
-    .form-modal-actions{display:flex;gap:8px;padding:16px 24px;border-top:1px solid #e0e0e0;background:#f5f5f5;flex-shrink:0;justify-content:flex-end}
-    .form-modal-actions button{padding:8px 16px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;font-size:14px;transition:all 0.2s}
-    .form-modal-actions button:hover{background:#f0f0f0;border-color:#999}
-    .form-modal-actions button.primary{background:#1976d2;color:#fff;border-color:#1976d2}
-    .form-modal-actions button.primary:hover{background:#1565c0;border-color:#1565c0}
-    body[data-theme="light"] .form-modal-container{background:rgba(0,0,0,0.6)}
-    body[data-theme="light"] .form-modal-content{background:#fff;color:#000}
+    body[data-theme="light"] .form-modal-container{background:rgba(0,0,0,0.6);z-index:150000}
+    body[data-theme="light"] .form-modal-content{background:#fff;color:#000;z-index:150001}
     body[data-theme="light"] .form-modal-header{background:#f9f9f9;border-bottom-color:#ddd}
     body[data-theme="light"] .form-modal-header h2{color:#222}
+    body[data-theme="light"] .form-modal-header-actions button{border-color:#ccc;background:#fff;color:#333}
+    body[data-theme="light"] .form-modal-header-actions button:hover{background:#f5f5f5}
   </style>
 </head>
 <body>
@@ -250,11 +253,13 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
   <div class="form-modal-container" id="formModalContainer">
     <div class="form-modal-content">
       <header class="form-modal-header">
-        <h2 id="formModalTitle">Biểu mẫu</h2>
+        <div class="form-modal-header-left">
+          <h2 id="formModalTitle">Biểu mẫu</h2>
+        </div>
+        <div class="form-modal-header-actions" id="formModalActions"></div>
         <button class="form-modal-close" id="formModalClose" type="button" aria-label="Đóng">✕</button>
       </header>
       <div class="form-modal-body" id="formModalBody"></div>
-      <div class="form-modal-actions" id="formModalActions"></div>
     </div>
   </div>
   <div class="toast" id="toast"></div>
@@ -539,8 +544,8 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
       var frame=$('#formsPreviewFrame'),pages=frame&&frame.contentDocument&&frame.contentDocument.querySelector('.preview-pages'),value=Math.max(55,Math.min(130,Number(state.formsPreviewZoom)||85));state.formsPreviewZoom=value;
       if(pages)pages.style.zoom=String(value/100);var label=$('#formsZoomValue');if(label)label.textContent=value+'%';
     }
-    function setFormsPreviewZoom(value) { state.formsPreviewZoom=Math.max(55,Math.min(130,Math.round(Number(value)||85)));applyFormsPreviewZoom(); }
-    function fitFormsPreviewZoom() { var frame=$('#formsPreviewFrame'),available=frame&&frame.clientWidth||850,value=Math.floor(Math.min(1,(available-52)/794)*100/5)*5;setFormsPreviewZoom(Math.max(55,value||85)); }
+    function setFormsPreviewZoom(value) { state.formsPreviewZoom=Math.max(40,Math.min(200,Math.round(Number(value)||85)));applyFormsPreviewZoom(); }
+    function fitFormsPreviewZoom() { var frame=$('#formsPreviewFrame'),available=frame&&frame.clientWidth||850,value=Math.floor(Math.min(1,(available-52)/794)*100/5)*5;setFormsPreviewZoom(Math.max(40,value||85)); }
     function mountFormPreview(data) {
       var frame=$('#formsPreviewFrame');if(!frame)return;frame.onload=function(){var target=frame;requestAnimationFrame(function(){requestAnimationFrame(function(){paginateFormPreviewFrame(target);});});};frame.srcdoc=formPreviewDocument(data);
     }
@@ -556,11 +561,11 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     function formEmployeeOptions(selected) { var wanted=normalize(selected&&typeof selected==='object'?selected.value:selected);return state.employees.map(function(person){var key=personKey(person);return '<option value="'+esc(key)+'" '+(normalize(key)===wanted?'selected':'')+'>'+esc(person.HO_VA_TEN||'Chưa có tên')+'</option>';}).join(''); }
     function openFormFullscreen(template,command) {
       if(!template)return;
-      var container=document.getElementById('formModalContainer'),header=container.querySelector('.form-modal-header h2'),body=container.querySelector('.form-modal-body'),actions=container.querySelector('.form-modal-actions');
+      var container=document.getElementById('formModalContainer'),header=container.querySelector('.form-modal-header h2'),body=container.querySelector('.form-modal-body'),actions=container.querySelector('.form-modal-header-actions');
       var innerCmd=command||'view';
       header.textContent=innerCmd==='edit'?'Sửa biểu mẫu':template.name;
-      if(innerCmd==='edit'){body.innerHTML=renderFormEditor(template);actions.innerHTML='<button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-save>✓ Lưu & In</button>';}
-      else {var data=previewFormPrintData(template);body.innerHTML='<iframe id="formModalFrame" class="form-modal-frame" title="Xem biểu mẫu"></iframe>';actions.innerHTML='<button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-edit>✎ Sửa</button>';mountFormModalPreview(data);}
+      if(innerCmd==='edit'){body.innerHTML=renderFormEditor(template);actions.innerHTML='<button type="button" data-form-modal-print="pdf">📄 PDF</button><button type="button" data-form-modal-print="word">📋 Word</button><button class="primary" type="button" data-form-modal-save>✓ Lưu & In</button>';}
+      else {var data=previewFormPrintData(template);body.innerHTML='<iframe id="formModalFrame" class="form-modal-frame" title="Xem biểu mẫu"></iframe>';actions.innerHTML='<button type="button" data-form-modal-print="pdf">📄 PDF</button><button type="button" data-form-modal-print="word">📋 Word</button><button class="primary" type="button" data-form-modal-edit>✎ Sửa</button>';mountFormModalPreview(data);}
       container.classList.add('open');
       addFormModalEvents(template);
     }
@@ -714,7 +719,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     document.querySelectorAll('[data-forms-tab]').forEach(function(button){button.addEventListener('click',function(){setFormsTab(button.dataset.formsTab);});});
     $('#formsActionMenu').addEventListener('click',function(event){var button=event.target.closest('[data-forms-command]');if(!button)return;var command=button.dataset.formsCommand;if(command==='refresh-forms'){load();return;}if(command==='new-form'){var item=formTemplateByClientId(state.formsTemplateId)||formTemplateRecords().find(function(row){return state.formsTab==='all'||row.tab===state.formsTab;})||formTemplateRecords()[0];state.formsTemplateId=item&&item.id||'';state.formsCommand='new';state.lastFormPrintData=null;renderFormsProcessing();}});
     $('#formTemplateGrid').addEventListener('click',function(event){var button=event.target.closest('[data-form-select]');if(!button)return;var template=formTemplateByClientId(button.dataset.formSelect||'');if(!template)return;openFormFullscreen(template,'view');});
-    document.querySelector('.forms-preview-actions').addEventListener('click',function(event){var button=event.target.closest('[data-form-view-action]');if(!button||button.disabled)return;var action=button.dataset.formViewAction,template=formTemplateByClientId(state.formsTemplateId);if(action==='zoom-out'){setFormsPreviewZoom(state.formsPreviewZoom-10);return;}if(action==='zoom-in'){setFormsPreviewZoom(state.formsPreviewZoom+10);return;}if(action==='zoom-reset'){fitFormsPreviewZoom();return;}if(!template)return;if(action==='blank'){state.formsCommand='blank';state.lastFormPrintData=null;renderFormsProcessing();return;}if(action==='new'){state.formsCommand='new';state.lastFormPrintData=null;renderFormsProcessing();return;}var data=currentFormsPrintData();if(!data)return;if(action==='print')printFormPdf(data);else if(action==='word')downloadFormWord(data);});
+    document.querySelector('.forms-preview-actions').addEventListener('click',function(event){var button=event.target.closest('[data-form-view-action]');if(!button||button.disabled)return;var action=button.dataset.formViewAction,template=formTemplateByClientId(state.formsTemplateId);if(action==='zoom-out'){setFormsPreviewZoom(state.formsPreviewZoom-5);return;}if(action==='zoom-in'){setFormsPreviewZoom(state.formsPreviewZoom+5);return;}if(action==='zoom-reset'){fitFormsPreviewZoom();return;}if(!template)return;if(action==='blank'){state.formsCommand='blank';state.lastFormPrintData=null;renderFormsProcessing();return;}if(action==='new'){state.formsCommand='new';state.lastFormPrintData=null;renderFormsProcessing();return;}var data=currentFormsPrintData();if(!data)return;if(action==='print')printFormPdf(data);else if(action==='word')downloadFormWord(data);});
     $('#formsProcessing').addEventListener('click',function(event){var draftPrint=event.target.closest('[data-form-print]');if(draftPrint){var draftData=formPrintDataFromForm($('#formsRequestForm'));if(!draftData)return;if(draftPrint.dataset.formPrint==='pdf')printFormPdf(draftData);else downloadFormWord(draftData);return;}var close=event.target.closest('[data-form-close]');if(close){state.formsCommand='preview';state.lastFormPrintData=null;renderFormsProcessing();return;}var create=event.target.closest('[data-form-new]');if(create){state.formsCommand='new';state.formsTemplateId=create.dataset.formNew||state.formsTemplateId;state.lastFormPrintData=null;renderFormsProcessing();}});
     $('#formsProcessing').addEventListener('submit',function(event){if(event.target.id!=='formsRequestForm')return;event.preventDefault();var form=event.target,printData=formPrintDataFromForm(form);if(!printData)return;var payload={ID_BIEU_MAU:printData.templateId,MA_NHAN_VIEN:printData.employeeCode,NGAY_LAP:printData.dateValue,TIEU_DE:printData.title,NOI_DUNG:printData.content,GHI_CHU:printData.note,DU_LIEU_MAU_JSON:printData.detailJson},save=form.querySelector('[type="submit"]');save.disabled=true;call('saveFormRequest',payload,function(result){printData.id=result&&result.id||'';state.lastFormPrintData=printData;state.formsCommand='saved';state.formsTemplateId=payload.ID_BIEU_MAU;toast('Đã lưu phiếu biểu mẫu ở trạng thái Nháp.');load();},function(error){save.disabled=false;toast(error||'Không thể lưu phiếu biểu mẫu.',true);});});
     $('#formsSearch').addEventListener('input',renderForms);
