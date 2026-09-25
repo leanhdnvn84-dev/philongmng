@@ -2775,6 +2775,26 @@ function invalidateSheetV20_(sheetName, keepHeaders){
   v124InvalidateDomainsForSheet_(sheetName);
 }
 
+// V90: ghi 1 dòng → vá đúng dòng đó trong cache sheet (đọc lại 1 dòng từ Sheet để lấy giá trị thật)
+// thay vì xóa cache cả sheet. Lượt tải trang ngay sau khi lưu không phải đọc lại toàn bộ sheet.
+function v90AfterRowWrite_(sheetName,rowNumber){
+  const c=v20ctx_();
+  delete c.rows[sheetName];delete c.objects[sheetName];
+  Object.keys(c.idRows).forEach(k=>{if(k.indexOf(sheetName+'|')===0)delete c.idRows[k];});
+  v124InvalidateDomainsForSheet_(sheetName);
+  try{
+    const cached=v84ReadSheetCache_(sheetName);
+    if(!cached||!Array.isArray(cached.rows)||!Array.isArray(cached.headers))return v64RemoveSheetCache_(sheetName);
+    const headers=cached.headers,values=getSheet_(sheetName).getRange(rowNumber,1,1,Math.max(1,headers.length)).getValues()[0];
+    const rows=cached.rows.filter(function(x){return x.row!==rowNumber;});
+    if(values.some(function(v){return v!==''&&v!==null;})){
+      const obj={};headers.forEach(function(h,i){if(h)obj[h]=normalizeSheetValue_(values[i]);});
+      rows.push({row:rowNumber,obj:obj});rows.sort(function(a,b){return a.row-b.row;});
+    }
+    v64RemoveSheetCache_(sheetName);v84WriteSheetCache_(sheetName,headers,rows);
+  }catch(e){v64RemoveSheetCache_(sheetName);}
+}
+
 // V124: cache theo miền nghiệp vụ. Khóa cache luôn mang thế hệ nên một thao tác
 // ghi chỉ vô hiệu hóa các trang liên quan, không xóa cache của toàn hệ thống.
 function v124DomainGeneration_(domain){
@@ -2929,7 +2949,7 @@ function appendObject_(sheetName,obj){
   const sh=getSheet_(sheetName), headers=getHeaders_(sheetName), row=headers.map(h=>obj[h]!==undefined?obj[h]:'');
   const target=Math.max(2,sh.getLastRow()+1);
   sh.getRange(target,1,1,headers.length).setValues([row]);
-  invalidateSheetV20_(sheetName,true);
+  v90AfterRowWrite_(sheetName,target);
   v20ctx_().lastWriteRows[sheetName]=target;
   return obj;
 }
@@ -2938,7 +2958,7 @@ function updateRowFields_(sheetName,rowNumber,fields){
   const row=sh.getRange(rowNumber,1,1,headers.length).getValues()[0];
   Object.keys(fields||{}).forEach(k=>{const i=headers.indexOf(k);if(i>=0)row[i]=fields[k];});
   sh.getRange(rowNumber,1,1,headers.length).setValues([row]);
-  invalidateSheetV20_(sheetName,true);
+  v90AfterRowWrite_(sheetName,rowNumber);
   v20ctx_().lastWriteRows[sheetName]=rowNumber;
 }
 function updateById_(sheetName,idField,id,fields){
