@@ -57,6 +57,9 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     .forms-catalog-pane .forms-title h2{font-size:17px}
     .forms-catalog-pane .forms-title p{max-width:245px;line-height:1.4}
     .forms-catalog-pane .forms-title>span{align-self:flex-start;white-space:nowrap}
+    .forms-catalog-toolbar{flex:0 0 auto;display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:6px;border:1px solid #334454;border-radius:9px;background:#0d151e}
+    .forms-catalog-toolbar .forms-zoom-button{width:34px;padding:8px 0;font-size:16px}
+    .forms-catalog-toolbar .forms-zoom-value{min-width:54px;padding-inline:7px}
     .forms-catalog-filter{flex:0 0 auto;display:grid;gap:8px;margin-bottom:10px}
     .forms-catalog-filter .field{width:100%}
     .forms-catalog-filter-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px}
@@ -74,6 +77,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     .form-template-group{display:inline-block;overflow:hidden;max-width:48%;border-radius:12px;padding:2px 6px;background:#20303e;color:#d9e3ec;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
     .form-template-standard{overflow:hidden;color:#ffaaa6;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
     body[data-theme="light"] .forms-catalog-pane{border-color:#d4dee7;background:#fff;box-shadow:0 8px 20px #4a5c7020}
+    body[data-theme="light"] .forms-catalog-toolbar{border-color:#d5dfe8;background:#fff;box-shadow:0 2px 8px #52667a12}
     body[data-theme="light"] .form-template-card{border-color:#d4dee7;background:#fff;color:#1c2c3b;box-shadow:0 4px 10px #52667a16}
     body[data-theme="light"] .form-template-card:hover{border-color:#d58b8e;background:#fffafa;box-shadow:0 8px 16px #52667a20}
     body[data-theme="light"] .form-template-card.active{border-color:#d55257;background:#fff5f5;box-shadow:inset 3px 0 #d55257,0 8px 16px #52667a20}
@@ -178,6 +182,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
       <section class="forms-workspace" aria-label="Không gian quản lý biểu mẫu">
         <aside class="card forms-catalog-pane">
           <div class="forms-title"><div><h2 id="formsListTitle">Danh sách biểu mẫu</h2><p id="formsListHint">Chọn một mẫu để xem trước.</p></div><span id="formsCount">0 mẫu</span></div>
+          <div class="forms-catalog-toolbar"><button class="btn forms-zoom-button" type="button" data-form-view-action="zoom-out" title="Thu nhỏ">−</button><button class="btn forms-zoom-value" type="button" data-form-view-action="zoom-reset" title="Vừa khung"><span id="formsZoomValue">100%</span></button><button class="btn forms-zoom-button" type="button" data-form-view-action="zoom-in" title="Phóng to">＋</button></div>
           <div class="forms-catalog-filter" id="formsToolbar"><div class="field"><input id="formsSearch" placeholder="Tìm tên hoặc nội dung mẫu..."></div><div class="forms-catalog-filter-row"><select class="select" id="formsStatus"><option value="">Tất cả trạng thái</option><option value="Đang sử dụng">Đang sử dụng</option><option value="Ngừng sử dụng">Ngừng sử dụng</option></select><button class="btn primary" id="formsFilterButton">⌕ Lọc</button><button class="btn" id="formsResetButton">↻</button></div></div>
           <div class="form-template-grid" id="formTemplateGrid" role="listbox" aria-label="Danh sách biểu mẫu"></div>
         </aside>
