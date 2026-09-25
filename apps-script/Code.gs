@@ -4316,30 +4316,15 @@ function styleCellV8414_(cell,size,bold,background,align){
   const p=cell.getChild(0).asParagraph();if(align)p.setAlignment(align);styleTextV8414_(p,size,bold);return cell;
 }
 
-// Đầu trang in chung theo mẫu HCNS: trái = tên văn bản (Times New Roman, 20, đậm, IN HOA);
-// phải = logo 183x57 + bảng Địa chỉ / Điện thoại / Email / Website; kẻ một đường ngang bên dưới.
-const PRINT_HEADER_V90={font:'Times New Roman',ink:'#172536',key:'#111111',val:'#4B5B6B',
-  rows:[['Địa chỉ','52 Nguyễn Văn Linh, Đà Nẵng'],['Điện thoại','(0236) 3 888 000'],['Email','philong@philong.com.vn'],['Website','www.philong.com.vn','https://www.philong.com.vn']]};
-function printHeaderV90_(body,title,subtitle){
-  const H=PRINT_HEADER_V90,A=DocumentApp.HorizontalAlignment,V=DocumentApp.VerticalAlignment;
-  const txt=function(el,size,bold,color){const t=el.editAsText();if(!t.getText().length)return el;t.setFontFamily(H.font).setFontSize(size).setBold(!!bold).setForegroundColor(color);return el;};
-  const top=body.appendTable([['','']]);top.setBorderWidth(0);top.setColumnWidth(0,300);top.setColumnWidth(1,220);
-  const left=top.getCell(0,0),right=top.getCell(0,1);left.setVerticalAlignment(V.BOTTOM);right.setVerticalAlignment(V.BOTTOM);
-  left.setPaddingLeft(0).setPaddingBottom(4);right.setPaddingRight(0).setPaddingBottom(4);
-  const h=left.getChild(0).asParagraph();h.appendText(String(title||'').toUpperCase());h.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1.2);txt(h,20,true,H.ink);
-  if(subtitle){const sub=left.appendParagraph(subtitle);sub.setSpacingBefore(2).setSpacingAfter(0);txt(sub,10,true,H.ink);}
-  const logoP=right.getChild(0).asParagraph();logoP.setAlignment(A.RIGHT).setSpacingAfter(4);
-  const logo=proposalLogoBlobV8414_();
-  if(logo){const img=logoP.appendInlineImage(logo);img.setWidth(183);img.setHeight(57);}else{logoP.appendText('PHI LONG TECHNOLOGY');txt(logoP,15,true,'#A71936');}
-  const info=right.appendTable(H.rows.map(function(r){return [r[0],':',r[1]];}));info.setBorderWidth(0);info.setColumnWidth(0,58);info.setColumnWidth(1,10);info.setColumnWidth(2,150);
-  H.rows.forEach(function(r,i){for(let c=0;c<3;c++){const cell=info.getCell(i,c);cell.setPaddingTop(0).setPaddingBottom(0).setPaddingLeft(c===1?2:0).setPaddingRight(c===1?2:0);const p=cell.getChild(0).asParagraph();p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1.1);txt(p,8,c<2,c<2?H.key:H.val);if(c===2&&r[2])p.editAsText().setLinkUrl(r[2]);}});
-  body.appendHorizontalRule();
-  return top;
-}
-
 function buildProposalDocV8414_(data){
   const doc=DocumentApp.create('PHIEU_DE_XUAT_'+data.code),body=doc.getBody();body.clear();body.setMarginTop(31).setMarginBottom(31).setMarginLeft(34).setMarginRight(34);
-  printHeaderV90_(body,'PHIẾU ĐỀ XUẤT','Mã phiếu: '+data.code);
+  const header=body.appendTable([['','']]);header.setBorderWidth(0);header.setColumnWidth(0,330);header.setColumnWidth(1,190);
+  const left=header.getCell(0,0),right=header.getCell(0,1),title=left.getChild(0).asParagraph();left.setVerticalAlignment(DocumentApp.VerticalAlignment.BOTTOM);title.appendText('PHIẾU ĐỀ XUẤT');title.setSpacingBefore(0).setSpacingAfter(1);styleTextV8414_(title,20,true);const code=left.appendParagraph('Mã phiếu: '+data.code);code.setSpacingBefore(0).setSpacingAfter(0);styleTextV8414_(code,10,true);
+  right.setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
+  const logo=proposalLogoBlobV8414_(),brand=right.getChild(0).asParagraph();brand.setAlignment(DocumentApp.HorizontalAlignment.RIGHT);if(logo){const image=brand.appendInlineImage(logo);image.setWidth(150);image.setHeight(62);}else{brand.appendText('PHI LONG TECHNOLOGY');styleTextV8414_(brand,15,true,'#D71920');}
+  const address=right.appendParagraph('52 Nguyễn Văn Linh, Đà Nẵng');address.setAlignment(DocumentApp.HorizontalAlignment.RIGHT);styleTextV8414_(address,8,false);
+  const email=right.appendParagraph('philong@philong.com.vn');email.setAlignment(DocumentApp.HorizontalAlignment.RIGHT);styleTextV8414_(email,8,false);
+  body.appendHorizontalRule();
   const recipient=body.appendTable([['Kính gửi:','- Giám đốc Công ty TNHH Công Nghệ Tin Học Phi Long\n- Bộ phận quản lý']]);recipient.setBorderWidth(0);recipient.setColumnWidth(0,70);recipient.setColumnWidth(1,450);styleCellV8414_(recipient.getCell(0,0),10,true,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);styleCellV8414_(recipient.getCell(0,1),10,true,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);recipient.getCell(0,0).setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);recipient.getCell(0,1).setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
   const info=body.appendTable([['Ngày lập',proposalDateTextV8414_(data.date),'Người đề xuất',data.requester],['Phòng ban',data.department,'Loại đề xuất',data.typeLabel]]);info.setBorderWidth(.75);info.setColumnWidth(0,85);info.setColumnWidth(1,175);info.setColumnWidth(2,95);info.setColumnWidth(3,165);
   for(let r=0;r<2;r++)for(let c=0;c<4;c++)styleCellV8414_(info.getCell(r,c),9,c%2===0,c%2===0?'#F2F2F2':null,DocumentApp.HorizontalAlignment.LEFT);
