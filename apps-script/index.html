@@ -10570,6 +10570,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
  function sync(){
   timer=0;
   if(!isMobile())return;
+  fontBoost(true);
   const root=active();if(!root)return;
   if(lastPage!==root.id){lastPage=root.id;const input=$('pmSearch');if(input&&input.value)input.value=''}
   frames(root);
@@ -10581,6 +10582,33 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   const group=NAV_GROUP(root.id);
   $('pmNav')?.querySelectorAll('[data-route]').forEach(b=>{const yes=b.dataset.route===group;setCls(b,'active',yes);setAttr(b,'aria-current',yes?'page':null)});
  }
+ /* Chạm thẻ → mở Xem của trang (nút trên thẻ nếu có, không thì nút Xem trên thanh công cụ).
+    Hộp Xem chung (v25) chưa có nút Sửa thì gắn nút Sửa gọi nút Sửa của trang. */
+ const letters=b=>String(b?.textContent||'').replace(/[^\p{L}]/gu,'').toLowerCase();
+ const toolBtn=(root,word)=>[...root.querySelectorAll(TOOLS+' button')].find(b=>!b.disabled&&letters(b)===word);
+ function openView(row){
+  const root=row.closest('section.section')||active();if(!root)return;
+  const own=row.querySelector('.plm-actions :is(.v25-action.view,[data-pld-view],.view)');
+  const view=own||toolBtn(root,'xem');if(!view)return;
+  view.click();
+  setTimeout(()=>{
+   const eb=$('v25ViewEditBtn'),edit=toolBtn(root,'sửa');
+   if(!eb||!edit||!eb.offsetParent&&eb.style.display!=='none')return;
+   if(eb.style.display==='none'){eb.style.display='';eb.onclick=()=>{window.v25CloseView?.();edit.click()}}
+  },60);
+ }
+ /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
+ const FONT_PLUS=4,fontOrig=new Map();let fontOn=false;
+ function fontBoost(on){
+  if(fontOn===on)return;fontOn=on;
+  const walk=rules=>{for(const r of rules){
+   if(r.style){const st=r.style,pr=st.getPropertyPriority('font-size');
+    if(on){const m=/^(\d+(?:\.\d+)?)px$/.exec(st.getPropertyValue('font-size').trim());if(m){fontOrig.set(st,m[0]);st.setProperty('font-size',(+m[1]+FONT_PLUS)+'px',pr)}}
+    else if(fontOrig.has(st))st.setProperty('font-size',fontOrig.get(st),pr)}
+   if(r.cssRules)walk(r.cssRules)}};
+  for(const sh of document.styleSheets){try{walk(sh.cssRules)}catch(e){}}
+  if(!on)fontOrig.clear();
+ }
  function schedule(){if(!isMobile())return;clearTimeout(timer);timer=setTimeout(sync,120)}
  /* Gỡ mọi dấu vết mobile khi chuyển sang giao diện máy tính. */
  function clearMobile(){
@@ -10591,6 +10619,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   document.querySelectorAll('.plm-cal-as-picker').forEach(el=>el.classList.remove('plm-cal-as-picker'));
   document.querySelectorAll('.plm-filter-closed,.plm-filter-open').forEach(el=>el.classList.remove('plm-filter-closed','plm-filter-open'));
   ['--plm-header-h','--plm-subbar-h','--plm-tools-h'].forEach(v=>document.documentElement.style.removeProperty(v));
+  fontBoost(false);
  }
  /* Nơi DUY NHẤT (ngoài lúc khởi động) bật/tắt id="plMobileViewport". */
  function resize(){
@@ -10616,6 +10645,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
    if(!row||e.target.closest('button,a,input,select,textarea,[contenteditable="true"]'))return;
    row.parentElement?.querySelectorAll('tr.plm-selected').forEach(o=>{if(o!==row)o.classList.remove('plm-selected')});
    setCls(row,'plm-selected',true);
+   setTimeout(()=>openView(row),0); // chạm thẻ = mở Xem
   });
   /* Chỉ phản ứng khi thêm/bớt phần tử hoặc khi đổi trang (class của .section).
      Việc gắn class cho ô (của chính sync) không kích hoạt lại → không lặp. */
@@ -11881,5 +11911,11 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active table.pl
 /* Menu mobile: không còn thanh tiêu đề "Menu ×" (chạm ra ngoài để đóng) */
 #plMobileViewport .pm-panel>header{display:none!important}
 #plMobileViewport .pm-panel:focus,#plMobileViewport .pm-panel:focus-visible{outline:none!important}
+
+/* Vùng đầu trang mobile cố định: tiêu đề + thanh công cụ + thanh Bộ lọc + chọn Ngày/Tháng/Năm.
+   Khi mở Bộ lọc (danh sách dài) thì khối bộ lọc trở lại cuộn bình thường. */
+#plMobileViewport main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side).plm-filter-closed{position:sticky!important;top:calc(var(--plm-header-h) + var(--plm-subbar-h) + var(--plm-tools-h))!important;z-index:8300!important;padding-bottom:6px!important;box-shadow:0 6px 10px -8px rgba(15,23,42,.35)!important}
+#plMobileViewport main.container .section.active .plm-filter-closed>.plm-filterbar{position:static!important}
+html#plMobileViewport[data-theme="dark"] main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){background:#0d1117!important}
 </style>
 </html>
