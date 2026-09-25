@@ -4163,6 +4163,8 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
       <div class="menu-panel">
         <button onclick="showPage('work')">Công việc</button>
         <button onclick="showPage('daily')">Công việc hằng ngày</button>
+        <button data-page="workProgress" onclick="showPage('workProgress',this)">Báo cáo tiến độ</button>
+        <button data-page="workReport" onclick="showPage('workReport',this)">Báo cáo công việc</button>
       </div>
     </div>
     <div class="navitem">
@@ -4255,6 +4257,9 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
 <main class="container">
 <section id="work" class="section active">
 </section>
+
+<section id="workProgress" class="section"><div class="pl-rpt" id="plRptProgress"></div></section>
+<section id="workReport" class="section"><div class="pl-rpt" id="plRptWork"></div></section>
 
 <section id="daily" class="section">
   <div class="page-title"><div><h1>Công việc hằng ngày</h1><p>Nhập và theo dõi công việc phát sinh hằng ngày</p></div></div>
@@ -5413,7 +5418,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   const FORM={session:0,saving:false};
   window.V21_FORM_STATE=FORM;
   const GROUP={
-    dashboard:'core',work:'core',daily:'core',
+    dashboard:'core',work:'core',daily:'core',workProgress:'core',workReport:'core',
     maintenanceLog:'maintenance',maintenancePlan:'maintenance',
     proposal:'proposal',proposalBuyMaterial:'proposal',proposalBuy:'proposal',proposalDispose:'proposal',proposalMaintenance:'proposal',
     equipment:'asset',warehouseDevice:'asset',recovery:'asset',materialWarehouse:'asset',
@@ -6995,9 +7000,9 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
    - Ghép nhiều yêu cầu đồng thời thành một RPC duy nhất.
    ========================================================= */
 (function(){
-  const CORE_PAGES=new Set(['dashboard','work','daily']);
+  const CORE_PAGES=new Set(['dashboard','work','daily','workProgress','workReport']);
   const GROUP={
-    dashboard:'core',work:'core',daily:'core',
+    dashboard:'core',work:'core',daily:'core',workProgress:'core',workReport:'core',
     maintenanceLog:'maintenance',maintenancePlan:'maintenance',
     proposal:'proposal',proposalBuyMaterial:'proposal',proposalBuy:'proposal',proposalDispose:'proposal',proposalMaintenance:'proposal',
     equipment:'asset',warehouseDevice:'asset',recovery:'asset',materialWarehouse:'asset',
@@ -7036,7 +7041,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     if(V137_NO_CACHE_PAGES.has(String(page||'')))return;
     try{localStorage.setItem(cacheKey(page),JSON.stringify({savedAt:Date.now(),data:result}))}catch(ignore){}
   }
-  function label(page){return ({dashboard:'Tổng quan',work:'Công việc',daily:'Công việc hằng ngày',maintenance:'Bảo trì',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposal:'Đề xuất',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalDispose:'Đề xuất thanh lý',proposalMaintenance:'Đề xuất bảo trì',equipment:'Thiết bị',warehouseDevice:'Kho thiết bị',recovery:'Thu hồi Thanh lý',materialWarehouse:'Kho vật tư',materials:'Danh mục vật tư',contracts:'Hợp đồng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',floors:'Toà nhà, tầng',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',buildingAreas:'Khu vực',maintenanceItems:'Chu kỳ bảo trì',operationDetail:'Chi tiết vận hành',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'})[page]||page}
+  function label(page){return ({dashboard:'Tổng quan',work:'Công việc',daily:'Công việc hằng ngày',workProgress:'Báo cáo tiến độ',workReport:'Báo cáo công việc',maintenance:'Bảo trì',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposal:'Đề xuất',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalDispose:'Đề xuất thanh lý',proposalMaintenance:'Đề xuất bảo trì',equipment:'Thiết bị',warehouseDevice:'Kho thiết bị',recovery:'Thu hồi Thanh lý',materialWarehouse:'Kho vật tư',materials:'Danh mục vật tư',contracts:'Hợp đồng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',floors:'Toà nhà, tầng',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',buildingAreas:'Khu vực',maintenanceItems:'Chu kỳ bảo trì',operationDetail:'Chi tiết vận hành',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'})[page]||page}
   function mergeBundle(b,renderPage){
     APP.extra=APP.extra||{};
     ['employeesAll','employeeAccess','proposals','users','asset','systemAudit','systemConfig','emailConfig'].forEach(k=>{if(b&&Object.prototype.hasOwnProperty.call(b,k))APP.extra[k]=b[k]});
@@ -7170,6 +7175,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       if(page==='dashboard')run.getFastStartupV64(hard);
       else if(page==='work')run.getWorkPageBundleFastV120(hard);
       else if(page==='daily')run.getCorePageBundleV82(page,hard);
+      else if(page==='workProgress'||page==='workReport')run.getWorkReportBundleV90(page,hard);
       else run.getPageListV124({pageName:page,pageNumber:1,pageSize:100,all:true,force:hard,systemToken:(window.plSystemTokenV137_&&window.plSystemTokenV137_())||''});
     }catch(error){failure(error)}
   }
@@ -7496,8 +7502,8 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
 <script>
 /* V82 - một loader, một renderer cho đúng trang đang mở. */
 (function(){
-  const PAGE_NAMES={dashboard:'Tổng quan',work:'Quản lý công việc',daily:'Công việc hằng ngày',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi Thanh lý',floors:'Toà nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
-  const PARENT={work:'CÔNG VIỆC',daily:'CÔNG VIỆC',maintenanceLog:'BẢO TRÌ',maintenancePlan:'BẢO TRÌ',proposalBuyMaterial:'ĐỀ XUẤT',proposalBuy:'ĐỀ XUẤT',proposalMaintenance:'ĐỀ XUẤT',proposalDispose:'ĐỀ XUẤT',equipment:'THIẾT BỊ & KHO',warehouseDevice:'THIẾT BỊ & KHO',materialWarehouse:'THIẾT BỊ & KHO',recovery:'THIẾT BỊ & KHO',floors:'CHO THUÊ',tenants:'CHO THUÊ',prospects:'CHO THUÊ',pcccEmployees:'DANH MỤC',employees:'DANH MỤC',contractors:'DANH MỤC',suppliers:'DANH MỤC',materials:'DANH MỤC',maintenanceItems:'DANH MỤC',buildingAreas:'DANH MỤC',operationDetail:'DANH MỤC',users:'HỆ THỐNG',roles:'HỆ THỐNG',permissions:'HỆ THỐNG',systemAudit:'HỆ THỐNG',maintenanceDataTool:'HỆ THỐNG',systemConfig:'HỆ THỐNG',emailConfig:'HỆ THỐNG'};
+  const PAGE_NAMES={dashboard:'Tổng quan',work:'Quản lý công việc',daily:'Công việc hằng ngày',workProgress:'Báo cáo tiến độ',workReport:'Báo cáo công việc',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi Thanh lý',floors:'Toà nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
+  const PARENT={work:'CÔNG VIỆC',daily:'CÔNG VIỆC',workProgress:'CÔNG VIỆC',workReport:'CÔNG VIỆC',maintenanceLog:'BẢO TRÌ',maintenancePlan:'BẢO TRÌ',proposalBuyMaterial:'ĐỀ XUẤT',proposalBuy:'ĐỀ XUẤT',proposalMaintenance:'ĐỀ XUẤT',proposalDispose:'ĐỀ XUẤT',equipment:'THIẾT BỊ & KHO',warehouseDevice:'THIẾT BỊ & KHO',materialWarehouse:'THIẾT BỊ & KHO',recovery:'THIẾT BỊ & KHO',floors:'CHO THUÊ',tenants:'CHO THUÊ',prospects:'CHO THUÊ',pcccEmployees:'DANH MỤC',employees:'DANH MỤC',contractors:'DANH MỤC',suppliers:'DANH MỤC',materials:'DANH MỤC',maintenanceItems:'DANH MỤC',buildingAreas:'DANH MỤC',operationDetail:'DANH MỤC',users:'HỆ THỐNG',roles:'HỆ THỐNG',permissions:'HỆ THỐNG',systemAudit:'HỆ THỐNG',maintenanceDataTool:'HỆ THỐNG',systemConfig:'HỆ THỐNG',emailConfig:'HỆ THỐNG'};
   const EQUIPMENT_TABLE_COLUMNS=Object.freeze(['ID','TEN_THIET_BI','LOAI_THIET_BI','THONG_SO','NGUOI_QUAN_LY','NGUOI_SU_DUNG','KHU_VUC_HIEN_THI','TINH_TRANG','TRANG_THAI_HIEN_TAI']);
   const table=(id,rows,cols)=>renderDataTable(id,Array.isArray(rows)?rows:[],cols);
   function finish(page){requestAnimationFrame(()=>{try{window.v17Kpis&&window.v17Kpis(page)}catch(e){}try{window.v16SyncPageToolbar_&&window.v16SyncPageToolbar_(page)}catch(e){}})}
@@ -7515,6 +7521,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
        'work' và 'daily' rồi. Xoá hẳn 2 dòng thừa này cho khỏi gây hiểu lầm là
        có 2 đường dựng giao diện khác nhau cho cùng một trang. */
     if(page==='work'||page==='daily')renderCore();
+    else if(page==='workProgress'||page==='workReport'){if(typeof window.plRptRender_==='function')window.plRptRender_(page);}
     else if(page==='maintenanceLog')table('maintenanceLogTable',m.maintenanceLog||[],['ID','KHU_VUC','HANG_MUC','NGAY_THUC_HIEN','NGUOI_THUC_HIEN','DON_VI_THUC_HIEN','NOI_DUNG_THUC_HIEN','KET_QUA','NGAY_KE_TIEP','CANH_BAO']);
     else if(page==='maintenancePlan')table('maintenancePlanTable',m.maintenancePlan||[],['ID_LICH','HANG_MUC','KHU_VUC','TEN_CONG_TY','NGAY_GOC_GAN_NHAT','NGAY_KE_HOACH','CHU_KY_NGAY','NGUOI_PHU_TRACH','TRANG_THAI','CANH_BAO','GHI_CHU']);
     else if(page==='proposalBuyMaterial')table('proposalBuyMaterialTable',m.proposalBuyMaterial||[],['ID','TEN_VAT_TU','NHA_CUNG_CAP_HIEN_THI','NGUOI_DE_XUAT','DON_GIA','SO_LUONG','DVT','THANH_TIEN','TRANG_THAI','GHI_CHU']);
@@ -9117,7 +9124,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
 <script id="pl-v841585-table-context-title">
 (()=>{
   // Tiêu đề trang: tiếng Việt, chỉ viết hoa chữ cái đầu (giữ nguyên từ viết tắt như PCCC).
-  const labels={work:'Công việc - triển khai',daily:'Công việc hằng ngày',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi thanh lý',floors:'Tòa nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
+  const labels={work:'Công việc - triển khai',daily:'Công việc hằng ngày',workProgress:'Báo cáo tiến độ',workReport:'Báo cáo công việc',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi thanh lý',floors:'Tòa nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
   window.PL_PAGE_TITLES=labels;
   function sync(){const el=document.getElementById('tableContextTitle');if(!el)return;let page='';try{page=(typeof APP!=='undefined'&&APP?.currentPage)||window.APP?.currentPage||''}catch(e){page=window.APP?.currentPage||''}const label=labels[page]||'';el.textContent=label;el.classList.toggle('active',!!label)}
   const watch=()=>{const crumb=document.getElementById('crumb');if(crumb&&!crumb.dataset.tableTitleWatch){crumb.dataset.tableTitleWatch='1';new MutationObserver(sync).observe(crumb,{childList:true,subtree:true,characterData:true})}sync()};
@@ -11937,4 +11944,142 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active :is(.plw
 /* Kho vật tư: các ô số (Tồn / Nhập / Xuất) kèm tên trường để khỏi nhầm */
 #plMobileViewport main.container #materialWarehouse.section.active table.plm-cards>tbody>tr>td.plm-meta::before{content:attr(data-plm-ic) " " attr(data-plm-label) ": "!important;display:inline!important}
 </style>
+<style>
+/* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
+.pl-rpt{--r-bg:#fff;--r-soft:#f6f7f9;--r-line:#e3e6ea;--r-text:#1f2937;--r-mute:#6b7280;--r-acc:#9e1730;--r-ok:#15803d;--r-warn:#b45309;--r-bad:#b91c1c;--r-info:#1d4ed8;display:flex;flex-direction:column;gap:12px;color:var(--r-text)}
+html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155;--r-text:#e5e7eb;--r-mute:#9ca3af;--r-acc:#f47c95;--r-ok:#4ade80;--r-warn:#fbbf24;--r-bad:#f87171;--r-info:#93c5fd}
+.pl-rpt-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--r-bg);border:1px solid var(--r-line);border-radius:10px;padding:8px 10px}
+.pl-rpt-bar h2{margin:0 12px 0 0;font-size:17px;color:var(--r-acc);white-space:nowrap}
+.pl-rpt-bar :is(select,input){height:32px;border:1px solid var(--r-line);border-radius:7px;background:var(--r-soft);color:var(--r-text);padding:0 8px;font:inherit}
+.pl-rpt-bar .sp{flex:1}
+.pl-rpt-bar button{height:32px;padding:0 12px;border:1px solid var(--r-line);border-radius:7px;background:var(--r-soft);color:var(--r-text);font-weight:700;cursor:pointer}
+.pl-rpt-bar button.on{background:var(--r-acc);border-color:var(--r-acc);color:#fff}
+.pl-rpt-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.pl-rpt-kpi{background:var(--r-bg);border:1px solid var(--r-line);border-left:4px solid var(--r-mute);border-radius:10px;padding:8px 12px}
+.pl-rpt-kpi small{display:block;color:var(--r-mute);font-weight:700;font-size:12px;text-transform:uppercase}
+.pl-rpt-kpi b{display:block;font-size:24px;line-height:1.2}
+.pl-rpt-kpi em{font-style:normal;color:var(--r-mute);font-size:12px}
+.pl-rpt-kpi.ok{border-left-color:var(--r-ok)}.pl-rpt-kpi.warn{border-left-color:var(--r-warn)}.pl-rpt-kpi.bad{border-left-color:var(--r-bad)}.pl-rpt-kpi.info{border-left-color:var(--r-info)}
+.pl-rpt-grid{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr);gap:12px;align-items:start}
+.pl-rpt-card{background:var(--r-bg);border:1px solid var(--r-line);border-radius:10px;overflow:hidden}
+.pl-rpt-card>h3{margin:0;padding:8px 12px;font-size:14px;color:var(--r-acc);border-bottom:1px solid var(--r-line);text-transform:uppercase}
+.pl-rpt-scroll{overflow:auto;max-height:calc(100vh - 330px)}
+.pl-rpt table{width:100%;border-collapse:collapse;font-size:13px}
+.pl-rpt th{position:sticky;top:0;background:var(--r-soft);color:var(--r-mute);font-size:12px;text-align:left;padding:7px 8px;border-bottom:1px solid var(--r-line);white-space:nowrap;z-index:1}
+.pl-rpt td{padding:7px 8px;border-bottom:1px solid var(--r-line);vertical-align:top}
+.pl-rpt td.c,.pl-rpt th.c{text-align:center}.pl-rpt td.n,.pl-rpt th.n{text-align:right;white-space:nowrap}
+.pl-rpt tr[data-id]{cursor:pointer}.pl-rpt tr[data-id]:hover td{background:var(--r-soft)}
+.pl-rpt-tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--r-soft);color:var(--r-mute)}
+.pl-rpt-tag.ok{color:var(--r-ok)}.pl-rpt-tag.warn{color:var(--r-warn)}.pl-rpt-tag.bad{color:var(--r-bad)}.pl-rpt-tag.info{color:var(--r-info)}
+.pl-rpt-meter{height:8px;border-radius:99px;background:var(--r-soft);overflow:hidden;min-width:70px}
+.pl-rpt-meter i{display:block;height:100%;background:var(--r-info);border-radius:99px}
+.pl-rpt-meter.warn i{background:var(--r-warn)}.pl-rpt-meter.bad i{background:var(--r-bad)}.pl-rpt-meter.ok i{background:var(--r-ok)}
+.pl-rpt-note{color:var(--r-mute);font-size:12px;margin-top:3px}
+.pl-rpt-empty{padding:18px;text-align:center;color:var(--r-mute)}
+.pl-rpt-chart{display:flex;align-items:flex-end;gap:10px;height:170px;padding:12px 12px 0;overflow-x:auto}
+.pl-rpt-chart .wk{flex:1 0 42px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.pl-rpt-chart .bars{flex:1;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center}
+.pl-rpt-chart .bars i{width:14px;border-radius:3px 3px 0 0;background:var(--r-info);min-height:2px}
+.pl-rpt-chart .bars i.d{background:var(--r-ok)}
+.pl-rpt-chart small{color:var(--r-mute);font-size:11px;white-space:nowrap}
+.pl-rpt-legend{display:flex;gap:14px;padding:6px 12px 10px;color:var(--r-mute);font-size:12px}
+.pl-rpt-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;background:var(--r-info)}.pl-rpt-legend i.d{background:var(--r-ok)}
+@media (max-width:900px){.pl-rpt-grid{grid-template-columns:1fr}.pl-rpt-scroll{max-height:none}.pl-rpt-bar h2{width:100%}.pl-rpt-bar .sp{display:none}}
+</style>
+<script>
+/* Báo cáo tiến độ (workProgress) + Báo cáo công việc (workReport): dữ liệu APP.core.work / APP.core.daily
+   do getWorkReportBundleV90 nạp; mọi tính toán ở trình duyệt. */
+(function(){
+  const S={progress:{person:'',level:'',state:'open'},work:{period:'month',from:'',to:'',source:'all'}};
+  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fold=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toUpperCase().trim();
+  const core=()=>{try{return (typeof APP!=='undefined'&&APP&&APP.core)||window.APP&&window.APP.core||{}}catch(e){return {}}};
+  function ymd(v){if(v instanceof Date&&!isNaN(v))return v.getFullYear()+'-'+String(v.getMonth()+1).padStart(2,'0')+'-'+String(v.getDate()).padStart(2,'0');const s=String(v||'').trim();let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):''}
+  const toDate=k=>{const m=String(k).match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(+m[1],+m[2]-1,+m[3]):null};
+  const diff=(a,b)=>{const x=toDate(a),y=toDate(b);return x&&y?Math.round((y-x)/864e5):null};
+  const addDays=(k,n)=>{const d=toDate(k);d.setDate(d.getDate()+n);return ymd(d)};
+  const today=()=>ymd(new Date()),show=k=>k?k.slice(8,10)+'/'+k.slice(5,7)+'/'+k.slice(0,4):'—';
+  const person=r=>String(r.NGUOI_THUC_HIEN||r.ID_NGUOI_THUC_HIEN||'').trim()||'(Chưa giao)';
+  const workDone=r=>fold(r.TRANG_THAI)==='HOAN THANH';
+  const dailyDone=r=>fold(r.TRANG_THAI)==='HOAN THANH'||fold(r.KET_QUA)==='DA XONG';
+  const SOON=3;
+  function workInfo(r,t){const giao=ymd(r.NGAY_GIAO),han=ymd(r.DEADLINE),xong=ymd(r.NGAY_HOAN_THANH),done=workDone(r),st=fold(r.TRANG_THAI);
+    const left=han&&!done?diff(t,han):null,late=done?(han&&xong?diff(han,xong)>0:false):(left!==null&&left<0);
+    let used=null;if(giao&&han&&!done){const span=Math.max(1,diff(giao,han)),gone=diff(giao,t);used=Math.max(0,Math.round(gone/span*100))}
+    const tone=done?'ok':late?'bad':(left!==null&&left<=SOON)?'warn':st==='DANG THUC HIEN'?'info':'';
+    return {giao,han,xong,done,late,left,used,tone,st}}
+  function page(id,title,bar){const el=$(id);if(!el)return null;if(!el.dataset.built){el.dataset.built='1';el.innerHTML=`<div class="pl-rpt-bar"><h2>${title}</h2>${bar}</div><div class="pl-rpt-body"></div>`;el.addEventListener('change',()=>render(el.id==='plRptProgress'?'workProgress':'workReport'));el.addEventListener('click',onClick)}return el}
+  function people(rows){return Array.from(new Set(rows.map(person))).sort((a,b)=>a.localeCompare(b,'vi'))}
+  function fillPeople(sel,rows,cur){if(!sel)return;const list=people(rows),want=['<option value="">Tất cả người thực hiện</option>'].concat(list.map(p=>`<option ${p===cur?'selected':''}>${esc(p)}</option>`)).join('');if(sel.dataset.sig!==list.join('|')){sel.innerHTML=want;sel.dataset.sig=list.join('|')}sel.value=cur||''}
+  function kpi(label,value,tone,note){return `<div class="pl-rpt-kpi ${tone||''}"><small>${label}</small><b>${value}</b>${note?`<em>${note}</em>`:''}</div>`}
+  function meter(pct,tone){pct=Math.max(0,Math.min(100,Number(pct)||0));return `<div class="pl-rpt-meter ${tone||''}"><i style="width:${pct}%"></i></div>`}
+  const pctText=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+
+  /* ---------- Báo cáo tiến độ ---------- */
+  function renderProgress(){
+    const el=page('plRptProgress','BÁO CÁO TIẾN ĐỘ',`<select data-f="person"></select><select data-f="level"><option value="">Mọi mức độ</option><option>Quan trọng</option><option>Bình thường</option></select><select data-f="state"><option value="open">Việc chưa xong</option><option value="late">Chỉ quá hạn</option><option value="soon">Sắp đến hạn (≤${SOON} ngày)</option><option value="all">Tất cả công việc</option></select><span class="sp"></span><button type="button" data-act="print">In báo cáo</button>`);if(!el)return;
+    const f=S.progress;el.querySelectorAll('[data-f]').forEach(x=>{if(x.dataset.f in f&&x.options.length)f[x.dataset.f]=x.value});
+    const all=Array.isArray(core().work)?core().work:[],t=today();fillPeople(el.querySelector('[data-f="person"]'),all,f.person);
+    const base=all.filter(r=>(!f.person||person(r)===f.person)&&(!f.level||fold(r.MUC_DO)===fold(f.level))).map(r=>({r,i:workInfo(r,t)}));
+    const open=base.filter(x=>!x.i.done),withDue=base.filter(x=>x.i.done&&x.i.han&&x.i.xong),onTime=withDue.filter(x=>!x.i.late).length;
+    const late=open.filter(x=>x.i.late),soon=open.filter(x=>!x.i.late&&x.i.left!==null&&x.i.left<=SOON);
+    let list=f.state==='late'?late:f.state==='soon'?soon:f.state==='all'?base:open;
+    const rank=x=>x.i.done?4:x.i.late?0:(x.i.left!==null&&x.i.left<=SOON)?1:x.i.st==='DANG THUC HIEN'?2:3;
+    list=list.slice().sort((a,b)=>rank(a)-rank(b)||(a.i.late&&b.i.late?a.i.left-b.i.left:0)||String(a.i.han||'9999').localeCompare(String(b.i.han||'9999'))||(fold(b.r.MUC_DO)==='QUAN TRONG')-(fold(a.r.MUC_DO)==='QUAN TRONG'));
+    const kpis=kpi('Chưa thực hiện',open.filter(x=>x.i.st!=='DANG THUC HIEN').length,'')+kpi('Đang thực hiện',open.filter(x=>x.i.st==='DANG THUC HIEN').length,'info')+kpi('Sắp đến hạn',soon.length,'warn','trong '+SOON+' ngày tới')+kpi('Quá hạn',late.length,'bad')+kpi('Tỷ lệ đúng hạn',pctText(onTime,withDue.length),'ok',onTime+'/'+withDue.length+' việc đã xong có hạn');
+    const rows=list.map(({r,i})=>{const due=i.done?`<span class="pl-rpt-tag ok">Xong ${show(i.xong)}</span>`:i.left===null?'<span class="pl-rpt-tag">Chưa có hạn</span>':i.left<0?`<span class="pl-rpt-tag bad">Trễ ${-i.left} ngày</span>`:i.left===0?'<span class="pl-rpt-tag warn">Hết hạn hôm nay</span>':`<span class="pl-rpt-tag ${i.left<=SOON?'warn':''}">Còn ${i.left} ngày</span>`;
+      const bar=i.done?meter(100,'ok'):i.used===null?'<span class="pl-rpt-note">—</span>':meter(i.used,i.tone)+`<div class="pl-rpt-note">${i.used}% thời gian</div>`;
+      return `<tr data-id="${esc(r.ID)}" data-src="work"><td>${fold(r.MUC_DO)==='QUAN TRONG'?'<span class="pl-rpt-tag bad">Quan trọng</span>':'<span class="pl-rpt-tag">Bình thường</span>'}</td><td><b>${esc(r.NOI_DUNG||'—')}</b>${r.TIEN_DO?`<div class="pl-rpt-note">Tiến độ: ${esc(r.TIEN_DO)}</div>`:''}</td><td>${esc(person(r))}</td><td class="c">${show(i.giao)}</td><td class="c">${show(i.han)}</td><td class="c">${due}</td><td>${bar}</td><td class="c"><span class="pl-rpt-tag ${i.tone}">${esc(r.TRANG_THAI||'—')}</span></td></tr>`}).join('');
+    const byP={};base.forEach(x=>{const p=person(x.r),o=byP[p]||(byP[p]={p,todo:0,doing:0,late:0,done:0});if(x.i.done)o.done++;else{if(x.i.st==='DANG THUC HIEN')o.doing++;else o.todo++;if(x.i.late)o.late++}});
+    const ps=Object.values(byP).sort((a,b)=>b.late-a.late||(b.todo+b.doing)-(a.todo+a.doing)),mx=Math.max(1,...ps.map(o=>o.todo+o.doing));
+    const side=ps.map(o=>`<tr><td><b>${esc(o.p)}</b>${meter((o.todo+o.doing)/mx*100,o.late?'bad':'')}</td><td class="n">${o.todo}</td><td class="n">${o.doing}</td><td class="n" style="color:var(--r-bad)">${o.late||''}</td></tr>`).join('');
+    el.querySelector('.pl-rpt-body').innerHTML=`<div class="pl-rpt-kpis">${kpis}</div><div class="pl-rpt-grid"><section class="pl-rpt-card"><h3>Danh sách theo dõi · ${list.length} việc</h3><div class="pl-rpt-scroll">${list.length?`<table><thead><tr><th>Mức độ</th><th>Nội dung / tiến độ</th><th>Người thực hiện</th><th class="c">Ngày giao</th><th class="c">Hạn</th><th class="c">Còn lại</th><th>Thời gian đã dùng</th><th class="c">Trạng thái</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="pl-rpt-empty">Không có công việc theo điều kiện đã chọn.</div>'}</div></section><section class="pl-rpt-card"><h3>Khối lượng theo người</h3><div class="pl-rpt-scroll"><table><thead><tr><th>Người thực hiện</th><th class="n">Chưa làm</th><th class="n">Đang làm</th><th class="n">Quá hạn</th></tr></thead><tbody>${side||'<tr><td colspan="4" class="pl-rpt-empty">Không có dữ liệu.</td></tr>'}</tbody></table></div></section></div>`;
+  }
+
+  /* ---------- Báo cáo công việc ---------- */
+  function range(f){const t=today(),d=toDate(t);let from,to;
+    if(f.period==='week'){const w=(d.getDay()+6)%7;from=addDays(t,-w);to=addDays(from,6)}
+    else if(f.period==='month'){from=t.slice(0,8)+'01';to=ymd(new Date(d.getFullYear(),d.getMonth()+1,0))}
+    else if(f.period==='lastMonth'){from=ymd(new Date(d.getFullYear(),d.getMonth()-1,1));to=ymd(new Date(d.getFullYear(),d.getMonth(),0))}
+    else if(f.period==='quarter'){const q=Math.floor(d.getMonth()/3)*3;from=ymd(new Date(d.getFullYear(),q,1));to=ymd(new Date(d.getFullYear(),q+3,0))}
+    else if(f.period==='year'){from=t.slice(0,4)+'-01-01';to=t.slice(0,4)+'-12-31'}
+    else{from=f.from||t.slice(0,8)+'01';to=f.to||t}
+    return {from,to}}
+  function renderWork(){
+    const el=page('plRptWork','BÁO CÁO CÔNG VIỆC',`<select data-f="period"><option value="week">Tuần này</option><option value="month" selected>Tháng này</option><option value="lastMonth">Tháng trước</option><option value="quarter">Quý này</option><option value="year">Năm nay</option><option value="custom">Tuỳ chọn</option></select><input type="date" data-f="from"><input type="date" data-f="to"><select data-f="source"><option value="all">Công việc + Hằng ngày</option><option value="work">Chỉ Công việc</option><option value="daily">Chỉ Công việc hằng ngày</option></select><span class="sp"></span><button type="button" data-act="csv">Xuất Excel</button><button type="button" data-act="print">In báo cáo</button>`);if(!el)return;
+    const f=S.work;el.querySelectorAll('[data-f]').forEach(x=>{f[x.dataset.f]=x.value});
+    const {from,to}=range(f),custom=f.period==='custom';el.querySelectorAll('input[data-f]').forEach(x=>{x.disabled=!custom;if(!custom)x.value=x.dataset.f==='from'?from:to});
+    const t=today(),inR=k=>k&&k>=from&&k<=to,c=core();
+    const W=f.source==='daily'?[]:(Array.isArray(c.work)?c.work:[]).map(r=>({r,i:workInfo(r,t)})).filter(x=>inR(x.i.giao)||inR(x.i.xong));
+    const D=f.source==='work'?[]:(Array.isArray(c.daily)?c.daily:[]).map(r=>({r,k:ymd(r.NGAY),done:dailyDone(r)})).filter(x=>inR(x.k));
+    const wAssigned=W.filter(x=>inR(x.i.giao)),wDone=W.filter(x=>x.i.done&&inR(x.i.xong)),wLate=wDone.filter(x=>x.i.late),wOpen=wAssigned.filter(x=>!x.i.done);
+    const dDone=D.filter(x=>x.done),avg=(()=>{const a=wDone.map(x=>diff(x.i.giao,x.i.xong)).filter(n=>n!==null&&n>=0);return a.length?(a.reduce((s,n)=>s+n,0)/a.length).toFixed(1):'—'})();
+    const total=wAssigned.length+D.length,doneAll=wDone.length+dDone.length;
+    const kpis=kpi('Tổng việc trong kỳ',total,'info',wAssigned.length+' công việc · '+D.length+' hằng ngày')+kpi('Hoàn thành',doneAll,'ok',pctText(doneAll,total))+kpi('Đúng hạn',wDone.length-wLate.length,'ok','Công việc có hạn, xong trong kỳ')+kpi('Trễ hạn',wLate.length,'bad')+kpi('Còn tồn',wOpen.length+(D.length-dDone.length),'warn')+kpi('TB ngày hoàn thành',avg,'','từ ngày giao tới xong');
+    const byP={},get=p=>byP[p]||(byP[p]={p,wa:0,wd:0,ok:0,late:0,open:0,dd:0,dn:0});
+    wAssigned.forEach(x=>{const o=get(person(x.r));o.wa++;if(!x.i.done)o.open++});wDone.forEach(x=>{const o=get(person(x.r));o.wd++;x.i.late?o.late++:o.ok++});D.forEach(x=>{const o=get(person(x.r));x.done?o.dd++:o.dn++});
+    const ps=Object.values(byP).sort((a,b)=>(b.wd+b.dd)-(a.wd+a.dd)||a.p.localeCompare(b.p,'vi'));
+    const staff=ps.map(o=>{const tot=o.wa+o.dd+o.dn,dn=o.wd+o.dd,p=tot?Math.round(Math.min(dn,tot)/tot*100):0;return `<tr><td><b>${esc(o.p)}</b></td><td class="n">${o.wa}</td><td class="n">${o.wd}</td><td class="n" style="color:var(--r-ok)">${o.ok}</td><td class="n" style="color:var(--r-bad)">${o.late||''}</td><td class="n">${o.open||''}</td><td class="n">${o.dd}</td><td class="n">${o.dn||''}</td><td style="min-width:110px">${meter(p,p>=80?'ok':p>=50?'':'warn')}<div class="pl-rpt-note">${tot?p+'%':'—'}</div></td></tr>`}).join('');
+    // Biểu đồ theo tuần (thứ Hai đầu tuần), tối đa 16 cột.
+    const wk=k=>{const d=toDate(k);return addDays(k,-((d.getDay()+6)%7))},weeks=[];for(let k=wk(from);k<=to&&weeks.length<60;k=addDays(k,7))weeks.push(k);
+    const cols=weeks.slice(-16).map(w=>{const e=addDays(w,6),a=wAssigned.filter(x=>x.i.giao>=w&&x.i.giao<=e).length+D.filter(x=>x.k>=w&&x.k<=e).length,d=wDone.filter(x=>x.i.xong>=w&&x.i.xong<=e).length+dDone.filter(x=>x.k>=w&&x.k<=e).length;return {w,a,d}}),mx=Math.max(1,...cols.map(x=>Math.max(x.a,x.d)));
+    const chart=`<div class="pl-rpt-chart">${cols.map(x=>`<div class="wk" title="Tuần ${show(x.w)}: giao ${x.a}, hoàn thành ${x.d}"><div class="bars"><i style="height:${x.a/mx*100}%"></i><i class="d" style="height:${x.d/mx*100}%"></i></div><small>${x.w.slice(8,10)}/${x.w.slice(5,7)}</small></div>`).join('')}</div><div class="pl-rpt-legend"><span><i></i>Giao / phát sinh</span><span><i class="d"></i>Hoàn thành</span></div>`;
+    const doneList=wDone.map(x=>({src:'work',id:x.r.ID,k:x.i.xong,p:person(x.r),n:x.r.NOI_DUNG,tag:x.i.late?'<span class="pl-rpt-tag bad">Trễ hạn</span>':'<span class="pl-rpt-tag ok">Đúng hạn</span>',kind:'Công việc'})).concat(dDone.map(x=>({src:'daily',id:x.r.ID,k:ymd(x.r.NGAY_HOAN_THANH)||x.k,p:person(x.r),n:x.r.NOI_DUNG||x.r.NOI_DUNG_THUC_HIEN,tag:'<span class="pl-rpt-tag ok">Đã xong</span>',kind:'Hằng ngày'}))).sort((a,b)=>String(b.k).localeCompare(String(a.k)));
+    S.lastWork={from,to,ps,doneList,kpi:{total,doneAll,ok:wDone.length-wLate.length,late:wLate.length,open:wOpen.length+(D.length-dDone.length),avg}};
+    el.querySelector('.pl-rpt-body').innerHTML=`<div class="pl-rpt-kpis">${kpis}</div><div class="pl-rpt-grid"><section class="pl-rpt-card"><h3>Theo nhân viên · ${show(from)} – ${show(to)}</h3><div class="pl-rpt-scroll">${ps.length?`<table><thead><tr><th>Nhân viên</th><th class="n">CV giao</th><th class="n">CV xong</th><th class="n">Đúng hạn</th><th class="n">Trễ</th><th class="n">Còn tồn</th><th class="n">HN đã xong</th><th class="n">HN chưa xong</th><th>% hoàn thành</th></tr></thead><tbody>${staff}</tbody></table>`:'<div class="pl-rpt-empty">Không có công việc trong kỳ đã chọn.</div>'}</div></section><section class="pl-rpt-card"><h3>Giao và hoàn thành theo tuần</h3>${chart}</section></div><section class="pl-rpt-card"><h3>Việc đã hoàn thành trong kỳ · ${doneList.length}</h3><div class="pl-rpt-scroll">${doneList.length?`<table><thead><tr><th class="c">Ngày xong</th><th>Nguồn</th><th>Nội dung</th><th>Người thực hiện</th><th class="c">Kết quả</th></tr></thead><tbody>${doneList.map(x=>`<tr data-id="${esc(x.id)}" data-src="${x.src}"><td class="c">${show(x.k)}</td><td>${x.kind}</td><td>${esc(x.n||'—')}</td><td>${esc(x.p)}</td><td class="c">${x.tag}</td></tr>`).join('')}</tbody></table>`:'<div class="pl-rpt-empty">Chưa có việc hoàn thành trong kỳ.</div>'}</div></section>`;
+  }
+
+  function csv(){const L=S.lastWork;if(!L)return;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',out=[['BÁO CÁO CÔNG VIỆC',show(L.from)+' - '+show(L.to)],[],['Tổng việc','Hoàn thành','Đúng hạn','Trễ hạn','Còn tồn','TB ngày hoàn thành'],[L.kpi.total,L.kpi.doneAll,L.kpi.ok,L.kpi.late,L.kpi.open,L.kpi.avg],[],['Nhân viên','CV giao','CV xong','Đúng hạn','Trễ','Còn tồn','HN đã xong','HN chưa xong']].concat(L.ps.map(o=>[o.p,o.wa,o.wd,o.ok,o.late,o.open,o.dd,o.dn])).concat([[],['Ngày xong','Nguồn','Nội dung','Người thực hiện']]).concat(L.doneList.map(x=>[show(x.k),x.kind,x.n,x.p]));
+    const blob=new Blob(['﻿'+out.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Bao cao cong viec '+L.from+' den '+L.to+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+  function print(el){const body=el.querySelector('.pl-rpt-body'),title=el.querySelector('h2').textContent,w=window.open('','_blank');if(!w)return window.v17Toast&&window.v17Toast('Trình duyệt chặn cửa sổ in.','err');
+    const css=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).filter(t=>t.includes('.pl-rpt{')).join('\n');
+    w.document.write(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${css}body{font-family:Arial,sans-serif;margin:18px}.pl-rpt-scroll{max-height:none!important;overflow:visible!important}.pl-rpt-grid{grid-template-columns:1fr!important}.pl-rpt th{position:static}.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #9e1730;padding-bottom:6px;margin-bottom:12px}.hd b{color:#d71920;font-size:22px}.hd h1{margin:0;font-size:22px}@page{size:A4 landscape;margin:12mm}</style></head><body><div class="hd"><div><h1>${esc(title)}</h1><div>Ngày in: ${show(today())}</div></div><b>PHI LONG TECHNOLOGY</b></div><div class="pl-rpt">${body.innerHTML}</div></body></html>`);w.document.close();setTimeout(()=>{w.focus();w.print()},300)}
+  function onClick(e){const act=e.target.closest('[data-act]');if(act){const el=act.closest('.pl-rpt');if(act.dataset.act==='print')print(el);else if(act.dataset.act==='csv')csv();return}
+    const tr=e.target.closest('tr[data-id]');if(!tr)return;const id=tr.dataset.id;
+    if(tr.dataset.src==='daily'){if(!(typeof plStep_==='function'&&plStep_('dailyViewV841550','openView','daily',id))&&window.v17EditPageRecord)window.v17EditPageRecord('daily',id)}
+    else if(typeof window.plWorkView_==='function')window.plWorkView_(id);else if(window.v17EditPageRecord)window.v17EditPageRecord('work',id)}
+  function render(p){try{if(p==='workProgress')renderProgress();else if(p==='workReport')renderWork()}catch(err){console.error('[pl-rpt]',err)}}
+  window.plRptRender_=render;
+})();
+</script>
 </html>

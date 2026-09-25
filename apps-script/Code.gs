@@ -3250,6 +3250,18 @@ function getFastStartupV64(force){
 
 // V82: trang Tổng quan chỉ nhận số dòng cần hiển thị. Trang Công việc/
 // Công việc hằng ngày tải toàn bộ dữ liệu khi người dùng thực sự mở trang.
+// Báo cáo tiến độ / Báo cáo công việc: một lần tải gồm Công việc + Công việc hằng ngày + danh bạ,
+// tính toán báo cáo thực hiện ở trình duyệt (không đọc lại Sheet khi đổi kỳ/bộ lọc).
+function getWorkReportBundleV90(page,force){
+  beginFastRequestV20_({bypassCache:!!force});
+  const started=Date.now(),user=fastReadUserV121_(),ctx=v20ctx_();
+  requirePermission_(user,MODULES.WORK,'XEM');
+  const core={ok:true,coreOk:true,serverTime:today_(),employees:readObjects_(V22.SHEETS.employees),work:legacyWorkRows_()};
+  let dailyAllowed=true;try{requirePermission_(user,MODULES.DAILY,'XEM');}catch(e){dailyAllowed=false;}
+  if(dailyAllowed)core.daily=legacyDailyRows_();
+  return {ok:true,page:String(page||'workReport'),core:core,version:'V90-WORK-REPORT',elapsedMs:Date.now()-started,cacheHits:ctx.cacheHits,cacheMisses:ctx.cacheMisses,serverTime:nowStamp_()};
+}
+
 function getCorePageBundleV82(page,force){
   beginFastRequestV20_({bypassCache:!!force});
   const started=Date.now(),user=fastReadUserV121_(),ctx=v20ctx_();
