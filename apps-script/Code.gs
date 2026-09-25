@@ -2791,8 +2791,11 @@ function v124InvalidateDomainsForSheet_(sheetName){
   if(/NHAN_VIEN|NHA_THAU|NHA_CUNG_CAP|KHU_VUC/.test(name))add('directory');
   if(/VAI_TRO|PHAN_QUYEN|NGUOI_SU_DUNG|AUDIT/.test(name))add('system');
   if(!domains.length)add('common');
+  // Mỗi miền chỉ cần tăng thế hệ MỘT lần trong một request (một lần lưu gọi hàm này nhiều lần).
+  const ctx=v20ctx_(),bumped=ctx.bumpedDomains||(ctx.bumpedDomains={}),todo=domains.filter(function(d){return !bumped[d]});
+  if(!todo.length)return;
   const props=PropertiesService.getScriptProperties(),updates={};
-  domains.forEach(function(domain){const g=v124DomainGeneration_(domain);updates[g.key]=String(g.value+1)});
+  todo.forEach(function(domain){bumped[domain]=true;const g=v124DomainGeneration_(domain);updates[g.key]=String(g.value+1)});
   props.setProperties(updates,false);
 }
 
