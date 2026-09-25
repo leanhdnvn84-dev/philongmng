@@ -31,6 +31,8 @@
 <style id="pl-v841613-unified-css">
 /* Form bảo trì (Nhật ký, Kế hoạch, Chu kỳ bảo trì): bỏ dòng ghi chú "ID được hệ thống tự sinh…". */
 #v17FormModal[data-form-page^="maintenance"] #v17FormHelp{display:none!important}
+/* Ô bị khóa khi sửa nhật ký */
+#v17FormModal[data-form-page="maintenanceLog"] .v17-field select:disabled{background:#f1f3f6!important;color:#5b6472!important;cursor:not-allowed!important;opacity:1!important}
 /* Form Nhật ký bảo trì: ô bắt buộc có dấu * */
 #v17FormModal[data-form-page="maintenanceLog"] .v17-field:is(:has(#v17_ID_KHU_VUC),:has(#v17_ID_HANG_MUC),:has(#v17_NGAY_THUC_HIEN),:has(#v17_ID_NGUOI_THUC_HIEN),:has(#v17_DON_VI_THUC_HIEN),:has(#v17_KET_QUA))>label::after{content:" *";color:#c8102e;font-weight:800}
 /* Xem Kế hoạch bảo trì: 6 thẻ KPI + lưới chi tiết 6 cột, vừa một màn hình. */
@@ -5651,6 +5653,9 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       if(person&&prefill.ID_NGUOI_PHU_TRACH)person.value=prefill.ID_NGUOI_PHU_TRACH;
       if(date&&!date.value)date.value=v17Today();updatePlans(prefill.ID_LICH||prefill.ID||'');if(planSel)planSel.value=prefill.ID_LICH||prefill.ID||'';if(planSel)planSel._v22SelectedPlan=prefill;updateHint();
     }else{updateItems(itemSel.value);updatePlans(planSel&&planSel.value);updateHint()}
+    // Sửa nhật ký đã có / Ghi nhận từ lịch: khóa Tầng·Khu vực, Hạng mục (và lịch liên kết) — nhật ký gắn cố định với cặp này.
+    const locked=!!(prefill&&(prefill.ID||prefill.ID_LICH));
+    [areaSel,itemSel,planSel].forEach(el=>{if(!el)return;el.disabled=locked;el.title=locked?'Không sửa được: nhật ký gắn cố định với khu vực và hạng mục này':''});
   }
 
   // Form Nhật ký: bắt buộc người thực hiện + kết quả để lịch sử có chất lượng.
