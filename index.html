@@ -524,6 +524,24 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     function renderFormsActionMenu() { var tab=state.formsTab||'all',caption=formTabLabel(tab),sets=[['＋ Tạo phiếu','new-form','primary'],['↻ Làm mới','refresh-forms','']];$('#formsActionMenu').innerHTML='<span class="menu-caption">'+esc(caption)+'</span>'+sets.map(function(item){return '<button class="btn '+item[2]+'" type="button" data-forms-command="'+esc(item[1])+'">'+esc(item[0])+'</button>';}).join(''); }
     function setFormsTab(tab) { state.formsTab=tab||'all';state.formsCommand='';state.formsTemplateId='';state.lastFormPrintData=null;document.querySelectorAll('[data-forms-tab]').forEach(function(button){button.classList.toggle('active',button.dataset.formsTab===state.formsTab);});renderFormsActionMenu();renderForms(); }
     function formEmployeeOptions(selected) { var wanted=normalize(selected&&typeof selected==='object'?selected.value:selected);return state.employees.map(function(person){var key=personKey(person);return '<option value="'+esc(key)+'" '+(normalize(key)===wanted?'selected':'')+'>'+esc(person.HO_VA_TEN||'Chưa có tên')+'</option>';}).join(''); }
+    function openFormFullscreen(template,command) {
+      if(!template)return;
+      var modal=document.getElementById('formModal');if(!modal){modal=document.createElement('div');modal.id='formModal';modal.className='form-modal-container';document.body.appendChild(modal);modal.addEventListener('click',function(e){if(e.target===modal)closeFormModal();});}
+      var innerCmd=command||'view';
+      if(innerCmd==='edit'){modal.innerHTML='<div class="form-modal-content"><div class="form-modal-header"><button class="form-modal-close" data-close-form>←</button><h2>Sửa biểu mẫu</h2><div class="form-modal-actions"><button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-save>✓ Lưu & In</button></div></div><div class="form-modal-body">'+renderFormEditor(template)+'</div></div>';}
+      else {var data=previewFormPrintData(template);modal.innerHTML='<div class="form-modal-content"><div class="form-modal-header"><button class="form-modal-close" data-close-form>←</button><h2>'+esc(template.name)+'</h2><div class="form-modal-actions"><button class="btn" type="button" data-form-modal-print="pdf">📄 PDF</button><button class="btn" type="button" data-form-modal-print="word">📋 Word</button><button class="btn primary" type="button" data-form-modal-edit>✎ Sửa</button></div></div><div class="form-modal-body"><iframe id="formModalFrame" class="form-modal-frame" title="Xem biểu mẫu"></iframe></div></div>';mountFormModalPreview(data);}
+      modal.classList.add('open');
+      addFormModalEvents(template);
+    }
+    function closeFormModal() { var modal=document.getElementById('formModal');if(modal)modal.classList.remove('open'); }
+    function mountFormModalPreview(data) { var frame=document.getElementById('formModalFrame');if(!frame)return;frame.onload=function(){requestAnimationFrame(function(){requestAnimationFrame(function(){paginateFormPreviewFrame(frame);});});};frame.srcdoc=formPreviewDocument(data); }
+    function addFormModalEvents(template) {
+      var modal=document.getElementById('formModal');if(!modal)return;
+      modal.querySelector('[data-close-form]').onclick=closeFormModal;
+      var printBtns=modal.querySelectorAll('[data-form-modal-print]');printBtns.forEach(function(btn){btn.onclick=function(){var form=modal.querySelector('#formsRequestForm'),data;if(form)data=formPrintDataFromForm(form);else data=previewFormPrintData(template);if(!data)return;btn.dataset.formModalPrint==='pdf'?printFormPdf(data):downloadFormWord(data);}});
+      var editBtn=modal.querySelector('[data-form-modal-edit]');if(editBtn)editBtn.onclick=function(){openFormFullscreen(template,'edit');};
+      var saveBtn=modal.querySelector('[data-form-modal-save]');if(saveBtn)saveBtn.onclick=function(){var form=modal.querySelector('#formsRequestForm'),data=formPrintDataFromForm(form);if(!data)return;state.lastFormPrintData=data;call('saveFormRequest',{_sessionToken:auth.token,templateId:data.templateId,title:data.title,date:data.dateValue,data:data.detailJson},function(){toast('Đã lưu biểu mẫu.');setTimeout(function(){printFormPdf(data);},400);},function(err){toast(err||'Lỗi khi lưu.',true);});};
+    }
     function renderFormsProcessing() {
       var panel=$('#formsProcessing'),command=state.formsCommand||'preview',template=formTemplateByClientId(state.formsTemplateId);panel.hidden=false;
       if(!template){panel.innerHTML='<div class="forms-preview-empty"><div><b>Chưa có biểu mẫu</b><span>Chọn nhóm khác hoặc chạy setupFormCatalog() để nạp danh mục mẫu.</span></div></div>';updateFormsPreviewChrome('XEM TRƯỚC A4','Chọn biểu mẫu','0 trang',false,false);return;}
