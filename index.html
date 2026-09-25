@@ -79,7 +79,15 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     body[data-theme="light"] .form-template-card .form-template-main b{color:#172536}
     body[data-theme="light"] .form-template-group{background:#edf2f6;color:#43586b}
     body[data-theme="light"] .form-template-standard{color:#9f1d25}
-    @media(max-width:900px){#forms.view.active{height:auto;overflow:visible}.forms-workspace{flex:none;height:auto}}
+    /* Gọn trang Biểu mẫu: đẩy nội dung lên, bộ lọc 1 hàng. */
+    #forms.view.active{margin-top:-12px;height:calc(100vh - 142px);gap:4px}
+    #forms>.head{flex-basis:32px;height:32px}#forms>.head h1{font-size:18px}
+    .forms-tabs,.forms-action-menu{flex-basis:36px;height:36px;min-height:36px;margin:0}.forms-tab,.forms-action-menu .btn{height:30px}
+    .forms-catalog-pane{padding:8px 10px}
+    .forms-catalog-pane .forms-title{margin-bottom:6px;padding-bottom:6px}.forms-catalog-pane .forms-title>div{display:flex;align-items:baseline;gap:10px;min-width:0}
+    .forms-catalog-pane .forms-title h2{font-size:15px;white-space:nowrap}.forms-catalog-pane .forms-title p{max-width:none;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .forms-catalog-filter{grid-template-columns:minmax(0,1fr) minmax(180px,260px);margin-bottom:6px}.forms-catalog-filter .field input,.forms-catalog-filter .select{height:34px}.forms-catalog-filter-row .btn{padding:6px 10px}
+    @media(max-width:900px){#forms.view.active{height:auto;overflow:visible}.forms-workspace{flex:none;height:auto}.forms-catalog-filter{grid-template-columns:1fr}}
     @media(max-width:620px){.forms-catalog-pane{padding:11px}}
   </style>
   <style>
@@ -565,7 +573,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
         data=form?formPrintDataFromForm(form):previewFormPrintData(template);if(!data)return;
         if(action==='pdf')printFormPdf(data);
         else if(action==='word')downloadFormWord(data);
-        else if(action==='save'){state.lastFormPrintData=data;call('saveFormRequest',{_sessionToken:auth.token,templateId:data.templateId,title:data.title,date:data.dateValue,data:data.detailJson},function(){toast('Đã lưu biểu mẫu.');setTimeout(function(){printFormPdf(data);},400);},function(err){toast(err||'Lỗi khi lưu.',true);});}
+        else if(action==='save'){state.lastFormPrintData=data;call('saveFormRequest',{ID_BIEU_MAU:data.templateId,MA_NHAN_VIEN:data.employeeCode,NGAY_LAP:data.dateValue,TIEU_DE:data.title,NOI_DUNG:data.content,GHI_CHU:data.note,DU_LIEU_MAU_JSON:data.detailJson},function(result){data.id=result&&result.id||'';toast('Đã lưu phiếu biểu mẫu ở trạng thái Nháp.');load();setTimeout(function(){printFormPdf(data);},400);},function(err){toast(err||'Lỗi khi lưu.',true);});}
       };
     }
     function renderFormsProcessing() {
