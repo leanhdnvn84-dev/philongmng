@@ -16,7 +16,7 @@ const isDark=sel=>sel.split(',').every(p=>/data-theme="?dark"?\]/.test(p.replace
 html=html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/g,(m,open,css,close)=>{
   let root;try{root=postcss.parse(css)}catch(e){return m}
   root.walkRules(rule=>{
-    if(!isDark(rule.selector)||/PL-DARK-FINAL/.test(rule.selector))return;
+    if(!isDark(rule.selector)||/pl-d1|plm-cards|pm-theme/.test(rule.selector))return; // bỏ qua khối màu tối chuẩn (có chủ đích dùng nền sáng cho nhãn)
     rule.each(d=>{
       if(d.type!=='decl')return;const p=d.prop.toLowerCase(),v=d.value.replace(/!important/,'').trim(),L=lum(v);
       if(L===null)return;
