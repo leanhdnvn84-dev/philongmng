@@ -11965,7 +11965,9 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
 .pl-rpt-card>h3{margin:0;padding:8px 12px;font-size:14px;color:var(--r-acc);border-bottom:1px solid var(--r-line);text-transform:uppercase}
 .pl-rpt-scroll{overflow:auto;max-height:calc(100vh - 250px)}
 .pl-rpt table{width:100%;border-collapse:collapse;font-size:13px}
-.pl-rpt th.n{white-space:normal;min-width:78px;max-width:110px;line-height:1.25;vertical-align:bottom}
+:is(#workReport,#workProgress) .pl-rpt table{table-layout:auto!important}
+:is(#workReport,#workProgress) .pl-rpt :is(th,td){overflow:visible!important;text-overflow:clip!important}
+:is(#workReport,#workProgress) .pl-rpt th.n{white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;min-width:96px;width:1%;line-height:1.25;vertical-align:bottom;text-align:right}
 .pl-rpt th{position:sticky;top:0;background:var(--r-soft);color:var(--r-mute);font-size:12px;text-align:left;padding:7px 8px;border-bottom:1px solid var(--r-line);white-space:nowrap;z-index:1}
 .pl-rpt td{padding:7px 8px;border-bottom:1px solid var(--r-line);vertical-align:top}
 .pl-rpt td.c,.pl-rpt th.c{text-align:center}.pl-rpt td.n,.pl-rpt th.n{text-align:right;white-space:nowrap}
