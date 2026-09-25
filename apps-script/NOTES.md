@@ -39,5 +39,12 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 - Web app `ANYONE_ANONYMOUS` + NO LOGIN: ai có URL đều chạy với quyền Super Admin (trừ các chức năng được khóa bằng mật khẩu Hệ thống).
 - Mật khẩu Hệ thống lưu dạng thô trong sheet NGUOI_SU_DUNG.
 - Các RPC chuyển thiết bị/kho trong dispatcher không gọi `requirePermission_`.
-- Frontend là nhiều lớp vá theo phiên bản chồng lên nhau → trước khi sửa một hàm, tra `PATCH_MAP.md` để biết bản ★ đang có hiệu lực (sinh lại bằng `node tools/patch-map.js index.html > PATCH_MAP.md`).
+- Frontend: mỗi hàm toàn cục chỉ còn MỘT định nghĩa (đã gộp 32 chuỗi lớp vá, ngày 2026-09-25). Khối giao diện muốn chen vào hàm lõi thì khai báo bước `plDefineSteps_('khối',{bước:fn})`; hàm lõi gọi `plStep_('khối','bước',…)` theo thứ tự ghi trong thân hàm. Xem `PATCH_MAP.md` (sinh bằng `node tools/patch-map.js index.html > PATCH_MAP.md`; kiểm tra `--check`).
+- Hành vi giữ nguyên có chủ đích (nghi là lỗi cũ, chưa sửa): `setStatus(text,type,page)` bỏ qua `page` từ khi V42 nạp; `showPage` bản cũ tự tải Cấu hình email khi mở trang emailConfig nhưng bản V82 đã thay hẳn nên việc này không còn chạy.
 - Chức năng Chat (1-1, nhóm, định danh thiết bị) đã bị xóa hoàn toàn ở cả backend và frontend. Sheet `CHATNOIBO`, `PHIEN_CHAT_THIET_BI` trong Spreadsheet không còn được dùng — có thể xóa tay nếu muốn.
+
+## Kiểm thử hồi quy giao diện (`tools/harness/`)
+- `gas-mock.js`: chạy Code.gs trong Node với Google Sheet giả (dữ liệu mẫu tất định).
+- `run.js`: mở index.html trong Chromium (desktop + mobile), đi qua mọi trang, bấm Xem/Sửa/Lưu/Thêm/Xóa/Tìm, mở khóa Hệ thống, chụp DOM đã chuẩn hóa.
+- So sánh: `node tools/harness/run.js <bản_cũ.html> outA && node tools/harness/run.js index.html outB && node tools/harness/compare.js outA outB`.
+- Cần `npm --prefix tools install`; Chromium: đặt `CHROMIUM=/đường/dẫn/chrome` nếu Playwright không tự tìm thấy.
