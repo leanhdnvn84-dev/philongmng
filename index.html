@@ -47,12 +47,12 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     #forms>.head{flex:0 0 40px;height:40px;margin:0;padding:0 4px;align-items:center}#forms>.head>div{display:flex;align-items:baseline;min-width:0;gap:12px}#forms>.head h1{font-size:21px;white-space:nowrap}#forms>.head p{overflow:hidden;margin:0;text-overflow:ellipsis;white-space:nowrap}.forms-tabs,.forms-action-menu{display:flex;flex:0 0 40px;align-items:center;gap:4px;height:40px;min-height:40px;overflow-x:auto;overflow-y:hidden;margin:2px 0 0;padding:2px 4px;border:1px solid #334454;border-radius:9px;background:#0d151e;box-shadow:0 5px 14px #0004;scrollbar-width:none}.forms-tabs::-webkit-scrollbar,.forms-action-menu::-webkit-scrollbar{display:none}.forms-tab,.forms-action-menu .btn{flex:0 0 auto;height:34px;white-space:nowrap}.forms-tab{border:0;border-radius:7px;padding:0 12px;background:transparent;color:#bcc8d2;font-size:12px;font-weight:700;transition:background .16s,transform .16s}.forms-tab:hover{background:#3a1720;color:#fff;transform:translateY(-1px)}.forms-tab.active{background:linear-gradient(135deg,#8f1820,#c72d31);color:#fff;box-shadow:0 4px 10px #0007,inset 0 1px #ffffff2b}.forms-action-menu{margin-bottom:6px}.forms-action-menu .menu-caption{align-self:center;padding:0 6px;color:#9aa7b5;font-size:11px;font-weight:700}.forms-action-menu .btn{padding:0 12px;font-size:11px}.forms-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding:0 0 9px;border-bottom:1px solid #2a3948}.forms-title h2{margin:0;color:#ffaaa6;font-size:17px}.forms-title p{margin:3px 0 0;color:#9aa7b5;font-size:11px}.forms-title span{color:#d8a4a4;font-size:11px}body[data-theme="light"] .forms-tabs,body[data-theme="light"] .forms-action-menu{border-color:#d5dfe8;background:#fff;box-shadow:0 5px 14px #52667a18}body[data-theme="light"] .forms-tab{color:#526577}body[data-theme="light"] .forms-tab:hover{background:#fae9e9;color:#8f171e}body[data-theme="light"] .forms-tab.active{color:#fff;background:linear-gradient(135deg,#9f1920,#d9363c)}body[data-theme="light"] .forms-title{border-color:#d9e2ea}body[data-theme="light"] .forms-title h2{color:#9e242a}@media(max-width:800px){#forms>.head p{display:none}.forms-tab{padding:0 10px;font-size:11px}.forms-title{gap:5px}}
   </style>
   <style>
-    /* R73: workspace Biểu mẫu gọn trong màn hình — danh sách trái, xem trước A4 phải. */
+    /* R73: workspace Biểu mẫu gọn trong màn hình — danh sách rộng toàn màn hình. */
     #forms.view.active{display:flex;flex-direction:column;min-width:0;min-height:0;height:calc(100vh - 154px);overflow:hidden}
-    .forms-workspace{display:grid;flex:1;grid-template-columns:minmax(320px,390px) minmax(0,1fr);gap:10px;height:auto;min-height:0;margin:0}
+    .forms-workspace{display:grid;flex:1;grid-template-columns:1fr;gap:10px;height:auto;min-height:0;margin:0}
     .forms-catalog-pane,.forms-preview-pane{min-width:0;min-height:0}
     .forms-catalog-pane{display:flex;flex-direction:column;padding:12px;overflow:hidden}
-    .forms-preview-pane{display:flex;flex-direction:column;padding:0;overflow:hidden}
+    .forms-preview-pane{display:none}
     .forms-catalog-pane .forms-title{flex:0 0 auto;margin-bottom:12px;padding-bottom:11px}
     .forms-catalog-pane .forms-title h2{font-size:17px}
     .forms-catalog-pane .forms-title p{max-width:245px;line-height:1.4}
@@ -73,28 +73,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     .form-template-meta{display:flex;align-items:center;gap:6px;min-width:0;height:18px;margin:0}
     .form-template-group{display:inline-block;overflow:hidden;max-width:48%;border-radius:12px;padding:2px 6px;background:#20303e;color:#d9e3ec;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
     .form-template-standard{overflow:hidden;color:#ffaaa6;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
-    .forms-preview-toolbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:66px;padding:10px 13px;border-bottom:1px solid #344756;background:#101923}
-    .forms-preview-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:1px 10px;min-width:160px}
-    .forms-preview-heading small{grid-column:1/-1;color:#ff8f8b;font-size:9px;font-weight:800;letter-spacing:.08em}
-    .forms-preview-heading h2{overflow:hidden;margin:0;color:#fff;font-size:15px;text-overflow:ellipsis;white-space:nowrap}
-    .forms-preview-heading>span{color:#9aa7b5;font-size:10px;white-space:nowrap}
-    .forms-preview-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:0;overflow-x:auto;padding:2px;scrollbar-width:none}
-    .forms-preview-actions::-webkit-scrollbar{display:none}
-    .forms-preview-actions .btn{flex:0 0 auto;padding:8px 10px;font-size:11px;white-space:nowrap}
-    .forms-preview-actions .btn:disabled{cursor:not-allowed;opacity:.42;transform:none;box-shadow:none}
-    .forms-preview-actions .forms-zoom-button{width:34px;padding:8px 0;font-size:16px}
-    .forms-preview-actions .forms-zoom-value{min-width:54px;padding-inline:7px}
-    .forms-preview-stage{flex:1;min-height:0;overflow:hidden;background:#dfe5eb}
-    .forms-processing{height:100%;min-height:0;margin:0;padding:0;overflow:auto;border:0;border-radius:0;background:transparent;box-shadow:none}
-    .forms-processing[hidden]{display:none}
-    .forms-preview-frame{display:block;width:100%;height:100%;min-height:520px;border:0;background:#dfe5eb}
-    .forms-preview-empty{display:grid;place-items:center;height:100%;min-height:420px;padding:32px;color:#657587;text-align:center}
-    .forms-preview-empty b{display:block;margin-bottom:6px;color:#273a4b;font-size:18px}
-    .forms-processing .forms-a4-editor{padding:24px}
-    .forms-saved-view{display:grid;grid-template-rows:auto minmax(0,1fr);height:100%;min-height:0}
-    .forms-saved-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid #344756;background:#101923}
-    .forms-saved-banner b{color:#fff}.forms-saved-banner span{color:#aebbc7;font-size:11px}
-    body[data-theme="light"] .forms-catalog-pane,body[data-theme="light"] .forms-preview-pane{border-color:#d4dee7;background:#fff;box-shadow:0 8px 20px #4a5c7020}
+    body[data-theme="light"] .forms-catalog-pane{border-color:#d4dee7;background:#fff;box-shadow:0 8px 20px #4a5c7020}
     body[data-theme="light"] .form-template-card{border-color:#d4dee7;background:#fff;color:#1c2c3b;box-shadow:0 4px 10px #52667a16}
     body[data-theme="light"] .form-template-card:hover{border-color:#d58b8e;background:#fffafa;box-shadow:0 8px 16px #52667a20}
     body[data-theme="light"] .form-template-card.active{border-color:#d55257;background:#fff5f5;box-shadow:inset 3px 0 #d55257,0 8px 16px #52667a20}
@@ -105,9 +84,9 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     body[data-theme="light"] .forms-preview-heading h2,body[data-theme="light"] .forms-saved-banner b{color:#172536}
     body[data-theme="light"] .forms-preview-heading small{color:#9e242a}
     body[data-theme="light"] .forms-preview-heading>span,body[data-theme="light"] .forms-saved-banner span{color:#68798a}
-    @media(max-width:1200px){.forms-workspace{grid-template-columns:minmax(290px,330px) minmax(0,1fr)}.forms-preview-toolbar{align-items:flex-start;flex-direction:column}.forms-preview-actions{justify-content:flex-start;width:100%}}
-    @media(max-width:900px){#forms.view.active{height:auto;overflow:visible}.forms-workspace{flex:none;grid-template-columns:1fr;height:auto;min-height:0}.forms-catalog-pane{height:390px}.forms-preview-pane{height:720px}.forms-preview-toolbar{align-items:flex-start}.forms-preview-actions{width:100%}}
-    @media(max-width:620px){.forms-catalog-pane{height:360px;padding:11px}.forms-preview-pane{height:640px}.forms-preview-toolbar{min-height:0;padding:9px}.forms-preview-heading{width:100%}.forms-preview-actions .btn{padding:7px 8px;font-size:10px}.forms-processing .forms-a4-editor{padding:12px}}
+    @media(max-width:1200px){.forms-workspace{grid-template-columns:1fr}}
+    @media(max-width:900px){#forms.view.active{height:auto;overflow:visible}.forms-workspace{flex:none;grid-template-columns:1fr;height:auto;min-height:0}}
+    @media(max-width:620px){.forms-catalog-pane{padding:11px}}
   </style>
   <style>
     /* R73: phần đầu biểu mẫu theo mẫu DNTT, trình soạn thảo trực tiếp trên khổ A4. */
