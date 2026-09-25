@@ -5945,6 +5945,8 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     if(r)return r;
     const page=TABLE_PAGE[containerId];
     if(page&&typeof window.v17FindRecord==='function')r=window.v17FindRecord(page,id);
+    // Kế hoạch bảo trì: dòng có thể không có cột ID, khớp theo mã lịch.
+    if(!r&&page&&typeof window.v17RowsForPage==='function'){const rows=window.v17RowsForPage(page);if(Array.isArray(rows))r=rows.find(x=>x&&x.ID_LICH!=null&&String(x.ID_LICH)===String(id))||null}
     return r||null;
   }
   function dateText(v){try{return v?fmtDate(v):'—'}catch(e){return String(v||'—')}}
@@ -6158,9 +6160,12 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   function idOf(r){return r?(r.ID??r.ID_HANG_MUC??r.ID_LICH??r.ID_AUDIT??r.__ROW??''):''}
   function rowsOf(containerId){
     if(containerId==='daily')return (window.V16_DATA&&V16_DATA.views[containerId]&&V16_DATA.views[containerId].rows)||[];
-    const v=window.V16_DATA&&V16_DATA.views[containerId];return (v&&v.rows)||[];
+    const v=window.V16_DATA&&V16_DATA.views[containerId];if(v&&Array.isArray(v.rows)&&v.rows.length)return v.rows;
+    // Trang có giao diện riêng (vd. Kế hoạch bảo trì) không đăng ký bảng V16: lấy thẳng dữ liệu của trang.
+    const page=PAGE_FOR[containerId],rows=page&&typeof window.v17RowsForPage==='function'?window.v17RowsForPage(page):null;
+    return Array.isArray(rows)?rows:((v&&v.rows)||[]);
   }
-  function findRecord(containerId,id){return rowsOf(containerId).find(r=>String(idOf(r))===String(id))||null}
+  function findRecord(containerId,id){const key=String(id??'');return rowsOf(containerId).find(r=>String(idOf(r))===key||(r&&r.ID_LICH!=null&&String(r.ID_LICH)===key))||null}
   function canEdit(containerId){return STANDARD_EDIT.has(containerId)||SPECIAL_EDIT.has(containerId)}
   function viewBtn(c,id){return `<button class="v25-action view v26-view-btn" type="button" title="Xem chi tiết" onclick="v26OpenView('${esc(c)}','${esc(id)}')">👁 Xem</button>`}
   function editBtn(c,id){const label='Sửa',title=c==='stockTxnTable'?'Sửa thông tin phiếu':'Sửa';return `<button class="v25-action edit v26-edit-btn" type="button" title="${title}" onclick="v26EditRecord('${esc(c)}','${esc(id)}')">✎ ${label}</button>`}
