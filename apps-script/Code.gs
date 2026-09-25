@@ -4387,7 +4387,7 @@ function buildProposalDocV8414_(data){
     data.lines.forEach(function(x,i){const qty=Number(x.SO_LUONG||0),price=Number(x.DON_GIA||0),amount=Number(x.THANH_TIEN||0)||qty*price;total+=amount;matrix.push([String(i+1),String(data.itemName(x)||''),String(x.SO_LUONG||''),proposalMoneyV8414_(price),proposalMoneyV8414_(amount)]);});
     matrix.push(['','','','TỔNG CỘNG',proposalMoneyV8414_(total)]);
     const table=body.appendTable(matrix);table.setBorderWidth(.75);table.setColumnWidth(0,36);table.setColumnWidth(1,224);table.setColumnWidth(2,70);table.setColumnWidth(3,92);table.setColumnWidth(4,98);
-    for(let r=0;r<table.getNumRows();r++)for(let c=0;c<5;c++){const head=r===0;styleCellV8414_(table.getCell(r,c),9,head,head?'#EEEEEE':'#FFFFFF',c===1?DocumentApp.HorizontalAlignment.LEFT:(c>=3?DocumentApp.HorizontalAlignment.RIGHT:DocumentApp.HorizontalAlignment.CENTER));}
+    for(let r=0;r<table.getNumRows();r++)for(let c=0;c<5;c++){const head=r===0||(r===table.getNumRows()-1&&c>=3);styleCellV8414_(table.getCell(r,c),9,head,r===0?'#EEEEEE':'#FFFFFF',c===1?DocumentApp.HorizontalAlignment.LEFT:(c>=3?DocumentApp.HorizontalAlignment.RIGHT:DocumentApp.HorizontalAlignment.CENTER));}
     const words=body.appendTable([['Tổng cộng bằng chữ: '+proposalMoneyWordsV8414_(total)]]);words.setBorderWidth(0).setBorderColor('#FFFFFF');words.setColumnWidth(0,520);words.getCell(0,0).setBackgroundColor('#FFFFFF');styleCellV8414_(words.getCell(0,0),9,false,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);words.getCell(0,0).editAsText().setBold(0,'Tổng cộng bằng chữ:'.length-1,true);
   }else{
     const x=data.detail,rows=data.kind==='maintenance'?[['Thiết bị',data.itemName(x)],['Khu vực',x.KHU_VUC||x.ID_KHU_VUC||''],['Hiện trạng',x.HIEN_TRANG||x.TINH_TRANG||''],['Phương án đề xuất',x.PHUONG_AN_DE_XUAT||''],['Chi phí dự kiến',proposalMoneyV8414_(x.CHI_PHI_DU_KIEN)]]:[['Thiết bị',data.itemName(x)],['Tình trạng',x.TINH_TRANG||x.HIEN_TRANG||''],['Lý do thanh lý',x.LY_DO||''],['Chi phí sửa dự kiến',proposalMoneyV8414_(x.CHI_PHI_SUA_DU_KIEN)],['Giá trị còn lại',proposalMoneyV8414_(x.GIA_TRI_CON_LAI)],['Giá đề xuất thanh lý',proposalMoneyV8414_(x.GIA_DE_XUAT_THANH_LY)]];
@@ -4412,11 +4412,19 @@ function exportGoogleDocBlobV8414_(fileId,mimeType){
   throw new Error('EXPORT_FILE_FAILED:'+(response&&response.getResponseCode()));
 }
 
+// Tên file tải xuống: Mã phiếu + Người đề xuất + Tên vật tư (bỏ ký tự cấm trong tên file, giới hạn độ dài).
+function proposalFileNameV90_(data){
+  let items=[];try{items=(data.kind==='material'||data.kind==='purchase')?(data.lines||[]).map(function(x){return data.itemName(x);}):[data.itemName(data.detail||{})];}catch(e){}
+  items=items.map(function(x){return String(x||'').trim();}).filter(function(x,i,a){return x&&a.indexOf(x)===i;});
+  const name=[data.code||'de-xuat',data.requester,items.join(', ')].map(function(x){return String(x||'').replace(/[\\/:*?"<>|\r\n\t]+/g,' ').replace(/\s+/g,' ').trim();}).filter(Boolean).join(' - ');
+  return name.length>150?name.slice(0,150).trim():name;
+}
+
 function exportProposalFileV8414_(user,id,format){
   format=String(format||'pdf').toLowerCase()==='pdf'?'pdf':'docx';const data=proposalExportDataV8414_(user,id),docId=buildProposalDocV8414_(data),file=DriveApp.getFileById(docId);
   try{
     const mime=format==='pdf'?'application/pdf':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',blob=exportGoogleDocBlobV8414_(docId,mime),extension=format==='pdf'?'.pdf':'.docx';
-    return {ok:true,fileName:String(data.code||'de-xuat')+extension,mimeType:mime,base64:Utilities.base64Encode(blob.getBytes())};
+    return {ok:true,fileName:proposalFileNameV90_(data)+extension,mimeType:mime,base64:Utilities.base64Encode(blob.getBytes())};
   }finally{try{file.setTrashed(true);}catch(e){}}
 }
 
