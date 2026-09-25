@@ -39,5 +39,5 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 - Web app `ANYONE_ANONYMOUS` + NO LOGIN: ai có URL đều chạy với quyền Super Admin (trừ các chức năng được khóa bằng mật khẩu Hệ thống).
 - Mật khẩu Hệ thống lưu dạng thô trong sheet NGUOI_SU_DUNG.
 - Các RPC chuyển thiết bị/kho trong dispatcher không gọi `requirePermission_`.
-- Frontend là nhiều lớp vá theo phiên bản chồng lên nhau → khi sửa cần tìm khối `pl-v…` mới nhất ghi đè hàm/cấu hình.
+- Frontend là nhiều lớp vá theo phiên bản chồng lên nhau → trước khi sửa một hàm, tra `PATCH_MAP.md` để biết bản ★ đang có hiệu lực (sinh lại bằng `node tools/patch-map.js index.html > PATCH_MAP.md`).
 - Chức năng Chat (1-1, nhóm, định danh thiết bị) đã bị xóa hoàn toàn ở cả backend và frontend. Sheet `CHATNOIBO`, `PHIEN_CHAT_THIET_BI` trong Spreadsheet không còn được dùng — có thể xóa tay nếu muốn.

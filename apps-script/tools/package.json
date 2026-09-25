@@ -1,0 +1,9 @@
+{
+  "name": "philong-apps-script-tools",
+  "private": true,
+  "description": "Công cụ phân tích index.html (không triển khai lên Apps Script)",
+  "dependencies": {
+    "acorn": "^8.14.0",
+    "acorn-walk": "^8.3.4"
+  }
+}
