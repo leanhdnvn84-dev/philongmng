@@ -14,7 +14,7 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 - 173 `doGet()` – render `index`.
 - 218 RBAC: `requirePermission_` (sheet PHAN_QUYEN, Super Admin = VR0004 bypass), `fallbackPermission_` (VR0001/2/3).
 - 266–640 Bảo trì: nhật ký, lịch (`rebuildMaintenancePair_`, MAX(NGAY_THUC_HIEN) theo cặp khu vực+hạng mục), đồng bộ lịch thiếu.
-- 639–1240 Thiết bị/kho: chuyển thiết bị, thu hồi, nhập xuất kho, tồn kho; 754–965 Chat nội bộ (1-1, nhóm, định danh thiết bị).
+- 639–1240 Thiết bị/kho: chuyển thiết bị, thu hồi, nhập xuất kho, tồn kho.
 - 1239–1540 Audit/repair dữ liệu bảo trì (V78/V79).
 - 1558–1830 Đảm bảo schema các sheet (danh mục, bảo trì, CVHN, đề xuất, cho thuê).
 - 1834–1920 Tiện ích: `norm_`, `today_`, `dateOnly_`, `addDays_`, `alertForDate_`…
@@ -31,12 +31,13 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 ## Frontend – bản đồ index.html
 - 31–4171 CSS (unified, bảng V206, cột danh mục V210, khung mobile V216).
 - 4504 script lõi: `APP`, `server(fn,args,ok,fail)` → `google.script.run.legacyV22NoLogin(fn,args,plSystemTokenV137_())`, `esc`, `norm`, `fmtDate`, footer/pager V105–V106.
-- Sau đó ~55 khối `<script id="pl-v…">` vá chồng (daily, work, proposal, equipment, maintenance, chat, catalog, system-lock, pager, toolbar…).
+- Sau đó ~55 khối `<script id="pl-v…">` vá chồng (daily, work, proposal, equipment, maintenance, catalog, system-lock, pager, toolbar…).
 - Trang (`showPage`): work, daily, maintenanceLog, maintenancePlan, maintenanceItems, maintenanceDataTool, equipment, warehouseDevice, materialWarehouse, materials, recovery, proposalBuyMaterial, proposalBuy, proposalMaintenance, proposalDispose, tenants, prospects, floors, buildingAreas, employees, pcccEmployees, contractors, suppliers, operationDetail, users, roles, permissions, systemAudit, systemConfig, emailConfig.
 - RPC trực tiếp khác: `getFastStartupV64`, `getCorePageBundleV82`, `getWorkPageBundleFastV120`, `getPageListV124`, `getPageReferencesV124`, `saveUiFormV22`, `saveUniversalEditV26`, `verifySystemLockPassword`, `lockSystemV137`, `runMaintenanceDataAuditV78`, `runMaintenanceDataRepairV79`.
 
 ## Điểm cần lưu ý khi sửa sau này
 - Web app `ANYONE_ANONYMOUS` + NO LOGIN: ai có URL đều chạy với quyền Super Admin (trừ các chức năng được khóa bằng mật khẩu Hệ thống).
 - Mật khẩu Hệ thống lưu dạng thô trong sheet NGUOI_SU_DUNG.
-- Các RPC chat/chuyển thiết bị/kho trong dispatcher không gọi `requirePermission_`.
+- Các RPC chuyển thiết bị/kho trong dispatcher không gọi `requirePermission_`.
 - Frontend là nhiều lớp vá theo phiên bản chồng lên nhau → khi sửa cần tìm khối `pl-v…` mới nhất ghi đè hàm/cấu hình.
+- Chức năng Chat (1-1, nhóm, định danh thiết bị) đã bị xóa hoàn toàn ở cả backend và frontend. Sheet `CHATNOIBO`, `PHIEN_CHAT_THIET_BI` trong Spreadsheet không còn được dùng — có thể xóa tay nếu muốn.
