@@ -5340,6 +5340,15 @@ function v17CloseMaterialSuggestions(){document.getElementById('v17MaterialPopov
 function v17StockTypeChanged(){const box=document.querySelector('.v17-material-picker'),input=box?.querySelector('input[type="search"]'),hidden=box?.querySelector('input[type="hidden"]');if(input)input.value='';if(hidden)hidden.value='';if(input)v17ShowMaterialSuggestions(input);}
 function v17RepositionMaterialSuggestions(){const pop=document.getElementById('v17MaterialPopover'),input=pop?._materialInput;if(!pop?.classList.contains('open')||!input?.isConnected)return;requestAnimationFrame(()=>v17PositionMaterialPopover(input,pop))}
 document.addEventListener('click',e=>{if(!e.target.closest('.v17-material-picker')&&!e.target.closest('.v17-material-popover'))v17CloseMaterialSuggestions()});window.addEventListener('resize',v17RepositionMaterialSuggestions);document.addEventListener('scroll',e=>{const pop=document.getElementById('v17MaterialPopover');if(e.target===pop||pop?.contains(e.target))return;v17RepositionMaterialSuggestions()},true);
+/* Dữ liệu gốc của một bảng (theo id bảng) khi bảng không đăng ký view V16 — dùng cho nút Xem/Sửa. */
+function plRowsForTable_(containerId){
+  const m=v17Modules(),wh=m.materialWarehouse||{};
+  const direct={daily:APP.core?.daily,materialTable:wh.materials,stockTxnTable:wh.transactions,permissionsTable:m.permissions,auditArchiveTable:m.auditArchive,pcccEmployeesTable:m.pcccEmployees,operationDetailTable:m.operationDetails,deviceTransferTable:m.deviceTransfers};
+  if(Array.isArray(direct[containerId]))return direct[containerId];
+  const page=String(containerId||'').replace(/Table$/,'');const rows=v17RowsForPage(page);return Array.isArray(rows)?rows:[];
+}
+/* Tìm bản ghi theo mọi cột mã thường dùng. */
+function plFindRowById_(rows,id){const key=String(id??'');return (rows||[]).find(r=>r&&['ID','ID_LICH','ID_HANG_MUC','ID_AUDIT','MA','__ROW'].some(k=>r[k]!=null&&String(r[k])===key))||null}
 function v17RowsForPage(page){const m=v17Modules();const map={work:APP.core?.work||[],daily:APP.core?.daily||[],proposal:APP.extra?.proposals||[],maintenanceLog:m.maintenanceLog||[],maintenancePlan:m.maintenancePlan||[],proposalBuyMaterial:m.proposalBuyMaterial||[],proposalBuy:m.proposalBuy||[],proposalDispose:m.proposalDispose||[],proposalMaintenance:m.proposalMaintenance||[],equipment:v17Devices(),warehouseDevice:m.warehouseDevice||[],recovery:m.recovery||[],materialWarehouse:m.materialWarehouse||{},materials:m.materialCatalog||[],contracts:m.contracts||[],tenants:m.tenants||[],prospects:m.prospects||[],floors:m.floors||[],employees:m.employees||APP.extra?.employeesAll||[],contractors:m.contractors||[],suppliers:m.suppliers||[],buildingAreas:m.buildingAreas||[],maintenanceItems:m.maintenanceItems||[],users:APP.extra?.users||[],roles:m.roles||[]};return map[page]||[]}
 function v17FindRecord(page,id){const rows=v17RowsForPage(page);return rows.find(r=>String(r.ID??r.ID_HANG_MUC??r.ID_LICH)===String(id))||null}
 function v841438MarkForm3d_(page){const modal=document.getElementById('v17FormModal');if(!modal)return;modal.classList.add('form-3d-v841438');modal.dataset.formPage=String(page||'')}
@@ -5945,8 +5954,8 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     if(r)return r;
     const page=TABLE_PAGE[containerId];
     if(page&&typeof window.v17FindRecord==='function')r=window.v17FindRecord(page,id);
-    // Kế hoạch bảo trì: dòng có thể không có cột ID, khớp theo mã lịch.
-    if(!r&&page&&typeof window.v17RowsForPage==='function'){const rows=window.v17RowsForPage(page);if(Array.isArray(rows))r=rows.find(x=>x&&x.ID_LICH!=null&&String(x.ID_LICH)===String(id))||null}
+    // Bảng không đăng ký view / dòng không có cột ID: tìm trong dữ liệu gốc theo mọi cột mã.
+    if(!r)r=plFindRowById_(rows,id)||plFindRowById_(plRowsForTable_(containerId),id);
     return r||null;
   }
   function dateText(v){try{return v?fmtDate(v):'—'}catch(e){return String(v||'—')}}
@@ -6159,13 +6168,11 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   function norm26(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/Đ/g,'D').toUpperCase()}
   function idOf(r){return r?(r.ID??r.ID_HANG_MUC??r.ID_LICH??r.ID_AUDIT??r.__ROW??''):''}
   function rowsOf(containerId){
-    if(containerId==='daily')return (window.V16_DATA&&V16_DATA.views[containerId]&&V16_DATA.views[containerId].rows)||[];
     const v=window.V16_DATA&&V16_DATA.views[containerId];if(v&&Array.isArray(v.rows)&&v.rows.length)return v.rows;
-    // Trang có giao diện riêng (vd. Kế hoạch bảo trì) không đăng ký bảng V16: lấy thẳng dữ liệu của trang.
-    const page=PAGE_FOR[containerId],rows=page&&typeof window.v17RowsForPage==='function'?window.v17RowsForPage(page):null;
-    return Array.isArray(rows)?rows:((v&&v.rows)||[]);
+    // Trang có giao diện riêng không đăng ký bảng V16: lấy thẳng dữ liệu gốc của bảng.
+    return plRowsForTable_(containerId);
   }
-  function findRecord(containerId,id){const key=String(id??'');return rowsOf(containerId).find(r=>String(idOf(r))===key||(r&&r.ID_LICH!=null&&String(r.ID_LICH)===key))||null}
+  function findRecord(containerId,id){const rows=rowsOf(containerId);return rows.find(r=>String(idOf(r))===String(id))||plFindRowById_(rows,id)||plFindRowById_(plRowsForTable_(containerId),id)}
   function canEdit(containerId){return STANDARD_EDIT.has(containerId)||SPECIAL_EDIT.has(containerId)}
   function viewBtn(c,id){return `<button class="v25-action view v26-view-btn" type="button" title="Xem chi tiết" onclick="v26OpenView('${esc(c)}','${esc(id)}')">👁 Xem</button>`}
   function editBtn(c,id){const label='Sửa',title=c==='stockTxnTable'?'Sửa thông tin phiếu':'Sửa';return `<button class="v25-action edit v26-edit-btn" type="button" title="${title}" onclick="v26EditRecord('${esc(c)}','${esc(id)}')">✎ ${label}</button>`}
