@@ -3483,8 +3483,6 @@ html#plMobileViewport[data-theme="dark"]{
   height:auto!important;
   min-height:0!important;
   max-height:none!important;
-  border:1px solid var(--plm-line)!important;
-  border-left:4px solid var(--plm-accent)!important;
   overflow:hidden!important;
   box-sizing:border-box!important;
 }
@@ -11872,7 +11870,7 @@ html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) .v78-audit-status{ba
 /* ===== MẪU THẺ MOBILE 13 (đầu thẻ màu + ô biểu tượng + thanh tiến độ) =====
    JS (decorate) gắn: tr[data-plm-tone] ok|late|warn|info, tr[data-plm-bar] + --plm-pct,
    td[data-plm-i] thứ tự ô meta, td[data-plm-s] thứ tự ô trạng thái, td[data-plm-ic] biểu tượng. */
-#plMobileViewport main.container .section.active table.plm-cards>tbody>tr{--t1:#1e3a5f;--t2:#2563eb;--tb:#2563eb;--ti:#1e3a8a;position:relative!important;border:0!important;border-radius:14px!important;margin:0 0 12px!important;background:#fff!important;box-shadow:0 2px 8px rgba(15,23,42,.14)!important;padding-bottom:4px!important}
+#plMobileViewport main.container .section.active table.plm-cards>tbody>tr{--t1:#1e3a5f;--t2:#2563eb;--tb:#2563eb;--ti:#1e3a8a;position:relative!important;border:1px solid #cfd8e3!important;border-radius:14px!important;margin:0 0 22px!important;background:#fff!important;box-shadow:0 4px 12px rgba(15,23,42,.18)!important;padding-bottom:4px!important}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr[data-plm-tone="ok"]{--t1:#14532d;--t2:#16a34a;--tb:#16a34a;--ti:#166534}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr[data-plm-tone="late"]{--t1:#7f1d1d;--t2:#dc2626;--tb:#dc2626;--ti:#b91c1c}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr[data-plm-tone="warn"]{--t1:#92400e;--t2:#d97706;--tb:#d97706;--ti:#92400e}
@@ -11903,7 +11901,7 @@ html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) .v78-audit-status{ba
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-actions :is(.v25-actions,.pbm-actions,.pl-actions,div){display:flex!important;flex-wrap:wrap!important;justify-content:flex-end!important;gap:6px!important;width:auto!important;margin:0!important}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-actions :is(button,a,.v25-action,.pl-daily-action){flex:0 0 auto!important;width:auto!important;min-height:36px!important;height:auto!important;padding:6px 14px!important;font-size:14px!important;line-height:1.2!important;border-radius:8px!important;margin:0!important;white-space:nowrap!important}
 /* Giao diện tối */
-html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards>tbody>tr{background:#151b23!important;box-shadow:0 2px 8px rgba(0,0,0,.5)!important}
+html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards>tbody>tr{background:#151b23!important;border-color:#2f3b4c!important;box-shadow:0 4px 14px rgba(0,0,0,.6)!important}
 html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards>tbody>tr>td:is(.plm-meta:not([data-plm-i="0"]),.plm-method,.plm-status[data-plm-s="1"]){background:#1b2330!important;color:#e6edf3!important}
 html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards>tbody>tr[data-plm-bar]::after{color:#e6edf3!important;background:linear-gradient(90deg,var(--tb) var(--plm-pct,50%),#2f3b4c 0) top/100% 8px no-repeat!important}
 html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards>tbody>tr>td.plm-actions{border-top-color:#2b3848!important}
