@@ -34,7 +34,10 @@
 /* Xem Kế hoạch bảo trì: 6 thẻ KPI + lưới chi tiết 6 cột, vừa một màn hình. */
 .v25-view-kpis.pl-kpis-6{grid-template-columns:repeat(6,minmax(0,1fr))!important}
 #v25ViewModal #v25ViewDetails.pl-plan-view6{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px!important}
-#v25ViewModal #v25ViewDetails.pl-plan-view6 .v25-detail-row{min-height:58px!important;margin:0!important}
+#v25ViewModal #v25ViewDetails.pl-plan-view6 .v25-detail-row{min-height:50px!important;margin:0!important}
+#v25ViewModal #v25ViewDetails.pl-plan-view6 .v25-detail-label{padding-top:6px!important;padding-bottom:0!important}
+#v25ViewModal #v25ViewDetails.pl-plan-view6 .v25-detail-value{padding-top:2px!important;padding-bottom:6px!important;line-height:1.35!important}
+#v25ViewModal .v25-view-kpis.pl-kpis-6 .v25-view-kpi{padding-top:6px!important;padding-bottom:6px!important}
 #v25ViewModal #v25ViewDetails.pl-plan-view6 .v25-detail-value{overflow-wrap:anywhere}
 /* Sửa Kế hoạch bảo trì: 4 ô trên một hàng, Ghi chú hết chiều ngang. */
 #v17FormModal #v17FormFields.pl-plan-edit-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
@@ -5966,7 +5969,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   function kpisFor(containerId,r){
     const id=txt(idOf(r));
     const mk=(label,value,cls='')=>[label,txt(value),cls];
-    if(containerId==='maintenanceLogTable')return [mk('Mã nhật ký',id),mk('Ngày thực hiện',dateText(r.NGAY_THUC_HIEN)),mk('Người thực hiện/theo dõi',r.NGUOI_THUC_HIEN||r.ID_NGUOI_THUC_HIEN),mk('Đơn vị bảo trì',r.DON_VI_THUC_HIEN),mk('Kết quả',r.KET_QUA,tone(r.KET_QUA))];
+    if(containerId==='maintenanceLogTable')return [mk('Mã nhật ký',id),mk('Ngày thực hiện',dateText(r.NGAY_THUC_HIEN)),mk('Người thực hiện/theo dõi',r.NGUOI_THUC_HIEN||r.ID_NGUOI_THUC_HIEN),mk('Đơn vị bảo trì',r.DON_VI_THUC_HIEN),mk('Kết quả',r.KET_QUA,tone(r.KET_QUA)),mk('Cảnh báo',r.CANH_BAO,tone(r.CANH_BAO))];
     if(containerId==='maintenancePlanTable'){const left=first(r,['SO_NGAY_CON_LAI']);return [mk('Mã lịch',r.ID_LICH||id),mk('Ngày kế hoạch',dateText(r.NGAY_KE_HOACH||r.NGAY_KE_TIEP)),mk('Số ngày còn lại',left===''?'':left+' ngày',Number(left)<0?'danger':''),mk('Chu kỳ',first(r,['CHU_KY_NGAY','CHU_KY'])?first(r,['CHU_KY_NGAY','CHU_KY'])+' ngày':''),mk('Cảnh báo',r.CANH_BAO,tone(r.CANH_BAO)),mk('Trạng thái',r.TRANG_THAI,tone(r.TRANG_THAI))]}
     if(containerId==='daily')return [mk('Mã',id),mk('Ngày',dateText(r.NGAY)),mk('Kết quả',r.KET_QUA,tone(r.KET_QUA)),mk('Người thực hiện',r.NGUOI_THUC_HIEN||r.ID_NGUOI_THUC_HIEN)];
     if(containerId.startsWith('proposal'))return [mk('Mã đề xuất',id),mk('Ngày đề xuất',dateText(r.NGAY_DE_XUAT||r.NGAY)),mk('Trạng thái',r.TRANG_THAI,tone(r.TRANG_THAI)),mk('Loại',r.LOAI_DE_XUAT||r.LOAI||r.ID_DE_XUAT)];
@@ -5992,6 +5995,23 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       cell('Nhật ký gần nhất',first(r,['ID_NHAT_KY_GAN_NHAT','ID_NHAT_KY_GOC'])),
       cell('Mã hạng mục · khu vực',[r.ID_HANG_MUC,r.ID_KHU_VUC].filter(Boolean).join(' · ')),
       cell('Ghi chú',r.GHI_CHU,6)
+    ].join('');
+  }
+  /* Xem Nhật ký bảo trì: 6 ô/hàng, bỏ ô trùng với dải KPI và ô trùng nhau. */
+  function logDetailHtml(r){
+    const cell=(label,value,span)=>`<div class="v25-detail-row" style="grid-column:span ${span||1}"><div class="v25-detail-label">${esc(label)}</div><div class="v25-detail-value">${esc(txt(value))}</div></div>`;
+    return [
+      cell('Hạng mục',first(r,['HANG_MUC_SNAPSHOT','HANG_MUC','TEN_HANG_MUC']),2),
+      cell('Tầng · Khu vực',first(r,['KHU_VUC_SNAPSHOT','KHU_VUC']),2),
+      cell('Công ty',first(r,['TEN_CONG_TY_SNAPSHOT','TEN_CONG_TY']),2),
+      cell('Lịch bảo trì liên quan',first(r,['ID_LICH'])),
+      cell('Ngày kế tiếp',dateText(r.NGAY_KE_TIEP)),
+      cell('Mã hạng mục · khu vực',[r.ID_HANG_MUC,r.ID_KHU_VUC].filter(Boolean).join(' · ')),
+      cell('Mã người thực hiện',first(r,['ID_NGUOI_THUC_HIEN'])),
+      cell('Thiết bị',first(r,['TEN_THIET_BI','ID_THIET_BI'])),
+      cell('Người làm cùng',first(r,['NGUOI_LAM_CUNG'])),
+      cell('Nội dung thực hiện',r.NOI_DUNG_THUC_HIEN,4),
+      cell('Ghi chú',r.GHI_CHU,2)
     ].join('');
   }
   function titleFor(containerId){
@@ -6029,9 +6049,9 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     const modal=document.getElementById('v25ViewModal'),title=document.getElementById('v25ViewTitle'),sub=document.getElementById('v25ViewSub'),khost=document.getElementById('v25ViewKpis'),details=document.getElementById('v25ViewDetails'),edit=document.getElementById('v25ViewEditBtn');
     title.textContent='Xem '+titleFor(containerId);sub.textContent='Chi tiết bản ghi '+txt(idOf(r));
     khost.innerHTML=kpisFor(containerId,r).map(x=>`<div class="v25-view-kpi ${x[2]||''}"><small>${esc(x[0])}</small><strong title="${esc(x[1])}">${esc(x[1])}</strong></div>`).join('');
-    const plan6=containerId==='maintenancePlanTable';
+    const plan6=containerId==='maintenancePlanTable'||containerId==='maintenanceLogTable';
     khost.classList.toggle('pl-kpis-6',plan6);details.classList.toggle('pl-plan-view6',plan6);
-    if(plan6)details.innerHTML=planDetailHtml(r);else details.innerHTML=detailKeys(containerId,r).map(k=>`<div class="v25-detail-row"><div class="v25-detail-label">${esc(fieldLabel(k))}</div><div class="v25-detail-value">${renderCellValue(k,r[k])}</div></div>`).join('');
+    if(plan6)details.innerHTML=containerId==='maintenanceLogTable'?logDetailHtml(r):planDetailHtml(r);else details.innerHTML=detailKeys(containerId,r).map(k=>`<div class="v25-detail-row"><div class="v25-detail-label">${esc(fieldLabel(k))}</div><div class="v25-detail-value">${renderCellValue(k,r[k])}</div></div>`).join('');
     if(canEdit(containerId)){edit.style.display='';edit.onclick=()=>editRecord(containerId,id)}else{edit.style.display='none';edit.onclick=null}
     modal.classList.add('active');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
   }
