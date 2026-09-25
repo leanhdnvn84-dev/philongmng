@@ -4347,12 +4347,12 @@ function buildProposalDocV8414_(data){
     matrix.push(['','','','TỔNG CỘNG',proposalMoneyV8414_(total)]);
     const table=body.appendTable(matrix);table.setBorderWidth(.75);table.setColumnWidth(0,36);table.setColumnWidth(1,224);table.setColumnWidth(2,70);table.setColumnWidth(3,92);table.setColumnWidth(4,98);
     for(let r=0;r<table.getNumRows();r++)for(let c=0;c<5;c++){const head=r===0;styleCellV8414_(table.getCell(r,c),9,head,head?'#EEEEEE':'#FFFFFF',c===1?DocumentApp.HorizontalAlignment.LEFT:(c>=3?DocumentApp.HorizontalAlignment.RIGHT:DocumentApp.HorizontalAlignment.CENTER));}
-    const words=body.appendTable([['Tổng cộng bằng chữ: '+proposalMoneyWordsV8414_(total)]]);words.setBorderWidth(0).setBorderColor('#FFFFFF');words.setColumnWidth(0,520);words.getCell(0,0).setBackgroundColor('#FFFFFF');styleCellV8414_(words.getCell(0,0),9,false,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);
+    const words=body.appendTable([['Tổng cộng bằng chữ: '+proposalMoneyWordsV8414_(total)]]);words.setBorderWidth(0).setBorderColor('#FFFFFF');words.setColumnWidth(0,520);words.getCell(0,0).setBackgroundColor('#FFFFFF');styleCellV8414_(words.getCell(0,0),9,false,'#FFFFFF',DocumentApp.HorizontalAlignment.LEFT);words.getCell(0,0).editAsText().setBold(0,'Tổng cộng bằng chữ:'.length-1,true);
   }else{
     const x=data.detail,rows=data.kind==='maintenance'?[['Thiết bị',data.itemName(x)],['Khu vực',x.KHU_VUC||x.ID_KHU_VUC||''],['Hiện trạng',x.HIEN_TRANG||x.TINH_TRANG||''],['Phương án đề xuất',x.PHUONG_AN_DE_XUAT||''],['Chi phí dự kiến',proposalMoneyV8414_(x.CHI_PHI_DU_KIEN)]]:[['Thiết bị',data.itemName(x)],['Tình trạng',x.TINH_TRANG||x.HIEN_TRANG||''],['Lý do thanh lý',x.LY_DO||''],['Chi phí sửa dự kiến',proposalMoneyV8414_(x.CHI_PHI_SUA_DU_KIEN)],['Giá trị còn lại',proposalMoneyV8414_(x.GIA_TRI_CON_LAI)],['Giá đề xuất thanh lý',proposalMoneyV8414_(x.GIA_DE_XUAT_THANH_LY)]];
     const table=body.appendTable(rows);table.setBorderWidth(.75);table.setColumnWidth(0,145);table.setColumnWidth(1,375);for(let r=0;r<rows.length;r++){styleCellV8414_(table.getCell(r,0),9,true,'#F2F2F2',DocumentApp.HorizontalAlignment.LEFT);styleCellV8414_(table.getCell(r,1),9,false,null,DocumentApp.HorizontalAlignment.LEFT);}
   }
-  const note=body.appendParagraph('Ghi chú: '+String(data.note||''));note.setSpacingBefore(7).setSpacingAfter(7);styleTextV8414_(note,9,false);
+  const note=body.appendParagraph('Ghi chú: '+String(data.note||''));note.setSpacingBefore(7).setSpacingAfter(7);styleTextV8414_(note,9,false);note.editAsText().setBold(0,'Ghi chú:'.length-1,true);
   const sign=body.appendTable([['','','']]);sign.setBorderWidth(0).setBorderColor('#FFFFFF');sign.setColumnWidth(0,173);sign.setColumnWidth(1,173);sign.setColumnWidth(2,174);
   ['NGƯỜI ĐỀ XUẤT','TRƯỞNG BỘ PHẬN','PHÊ DUYỆT'].forEach(function(label,c){
     const cell=sign.getCell(0,c);cell.setBackgroundColor('#FFFFFF').setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
