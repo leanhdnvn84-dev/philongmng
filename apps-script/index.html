@@ -748,10 +748,6 @@ html[data-theme="dark"] #plStartupGateV841592 .pl-startup-retry{background:#1f29
 @keyframes v841536-spin{to{transform:rotate(360deg)}}@keyframes v841536-popup-in{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
 
 
-  :where(html[data-theme="dark"]) #daily .pl-daily-table tbody tr:has(.pl-daily-badge.done):not(.selected) > td{
-    background:rgba(34,160,107,.17)!important;background:color-mix(in srgb,#22a06b 17%,var(--surface,#fff))!important}
-  :where(html[data-theme="dark"]) #daily .pl-daily-table tbody tr:has(.pl-daily-badge.pending):not(.selected) > td{background:color-mix(in srgb,#e7a11b 15%,var(--surface,#fff))!important}
-  :where(html[data-theme="dark"]) #daily .pl-daily-table tbody tr.selected > td{background:inherit!important}
 
 .v25-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px;white-space:nowrap}
 .v25-action{height:28px;min-width:34px;padding:0 8px;border:1px solid #d7dce4;border-radius:7px;background:#fff;color:#243247;cursor:pointer;font-size:12px;font-weight:700;line-height:26px}
@@ -2508,7 +2504,7 @@ html[data-theme="dark"] .theme-toggle-v841534{border-color:#ffe29a}
 #daily .pl-daily-tool:active{transform:translateY(-1px) scale(.99)!important;box-shadow:0 2px 5px #172b4d28!important}
 
 #daily #pldTodayText{cursor:pointer}#daily #pldTodayText:hover{text-decoration:underline}
-#daily .pl-daily-table tbody tr:has(.pl-daily-badge.done):not(.selected) *{color:inherit!important}
+
 :where(html[data-theme="dark"]) #daily .pl-daily-table tbody tr.selected>td,:where(html[data-theme="dark"]) #daily .pl-daily-table tbody tr.selected>td *{background:#1f86df!important}
 
 :is(#work,#maintenanceLog.pl-maint-work,#maintenancePlan.pl-maint-work).plw85-operational{box-sizing:border-box;width:100%!important;max-width:none!important;height:100%!important;min-height:0!important;overflow:hidden!important;padding:0!important;background:#e7e9ed}#work .page-title,#work>.card{display:none!important}:is(#work,#maintenanceLog.pl-maint-work,#maintenancePlan.pl-maint-work) .plw85-shell{box-sizing:border-box;display:flex;flex:1 1 auto;flex-direction:column;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;font:13px Arial,sans-serif;color:#111827}
@@ -11913,12 +11909,14 @@ html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr{--row
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:is(.pending,.soon,.due-today),html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:has(.pl-daily-badge.pending){--row-bg:#33290f;--row-fg:#ffe2a1}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:is(.overdue,.rejected){--row-bg:#3a1b20;--row-fg:#ffc4cb}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr.processing{--row-bg:#1c2547;--row-fg:#c9d3ff}
-html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr.done,html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:has(.pl-daily-badge.done){--row-bg:#11291e;--row-fg:#b4f2cd}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:hover{--row-bg:var(--d-hover);--row-fg:#ffffff}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:is(.selected,.pl-cat-selected,.active){--row-bg:var(--d-sel);--row-fg:#ffffff}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr>td{background:var(--row-bg)!important;color:var(--row-fg)!important}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr>td :not([class*="badge"]):not([class*="chip"]):not([class*="status"]):not([class*="days"]):not(input):not(select):not(textarea):not(button):not(svg):not(path){color:inherit!important;background-color:transparent!important}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:hover>td{filter:none!important}
+/* Nhãn trạng thái trong bảng tối: nền sẫm, chữ sáng cùng tông */
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.pl-daily-badge.done,.pbm-status-chip.approved,.ple-status:not(.warn):not(.danger)){background:#14532d!important;color:#bbf7d0!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.pl-daily-badge.pending,.ple-status.warn,.pbm-status-chip:not(.approved):not(.processing):not(.rejected)){background:#4a3308!important;color:#fde68a!important}
 /* Màu nền/chữ viết cứng trong HTML sinh từ JS */
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is([style*="background:#fff"],[style*="background: #fff"],[style*="background:#FFF"],[style*="background:white"],[style*="background:#f8fafc"],[style*="background:#f1f5f9"]){background:var(--d-surface)!important}
 html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is([style*="color:#111"],[style*="color:#172033"],[style*="color:#0f172a"],[style*="color:#334155"],[style*="color:#344054"],[style*="color:#000"]){color:var(--d-text)!important}
