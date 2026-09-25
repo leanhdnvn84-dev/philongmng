@@ -31,6 +31,17 @@ Modern Building Management System built with **Next.js + Supabase + TypeScript**
 
 ## Quick Start
 
+### Chạy nhanh bằng 1 lệnh
+
+```bash
+./run.sh          # Linux/macOS – chế độ phát triển, http://localhost:3000
+./run.sh prod     # build + chạy production
+./run.sh docker   # chạy bằng Docker Compose
+```
+
+Trên Windows: nhấp đúp `run.bat` (hoặc `run.bat prod`, `run.bat docker`).
+Script tự tạo `.env.local` từ `.env.local.example` và tự cài thư viện nếu chưa có.
+
 ### 1. Prerequisites
 - Node.js 18+
 - npm or yarn
