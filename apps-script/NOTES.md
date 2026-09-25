@@ -26,7 +26,7 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 - 2845 `saveUiFormV19` (lưu + đọc kiểm tra). 2963–3210 V20 fast I/O: cache theo request, CacheService theo sheet, `nextId_` qua SYS_ID_SEQUENCE + Lock.
 - 3348–3910 Bundle theo trang: `getFastStartupV64`, `getCorePageBundleV82`, `getWorkPageBundleFastV120`, `getPageBundleV64`, `getPageListV124` (phân trang/lọc/sắp xếp phía server).
 - 3998 `saveUiFormV22`, 4015 `saveUniversalEditV26`.
-- 4153–4355 Email cảnh báo (V84) + trigger. 4356–4511 Xuất đề xuất ra Google Doc/PDF, lưu bundle đề xuất mua vật tư.
+- Email cảnh báo (V85, giữ tên hàm V84): `sendEmailAlertsV84` gửi 1 email tổng hợp/người nhận, chống lặp theo ngày, ghi nhật ký 1 lần; RPC `saveEmailAlertConfigAll`, `sendEmailAlertsNow`; trigger 15 phút tự tạo khi lưu có cảnh báo BẬT. 4356–4511 Xuất đề xuất ra Google Doc/PDF, lưu bundle đề xuất mua vật tư.
 
 ## Frontend – bản đồ index.html
 - 31–4171 CSS (unified, bảng V206, cột danh mục V210, khung mobile V216).
@@ -40,7 +40,7 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 - Mật khẩu Hệ thống lưu dạng thô trong sheet NGUOI_SU_DUNG.
 - Các RPC chuyển thiết bị/kho trong dispatcher không gọi `requirePermission_`.
 - Frontend: mỗi hàm toàn cục chỉ còn MỘT định nghĩa (đã gộp 32 chuỗi lớp vá, ngày 2026-09-25). Khối giao diện muốn chen vào hàm lõi thì khai báo bước `plDefineSteps_('khối',{bước:fn})`; hàm lõi gọi `plStep_('khối','bước',…)` theo thứ tự ghi trong thân hàm. Xem `PATCH_MAP.md` (sinh bằng `node tools/patch-map.js index.html > PATCH_MAP.md`; kiểm tra `--check`).
-- Hành vi giữ nguyên có chủ đích (nghi là lỗi cũ, chưa sửa): `setStatus(text,type,page)` bỏ qua `page` từ khi V42 nạp; `showPage` bản cũ tự tải Cấu hình email khi mở trang emailConfig nhưng bản V82 đã thay hẳn nên việc này không còn chạy.
+- Hành vi giữ nguyên có chủ đích (nghi là lỗi cũ, chưa sửa): `setStatus(text,type,page)` bỏ qua `page` từ khi V42 nạp. Trang Cấu hình email nay dựng từ bundle trang (`v82RenderLoadedPage`).
 - Chức năng Chat (1-1, nhóm, định danh thiết bị) đã bị xóa hoàn toàn ở cả backend và frontend. Sheet `CHATNOIBO`, `PHIEN_CHAT_THIET_BI` trong Spreadsheet không còn được dùng — có thể xóa tay nếu muốn.
 
 ## Kiểm thử hồi quy giao diện (`tools/harness/`)

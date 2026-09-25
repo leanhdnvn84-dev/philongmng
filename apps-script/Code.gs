@@ -114,7 +114,7 @@ function setupV84(){
     rentalSchema:ensureRentalSchemaV85_(),
     maintenanceDuplicateIds:repairDuplicateMaintenanceScheduleIdsV84_(),
     maintenanceSchedules:syncMissingMaintenanceSchedulesV75_(),
-    emailAlerts:ensureEmailAlertSchemaV84_(),
+    emailAlerts:ensureEmailAlertSchemaV84_(true),
     faviconUrl:ensurePhilongFaviconUrlV63_(),
     completedAt:nowStamp_()
   };
@@ -2335,7 +2335,7 @@ const SYSTEM_LOCK_V137=Object.freeze({
   MAX_FAILS:10,
   FAIL_WINDOW_SECONDS:300,
   PAGES:['users','roles','permissions','systemAudit','maintenanceDataTool','systemConfig','emailConfig'],
-  FNS:['getSupplementalBootstrapData','getEmailAlertConfig','saveEmailAlertConfig','previewEmailAlerts','sendTestEmailAlert','saveRoleRecord','saveRolePermissions','saveUserAccount','toggleUserStatus','approveProposal'],
+  FNS:['getSupplementalBootstrapData','getEmailAlertConfig','saveEmailAlertConfig','previewEmailAlerts','sendTestEmailAlert','saveEmailAlertConfigAll','sendEmailAlertsNow','saveRoleRecord','saveRolePermissions','saveUserAccount','toggleUserStatus','approveProposal'],
   SHEET_FNS:['getModuleData','saveModuleRecord','deleteModuleRecord','deleteRecordV142'],
   SAVE_MODES:['role','user'],
   CONTAINERS:['permissionsTable','usersTable','rolesTable']
@@ -2553,6 +2553,8 @@ function legacyV22DispatchNoAuth_(fn, args, user) {
     case 'saveEmailAlertConfig': requirePermission_(user,MODULES.PERMISSION,'SUA'); return saveEmailAlertConfigV84_(args[0]||{});
     case 'previewEmailAlerts': requirePermission_(user,MODULES.PERMISSION,'XEM'); return previewEmailAlertsV84();
     case 'sendTestEmailAlert': requirePermission_(user,MODULES.PERMISSION,'SUA'); return sendTestEmailAlertV84_(args[0]||{});
+    case 'saveEmailAlertConfigAll': requirePermission_(user,MODULES.PERMISSION,'SUA'); return saveEmailAlertConfigAllV84_(args[0]||{});
+    case 'sendEmailAlertsNow': requirePermission_(user,MODULES.PERMISSION,'SUA'); return sendEmailAlertsV84({now:true});
 
     case 'getModuleData': return legacyGetModuleData_(user, args[0]);
     case 'saveModuleRecord': return legacySaveModule_(user, args[0], args[1] || {});
@@ -3923,7 +3925,12 @@ const EMAIL_ALERT_DEFAULTS_V84_ = Object.freeze([
   {ID:'EMAIL012',MA_CANH_BAO:'KHACH_TIEM_NANG_QUA_HAN_LIEN_HE',TEN_CANH_BAO:'Khách hàng tiềm năng quá hạn liên hệ',BAT:'TẮT',SO_NGAY_BAO_TRUOC:0,GIO_GUI:'07:00',EMAIL_QUAN_TRI:'',GHI_CHU:'Cảnh báo khi đã quá ngày hẹn liên hệ.'}
 ]);
 
-function ensureEmailAlertSchemaV84_(){
+// Kiểm tra cấu trúc sheet email tối đa 1 lần/6 giờ (CacheService) và 1 lần/lượt chạy.
+let EMAIL_SCHEMA_OK_V84_=false;
+function ensureEmailAlertSchemaV84_(force){
+  if(EMAIL_SCHEMA_OK_V84_&&!force)return {ok:true,cached:true};
+  const flagKey='PL84:EMAIL_SCHEMA_OK',cache=CacheService.getScriptCache();
+  if(!force&&cache.get(flagKey)){EMAIL_SCHEMA_OK_V84_=true;return {ok:true,cached:true};}
   const specs={
     CAU_HINH_EMAIL_CANH_BAO:['ID','MA_CANH_BAO','TEN_CANH_BAO','BAT','SO_NGAY_BAO_TRUOC','GIO_GUI','EMAIL_QUAN_TRI','GHI_CHU'],
     NHAT_KY_EMAIL_CANH_BAO:['ID_EMAIL','NGAY_GUI','MA_CANH_BAO','MODULE','ID_BAN_GHI','NGUOI_NHAN','TIEU_DE','TRANG_THAI','SO_NGAY_CON_LAI','NOI_DUNG']
@@ -3945,6 +3952,7 @@ function ensureEmailAlertSchemaV84_(){
     appendObject_(V22.SHEETS.emailConfig,def);
     created.push(def.MA_CANH_BAO);
   });
+  EMAIL_SCHEMA_OK_V84_=true;try{cache.put(flagKey,'1',21600)}catch(ignore){}
   return {ok:true,added:added,removed:removed,defaultsCreated:created,configCount:readObjects_(V22.SHEETS.emailConfig).length};
 }
 
@@ -3963,33 +3971,36 @@ function emailAlertEnabledV84_(row){
   return ['BAT','TRUE','1','X','YES','CO'].indexOf(s)>=0;
 }
 
+// Đọc bảng cấu hình (nhỏ) bằng giá trị hiển thị để GIO_GUI giữ đúng giờ (Sheets hay đổi "07:00" thành kiểu thời gian).
 function emailConfigV84_(){
   ensureEmailAlertSchemaV84_();
-  return readObjects_(V22.SHEETS.emailConfig);
+  const sh=getSheet_(V22.SHEETS.emailConfig),lastRow=sh.getLastRow(),lastCol=sh.getLastColumn();
+  if(lastRow<2||lastCol<1)return [];
+  const vals=sh.getRange(1,1,lastRow,lastCol).getDisplayValues(),headers=vals[0].map(function(h){return String(h||'').trim();});
+  return vals.slice(1).filter(function(r){return r.some(function(v){return v!=='';});}).map(function(r){
+    const o={};headers.forEach(function(h,i){if(h)o[h]=r[i];});o.GIO_GUI=normalizeEmailTimeV84_(o.GIO_GUI,'07:00');return o;
+  });
 }
 
 function emailRecipientsV84_(ids, admin){
-  const out=[];
+  const out=[],emps=indexBy_(readObjects_(V22.SHEETS.employees),'ID');
   const add=function(email){email=normalizeEmail_(email);if(email&&/^\S+@\S+\.\S+$/.test(email)&&out.indexOf(email)<0)out.push(email);};
-  (Array.isArray(ids)?ids:[ids]).forEach(function(id){
-    if(!id)return;
-    const emp=findById_(V22.SHEETS.employees,'ID',id);
-    if(emp)add(emp.EMAIL);
-  });
+  (Array.isArray(ids)?ids:[ids]).forEach(function(id){if(id&&emps[id])add(emps[id].EMAIL);});
   String(admin||'').split(/[;,\s]+/).forEach(add);
   return out;
 }
 
 function normalizeEmailTimeV84_(value, fallback){
-  const raw=String(value||fallback||'07:00').trim(),m=raw.match(/^(?:([01]\d|2[0-3]):([0-5]\d))$/);
-  return m?m[1]+':'+m[2]:(fallback&&fallback!==raw?normalizeEmailTimeV84_(fallback,'07:00'):'07:00');
+  const m=String(value||'').trim().match(/^([01]?\d|2[0-3]):([0-5]\d)/);
+  if(m)return String(m[1]).padStart(2,'0')+':'+m[2];
+  const f=String(fallback||'').trim().match(/^([01]?\d|2[0-3]):([0-5]\d)/);
+  return f?String(f[1]).padStart(2,'0')+':'+f[2]:'07:00';
 }
 
+// Đã tới (hoặc qua) giờ gửi trong ngày — việc "chỉ 1 lần/ngày" do sendEmailAlertsV84 giữ.
 function emailConfigDueNowV84_(value){
   const hm=normalizeEmailTimeV84_(value,'07:00').split(':').map(Number),now=new Date();
-  const current=Number(Utilities.formatDate(now,V22.TZ,'H'))*60+Number(Utilities.formatDate(now,V22.TZ,'m'));
-  const target=hm[0]*60+hm[1],elapsed=(current-target+1440)%1440;
-  return elapsed<15;
+  return Number(Utilities.formatDate(now,V22.TZ,'H'))*60+Number(Utilities.formatDate(now,V22.TZ,'m'))>=hm[0]*60+hm[1];
 }
 
 function emailAlertRowsV84_(code, admin, before){
@@ -4040,84 +4051,163 @@ function emailAlertRowsV84_(code, admin, before){
   return out;
 }
 
-function emailAlertAlreadyLoggedV84_(item){
-  const day=today_();
-  return readObjects_(V22.SHEETS.emailLog).some(function(x){return String(x.NGAY_GUI||'').startsWith(day)&&String(x.MA_CANH_BAO||'')===String(item.MA_CANH_BAO||'')&&String(x.ID_BAN_GHI||'')===String(item.ID_BAN_GHI||'')&&norm_(x.TRANG_THAI)==='DA_GUI';});
+// ---------------------------------------------------------------------------
+// V85 EMAIL — đơn giản, nhanh:
+//  - Mỗi lượt chỉ gửi MỘT email tổng hợp cho mỗi người nhận (không còn 1 email/1 bản ghi).
+//  - Chống gửi lặp theo MA_CANH_BAO + ID_BAN_GHI trong ngày (đọc nhật ký 1 lần).
+//  - Nhật ký ghi 1 lần (setValues), không khóa/sinh mã từng dòng.
+//  - Không lỡ giờ: đến giờ cấu hình mà hôm nay chưa chạy thì chạy ở lượt trigger kế tiếp.
+//  - "Gửi ngay" trên giao diện; trigger 15 phút tự tạo khi lưu có cảnh báo đang bật.
+// ---------------------------------------------------------------------------
+const EMAIL_TRIGGER_HANDLER_V84_='sendEmailAlertsV84';
+
+function escHtmlV84_(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+function emailSentTodayKeysV84_(){
+  const day=today_(),keys={};
+  readObjects_(V22.SHEETS.emailLog).forEach(function(x){
+    const st=norm_(x.TRANG_THAI);
+    // CHO_GUI: nhật ký bản cũ ghi nhầm trạng thái cho email đã gửi.
+    if(!String(x.NGAY_GUI||'').startsWith(day)||(st!=='DA_GUI'&&st!=='CHO_GUI'))return;
+    keys[String(x.MA_CANH_BAO||'')+'|'+String(x.ID_BAN_GHI||'')]=true;
+  });
+  return keys;
 }
 
-function nextEmailLogIdV84_(){return nextId_(V22.SHEETS.emailLog,'EM');}
+function emailTriggerActiveV84_(){
+  try{return ScriptApp.getProjectTriggers().some(function(t){return t.getHandlerFunction()===EMAIL_TRIGGER_HANDLER_V84_;});}catch(e){return false;}
+}
+function ensureEmailTriggerV84_(){
+  if(emailTriggerActiveV84_())return true;
+  try{ScriptApp.newTrigger(EMAIL_TRIGGER_HANDLER_V84_).timeBased().everyMinutes(15).create();return true;}catch(e){return false;}
+}
+
+function appendEmailLogsV84_(logs){
+  if(!logs.length)return;
+  const sh=getSheet_(V22.SHEETS.emailLog),headers=getHeaders_(V22.SHEETS.emailLog),base='EM'+Utilities.formatDate(new Date(),V22.TZ,'yyMMddHHmmss');
+  const rows=logs.map(function(l,i){
+    l.ID_EMAIL=base+'-'+String(i+1).padStart(3,'0');
+    l.NOI_DUNG=String(l.NOI_DUNG||'').slice(0,2000);
+    return headers.map(function(h){return l[h]!==undefined?l[h]:'';});
+  });
+  sh.getRange(Math.max(2,sh.getLastRow()+1),1,rows.length,headers.length).setValues(rows);
+  invalidateSheetV20_(V22.SHEETS.emailLog,true);
+}
+
+function emailDigestHtmlV84_(list){
+  const groups={};list.forEach(function(x){(groups[x.name]=groups[x.name]||[]).push(x.item);});
+  const td='padding:6px 8px;border:1px solid #d9dee5;vertical-align:top;font-size:13px';
+  let html='<div style="font-family:Arial,sans-serif;color:#172033"><h2 style="color:#a71936;margin:0 0 4px">PHILONG BUILDING</h2><p style="margin:0 0 14px">'+list.length+' cảnh báo cần xử lý · '+escHtmlV84_(nowStamp_())+'</p>';
+  Object.keys(groups).forEach(function(name){
+    html+='<h3 style="margin:16px 0 6px;font-size:15px">'+escHtmlV84_(name)+' ('+groups[name].length+')</h3><table style="border-collapse:collapse;width:100%"><tr style="background:#f1f4f8"><th style="'+td+'">Mã</th><th style="'+td+'">Cảnh báo</th><th style="'+td+'">Còn (ngày)</th><th style="'+td+'">Chi tiết</th></tr>';
+    groups[name].forEach(function(it){
+      html+='<tr><td style="'+td+'">'+escHtmlV84_(it.ID_BAN_GHI)+'</td><td style="'+td+'">'+escHtmlV84_(it.TIEU_DE)+'</td><td style="'+td+';text-align:center">'+escHtmlV84_(it.SO_NGAY_CON_LAI)+'</td><td style="'+td+'">'+escHtmlV84_(String(it.NOI_DUNG||'').slice(0,1000)).replace(/\n/g,'<br>')+'</td></tr>';
+    });
+    html+='</table>';
+  });
+  return html+'<p style="margin-top:16px;color:#64748b;font-size:12px">Email tự động từ mục Cấu hình gửi email.</p></div>';
+}
+function emailDigestTextV84_(list){
+  return list.map(function(x){return '['+x.name+'] '+x.item.TIEU_DE+' · '+x.item.ID_BAN_GHI+'\n'+String(x.item.NOI_DUNG||'').slice(0,1000);}).join('\n\n')+'\n\nThời gian: '+nowStamp_();
+}
 
 function previewEmailAlertsV84(){
-  const configs=emailConfigV84_(),out=[];
-  configs.forEach(function(c){if(!emailAlertEnabledV84_(c))return;emailAlertRowsV84_(c.MA_CANH_BAO,c.EMAIL_QUAN_TRI,Number(c.SO_NGAY_BAO_TRUOC||0)).forEach(function(x){out.push(x);});});
+  const out=[];
+  emailConfigV84_().forEach(function(c){if(!emailAlertEnabledV84_(c))return;emailAlertRowsV84_(c.MA_CANH_BAO,c.EMAIL_QUAN_TRI,Number(c.SO_NGAY_BAO_TRUOC||0)).forEach(function(x){out.push(x);});});
   return {ok:true,count:out.length,rows:out,serverTime:nowStamp_()};
 }
 
 function getEmailAlertConfigV84_(){
-  return {ok:true,rows:emailConfigV84_(),logs:readObjects_(V22.SHEETS.emailLog).slice(-100).reverse(),serverTime:nowStamp_()};
+  let quota='';try{quota=MailApp.getRemainingDailyQuota();}catch(e){}
+  return {ok:true,rows:emailConfigV84_(),logs:readObjects_(V22.SHEETS.emailLog).slice(-50).reverse(),
+    triggerActive:emailTriggerActiveV84_(),quota:quota,serverTime:nowStamp_()};
 }
 
-function saveEmailAlertConfigV84_(input){
+// Lưu nhiều dòng cấu hình bằng 1 lần đọc + 1 lần ghi. GIO_GUI lưu dạng chữ để Sheets không đổi thành ngày.
+function saveEmailAlertConfigAllV84_(input){
   ensureEmailAlertSchemaV84_();
-  const id=String(input.ID||'').trim();
-  if(!id)throw new Error('EMAIL_CONFIG_ID_REQUIRED');
-  const old=findById_(V22.SHEETS.emailConfig,'ID',id);
-  if(!old)throw new Error('EMAIL_CONFIG_NOT_FOUND:'+id);
-  const patch={
-    BAT:String(input.BAT||'TẮT').trim()==='BẬT'?'BẬT':'TẮT',
-    SO_NGAY_BAO_TRUOC:input.SO_NGAY_BAO_TRUOC===''?'':Math.max(0,parseInt(input.SO_NGAY_BAO_TRUOC,10)||0),
-    GIO_GUI:normalizeEmailTimeV84_(input.GIO_GUI,old.GIO_GUI||'07:00'),
-    EMAIL_QUAN_TRI:String(input.EMAIL_QUAN_TRI||'').trim(),
-    GHI_CHU:String(input.GHI_CHU||'').trim()
-  };
-  updateById_(V22.SHEETS.emailConfig,'ID',id,patch);
-  return {ok:true,record:Object.assign({},old,patch),rows:emailConfigV84_()};
+  const byId={};(Array.isArray(input&&input.rows)?input.rows:[]).forEach(function(r){const id=String(r&&r.ID||'').trim();if(id)byId[id]=r;});
+  if(!Object.keys(byId).length)throw new Error('EMAIL_CONFIG_EMPTY');
+  const sh=getSheet_(V22.SHEETS.emailConfig),lastRow=sh.getLastRow(),lastCol=sh.getLastColumn();
+  if(lastRow<2)throw new Error('EMAIL_CONFIG_NOT_FOUND');
+  const range=sh.getRange(1,1,lastRow,lastCol),values=range.getValues(),shown=range.getDisplayValues();
+  const headers=values[0].map(function(h){return String(h||'').trim();}),ix=function(h){return headers.indexOf(h);};
+  const iId=ix('ID'),iBat=ix('BAT'),iDays=ix('SO_NGAY_BAO_TRUOC'),iTime=ix('GIO_GUI'),iMail=ix('EMAIL_QUAN_TRI');
+  let saved=0;
+  for(let r=1;r<values.length;r++){
+    if(iTime>=0)values[r][iTime]=normalizeEmailTimeV84_(shown[r][iTime],'07:00');
+    const inp=byId[String(values[r][iId]||'').trim()];if(!inp)continue;
+    if(iBat>=0)values[r][iBat]=String(inp.BAT||'').trim()==='BẬT'?'BẬT':'TẮT';
+    if(iDays>=0)values[r][iDays]=inp.SO_NGAY_BAO_TRUOC===''||inp.SO_NGAY_BAO_TRUOC==null?'':Math.max(0,parseInt(inp.SO_NGAY_BAO_TRUOC,10)||0);
+    if(iTime>=0)values[r][iTime]=normalizeEmailTimeV84_(inp.GIO_GUI,values[r][iTime]);
+    if(iMail>=0)values[r][iMail]=String(inp.EMAIL_QUAN_TRI||'').trim();
+    saved++;
+  }
+  if(!saved)throw new Error('EMAIL_CONFIG_NOT_FOUND');
+  if(iTime>=0)sh.getRange(2,iTime+1,lastRow-1,1).setNumberFormat('@');
+  sh.getRange(2,1,lastRow-1,lastCol).setValues(values.slice(1));
+  invalidateSheetV20_(V22.SHEETS.emailConfig,true);
+  const anyOn=emailConfigV84_().some(emailAlertEnabledV84_);
+  if(anyOn)ensureEmailTriggerV84_();
+  return Object.assign(getEmailAlertConfigV84_(),{saved:saved});
 }
+function saveEmailAlertConfigV84_(input){return saveEmailAlertConfigAllV84_({rows:[input||{}]});}
 
 function sendTestEmailAlertV84_(input){
-  ensureEmailAlertSchemaV84_();
-  const id=String(input&&input.ID||'').trim(),config=findById_(V22.SHEETS.emailConfig,'ID',id);
-  if(!config)throw new Error('EMAIL_CONFIG_NOT_FOUND:'+id);
-  const recipients=emailRecipientsV84_([],String(input&&input.EMAIL_QUAN_TRI||config.EMAIL_QUAN_TRI||''));
+  const recipients=emailRecipientsV84_([],String(input&&input.EMAIL_QUAN_TRI||''));
   if(!recipients.length)throw new Error('EMAIL_TEST_RECIPIENT_REQUIRED');
-  const title='Email kiểm tra cấu hình cảnh báo';
-  MailApp.sendEmail({
-    to:recipients.join(', '),
-    subject:'[PHILONG BUILDING] '+title,
-    body:'Đây là email kiểm tra từ mục Cấu hình gửi email.\n\nCảnh báo: '+String(config.TEN_CANH_BAO||config.MA_CANH_BAO||'')+'\nGiờ gửi cấu hình: '+normalizeEmailTimeV84_(config.GIO_GUI,'07:00')+'\nThời gian gửi thử: '+nowStamp_()
-  });
-  return {ok:true,id:id,recipients:recipients,serverTime:nowStamp_()};
+  MailApp.sendEmail({to:recipients.join(', '),name:'PHILONG BUILDING',subject:'[PHILONG BUILDING] Email kiểm tra',
+    htmlBody:'<div style="font-family:Arial,sans-serif"><h3 style="color:#a71936">PHILONG BUILDING</h3><p>Email kiểm tra từ mục Cấu hình gửi email. Nếu bạn nhận được thư này, việc gửi cảnh báo đã hoạt động.</p><p style="color:#64748b">'+escHtmlV84_(nowStamp_())+'</p></div>',
+    body:'Email kiểm tra từ mục Cấu hình gửi email.\nThời gian: '+nowStamp_()});
+  return {ok:true,recipients:recipients,serverTime:nowStamp_()};
 }
 
 // Chạy một lần trong Apps Script Editor để cấp quyền gửi email cho tài khoản triển khai.
 function authorizeEmailAlertsV84(){
-  const remaining=MailApp.getRemainingDailyQuota();
-  return {ok:true,scope:'https://www.googleapis.com/auth/script.send_mail',remainingDailyQuota:remaining,serverTime:nowStamp_()};
+  return {ok:true,remainingDailyQuota:MailApp.getRemainingDailyQuota(),trigger:ensureEmailTriggerV84_(),serverTime:nowStamp_()};
 }
 
-function sendEmailAlertsV84(){
-  ensureEmailAlertSchemaV84_();
-  const configs=emailConfigV84_(),sent=0,summary=[]; let sentCount=0, skipped=0;
-  configs.forEach(function(c){
-    if(!emailAlertEnabledV84_(c)){summary.push({code:c.MA_CANH_BAO,status:'TAT'});return;}
-    if(!emailConfigDueNowV84_(c.GIO_GUI)){summary.push({code:c.MA_CANH_BAO,status:'CHO_GIO',gio:normalizeEmailTimeV84_(c.GIO_GUI,'07:00')});return;}
-    emailAlertRowsV84_(c.MA_CANH_BAO,c.EMAIL_QUAN_TRI,Number(c.SO_NGAY_BAO_TRUOC||0)).forEach(function(item){
-      if(emailAlertAlreadyLoggedV84_(item)){skipped++;return;}
-      const status=item.NGUOI_NHAN?'CHO_GUI':'BO_QUA_THIEU_EMAIL';
-      if(item.NGUOI_NHAN){
-        MailApp.sendEmail({to:item.NGUOI_NHAN,subject:'[PHILONG BUILDING] '+item.TIEU_DE,body:item.NOI_DUNG+'\n\nThời gian: '+nowStamp_()});sentCount++;}
-      appendObject_(V22.SHEETS.emailLog,{ID_EMAIL:nextEmailLogIdV84_(),NGAY_GUI:nowStamp_(),MA_CANH_BAO:item.MA_CANH_BAO,MODULE:item.MODULE,ID_BAN_GHI:item.ID_BAN_GHI,NGUOI_NHAN:item.NGUOI_NHAN,TIEU_DE:item.TIEU_DE,TRANG_THAI:status,SO_NGAY_CON_LAI:item.SO_NGAY_CON_LAI,NOI_DUNG:item.NOI_DUNG});
+// Trigger 15 phút gọi hàm này (không đối số). Giao diện "Gửi ngay" gọi với {now:true}.
+function sendEmailAlertsV84(opts){
+  const now=!!(opts&&opts.now===true),lock=LockService.getScriptLock();
+  if(!lock.tryLock(5000))return {ok:false,busy:true,sent:0,serverTime:nowStamp_()};
+  try{
+    ensureEmailAlertSchemaV84_();
+    const props=PropertiesService.getScriptProperties(),day=today_(),sentKeys=emailSentTodayKeysV84_(),byTo={},logs=[],summary=[],stamp=nowStamp_();
+    emailConfigV84_().forEach(function(c){
+      const code=String(c.MA_CANH_BAO||''),runKey='PL85_EMAIL_RUN_'+code;
+      if(!emailAlertEnabledV84_(c)){summary.push({code:code,status:'TAT'});return;}
+      if(!now&&(!emailConfigDueNowV84_(c.GIO_GUI)||props.getProperty(runKey)===day)){summary.push({code:code,status:'CHO_GIO',gio:c.GIO_GUI});return;}
+      let n=0;
+      emailAlertRowsV84_(code,c.EMAIL_QUAN_TRI,Number(c.SO_NGAY_BAO_TRUOC||0)).forEach(function(item){
+        const key=code+'|'+item.ID_BAN_GHI;if(sentKeys[key])return;sentKeys[key]=true;
+        const log={NGAY_GUI:stamp,MA_CANH_BAO:code,MODULE:item.MODULE,ID_BAN_GHI:item.ID_BAN_GHI,NGUOI_NHAN:item.NGUOI_NHAN,TIEU_DE:item.TIEU_DE,
+          TRANG_THAI:item.NGUOI_NHAN?'DA_GUI':'BO_QUA_THIEU_EMAIL',SO_NGAY_CON_LAI:item.SO_NGAY_CON_LAI,NOI_DUNG:item.NOI_DUNG};
+        logs.push(log);n++;
+        if(item.NGUOI_NHAN)item.NGUOI_NHAN.split(/\s*,\s*/).forEach(function(to){if(to)(byTo[to]=byTo[to]||[]).push({item:item,log:log,name:c.TEN_CANH_BAO||code});});
+      });
+      if(!now)props.setProperty(runKey,day);
+      summary.push({code:code,status:'DA_QUET',items:n});
     });
-  });
-  return {ok:true,sent:sentCount,skipped:skipped,summary:summary,serverTime:nowStamp_()};
+    let mails=0,quota=0;try{quota=MailApp.getRemainingDailyQuota();}catch(e){}
+    Object.keys(byTo).forEach(function(to){
+      const list=byTo[to];
+      if(mails>=quota){list.forEach(function(x){x.log.TRANG_THAI='HET_HAN_MUC';});return;}
+      try{
+        MailApp.sendEmail({to:to,name:'PHILONG BUILDING',subject:'[PHILONG BUILDING] '+list.length+' cảnh báo cần xử lý · '+day,htmlBody:emailDigestHtmlV84_(list),body:emailDigestTextV84_(list)});
+        mails++;
+      }catch(e){list.forEach(function(x){x.log.TRANG_THAI='LOI';});}
+    });
+    appendEmailLogsV84_(logs);
+    return {ok:true,sent:mails,items:logs.length,recipients:Object.keys(byTo).length,summary:summary,serverTime:nowStamp_()};
+  }finally{lock.releaseLock();}
 }
 
-// Chạy một lần thủ công để tạo trigger kiểm tra mỗi 15 phút.
+// Chạy tay (tùy chọn): tạo lại trigger 15 phút. Lưu cấu hình có dòng BẬT cũng tự tạo.
 function setupEmailAlertTriggerV84(){
-  const handler='sendEmailAlertsV84';
-  ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()===handler)ScriptApp.deleteTrigger(t);});
-  ScriptApp.newTrigger(handler).timeBased().everyMinutes(15).create();
-  return {ok:true,handler:handler,frequency:'every 15 minutes',timezone:V22.TZ};
+  ScriptApp.getProjectTriggers().forEach(function(t){if(t.getHandlerFunction()===EMAIL_TRIGGER_HANDLER_V84_)ScriptApp.deleteTrigger(t);});
+  ScriptApp.newTrigger(EMAIL_TRIGGER_HANDLER_V84_).timeBased().everyMinutes(15).create();
+  return {ok:true,handler:EMAIL_TRIGGER_HANDLER_V84_,frequency:'every 15 minutes',timezone:V22.TZ};
 }
 
 // ============================================================================

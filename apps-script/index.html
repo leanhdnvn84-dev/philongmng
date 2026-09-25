@@ -41,12 +41,28 @@
 :root{--pl-cell-h:48px;--pl-cell-gap:8px;--pl-cell-pad:6px;--pl-text-h:calc(2 * 1.4em + 14px)}
 /* HỆ THỐNG: cột tự co giãn theo dữ liệu — cột ngắn vừa chữ, cột dài tối đa 420px rồi cắt "…" (rê chuột xem đủ).
    Riêng Nhật ký hệ thống (.pl-audit-fixed): bảng rộng 100%, cột theo tỉ lệ % do V210 gán qua colgroup. */
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) :is(th,td){min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) td:hover{white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere}
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table:not(.pl-audit-fixed){table-layout:auto!important;width:auto!important;min-width:100%!important}
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table:not(.pl-audit-fixed) :is(th,td){width:auto!important;max-width:420px!important}
-:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) table:not(.pl-audit-fixed) colgroup col{width:auto!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig) :is(th,td){min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig) td:hover{white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig) table:not(.pl-audit-fixed){table-layout:auto!important;width:auto!important;min-width:100%!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig) table:not(.pl-audit-fixed) :is(th,td){width:auto!important;max-width:420px!important}
+:is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig) table:not(.pl-audit-fixed) colgroup col{width:auto!important}
 #systemAudit table.pl-audit-fixed{table-layout:fixed!important;width:100%!important;min-width:0!important}
+/* Cấu hình gửi email (V85): một thanh thao tác + bảng nhập gọn, không dùng quy tắc bảng dữ liệu chung. */
+#emailConfig .pl-mail{padding:12px}
+#emailConfig .pl-mail-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+#emailConfig .pl-mail-bar input{flex:1 1 260px;min-width:200px;height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}
+#emailConfig .pl-mail-status{flex:1 0 100%;font-weight:700;font-size:13px}
+#emailConfig .pl-mail-status.ok{color:#15803d}#emailConfig .pl-mail-status.warn{color:#c2410c}
+#emailConfig .pl-mail-h{margin:16px 0 8px;font-size:15px}
+#emailConfig .pl-mail-table{width:100%;border-collapse:collapse}
+#emailConfig .pl-mail-table :is(th,td){padding:6px 8px;border:1px solid #e2e8f0;text-align:left;vertical-align:middle;font-size:13px}
+#emailConfig .pl-mail-table th{background:#f1f4f8;white-space:nowrap}
+#emailConfig .pl-mail-table td small{display:block;color:#64748b;margin-top:2px}
+#emailConfig .pl-mail-table td:first-child{text-align:center;width:48px}
+#emailConfig .pl-mail-table input:not([type=checkbox]){width:100%;box-sizing:border-box;height:32px;padding:0 8px;border:1px solid #cbd5e1;border-radius:6px;font:inherit}
+#emailConfig .pl-mail-table input[type=number]{max-width:90px}#emailConfig .pl-mail-table input[type=time]{max-width:120px}
+#emailConfig .pl-mail-table input[type=checkbox]{width:18px;height:18px}
+:where(html[data-theme="dark"]) #emailConfig .pl-mail-table th{background:#1c2735;color:#dbe4ee}
 /* MỌI form nhập/sửa: ô nội dung (textarea) cao đúng 2 dòng, vẫn kéo giãn được khi cần. */
 :is(#v17FormModal,#operationEditModalV841531,#plActionDialog) :is(.v17-field,.operation-edit-field-v841531,.v84149-master-grid,div) textarea{max-height:none;min-height:var(--pl-text-h)!important;height:var(--pl-text-h)!important;line-height:1.4!important;resize:vertical!important}
 /* MỌI khung Xem: nội dung dài chỉ hiện 2 dòng, rê chuột để xem đủ. */
@@ -4417,7 +4433,7 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
   </div>
 </section>
 <section id="systemConfig" class="section"><div class="page-title"><div><h1>Cấu hình hệ thống</h1><p>Thông tin phiên bản và kết nối dữ liệu hiện tại</p></div><div class="pl-page-actions"><button class="btn" type="button" onclick="loadLiveData()">Làm mới</button></div></div><div class="card"><div id="systemConfigBody" class="card-body"></div></div></section>
-<section id="emailConfig" class="section"><div class="page-title"><div><h1>Cấu hình gửi email</h1><p>Bật/tắt cảnh báo, đặt số ngày báo trước và địa chỉ email quản trị. Hệ thống kiểm tra mỗi 15 phút theo múi giờ Việt Nam.</p></div><button class="btn" type="button" onclick="loadEmailAlertConfig()">Làm mới</button></div><div class="card"><div class="card-head"><h3>Danh sách cảnh báo email</h3><span class="muted">Mặc định đang tắt, chỉ gửi khi bật từng dòng</span></div><div id="emailConfigBody" class="card-body"><div class="empty"></div></div></div><div class="card" style="margin-top:12px"><div class="card-head"><h3>Nhật ký gửi gần đây</h3></div><div id="emailLogBody" class="card-body"><div class="empty"></div></div></div></section>
+<section id="emailConfig" class="section"><div class="page-title"><div><h1>Cấu hình gửi email</h1><p>Bật cảnh báo cần gửi, nhập email nhận rồi bấm Lưu tất cả. Mỗi người nhận chỉ nhận một email tổng hợp mỗi ngày.</p></div></div><div class="card pl-mail"><div class="pl-mail-bar"><span id="plMailStatus" class="pl-mail-status">Đang tải...</span><input id="plMailAll" type="text" inputmode="email" placeholder="Email nhận chung, cách nhau bởi dấu ;"><button class="btn" type="button" onclick="plMailApplyAll()">Áp dụng cho tất cả</button><button class="btn primary" type="button" onclick="saveEmailAlertConfig()">Lưu tất cả</button><button class="btn" type="button" onclick="plMailSendNow()">Gửi ngay</button><button class="btn" type="button" onclick="sendTestEmailAlert()">Gửi thử</button><button class="btn" type="button" onclick="loadEmailAlertConfig()">Làm mới</button></div><div id="emailConfigBody"></div><h3 class="pl-mail-h">Nhật ký gửi gần đây</h3><div id="emailLogBody"></div></div></section>
 </main>
 
 
@@ -4757,23 +4773,32 @@ function renderSystemConfig(c){
   el.innerHTML=`<div class="list"><div class="item"><b>Phiên bản backend</b><small>${esc(c.version||'')}</small></div><div class="item"><b>Database</b><small>${esc(c.databaseId||'')}</small></div><div class="item"><b>Múi giờ</b><small>${esc(c.timezone||'')}</small></div><div class="item"><b>Chế độ hiện tại</b><small>${esc(c.mode||'')}</small></div></div>`;
 }
 
+/* Cấu hình gửi email (V85): một bảng, một nút Lưu tất cả, Gửi ngay/Gửi thử dùng email đang nhập. */
 function renderEmailAlertConfig(data){
-  const body=document.getElementById('emailConfigBody'),log=document.getElementById('emailLogBody'); if(!body)return;
-  const rows=(data&&data.rows)||[];
-  body.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Mã cảnh báo</th><th>Nội dung</th><th>Bật</th><th>Báo trước (ngày)</th><th>Giờ gửi</th><th>Email quản trị</th><th>Thao tác</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.MA_CANH_BAO)}</td><td>${esc(r.TEN_CANH_BAO)}<small class="muted" style="display:block;margin-top:3px">${esc(r.GHI_CHU||'')}</small></td><td><select id="emailBat_${esc(r.ID)}"><option value="TẮT" ${norm(r.BAT)!=='BAT'?'selected':''}>Tắt</option><option value="BẬT" ${norm(r.BAT)==='BAT'?'selected':''}>Bật</option></select></td><td><input id="emailBefore_${esc(r.ID)}" type="number" min="0" value="${esc(r.SO_NGAY_BAO_TRUOC||'')}"></td><td><input id="emailTime_${esc(r.ID)}" type="time" value="${esc(r.GIO_GUI||'07:00')}"></td><td><input id="emailAdmin_${esc(r.ID)}" type="text" inputmode="email" value="${esc(r.EMAIL_QUAN_TRI||'')}" placeholder="admin@example.com; ke-toan@example.com"></td><td><button class="btn small" type="button" onclick="saveEmailAlertConfig('${esc(r.ID)}')">Lưu</button> <button class="btn small" type="button" onclick="sendTestEmailAlert('${esc(r.ID)}')">Gửi thử</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có cấu hình email.</div>';
+  const body=document.getElementById('emailConfigBody'),log=document.getElementById('emailLogBody'),st=document.getElementById('plMailStatus');if(!body)return;
+  const rows=(data&&data.rows)||[],on=rows.filter(r=>norm(r.BAT)==='BAT').length;
+  if(st){st.className='pl-mail-status '+(data&&data.triggerActive?'ok':'warn');st.textContent=(data&&data.triggerActive?'● Tự động gửi đang chạy':'● Chưa bật tự động gửi (bật ít nhất 1 cảnh báo rồi Lưu)')+' · '+on+'/'+rows.length+' cảnh báo bật'+(data&&data.quota!==''&&data?.quota!=null?' · còn '+data.quota+' email hôm nay':'');}
+  const all=document.getElementById('plMailAll');if(all&&!all.value){const first=rows.find(r=>r.EMAIL_QUAN_TRI);if(first)all.value=first.EMAIL_QUAN_TRI;}
+  body.innerHTML=rows.length?`<table class="pl-mail-table"><thead><tr><th>Bật</th><th>Cảnh báo</th><th>Báo trước (ngày)</th><th>Giờ gửi</th><th>Email nhận thêm</th></tr></thead><tbody>${rows.map(r=>`<tr data-mail-id="${esc(r.ID)}"><td><input type="checkbox" data-k="BAT" ${norm(r.BAT)==='BAT'?'checked':''}></td><td><b>${esc(r.TEN_CANH_BAO||r.MA_CANH_BAO)}</b><small>${esc(r.GHI_CHU||'')}</small></td><td><input type="number" min="0" data-k="SO_NGAY_BAO_TRUOC" value="${esc(r.SO_NGAY_BAO_TRUOC??'')}"></td><td><input type="time" data-k="GIO_GUI" value="${esc(r.GIO_GUI||'07:00')}"></td><td><input type="text" inputmode="email" data-k="EMAIL_QUAN_TRI" value="${esc(r.EMAIL_QUAN_TRI||'')}" placeholder="admin@congty.vn; ketoan@congty.vn"></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Chưa có cấu hình email.</div>';
   const logs=(data&&data.logs)||[];
-  if(log)log.innerHTML=logs.length?`<div class="table-wrap"><table><thead><tr><th>Thời gian</th><th>Cảnh báo</th><th>Người nhận</th><th>Trạng thái</th><th>Tiêu đề</th></tr></thead><tbody>${logs.slice(0,50).map(r=>`<tr><td>${esc(r.NGAY_GUI)}</td><td>${esc(r.MA_CANH_BAO)}</td><td>${esc(r.NGUOI_NHAN)}</td><td>${esc(r.TRANG_THAI)}</td><td>${esc(r.TIEU_DE)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Chưa có nhật ký gửi email.</div>';
+  if(log)log.innerHTML=logs.length?`<table class="pl-mail-table"><thead><tr><th>Thời gian</th><th>Cảnh báo</th><th>Người nhận</th><th>Trạng thái</th><th>Tiêu đề</th></tr></thead><tbody>${logs.map(r=>`<tr><td>${esc(r.NGAY_GUI)}</td><td>${esc(r.MA_CANH_BAO)}</td><td>${esc(r.NGUOI_NHAN)}</td><td>${esc(r.TRANG_THAI)}</td><td>${esc(r.TIEU_DE)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Chưa có nhật ký gửi email.</div>';
 }
+function plMailRows_(){return [...document.querySelectorAll('#emailConfigBody tr[data-mail-id]')].map(tr=>{const v=k=>tr.querySelector(`[data-k="${k}"]`);return {ID:tr.dataset.mailId,BAT:v('BAT')?.checked?'BẬT':'TẮT',SO_NGAY_BAO_TRUOC:v('SO_NGAY_BAO_TRUOC')?.value??'',GIO_GUI:v('GIO_GUI')?.value||'07:00',EMAIL_QUAN_TRI:v('EMAIL_QUAN_TRI')?.value||''}})}
+function plMailApplyAll(){const v=document.getElementById('plMailAll')?.value.trim()||'';if(!v){v17Toast('Nhập email nhận chung trước','err');return}document.querySelectorAll('#emailConfigBody [data-k="EMAIL_QUAN_TRI"]').forEach(i=>i.value=v);v17Toast('Đã điền cho tất cả, bấm Lưu tất cả để lưu','ok')}
 function loadEmailAlertConfig(){server('getEmailAlertConfig',[],renderEmailAlertConfig,e=>v17Toast('Không tải được cấu hình email: '+(e&&e.message||e),'err'))}
-function saveEmailAlertConfig(id){
-  const payload={ID:id,BAT:document.getElementById('emailBat_'+id)?.value||'TẮT',SO_NGAY_BAO_TRUOC:document.getElementById('emailBefore_'+id)?.value||'',GIO_GUI:document.getElementById('emailTime_'+id)?.value||'07:00',EMAIL_QUAN_TRI:document.getElementById('emailAdmin_'+id)?.value||''};
-  server('saveEmailAlertConfig',[payload],r=>{renderEmailAlertConfig(r);v17Toast('Đã lưu cấu hình gửi email','ok')},e=>v17Toast('Không lưu được: '+(e&&e.message||e),'err'));
+function saveEmailAlertConfig(){
+  const rows=plMailRows_();if(!rows.length)return;
+  server('saveEmailAlertConfigAll',[{rows}],r=>{renderEmailAlertConfig(r);v17Toast('Đã lưu '+(r.saved||rows.length)+' cảnh báo','ok')},e=>v17Toast('Không lưu được: '+(e&&e.message||e),'err'));
 }
-function sendTestEmailAlert(id){
-  const email=document.getElementById('emailAdmin_'+id)?.value||'';
-  if(!email.trim()){v17Toast('Nhập email quản trị trước khi gửi thử','err');return;}
-  if(!confirm('Gửi email kiểm tra đến địa chỉ đã nhập?'))return;
-  server('sendTestEmailAlert',[{ID:id,EMAIL_QUAN_TRI:email}],r=>v17Toast('Đã gửi thử đến: '+(r.recipients||[]).join(', '),'ok'),e=>v17Toast('Gửi thử không thành công: '+(e&&e.message||e),'err'));
+function plMailSendNow(){
+  if(!confirm('Quét các cảnh báo đang bật và gửi email ngay (bỏ qua giờ gửi, không gửi lặp mục đã gửi hôm nay)?'))return;
+  v17Toast('Đang gửi...','ok');
+  server('sendEmailAlertsNow',[],r=>{v17Toast(r&&r.busy?'Hệ thống đang gửi ở lượt khác, thử lại sau ít phút':'Đã gửi '+(r.sent||0)+' email · '+(r.items||0)+' cảnh báo mới',r&&r.busy?'err':'ok');loadEmailAlertConfig()},e=>v17Toast('Gửi không thành công: '+(e&&e.message||e),'err'));
+}
+function sendTestEmailAlert(){
+  const email=document.getElementById('plMailAll')?.value.trim()||'';
+  if(!email){v17Toast('Nhập email nhận chung để gửi thử','err');return;}
+  server('sendTestEmailAlert',[{EMAIL_QUAN_TRI:email}],r=>v17Toast('Đã gửi thử đến: '+(r.recipients||[]).join(', '),'ok'),e=>v17Toast('Gửi thử không thành công: '+(e&&e.message||e),'err'));
 }
 
 function renderUrgent(rows){const b=document.getElementById('dashboardUrgentBody');b.innerHTML=rows.length?rows.map(r=>`<tr><td>${esc(r.NOI_DUNG)}</td><td>${esc(r.NGUOI_THUC_HIEN)}</td><td>${esc(fmtDate(r.DEADLINE))}</td><td><span class="badge ${badgeClass(r.MUC_DO)}">${esc(r.MUC_DO||'Bình thường')}</span></td><td><span class="badge ${badgeClass(r.CANH_BAO)}">${esc(r.CANH_BAO)}</span></td></tr>`).join(''):'<tr><td colspan="5" class="empty">Không có công việc quá hạn</td></tr>';}
@@ -7050,7 +7075,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   function label(page){return ({dashboard:'Tổng quan',work:'Công việc',daily:'Công việc hằng ngày',maintenance:'Bảo trì',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposal:'Đề xuất',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalDispose:'Đề xuất thanh lý',proposalMaintenance:'Đề xuất bảo trì',equipment:'Thiết bị',warehouseDevice:'Kho thiết bị',recovery:'Thu hồi Thanh lý',materialWarehouse:'Kho vật tư',materials:'Danh mục vật tư',contracts:'Hợp đồng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',floors:'Toà nhà, tầng',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',buildingAreas:'Khu vực',maintenanceItems:'Chu kỳ bảo trì',operationDetail:'Chi tiết vận hành',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ dữ liệu bảo trì',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'})[page]||page}
   function mergeBundle(b,renderPage){
     APP.extra=APP.extra||{};
-    ['employeesAll','employeeAccess','proposals','users','asset','systemAudit','systemConfig'].forEach(k=>{if(b&&Object.prototype.hasOwnProperty.call(b,k))APP.extra[k]=b[k]});
+    ['employeesAll','employeeAccess','proposals','users','asset','systemAudit','systemConfig','emailConfig'].forEach(k=>{if(b&&Object.prototype.hasOwnProperty.call(b,k))APP.extra[k]=b[k]});
     APP.extra.modules=Object.assign({},APP.extra.modules||{},(b&&b.modules)||{});
     if(renderPage){if(typeof window.v82RenderLoadedPage==='function')window.v82RenderLoadedPage(renderPage,b||{});else renderExtra()}
   }
@@ -7397,6 +7422,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     else if(page==='permissions')table('permissionsTable',m.permissions||[]);
     else if(page==='systemAudit'){table('auditArchiveTable',m.auditArchive||[]);renderAuditCheck(x.systemAudit||{})}
     else if(page==='systemConfig')renderSystemConfig(x.systemConfig||{});
+    else if(page==='emailConfig')renderEmailAlertConfig(x.emailConfig||{});
     finish(page);
     plStep_('proposalActionsV83','afterRender',page);
     plStep_('materialWarehouseV841410','afterRender',page);
