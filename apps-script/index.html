@@ -1495,6 +1495,18 @@ body *{
 #maintenanceDataTool .v78-audit-actions{display:flex;gap:8px;flex-wrap:wrap}
 #maintenanceDataTool .v78-audit-actions .btn{min-height:38px;padding:8px 16px;font-weight:700;white-space:nowrap}
 /* V90 Công cụ bảo trì dữ liệu */
+/* V90 gọn: thanh chọn / bộ lọc nằm một hàng, không giãn full chiều rộng */
+#maintenanceDataTool :is(.pl-dt-bar,.pl-dt-tools,.v78-audit-filters)>:is(select,input:not([type=checkbox])){width:auto!important;flex:0 1 240px;height:32px!important;min-height:0!important;margin:0!important}
+#maintenanceDataTool :is(.pl-dt-tools input[type=search],#plDtNormTo,#v78AuditSearch){flex:1 1 260px}
+#maintenanceDataTool :is(.pl-dt-bar,.pl-dt-tools,.v78-audit-filters){flex-wrap:wrap;gap:6px;padding:6px 8px}
+#maintenanceDataTool .pl-dt-tabs button{padding:6px 12px}
+#maintenanceDataTool .btn{min-height:32px!important;padding:5px 12px!important}
+#maintenanceDataTool .v78-audit-head{padding:6px 8px!important}
+#maintenanceDataTool .v78-audit-status{margin:6px 8px 0!important;padding:6px 10px!important}
+#maintenanceDataTool .v78-audit-kpis{padding:6px 8px!important;gap:6px!important}
+#maintenanceDataTool .v78-audit-kpi{padding:6px 10px!important}
+#maintenanceDataTool .v78-audit-kpi strong{font-size:18px!important;margin-top:2px!important}
+#maintenanceDataTool .v78-audit-empty{padding:12px!important}
 #maintenanceDataTool .pl-dt{padding:0;overflow:hidden}
 .pl-dt-tabs{display:flex;gap:4px;padding:8px 8px 0;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
 .pl-dt-tabs button{border:1px solid transparent;border-bottom:0;background:none;padding:8px 14px;border-radius:8px 8px 0 0;font:inherit;font-weight:700;color:#475569;cursor:pointer}
@@ -4444,7 +4456,6 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
 <section id="permissions" class="section"><div class="page-title"><div><h1>Phân quyền</h1><p>Thiết lập quyền xem và thao tác theo từng vai trò</p></div><div class="pl-page-actions"><button class="btn" type="button" onclick="loadLiveData()">Làm mới</button></div></div><div class="card"><div id="permissionsTable" class="table-wrap"></div><footer class="pl-data-footer" id="permissionsTableFooter"><span class="pl-footer-status">● Chưa đồng bộ</span><b class="pl-footer-count" id="permissionsTableFooterCount"></b><nav class="pl-footer-pager" id="permissionsTableFooterPager" data-generic-container="permissionsTable" aria-label="Phân trang quyền"></nav></footer></div></section>
 <section id="systemAudit" class="section"><div class="page-title"><div><h1>Nhật ký hệ thống</h1><p>Theo dõi lịch sử thao tác và kiểm tra tính toàn vẹn dữ liệu</p></div><div class="pl-page-actions"><button class="btn" type="button" onclick="loadLiveData()">Làm mới</button></div></div><div class="card"><div class="card-head"><h3>Lịch sử thao tác đã lưu</h3></div><div id="auditArchiveTable" class="table-wrap"></div><footer class="pl-data-footer" id="auditArchiveTableFooter"><span class="pl-footer-status">● Chưa đồng bộ</span><b class="pl-footer-count" id="auditArchiveTableFooterCount"></b><nav class="pl-footer-pager" id="auditArchiveTableFooterPager" data-generic-container="auditArchiveTable" aria-label="Phân trang nhật ký lưu trữ"></nav></footer></div><div class="card" style="margin-top:12px"><div class="card-head"><h3>Kiểm tra cấu trúc dữ liệu</h3></div><div id="auditCheck" class="card-body"></div></div></section>
 <section id="maintenanceDataTool" class="section">
-  <div class="page-title"><div><h1>Công cụ bảo trì dữ liệu</h1><p>Sửa toàn bộ dữ liệu theo khu vực menu, đồng nhất giá trị, liệt kê dữ liệu lỗi và sao lưu theo năm</p></div></div>
   <div class="card pl-dt">
     <nav class="pl-dt-tabs" id="plDtTabs"><button type="button" data-tab="data" class="on" onclick="plDtTab('data')">Dữ liệu</button><button type="button" data-tab="norm" onclick="plDtTab('norm')">Đồng nhất</button><button type="button" data-tab="err" onclick="plDtTab('err')">Dữ liệu lỗi</button><button type="button" data-tab="bak" onclick="plDtTab('bak')">Sao lưu</button><button type="button" data-tab="mnt" onclick="plDtTab('mnt')">Lịch &amp; nhật ký bảo trì</button></nav>
     <div class="pl-dt-bar" id="plDtBar"><select id="plDtGroup" onchange="plDtFillSheets()"></select><select id="plDtSheet" onchange="plDtSheetChanged()"></select><span id="plDtStatus" class="pl-dt-status">Chưa tải.</span></div>
