@@ -1496,7 +1496,42 @@ body *{
 #maintenanceDataTool .v78-audit-head p{margin:0;color:#64748b;font-size:13px}
 #maintenanceDataTool .v78-audit-actions{display:flex;gap:8px;flex-wrap:wrap}
 #maintenanceDataTool .v78-audit-actions .btn{min-height:38px;padding:8px 16px;font-weight:700;white-space:nowrap}
-#maintenanceDataTool .v78-audit-actions .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
+/* V90 Công cụ bảo trì dữ liệu */
+#maintenanceDataTool .pl-dt{padding:0;overflow:hidden}
+.pl-dt-tabs{display:flex;gap:4px;padding:8px 8px 0;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
+.pl-dt-tabs button{border:1px solid transparent;border-bottom:0;background:none;padding:8px 14px;border-radius:8px 8px 0 0;font:inherit;font-weight:700;color:#475569;cursor:pointer}
+.pl-dt-tabs button.on{background:#fff;border-color:#e2e8f0;color:#a71936;margin-bottom:-1px}
+.pl-dt-bar,.pl-dt-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px}
+.pl-dt-bar select,.pl-dt-tools select,.pl-dt-tools input:not([type=checkbox]){height:36px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit;background:#fff;min-width:0}
+.pl-dt-tools input[type=search],#plDtNormTo{flex:1 1 220px}
+.pl-dt-sep{flex:1}
+.pl-dt-chk{display:inline-flex;gap:6px;align-items:center;font-size:13px}
+.pl-dt-status{font-weight:600;color:#475569;font-size:13px}.pl-dt-status.busy{color:#1d4ed8}.pl-dt-status.ok{color:#047857}.pl-dt-status.warn{color:#c2410c}.pl-dt-status.err{color:#b91c1c}
+.pl-dt-scroll{overflow:auto;max-height:calc(100vh - 330px);border-top:1px solid #e2e8f0}
+.pl-dt-scroll table{border-collapse:collapse;width:max-content;min-width:100%}
+.pl-dt-scroll :is(th,td){padding:6px 8px;border:1px solid #e2e8f0;text-align:left;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.pl-dt-scroll th{position:sticky;top:0;background:#f1f5f9;z-index:1}
+.pl-dt-scroll tbody tr{cursor:pointer}.pl-dt-scroll tbody tr:hover{background:#fff7ed}
+.pl-dt-scroll td.n{text-align:center;color:#64748b}
+.pl-dt-pager{display:flex;gap:6px;align-items:center;justify-content:flex-end;padding:8px}
+.pl-dt-pager button{min-width:32px;height:30px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer}
+.pl-dt-empty,.pl-dt-note{padding:12px;color:#64748b;font-size:13px;margin:0}
+.pl-dt-kpis{display:flex;gap:8px;flex-wrap:wrap;padding:0 8px 8px}
+.pl-dt-kpi{border:1px solid #dbe3ee;border-radius:8px;padding:6px 10px;min-width:110px}.pl-dt-kpi small{display:block;font-size:11px;color:#64748b;font-weight:700}.pl-dt-kpi b{font-size:18px}
+.pl-dt-kpi.danger{background:#fef2f2;border-color:#fecaca;color:#b91c1c}.pl-dt-kpi.warn{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.pl-dt-kpi.ok{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+.pl-dt-badge{display:inline-block;padding:2px 6px;border-radius:5px;font-size:11px;font-weight:800}.pl-dt-badge.danger{background:#fee2e2;color:#b91c1c}.pl-dt-badge.warn{background:#ffedd5;color:#c2410c}
+.pl-dt-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px}
+.pl-dt-modal[hidden]{display:none}
+.pl-dt-dialog{background:#fff;border-radius:12px;width:min(960px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column}
+.pl-dt-dhead,.pl-dt-dfoot{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #e2e8f0}
+.pl-dt-dfoot{border-bottom:0;border-top:1px solid #e2e8f0}
+.pl-dt-dhead b{flex:1}.pl-dt-dhead button{border:0;background:none;font-size:22px;cursor:pointer}
+.pl-dt-form{overflow:auto;padding:12px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.pl-dt-form label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:700;color:#475569;min-width:0}
+.pl-dt-form label.wide{grid-column:1/-1}
+.pl-dt-form :is(input,textarea){border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;font:inherit;font-weight:400;color:#0f172a;min-width:0}
+.pl-dt-form :is(input,textarea)[readonly]{background:#f1f5f9;color:#64748b}
+#maintenanceDataTool .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
 #maintenanceDataTool .v78-audit-actions .btn.danger:disabled{opacity:.5;cursor:not-allowed}
 .v78-audit-status{margin:14px 16px 0;padding:10px 12px;border:1px solid #dbe3ee;border-radius:8px;background:#f8fafc;color:#475569;font-weight:600}
 .v78-audit-status.busy{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
@@ -4286,7 +4321,7 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
         <button onclick="showPage('roles')">Vai trò</button>
         <button onclick="showPage('permissions')">Phân quyền</button>
         <button onclick="showPage('systemAudit')">Nhật ký hệ thống</button>
-        <button data-page="maintenanceDataTool" onclick="showPage('maintenanceDataTool',this)">Công cụ dữ liệu bảo trì</button>
+        <button data-page="maintenanceDataTool" onclick="showPage('maintenanceDataTool',this)">Công cụ bảo trì dữ liệu</button>
         <button onclick="showPage('systemConfig')">Cấu hình hệ thống</button>
         <button data-page="emailConfig" onclick="showPage('emailConfig',this)">Cấu hình gửi email</button>
         <button type="button" data-system-relock onclick="plLockSystemV137_()">🔒 Khóa lại Hệ thống</button>
@@ -4418,8 +4453,30 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
 <section id="permissions" class="section"><div class="page-title"><div><h1>Phân quyền</h1><p>Thiết lập quyền xem và thao tác theo từng vai trò</p></div><div class="pl-page-actions"><button class="btn" type="button" onclick="loadLiveData()">Làm mới</button></div></div><div class="card"><div id="permissionsTable" class="table-wrap"></div><footer class="pl-data-footer" id="permissionsTableFooter"><span class="pl-footer-status">● Chưa đồng bộ</span><b class="pl-footer-count" id="permissionsTableFooterCount"></b><nav class="pl-footer-pager" id="permissionsTableFooterPager" data-generic-container="permissionsTable" aria-label="Phân trang quyền"></nav></footer></div></section>
 <section id="systemAudit" class="section"><div class="page-title"><div><h1>Nhật ký hệ thống</h1><p>Theo dõi lịch sử thao tác và kiểm tra tính toàn vẹn dữ liệu</p></div><div class="pl-page-actions"><button class="btn" type="button" onclick="loadLiveData()">Làm mới</button></div></div><div class="card"><div class="card-head"><h3>Lịch sử thao tác đã lưu</h3></div><div id="auditArchiveTable" class="table-wrap"></div><footer class="pl-data-footer" id="auditArchiveTableFooter"><span class="pl-footer-status">● Chưa đồng bộ</span><b class="pl-footer-count" id="auditArchiveTableFooterCount"></b><nav class="pl-footer-pager" id="auditArchiveTableFooterPager" data-generic-container="auditArchiveTable" aria-label="Phân trang nhật ký lưu trữ"></nav></footer></div><div class="card" style="margin-top:12px"><div class="card-head"><h3>Kiểm tra cấu trúc dữ liệu</h3></div><div id="auditCheck" class="card-body"></div></div></section>
 <section id="maintenanceDataTool" class="section">
-  <div class="page-title"><div><h1>Công cụ dữ liệu bảo trì</h1><p>Kiểm tra liên kết Nhật ký, Lịch, danh mục và bộ đếm ID</p></div></div>
-  <div class="card v78-audit-card">
+  <div class="page-title"><div><h1>Công cụ bảo trì dữ liệu</h1><p>Sửa toàn bộ dữ liệu theo khu vực menu, đồng nhất giá trị, liệt kê dữ liệu lỗi và sao lưu theo năm</p></div></div>
+  <div class="card pl-dt">
+    <nav class="pl-dt-tabs" id="plDtTabs"><button type="button" data-tab="data" class="on" onclick="plDtTab('data')">Dữ liệu</button><button type="button" data-tab="norm" onclick="plDtTab('norm')">Đồng nhất</button><button type="button" data-tab="err" onclick="plDtTab('err')">Dữ liệu lỗi</button><button type="button" data-tab="bak" onclick="plDtTab('bak')">Sao lưu</button><button type="button" data-tab="mnt" onclick="plDtTab('mnt')">Lịch &amp; nhật ký bảo trì</button></nav>
+    <div class="pl-dt-bar" id="plDtBar"><select id="plDtGroup" onchange="plDtFillSheets()"></select><select id="plDtSheet" onchange="plDtSheetChanged()"></select><span id="plDtStatus" class="pl-dt-status">Chưa tải.</span></div>
+    <div class="pl-dt-pane" data-pane="data">
+      <div class="pl-dt-tools"><input id="plDtQ" type="search" placeholder="Tìm trong bảng..." oninput="plDtSearch()"><select id="plDtCol" onchange="plDtLoad(1)"><option value="">Mọi cột</option></select><label class="pl-dt-chk"><input id="plDtDesc" type="checkbox" onchange="plDtLoad(1)"> Mới nhất trước</label><button class="btn" type="button" onclick="plDtLoad()">Làm mới</button><button class="btn" type="button" onclick="plDtExport()">Xuất CSV</button><button class="btn primary" type="button" onclick="plDtEdit(null)">+ Thêm dòng</button></div>
+      <div id="plDtTable" class="pl-dt-table"></div>
+    </div>
+    <div class="pl-dt-pane" data-pane="norm" hidden>
+      <div class="pl-dt-tools"><select id="plDtNormCol"></select><button class="btn primary" type="button" onclick="plDtDistinct()">Liệt kê giá trị</button><span class="pl-dt-sep"></span><button class="btn" type="button" onclick="plDtTrim(false)">Kiểm tra khoảng trắng thừa</button><button class="btn" type="button" onclick="plDtTrim(true)">Xóa khoảng trắng thừa (cả khu vực)</button></div>
+      <div id="plDtNorm" class="pl-dt-table"><div class="pl-dt-empty">Chọn bảng, chọn cột rồi bấm <b>Liệt kê giá trị</b>. Tick các giá trị cần gộp, nhập giá trị chuẩn và bấm <b>Đồng nhất</b>.</div></div>
+    </div>
+    <div class="pl-dt-pane" data-pane="err" hidden>
+      <div class="pl-dt-tools"><select id="plDtErrScope"><option value="group">Khu vực menu đang chọn</option><option value="sheet">Bảng đang chọn</option><option value="all">Toàn hệ thống</option></select><button class="btn primary" type="button" onclick="plDtScan()">Quét dữ liệu lỗi</button><select id="plDtErrType" onchange="plDtRenderErr()"><option value="">Tất cả loại lỗi</option></select><input id="plDtErrQ" type="search" placeholder="Lọc lỗi..." oninput="plDtRenderErr()"><button class="btn" type="button" onclick="plDtFixSpaces()">Sửa tự động khoảng trắng</button></div>
+      <div id="plDtErrKpi" class="pl-dt-kpis"></div>
+      <div id="plDtErr" class="pl-dt-table"><div class="pl-dt-empty">Bấm <b>Quét dữ liệu lỗi</b>. Bấm vào một dòng lỗi để mở và sửa bản ghi.</div></div>
+    </div>
+    <div class="pl-dt-pane" data-pane="bak" hidden>
+      <div class="pl-dt-tools"><select id="plDtYear"></select><select id="plDtBakScope"><option value="">Toàn bộ khu vực</option></select><label class="pl-dt-chk"><input id="plDtBakCat" type="checkbox" checked> Kèm danh mục (bảng không có ngày)</label><button class="btn primary" type="button" onclick="plDtBackupYear()">Sao lưu theo năm</button><button class="btn" type="button" onclick="plDtBackupAll()">Sao lưu toàn bộ file</button></div>
+      <p class="pl-dt-note">Sao lưu theo năm tạo một Google Sheet mới cùng thư mục, chứa các dòng có ngày thuộc năm đã chọn (theo cột Ngày tạo / Ngày / Ngày giao / Ngày thực hiện…). Dữ liệu gốc không bị thay đổi.</p>
+      <div id="plDtBak" class="pl-dt-table"></div>
+    </div>
+    <div class="pl-dt-pane" data-pane="mnt" hidden>
+  <div class="v78-audit-card">
     <div class="card-head v78-audit-head">
       <div><h3>Kiểm tra và sửa dữ liệu</h3><p>Luôn xem trước thay đổi; chỉ ghi dữ liệu sau khi bấm Sửa dữ liệu và xác nhận.</p></div>
       <div class="v78-audit-actions"><button id="v78AuditRun" class="btn primary" type="button" onclick="v78RunMaintenanceAudit()">Kiểm tra dữ liệu</button><button id="v79RepairPreview" class="btn" type="button" onclick="v79PreviewRepair()">Xem trước sửa</button><button id="v79RepairApply" class="btn danger" type="button" onclick="v79ApplyRepair()" disabled>Sửa dữ liệu</button><button class="btn" type="button" onclick="v78ClearMaintenanceAudit()">Xóa kết quả</button></div>
@@ -4434,6 +4491,9 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
     </div>
     <div id="v78AuditTable" class="table-wrap v78-audit-table"><div class="v78-audit-empty">Nhấn <b>Kiểm tra dữ liệu</b> để tạo báo cáo xem trước.</div></div>
   </div>
+    </div>
+  </div>
+  <div class="pl-dt-modal" id="plDtModal" hidden><div class="pl-dt-dialog"><div class="pl-dt-dhead"><b id="plDtModalTitle">Sửa dòng</b><button type="button" onclick="plDtClose()">×</button></div><div id="plDtForm" class="pl-dt-form"></div><div class="pl-dt-dfoot"><button class="btn danger" type="button" id="plDtDel" onclick="plDtDelete()">Xóa dòng</button><span class="pl-dt-sep"></span><button class="btn" type="button" onclick="plDtClose()">Hủy</button><button class="btn primary" type="button" onclick="plDtSave()">Lưu</button></div></div></div>
 </section>
 <section id="systemConfig" class="section"><div class="page-title"><div><h1>Cấu hình hệ thống</h1><p>Thông tin phiên bản và kết nối dữ liệu hiện tại</p></div><div class="pl-page-actions"><button class="btn" type="button" onclick="loadLiveData()">Làm mới</button></div></div><div class="card"><div id="systemConfigBody" class="card-body"></div></div></section>
 <section id="emailConfig" class="section"><div class="page-title"><div><h1>Cấu hình gửi email</h1><p>Bật cảnh báo cần gửi, nhập Email gửi (địa chỉ nhận trả lời) và Email nhận, chọn gửi cho nhân viên theo vai trò rồi bấm Lưu tất cả. Mỗi người nhận chỉ nhận một email tổng hợp mỗi ngày.</p></div></div><div class="card pl-mail"><div class="pl-mail-bar"><span id="plMailStatus" class="pl-mail-status">Đang tải...</span><input id="plMailSenderAll" type="text" inputmode="email" placeholder="Email gửi chung (nhận trả lời)"><input id="plMailAll" type="text" inputmode="email" placeholder="Email nhận chung, cách nhau bởi dấu ;"><button class="btn" type="button" onclick="plMailApplyAll()">Áp dụng cho tất cả</button><button class="btn primary" type="button" onclick="saveEmailAlertConfig()">Lưu tất cả</button><button class="btn" type="button" onclick="plMailSendNow()">Gửi ngay</button><button class="btn" type="button" onclick="sendTestEmailAlert()">Gửi thử</button><button class="btn" type="button" onclick="loadEmailAlertConfig()">Làm mới</button></div><div id="emailConfigBody"></div><h3 class="pl-mail-h">Nhật ký gửi gần đây</h3><div id="emailLogBody"></div></div></section>
@@ -7080,7 +7140,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     if(V137_NO_CACHE_PAGES.has(String(page||'')))return;
     try{localStorage.setItem(cacheKey(page),JSON.stringify({savedAt:Date.now(),data:result}))}catch(ignore){}
   }
-  function label(page){return ({dashboard:'Tổng quan',work:'Công việc',daily:'Công việc hằng ngày',maintenance:'Bảo trì',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposal:'Đề xuất',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalDispose:'Đề xuất thanh lý',proposalMaintenance:'Đề xuất bảo trì',equipment:'Thiết bị',warehouseDevice:'Kho thiết bị',recovery:'Thu hồi Thanh lý',materialWarehouse:'Kho vật tư',materials:'Danh mục vật tư',contracts:'Hợp đồng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',floors:'Toà nhà, tầng',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',buildingAreas:'Khu vực',maintenanceItems:'Chu kỳ bảo trì',operationDetail:'Chi tiết vận hành',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ dữ liệu bảo trì',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'})[page]||page}
+  function label(page){return ({dashboard:'Tổng quan',work:'Công việc',daily:'Công việc hằng ngày',maintenance:'Bảo trì',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposal:'Đề xuất',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalDispose:'Đề xuất thanh lý',proposalMaintenance:'Đề xuất bảo trì',equipment:'Thiết bị',warehouseDevice:'Kho thiết bị',recovery:'Thu hồi Thanh lý',materialWarehouse:'Kho vật tư',materials:'Danh mục vật tư',contracts:'Hợp đồng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',floors:'Toà nhà, tầng',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',buildingAreas:'Khu vực',maintenanceItems:'Chu kỳ bảo trì',operationDetail:'Chi tiết vận hành',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'})[page]||page}
   function mergeBundle(b,renderPage){
     APP.extra=APP.extra||{};
     ['employeesAll','employeeAccess','proposals','users','asset','systemAudit','systemConfig','emailConfig'].forEach(k=>{if(b&&Object.prototype.hasOwnProperty.call(b,k))APP.extra[k]=b[k]});
@@ -7381,9 +7441,166 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
 </script>
 
 <script>
+/* V90 - Công cụ bảo trì dữ liệu: sửa mọi bảng theo khu vực menu, đồng nhất, dữ liệu lỗi, sao lưu. */
+(function(){
+  const st={sheets:[],groups:[],data:null,norm:null,err:null,edit:null,inited:false};
+  const $=id=>document.getElementById(id);
+  const TYPES={ID_MISSING:'Thiếu mã',ID_DUP:'Trùng mã',DATE_INVALID:'Ngày sai định dạng',REF_MISSING:'Tham chiếu không tồn tại',SPACES:'Khoảng trắng thừa',HEADER_EMPTY:'Tiêu đề trống',HEADER_DUP:'Tiêu đề trùng'};
+  function msg(t,type){const el=$('plDtStatus');if(el){el.textContent=t;el.className='pl-dt-status '+(type||'')}}
+  function rpc(action,args,ok,busy){
+    if(!(window.google&&google.script&&google.script.run)){msg('Phải chạy trong Google Apps Script Web App.','err');return}
+    if(busy)msg(busy,'busy');
+    google.script.run.withSuccessHandler(r=>{if(!r||r.ok!==true){msg('Máy chủ không xác nhận thao tác.','err');return}ok(r)}).withFailureHandler(e=>{msg('Lỗi: '+(e&&e.message||e),'err');if(window.v17Toast)v17Toast('Lỗi: '+(e&&e.message||e),'err')}).dataToolV90(action,args||{},(window.plSystemTokenV137_&&plSystemTokenV137_())||'');
+  }
+  const sheet=()=>$('plDtSheet')?.value||'',group=()=>$('plDtGroup')?.value||'';
+  function opts(list,sel){return list.map(x=>{const v=Array.isArray(x)?x[0]:x,l=Array.isArray(x)?x[1]:x;return `<option value="${esc(v)}" ${String(v)===String(sel)?'selected':''}>${esc(l)}</option>`}).join('')}
+  window.plDtInit=function(force){
+    if(st.inited&&!force)return;st.inited=true;
+    rpc('sheets',{},r=>{
+      st.sheets=r.sheets||[];st.groups=(r.groups||[]).filter(g=>st.sheets.some(s=>s.group===g));
+      const cur=group();$('plDtGroup').innerHTML=opts(st.groups.map(g=>[g,g+' ('+st.sheets.filter(s=>s.group===g).length+' bảng)']),cur||st.groups[0]);
+      $('plDtBakScope').innerHTML='<option value="">Toàn bộ khu vực</option>'+opts(st.groups);
+      window.plDtFillSheets(true);msg('Đã tải '+st.sheets.length+' bảng.','ok');
+    },'Đang tải danh sách bảng...');
+    rpc('backups',{},renderBackups);
+  };
+  window.plDtFillSheets=function(keep){
+    const g=group(),cur=keep?sheet():'',list=st.sheets.filter(s=>s.group===g);
+    $('plDtSheet').innerHTML=opts(list.map(s=>[s.name,s.name+' · '+s.rows+' dòng']),cur||list[0]?.name);
+    window.plDtSheetChanged();
+  };
+  window.plDtSheetChanged=function(){st.data=null;$('plDtQ').value='';$('plDtCol').innerHTML='<option value="">Mọi cột</option>';window.plDtLoad(1)};
+  let timer=0;window.plDtSearch=function(){clearTimeout(timer);timer=setTimeout(()=>window.plDtLoad(1),350)};
+  window.plDtLoad=function(page,extra){
+    const name=sheet();if(!name)return;const d=st.data;
+    rpc('read',Object.assign({sheet:name,q:$('plDtQ').value,col:$('plDtCol').value,page:page||d?.page||1,size:50,desc:$('plDtDesc').checked},extra||{}),r=>{
+      st.data=r;const colSel=$('plDtCol'),cv=colSel.value;
+      if(colSel.options.length<=1||colSel.dataset.sheet!==r.sheet){colSel.innerHTML='<option value="">Mọi cột</option>'+opts(r.headers.filter(Boolean),cv);colSel.dataset.sheet=r.sheet;$('plDtNormCol').innerHTML=opts(r.headers.filter((h,i)=>h&&!r.secret[i]))}
+      renderData();msg(r.sheet+': '+r.total+' dòng phù hợp.','ok');
+    },'Đang đọc '+name+'...');
+  };
+  function cell(v){const s=String(v??'');return s.length>80?esc(s.slice(0,80))+'…':esc(s)}
+  function renderData(){
+    const r=st.data,host=$('plDtTable');if(!r)return;
+    if(!r.rows.length){host.innerHTML='<div class="pl-dt-empty">Không có dòng phù hợp.</div>';return}
+    host.innerHTML=`<div class="pl-dt-scroll"><table><thead><tr><th>Dòng</th>${r.headers.map(h=>`<th>${esc(h||'—')}</th>`).join('')}</tr></thead><tbody>${r.rows.map((x,i)=>`<tr onclick="plDtEdit(${i})"><td class="n">${x.row}</td>${x.values.map(v=>`<td title="${esc(v)}">${cell(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <div class="pl-dt-pager"><span>Trang ${r.page}/${r.pages} · ${r.total} dòng</span><button type="button" ${r.page<=1?'disabled':''} onclick="plDtLoad(${r.page-1})">‹</button><button type="button" ${r.page>=r.pages?'disabled':''} onclick="plDtLoad(${r.page+1})">›</button></div>`;
+  }
+  window.plDtEdit=function(i){
+    const r=st.data;if(!r)return;const x=i==null?null:r.rows[i];st.edit=x?{row:x.row,id:r.idCol>=0?x.values[r.idCol]:''}:{row:0};
+    $('plDtModalTitle').textContent=x?`Sửa ${r.sheet} · dòng ${x.row}`:`Thêm dòng vào ${r.sheet}`;$('plDtDel').hidden=!x;
+    $('plDtForm').innerHTML=r.headers.map((h,k)=>{if(!h)return'';const v=x?String(x.values[k]??''):'',lock=r.secret[k],ro=lock||(x&&k===r.idCol);const long=v.length>60||/NOI_DUNG|GHI_CHU|MO_TA|DATA_GOC/.test(h);
+      return `<label class="${long?'wide':''}"><span>${esc(h)}${k===r.idCol?' (mã)':''}</span>${long?`<textarea data-h="${esc(h)}" rows="2" ${ro?'readonly':''}>${esc(v)}</textarea>`:`<input data-h="${esc(h)}" value="${esc(v)}" ${ro?'readonly':''} placeholder="${!x&&k===r.idCol?'Để trống: tự cấp mã':''}">`}</label>`}).join('');
+    $('plDtModal').hidden=false;
+  };
+  window.plDtClose=function(){$('plDtModal').hidden=true;st.edit=null};
+  function formValues(){const o={};document.querySelectorAll('#plDtForm [data-h]').forEach(el=>{if(!el.readOnly)o[el.dataset.h]=el.value});return o}
+  window.plDtSave=function(){
+    const e=st.edit,r=st.data;if(!e||!r)return;
+    if(e.row)rpc('save',{sheet:r.sheet,row:e.row,id:e.id,values:formValues()},x=>{window.plDtClose();msg(x.changed?`Đã lưu ${x.changed} trường.`:'Không có thay đổi.','ok');window.plDtLoad()},'Đang lưu...');
+    else{const v=formValues();const idh=r.idCol>=0?r.headers[r.idCol]:'';const idEl=idh&&document.querySelector(`#plDtForm [data-h="${idh}"]`);if(idEl)v[idh]=idEl.value;
+      rpc('add',{sheet:r.sheet,values:v},x=>{window.plDtClose();msg('Đã thêm dòng '+(x.id||'')+'.','ok');window.plDtLoad()},'Đang thêm...')}
+  };
+  window.plDtDelete=function(){
+    const e=st.edit,r=st.data;if(!e||!e.row)return;
+    if(!confirm(`Xóa dòng ${e.row} (${e.id||'không mã'}) khỏi ${r.sheet}? Dữ liệu được lưu vết vào Nhật ký hệ thống.`))return;
+    rpc('delete',{sheet:r.sheet,row:e.row,id:e.id},()=>{window.plDtClose();msg('Đã xóa dòng.','ok');window.plDtLoad()},'Đang xóa...');
+  };
+  window.plDtExport=function(){
+    const r=st.data;if(!r)return;
+    rpc('read',{sheet:r.sheet,q:$('plDtQ').value,col:$('plDtCol').value,size:200,page:1},first=>{
+      const all=first.rows.slice(),pages=first.pages;let p=2;
+      const done=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const csv='﻿'+[r.headers.map(q).join(',')].concat(all.map(x=>x.values.map(q).join(','))).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=r.sheet+'.csv';a.click();msg('Đã xuất '+all.length+' dòng.','ok')};
+      const next=()=>{if(p>pages)return done();rpc('read',{sheet:r.sheet,q:$('plDtQ').value,col:$('plDtCol').value,size:200,page:p++},x=>{all.push(...x.rows);next()})};next();
+    },'Đang xuất CSV...');
+  };
+  // ---- Đồng nhất
+  window.plDtDistinct=function(){
+    const col=$('plDtNormCol').value;if(!col)return;
+    rpc('distinct',{sheet:sheet(),col:col},r=>{st.norm=r;renderNorm();msg(`${r.col}: ${r.values.length} giá trị khác nhau, ${r.suggest.length} nhóm nên gộp.`,'ok')},'Đang liệt kê...');
+  };
+  function renderNorm(){
+    const r=st.norm,host=$('plDtNorm');if(!r)return;const sug=new Set(r.suggest.flat());
+    host.innerHTML=`<div class="pl-dt-tools"><input id="plDtNormTo" placeholder="Giá trị chuẩn (đổi các giá trị đã tick thành...)"><button class="btn primary" type="button" onclick="plDtNormApply()">Đồng nhất</button>${r.suggest.length?`<button class="btn" type="button" onclick="plDtNormSuggest()">Tick nhóm gợi ý kế tiếp</button>`:''}</div>
+      <div class="pl-dt-scroll"><table><thead><tr><th></th><th>Giá trị</th><th>Số dòng</th><th>Ghi chú</th></tr></thead><tbody>${r.values.map((x,i)=>`<tr><td class="n"><input type="checkbox" data-i="${i}"></td><td onclick="document.getElementById('plDtNormTo').value=this.textContent">${x.value===''?'<i>(trống)</i>':esc(x.value)}</td><td class="n">${x.count}</td><td>${sug.has(x.value)?'<span class="pl-dt-badge warn">Có biến thể giống nhau</span>':''}</td></tr>`).join('')}</tbody></table></div>`;
+    st.sugIdx=0;
+  }
+  window.plDtNormSuggest=function(){
+    const r=st.norm;if(!r||!r.suggest.length)return;const grp=r.suggest[st.sugIdx++%r.suggest.length];
+    document.querySelectorAll('#plDtNorm [data-i]').forEach(cb=>{cb.checked=grp.includes(r.values[cb.dataset.i].value)});
+    const top=r.values.filter(x=>grp.includes(x.value)).sort((a,b)=>b.count-a.count)[0];$('plDtNormTo').value=top?top.value:'';
+  };
+  window.plDtNormApply=function(){
+    const r=st.norm;if(!r)return;const from=[...document.querySelectorAll('#plDtNorm [data-i]:checked')].map(cb=>r.values[cb.dataset.i].value),to=$('plDtNormTo').value;
+    if(!from.length){msg('Hãy tick ít nhất một giá trị.','warn');return}
+    rpc('replace',{sheet:r.sheet,col:r.col,from:from,to:to},p=>{
+      if(!p.count){msg('Không có ô nào cần đổi.','ok');return}
+      if(!confirm(`Đổi ${p.count} ô của cột ${r.col} thành "${to}"?`))return;
+      rpc('replace',{sheet:r.sheet,col:r.col,from:from,to:to,apply:true},x=>{msg(`Đã đồng nhất ${x.count} ô.`,'ok');window.plDtDistinct()},'Đang ghi...');
+    },'Đang kiểm tra...');
+  };
+  window.plDtTrim=function(all){
+    const args=all?{group:group()}:{sheet:sheet()};
+    rpc('trim',args,p=>{
+      if(!p.count){msg('Không có khoảng trắng thừa.','ok');return}
+      const detail=p.sheets.map(x=>x.sheet+': '+x.count).join(', ');
+      if(!all){msg(`${p.count} ô có khoảng trắng thừa (${detail}).`,'warn');return}
+      if(!confirm(`Xóa khoảng trắng thừa ở ${p.count} ô (${detail})?`))return;
+      rpc('trim',Object.assign({apply:true},args),x=>{msg(`Đã làm sạch ${x.count} ô.`,'ok');window.plDtLoad()},'Đang ghi...');
+    },'Đang kiểm tra...');
+  };
+  // ---- Dữ liệu lỗi
+  window.plDtScan=function(){
+    const scope=$('plDtErrScope').value,args=scope==='sheet'?{sheet:sheet()}:scope==='group'?{group:group()}:{};
+    rpc('scan',args,r=>{
+      st.err=r;const types=Object.keys(r.count);
+      $('plDtErrType').innerHTML='<option value="">Tất cả loại lỗi</option>'+opts(types.map(t=>[t,(TYPES[t]||t)+' ('+r.count[t]+')']));
+      $('plDtErrKpi').innerHTML=[['Bảng đã quét',r.scanned,''],['Tổng vấn đề',r.total,r.total?'warn':'ok']].concat(types.map(t=>[TYPES[t]||t,r.count[t],t==='SPACES'||t==='HEADER_EMPTY'?'warn':'danger'])).map(k=>`<div class="pl-dt-kpi ${k[2]}"><small>${esc(k[0])}</small><b>${esc(k[1])}</b></div>`).join('');
+      window.plDtRenderErr();msg(`Quét ${r.scanned} bảng: ${r.total} vấn đề (${r.elapsedMs} ms).${r.truncated?' Chỉ hiển thị 3000 dòng đầu.':''}`,r.total?'warn':'ok');
+    },'Đang quét dữ liệu...');
+  };
+  window.plDtRenderErr=function(){
+    const r=st.err,host=$('plDtErr');if(!r)return;const t=$('plDtErrType').value,q=norm($('plDtErrQ').value||'');
+    const rows=r.issues.filter(x=>(!t||x.type===t)&&(!q||norm(Object.values(x).join(' ')).includes(q)));st.errRows=rows;
+    host.innerHTML=rows.length?`<div class="pl-dt-scroll"><table><thead><tr><th>Mức độ</th><th>Khu vực</th><th>Bảng</th><th>Dòng</th><th>Mã</th><th>Cột</th><th>Loại lỗi</th><th>Giá trị</th><th>Nội dung</th></tr></thead><tbody>${rows.slice(0,1000).map((x,i)=>`<tr onclick="plDtOpenErr(${i})"><td><span class="pl-dt-badge ${x.level==='LỖI'?'danger':'warn'}">${esc(x.level)}</span></td><td>${esc(x.group)}</td><td>${esc(x.sheet)}</td><td class="n">${x.row}</td><td>${esc(x.id)}</td><td>${esc(x.col)}</td><td>${esc(TYPES[x.type]||x.type)}</td><td>${cell(x.value)}</td><td>${esc(x.msg)}</td></tr>`).join('')}</tbody></table></div>${rows.length>1000?'<div class="pl-dt-note">Hiển thị 1000 dòng đầu, hãy lọc thêm.</div>':''}`:'<div class="pl-dt-empty">Không có vấn đề phù hợp.</div>';
+  };
+  window.plDtOpenErr=function(i){
+    const x=st.errRows&&st.errRows[i];if(!x||x.row<2)return;
+    const s=st.sheets.find(y=>y.name===x.sheet);if(s){$('plDtGroup').value=s.group;window.plDtFillSheets();$('plDtSheet').value=x.sheet}
+    window.plDtTab('data');$('plDtCol').innerHTML='<option value="">Mọi cột</option>';
+    rpc('read',{sheet:x.sheet,rows:[x.row],size:10},r=>{st.data=r;renderData();const cs=$('plDtCol');cs.innerHTML='<option value="">Mọi cột</option>'+opts(r.headers.filter(Boolean));cs.dataset.sheet=r.sheet;$('plDtNormCol').innerHTML=opts(r.headers.filter((h,k)=>h&&!r.secret[k]));if(r.rows.length)window.plDtEdit(0);msg(`${x.sheet} dòng ${x.row}: ${x.msg}`,'warn')},'Đang mở bản ghi...');
+  };
+  window.plDtFixSpaces=function(){
+    const scope=$('plDtErrScope').value;if(scope==='all'&&!confirm('Xóa khoảng trắng thừa trên TOÀN HỆ THỐNG?'))return;
+    const args=scope==='sheet'?{sheet:sheet()}:scope==='group'?{group:group()}:{};
+    if(scope==='all'){st.groups.reduce((p,g)=>p.then(()=>new Promise(res=>rpc('fixSpaces',{group:g},res))),Promise.resolve()).then(()=>{msg('Đã làm sạch khoảng trắng toàn hệ thống.','ok');window.plDtScan()});return}
+    rpc('fixSpaces',args,x=>{msg(`Đã làm sạch ${x.count} ô.`,'ok');window.plDtScan()},'Đang sửa...');
+  };
+  // ---- Sao lưu
+  function renderBackups(r){
+    const ys=$('plDtYear');if(ys&&!ys.options.length)ys.innerHTML=opts(r.years.map(y=>[y,'Năm '+y]));
+    const list=r.list||[];$('plDtBak').innerHTML=list.length?`<div class="pl-dt-scroll"><table><thead><tr><th>Thời gian</th><th>Loại</th><th>Năm</th><th>Khu vực</th><th>Số bảng</th><th>Số dòng</th><th>File</th></tr></thead><tbody>${list.map(b=>`<tr><td>${esc(b.at)}</td><td>${b.type==='ALL'?'Toàn bộ file':'Theo năm'}</td><td>${esc(b.year)}</td><td>${esc(b.group||'Tất cả')}</td><td class="n">${esc(b.sheets)}</td><td class="n">${esc(b.rows)}</td><td><a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.name)}</a></td></tr>`).join('')}</tbody></table></div>`:'<div class="pl-dt-empty">Chưa có bản sao lưu.</div>';
+  }
+  window.plDtBackupYear=function(){
+    const y=$('plDtYear').value,g=$('plDtBakScope').value;if(!confirm(`Sao lưu dữ liệu năm ${y}${g?' – '+g:''} ra file Google Sheet mới?`))return;
+    rpc('backupYear',{year:y,group:g,withCatalogs:$('plDtBakCat').checked},r=>{msg(`Đã sao lưu ${r.backup.rows} dòng / ${r.backup.sheets} bảng.`,'ok');rpc('backups',{},renderBackups)},'Đang sao lưu năm '+y+'... (có thể mất vài phút)');
+  };
+  window.plDtBackupAll=function(){
+    if(!confirm('Tạo bản sao toàn bộ file dữ liệu?'))return;
+    rpc('backupAll',{},r=>{msg('Đã tạo '+r.backup.name,'ok');rpc('backups',{},renderBackups)},'Đang sao chép toàn bộ file...');
+  };
+  window.plDtTab=function(tab){
+    document.querySelectorAll('#plDtTabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+    document.querySelectorAll('#maintenanceDataTool .pl-dt-pane').forEach(p=>p.hidden=p.dataset.pane!==tab);
+    $('plDtBar').hidden=tab==='mnt';
+  };
+})();
+</script>
+
+<script>
 /* V82 - một loader, một renderer cho đúng trang đang mở. */
 (function(){
-  const PAGE_NAMES={dashboard:'Tổng quan',work:'Quản lý công việc',daily:'Công việc hằng ngày',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi Thanh lý',floors:'Toà nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ dữ liệu bảo trì',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
+  const PAGE_NAMES={dashboard:'Tổng quan',work:'Quản lý công việc',daily:'Công việc hằng ngày',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi Thanh lý',floors:'Toà nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
   const PARENT={work:'CÔNG VIỆC',daily:'CÔNG VIỆC',maintenanceLog:'BẢO TRÌ',maintenancePlan:'BẢO TRÌ',proposalBuyMaterial:'ĐỀ XUẤT',proposalBuy:'ĐỀ XUẤT',proposalMaintenance:'ĐỀ XUẤT',proposalDispose:'ĐỀ XUẤT',equipment:'THIẾT BỊ & KHO',warehouseDevice:'THIẾT BỊ & KHO',materialWarehouse:'THIẾT BỊ & KHO',recovery:'THIẾT BỊ & KHO',floors:'CHO THUÊ',tenants:'CHO THUÊ',prospects:'CHO THUÊ',pcccEmployees:'DANH MỤC',employees:'DANH MỤC',contractors:'DANH MỤC',suppliers:'DANH MỤC',materials:'DANH MỤC',maintenanceItems:'DANH MỤC',buildingAreas:'DANH MỤC',operationDetail:'DANH MỤC',users:'HỆ THỐNG',roles:'HỆ THỐNG',permissions:'HỆ THỐNG',systemAudit:'HỆ THỐNG',maintenanceDataTool:'HỆ THỐNG',systemConfig:'HỆ THỐNG',emailConfig:'HỆ THỐNG'};
   const EQUIPMENT_TABLE_COLUMNS=Object.freeze(['ID','TEN_THIET_BI','LOAI_THIET_BI','THONG_SO','NGUOI_QUAN_LY','NGUOI_SU_DUNG','KHU_VUC_HIEN_THI','TINH_TRANG','TRANG_THAI_HIEN_TAI']);
   const table=(id,rows,cols)=>renderDataTable(id,Array.isArray(rows)?rows:[],cols);
@@ -7431,6 +7648,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     else if(page==='systemAudit'){table('auditArchiveTable',m.auditArchive||[]);renderAuditCheck(x.systemAudit||{})}
     else if(page==='systemConfig')renderSystemConfig(x.systemConfig||{});
     else if(page==='emailConfig')renderEmailAlertConfig(x.emailConfig||{});
+    else if(page==='maintenanceDataTool')plDtInit();
     finish(page);
     plStep_('proposalActionsV83','afterRender',page);
     plStep_('materialWarehouseV841410','afterRender',page);
@@ -9001,7 +9219,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
 <script id="pl-v841585-table-context-title">
 (()=>{
   // Tiêu đề trang: tiếng Việt, chỉ viết hoa chữ cái đầu (giữ nguyên từ viết tắt như PCCC).
-  const labels={work:'Công việc - triển khai',daily:'Công việc hằng ngày',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi thanh lý',floors:'Tòa nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ dữ liệu bảo trì',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
+  const labels={work:'Công việc - triển khai',daily:'Công việc hằng ngày',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalMaintenance:'Đề xuất bảo trì',proposalDispose:'Đề xuất thanh lý',equipment:'Thiết bị đang sử dụng',warehouseDevice:'Kho thiết bị',materialWarehouse:'Kho vật tư',recovery:'Thu hồi thanh lý',floors:'Tòa nhà, tầng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',pcccEmployees:'Danh sách và nhiệm vụ đội PCCC',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',materials:'Danh mục vật tư',maintenanceItems:'Chu kỳ bảo trì',buildingAreas:'Khu vực tòa nhà',operationDetail:'Chi tiết vận hành, kiểm tra thiết bị',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'};
   window.PL_PAGE_TITLES=labels;
   function sync(){const el=document.getElementById('tableContextTitle');if(!el)return;let page='';try{page=(typeof APP!=='undefined'&&APP?.currentPage)||window.APP?.currentPage||''}catch(e){page=window.APP?.currentPage||''}const label=labels[page]||'';el.textContent=label;el.classList.toggle('active',!!label)}
   const watch=()=>{const crumb=document.getElementById('crumb');if(crumb&&!crumb.dataset.tableTitleWatch){crumb.dataset.tableTitleWatch='1';new MutationObserver(sync).observe(crumb,{childList:true,subtree:true,characterData:true})}sync()};

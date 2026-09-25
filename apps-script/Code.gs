@@ -4408,3 +4408,221 @@ function saveProposalMaterialBundleV84149_(user,input){
     return {ok:true,ID_DE_XUAT:masterId,master:masterRecord,lines:saved,total:saved.reduce(function(sum,x){return sum+Number(x.THANH_TIEN||0);},0)};
   }finally{lock.releaseLock();}
 }
+// ============================================================================
+// V90 — CÔNG CỤ BẢO TRÌ DỮ LIỆU (trang Hệ thống › Công cụ bảo trì dữ liệu)
+// Một cổng RPC dataToolV90(action,args,systemToken), bắt buộc mở khóa Hệ thống.
+//  - sheets  : danh sách bảng theo khu vực menu
+//  - read    : đọc bảng có tìm kiếm + phân trang (cột mật khẩu bị ẩn)
+//  - save/add/delete : sửa, thêm, xóa một dòng (kiểm tra mã dòng; lưu vết DATA_AUDIT_ARCHIVE)
+//  - distinct/replace/trim : liệt kê giá trị, đồng nhất giá trị, xóa khoảng trắng thừa
+//  - scan/fixSpaces : liệt kê dữ liệu lỗi, sửa tự động khoảng trắng
+//  - backupYear/backupAll/backups : sao lưu theo năm / toàn bộ, lịch sử sao lưu
+// ============================================================================
+const DT90_GROUPS=[
+  ['CÔNG VIỆC',/^(CONG_VIEC|CVHN)/],
+  ['BẢO TRÌ',/(BAO_TRI|^KTDK$)/],
+  ['ĐỀ XUẤT',/^DE_XUAT/],
+  ['THIẾT BỊ & KHO',/(THIET_BI|VAT_TU|KHO|THU_HOI|CAP_PHAT)/],
+  ['CHO THUÊ',/(HOP_DONG|KHACH_THUE|QUAN_LY_TANG|TIEM_NANG)/],
+  ['DANH MỤC',/^(DM_|CHI_TIET_VAN_HANH)/],
+  ['HỆ THỐNG',/(NGUOI_SU_DUNG|VAI_TRO|PHAN_QUYEN|AUDIT|SYS_|EMAIL)/]
+];
+const DT90_SECRET=/(MAT_KHAU|PASSWORD|TOKEN|SECRET)/i;
+const DT90_REFS={ID_NGUOI_THUC_HIEN:'DM_NHAN_VIEN',ID_NGUOI_GIAO:'DM_NHAN_VIEN',ID_NGUOI_PHU_TRACH:'DM_NHAN_VIEN',ID_NGUOI_QUAN_LY:'DM_NHAN_VIEN',ID_NHAN_VIEN:'DM_NHAN_VIEN',ID_KHU_VUC:'DM_KHU_VUC_TOA_NHA',ID_HANG_MUC:'DM_HANG_MUC_BAO_TRI',ID_VAI_TRO:'VAI_TRO',ID_LICH:'DM_LICH_BAO_TRI'};
+
+function dataToolV90(action,args,systemToken){
+  requireSystemUnlockV137_(systemToken);
+  beginFastRequestV20_({bypassCache:true});
+  args=args||{};
+  const fn={sheets:dt90Sheets_,read:dt90Read_,save:dt90Save_,add:dt90Add_,'delete':dt90Delete_,distinct:dt90Distinct_,replace:dt90Replace_,trim:dt90Trim_,scan:dt90Scan_,fixSpaces:dt90FixSpaces_,backupYear:dt90BackupYear_,backupAll:dt90BackupAll_,backups:dt90Backups_}[String(action||'')];
+  if(!fn)throw new Error('DATA_TOOL_ACTION_INVALID:'+action);
+  const write=['save','add','delete','replace','trim','fixSpaces','backupYear','backupAll'].indexOf(action)>=0;
+  if(!write)return fn(args);
+  const lock=LockService.getScriptLock();lock.waitLock(30000);
+  try{return fn(args)}finally{lock.releaseLock()}
+}
+
+function dt90GroupOf_(name){for(let i=0;i<DT90_GROUPS.length;i++)if(DT90_GROUPS[i][1].test(name))return DT90_GROUPS[i][0];return 'KHÁC';}
+function dt90Sheets_(){
+  const list=ss_().getSheets().map(function(sh){const n=sh.getName();return {name:n,group:dt90GroupOf_(n),rows:Math.max(0,sh.getLastRow()-1),cols:sh.getLastColumn()};});
+  return {ok:true,groups:DT90_GROUPS.map(function(g){return g[0]}).concat(['KHÁC']),sheets:list};
+}
+function dt90SheetName_(name){name=String(name||'');if(!ss_().getSheetByName(name))throw new Error('SHEET_NOT_FOUND:'+name);return name;}
+// Đọc thô toàn bảng: headers + values (Date → yyyy-MM-dd), bỏ dòng trống.
+function dt90Table_(name){
+  const sh=getSheet_(name),lr=sh.getLastRow(),lc=sh.getLastColumn();
+  if(lr<1||lc<1)return {sh:sh,headers:[],rows:[]};
+  const v=sh.getRange(1,1,lr,lc).getValues(),headers=v[0].map(function(h){return String(h||'').trim()}),rows=[];
+  for(let r=1;r<v.length;r++){
+    if(!v[r].some(function(x){return x!==''&&x!==null}))continue;
+    rows.push({row:r+1,values:v[r].map(normalizeSheetValue_)});
+  }
+  return {sh:sh,headers:headers,rows:rows};
+}
+function dt90IdCol_(headers){let i=headers.indexOf('ID');if(i<0)i=headers.findIndex(function(h){return /^ID_/.test(h)});return i;}
+function dt90Mask_(headers,values){return values.map(function(x,i){return DT90_SECRET.test(headers[i])&&x!==''?'••••••':x});}
+function dt90Read_(a){
+  const name=dt90SheetName_(a.sheet),t=dt90Table_(name),q=norm_(a.q||''),col=String(a.col||'');
+  const ci=col?t.headers.indexOf(col):-1;
+  let rows=t.rows;
+  if(q)rows=rows.filter(function(x){return norm_(ci>=0?x.values[ci]:x.values.join(' ')).indexOf(q)>=0;});
+  if(a.rows&&a.rows.length){const set={};a.rows.forEach(function(r){set[r]=1});rows=t.rows.filter(function(x){return set[x.row]});}
+  const size=Math.min(200,Math.max(10,Number(a.size)||50)),total=rows.length,pages=Math.max(1,Math.ceil(total/size)),page=Math.min(pages,Math.max(1,Number(a.page)||1));
+  if(a.desc)rows=rows.slice().reverse();
+  return {ok:true,sheet:name,group:dt90GroupOf_(name),headers:t.headers,idCol:dt90IdCol_(t.headers),secret:t.headers.map(function(h){return DT90_SECRET.test(h)}),total:total,page:page,pages:pages,size:size,
+    rows:rows.slice((page-1)*size,page*size).map(function(x){return {row:x.row,values:dt90Mask_(t.headers,x.values)}})};
+}
+function dt90LoadRow_(name,row,expectId){
+  const sh=getSheet_(name),lc=sh.getLastColumn(),headers=getHeaders_(name);row=Number(row);
+  if(!(row>=2&&row<=sh.getLastRow()))throw new Error('ROW_INVALID:'+row);
+  const values=sh.getRange(row,1,1,lc).getValues()[0],ic=dt90IdCol_(headers);
+  if(ic>=0&&String(expectId==null?'':expectId)!==String(normalizeSheetValue_(values[ic])))throw new Error('ROW_CHANGED: Dòng '+row+' đã thay đổi (mã không khớp). Hãy tải lại bảng.');
+  return {sh:sh,headers:headers,values:values,row:row,lc:lc};
+}
+function dt90Archive_(name,id,type,obj,note){
+  try{appendObject_(V22.SHEETS.audit,{ID_AUDIT:nextIdUnlocked_(V22.SHEETS.audit,'AUD'),NGAY_XU_LY:today_(),SHEET_NGUON:name,ID_GOC:String(id||''),LOAI_LOI:type,LY_DO:note||'Công cụ bảo trì dữ liệu',DATA_GOC:JSON.stringify(obj).slice(0,45000),TRANG_THAI:'Đã lưu trữ'});}catch(ignore){}
+}
+function dt90Obj_(headers,values){const o={};headers.forEach(function(h,i){if(h&&!DT90_SECRET.test(h))o[h]=normalizeSheetValue_(values[i])});return o;}
+function dt90Save_(a){
+  const name=dt90SheetName_(a.sheet),r=dt90LoadRow_(name,a.row,a.id),input=a.values||{},next=r.values.slice(),changed={};
+  r.headers.forEach(function(h,i){
+    if(!h||DT90_SECRET.test(h)||!Object.prototype.hasOwnProperty.call(input,h))return;
+    const nv=String(input[h]==null?'':input[h]),ov=String(normalizeSheetValue_(r.values[i])==null?'':normalizeSheetValue_(r.values[i]));
+    if(nv!==ov){next[i]=nv;changed[h]={cu:ov,moi:nv};}
+  });
+  if(!Object.keys(changed).length)return {ok:true,changed:0};
+  r.sh.getRange(r.row,1,1,r.lc).setValues([next]);
+  invalidateSheetV20_(name,true);
+  dt90Archive_(name,a.id,'DATA_TOOL_EDIT',changed,'Sửa dòng '+r.row+' bằng Công cụ bảo trì dữ liệu');
+  return {ok:true,changed:Object.keys(changed).length};
+}
+function dt90Add_(a){
+  const name=dt90SheetName_(a.sheet),headers=getHeaders_(name),input=a.values||{},ic=dt90IdCol_(headers),obj={};
+  headers.forEach(function(h){if(h&&!DT90_SECRET.test(h)&&input[h]!==undefined&&input[h]!=='')obj[h]=String(input[h])});
+  if(ic>=0&&!obj[headers[ic]]){
+    const counts={};dt90Table_(name).rows.forEach(function(x){const m=String(x.values[ic]||'').match(/^([A-Za-z]+)\d+$/);if(m)counts[m[1]]=(counts[m[1]]||0)+1});
+    const prefix=Object.keys(counts).sort(function(p,q){return counts[q]-counts[p]})[0];
+    if(prefix)obj[headers[ic]]=nextIdUnlocked_(name,prefix);
+  }
+  appendObject_(name,obj);invalidateSheetV20_(name,true);
+  return {ok:true,id:ic>=0?obj[headers[ic]]||'':''};
+}
+function dt90Delete_(a){
+  const name=dt90SheetName_(a.sheet),r=dt90LoadRow_(name,a.row,a.id);
+  dt90Archive_(name,a.id,'DATA_TOOL_DELETE',dt90Obj_(r.headers,r.values),'Xóa dòng '+r.row+' bằng Công cụ bảo trì dữ liệu');
+  r.sh.deleteRow(r.row);invalidateSheetV20_(name,true);
+  return {ok:true};
+}
+function dt90Distinct_(a){
+  const name=dt90SheetName_(a.sheet),t=dt90Table_(name),ci=t.headers.indexOf(String(a.col||''));
+  if(ci<0||DT90_SECRET.test(t.headers[ci]))throw new Error('COLUMN_INVALID');
+  const map={};t.rows.forEach(function(x){const v=String(x.values[ci]==null?'':x.values[ci]);map[v]=(map[v]||0)+1});
+  const values=Object.keys(map).map(function(v){return {value:v,count:map[v],key:norm_(v).replace(/_+/g,' ').replace(/[^A-Z0-9 ]/g,'').trim()}}).sort(function(p,q){return q.count-p.count});
+  // Nhóm gợi ý: các giá trị khác nhau nhưng giống nhau khi bỏ dấu/hoa thường/khoảng trắng.
+  const byKey={};values.forEach(function(x){(byKey[x.key]=byKey[x.key]||[]).push(x.value)});
+  return {ok:true,sheet:name,col:t.headers[ci],total:t.rows.length,values:values.slice(0,1000),truncated:values.length>1000,
+    suggest:Object.keys(byKey).filter(function(k){return byKey[k].length>1}).map(function(k){return byKey[k]})};
+}
+function dt90Replace_(a){
+  const name=dt90SheetName_(a.sheet),t=dt90Table_(name),ci=t.headers.indexOf(String(a.col||'')),from={},to=String(a.to==null?'':a.to);
+  if(ci<0||DT90_SECRET.test(t.headers[ci]))throw new Error('COLUMN_INVALID');
+  (a.from||[]).forEach(function(v){from[String(v)]=1});
+  const hits=t.rows.filter(function(x){const v=String(x.values[ci]==null?'':x.values[ci]);return from[v]&&v!==to});
+  if(a.apply&&hits.length){
+    const rng=t.sh.getRange(2,ci+1,t.sh.getLastRow()-1,1),col=rng.getValues();
+    hits.forEach(function(x){col[x.row-2][0]=to});rng.setValues(col);invalidateSheetV20_(name,true);
+    dt90Archive_(name,t.headers[ci],'DATA_TOOL_NORMALIZE',{cot:t.headers[ci],tu:Object.keys(from),thanh:to,dong:hits.map(function(x){return x.row})},'Đồng nhất '+hits.length+' ô');
+  }
+  return {ok:true,count:hits.length,applied:!!a.apply};
+}
+function dt90Clean_(v){return typeof v==='string'?v.replace(/[ \t]/g,' ').replace(/ {2,}/g,' ').trim():v;}
+// Xóa khoảng trắng thừa (đầu/cuối/đôi) trên cả bảng hoặc cả khu vực menu.
+function dt90Trim_(a){
+  const names=a.group?dt90Sheets_().sheets.filter(function(s){return s.group===a.group}).map(function(s){return s.name}):[dt90SheetName_(a.sheet)];
+  let total=0;const per=[];
+  names.forEach(function(name){
+    const sh=getSheet_(name),lr=sh.getLastRow(),lc=sh.getLastColumn();if(lr<2||lc<1)return;
+    const rng=sh.getRange(2,1,lr-1,lc),v=rng.getValues(),headers=getHeaders_(name);let n=0;
+    v.forEach(function(row){row.forEach(function(x,i){if(DT90_SECRET.test(headers[i]||''))return;const c=dt90Clean_(x);if(c!==x){row[i]=c;n++}})});
+    if(n){per.push({sheet:name,count:n});total+=n;if(a.apply){rng.setValues(v);invalidateSheetV20_(name,true)}}
+  });
+  return {ok:true,count:total,sheets:per,applied:!!a.apply};
+}
+function dt90FixSpaces_(a){return dt90Trim_({group:a.group||'',sheet:a.sheet||'',apply:true});}
+// Quét lỗi: tiêu đề trống/trùng, thiếu mã, trùng mã, ngày sai, tham chiếu không tồn tại, khoảng trắng thừa.
+function dt90Scan_(a){
+  const started=Date.now(),all=dt90Sheets_().sheets,names=all.filter(function(s){return (!a.group||s.group===a.group)&&(!a.sheet||s.name===a.sheet)}).map(function(s){return s.name});
+  const issues=[],count={},MAX=3000,refIds={};
+  const add=function(sheet,row,id,col,type,level,value,msg,fix){count[type]=(count[type]||0)+1;if(issues.length<MAX)issues.push({sheet:sheet,group:dt90GroupOf_(sheet),row:row,id:id,col:col,type:type,level:level,value:String(value==null?'':value).slice(0,120),msg:msg,fix:!!fix})};
+  const refSet=function(sheet){
+    if(refIds[sheet])return refIds[sheet];const set={};
+    try{const t=dt90Table_(sheet),ic=sheet==='DM_HANG_MUC_BAO_TRI'?t.headers.indexOf('ID_HANG_MUC'):sheet==='DM_LICH_BAO_TRI'?t.headers.indexOf('ID_LICH'):t.headers.indexOf('ID');if(ic>=0)t.rows.forEach(function(x){set[String(x.values[ic]).trim()]=1});else return refIds[sheet]=null;}catch(e){return refIds[sheet]=null}
+    return refIds[sheet]=set;
+  };
+  names.forEach(function(name){
+    const t=dt90Table_(name),H=t.headers,ic=dt90IdCol_(H),seen={},hc={};
+    H.forEach(function(h,i){if(!h&&i<H.length-1&&H.slice(i+1).some(Boolean))add(name,1,'',('Cột '+(i+1)),'HEADER_EMPTY','CẢNH BÁO','','Tiêu đề cột trống giữa bảng.');if(h){if(hc[h])add(name,1,'',h,'HEADER_DUP','LỖI',h,'Tiêu đề cột bị trùng.');hc[h]=1}});
+    const dateCols=[],refCols=[];
+    H.forEach(function(h,i){if(/^(NGAY|DEADLINE|HAN_)/.test(h)&&!/SO_NGAY|NGAY_TRONG|_SNAPSHOT$/.test(h))dateCols.push(i);if(DT90_REFS[h]&&DT90_REFS[h]!==name)refCols.push(i)});
+    t.rows.forEach(function(x){
+      const id=ic>=0?String(x.values[ic]==null?'':x.values[ic]).trim():'';
+      if(ic>=0){if(!id)add(name,x.row,'',H[ic],'ID_MISSING','LỖI','','Dòng thiếu mã '+H[ic]+'.');else if(seen[id])add(name,x.row,id,H[ic],'ID_DUP','LỖI',id,'Trùng mã với dòng '+seen[id]+'.');else seen[id]=x.row;}
+      dateCols.forEach(function(i){const v=x.values[i];if(v===''||v==null)return;const s=String(v).trim();if(!/^\d{4}-\d{2}-\d{2}/.test(s)&&!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s))add(name,x.row,id,H[i],'DATE_INVALID','LỖI',s,'Ngày không đúng định dạng.')});
+      refCols.forEach(function(i){const v=String(x.values[i]==null?'':x.values[i]).trim();if(!v)return;const set=refSet(DT90_REFS[H[i]]);if(!set)return;v.split(/\s*[,;]\s*/).forEach(function(p){if(p&&!set[p])add(name,x.row,id,H[i],'REF_MISSING','LỖI',p,'Mã tham chiếu không tồn tại trong '+DT90_REFS[H[i]]+'.')})});
+      x.values.forEach(function(v,i){if(typeof v==='string'&&!DT90_SECRET.test(H[i]||'')&&dt90Clean_(v)!==v)add(name,x.row,id,H[i]||('Cột '+(i+1)),'SPACES','CẢNH BÁO',v,'Khoảng trắng thừa.',true)});
+    });
+  });
+  return {ok:true,scanned:names.length,issues:issues,count:count,total:Object.keys(count).reduce(function(s,k){return s+count[k]},0),truncated:issues.length>=MAX,elapsedMs:Date.now()-started};
+}
+// Năm của một dòng: lấy cột ngày ưu tiên đầu tiên có giá trị.
+function dt90YearCols_(headers){
+  const pref=['NGAY_TAO','NGAY','NGAY_GIAO','NGAY_THUC_HIEN','NGAY_DE_XUAT','NGAY_BAT_DAU','NGAY_XU_LY','NGAY_GUI'],out=[];
+  pref.forEach(function(p){const i=headers.indexOf(p);if(i>=0)out.push(i)});
+  headers.forEach(function(h,i){if(/^NGAY/.test(h)&&out.indexOf(i)<0)out.push(i)});
+  return out;
+}
+function dt90RowYear_(row,cols){
+  for(let k=0;k<cols.length;k++){const v=row[cols[k]];if(v instanceof Date)return v.getFullYear();const s=String(v||'');let m=s.match(/^(\d{4})-\d{2}-\d{2}/)||s.match(/\d{1,2}\/\d{1,2}\/(\d{4})/);if(m)return Number(m[1]);}
+  return null;
+}
+function dt90NewBackup_(title){
+  const file=SpreadsheetApp.create(title);
+  try{const parent=DriveApp.getFileById(V22.SPREADSHEET_ID).getParents();if(parent.hasNext())DriveApp.getFileById(file.getId()).moveTo(parent.next())}catch(ignore){}
+  return file;
+}
+function dt90Remember_(item){
+  const props=PropertiesService.getScriptProperties();let list=[];try{list=JSON.parse(props.getProperty('PL90_BACKUPS')||'[]')}catch(e){}
+  list.unshift(item);props.setProperty('PL90_BACKUPS',JSON.stringify(list.slice(0,40)));return list;
+}
+function dt90BackupYear_(a){
+  const year=Number(a.year);if(!(year>=2000&&year<=2100))throw new Error('YEAR_INVALID');
+  const stamp=Utilities.formatDate(new Date(),V22.TZ,'yyyyMMdd-HHmm'),out=dt90NewBackup_('PHILONG BACKUP '+year+' ('+stamp+')'),blank=out.getSheets()[0],per=[];let total=0;
+  const names=dt90Sheets_().sheets.filter(function(s){return !a.group||s.group===a.group}).map(function(s){return s.name});
+  names.forEach(function(name){
+    const sh=getSheet_(name),lr=sh.getLastRow(),lc=sh.getLastColumn();if(lr<1||lc<1)return;
+    const v=sh.getRange(1,1,lr,lc).getValues(),headers=v[0].map(function(h){return String(h||'').trim()}),cols=dt90YearCols_(headers);
+    let rows;
+    if(cols.length)rows=v.slice(1).filter(function(r){return dt90RowYear_(r,cols)===year});
+    else if(a.withCatalogs!==false)rows=v.slice(1).filter(function(r){return r.some(function(x){return x!==''&&x!==null})});
+    else return;
+    if(!rows.length&&cols.length)return;
+    const dst=out.insertSheet(name);dst.getRange(1,1,rows.length+1,lc).setValues([v[0]].concat(rows));dst.setFrozenRows(1);
+    per.push({sheet:name,rows:rows.length,byYear:!!cols.length});total+=rows.length;
+  });
+  if(per.length)out.deleteSheet(blank);
+  const item={type:'YEAR',year:year,group:a.group||'',name:out.getName(),url:out.getUrl(),rows:total,sheets:per.length,at:nowStamp_()};
+  dt90Remember_(item);
+  return {ok:true,backup:item,sheets:per};
+}
+function dt90BackupAll_(){
+  const stamp=Utilities.formatDate(new Date(),V22.TZ,'yyyyMMdd-HHmm'),src=DriveApp.getFileById(V22.SPREADSHEET_ID);
+  const copy=src.makeCopy('PHILONG BACKUP TOAN BO ('+stamp+')');
+  const item={type:'ALL',year:'',group:'',name:copy.getName(),url:copy.getUrl(),rows:'',sheets:ss_().getSheets().length,at:nowStamp_()};
+  dt90Remember_(item);
+  return {ok:true,backup:item};
+}
+function dt90Backups_(){
+  let list=[];try{list=JSON.parse(PropertiesService.getScriptProperties().getProperty('PL90_BACKUPS')||'[]')}catch(e){}
+  const years={},now=new Date().getFullYear();for(let y=now;y>=now-6;y--)years[y]=1;
+  return {ok:true,list:list,years:Object.keys(years).map(Number).sort(function(p,q){return q-p})};
+}
