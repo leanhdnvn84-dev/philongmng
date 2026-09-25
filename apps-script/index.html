@@ -11874,39 +11874,50 @@ html[data-theme="dark"] .pl-days-warn{background:#1f2937;color:#fbbf24;border-co
 
 /* ===== PL DARK THEME (chuẩn duy nhất cho giao diện tối) =====
    Nền đen xanh, chữ sáng; hàng trạng thái dùng nền sẫm + chữ sáng cùng tông.
+   Tiền tố :not(#pl-d*) nâng độ ưu tiên (3 ID) để thắng các luật có #id của từng trang.
    Các luật tối cũ đặt nền sáng / chữ tối đã được gỡ bằng tools/dark-clean.js. */
 html[data-theme="dark"]{color-scheme:dark;--d-bg:#0d1117;--d-surface:#151b23;--d-surface2:#1b2330;--d-head:#222c3a;--d-line:#2f3b4c;--d-text:#e6edf3;--d-muted:#9aa8b8;--d-link:#79b8ff;--d-hover:#223047;--d-sel:#1f4f8a;
   --bg:var(--d-bg);--white:var(--d-surface);--line:var(--d-line);--text:var(--d-text);--muted:var(--d-muted);--navy:#f8fafc;
   --tbl-bg:var(--d-surface);--tbl-alt:#18202b;--tbl-head:var(--d-head);--tbl-title:#f1f5f9;--tbl-text:var(--d-text);--tbl-line:var(--d-line);--tbl-foot:var(--d-surface2);--tbl-hover:var(--d-hover);--tbl-selected:var(--d-sel);
   --tbl-pending:#33290f;--tbl-progress:#1c2547;--tbl-done:#11291e;--tbl-error:#3a1b20}
-html[data-theme="dark"] body{background:var(--d-bg)!important;color:var(--d-text)!important}
-html[data-theme="dark"] :is(main,.section,.layer3-data,.plc-shell,.plc-main,.plw85-main,.pbm-main,.pl-daily-shell,.pl-daily-main){background:var(--d-bg)!important;color:var(--d-text)!important}
-html[data-theme="dark"] :is(.card,.page-title,.subbar,.kpi,.item,.table-wrap,.plw85-staff,.pbm-staff,.pl-daily-staff,.plw85-table,.pbm-table,.pl-daily-table,.ple-table,.plc-side,.ple-side,.plw85-side,.pl-daily-side,.pbm-side,.pl-dt-dialog,.v17-dialog,.menu-panel){background:var(--d-surface)!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
-html[data-theme="dark"] :is(.card-head,.data-nav-bar,.pl-data-footer,.pl-dt-tabs,.pl-dt-dhead,.pl-dt-dfoot){background:var(--d-surface2)!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
-html[data-theme="dark"] :is(h1,h2,h3,h4,.page-title h1,.card-head h3){color:#f8fafc!important}
-html[data-theme="dark"] :is(.muted,.mini,small,.breadcrumb,.empty,.pl-dt-empty,.pl-dt-note){color:var(--d-muted)!important}
-html[data-theme="dark"] a{color:var(--d-link)}
-html[data-theme="dark"] :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]){background:#0f1620!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
-html[data-theme="dark"] :is(input,textarea)::placeholder{color:#7d8b9c!important}
-html[data-theme="dark"] :is(input,textarea)[readonly]{background:#18202b!important;color:var(--d-muted)!important}
-html[data-theme="dark"] .btn:not(.primary):not(.danger){background:var(--d-surface2)!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) body{background:var(--d-bg)!important;color:var(--d-text)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(main,.section,.layer3-data,.plc-shell,.plc-main,.plw85-main,.pbm-main,.pl-daily-shell,.pl-daily-main){background:var(--d-bg)!important;color:var(--d-text)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.card,.page-title,.subbar,.kpi,.item,.table-wrap,.plw85-staff,.pbm-staff,.pl-daily-staff,.plw85-table,.pbm-table,.pl-daily-table,.ple-table,.plc-side,.ple-side,.plw85-side,.pl-daily-side,.pbm-side,.pl-dt-dialog,.v17-dialog,.menu-panel){background:var(--d-surface)!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.card-head,.data-nav-bar,.pl-data-footer,.pl-dt-tabs,.pl-dt-dhead,.pl-dt-dfoot){background:var(--d-surface2)!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(h1,h2,h3,h4,.page-title h1,.card-head h3){color:#f8fafc!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.muted,.mini,small,.breadcrumb,.empty,.pl-dt-empty,.pl-dt-note){color:var(--d-muted)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) a{color:var(--d-link)}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]){background:#0f1620!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(input,textarea)::placeholder{color:#7d8b9c!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(input,textarea)[readonly]{background:#18202b!important;color:var(--d-muted)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) .btn:not(.primary):not(.danger){background:var(--d-surface2)!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
 /* Bảng */
-html[data-theme="dark"] table{background:var(--d-surface)!important;color:var(--d-text)!important}
-html[data-theme="dark"] table :is(th,td){border-color:var(--d-line)!important}
-html[data-theme="dark"] table thead th,html[data-theme="dark"] table th{background:var(--d-head)!important;color:#f1f5f9!important}
-html[data-theme="dark"] table tbody tr{--row-bg:var(--d-surface);--row-fg:var(--d-text)}
-html[data-theme="dark"] table tbody tr:nth-child(even){--row-bg:#18202b}
-html[data-theme="dark"] table tbody tr:is(.pending,.soon,.due-today),html[data-theme="dark"] table tbody tr:has(.pl-daily-badge.pending){--row-bg:#33290f;--row-fg:#ffe2a1}
-html[data-theme="dark"] table tbody tr:is(.overdue,.rejected){--row-bg:#3a1b20;--row-fg:#ffc4cb}
-html[data-theme="dark"] table tbody tr.processing{--row-bg:#1c2547;--row-fg:#c9d3ff}
-html[data-theme="dark"] table tbody tr.done,html[data-theme="dark"] table tbody tr:has(.pl-daily-badge.done){--row-bg:#11291e;--row-fg:#b4f2cd}
-html[data-theme="dark"] table tbody tr:hover{--row-bg:var(--d-hover);--row-fg:#ffffff}
-html[data-theme="dark"] table tbody tr:is(.selected,.pl-cat-selected,.active){--row-bg:var(--d-sel);--row-fg:#ffffff}
-html[data-theme="dark"] table tbody tr>td{background:var(--row-bg)!important;color:var(--row-fg)!important}
-html[data-theme="dark"] table tbody tr>td :not([class*="badge"]):not([class*="chip"]):not([class*="status"]):not([class*="days"]):not(input):not(select):not(textarea):not(button):not(svg):not(path){color:inherit!important;background-color:transparent!important}
-html[data-theme="dark"] table tbody tr:hover>td{filter:none!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table{background:var(--d-surface)!important;color:var(--d-text)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table :is(th,td){border-color:var(--d-line)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table thead th,html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table th{background:var(--d-head)!important;color:#f1f5f9!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr{--row-bg:var(--d-surface);--row-fg:var(--d-text)}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:nth-child(even){--row-bg:#18202b}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:is(.pending,.soon,.due-today),html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:has(.pl-daily-badge.pending){--row-bg:#33290f;--row-fg:#ffe2a1}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:is(.overdue,.rejected){--row-bg:#3a1b20;--row-fg:#ffc4cb}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr.processing{--row-bg:#1c2547;--row-fg:#c9d3ff}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr.done,html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:has(.pl-daily-badge.done){--row-bg:#11291e;--row-fg:#b4f2cd}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:hover{--row-bg:var(--d-hover);--row-fg:#ffffff}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:is(.selected,.pl-cat-selected,.active){--row-bg:var(--d-sel);--row-fg:#ffffff}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr>td{background:var(--row-bg)!important;color:var(--row-fg)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr>td :not([class*="badge"]):not([class*="chip"]):not([class*="status"]):not([class*="days"]):not(input):not(select):not(textarea):not(button):not(svg):not(path){color:inherit!important;background-color:transparent!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) table tbody tr:hover>td{filter:none!important}
 /* Màu nền/chữ viết cứng trong HTML sinh từ JS */
-html[data-theme="dark"] :is([style*="background:#fff"],[style*="background: #fff"],[style*="background:#FFF"],[style*="background:white"],[style*="background:#f8fafc"],[style*="background:#f1f5f9"]){background:var(--d-surface)!important}
-html[data-theme="dark"] :is([style*="color:#111"],[style*="color:#172033"],[style*="color:#0f172a"],[style*="color:#334155"],[style*="color:#344054"],[style*="color:#000"]){color:var(--d-text)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is([style*="background:#fff"],[style*="background: #fff"],[style*="background:#FFF"],[style*="background:white"],[style*="background:#f8fafc"],[style*="background:#f1f5f9"]){background:var(--d-surface)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is([style*="color:#111"],[style*="color:#172033"],[style*="color:#0f172a"],[style*="color:#334155"],[style*="color:#344054"],[style*="color:#000"]){color:var(--d-text)!important}
+/* Thanh công cụ, thẻ cảnh báo/KPI, bộ lọc của các trang */
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-tools,.pbm-tools,.pl-daily-tools,.ple-tools,.plc-tools,.layer2-controls,.layer2-filter-card,.plw85-stats,.plc-kpis-row,.v17-kpis,.kpis,.pl-dt-bar,.pl-dt-tools){background:var(--d-surface2)!important;color:var(--d-text)!important;border-color:var(--d-line)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-tool,.plc-tool,.ple-tool,.pbm-tool,.pl-daily-tool){background:var(--d-surface)!important;color:var(--d-text)!important;border-color:var(--d-line)!important;box-shadow:0 2px 5px rgba(0,0,0,.35)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-alert,.pbm-alert,.v17-kpi,.kpi,.plc-kpis-row>*,.pl-dt-kpi,.v78-audit-kpi){background:var(--d-surface)!important;color:var(--d-text)!important;border-color:var(--d-line)!important;box-shadow:0 2px 6px rgba(0,0,0,.35)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-alert,.pbm-alert):is(:hover,.active){background:color-mix(in srgb,var(--alert,#5eb3ff) 22%,var(--d-surface))!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-alert,.pbm-alert,.v17-kpi,.kpi,.v78-audit-kpi) :is(small,span,.alert-count,.alert-label){color:var(--d-muted)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-alert,.pbm-alert) .alert-label,html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.v17-kpi,.kpi,.v78-audit-kpi) :is(strong,b){color:#f1f5f9!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-staff,.pbm-staff,.pl-daily-staff) :is(td,th){background:var(--d-surface)!important;color:var(--d-text)!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) :is(.plw85-staff,.pbm-staff,.pl-daily-staff) tr:is(.selected,.active)>td{background:var(--d-sel)!important;color:#fff!important}
+html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) .v78-audit-status{background:var(--d-surface2)!important;border-color:var(--d-line)!important}
 </style>
 </html>
