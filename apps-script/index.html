@@ -10305,6 +10305,18 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   warehouseDevice:{title:['Tên thiết bị'],method:['Chi tiết thiết bị','Thông số','Serial'],meta:[['Ngày nhập kho','Ngày'],['Người quản lý'],['Vị trí','Tầng · Khu vực']],status:['Tình trạng','Trạng thái']},
   recovery:{title:['Thiết bị đang sử dụng','Thiết bị','Tên thiết bị'],method:['Hướng xử lý'],meta:[['Ngày thu hồi','Ngày'],['Người trả'],['Khu vực']],status:['Trạng thái','Tình trạng khi trả']},
   materialWarehouse:{title:['Tên vật tư','Vật tư'],method:['Nhóm','Đơn vị tính'],meta:[['Tồn hiện tại'],['Tổng nhập'],['Tổng xuất']],status:['Cảnh báo','Trạng thái']},
+  /* Danh mục + Cho thuê: cùng mẫu thẻ 13 */
+  employees:{title:['Họ tên'],method:['Chức vụ'],meta:[['Mã'],['Điện thoại'],['Phòng ban','Đơn vị']],status:['Trạng thái']},
+  pcccEmployees:{title:['Họ tên'],method:['Nhiệm vụ PCCC'],meta:[['Mã'],['Điện thoại'],['Chức vụ']],status:[]},
+  contractors:{title:['Đơn vị'],method:['Lĩnh vực'],meta:[['Mã'],['Họ tên'],['Điện thoại']],status:['Trạng thái']},
+  suppliers:{title:['Tên nhà cung cấp'],method:['Sản phẩm / dịch vụ','Nhóm cung cấp'],meta:[['Mã'],['Người liên hệ'],['Điện thoại']],status:['Trạng thái']},
+  materials:{title:['Tên vật tư'],method:['Ghi chú'],meta:[['Mã'],['Nhóm']],status:['Trạng thái']},
+  maintenanceItems:{title:['Tên hạng mục'],method:['Áp dụng loại khu vực'],meta:[['Mã hạng mục'],['Chu kỳ mặc định (ngày)'],['Cảnh báo trước (ngày)']],status:['Trạng thái']},
+  buildingAreas:{title:['Khu vực'],method:['Tên công ty'],meta:[['Mã khu vực','Mã'],['Tầng'],['Loại khu vực']],status:['Trạng thái']},
+  operationDetail:{title:['Hạng mục thiết bị'],method:['Nội dung kiểm tra / Vận hành'],meta:[['STT'],['Nhóm hệ thống'],['Tần suất']],status:['Trạng thái']},
+  tenants:{title:['Khách thuê'],method:['Tầng · Khu vực'],meta:[['Ngày bắt đầu thuê'],['Người liên hệ'],['Ngày kết thúc thuê']],status:['Trạng thái']},
+  prospects:{title:['Tên khách hàng'],method:['Tầng · khu vực quan tâm'],meta:[['Ngày hẹn liên hệ'],['Người phụ trách','Người liên hệ'],['Điện thoại']],status:['Cảnh báo','Trạng thái']},
+  floors:{title:['Tên tầng'],method:['Khách đang thuê'],meta:[['Ngày bắt đầu thuê'],['Dien tich','Diện tích'],['Ngày kết thúc thuê']],status:['Trạng thái sử dụng']},
  };
  const pageConfig=root=>CARD_CONFIG[root?.id]||null;
 
@@ -10423,7 +10435,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   setMode(table,'cards');
  }
  /* Mẫu thẻ 13: đầu thẻ màu theo trạng thái + ô biểu tượng + thanh tiến độ. */
- const ICONS=[[/KE TIEP|^HAN/,'⏭'],[/NGAY/,'📅'],[/LAM CUNG/,'👥'],[/NGUOI|NHAN VIEN/,'👤'],[/DON VI|PHONG BAN|NHA CUNG CAP/,'🏢'],[/KHU VUC|VI TRI|TANG/,'📍'],[/CHU KY/,'🔁'],[/SO LUONG|TON|NHAP|XUAT/,'📦'],[/GIA|CHI PHI/,'💰']];
+ const ICONS=[[/KE TIEP|^HAN|KET THUC/,'⏭'],[/^MA|^STT/,'🔖'],[/DIEN THOAI/,'📞'],[/EMAIL/,'✉️'],[/TAN SUAT/,'🔁'],[/CANH BAO TRUOC/,'⏰'],[/DIEN TICH/,'📐'],[/NGAY/,'📅'],[/LAM CUNG/,'👥'],[/NGUOI|NHAN VIEN/,'👤'],[/DON VI|PHONG BAN|NHA CUNG CAP/,'🏢'],[/KHU VUC|VI TRI|TANG/,'📍'],[/CHU KY/,'🔁'],[/SO LUONG|TON|NHAP|XUAT/,'📦'],[/GIA|CHI PHI/,'💰']];
  const iconOf=label=>{const n=norm(label);for(const [re,ic] of ICONS)if(re.test(n))return ic;return '•'};
  const dateOf=t=>{t=String(t||'');let m=t.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(m)return new Date(+m[3],m[2]-1,+m[1]);m=t.match(/(\d{4})-(\d{2})-(\d{2})/);return m?new Date(+m[1],m[2]-1,+m[3]):null};
  function toneOf(row,text){
@@ -10445,7 +10457,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   if(s2)setAttr(s2,'data-plm-ic',{ok:'✅',late:'⚠️',info:'🔄',warn:'⏳'}[tone]||'•');
   const today=new Date();today.setHours(0,0,0,0);
   const labelOf=i=>norm(headers[i]?.label||'');
-  const start=dateOf(txt(metas[0])),endIdx=metas.find(i=>/KE TIEP|^HAN/.test(labelOf(i))),end=endIdx>=0?dateOf(txt(endIdx)):null;
+  const start=dateOf(txt(metas[0])),endIdx=metas.find(i=>/KE TIEP|^HAN|KET THUC/.test(labelOf(i))),end=endIdx>=0?dateOf(txt(endIdx)):null;
   let pct=null,label=null;const day=86400000;
   if(tone==='ok'&&(start||end)){pct=100;label='✔ Đã xong'}
   else if(end){const left=Math.round((end-today)/day);pct=start&&end>start?Math.max(4,Math.min(100,Math.round((today-start)/(end-start)*100))):(left<0?100:50);label=left<0?'Quá '+(-left)+' ngày':left===0?'Hôm nay':'Còn '+left+' ngày'}
