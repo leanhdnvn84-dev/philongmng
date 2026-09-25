@@ -45,6 +45,9 @@
 :is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) :is(th,td){width:auto!important;min-width:0!important;max-width:420px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 :is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) td:hover{white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere}
 :is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig,#emailConfig) colgroup col{width:auto!important}
+/* Nhật ký hệ thống: bảng rộng 100%, cột theo tỉ lệ % (colgroup do V210 gán), không dùng px. */
+#systemAudit table.pl-audit-fixed{table-layout:fixed!important;width:100%!important;min-width:0!important}
+#systemAudit table.pl-audit-fixed :is(th,td){max-width:none!important}
 /* MỌI form nhập/sửa: ô nội dung (textarea) cao đúng 2 dòng, vẫn kéo giãn được khi cần. */
 :is(#v17FormModal,#operationEditModalV841531,#plActionDialog) :is(.v17-field,.operation-edit-field-v841531,.v84149-master-grid,div) textarea{max-height:none;min-height:var(--pl-text-h)!important;height:var(--pl-text-h)!important;line-height:1.4!important;resize:vertical!important}
 /* MỌI khung Xem: nội dung dài chỉ hiện 2 dòng, rê chuột để xem đủ. */
@@ -11009,7 +11012,18 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     [...indexes].sort((a,b)=>b-a).forEach(index=>rows.forEach(row=>{if(row.cells[index])row.deleteCell(index)}));
   }
   // Quét mọi bảng trong vùng dữ liệu (không đụng bảng trong form nhập liệu); gom nhiều thay đổi DOM vào một lần/frame.
-  function sweep(){document.querySelectorAll('main.container table').forEach(removeActionColumn)}
+  // Nhật ký hệ thống: độ rộng cột cố định theo tỉ lệ %, gán theo tên cột (không phụ thuộc thứ tự cột trong sheet).
+  const AUDIT_WIDTHS=[['MA AUDIT',6],['ID AUDIT',6],['NGAY',7],['THOI GIAN',7],['SHEET',10],['MA GOC',6],['ID GOC',6],['LOAI',11],['LY DO',22],['DU LIEU GOC',31],['DATA GOC',31],['TRANG THAI',7]];
+  function auditWidths(){
+    const table=document.querySelector('#auditArchiveTable table');if(!table||!table.tHead)return;
+    const cells=[...table.tHead.rows[0].cells];if(!cells.length)return;
+    const pct=cells.map(c=>{const n=norm(c.textContent);const hit=AUDIT_WIDTHS.find(([k])=>n.includes(k));return hit?hit[1]:6});
+    const total=pct.reduce((a,b)=>a+b,0),key=pct.join(',');if(table.dataset.auditWidths===key)return;table.dataset.auditWidths=key;
+    table.querySelector('colgroup')?.remove();
+    table.insertAdjacentHTML('afterbegin','<colgroup>'+pct.map(p=>'<col style="width:'+(p*100/total).toFixed(2)+'%!important">').join('')+'</colgroup>');
+    table.classList.add('pl-audit-fixed');
+  }
+  function sweep(){document.querySelectorAll('main.container table').forEach(removeActionColumn);auditWidths()}
   let queued=false;const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sweep()})};
   window.PL_NO_ACTION_TABLES_V209=IDS;
   window.PL_REMOVE_ACTION_COLUMN_V209=removeActionColumn;
