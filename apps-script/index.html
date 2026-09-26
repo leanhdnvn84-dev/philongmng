@@ -1426,7 +1426,6 @@ body *{
   left:auto!important;
   align-self:flex-start!important;
   margin-top:1px!important;
-  margin-left:35px!important;
   margin-right:0!important;
   font-size:16px!important;
   font-weight:800!important;
@@ -3323,8 +3322,8 @@ html#plMobileViewport[data-theme="dark"]{
   color:var(--plm-accent);
   line-height:1.05;
 }
-#plMobileViewport .pm-brand b{display:block;font-size:16px;font-weight:900;letter-spacing:-.25px}
-#plMobileViewport .pm-brand span{display:block;margin-left:17px;font-size:13px;font-weight:900;letter-spacing:-.15px}
+#plMobileViewport .pm-brand b{display:block;font-size:16px;font-weight:900;letter-spacing:0}
+#plMobileViewport .pm-brand .pl-logo-long>span{display:block;font-size:13px;font-weight:900;letter-spacing:0}
 #plMobileViewport .pm-search{
   height:40px;
   padding:7px 11px;
@@ -3409,11 +3408,12 @@ html#plMobileViewport[data-theme="dark"]{
 #plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) #plmFilterTab{display:none!important}
 /* Trang khởi động mobile — mẫu D: đầu trang đỏ, thẻ tổng, 5 thẻ cảnh báo ngang lớn giãn đầy 1 màn hình.
    Cỡ chữ dùng calc(px) nên không bị chỉnh cỡ chữ mobile cộng/trừ. */
-html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592{padding:0!important;overflow:hidden!important;display:flex!important;align-items:stretch!important;justify-content:center!important}
+/* Chỉ bố cục khi đang hiện: không đè [hidden] (nếu đè, trang khởi động không ẩn được khi mở Công việc). */
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592:not([hidden]){padding:0!important;overflow:hidden!important;display:flex!important;align-items:stretch!important;justify-content:center!important}
 html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-shell{width:100%!important;max-width:none!important;min-height:100dvh!important;margin:0!important;padding:calc(18px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;display:flex!important;flex-direction:column!important;gap:0!important}
 html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand{position:static!important;margin:0 0 12px!important;padding:0!important;display:block!important;width:auto!important;height:auto!important;transform:none!important}
-html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand *{font-size:calc(14px)!important;line-height:1.1!important;letter-spacing:.5px!important}
-html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand-sub{font-size:calc(9px)!important;letter-spacing:2px!important;display:block!important;margin:2px 0 0 38px!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand *{font-size:calc(14px)!important;line-height:1.1!important;letter-spacing:0!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand-sub{font-size:calc(10px)!important;letter-spacing:0!important;display:block!important;margin:1px 0 0!important}
 html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 h1{margin:0!important;font:800 calc(24px)/1.2 Roboto,Arial,sans-serif!important;text-align:left!important}
 html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-date{margin:4px 0 16px!important;font:500 calc(12px)/1.3 Roboto,Arial,sans-serif!important;text-align:left!important}
 html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert::after{display:none!important}
@@ -4118,6 +4118,7 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
       <button class="pl-startup-all" id="plStartupAllV841592" type="button" disabled>Mở bảng Công việc</button>
     </div>
     <button class="pl-startup-retry" id="plStartupRetryV841592" type="button">Thử lại</button>
+    <small class="pl-build">Phiên bản 2026-09-26 · thẻ D</small>
   </section>
 </div>
 <script id="pl-v841596-startup-instant-paint">
@@ -4142,12 +4143,12 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
 })();
 </script>
 
-<header class="pm-header"><div class="pm-brand"><b>PHI LONG</b><span>TECHNOLOGY</span></div><input class="pm-search" id="pmSearch" type="search" placeholder="Tìm trang này…" aria-label="Tìm trong trang hiện tại"></header>
+<header class="pm-header"><div class="pm-brand pl-logo"><b class="pl-logo-phi">PHI&nbsp;</b><span class="pl-logo-long"><b>LONG</b><span>TECHNOLOGY</span></span></div><input class="pm-search" id="pmSearch" type="search" placeholder="Tìm trang này…" aria-label="Tìm trong trang hiện tại"></header>
 <nav class="pm-nav" id="pmNav" aria-label="Điều hướng điện thoại"><button type="button" data-route="menu"><span>☰</span>Menu</button><button type="button" data-route="work"><span>✓</span>Công việc</button><button type="button" data-route="maintenanceLog"><span>⚙</span>Bảo trì</button><button type="button" data-route="equipment"><span>▣</span>Thiết bị</button><button type="button" data-route="account"><span>♙</span>Tài khoản</button></nav>
 <dialog class="pm-panel" id="pmPanel"><header><h2 id="pmPanelTitle"></h2><button type="button" class="pm-close" id="pmClose" aria-label="Đóng">×</button></header><div class="pm-panel-user" id="pmPanelUser" hidden><span class="pm-panel-user-avatar" aria-hidden="true">A</span><span class="pm-panel-user-copy"><b id="pmPanelUserName"></b><small id="pmPanelUserRole"></small></span><button type="button" class="pm-theme" id="pmThemeToggle" aria-label="Đổi giao diện sáng / tối" onclick="window.toggleThemeV841534&&window.toggleThemeV841534()"></button></div><div id="pmPanelContent"></div></dialog><button type="button" class="pm-bubble" id="pmMenuBubble" aria-label="Mở menu điều hướng">☰</button><button type="button" class="pm-top" id="pmTop" aria-label="Lên đầu trang">↑</button>
 
 <header class="topbar menu-3d-v841436">
-  <div class="brand" aria-label="PHI LONG TECHNOLOGY - Hệ thống quản lý"><div class="brand-text"><div class="brand-main">PHI LONG</div><div class="brand-sub">TECHNOLOGY</div></div></div>
+  <div class="brand" aria-label="PHI LONG TECHNOLOGY - Hệ thống quản lý"><div class="brand-text pl-logo"><div class="brand-main pl-logo-phi">PHI&nbsp;</div><div class="pl-logo-long"><div class="brand-main">LONG</div><div class="brand-sub">TECHNOLOGY</div></div></div></div>
   
 <style>
 #topbar,.topbar{position:sticky;top:0;z-index:2000;transition:background .25s ease,box-shadow .25s ease,backdrop-filter .25s ease}
@@ -10604,16 +10605,6 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   if(barsRO){barsRO.disconnect();[header,sub,tools].forEach(el=>el&&barsRO.observe(el))}
  }
 
- /* Vuốt lên → xin toàn màn hình (Android/Chrome cho phép khi khung Apps Script có quyền fullscreen).
-    iPhone Safari không có API này: dùng "Thêm vào Màn hình chính" (doGet đã gắn thẻ web-app-capable). */
- let swipeY=null;
- document.addEventListener('touchstart',e=>{swipeY=e.touches&&e.touches[0]?e.touches[0].clientY:null},{passive:true});
- document.addEventListener('touchend',e=>{
-  if(swipeY==null||!isMobile())return;const t=e.changedTouches&&e.changedTouches[0],dy=t?t.clientY-swipeY:0;swipeY=null;
-  const d=document,el=d.documentElement,req=el.requestFullscreen||el.webkitRequestFullscreen;
-  if(dy<-40&&req&&!(d.fullscreenElement||d.webkitFullscreenElement)&&(d.fullscreenEnabled||d.webkitFullscreenEnabled)){try{const p=req.call(el,{navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{})}catch(err){}}
- },{passive:true});
-
  /* ---------- 7. Đồng bộ ---------- */
  const NAV_GROUP=id=>/^maintenance/.test(id)?'maintenanceLog':/^(equipment|warehouseDevice|materialWarehouse|recovery)$/.test(id)?'equipment':/^(work|daily)$/.test(id)?'work':'menu';
  function sync(){
@@ -11996,6 +11987,13 @@ html#plMobileViewport[data-theme="dark"]:not(#pl-s1):not(#pl-s2) main.container 
 /* Khoảng cách giữa các thẻ mobile: nền đậm hơn để tách thẻ. */
 #plMobileViewport main.container .section.active table.plm-cards{background:#d3dae3!important;padding:6px 6px 1px!important;border-radius:12px!important}
 html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards{background:#04070b!important}
+
+/* Logo PHI LONG TECHNOLOGY (đầu trang máy tính, đầu trang điện thoại, trang khởi động): lưới 2 cột
+   "PHI " | LONG/TECHNOLOGY → chữ TECHNOLOGY luôn bắt đầu ngay dưới chữ LONG, không co giãn chữ. */
+.pl-logo.pl-logo.pl-logo{display:grid!important;grid-template-columns:auto auto!important;align-items:start!important;justify-content:start!important;white-space:nowrap!important}
+.pl-logo.pl-logo>.pl-logo-long{display:grid!important;justify-items:start!important;row-gap:1px}
+.pl-logo.pl-logo .brand-sub,.pl-logo.pl-logo .pl-logo-long>span{position:static!important;left:auto!important;width:auto!important;margin:0!important;text-align:left!important;letter-spacing:0!important;transform:none!important}
+.pl-build{display:block;margin-top:4px;text-align:center;font:500 11px Arial,sans-serif;color:#94a3b8}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
