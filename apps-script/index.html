@@ -10644,7 +10644,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   const shut=()=>{const c=dlg.querySelector('[data-close],.close,.pld-view-close,.v25-close,[aria-label="Đóng"]');if(c)c.click();else dlg.classList.remove('active')};
   const bar=document.createElement('div');bar.className='plm-vbar';
   const add=(icHtml,label,color,fn)=>{const b=document.createElement('button');b.type='button';b.style.setProperty('--c',color);b.innerHTML='<i>'+icHtml+'</i><span></span>';b.lastChild.textContent=label;b.onclick=fn;bar.appendChild(b)};
-  const tools=[...root.querySelectorAll(TOOLS+' button')].filter(t=>{const w=letters(t);return w&&w!=='xem'&&w!=='đóng'&&!t.disabled&&!t.hidden&&t.style.display!=='none'});
+  const tools=[...root.querySelectorAll(TOOLS+'>button')].filter(t=>{const w=letters(t);return w&&w!=='xem'&&w!=='đóng'&&!t.disabled&&!t.hidden&&t.style.display!=='none'});
   if(own&&!tools.some(t=>letters(t)==='sửa'))add('✎','Sửa','#ea580c',()=>own.click());
   tools.forEach(t=>{
    const word=letters(t),ico=t.querySelector('.ico'),label=(ico?t.textContent.replace(ico.textContent,''):t.textContent).trim(),color=getComputedStyle(t).borderBottomColor||'#94a3b8';
