@@ -878,7 +878,12 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
 
         // Người gửi + chân thiệp
         if (opts.sender) { x.fillStyle = '#ffe3e1'; x.font = '600 28px ' + FONT; x.fillText('— ' + opts.sender + ' —', W / 2, 960 + boxH + 58); }
-        x.fillStyle = 'rgba(255,213,213,.9)'; x.font = '700 22px ' + FONT; x.fillText('PHI LONG TECHNOLOGY  ·  ' + (opts.date || ''), W / 2, H - 70);
+        var dateText = String(opts.date || '').split('/').join(' · ');
+      if (dateText) {
+        var fy = H - 74; x.font = '600 28px ' + FONT; if ('letterSpacing' in x) x.letterSpacing = '3px'; var tw = x.measureText(dateText).width;
+        [-1, 1].forEach(function (side) { var a = W / 2 + side * (tw / 2 + 26), b = W / 2 + side * (tw / 2 + 170), lg = x.createLinearGradient(a, 0, b, 0); lg.addColorStop(0, 'rgba(255,217,138,.9)'); lg.addColorStop(1, 'rgba(255,217,138,0)'); x.strokeStyle = lg; x.lineWidth = 2; x.beginPath(); x.moveTo(a, fy - 9); x.lineTo(b, fy - 9); x.stroke(); x.save(); x.translate(a, fy - 9); x.rotate(Math.PI / 4); x.fillStyle = '#ffd98a'; x.fillRect(-4, -4, 8, 8); x.restore(); });
+        x.fillStyle = '#ffd98a'; x.fillText(dateText, W / 2, fy); if ('letterSpacing' in x) x.letterSpacing = '0px';
+      }
         return c;
       });
     }
