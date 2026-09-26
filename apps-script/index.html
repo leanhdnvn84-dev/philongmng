@@ -10494,9 +10494,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
    if(!head){head=document.createElement('div');head.className='plm-slide-head';head.innerHTML='<b>Bộ lọc</b><button type="button" aria-label="Đóng bộ lọc">✕</button>';head.querySelector('button').onclick=()=>slide(false);side.prepend(head)}
    // Thanh công cụ của trang (Tìm, Thêm, Xem, Sửa, Xóa, Làm mới…) chuyển vào ô bộ lọc; để lại mốc để trả về khi sang máy tính.
    const tools=[...root.querySelectorAll(TOOLS)].find(t=>!side.contains(t));
-   if(tools){if(!tools.plmHome){tools.plmHome=document.createComment('plm-tools');tools.before(tools.plmHome)}head.after(tools);
-    // Ô bộ lọc chỉ giữ 4 nút: Tìm · Thêm · Tất cả · Làm mới (nút khác vẫn có ở hàng nút form Xem).
-    tools.querySelectorAll(':scope>button').forEach(b=>setCls(b,'plm-tb-hide',!/^(tìm|thêm|tấtcả|làmmới)/.test(letters(b))))}
+   if(tools){if(!tools.plmHome){tools.plmHome=document.createComment('plm-tools');tools.before(tools.plmHome)}head.after(tools)}
    if(!side.dataset.plmSlideBound){side.dataset.plmSlideBound='1';side.addEventListener('click',e=>{if(e.target.closest('tbody tr,'+TOOLS+' button:not([id$="Find"])'))setTimeout(()=>slide(false),150)})}
   });
   let tab=$('plmFilterTab');
@@ -10609,6 +10607,8 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   window.PL_CLEAR_DESKTOP_TABLE_SIZING_V216?.(root);
   root.querySelectorAll('table').forEach(table=>{if(tableCanCard(table))card(table)});
   folds(root);
+  // Toàn hệ thống mobile: toolbar chỉ giữ 4 nút Tìm · Thêm · Tất cả · Làm mới; nút khác (Xem, Sửa, Xóa, Nhập/Xuất, Lịch sử…) nằm ở hàng nút cuối form Xem.
+  root.querySelectorAll(TOOLS+'>button').forEach(b=>setCls(b,'plm-tb-hide',!/^(tìm|thêm|tấtcả|làmmới)/.test(letters(b))));
   datePickers(root);
   bars();
   const group=NAV_GROUP(root.id);
@@ -12023,8 +12023,8 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active table.pl
 html#plMobileViewport[data-theme="dark"] .plm-vbar{background:#0d1117;border-top-color:#2f3b4c}
 html#plMobileViewport[data-theme="dark"] .plm-vbar>button{background:#161b22;border-color:#2f3b4c;color:#e6edf3}
 
-/* Ô bộ lọc: chỉ 4 nút; ô tìm kiếm (khi bấm Tìm) trải hết chiều ngang. */
-html#plMobileViewport .plm-slide .plm-tb-hide{display:none!important}
+/* Toolbar mobile: chỉ 4 nút (.plm-tb-hide ẩn phần còn lại); ô tìm kiếm (khi bấm Tìm) trải hết chiều ngang. */
+html#plMobileViewport .plm-tb-hide{display:none!important}
 html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide>:is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools)>:not(button){grid-column:1/-1!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;display:flex!important;gap:6px!important;align-items:center!important}
 html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide>:is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools)>:not(button)[hidden],html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide>:is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools)>:not(button):not(:has(input,select,button)){display:none!important}
 html#plMobileViewport .plm-slide :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools) input{flex:1 1 auto!important;width:auto!important;min-width:0!important;height:38px!important}
