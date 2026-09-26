@@ -10304,10 +10304,10 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   daily:{title:['Nội dung thực hiện','Nội dung'],method:['Cách thực hiện'],meta:[['Ngày','Ngày giao'],['Người thực hiện'],['Đơn vị thực hiện','Người làm cùng']],status:['Cảnh báo','Kết quả']},
   maintenanceLog:{title:['Hạng mục','Nội dung thực hiện'],method:['Kết quả','Cách thực hiện'],meta:[['Ngày thực hiện','Ngày'],['Người thực hiện'],['Ngày kế tiếp']],status:['Cảnh báo','Kết quả']},
   maintenancePlan:{title:['Hạng mục'],method:['Khu vực','Ghi chú'],meta:[['Ngày kế hoạch','Ngày giao'],['Người phụ trách'],['Chu kỳ (ngày)']],status:['Cảnh báo','Trạng thái']},
-  proposalBuyMaterial:{title:['Tên vật tư','Vật tư','Nội dung'],method:['Nhà cung cấp','Mục đích / lý do'],meta:[['Ngày lập','Ngày đề xuất'],['Người đề xuất'],['Số lượng']],status:['Trạng thái']},
-  proposalBuy:{title:['Tên thiết bị','Danh mục','Vật tư','Nội dung'],method:['Nhà cung cấp','Ghi chú'],meta:[['Ngày lập','Ngày đề xuất'],['Người đề xuất'],['Số lượng']],status:['Trạng thái']},
-  proposalDispose:{title:['Thiết bị','Tên thiết bị'],method:['Tình trạng','Lý do'],meta:[['Ngày lập','Ngày đề xuất'],['Người đề xuất'],['Giá đề xuất thanh lý']],status:['Trạng thái']},
-  proposalMaintenance:{title:['Thiết bị','Tên thiết bị'],method:['Hiện trạng','Phương án đề xuất'],meta:[['Ngày lập','Ngày đề xuất'],['Người đề xuất'],['Chi phí dự kiến']],status:['Trạng thái']},
+  proposalBuyMaterial:{title:['Tên vật tư','Vật tư','Nội dung'],method:['Nhà cung cấp','Mục đích / lý do'],meta:[['Mã đề xuất','Ngày lập','Ngày đề xuất'],['Người đề xuất'],['Thành tiền'],['Số lượng'],['ĐVT'],['Đơn giá'],['Ghi chú']],status:['Trạng thái']},
+  proposalBuy:{title:['Tên thiết bị','Danh mục','Vật tư','Nội dung'],method:['Nhà cung cấp'],meta:[['Mã đề xuất','Ngày lập','Ngày đề xuất'],['Người đề xuất','Mã đề xuất'],['Thành tiền'],['Số lượng'],['Đơn giá'],['Ghi chú']],status:['Trạng thái']},
+  proposalDispose:{title:['Thiết bị','Tên thiết bị'],method:['Lý do','Tình trạng'],meta:[['Mã','Ngày lập','Ngày đề xuất'],['Người đề xuất','Tình trạng'],['Giá đề xuất thanh lý'],['Số lượng tồn'],['Chi phí sửa dự kiến'],['Giá trị còn lại'],['Ghi chú']],status:['Trạng thái']},
+  proposalMaintenance:{title:['Thiết bị','Tên thiết bị'],method:['Hiện trạng'],meta:[['Mã','Ngày lập','Ngày đề xuất'],['Người đề xuất','Khu vực'],['Chi phí dự kiến'],['Phương án đề xuất'],['Loại đề xuất'],['Ghi chú']],status:['Trạng thái']},
   equipment:{title:['Tên thiết bị'],method:['Chi tiết thiết bị','Thông số','Model'],meta:[['Người dùng'],['Phòng ban'],['Vị trí','Tầng · Khu vực']],status:['Tình trạng','Trạng thái']},
   warehouseDevice:{title:['Tên thiết bị'],method:['Chi tiết thiết bị','Thông số','Serial'],meta:[['Ngày nhập kho','Ngày'],['Người quản lý'],['Vị trí','Tầng · Khu vực']],status:['Tình trạng','Trạng thái']},
   recovery:{title:['Thiết bị đang sử dụng','Thiết bị','Tên thiết bị'],method:['Hướng xử lý'],meta:[['Ngày thu hồi','Ngày'],['Người trả'],['Khu vực']],status:['Trạng thái','Tình trạng khi trả']},
@@ -10434,7 +10434,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
    if(!r){setCell(cell,[],null);return}
    shown++;
    const cls=['plm-show',r];
-   if((r==='plm-status'||r==='plm-method')&&/^[\s—–-]*$/.test(cell.textContent||''))cls.push('plm-empty'); // ô trạng thái / cách thực hiện trống thì ẩn, khỏi tốn 1 hàng
+   if(r!=='plm-title'&&r!=='plm-actions'&&/^[\s—–-]*$/.test(cell.textContent||''))cls.push('plm-empty'); // ô trạng thái / cách thực hiện trống thì ẩn, khỏi tốn 1 hàng
    setCell(cell,cls,r==='plm-actions'?null:shortLabel(headers[i].label));
   }));
   if(!shown)return fallback(table);
@@ -10621,8 +10621,10 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
  function openView(row){
   const root=(row.isConnected&&row.closest('section.section'))||active();if(!root)return;
   const own=row.isConnected&&row.querySelector('.plm-actions :is(.v25-action.view,[data-pld-view],.view)');
-  const view=own||toolBtn(root,'xem');if(!view)return;
-  view.click();
+  const view=own||[...root.querySelectorAll(TOOLS+' button')].find(b=>letters(b)==='xem');if(!view)return;
+  const tries=openView.tries=(row===openView.row?openView.tries:0)+1;openView.row=row;
+  if(view.disabled){if(tries<6)setTimeout(()=>openView(row),80);return}
+  openView.tries=0;view.click();
   setTimeout(()=>{
    const eb=$('v25ViewEditBtn'),edit=toolBtn(root,'sửa');
    if(eb&&edit&&eb.style.display==='none'){eb.style.display='';eb.onclick=()=>{window.v25CloseView?.();edit.click()}}
@@ -12015,7 +12017,7 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active table.pl
 #plMobileViewport .subbar #exportDataBtn{display:none!important}
 /* Form Xem mobile: 1 hàng nút gọn (.plm-vbar) thay cho Đóng/Sửa cũ. */
 #plMobileViewport .plm-vbar{display:flex;gap:4px;width:100%;box-sizing:border-box;padding:6px 8px calc(6px + env(safe-area-inset-bottom));overflow-x:auto;background:#f8fafc;border-top:1px solid #e5e7eb}
-#plMobileViewport .plm-vbar>button{flex:1 0 44px;height:44px;min-width:0!important;padding:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid #e2e8f0;border-bottom:2px solid var(--c,#94a3b8);border-radius:8px;background:#fff;color:#1f2937;font:700 calc(9px)/1.1 Roboto,Arial,sans-serif!important;white-space:nowrap;overflow:hidden}
+#plMobileViewport .plm-vbar>button{flex:1 0 40px;height:44px;min-width:0!important;padding:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid #e2e8f0;border-bottom:2px solid var(--c,#94a3b8);border-radius:8px;background:#fff;color:#1f2937;font:700 calc(9px)/1.1 Roboto,Arial,sans-serif!important;white-space:nowrap;overflow:hidden}
 #plMobileViewport .plm-vbar>button>i{font-style:normal;font-size:calc(15px);line-height:1;color:var(--c,#475569);display:flex;align-items:center;justify-content:center;height:16px}
 #plMobileViewport .plm-vbar>button>i svg{width:16px;height:16px}
 #plMobileViewport :is(footer,[class*="foot"]):has(>.plm-vbar){display:block!important;padding:0!important;gap:0!important}
@@ -12058,6 +12060,29 @@ html#plMobileViewport .plm-slide :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pb
 html#plMobileViewport[data-theme="dark"] #stockHistoryModalV841410 tbody>tr{background:#161b22!important;border-color:#2f3b4c!important}
 html#plMobileViewport[data-theme="dark"] #stockHistoryModalV841410 tbody>tr>td:is(:nth-child(2),:nth-child(5),:nth-child(9)){color:#e6edf3!important}
 #plMobileViewport #stockHistoryModalV841410 .stock-history-dialog>.pl-data-footer{margin:0 6px 6px!important;width:calc(100% - 12px)!important}
+
+/* Đề xuất (mobile): hiện đủ thông tin — các ô Người · Thành tiền · SL · Đơn giá… xếp lưới 3 ô/hàng, mỗi ô 1 dòng "nhãn: giá trị"; Ghi chú cả hàng. */
+#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta:not([data-plm-i="0"]){order:4!important;flex:1 1 calc(33.33% - 14px)!important;max-width:none!important;min-width:0!important;margin:6px 0 0 8px!important;padding:4px 7px!important;font-size:calc(11px)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta:is([data-plm-i="2"],[data-plm-i="3"],[data-plm-i="4"],[data-plm-i="5"])::before{content:attr(data-plm-label) ": "!important;display:inline!important;font-weight:700!important}
+#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta:is([data-plm-i="6"]){flex:1 1 calc(100% - 20px)!important;white-space:normal!important;margin-right:10px!important}
+#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta:is([data-plm-i="6"])::before{content:"📝 "!important;display:inline!important}
+#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-empty{display:none!important}
+#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td:is(.plm-meta,.plm-method) *{display:inline!important;white-space:inherit!important;margin:0!important;padding:0!important}
+#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="1"]{order:4!important}#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="2"]{order:5!important}#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="3"]{order:6!important}#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="4"]{order:7!important}#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="5"]{order:8!important}#plMobileViewport main.container .section.active:is(#proposalBuyMaterial,#proposalBuy,#proposalDispose,#proposalMaintenance) table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="6"]{order:9!important}
+/* Thống kê riêng Đề xuất (mobile): 2 hàng — chọn Tháng/Năm, rồi 2 ô tổng tiền chia đôi. */
+#plMobileViewport .pl-proposal-finance-panel{display:block!important;padding:8px 10px!important}
+#plMobileViewport .pl-proposal-finance-head{display:grid!important;grid-template-columns:1fr!important;gap:6px!important;margin:0 0 8px!important}
+#plMobileViewport .pl-proposal-finance-title{display:flex!important;align-items:baseline!important;gap:8px!important;position:static!important}
+#plMobileViewport .pl-proposal-finance-title small{font-size:calc(10px)!important;letter-spacing:.3px}
+#plMobileViewport .pl-proposal-finance-title strong{font-size:calc(13px)!important}
+#plMobileViewport .pl-proposal-finance-controls{display:grid!important;grid-template-columns:1.4fr 1fr!important;gap:8px!important;width:100%!important}
+#plMobileViewport .pl-proposal-finance-controls label{display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important;font-size:calc(11px)!important;position:static!important}
+#plMobileViewport .pl-proposal-finance-controls select{flex:1 1 auto!important;min-width:0!important;width:auto!important;height:32px!important;font-size:calc(13px)!important}
+#plMobileViewport .pl-proposal-finance-values{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;position:static!important;width:100%!important}
+#plMobileViewport .pl-proposal-finance-metric{min-width:0!important;width:auto!important;padding:6px 8px!important;position:static!important}
+#plMobileViewport .pl-proposal-finance-metric small{display:block!important;white-space:normal!important;font-size:calc(9px)!important;line-height:1.25!important}
+#plMobileViewport .pl-proposal-finance-metric strong{display:block!important;font-size:calc(17px)!important}
+#plMobileViewport .pl-proposal-finance-metric span{display:block!important;white-space:normal!important;font-size:calc(10px)!important}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
