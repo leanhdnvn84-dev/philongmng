@@ -816,7 +816,8 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
           img.src = src;
         });
       };
-      return Promise.all([loadImg(opts.logo, false), loadImg(opts.photo, true)]).then(function (imgs) {
+      ['name', 'position', 'department', 'message', 'sender'].forEach(function (k) { if (opts[k]) opts[k] = String(opts[k]).normalize('NFC'); });
+    return Promise.all([loadImg(opts.logo, false), loadImg(opts.photo, true)]).then(function (imgs) {
         var logo = imgs[0], photo = imgs[1], c = document.createElement('canvas');
         c.width = W; c.height = H;
         var x = c.getContext('2d'), c1 = (opts.colors && opts.colors[0]) || '#8f1820', c2 = (opts.colors && opts.colors[1]) || '#e53935';
@@ -850,7 +851,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
 
         // Tiêu đề
         x.textAlign = 'center'; x.textBaseline = 'alphabetic';
-        x.fillStyle = '#ffe3e1'; x.font = 'italic 400 40px Georgia,"Times New Roman",serif'; x.fillText('Happy Birthday', W / 2, 272);
+        x.fillStyle = '#ffe3e1'; x.font = 'italic 400 40px "Times New Roman",Times,serif'; x.fillText('Happy Birthday', W / 2, 272);
         x.fillStyle = '#ffd98a'; x.font = '800 66px ' + FONT; x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 18; x.fillText('CHÚC MỪNG SINH NHẬT', W / 2, 346); x.shadowBlur = 0;
 
         // Ảnh tròn
@@ -870,10 +871,10 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
         x.fillStyle = '#ffe3e1'; x.font = '500 30px ' + FONT; var role = [opts.position, opts.department].filter(Boolean).join(' · '); fitFont(role, '500', 30, W - 160); x.fillText(role, W / 2, 912);
 
         // Lời chúc
-        x.font = 'italic 400 36px Georgia,"Times New Roman",serif'; var lines = wrap(opts.message, W - 280).slice(0, 4), boxH = 70 + lines.length * 50;
+        x.font = 'italic 400 36px "Times New Roman",Times,serif'; var lines = wrap(opts.message, W - 280).slice(0, 4), boxH = 70 + lines.length * 50;
         x.fillStyle = 'rgba(255,255,255,.12)'; round(110, 960, W - 220, boxH, 28); x.fill(); x.strokeStyle = 'rgba(255,255,255,.28)'; x.lineWidth = 2; x.stroke();
-        x.fillStyle = '#ffd98a'; x.font = '700 64px Georgia,serif'; x.fillText('“', 150, 1024);
-        x.fillStyle = '#fff'; x.font = 'italic 400 36px Georgia,"Times New Roman",serif'; lines.forEach(function (l, k) { x.fillText(l, W / 2, 1020 + k * 50); });
+        x.fillStyle = '#ffd98a'; x.font = '700 64px "Times New Roman",Times,serif'; x.fillText('“', 150, 1024);
+        x.fillStyle = '#fff'; x.font = 'italic 400 36px "Times New Roman",Times,serif'; lines.forEach(function (l, k) { x.fillText(l, W / 2, 1020 + k * 50); });
 
         // Người gửi + chân thiệp
         if (opts.sender) { x.fillStyle = '#ffe3e1'; x.font = '600 28px ' + FONT; x.fillText('— ' + opts.sender + ' —', W / 2, 960 + boxH + 58); }
@@ -883,7 +884,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     }
     function birthdayCardOptions(i) {
       var item=(state.birthdayToday||[])[i];if(!item)return null;var p=item.person,name=p.HO_VA_TEN||personKey(p),t=new Date(),msg=$('#birthdayMessage'),sender=$('#bdCardSender'),colors=BD_COLORS[i%BD_COLORS.length];
-      return {name:name,initials:initials(name),position:p.MA_CHUC_VU?position(p.MA_CHUC_VU):'',department:p.MA_PHONG_BAN?department(p.MA_PHONG_BAN):'',age:item.age,date:String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear(),message:msg?msg.value:'',sender:sender&&sender.value||(auth.user&&(auth.user.displayName||auth.user.username))||'Phi Long',photo:'',person:p,logo:PL_LOGO_WHITE,colors:colors};
+      return {name:name,initials:initials(name),position:p.MA_CHUC_VU?position(p.MA_CHUC_VU):'',department:p.MA_PHONG_BAN?department(p.MA_PHONG_BAN):'',age:item.age,date:String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear(),message:msg?msg.value:'',sender:sender&&sender.value||'PhiLong Technology',photo:'',person:p,logo:PL_LOGO_WHITE,colors:colors};
     }
     function birthdayPhoto(person) {
       var id=driveImageId(imageSource(person));state.birthdayPhotos=state.birthdayPhotos||{};
@@ -896,7 +897,7 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     function birthdayMarkDone(i) { var b=document.querySelector('[data-bd-wish="'+i+'"]');if(b){b.classList.add('done');b.textContent='Đã chúc ✓';} }
     function renderBirthdayCardView() { var o=birthdayCardOptions(state.birthdayCardIndex);if(!o)return Promise.resolve(null);o.message=$('#bdCardMsg').value;o.sender=$('#bdCardSender').value;return birthdayCardCanvas(o).then(function(c){$('#bdCardImg').src=c.toDataURL('image/jpeg',.92);return c;}); }
     function openBirthdayCard(i) {
-      var o=birthdayCardOptions(i);if(!o)return;state.birthdayCardIndex=i;$('#bdCardTitle').textContent='Thiệp gửi '+o.name;$('#bdCardMsg').value=o.message;$('#bdCardSender').value=o.sender;
+      var o=birthdayCardOptions(i);if(!o)return;state.birthdayCardIndex=i;$('#bdCardTitle').textContent='Thiệp gửi '+o.name;$('#bdCardMsg').value=o.message;$('#bdCardSender').value='PhiLong Technology';
       $('#birthdayCard').hidden=true;$('#birthdayCardView').hidden=false;$('#birthdayConfetti').hidden=true;$('#bdCardImg').removeAttribute('src');renderBirthdayCardView();
     }
     function closeBirthdayCard() { $('#birthdayCardView').hidden=true;$('#birthdayCard').hidden=false;$('#birthdayConfetti').hidden=!(state.birthdayToday||[]).length; }
