@@ -10616,8 +10616,8 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   },60);
  }
  /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
- // Cỡ chữ mobile = cỡ gốc − 6px (trước đây +4, giảm thêm 10px), tối thiểu 10px; trang khởi động cộng thêm 12px.
- const FONT_PLUS=-6,STARTUP_PLUS=12,FONT_MIN=10,fontOrig=new Map();let fontOn=false;
+ // Cỡ chữ mobile = cỡ gốc − 10px, tối thiểu 9px; trang khởi động cộng thêm 12px.
+ const FONT_PLUS=-10,STARTUP_PLUS=12,FONT_MIN=9,fontOrig=new Map();let fontOn=false;
  function fontBoost(on){
   if(fontOn===on)return;fontOn=on;
   const walk=rules=>{for(const r of rules){
@@ -11907,8 +11907,8 @@ html[data-theme="dark"]:not(#pl-d1):not(#pl-d2):not(#pl-d3) .v78-audit-status{ba
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="0"]{position:absolute!important;top:10px;left:14px;width:max-content!important;min-width:0!important;max-width:48%!important;height:auto!important;padding:0!important;background:transparent!important;color:#ffffffe6!important;font:600 12.5px/1.2 Roboto,Arial,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-meta[data-plm-i="0"]::before{content:attr(data-plm-ic) " "!important;display:inline!important}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-status[data-plm-s="0"]{position:absolute!important;top:7px;right:10px;width:max-content!important;min-width:0!important;max-width:60%!important;letter-spacing:-.2px;height:auto!important;border-radius:999px!important;background:rgba(255,255,255,.92)!important;color:var(--ti)!important;font:800 12px/1.3 Roboto,Arial,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;border:0!important}
-/* Nhãn cảnh báo đầu thẻ: cỡ chữ calc(11px) (fontBoost chỉ cộng giá trị px thuần) để nhãn dài như "QUÁ HẠN · CHƯA LÀM" vẫn đủ chỗ. */
-#plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-status[data-plm-s="0"]{font-size:calc(11px)!important;padding:2px 8px!important}
+/* Nhãn cảnh báo đầu thẻ: cỡ chữ calc(9px) (fontBoost chỉ cộng giá trị px thuần) để nhãn dài như "QUÁ HẠN · CHƯA LÀM" vẫn đủ chỗ. */
+#plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-status[data-plm-s="0"]{font-size:calc(9px)!important;padding:2px 7px!important}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td:is(.plm-status,.plm-meta[data-plm-i="0"]) *{display:inline!important;width:auto!important;max-width:none!important;background:transparent!important;color:inherit!important;border:0!important;padding:0!important;margin:0!important;box-shadow:none!important;font:inherit!important}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-status::before{display:none!important}
 #plMobileViewport main.container .section.active table.plm-cards>tbody>tr>td.plm-status.plm-empty{display:none!important}
