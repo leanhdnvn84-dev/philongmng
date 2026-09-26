@@ -3341,10 +3341,8 @@ html#plMobileViewport[data-theme="dark"]{
   display:flex!important;
   flex-wrap:wrap;
   gap:4px!important;
-  min-height:var(--plm-subbar-h)!important;
-  height:var(--plm-subbar-h)!important;
   box-sizing:border-box!important;
-  padding:5px 10px!important;
+  padding:2px 8px!important;
   background:var(--plm-surface)!important;
   color:var(--plm-ink)!important;
   border-bottom:1px solid var(--plm-line)!important;
@@ -3537,8 +3535,7 @@ html#plMobileViewport{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #plMobileViewport .subbar :is(#refreshBtn,#addBtn,#addMissingMaterialBtn){display:none!important}
 #plMobileViewport .subbar #exportDataBtn{
   display:inline-flex!important;
-  min-width:78px!important;
-  height:30px!important;
+  min-width:70px!important;
   margin-left:auto!important;
   border-color:#b9ddc7!important;
   border-radius:7px!important;
@@ -10621,12 +10618,14 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
  }
  /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
  // Cỡ chữ mobile = cỡ gốc − 10px, tối thiểu 9px; trang khởi động cộng thêm 12px.
- const FONT_PLUS=-10,STARTUP_PLUS=12,FONT_MIN=9,fontOrig=new Map();let fontOn=false;
+ // Ô bộ lọc trượt (thu 0.72) cộng thêm 7px CSS ≈ +5px khi nhìn: khối lọc, lịch chọn ngày, danh sách người, nút công cụ.
+ const FILTER_PLUS=7,FILTER_RE=/-side\b|-staff\b|plm-datepick|plm-slide|-tools?\b|calendar/,
+ FONT_PLUS=-10,STARTUP_PLUS=12,FONT_MIN=9,fontOrig=new Map();let fontOn=false;
  function fontBoost(on){
   if(fontOn===on)return;fontOn=on;
   const walk=rules=>{for(const r of rules){
    if(r.style){const st=r.style,pr=st.getPropertyPriority('font-size');
-    if(on){const m=/^(\d+(?:\.\d+)?)px$/.exec(st.getPropertyValue('font-size').trim());if(m){fontOrig.set(st,m[0]);st.setProperty('font-size',Math.max(FONT_MIN,+m[1]+FONT_PLUS+(/plStartupGate/.test(r.selectorText||'')?STARTUP_PLUS:0))+'px',pr)}}
+    if(on){const m=/^(\d+(?:\.\d+)?)px$/.exec(st.getPropertyValue('font-size').trim());if(m){fontOrig.set(st,m[0]);st.setProperty('font-size',Math.max(FONT_MIN,+m[1]+FONT_PLUS+(/plStartupGate/.test(r.selectorText||'')?STARTUP_PLUS:0))+(FILTER_RE.test(r.selectorText||'')?FILTER_PLUS:0)+'px',pr)}}
     else if(fontOrig.has(st))st.setProperty('font-size',fontOrig.get(st),pr)}
    if(r.cssRules)walk(r.cssRules)}};
   for(const sh of document.styleSheets){try{walk(sh.cssRules)}catch(e){}}
@@ -11790,10 +11789,10 @@ html[data-theme="dark"]:not(#plMobileViewport) main.container :is(.plw85-table,.
 #plMobileViewport .pm-brand{flex:0 0 auto!important;width:auto!important;max-width:none!important;white-space:nowrap!important}
 #plMobileViewport .pm-brand :is(b,span){white-space:nowrap!important}
 #plMobileViewport .pm-search{flex:1 1 auto!important;min-width:0!important;width:auto!important}
-#plMobileViewport .subbar{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding-top:6px!important;padding-bottom:6px!important;align-items:center!important}
+#plMobileViewport .subbar{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding-top:2px!important;padding-bottom:2px!important;align-items:center!important}
 #plMobileViewport .subbar .table-context-title{flex:1 1 auto!important;min-width:0!important;white-space:normal!important;overflow:visible!important}
 #plMobileViewport .subbar .table-context-title *{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2!important}
-#plMobileViewport .subbar #exportDataBtn{flex:0 0 auto!important;padding:6px 10px!important;white-space:nowrap!important}
+#plMobileViewport .subbar #exportDataBtn{flex:0 0 auto!important;height:24px!important;min-height:24px!important;max-height:24px!important;padding:0 8px!important;white-space:nowrap!important}
 #plMobileViewport main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools){
   height:auto!important;min-height:0!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;
   -webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px!important;
@@ -11811,9 +11810,9 @@ html[data-theme="dark"]:not(#plMobileViewport) main.container :is(.plw85-table,.
 #plMobileViewport .plm-datepick{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:6px;padding:10px 10px;background:var(--plm-surface,#fff);border:1px solid var(--plm-line,#d8e1eb);border-radius:10px;margin:0 0 8px}
 #plMobileViewport .plm-datepick label{display:flex;flex-direction:column;gap:4px;min-width:0}
 #plMobileViewport .plm-datepick label span{font-size:12px;font-weight:700;color:var(--plm-muted,#607087);text-transform:uppercase;letter-spacing:.02em}
-#plMobileViewport .plm-datepick select{width:100%;min-width:0;min-height:44px;padding:4px 2px 4px 6px;font-size:.8em!important;text-overflow:clip;border:1px solid var(--plm-line,#d8e1eb);border-radius:8px;background:var(--plm-surface,#fff);color:var(--plm-ink,#172033);font-weight:700}
+#plMobileViewport .plm-datepick select{width:100%;min-width:0;min-height:44px;padding:4px 2px 4px 6px;font-size:17px!important;text-overflow:clip;border:1px solid var(--plm-line,#d8e1eb);border-radius:8px;background:var(--plm-surface,#fff);color:var(--plm-ink,#172033);font-weight:700}
 #plMobileViewport .plm-datepick-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#plMobileViewport .plm-datepick-actions button{min-height:44px;border-radius:8px;border:1px solid #b6d4f2;background:#f0f7ff;color:#1e4f86;font-weight:700}
+#plMobileViewport .plm-datepick-actions button{min-height:44px;font-size:17px;border-radius:8px;border:1px solid #b6d4f2;background:#f0f7ff;color:#1e4f86;font-weight:700}
 #plMobileViewport .plm-datepick-actions button[data-k="all"]{border-color:#99d5cc;background:#effaf8;color:#0f766e}
 </style>
 <style id="pl-v158-work-days-colors">
@@ -11958,7 +11957,7 @@ html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active .pl
 html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide>:is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools)>:is(.plw85-tool,.pl-daily-tool,.ple-tool,.pbm-tool,.plc-tool){width:auto!important;min-width:0!important;margin:0!important}
 html#plMobileViewport[data-theme="dark"]:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide{background:#0d1117!important}
 /* Khoảng cách giữa các thẻ mobile: nền đậm hơn để tách thẻ. */
-#plMobileViewport main.container .section.active table.plm-cards{background:#d3dae3!important;padding:10px 8px 1px!important;border-radius:12px!important}
+#plMobileViewport main.container .section.active table.plm-cards{background:#d3dae3!important;padding:6px 6px 1px!important;border-radius:12px!important}
 html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards{background:#04070b!important}
 </style>
 <style>
