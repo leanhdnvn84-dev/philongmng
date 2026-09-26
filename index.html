@@ -883,23 +883,29 @@ main{width:100%;padding:18px 24px}.head{display:flex;align-items:end;justify-con
     }
     function birthdayCardOptions(i) {
       var item=(state.birthdayToday||[])[i];if(!item)return null;var p=item.person,name=p.HO_VA_TEN||personKey(p),t=new Date(),msg=$('#birthdayMessage'),sender=$('#bdCardSender'),colors=BD_COLORS[i%BD_COLORS.length];
-      return {name:name,initials:initials(name),position:p.MA_CHUC_VU?position(p.MA_CHUC_VU):'',department:p.MA_PHONG_BAN?department(p.MA_PHONG_BAN):'',age:item.age,date:String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear(),message:msg?msg.value:'',sender:sender&&sender.value||(auth.user&&(auth.user.displayName||auth.user.username))||'Phi Long',photo:imageUrl(p),logo:PL_LOGO_WHITE,colors:colors};
+      return {name:name,initials:initials(name),position:p.MA_CHUC_VU?position(p.MA_CHUC_VU):'',department:p.MA_PHONG_BAN?department(p.MA_PHONG_BAN):'',age:item.age,date:String(t.getDate()).padStart(2,'0')+'/'+String(t.getMonth()+1).padStart(2,'0')+'/'+t.getFullYear(),message:msg?msg.value:'',sender:sender&&sender.value||(auth.user&&(auth.user.displayName||auth.user.username))||'Phi Long',photo:'',person:p,logo:PL_LOGO_WHITE,colors:colors};
     }
+    function birthdayPhoto(person) {
+      var id=driveImageId(imageSource(person));state.birthdayPhotos=state.birthdayPhotos||{};
+      if(!id)return Promise.resolve('');if(id in state.birthdayPhotos)return Promise.resolve(state.birthdayPhotos[id]);
+      return new Promise(function(resolve){call('getEmployeePhotoData',{id:id},function(data){state.birthdayPhotos[id]=data||'';resolve(data||'');},function(){resolve('');});});
+    }
+    function birthdayCardCanvas(o) { return birthdayPhoto(o.person).then(function(photo){o.photo=photo;return drawBirthdayCard(o);}); }
     function birthdayCardFile(name) { return 'thiep-sinh-nhat-'+(String(name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/gi,'d').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'nhan-vien')+'.jpg'; }
     function birthdayDownload(canvas,name) { var link=document.createElement('a');link.href=canvas.toDataURL('image/jpeg',.92);link.download=birthdayCardFile(name);document.body.appendChild(link);link.click();link.remove(); }
     function birthdayMarkDone(i) { var b=document.querySelector('[data-bd-wish="'+i+'"]');if(b){b.classList.add('done');b.textContent='Đã chúc ✓';} }
-    function renderBirthdayCardView() { var o=birthdayCardOptions(state.birthdayCardIndex);if(!o)return Promise.resolve(null);o.message=$('#bdCardMsg').value;o.sender=$('#bdCardSender').value;return drawBirthdayCard(o).then(function(c){$('#bdCardImg').src=c.toDataURL('image/jpeg',.92);return c;}); }
+    function renderBirthdayCardView() { var o=birthdayCardOptions(state.birthdayCardIndex);if(!o)return Promise.resolve(null);o.message=$('#bdCardMsg').value;o.sender=$('#bdCardSender').value;return birthdayCardCanvas(o).then(function(c){$('#bdCardImg').src=c.toDataURL('image/jpeg',.92);return c;}); }
     function openBirthdayCard(i) {
       var o=birthdayCardOptions(i);if(!o)return;state.birthdayCardIndex=i;$('#bdCardTitle').textContent='Thiệp gửi '+o.name;$('#bdCardMsg').value=o.message;$('#bdCardSender').value=o.sender;
-      $('#birthdayCard').hidden=true;$('#birthdayCardView').hidden=false;$('#bdCardImg').removeAttribute('src');renderBirthdayCardView();
+      $('#birthdayCard').hidden=true;$('#birthdayCardView').hidden=false;$('#birthdayConfetti').hidden=true;$('#bdCardImg').removeAttribute('src');renderBirthdayCardView();
     }
-    function closeBirthdayCard() { $('#birthdayCardView').hidden=true;$('#birthdayCard').hidden=false; }
+    function closeBirthdayCard() { $('#birthdayCardView').hidden=true;$('#birthdayCard').hidden=false;$('#birthdayConfetti').hidden=!(state.birthdayToday||[]).length; }
     $('#birthdayPopup').addEventListener('click',function(event){
       if(event.target===event.currentTarget||event.target.closest('[data-bd-close]')){closeBirthdayCard();closeBirthdayPopup();return;}
       if(event.target.closest('[data-bd-back]')){closeBirthdayCard();return;}
       var wish=event.target.closest('[data-bd-wish]');if(wish){openBirthdayCard(+wish.dataset.bdWish);return;}
       if(event.target.closest('[data-bd-download]')){renderBirthdayCardView().then(function(c){if(!c)return;var o=birthdayCardOptions(state.birthdayCardIndex);birthdayDownload(c,o.name);birthdayMarkDone(state.birthdayCardIndex);toast('Đã tải thiệp chúc mừng '+o.name+'.');});return;}
-      if(event.target.closest('[data-bd-all]')){var list=state.birthdayToday||[],k=0;(function next(){if(k>=list.length){toast('Đã tải '+list.length+' thiệp chúc mừng.');return;}var i=k++,o=birthdayCardOptions(i);drawBirthdayCard(o).then(function(c){birthdayDownload(c,o.name);birthdayMarkDone(i);setTimeout(next,600);});})();}
+      if(event.target.closest('[data-bd-all]')){var list=state.birthdayToday||[],k=0;(function next(){if(k>=list.length){toast('Đã tải '+list.length+' thiệp chúc mừng.');return;}var i=k++,o=birthdayCardOptions(i);birthdayCardCanvas(o).then(function(c){birthdayDownload(c,o.name);birthdayMarkDone(i);setTimeout(next,600);});})();}
     });
     ['bdCardMsg','bdCardSender'].forEach(function(id){var timer;$('#'+id).addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(renderBirthdayCardView,250);});});
     document.addEventListener('keydown',function(event){if(event.key!=='Escape'||!$('#birthdayPopup').classList.contains('open'))return;if(!$('#birthdayCardView').hidden)closeBirthdayCard();else closeBirthdayPopup();});

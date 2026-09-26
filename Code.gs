@@ -691,6 +691,23 @@ function driveFileId_(value) {
   throw new Error('Ảnh đại diện phải là ID hoặc liên kết tệp Google Drive hợp lệ.');
 }
 
+/** Trả ảnh nhân viên dạng data URL để giao diện vẽ được vào thiệp (tránh chặn CORS của Drive). */
+function getEmployeePhotoData(input) {
+  input = input || {};
+  requireAuth_(input._sessionToken);
+  try {
+    var id = driveFileId_(input.id);
+    if (!id) return '';
+    var file = DriveApp.getFileById(id), mimeType = String(file.getMimeType() || '');
+    if (!/^image\//i.test(mimeType)) return '';
+    var blob = file.getSize() > 1500000 ? file.getThumbnail() : file.getBlob();
+    if (!blob) return '';
+    return 'data:' + (blob.getContentType() || mimeType) + ';base64,' + Utilities.base64Encode(blob.getBytes());
+  } catch (error) {
+    return '';
+  }
+}
+
 /** Kiểm tra ảnh trước khi lưu và trả về ID chuẩn để giao diện luôn dùng một định dạng. */
 function normalizeEmployeeImage_(value) {
   var id = driveFileId_(value);
