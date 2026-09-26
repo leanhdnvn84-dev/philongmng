@@ -12112,7 +12112,7 @@ html#plMobileViewport[data-theme="dark"] #stockHistoryModalV841410 tbody>tr>td:i
 #plMobileViewport #v25ViewModal .v25-detail-section,#plMobileViewport #plw85View .plw85-view-section{margin:4px 0!important;padding:4px 8px!important;font-size:calc(11px)!important}
 
 /* Menu mobile: không hiện Báo cáo tiến độ / Báo cáo công việc (chỉ dùng trên máy tính). */
-html#plMobileViewport .menu-panel button:is([data-page="workProgress"],[data-page="workReport"]){display:none!important}
+html#plMobileViewport:not(#pl-m1):not(#pl-m2) body #mainNavigation .menu-panel>button:is([data-page="workProgress"],[data-page="workReport"]){display:none!important}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
