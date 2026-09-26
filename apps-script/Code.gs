@@ -1882,12 +1882,15 @@ function workTimingV157_(x,todayIso){
   const giao=dateOnly_(x.NGAY_GIAO),han=dateOnly_(x.DEADLINE),xong=dateOnly_(x.NGAY_HOAN_THANH),done=workDoneV148_(x);
   const diff=han?daysBetween_(todayIso,han):null;
   x.SO_NGAY_CON_LAI=diff;
+  // Cảnh báo theo hạn + trạng thái. Chưa thực hiện (hoặc để trống): quá hạn → QUÁ HẠN · CHƯA LÀM,
+  // hôm nay → ĐẾN HẠN HÔM NAY, còn 1–7 ngày → CẦN LÀM NGAY, còn xa/không hạn → CHƯA BẮT ĐẦU.
+  // Đang thực hiện: quá hạn / hôm nay / còn 1–3 ngày → SẮP ĐẾN HẠN, còn xa/không hạn → ĐANG LÀM.
+  const notStarted=!done&&(!String(x.TRANG_THAI||'').trim()||norm_(x.TRANG_THAI)==='CHUA_THUC_HIEN');
   if(done) x.CANH_BAO='HOÀN THÀNH';
-  else if(!han) x.CANH_BAO='CHƯA CÓ DEADLINE';
-  else if(diff<0) x.CANH_BAO='QUÁ HẠN';
-  else if(diff===0) x.CANH_BAO='ĐẾN HẠN HÔM NAY';
-  else if(diff<=3) x.CANH_BAO='SẮP ĐẾN HẠN';
-  else x.CANH_BAO='BÌNH THƯỜNG';
+  else if(han&&diff<0) x.CANH_BAO=notStarted?'QUÁ HẠN · CHƯA LÀM':'QUÁ HẠN';
+  else if(han&&diff===0) x.CANH_BAO='ĐẾN HẠN HÔM NAY';
+  else if(notStarted) x.CANH_BAO=han&&diff<=7?'CẦN LÀM NGAY':'CHƯA BẮT ĐẦU';
+  else x.CANH_BAO=han&&diff<=3?'SẮP ĐẾN HẠN':'ĐANG LÀM';
   let n=null,kind='',note='';
   if(done){
     if(!xong){kind='missing';note='Đã hoàn thành nhưng chưa có Ngày hoàn thành'}

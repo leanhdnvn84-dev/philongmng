@@ -283,6 +283,7 @@ td{padding:9px;border:1px solid var(--tbl-line,#eef1f4);font-size:13.5px;line-he
 .badge.warn{background:#fff7ed;color:#c2410c}
 .badge.danger{background:#dc2626;color:#fff}
 .badge.info{background:#eff6ff;color:#1d4ed8}
+.badge.muted{background:#f1f5f9;color:#475569}
 .actions{display:flex;gap:5px;justify-content:flex-end}
 .iconbtn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 7px;cursor:pointer}
 .list{display:flex;flex-direction:column;gap:8px}
@@ -4464,7 +4465,7 @@ function fmtDate(v){
   if(!v)return ''; const s=String(v).slice(0,10);
   const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/); return m?`${m[3]}/${m[2]}/${m[1]}`:String(v);
 }
-function badgeClass(v){const n=norm(v).replace(/\s+/g,' ').trim(); if(['KHONG DAT','CAN SUA CHUA'].includes(n)||n.includes('THIEU CHU KY')||n.includes('QUA HAN')||n.includes('TRE LICH')||n.includes('TRE HAN')||n.includes('TRE HEN')||n.includes('TU CHOI')||n.includes('QUAN TRONG')||n.includes('CHUA THUC HIEN'))return 'danger'; if(n==='DEN HAN'||n==='CAN THEO DOI'||n.includes('HOM NAY')||n.includes('SAP')||n.includes('CHO DUYET'))return 'warn'; if(['DAT','DAT YEU CAU','TOT'].includes(n)||n.includes('MOI BAO TRI')||n.includes('DA BAO TRI')||n.includes('HOAN THANH')||n.includes('DA DUYET')||n.includes('BINH THUONG')||n.includes('DA THUC HIEN'))return 'ok'; return 'info';}
+function badgeClass(v){const n=norm(v).replace(/\s+/g,' ').trim(); if(['KHONG DAT','CAN SUA CHUA'].includes(n)||n.includes('THIEU CHU KY')||n.includes('QUA HAN')||n.includes('TRE LICH')||n.includes('TRE HAN')||n.includes('TRE HEN')||n.includes('TU CHOI')||n.includes('QUAN TRONG')||n.includes('CHUA THUC HIEN'))return 'danger'; if(n==='DEN HAN'||n==='CAN THEO DOI'||n.includes('HOM NAY')||n.includes('SAP')||n.includes('CHO DUYET')||n.includes('CAN LAM NGAY'))return 'warn'; if(n.includes('CHUA BAT DAU'))return 'muted'; if(['DAT','DAT YEU CAU','TOT'].includes(n)||n.includes('MOI BAO TRI')||n.includes('DA BAO TRI')||n.includes('HOAN THANH')||n.includes('DA DUYET')||n.includes('BINH THUONG')||n.includes('DA THUC HIEN'))return 'ok'; return 'info';}
 
 /* V105 — Một nguồn duy nhất cho trạng thái và phân trang chân bảng. */
 const PL_FOOTER_STATE={};
@@ -6928,7 +6929,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     if(type==='number'){const x=Number(String(v??'').replace(/[^0-9,.-]/g,'').replace(',','.'));return Number.isFinite(x)?x:null}
     const x=nrm(v);
     if(type==='priority'){if(x.includes('KHAN'))return 4;if(x.includes('QUAN TRONG')||x.includes('CAO'))return 3;if(x.includes('BINH THUONG'))return 2;if(x.includes('THAP'))return 1}
-    if(type==='warning'){if(x.includes('QUA HAN')||x.includes('TRE'))return 5;if(x.includes('HOM NAY'))return 4;if(x.includes('SAP'))return 3;if(x.includes('BINH THUONG')||x.includes('CON LICH'))return 2;if(x.includes('HOAN THANH'))return 1}
+    if(type==='warning'){if(x.includes('QUA HAN')||x.includes('TRE'))return 5;if(x.includes('HOM NAY'))return 4;if(x.includes('SAP')||x.includes('CAN LAM NGAY'))return 3;if(x.includes('BINH THUONG')||x.includes('CON LICH')||x.includes('DANG LAM')||x.includes('CHUA BAT DAU'))return 2;if(x.includes('HOAN THANH'))return 1}
     return String(v??'');
   }
   function compare(a,b,type,dir){
