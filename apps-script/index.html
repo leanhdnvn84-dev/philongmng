@@ -10472,8 +10472,12 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   root.querySelectorAll(SIDES).forEach(side=>{
    if(![...side.children].some(el=>el.tagName==='SECTION'))return;has=true;
    setCls(side,'plm-slide',true);
-   if(!side.querySelector(':scope>.plm-slide-head')){const h=document.createElement('div');h.className='plm-slide-head';h.innerHTML='<b>Bộ lọc</b><button type="button" aria-label="Đóng bộ lọc">✕</button>';h.querySelector('button').onclick=()=>slide(false);side.prepend(h)}
-   if(!side.dataset.plmSlideBound){side.dataset.plmSlideBound='1';side.addEventListener('click',e=>{if(e.target.closest('tbody tr'))setTimeout(()=>slide(false),150)})}
+   let head=side.querySelector(':scope>.plm-slide-head');
+   if(!head){head=document.createElement('div');head.className='plm-slide-head';head.innerHTML='<b>Bộ lọc</b><button type="button" aria-label="Đóng bộ lọc">✕</button>';head.querySelector('button').onclick=()=>slide(false);side.prepend(head)}
+   // Thanh công cụ của trang (Tìm, Thêm, Xem, Sửa, Xóa, Làm mới…) chuyển vào ô bộ lọc; để lại mốc để trả về khi sang máy tính.
+   const tools=[...root.querySelectorAll(TOOLS)].find(t=>!side.contains(t));
+   if(tools){if(!tools.plmHome){tools.plmHome=document.createComment('plm-tools');tools.before(tools.plmHome)}head.after(tools)}
+   if(!side.dataset.plmSlideBound){side.dataset.plmSlideBound='1';side.addEventListener('click',e=>{if(e.target.closest('tbody tr,'+TOOLS+' button:not([id$="Find"])'))setTimeout(()=>slide(false),150)})}
   });
   let tab=$('plmFilterTab');
   if(!tab){
@@ -10636,7 +10640,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   document.querySelectorAll('.plm-table-fallback').forEach(el=>el.classList.remove('plm-table-fallback'));
   document.querySelectorAll('.plm-show,.plm-search-miss,[data-plm-label]').forEach(el=>{el.classList.remove(...CELL_CLASSES,'plm-search-miss');el.removeAttribute('data-plm-label')});
   document.querySelectorAll('.plm-datepick,.plm-slide-head,#plmFilterTab,#plmFilterMask').forEach(b=>b.remove());
-  document.querySelectorAll('.plm-slide').forEach(el=>el.classList.remove('plm-slide'));document.documentElement.classList.remove('plm-fs-open');
+  document.querySelectorAll('.plm-slide').forEach(el=>{el.querySelectorAll(TOOLS).forEach(t=>{if(t.plmHome&&t.plmHome.isConnected)t.plmHome.replaceWith(t);t.plmHome=null});el.classList.remove('plm-slide')});document.documentElement.classList.remove('plm-fs-open');
   document.querySelectorAll('.plm-cal-as-picker').forEach(el=>el.classList.remove('plm-cal-as-picker'));
   ['--plm-header-h','--plm-subbar-h','--plm-tools-h'].forEach(v=>document.documentElement.style.removeProperty(v));
   fontBoost(false);
@@ -11950,6 +11954,8 @@ html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active :is
 html#plMobileViewport.plm-fs-open:not(#pl-s1):not(#pl-s2) main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side).plm-slide{transform:translate(0,-50%)!important}
 html#plMobileViewport .plm-slide>.plm-slide-head{display:flex;position:sticky;top:0;z-index:2;justify-content:space-between;align-items:center;padding:10px 14px;background:#b3123a;color:#fff;font:800 17px Roboto,Arial,sans-serif}
 html#plMobileViewport .plm-slide>.plm-slide-head button{border:0;background:transparent;color:#fff;font:800 20px Arial;padding:0 4px}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide>:is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools){position:static!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important;height:auto!important;min-height:0!important;overflow:visible!important;padding:8px!important;margin:0!important;border-bottom:1px solid var(--plm-line)!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide>:is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools)>:is(.plw85-tool,.pl-daily-tool,.ple-tool,.pbm-tool,.plc-tool){width:auto!important;min-width:0!important;margin:0!important}
 html#plMobileViewport[data-theme="dark"]:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide{background:#0d1117!important}
 /* Khoảng cách giữa các thẻ mobile: nền đậm hơn để tách thẻ. */
 #plMobileViewport main.container .section.active table.plm-cards{background:#d3dae3!important;padding:10px 8px 1px!important;border-radius:12px!important}
