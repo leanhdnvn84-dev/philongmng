@@ -10302,8 +10302,8 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
  const CARD_CONFIG={
   work:{title:['Nội dung'],method:['Cách thực hiện','Tiến độ'],meta:[['Ngày giao','Ngày'],['Người thực hiện'],['Hạn hoàn thành']],status:['Cảnh báo','Trạng thái']},
   daily:{title:['Nội dung thực hiện','Nội dung'],method:['Cách thực hiện'],meta:[['Ngày','Ngày giao'],['Người thực hiện'],['Đơn vị thực hiện','Người làm cùng']],status:['Cảnh báo','Kết quả']},
-  maintenanceLog:{title:['Hạng mục','Nội dung thực hiện'],method:['Kết quả','Cách thực hiện'],meta:[['Ngày thực hiện','Ngày'],['Người thực hiện'],['Ngày kế tiếp']],status:['Cảnh báo','Kết quả']},
-  maintenancePlan:{title:['Hạng mục'],method:['Khu vực','Ghi chú'],meta:[['Ngày kế hoạch','Ngày giao'],['Người phụ trách'],['Chu kỳ (ngày)']],status:['Cảnh báo','Trạng thái']},
+  maintenanceLog:{title:['Hạng mục'],method:['Nội dung thực hiện','Cách thực hiện'],meta:[['Ngày thực hiện','Ngày'],['Người thực hiện'],['Ngày kế tiếp'],['Kết quả'],['Khu vực'],['Đơn vị thực hiện'],['Mã']],status:['Cảnh báo']},
+  maintenancePlan:{title:['Hạng mục'],method:['Khu vực','Ghi chú'],meta:[['Ngày kế hoạch','Ngày giao'],['Người phụ trách'],['Chu kỳ (ngày)'],['Tên công ty'],['Ngày gốc gần nhất'],['Mã lịch']],status:['Cảnh báo','Trạng thái']},
   proposalBuyMaterial:{title:['Tên vật tư','Vật tư','Nội dung'],method:['Nhà cung cấp','Mục đích / lý do'],meta:[['Mã đề xuất','Ngày lập','Ngày đề xuất'],['Người đề xuất'],['Thành tiền'],['Số lượng'],['ĐVT'],['Đơn giá'],['Ghi chú']],status:['Trạng thái']},
   proposalBuy:{title:['Tên thiết bị','Danh mục','Vật tư','Nội dung'],method:['Nhà cung cấp'],meta:[['Mã đề xuất','Ngày lập','Ngày đề xuất'],['Người đề xuất','Mã đề xuất'],['Thành tiền'],['Số lượng'],['Đơn giá'],['Ghi chú']],status:['Trạng thái']},
   proposalDispose:{title:['Thiết bị','Tên thiết bị'],method:['Lý do','Tình trạng'],meta:[['Mã','Ngày lập','Ngày đề xuất'],['Người đề xuất','Tình trạng'],['Giá đề xuất thanh lý'],['Số lượng tồn'],['Chi phí sửa dự kiến'],['Giá trị còn lại'],['Ghi chú']],status:['Trạng thái']},
@@ -10652,6 +10652,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   });
   add('✕','Đóng','#64748b',shut);
   foot.appendChild(bar);
+  // Form Xem gọn: ẩn ô trống (—), ô chữ dài chiếm cả hàng.
+  const tidy=()=>dlg.querySelectorAll('.v25-detail-row,.plw85-field,.pld-view-field').forEach(f=>{const v=((f.querySelector('.v25-detail-value')||f.querySelector(':scope>div:last-child'))?.textContent||'').trim();setCls(f,'plm-vempty',/^[—–-]?$/.test(v));setCls(f,'plm-vwide',v.length>26)});
+  tidy();setTimeout(tidy,250);setTimeout(tidy,700);
  }
  /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
  // Cỡ chữ mobile = cỡ gốc − 10px, tối thiểu 9px (trang khởi động dùng calc(px) riêng, không bị chỉnh).
@@ -12083,6 +12086,29 @@ html#plMobileViewport[data-theme="dark"] #stockHistoryModalV841410 tbody>tr>td:i
 #plMobileViewport .pl-proposal-finance-metric small{display:block!important;white-space:normal!important;font-size:calc(9px)!important;line-height:1.25!important}
 #plMobileViewport .pl-proposal-finance-metric strong{display:block!important;font-size:calc(17px)!important}
 #plMobileViewport .pl-proposal-finance-metric span{display:block!important;white-space:normal!important;font-size:calc(10px)!important}
+
+/* Bảo trì (mobile): thẻ hiện đủ — Nội dung thực hiện cả hàng; ô thứ 4+ có nhãn (Kết quả, Khu vực, Đơn vị, Công ty, Ngày gốc, Mã). */
+#plMobileViewport main.container .section.active:is(#maintenanceLog,#maintenancePlan) table.plm-cards>tbody>tr>td:is(.plm-meta,.plm-method) *{display:inline!important;margin:0!important;padding:0!important;white-space:inherit!important}
+#plMobileViewport main.container .section.active:is(#maintenanceLog,#maintenancePlan) table.plm-cards>tbody>tr>td.plm-meta:is([data-plm-i="3"],[data-plm-i="4"],[data-plm-i="5"],[data-plm-i="6"])::before{content:attr(data-plm-label) ": "!important;display:inline!important;font-weight:700!important}
+#plMobileViewport main.container .section.active:is(#maintenanceLog,#maintenancePlan) table.plm-cards>tbody>tr>td.plm-meta:not([data-plm-i="0"]):is([data-plm-i="3"],[data-plm-i="4"],[data-plm-i="5"],[data-plm-i="6"]){order:6!important;flex:1 1 calc(50% - 14px)!important;margin:6px 0 0 8px!important;font-size:calc(11px)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#plMobileViewport main.container .section.active:is(#maintenanceLog,#maintenancePlan) table.plm-cards>tbody>tr>td.plm-empty{display:none!important}
+/* Form Xem (mobile) tinh gọn: KPI 2 cột nhỏ, chi tiết 2 cột, bỏ ô trống, ô dài cả hàng. */
+#plMobileViewport #v25ViewModal .v25-view-body{padding:10px!important}
+#plMobileViewport #v25ViewModal .v25-view-head{padding:10px 12px!important}
+#plMobileViewport #v25ViewModal .v25-view-kpis{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important;margin:0 0 8px!important}
+#plMobileViewport #v25ViewModal .v25-view-kpi{min-height:0!important;height:auto!important;padding:6px 9px!important;box-shadow:none!important;border:1px solid #e5e7eb!important;transform:none!important}
+#plMobileViewport #v25ViewModal .v25-view-kpi small{font-size:calc(10px)!important}
+#plMobileViewport #v25ViewModal .v25-view-kpi strong{font-size:calc(14px)!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#plMobileViewport #v25ViewModal .v25-detail-title{margin:4px 0 6px!important;font-size:calc(12px)!important}
+#plMobileViewport :is(#v25ViewModal .v25-detail-grid,#plw85View .plw85-view-grid,#pldDailyView .pld-view-grid){display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+#plMobileViewport :is(#v25ViewModal .v25-detail-row,#plw85View .plw85-field,#pldDailyView .pld-view-field){grid-column:auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:6px 9px!important;border-radius:8px!important}
+#plMobileViewport :is(#v25ViewModal .v25-detail-row,#plw85View .plw85-field,#pldDailyView .pld-view-field).plm-vwide{grid-column:1/-1!important}
+#plMobileViewport :is(#v25ViewModal .v25-detail-row,#plw85View .plw85-field,#pldDailyView .pld-view-field).plm-vempty{display:none!important}
+#plMobileViewport :is(#v25ViewModal .v25-detail-label,#plw85View .plw85-field>small,#pldDailyView .pld-view-field>small){font-size:calc(9px)!important;padding:0!important;margin:0 0 2px!important}
+#plMobileViewport :is(#v25ViewModal .v25-detail-value,#plw85View .plw85-field>div,#pldDailyView .pld-view-field>div){font-size:calc(13px)!important;line-height:1.3!important;padding:0!important;margin:0!important;min-height:0!important}
+#plMobileViewport #v25ViewModal .v25-view-kpi strong{margin:0!important}
+#plMobileViewport #v25ViewModal .v25-view-kpi{border-left-width:3px!important}
+#plMobileViewport #v25ViewModal .v25-detail-section,#plMobileViewport #plw85View .plw85-view-section{margin:4px 0!important;padding:4px 8px!important;font-size:calc(11px)!important}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
