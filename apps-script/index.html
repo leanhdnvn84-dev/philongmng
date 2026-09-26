@@ -3563,16 +3563,6 @@ html#plMobileViewport{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   font-weight:900!important;
 }
 #plMobileViewport .subbar :is(#refreshBtn,#addBtn,#addMissingMaterialBtn){display:none!important}
-#plMobileViewport .subbar #exportDataBtn{
-  display:inline-flex!important;
-  min-width:70px!important;
-  margin-left:auto!important;
-  border-color:#b9ddc7!important;
-  border-radius:7px!important;
-  background:#f5fff8!important;
-  color:#16794a!important;
-  font-size:11px!important;
-}
 #plMobileViewport main.container{padding:0 4px 8px!important}
 #plMobileViewport main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools){
   gap:3px!important;
@@ -9560,7 +9550,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   const getPage=()=>{try{if(typeof APP!=='undefined'&&APP?.currentPage)return String(APP.currentPage)}catch(e){}return String(window.APP?.currentPage||document.body?.dataset.currentPage||'')};
   const isTask=page=>page==='work'||page==='daily';
   function sync(){
-    const page=getPage(),active=isTask(page),body=document.body,sub=document.querySelector('.subbar'),exportBtn=document.getElementById('exportDataBtn');
+    const page=getPage(),active=isTask(page)&&!(typeof window.plIsMobile_==='function'&&window.plIsMobile_()),body=document.body,sub=document.querySelector('.subbar'),exportBtn=document.getElementById('exportDataBtn');
     if(body&&body.dataset.currentPage!==page)body.dataset.currentPage=page;
     if(sub)sub.classList.toggle('pl-task-context',active);
     /* V150: chỉ ghi khi giá trị thật sự khác — ghi lại textContent mỗi lần tạo ra
@@ -10633,9 +10623,31 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   view.click();
   setTimeout(()=>{
    const eb=$('v25ViewEditBtn'),edit=toolBtn(root,'sửa');
-   if(!eb||!edit||!eb.offsetParent&&eb.style.display!=='none')return;
-   if(eb.style.display==='none'){eb.style.display='';eb.onclick=()=>{window.v25CloseView?.();edit.click()}}
+   if(eb&&edit&&eb.style.display==='none'){eb.style.display='';eb.onclick=()=>{window.v25CloseView?.();edit.click()}}
+   vbar(root);
   },60);
+ }
+ /* Hàng nút cuối form Xem (mobile): chép toàn bộ nút toolbar của trang (trừ Xem) + Đóng, 1 hàng gọn.
+    Sửa dùng nút Sửa riêng của form nếu có; nút khác đóng form rồi bấm nút toolbar tương ứng (Tìm mở ô bộ lọc). */
+ const VIEWS=':is(#v25ViewModal,#plw85View,#pldDailyView,#operationModalV841420).active';
+ function vbar(root){
+  const dlg=document.querySelector(VIEWS);if(!dlg)return;
+  const card=dlg.querySelector(':scope>.card,:scope>[role="dialog"],:scope>.pld-view-card')||dlg;
+  let foot=card.querySelector(':scope>footer,:scope>[class*="foot"]');
+  if(!foot){foot=document.createElement('footer');card.appendChild(foot)}
+  foot.querySelector(':scope>.plm-vbar')?.remove();
+  const own=[...foot.querySelectorAll('button')].find(b=>letters(b)==='sửa'&&getComputedStyle(b).display!=='none');
+  const shut=()=>{const c=dlg.querySelector('[data-close],.close,.pld-view-close,.v25-close,[aria-label="Đóng"]');if(c)c.click();else dlg.classList.remove('active')};
+  const bar=document.createElement('div');bar.className='plm-vbar';
+  const add=(icHtml,label,color,fn)=>{const b=document.createElement('button');b.type='button';b.style.setProperty('--c',color);b.innerHTML='<i>'+icHtml+'</i><span></span>';b.lastChild.textContent=label;b.onclick=fn;bar.appendChild(b)};
+  const tools=[...root.querySelectorAll(TOOLS+' button')].filter(t=>{const w=letters(t);return w&&w!=='xem'&&w!=='đóng'&&!t.disabled&&getComputedStyle(t).display!=='none'});
+  if(own&&!tools.some(t=>letters(t)==='sửa'))add('✎','Sửa','#ea580c',()=>own.click());
+  tools.forEach(t=>{
+   const word=letters(t),ico=t.querySelector('.ico'),label=(ico?t.textContent.replace(ico.textContent,''):t.textContent).trim(),color=getComputedStyle(t).borderBottomColor||'#94a3b8';
+   add(ico?ico.innerHTML:esc(label.charAt(0)),label,color,()=>{if(word==='sửa'&&own){own.click();return}shut();setTimeout(()=>{if(/Find$/.test(t.id||''))slide(true);t.click()},60)});
+  });
+  add('✕','Đóng','#64748b',shut);
+  foot.appendChild(bar);
  }
  /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
  // Cỡ chữ mobile = cỡ gốc − 10px, tối thiểu 9px (trang khởi động dùng calc(px) riêng, không bị chỉnh).
@@ -11813,7 +11825,6 @@ html[data-theme="dark"]:not(#plMobileViewport) main.container :is(.plw85-table,.
 #plMobileViewport .subbar{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding-top:2px!important;padding-bottom:2px!important;align-items:center!important}
 #plMobileViewport .subbar .table-context-title{flex:1 1 auto!important;min-width:0!important;white-space:normal!important;overflow:visible!important}
 #plMobileViewport .subbar .table-context-title *{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2!important}
-#plMobileViewport .subbar #exportDataBtn{flex:0 0 auto!important;height:24px!important;min-height:24px!important;max-height:24px!important;padding:0 8px!important;white-space:nowrap!important}
 #plMobileViewport main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools){
   height:auto!important;min-height:0!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;
   -webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px!important;
@@ -11994,6 +12005,18 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active table.pl
 .pl-logo.pl-logo>.pl-logo-long{display:grid!important;justify-items:start!important;row-gap:1px}
 .pl-logo.pl-logo .brand-sub,.pl-logo.pl-logo .pl-logo-long>span{position:static!important;left:auto!important;width:auto!important;margin:0!important;text-align:left!important;letter-spacing:0!important;transform:none!important}
 .pl-build{display:block;margin-top:4px;text-align:center;font:500 11px Arial,sans-serif;color:#94a3b8}
+
+/* Mobile: không có nút Xuất dữ liệu trên thanh tiêu đề. */
+#plMobileViewport .subbar #exportDataBtn{display:none!important}
+/* Form Xem mobile: 1 hàng nút gọn (.plm-vbar) thay cho Đóng/Sửa cũ. */
+#plMobileViewport .plm-vbar{display:flex;gap:4px;width:100%;box-sizing:border-box;padding:6px 8px calc(6px + env(safe-area-inset-bottom));overflow-x:auto;background:#f8fafc;border-top:1px solid #e5e7eb}
+#plMobileViewport .plm-vbar>button{flex:1 0 44px;height:44px;min-width:0!important;padding:0!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid #e2e8f0;border-bottom:2px solid var(--c,#94a3b8);border-radius:8px;background:#fff;color:#1f2937;font:700 calc(9px)/1.1 Roboto,Arial,sans-serif!important;white-space:nowrap;overflow:hidden}
+#plMobileViewport .plm-vbar>button>i{font-style:normal;font-size:calc(15px);line-height:1;color:var(--c,#475569);display:flex;align-items:center;justify-content:center;height:16px}
+#plMobileViewport .plm-vbar>button>i svg{width:16px;height:16px}
+#plMobileViewport :is(footer,[class*="foot"]):has(>.plm-vbar){display:block!important;padding:0!important;gap:0!important}
+#plMobileViewport :is(footer,[class*="foot"]):has(>.plm-vbar)>:not(.plm-vbar){display:none!important}
+html#plMobileViewport[data-theme="dark"] .plm-vbar{background:#0d1117;border-top-color:#2f3b4c}
+html#plMobileViewport[data-theme="dark"] .plm-vbar>button{background:#161b22;border-color:#2f3b4c;color:#e6edf3}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
