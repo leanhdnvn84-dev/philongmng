@@ -683,6 +683,7 @@ body{overflow:hidden!important}
 #plStartupGateV841592 .pl-startup-date{margin:14px 0 0;color:var(--pl-startup-muted);font-size:clamp(16px,2vw,20px);font-weight:600}
 #plStartupGateV841592 .pl-startup-count{margin:clamp(24px,4vw,40px) 0 8px;color:var(--pl-startup-ink);font-size:clamp(18px,2.4vw,25px);font-weight:600}
 #plStartupGateV841592 .pl-startup-count strong{color:var(--pl-startup-maroon);font-size:1.18em;font-weight:900}
+#plStartupGateV841592 .pl-startup-count .pl-sc-note{display:none}
 #plStartupGateV841592 .pl-startup-hint{margin:0 0 18px;color:var(--pl-startup-muted);font-size:clamp(16px,2vw,20px);font-weight:600}
 #plStartupGateV841592 .pl-startup-alert-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
 #plStartupGateV841592 .pl-startup-alert{
@@ -3406,14 +3407,43 @@ html#plMobileViewport[data-theme="dark"]{
 #plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) :is(.pm-header,.pm-bubble,.pm-top,.subbar){display:none!important}
 #plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools,.plm-datepick,.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){display:none!important}
 #plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) #plmFilterTab{display:none!important}
-#plMobileViewport #plStartupGateV841592{padding:10px!important;overflow:auto!important}
+/* Trang khởi động mobile — mẫu D: đầu trang đỏ, thẻ tổng, 5 thẻ cảnh báo ngang lớn giãn đầy 1 màn hình.
+   Cỡ chữ dùng calc(px) nên không bị chỉnh cỡ chữ mobile cộng/trừ. */
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592{padding:0!important;overflow:hidden!important;display:flex!important;align-items:stretch!important;justify-content:center!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-shell{width:100%!important;max-width:none!important;min-height:100dvh!important;margin:0!important;padding:calc(18px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;display:flex!important;flex-direction:column!important;gap:0!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand{position:static!important;margin:0 0 12px!important;padding:0!important;display:block!important;width:auto!important;height:auto!important;transform:none!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand *{font-size:calc(14px)!important;line-height:1.1!important;letter-spacing:.5px!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand-sub{font-size:calc(9px)!important;letter-spacing:2px!important;display:block!important;margin:2px 0 0 38px!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 h1{margin:0!important;font:800 calc(24px)/1.2 Roboto,Arial,sans-serif!important;text-align:left!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-date{margin:4px 0 16px!important;font:500 calc(12px)/1.3 Roboto,Arial,sans-serif!important;text-align:left!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert::after{display:none!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert{position:relative!important;margin:0!important;border:0!important;text-align:left!important;overflow:hidden!important;min-height:0!important;height:auto!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert.not-started{--c:#64748b}html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert.overdue{--c:#dc2626}html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert.due{--c:#ea580c}html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert.soon{--c:#d97706}html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert.processing{--c:#2563eb}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-footer{margin-top:auto!important;padding-top:14px!important;display:flex!important;flex-direction:column!important;gap:8px!important;align-items:stretch!important;border:0!important;background:transparent!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-status{text-align:center!important;font:600 calc(11px)/1.3 Roboto,Arial,sans-serif!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-all{width:100%!important;height:48px!important;min-height:0!important;border:0!important;border-radius:14px!important;font:800 calc(15px)/1 Roboto,Arial,sans-serif!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592{background:linear-gradient(180deg,#8f1230 0,#b3123a 215px,#f3f5f8 215px)!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand *{color:#fff!important}html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-brand-sub{opacity:.85}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 h1{color:#fff!important}html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-date{color:#ffffffcc!important;margin-bottom:14px!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count{margin:0 0 12px!important;padding:12px 16px!important;border-radius:16px!important;background:#fff!important;box-shadow:0 8px 22px rgba(15,23,42,.14)!important;color:#64748b!important;font:500 calc(12px)/1.35 Roboto,Arial,sans-serif!important;align-items:center!important;gap:12px!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count strong{order:-1;font:900 calc(34px)/1 Roboto,Arial,sans-serif!important;color:#b3123a!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count b{color:#111827!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-hint{display:none!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert-grid{display:flex!important;flex-direction:column!important;gap:10px!important;flex:1 1 auto!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert{flex:1 1 0!important;max-height:104px!important;display:grid!important;grid-template-columns:78px 1fr 20px!important;grid-template-rows:1fr 1fr!important;align-items:center!important;column-gap:14px!important;padding:0 14px 0 0!important;border-radius:18px!important;background:#fff!important;box-shadow:0 3px 10px rgba(15,23,42,.08)!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert strong{grid-column:1;grid-row:1/3;align-self:stretch!important;display:flex!important;align-items:center!important;justify-content:center!important;background:linear-gradient(160deg,var(--c),color-mix(in srgb,var(--c) 70%,#000))!important;color:#fff!important;font:900 calc(34px)/1 Roboto,Arial,sans-serif!important;margin:0!important;border-radius:18px 0 0 18px}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert small{grid-column:2;grid-row:1;align-self:end!important;color:#111827!important;font:800 calc(16px)/1.2 Roboto,Arial,sans-serif!important;text-transform:none!important;margin:0!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert span{grid-column:2;grid-row:2;align-self:start!important;color:#94a3b8!important;font:500 calc(12px)/1.25 Roboto,Arial,sans-serif!important;margin:3px 0 0!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-alert::before{content:'›'!important;grid-column:3;grid-row:1/3;color:#cbd5e1!important;font:400 calc(30px)/1 Arial!important;display:block!important;position:static!important;background:none!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-status{color:#16a34a!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-all{background:linear-gradient(135deg,#b3123a,#7a0c28)!important;color:#fff!important;box-shadow:0 6px 16px rgba(179,18,58,.35)!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count .pl-sc-a{display:none!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count .pl-sc-b{display:block!important;color:#111827!important;font:800 calc(16px)/1.25 Roboto,Arial,sans-serif!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count .pl-sc-note{display:block!important;grid-column:2}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count{display:grid!important;grid-template-columns:auto 1fr!important;column-gap:12px!important;row-gap:2px!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count strong{grid-row:1/3!important}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2):not(#pl-s3) #plStartupGateV841592 .pl-startup-count .pl-sc-b{grid-column:2}
 html#plMobileViewport{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-#plMobileViewport #plStartupGateV841592 .pl-startup-shell{width:100%!important;max-width:100%!important;padding:16px 10px!important;box-sizing:border-box}
-#plMobileViewport #plStartupGateV841592 .pl-startup-alert-grid{grid-template-columns:1fr!important;gap:8px!important}
-#plMobileViewport #plStartupGateV841592 .pl-startup-alert{grid-template-columns:1fr auto!important;min-height:0!important;padding:12px!important}
-#plMobileViewport #plStartupGateV841592 .pl-startup-alert small{font-size:14px!important}
-#plMobileViewport #plStartupGateV841592 .pl-startup-alert span{font-size:13px!important}
-#plMobileViewport #plStartupGateV841592 .pl-startup-alert strong{font-size:32px!important}
 /* Toolbar full width; các KPI/bộ đếm cũ không còn chiếm chỗ trên mobile. */
 #plMobileViewport main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools){
   position:sticky!important;
@@ -4064,7 +4094,7 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
     </div>
     <h1 id="plStartupTitleV841592">Xin chào</h1>
     <p class="pl-startup-date" id="plStartupDateV841592">Đang cập nhật ngày hôm nay...</p>
-    <p class="pl-startup-count">Bạn đang có <strong id="plStartupOpenCountV841592">—</strong> công việc cần xử lý</p>
+    <p class="pl-startup-count"><span class="pl-sc-a">Bạn đang có </span><strong id="plStartupOpenCountV841592">—</strong><span class="pl-sc-b"> công việc cần xử lý</span><span class="pl-sc-note">Chưa hoàn thành, tính đến hôm nay</span></p>
     <p class="pl-startup-hint">Chọn một cảnh báo để vào ngay bảng Công việc đã được lọc.</p>
     <div class="pl-startup-alert-grid" aria-label="Cảnh báo công việc">
       <button class="pl-startup-alert not-started" type="button" data-startup-alert="not-started" disabled>
@@ -10617,15 +10647,15 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   },60);
  }
  /* Cỡ chữ mobile: cộng thêm 4px cho mọi font-size (px) trong CSS khi ở giao diện điện thoại. */
- // Cỡ chữ mobile = cỡ gốc − 10px, tối thiểu 9px; trang khởi động cộng thêm 12px.
+ // Cỡ chữ mobile = cỡ gốc − 10px, tối thiểu 9px (trang khởi động dùng calc(px) riêng, không bị chỉnh).
  // Ô bộ lọc trượt (thu 0.72) cộng thêm 7px CSS ≈ +5px khi nhìn: khối lọc, lịch chọn ngày, danh sách người, nút công cụ.
  const FILTER_PLUS=7,FILTER_RE=/-side\b|-staff\b|plm-datepick|plm-slide|-tools?\b|calendar/,
- FONT_PLUS=-10,STARTUP_PLUS=12,FONT_MIN=9,fontOrig=new Map();let fontOn=false;
+ FONT_PLUS=-10,FONT_MIN=9,fontOrig=new Map();let fontOn=false;
  function fontBoost(on){
   if(fontOn===on)return;fontOn=on;
   const walk=rules=>{for(const r of rules){
    if(r.style){const st=r.style,pr=st.getPropertyPriority('font-size');
-    if(on){const m=/^(\d+(?:\.\d+)?)px$/.exec(st.getPropertyValue('font-size').trim());if(m){fontOrig.set(st,m[0]);st.setProperty('font-size',Math.max(FONT_MIN,+m[1]+FONT_PLUS+(/plStartupGate/.test(r.selectorText||'')?STARTUP_PLUS:0))+(FILTER_RE.test(r.selectorText||'')?FILTER_PLUS:0)+'px',pr)}}
+    if(on){const m=/^(\d+(?:\.\d+)?)px$/.exec(st.getPropertyValue('font-size').trim());if(m){fontOrig.set(st,m[0]);st.setProperty('font-size',Math.max(FONT_MIN,+m[1]+FONT_PLUS)+(FILTER_RE.test(r.selectorText||'')?FILTER_PLUS:0)+'px',pr)}}
     else if(fontOrig.has(st))st.setProperty('font-size',fontOrig.get(st),pr)}
    if(r.cssRules)walk(r.cssRules)}};
   for(const sh of document.styleSheets){try{walk(sh.cssRules)}catch(e){}}
