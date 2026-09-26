@@ -174,6 +174,10 @@ function doGet() {
       .evaluate()
       .setTitle('PHILONG BUILDING')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    // Thẻ meta phải gắn qua addMetaTag (thẻ trong index.html nằm trong iframe nên trình duyệt bỏ qua):
+    // viewport-fit=cover cho tai thỏ; web-app-capable để "Thêm vào Màn hình chính" mở toàn màn hình, không thanh trình duyệt.
+    [['viewport','width=device-width, initial-scale=1, viewport-fit=cover'],['apple-mobile-web-app-capable','yes'],['mobile-web-app-capable','yes'],['apple-mobile-web-app-status-bar-style','black-translucent']]
+      .forEach(function(m){try{output.addMetaTag(m[0],m[1]);}catch(metaError){}});
     try {
       const faviconUrl=PropertiesService.getScriptProperties().getProperty(V63_FAVICON_URL_PROPERTY);
       if(faviconUrl)output.setFaviconUrl(faviconUrl);

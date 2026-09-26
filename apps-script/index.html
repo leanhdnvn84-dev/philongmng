@@ -3406,7 +3406,8 @@ html#plMobileViewport[data-theme="dark"]{
   border:0!important;
 }
 #plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) :is(.pm-header,.pm-bubble,.pm-top,.subbar){display:none!important}
-#plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools,.plm-filterbar,.plm-datepick,.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){display:none!important}
+#plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools,.plm-datepick,.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){display:none!important}
+#plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) #plmFilterTab{display:none!important}
 #plMobileViewport #plStartupGateV841592{padding:10px!important;overflow:auto!important}
 html#plMobileViewport{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #plMobileViewport #plStartupGateV841592 .pl-startup-shell{width:100%!important;max-width:100%!important;padding:16px 10px!important;box-sizing:border-box}
@@ -3470,7 +3471,6 @@ html#plMobileViewport{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   table-layout:auto!important;
   box-sizing:border-box!important;
   border:0!important;
-  background:transparent!important;
 }
 #plMobileViewport main.container .section.active table.plm-cards>thead,
 #plMobileViewport main.container .section.active table.plm-cards>colgroup{display:none!important}
@@ -3557,26 +3557,6 @@ html#plMobileViewport{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   font-size:12px!important;
 }
 #plMobileViewport main.container .section.active :is(.plw85-tool,.pl-daily-tool,.ple-tool,.pbm-tool,.plc-tool) .ico{font-size:18px!important}
-#plMobileViewport .plm-filterbar{
-  display:flex!important;
-  position:sticky!important;
-  top:calc(var(--plm-header-h) + var(--plm-subbar-h) + var(--plm-tools-h))!important;
-  z-index:8300!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  width:100%!important;
-  margin:0 0 4px!important;
-  padding:5px 8px!important;
-  border:1px solid #ead9a9!important;
-  border-radius:4px!important;
-  background:#fff3d2!important;
-  color:#24364d!important;
-  font:800 13px/1.1 Roboto,Arial,sans-serif!important;
-  box-sizing:border-box!important;
-}
-#plMobileViewport .plm-filterbar::after{content:'⌄';font-size:16px;color:#8e5a00}
-#plMobileViewport .plm-filterbar[aria-expanded="true"]::after{content:'⌃'}
-#plMobileViewport .plm-filter-closed>section{display:none!important}
 #plMobileViewport main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){margin-bottom:4px!important}
 #plMobileViewport main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side)>section:nth-of-type(1){background:#fffaf0!important;border:1px solid #ead9a9!important}
 #plMobileViewport main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side)>section:nth-of-type(2){background:#f1f7ff!important;border:1px solid #c9dcf5!important}
@@ -10484,20 +10464,24 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
  }
 
  /* ---------- 5. Bộ lọc thu gọn + chân trang ---------- */
+ /* Bộ lọc trượt (mobile): khối lọc bên trái không còn cố định đầu trang mà ẩn ngoài mép trái;
+    chạm tab phễu giữa mép trái để trượt ra, chạm nền mờ / ✕ / chọn người để đóng. */
+ const slide=on=>setCls(document.documentElement,'plm-fs-open',!!on);
  function folds(root){
+  let has=false;
   root.querySelectorAll(SIDES).forEach(side=>{
-   const sections=[...side.children].filter(el=>el.tagName==='SECTION');if(!sections.length)return;
-   let button=[...side.children].find(el=>el.classList.contains('plm-filterbar'));
-   if(!button){
-    button=document.createElement('button');button.type='button';button.className='plm-filterbar';button.setAttribute('aria-expanded','false');
-    button.onclick=()=>{const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));setCls(side,'plm-filter-closed',!open);setCls(side,'plm-filter-open',open)};
-    side.prepend(button);setCls(side,'plm-filter-closed',true);
-   }
-   const labels=sections.map(sec=>sec.matches('[class*="calendar"]')?'Ngày':sec.matches('[class*="staff"]')?'Người thực hiện':(sec.querySelector('h3')?.textContent?.trim()||'').replace(/^Bộ lọc\s*/i,'').trim()||'Lọc');
-   const title='Bộ lọc · '+labels.join(' · ');
-   if(button.textContent!==title)button.textContent=title;
-   setAttr(button,'aria-controls',sections.map(sec=>sec.id).filter(Boolean).join(' ')||null);
+   if(![...side.children].some(el=>el.tagName==='SECTION'))return;has=true;
+   setCls(side,'plm-slide',true);
+   if(!side.querySelector(':scope>.plm-slide-head')){const h=document.createElement('div');h.className='plm-slide-head';h.innerHTML='<b>Bộ lọc</b><button type="button" aria-label="Đóng bộ lọc">✕</button>';h.querySelector('button').onclick=()=>slide(false);side.prepend(h)}
+   if(!side.dataset.plmSlideBound){side.dataset.plmSlideBound='1';side.addEventListener('click',e=>{if(e.target.closest('tbody tr'))setTimeout(()=>slide(false),150)})}
   });
+  let tab=$('plmFilterTab');
+  if(!tab){
+   tab=document.createElement('button');tab.id='plmFilterTab';tab.type='button';tab.setAttribute('aria-label','Mở bộ lọc');
+   tab.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>';
+   tab.onclick=()=>slide(true);const mask=document.createElement('div');mask.id='plmFilterMask';mask.onclick=()=>slide(false);document.body.append(mask,tab);
+  }
+  setCls(tab,'plm-has',has);if(!has)slide(false);
  }
  function frames(root){
   root.querySelectorAll(':is(.plw85-grid,.pl-daily-grid,.ple-grid,.pbm-grid,.plc-grid)').forEach(grid=>{
@@ -10589,6 +10573,16 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   if(barsRO){barsRO.disconnect();[header,sub,tools].forEach(el=>el&&barsRO.observe(el))}
  }
 
+ /* Vuốt lên → xin toàn màn hình (Android/Chrome cho phép khi khung Apps Script có quyền fullscreen).
+    iPhone Safari không có API này: dùng "Thêm vào Màn hình chính" (doGet đã gắn thẻ web-app-capable). */
+ let swipeY=null;
+ document.addEventListener('touchstart',e=>{swipeY=e.touches&&e.touches[0]?e.touches[0].clientY:null},{passive:true});
+ document.addEventListener('touchend',e=>{
+  if(swipeY==null||!isMobile())return;const t=e.changedTouches&&e.changedTouches[0],dy=t?t.clientY-swipeY:0;swipeY=null;
+  const d=document,el=d.documentElement,req=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(dy<-40&&req&&!(d.fullscreenElement||d.webkitFullscreenElement)&&(d.fullscreenEnabled||d.webkitFullscreenEnabled)){try{const p=req.call(el,{navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{})}catch(err){}}
+ },{passive:true});
+
  /* ---------- 7. Đồng bộ ---------- */
  const NAV_GROUP=id=>/^maintenance/.test(id)?'maintenanceLog':/^(equipment|warehouseDevice|materialWarehouse|recovery)$/.test(id)?'equipment':/^(work|daily)$/.test(id)?'work':'menu';
  function sync(){
@@ -10596,7 +10590,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   if(!isMobile())return;
   fontBoost(true);
   const root=active();if(!root)return;
-  if(lastPage!==root.id){lastPage=root.id;const input=$('pmSearch');if(input&&input.value)input.value=''}
+  if(lastPage!==root.id){lastPage=root.id;slide(false);const input=$('pmSearch');if(input&&input.value)input.value=''}
   frames(root);
   window.PL_CLEAR_DESKTOP_TABLE_SIZING_V216?.(root);
   root.querySelectorAll('table').forEach(table=>{if(tableCanCard(table))card(table)});
@@ -10640,9 +10634,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   document.querySelectorAll('table[data-plm-mode]').forEach(t=>{setCls(t,'plm-cards',false);setCls(t,'plm-unmapped',false);t.removeAttribute('data-plm-mode')});
   document.querySelectorAll('.plm-table-fallback').forEach(el=>el.classList.remove('plm-table-fallback'));
   document.querySelectorAll('.plm-show,.plm-search-miss,[data-plm-label]').forEach(el=>{el.classList.remove(...CELL_CLASSES,'plm-search-miss');el.removeAttribute('data-plm-label')});
-  document.querySelectorAll('.plm-filterbar,.plm-datepick').forEach(b=>b.remove());
+  document.querySelectorAll('.plm-datepick,.plm-slide-head,#plmFilterTab,#plmFilterMask').forEach(b=>b.remove());
+  document.querySelectorAll('.plm-slide').forEach(el=>el.classList.remove('plm-slide'));document.documentElement.classList.remove('plm-fs-open');
   document.querySelectorAll('.plm-cal-as-picker').forEach(el=>el.classList.remove('plm-cal-as-picker'));
-  document.querySelectorAll('.plm-filter-closed,.plm-filter-open').forEach(el=>el.classList.remove('plm-filter-closed','plm-filter-open'));
   ['--plm-header-h','--plm-subbar-h','--plm-tools-h'].forEach(v=>document.documentElement.style.removeProperty(v));
   fontBoost(false);
  }
@@ -11795,7 +11789,6 @@ html[data-theme="dark"]:not(#plMobileViewport) main.container :is(.plw85-table,.
 #plMobileViewport .subbar .table-context-title{flex:1 1 auto!important;min-width:0!important;white-space:normal!important;overflow:visible!important}
 #plMobileViewport .subbar .table-context-title *{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2!important}
 #plMobileViewport .subbar #exportDataBtn{flex:0 0 auto!important;padding:6px 10px!important;white-space:nowrap!important}
-#plMobileViewport .plm-filterbar{height:auto!important;min-height:34px!important;max-height:none!important;white-space:normal!important;line-height:1.25!important;padding-top:6px!important;padding-bottom:6px!important;text-align:left!important}
 #plMobileViewport main.container .section.active :is(.plw85-tools,.pl-daily-tools,.ple-tools,.pbm-tools,.plc-tools){
   height:auto!important;min-height:0!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;
   -webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px!important;
@@ -11942,14 +11935,24 @@ html#plMobileViewport[data-theme="dark"] main.container .section.active table.pl
 #plMobileViewport .pm-panel>header{display:none!important}
 #plMobileViewport .pm-panel:focus,#plMobileViewport .pm-panel:focus-visible{outline:none!important}
 
-/* Vùng đầu trang mobile cố định: tiêu đề + thanh công cụ + thanh Bộ lọc + chọn Ngày/Tháng/Năm.
-   Khi mở Bộ lọc (danh sách dài) thì khối bộ lọc trở lại cuộn bình thường. */
-#plMobileViewport main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side).plm-filter-closed{position:sticky!important;top:calc(var(--plm-header-h) + var(--plm-subbar-h) + var(--plm-tools-h))!important;z-index:8300!important;padding-bottom:6px!important;box-shadow:0 6px 10px -8px rgba(15,23,42,.35)!important}
-#plMobileViewport main.container .section.active .plm-filter-closed>.plm-filterbar{position:static!important}
 html#plMobileViewport[data-theme="dark"] main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side){background:#0d1117!important}
 
 /* Kho vật tư: các ô số (Tồn / Nhập / Xuất) kèm tên trường để khỏi nhầm */
 #plMobileViewport main.container #materialWarehouse.section.active table.plm-cards>tbody>tr>td.plm-meta::before{content:attr(data-plm-ic) " " attr(data-plm-label) ": "!important;display:inline!important}
+
+/* Bộ lọc trượt mobile (.plm-slide): ẩn ngoài mép trái, tab phễu giữa mép trái, rộng ~82% màn hình. */
+#plmFilterTab,#plmFilterMask,.plm-slide-head{display:none}
+html#plMobileViewport #plmFilterTab.plm-has{display:flex;position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:9390;width:22px;height:60px;padding:0;border:0;border-radius:0 10px 10px 0;background:#b3123a;color:#fff;align-items:center;justify-content:center;box-shadow:2px 2px 8px rgba(0,0,0,.25);transition:opacity .2s}
+html#plMobileViewport.plm-fs-open #plmFilterTab{opacity:0;pointer-events:none}
+html#plMobileViewport.plm-fs-open #plmFilterMask{display:block;position:fixed;inset:0;z-index:9395;background:rgba(15,23,42,.35)}
+html#plMobileViewport:not(#pl-s1):not(#pl-s2) main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side).plm-slide{position:fixed!important;left:0!important;top:50%!important;transform:translate(-105%,-50%)!important;z-index:9400!important;width:114vw!important;max-width:114vw!important;min-width:0!important;max-height:110vh!important;overflow:auto!important;margin:0!important;padding:0 0 8px!important;background:#fff!important;border-radius:0 14px 14px 0!important;box-shadow:6px 0 20px rgba(0,0,0,.3)!important;transition:transform .28s ease!important;zoom:.72}
+html#plMobileViewport.plm-fs-open:not(#pl-s1):not(#pl-s2) main.container .section.active :is(.plw85-side,.pl-daily-side,.ple-side,.pbm-side,.plc-side).plm-slide{transform:translate(0,-50%)!important}
+html#plMobileViewport .plm-slide>.plm-slide-head{display:flex;position:sticky;top:0;z-index:2;justify-content:space-between;align-items:center;padding:10px 14px;background:#b3123a;color:#fff;font:800 17px Roboto,Arial,sans-serif}
+html#plMobileViewport .plm-slide>.plm-slide-head button{border:0;background:transparent;color:#fff;font:800 20px Arial;padding:0 4px}
+html#plMobileViewport[data-theme="dark"]:not(#pl-s1):not(#pl-s2) main.container .section.active .plm-slide{background:#0d1117!important}
+/* Khoảng cách giữa các thẻ mobile: nền đậm hơn để tách thẻ. */
+#plMobileViewport main.container .section.active table.plm-cards{background:#d3dae3!important;padding:10px 8px 1px!important;border-radius:12px!important}
+html#plMobileViewport[data-theme="dark"] main.container .section.active table.plm-cards{background:#04070b!important}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
