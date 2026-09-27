@@ -56,3 +56,8 @@ Chạy theo thứ tự, rồi kiểm thử hồi quy bằng harness ở trên:
 - `node tools/css-dead-clean.js index.html` — bỏ luật nhắm tới id/class không còn trong HTML/JS/Code.gs (giữ tên ghép động kiểu `'pl47-'+x`).
 - `node tools/css-dedupe.js index.html`, `node tools/dark-clean.js index.html`, `node tools/patch-map.js index.html --check`.
 
+
+## Khóa trường khi sửa công việc (2026-09-27)
+- Công việc: không sửa được Ngày giao, Người giao, Hạn hoàn thành, Mức độ. Công việc hằng ngày: không sửa được Ngày giao (NGAY), Người giao.
+- Frontend: `V17_EDIT_LOCKED` trong `v17FieldHtml` (ô bị khóa khi SỬA, dùng chung desktop + mobile; THÊM mới vẫn nhập bình thường).
+- Backend: `keepLockedWorkFieldsV160_` giữ nguyên giá trị cũ trên Sheet dù payload gửi gì (áp dụng `legacySaveWork_`, `legacySaveDaily_`, `legacySaveModule_`).

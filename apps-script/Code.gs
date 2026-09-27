@@ -3041,8 +3041,18 @@ function legacyMaintenancePlans_(){
 }
 
 // Các hàm save chỉ trả record vừa ghi; V20 verify một lần sau cùng.
-function legacySaveWork_(r){const x=autoFillWorkDoneDateV157_(normalizeWorkRecordV141_(Object.assign({},r)));x.KET_QUA='';if(!x.ID)x.ID=nextId_(V22.SHEETS.work,'CV');upsertObject_(V22.SHEETS.work,'ID',x);return x;}
-function legacySaveDaily_(r){const x=normalizeWorkRecordV141_(Object.assign({},r));if(!x.ID)x.ID=nextId_(V22.SHEETS.daily,'HN');upsertObject_(V22.SHEETS.daily,'ID',x);return x;}
+// Khóa trường khi SỬA: Công việc giữ nguyên Ngày giao, Người giao, Hạn hoàn thành, Mức độ;
+// Công việc hằng ngày giữ nguyên Ngày giao, Người giao. Thêm mới vẫn nhập bình thường.
+const WORK_LOCKED_FIELDS_V160={work:['NGAY_GIAO','ID_NGUOI_GIAO','NGUOI_GIAO','DEADLINE','MUC_DO'],daily:['NGAY','ID_NGUOI_GIAO','NGUOI_GIAO']};
+function keepLockedWorkFieldsV160_(sheetName,record){
+  const key=sheetName===V22.SHEETS.work?'work':(sheetName===V22.SHEETS.daily?'daily':'');
+  const id=String(record&&record.ID||'').trim();if(!key||!id)return record;
+  const old=findById_(sheetName,'ID',id);if(!old)return record;
+  WORK_LOCKED_FIELDS_V160[key].forEach(function(k){if(Object.prototype.hasOwnProperty.call(old,k))record[k]=old[k];else delete record[k];});
+  return record;
+}
+function legacySaveWork_(r){const x=autoFillWorkDoneDateV157_(normalizeWorkRecordV141_(keepLockedWorkFieldsV160_(V22.SHEETS.work,Object.assign({},r))));x.KET_QUA='';if(!x.ID)x.ID=nextId_(V22.SHEETS.work,'CV');upsertObject_(V22.SHEETS.work,'ID',x);return x;}
+function legacySaveDaily_(r){const x=normalizeWorkRecordV141_(keepLockedWorkFieldsV160_(V22.SHEETS.daily,Object.assign({},r)));if(!x.ID)x.ID=nextId_(V22.SHEETS.daily,'HN');upsertObject_(V22.SHEETS.daily,'ID',x);return x;}
 function legacySaveProposal_(r){const x=Object.assign({},r);legacyBlockDirectApprovalV132_(V22.SHEETS.proposals,x);ensureSheetColumnV8427_(V22.SHEETS.proposals,'NGUOI_DE_XUAT');if(x.ID_NGUOI_DE_XUAT){const employee=findById_(V22.SHEETS.employees,'ID',x.ID_NGUOI_DE_XUAT);if(employee)x.NGUOI_DE_XUAT=employeeNameV83_(employee,x.ID_NGUOI_DE_XUAT);}if(!x.ID)x.ID=nextId_(V22.SHEETS.proposals,'DX');if(!x.NGAY_TAO)x.NGAY_TAO=today_();upsertObject_(V22.SHEETS.proposals,'ID',x);return x;}
 function legacySaveContact_(p){return saveCatalogContactV70_(p)}
 function legacySaveRole_(p){const x=Object.assign({},p);if(!x.ID)x.ID=nextId_(V22.SHEETS.roles,'VR');upsertObject_(V22.SHEETS.roles,'ID',x);return x;}
@@ -3056,7 +3066,7 @@ function legacySaveUser_(p){
 function legacySaveModule_(user,sheetName,record){
   sheetName=String(sheetName||'');const module=legacyModuleForSheet_(sheetName);if(module)requirePermission_(user,module,record&&record.ID?'SUA':'THEM');
   legacyBlockDirectApprovalV132_(sheetName,record);
-  if(sheetName===V22.SHEETS.work||sheetName===V22.SHEETS.daily)record=normalizeWorkRecordV141_(Object.assign({},record||{}));
+  if(sheetName===V22.SHEETS.work||sheetName===V22.SHEETS.daily)record=normalizeWorkRecordV141_(keepLockedWorkFieldsV160_(sheetName,Object.assign({},record||{})));
   if(sheetName===V22.SHEETS.work){record.KET_QUA='';autoFillWorkDoneDateV157_(record);}
   if(sheetName===V22.SHEETS.prospects||sheetName===V22.SHEETS.tenants){
     ensureRentalSchemaV85_();
