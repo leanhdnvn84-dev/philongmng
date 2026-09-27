@@ -12074,10 +12074,10 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
 </script>
 <script>
 /* Ẩn thanh địa chỉ trên điện thoại. Ứng dụng Apps Script chạy trong 2 lớp iframe của Google nên khi cuộn
-   trình duyệt KHÔNG tự thu thanh địa chỉ (không sửa được bằng CSS/thẻ meta). Cách duy nhất: Fullscreen API
-   (Android Chrome/Edge/Samsung Internet; khung Apps Script có quyền fullscreen). Trình duyệt chỉ cho phép khi
-   người dùng chạm → chạm lần đầu vào ứng dụng sẽ vào toàn màn hình; nút ⛶ trong menu để bật/tắt.
-   iPhone Safari không hỗ trợ API này → nút tự ẩn. */
+   trình duyệt KHÔNG tự thu thanh địa chỉ (không sửa được bằng CSS/thẻ meta). Cách 1: Fullscreen API — chạm lần
+   đầu vào ứng dụng sẽ vào toàn màn hình; nút ⛶ trong menu để bật/tắt. Chỉ chạy khi trình duyệt cho phép
+   (Android Chrome/Edge/Samsung Internet và khung Google có quyền fullscreen). Không được → bấm ⛶ báo lý do và
+   hướng dẫn cách 2: "Thêm vào Màn hình chính" (doGet gắn thẻ web-app-capable → mở không có thanh địa chỉ). */
 (function(){
   const d=document,el=d.documentElement;
   const req=el.requestFullscreen||el.webkitRequestFullscreen;
@@ -12085,14 +12085,33 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
   const enabled=()=>!!(req&&(d.fullscreenEnabled||d.webkitFullscreenEnabled));
   const isFs=()=>!!(d.fullscreenElement||d.webkitFullscreenElement);
   const mobile=()=>typeof window.plIsMobile_==='function'?window.plIsMobile_():el.id==='plMobileViewport';
-  function enter(){if(!enabled()||isFs())return;try{const p=req.call(el,{navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const inApp=/Zalo|FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|; wv\)/i.test(navigator.userAgent);
+  function why(err){
+    if(ios)return 'iPhone/iPad (Safari) không hỗ trợ chế độ toàn màn hình cho trang web.';
+    if(inApp)return 'Đang mở trong ứng dụng khác (Zalo, Facebook…) nên không vào được toàn màn hình. Hãy mở bằng Chrome.';
+    if(!req)return 'Trình duyệt này không hỗ trợ chế độ toàn màn hình.';
+    if(!enabled())return 'Trình duyệt chặn toàn màn hình trong khung của Google Apps Script.';
+    return 'Trình duyệt từ chối toàn màn hình'+(err&&err.message?' ('+err.message+')':'')+'.';
+  }
+  function tip(msg){
+    let t=d.getElementById('plmFsTip');
+    if(!t){t=d.createElement('div');t.id='plmFsTip';t.setAttribute('role','alert');t.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:2147483000;padding:12px 14px;border-radius:12px;background:#172033;color:#fff;font:500 14px/1.45 Roboto,Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)';t.onclick=()=>t.remove();(d.body||el).appendChild(t)}
+    t.innerHTML='<b>Không ẩn được thanh địa chỉ</b><br>'+msg+'<br><br>Cách khác: menu trình duyệt (⋮ hoặc nút Chia sẻ) → <b>Thêm vào Màn hình chính</b>, rồi mở ứng dụng từ biểu tượng đó.';
+    clearTimeout(tip.timer);tip.timer=setTimeout(()=>t.remove(),12000);
+  }
+  function enter(manual){
+    if(isFs())return;
+    if(!enabled()){if(manual)tip(why());return}
+    try{const p=req.call(el,{navigationUI:'hide'});if(p&&p.catch)p.catch(err=>{if(manual)tip(why(err))})}catch(err){if(manual)tip(why(err))}
+  }
   function leave(){if(!isFs()||!exit)return;try{const p=exit.call(d);if(p&&p.catch)p.catch(()=>{})}catch(e){}}
-  function sync(){el.classList.toggle('plm-fullscreen',isFs());const b=d.getElementById('pmFullscreenToggle');if(b){b.hidden=!enabled();b.setAttribute('aria-label',isFs()?'Thoát toàn màn hình':'Toàn màn hình (ẩn thanh địa chỉ)')}}
+  function sync(){el.classList.toggle('plm-fullscreen',isFs());const b=d.getElementById('pmFullscreenToggle');if(b){b.hidden=false;b.setAttribute('aria-label',isFs()?'Thoát toàn màn hình':'Toàn màn hình (ẩn thanh địa chỉ)')}}
   d.addEventListener('fullscreenchange',sync);d.addEventListener('webkitfullscreenchange',sync);
   let autoDone=false;
   d.addEventListener('click',e=>{
-    if(e.target.closest&&e.target.closest('#pmFullscreenToggle')){isFs()?leave():enter();return}
-    if(autoDone||!mobile())return;autoDone=true;enter();
+    if(e.target.closest&&e.target.closest('#pmFullscreenToggle')){isFs()?leave():enter(true);return}
+    if(autoDone||!mobile())return;autoDone=true;enter(false);
   },true);
   if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',sync);else sync();
 })();

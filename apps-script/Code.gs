@@ -176,6 +176,9 @@ function doGet() {
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     // Bắt buộc: khổ màn hình cho trang ngoài của Google (thiếu thẻ này điện thoại hiển thị như trang máy tính, chữ bị thu nhỏ).
     try{output.addMetaTag('viewport','width=device-width, initial-scale=1');}catch(metaError){}
+    // "Thêm vào Màn hình chính" (Android + iPhone) → mở từ biểu tượng không có thanh địa chỉ. Thẻ trong index.html nằm trong iframe nên phải gắn ở đây.
+    [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-title','PHILONG']]
+      .forEach(function(m){try{output.addMetaTag(m[0],m[1]);}catch(metaError){}});
     try {
       const faviconUrl=PropertiesService.getScriptProperties().getProperty(V63_FAVICON_URL_PROPERTY);
       if(faviconUrl)output.setFaviconUrl(faviconUrl);
