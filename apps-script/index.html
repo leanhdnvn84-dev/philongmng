@@ -10719,6 +10719,8 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   $('pmMenuBubble')?.addEventListener('click',menu);
   /* Chạm thẻ = chọn dòng + mở Xem. Bắt ở pha capture: trang (vd. Công việc) vẽ lại
      bảng ngay trong sự kiện click nên nếu chờ nổi bọt thì thẻ đã bị thay mất. */
+  // Form Xem mở bằng bất kỳ đường nào (nút Xem, chạm thẻ, cảnh báo…) → gắn hàng nút + làm gọn.
+  document.addEventListener('click',()=>{if(!isMobile())return;setTimeout(()=>{const d=document.querySelector(VIEWS);if(d&&!d.querySelector('.plm-vbar')){const r=active();if(r)vbar(r)}},90)});
   document.addEventListener('click',e=>{
    const row=e.target.closest('table.plm-cards tbody tr');
    if(!row||e.target.closest('button,a,input,select,textarea,[contenteditable="true"]'))return;
@@ -12134,6 +12136,16 @@ html#plMobileViewport:not(#pl-m1):not(#pl-m2) body #mainNavigation .menu-panel>b
 #plMobileViewport .plm-alert-chips>button>b{min-width:24px;padding:1px 7px;border-radius:99px;background:var(--c);color:#fff;font-size:calc(12px);text-align:center}
 #plMobileViewport .plm-alert-chips>button.on{background:color-mix(in srgb,var(--c) 14%,#fff)!important;border-color:var(--c)!important}
 html#plMobileViewport[data-theme="dark"] .plm-alert-chips>button{background:#161b22!important;border-color:#2f3b4c!important;color:#e6edf3!important}
+
+/* Form Xem 2 khung (Công việc, Hằng ngày, Đề xuất… trên mobile): 2 khung xếp chồng, mỗi khung 2 cột;
+   ô dài (Nội dung, Tiến độ, Cách thực hiện, Ghi chú, Số ngày) cả hàng; chữ ngày/tên không bị bẻ giữa chừng. */
+html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-two-pane-grid{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-pane,html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-pane.is-content,html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-pane.is-daily-left{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;align-content:start!important}
+html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-pane>.pl-v841612-pane-title,html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-pane>:is(.full,.plm-vwide){grid-column:1/-1!important}
+html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-pane>.pl-v841612-bottom-field{grid-column:span 1!important}
+html#plMobileViewport:not(#pl-v1):not(#pl-v2) body .pl-v841612-pane>.pl-v841612-pane-title{margin:0!important;padding:5px 9px!important;font-size:calc(11px)!important}
+html#plMobileViewport:not(#pl-v1):not(#pl-v2) body :is(#plw85View .plw85-field,#pldDailyView .pld-view-field,#v25ViewModal .v25-detail-row)>:is(div,.v25-detail-value){overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;-webkit-line-clamp:4!important}
+html#plMobileViewport:not(#pl-v1):not(#pl-v2) body :is(#plw85View .plw85-field,#pldDailyView .pld-view-field,#v25ViewModal .v25-detail-row)>:is(small,.v25-detail-label){white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
