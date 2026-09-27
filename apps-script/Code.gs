@@ -4142,7 +4142,9 @@ function emailSentTodayKeysV84_(){
     const st=norm_(x.TRANG_THAI);
     // CHO_GUI: nhật ký bản cũ ghi nhầm trạng thái cho email đã gửi.
     if(!String(x.NGAY_GUI||'').startsWith(day)||(st!=='DA_GUI'&&st!=='CHO_GUI'))return;
-    keys[String(x.MODULE||'')+'|'+String(x.ID_BAN_GHI||'')]=true;
+    // Chống gửi lặp theo TỪNG người nhận: thêm người nhận mới trong ngày vẫn nhận được, người đã nhận không bị gửi lại.
+    const base=String(x.MODULE||'')+'|'+String(x.ID_BAN_GHI||'');
+    String(x.NGUOI_NHAN||'').split(/[;,\s]+/).forEach(function(to){to=normalizeEmail_(to);if(to)keys[base+'|'+to]=true;});
   });
   return keys;
 }
@@ -4264,11 +4266,13 @@ function sendEmailAlertsV84(opts){
       let n=0;
       emailAlertRowsV84_(code,emailAdminListV86_(c),Number(c.SO_NGAY_BAO_TRUOC||0),c).forEach(function(item){
         item.EMAIL_GUI=String(c.EMAIL_GUI||'').trim();
-        const key=item.MODULE+'|'+item.ID_BAN_GHI;if(sentKeys[key])return;sentKeys[key]=true;
-        const log={NGAY_GUI:stamp,MA_CANH_BAO:code,MODULE:item.MODULE,ID_BAN_GHI:item.ID_BAN_GHI,NGUOI_NHAN:item.NGUOI_NHAN,TIEU_DE:item.TIEU_DE,
-          TRANG_THAI:item.NGUOI_NHAN?'DA_GUI':'BO_QUA_THIEU_EMAIL',SO_NGAY_CON_LAI:item.SO_NGAY_CON_LAI,NOI_DUNG:item.NOI_DUNG};
+        const base=item.MODULE+'|'+item.ID_BAN_GHI,all=String(item.NGUOI_NHAN||'').split(/\s*,\s*/).filter(Boolean);
+        const tos=all.filter(function(to){if(sentKeys[base+'|'+to])return false;sentKeys[base+'|'+to]=true;return true;});
+        if(all.length&&!tos.length)return; // mọi người nhận đã nhận cảnh báo này hôm nay
+        const log={NGAY_GUI:stamp,MA_CANH_BAO:code,MODULE:item.MODULE,ID_BAN_GHI:item.ID_BAN_GHI,NGUOI_NHAN:tos.join(', '),TIEU_DE:item.TIEU_DE,
+          TRANG_THAI:tos.length?'DA_GUI':'BO_QUA_THIEU_EMAIL',SO_NGAY_CON_LAI:item.SO_NGAY_CON_LAI,NOI_DUNG:item.NOI_DUNG,ok:[],fail:[]};
         logs.push(log);n++;
-        if(item.NGUOI_NHAN)item.NGUOI_NHAN.split(/\s*,\s*/).forEach(function(to){if(to)(byTo[to]=byTo[to]||[]).push({item:item,log:log,name:c.TEN_CANH_BAO||code});});
+        tos.forEach(function(to){(byTo[to]=byTo[to]||[]).push({item:item,log:log,to:to,name:c.TEN_CANH_BAO||code});});
       });
       if(!now)props.setProperty(runKey,day);
       summary.push({code:code,status:'DA_QUET',items:n});
@@ -4276,17 +4280,25 @@ function sendEmailAlertsV84(opts){
     let mails=0,quota=0;try{quota=MailApp.getRemainingDailyQuota();}catch(e){}
     Object.keys(byTo).forEach(function(to){
       const list=byTo[to];
-      if(mails>=quota){list.forEach(function(x){x.log.TRANG_THAI='HET_HAN_MUC';});return;}
+      if(mails>=quota){list.forEach(function(x){x.log.fail.push(to);x.log.failStatus='HET_HAN_MUC';});return;}
       try{
         const sender=(list.find(function(x){return x.item.EMAIL_GUI})||{item:{}}).item.EMAIL_GUI;
         const mail={to:to,name:'PHILONG BUILDING',subject:'[PHILONG BUILDING] '+list.length+' cảnh báo cần xử lý · '+day,htmlBody:emailDigestHtmlV84_(list),body:emailDigestTextV84_(list)};
         // Email gửi: Apps Script luôn gửi từ tài khoản triển khai; địa chỉ "Email gửi" dùng làm địa chỉ trả lời (Reply-To).
         if(sender&&/^\S+@\S+\.\S+$/.test(sender))mail.replyTo=sender;
         MailApp.sendEmail(mail);
-        mails++;
-      }catch(e){list.forEach(function(x){x.log.TRANG_THAI='LOI';});}
+        mails++;list.forEach(function(x){x.log.ok.push(to);});
+      }catch(e){list.forEach(function(x){x.log.fail.push(to);x.log.failStatus='LOI';});}
     });
-    appendEmailLogsV84_(logs);
+    // Nhật ký: người đã nhận ghi DA_GUI; người gửi lỗi/hết hạn mức tách dòng riêng để lượt sau gửi lại đúng người đó.
+    const rows=[];
+    logs.forEach(function(l){
+      const ok=l.ok,fail=l.fail,st=l.failStatus;delete l.ok;delete l.fail;delete l.failStatus;
+      if(!fail.length){rows.push(l);return;}
+      if(ok.length)rows.push(Object.assign({},l,{NGUOI_NHAN:ok.join(', '),TRANG_THAI:'DA_GUI'}));
+      rows.push(Object.assign({},l,{NGUOI_NHAN:fail.join(', '),TRANG_THAI:st||'LOI'}));
+    });
+    appendEmailLogsV84_(rows);
     return {ok:true,sent:mails,items:logs.length,recipients:Object.keys(byTo).length,summary:summary,serverTime:nowStamp_()};
   }finally{lock.releaseLock();}
 }
