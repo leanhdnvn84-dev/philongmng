@@ -11928,6 +11928,9 @@ html#plMobileViewport:not(#pl-v1):not(#pl-v2) body :is(#plw85View .plw85-field,#
 html#plMobileViewport:not(#pl-v1):not(#pl-v2) body #v25ViewModal .v25-view-kpi{padding:5px 9px!important}
 html#plMobileViewport:not(#pl-v1):not(#pl-v2) body #v25ViewModal .v25-view-kpi strong{font-size:calc(14px)!important}
 html#plMobileViewport:not(#pl-v1):not(#pl-v2) body #v25ViewModal .v25-view-kpis{margin-bottom:6px!important}
+
+/* Máy tính: dòng bảng nhấp đôi được (gợi ý con trỏ). */
+html:not(#plMobileViewport) main.container .section.active tbody tr[data-id]{cursor:pointer}
 </style>
 <style>
 /* Báo cáo tiến độ / Báo cáo công việc (.pl-rpt-*) — khối duy nhất, sáng + tối. */
@@ -12120,6 +12123,33 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
     if(autoDone||!mobile())return;autoDone=true;enter(false);
   },true);
   if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',sync);else sync();
+})();
+</script>
+<script>
+/* Máy tính: nhấp đôi vào dòng bảng = mở form Xem của dòng đó (mọi trang).
+   Trang đã có sẵn xử lý nhấp đôi thì dùng của trang; nếu sau 150ms chưa có form Xem nào mở thì:
+   nút Xem trên dòng → không có thì chọn dòng rồi bấm nút Xem trên thanh công cụ của trang. */
+(function(){
+  const VIEWS='#v25ViewModal.active,#plw85View.active,#pldDailyView.active,#operationModalV841420.active,#v17FormModal.active';
+  const word=b=>String(b&&b.textContent||'').replace(/[^\p{L}]/gu,'').toLowerCase();
+  document.addEventListener('dblclick',e=>{
+    if(typeof window.plIsMobile_==='function'&&window.plIsMobile_())return;
+    const row=e.target.closest('main.container .section.active tbody tr');
+    if(!row||e.target.closest('button,a,input,select,textarea,label,[contenteditable="true"]'))return;
+    try{window.getSelection&&window.getSelection().removeAllRanges()}catch(err){}
+    setTimeout(()=>{
+      if(document.querySelector(VIEWS))return;
+      const own=row.querySelector('.v25-action.view,.v25-view-btn,[data-pld-view],button.view,.operation-view-v841420');
+      if(own){own.click();return}
+      const root=row.closest('section.section');if(!root)return;
+      row.click();
+      setTimeout(()=>{
+        if(document.querySelector(VIEWS))return;
+        const btn=[...root.querySelectorAll('button')].find(b=>!b.disabled&&b.offsetParent&&word(b)==='xem');
+        if(btn)btn.click();
+      },80);
+    },150);
+  });
 })();
 </script>
 </html>
