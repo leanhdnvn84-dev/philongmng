@@ -11618,7 +11618,7 @@ html[data-theme="dark"]:not(#plMobileViewport) main.container :is(.plw85-table,.
    - Thanh tiêu đề, thanh công cụ, thanh tiêu đề trang tự cao theo nội dung;
      script bên dưới đo chiều cao thật để các thanh dính (sticky) xếp đúng chỗ.
    - Thanh công cụ một hàng, nút rộng theo chữ, vuốt ngang để xem thêm nút. */
-#plMobileViewport .pm-header{height:auto!important;min-height:0!important;padding-top:6px!important;padding-bottom:6px!important}
+#plMobileViewport .pm-header{height:auto!important;min-height:0!important;padding-top:calc(6px + env(safe-area-inset-top))!important;padding-bottom:6px!important} /* chừa vùng tai thỏ nếu trang tràn lên */
 #plMobileViewport .pm-brand{flex:0 0 auto!important;width:auto!important;max-width:none!important;white-space:nowrap!important}
 #plMobileViewport .pm-brand :is(b,span){white-space:nowrap!important}
 #plMobileViewport .pm-search{flex:1 1 auto!important;min-width:0!important;width:auto!important}
