@@ -49,3 +49,10 @@ Nguồn: 3 file người dùng tải lên ngày 2026-09-25 (backend `V22.VERSION
 - So sánh: `node tools/harness/run.js <bản_cũ.html> outA && node tools/harness/run.js index.html outB && node tools/harness/compare.js outA outB`.
 - Khi so hai bản HTML khác nhau, đặt `SEED_HTML=<một file cố định>` để dữ liệu giả giống hệt nhau (dữ liệu giả sinh cột từ chữ trong HTML).
 - Cần `npm --prefix tools install`; Chromium: đặt `CHROMIUM=/đường/dẫn/chrome` nếu Playwright không tự tìm thấy.
+
+## Dọn mã chồng chéo (`tools/`)
+Chạy theo thứ tự, rồi kiểm thử hồi quy bằng harness ở trên:
+- `node tools/css-override-clean.js index.html` — cùng bộ chọn nhưng bị "nâng ưu tiên" ở bản vá sau (`html#plMobileViewport`, `:not(#pl-s1)`, `.a.a`): chỉ giữ khai báo thắng.
+- `node tools/css-dead-clean.js index.html` — bỏ luật nhắm tới id/class không còn trong HTML/JS/Code.gs (giữ tên ghép động kiểu `'pl47-'+x`).
+- `node tools/css-dedupe.js index.html`, `node tools/dark-clean.js index.html`, `node tools/patch-map.js index.html --check`.
+
