@@ -12075,6 +12075,8 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
     w.document.write(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${css}body{font-family:Arial,sans-serif;margin:18px}.pl-rpt-scroll{max-height:none!important;overflow:visible!important}.pl-rpt-grid{grid-template-columns:1fr!important}.pl-rpt th{position:static}.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #9e1730;padding-bottom:6px;margin-bottom:12px}.hd b{color:#d71920;font-size:22px}.hd h1{margin:0;font-size:22px}@page{size:A4 landscape;margin:12mm}</style></head><body><div class="hd"><div><h1>${esc(title)}</h1><div>Ngày in: ${show(today())}</div></div><b>PHI LONG TECHNOLOGY</b></div><div class="pl-rpt">${body.innerHTML}</div></body></html>`);w.document.close();setTimeout(()=>{w.focus();w.print()},300)}
   function onClick(e){const act=e.target.closest('[data-act]');if(act){const el=act.closest('.pl-rpt');if(act.dataset.act==='print')print(el);else if(act.dataset.act==='csv')csv();return}
     const tr=e.target.closest('tr[data-id]');if(!tr)return;const id=tr.dataset.id;
+    // Máy tính: mở bằng nhấp đôi (bộ nhấp đôi chung); điện thoại: chạm 1 lần.
+    if(!(typeof window.plIsMobile_==='function'&&window.plIsMobile_())&&!e.plRptOpen)return;
     if(tr.dataset.src==='daily'){if(!(typeof plStep_==='function'&&plStep_('dailyViewV841550','openView','daily',id))&&window.v17EditPageRecord)window.v17EditPageRecord('daily',id)}
     else if(typeof window.plWorkView_==='function')window.plWorkView_(id);else if(window.v17EditPageRecord)window.v17EditPageRecord('work',id)}
   function render(p){try{if(p==='workProgress')renderProgress();else if(p==='workReport')renderWork()}catch(err){console.error('[pl-rpt]',err)}}
@@ -12126,30 +12128,45 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
 })();
 </script>
 <script>
-/* Máy tính: nhấp đôi vào dòng bảng = mở form Xem của dòng đó (mọi trang).
-   Trang đã có sẵn xử lý nhấp đôi thì dùng của trang; nếu sau 150ms chưa có form Xem nào mở thì:
-   nút Xem trên dòng → không có thì chọn dòng rồi bấm nút Xem trên thanh công cụ của trang. */
+/* Máy tính: nhấp đôi vào dòng bảng = mở form Xem của dòng đó (mọi bảng).
+   Nhiều trang vẽ lại bảng ngay khi nhấp chuột nên dòng bị thay trước khi có sự kiện nhấp đôi:
+   ghi nhớ dòng lúc nhấn chuột (mã data-id hoặc vị trí), nhấp đôi thì tìm lại dòng hiện tại,
+   bảo đảm dòng đang được chọn rồi mở Xem (nút Xem trên dòng → nút Xem trên thanh công cụ). */
 (function(){
   const VIEWS='#v25ViewModal.active,#plw85View.active,#pldDailyView.active,#operationModalV841420.active,#v17FormModal.active';
   const word=b=>String(b&&b.textContent||'').replace(/[^\p{L}]/gu,'').toLowerCase();
-  document.addEventListener('dblclick',e=>{
-    if(typeof window.plIsMobile_==='function'&&window.plIsMobile_())return;
+  const mobile=()=>typeof window.plIsMobile_==='function'&&window.plIsMobile_();
+  let last=null;
+  document.addEventListener('dblclick',e=>{if(!mobile()&&e.target.closest('main.container .section.active tbody tr'))try{window.getSelection().removeAllRanges()}catch(err){}});
+  document.addEventListener('mousedown',e=>{
+    if(mobile()||e.button!==0)return;
     const row=e.target.closest('main.container .section.active tbody tr');
-    if(!row||e.target.closest('button,a,input,select,textarea,label,[contenteditable="true"]'))return;
-    try{window.getSelection&&window.getSelection().removeAllRanges()}catch(err){}
-    setTimeout(()=>{
-      if(document.querySelector(VIEWS))return;
-      const own=row.querySelector('.v25-action.view,.v25-view-btn,[data-pld-view],button.view,.operation-view-v841420');
-      if(own){own.click();return}
-      const root=row.closest('section.section');if(!root)return;
-      row.click();
-      setTimeout(()=>{
-        if(document.querySelector(VIEWS))return;
-        const btn=[...root.querySelectorAll('button')].find(b=>!b.disabled&&b.offsetParent&&word(b)==='xem');
-        if(btn)btn.click();
-      },80);
-    },150);
-  });
+    if(!row||e.target.closest('button,a,input,select,textarea,label,[contenteditable="true"]')){last=null;return}
+    const body=row.parentElement,table=row.closest('table'),key=(row.dataset.id||row.dataset.pldId||row.dataset.pvtId||'')+'#'+[...body.rows].indexOf(row);
+    // Tự nhận nhấp đôi (2 lần nhấn trong 450ms trên cùng dòng): trang vẽ lại bảng khi nhấp nên sự kiện dblclick gốc có thể không tới.
+    if(last&&last.key===key&&Date.now()-last.at<450){last.at=Date.now();last.row=row;try{window.getSelection&&window.getSelection().removeAllRanges()}catch(err){}setTimeout(()=>open(0),200);last.key='';return}
+    last={key,row,sec:row.closest('section.section'),id:row.dataset.id||row.dataset.pldId||row.dataset.pvtId||'',tableId:(table&&table.id)||(body&&body.id)||'',idx:[...body.rows].indexOf(row),at:Date.now()};
+  },true);
+  function current(){
+    if(!last||!last.sec||Date.now()-last.at>1500)return null;
+    const sel=last.id?'tbody tr[data-id="'+CSS.escape(last.id)+'"],tbody tr[data-pld-id="'+CSS.escape(last.id)+'"],tbody tr[data-pvt-id="'+CSS.escape(last.id)+'"]':'';
+    let row=last.row&&last.row.isConnected?last.row:(sel?last.sec.querySelector(sel):null);
+    if(!row&&last.tableId){const t=document.getElementById(last.tableId);const b=t&&(t.tBodies?t.tBodies[0]:t);row=b&&b.rows?b.rows[last.idx]:null}
+    return row||null;
+  }
+  function toolbarView(root){return [...root.querySelectorAll('button')].find(b=>b.offsetParent&&word(b)==='xem')}
+  function open(tries){
+    if(document.querySelector(VIEWS))return;
+    const row=current();if(!row)return;
+    if(row.dataset.src){const ev=new MouseEvent('click',{bubbles:true});ev.plRptOpen=true;row.dispatchEvent(ev);return}
+    const own=row.querySelector('.v25-action.view,.v25-view-btn,[data-pld-view],button.view,.operation-view-v841420');
+    if(own){own.click();return}
+    const root=row.closest('section.section');if(!root)return;
+    if(tries===0&&!row.classList.contains('selected')){row.click();setTimeout(()=>open(1),80);return}
+    const btn=toolbarView(root);
+    if(btn&&!btn.disabled){btn.click();return}
+    if(tries<5)setTimeout(()=>open(tries+1),80);
+  }
 })();
 </script>
 </html>
