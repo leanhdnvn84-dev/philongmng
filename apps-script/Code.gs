@@ -174,6 +174,8 @@ function doGet() {
       .evaluate()
       .setTitle('PHILONG BUILDING')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    // Bắt buộc: khổ màn hình cho trang ngoài của Google (thiếu thẻ này điện thoại hiển thị như trang máy tính, chữ bị thu nhỏ).
+    try{output.addMetaTag('viewport','width=device-width, initial-scale=1');}catch(metaError){}
     try {
       const faviconUrl=PropertiesService.getScriptProperties().getProperty(V63_FAVICON_URL_PROPERTY);
       if(faviconUrl)output.setFaviconUrl(faviconUrl);
