@@ -3659,6 +3659,10 @@ html#plMobileViewport{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #plMobileViewport .pm-panel .pm-theme::before{content:"☀"}
 html#plMobileViewport[data-theme="dark"] .pm-panel .pm-theme{background:#1b2330;border-color:#3d4d63;color:#f6c453}
 html#plMobileViewport[data-theme="dark"] .pm-panel .pm-theme::before{content:"☾"}
+#plMobileViewport .pm-panel .pm-fs{flex:0 0 46px;width:46px;height:46px;min-height:46px;margin-left:auto;border-radius:50%;border:1px solid var(--plm-line,#cbd5e1);background:transparent;color:var(--plm-ink,#172033);font-size:24px!important;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#plMobileViewport .pm-panel .pm-fs[hidden]{display:none!important}
+#plMobileViewport .pm-panel .pm-fs::before{content:"⛶"}
+html#plMobileViewport.plm-fullscreen .pm-panel .pm-fs::before{content:"✕"}
 #plMobileViewport .pm-panel-user-copy b{font-size:21px;color:var(--plm-ink)}
 #plMobileViewport .pm-panel-user-copy small{font-size:17px;color:var(--plm-muted)}
 #plMobileViewport .pm-panel button{min-height:56px;font-size:20px!important}
@@ -4135,7 +4139,7 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
 
 <header class="pm-header"><div class="pm-brand pl-logo"><b class="pl-logo-phi">PHI&nbsp;</b><span class="pl-logo-long"><b>LONG</b><span>TECHNOLOGY</span></span></div><input class="pm-search" id="pmSearch" type="search" placeholder="Tìm trang này…" aria-label="Tìm trong trang hiện tại"></header>
 <nav class="pm-nav" id="pmNav" aria-label="Điều hướng điện thoại"><button type="button" data-route="menu"><span>☰</span>Menu</button><button type="button" data-route="work"><span>✓</span>Công việc</button><button type="button" data-route="maintenanceLog"><span>⚙</span>Bảo trì</button><button type="button" data-route="equipment"><span>▣</span>Thiết bị</button><button type="button" data-route="account"><span>♙</span>Tài khoản</button></nav>
-<dialog class="pm-panel" id="pmPanel"><header><h2 id="pmPanelTitle"></h2><button type="button" class="pm-close" id="pmClose" aria-label="Đóng">×</button></header><div class="pm-panel-user" id="pmPanelUser" hidden><span class="pm-panel-user-avatar" aria-hidden="true">A</span><span class="pm-panel-user-copy"><b id="pmPanelUserName"></b><small id="pmPanelUserRole"></small></span><button type="button" class="pm-theme" id="pmThemeToggle" aria-label="Đổi giao diện sáng / tối" onclick="window.toggleThemeV841534&&window.toggleThemeV841534()"></button></div><div id="pmPanelContent"></div></dialog><button type="button" class="pm-bubble" id="pmMenuBubble" aria-label="Mở menu điều hướng">☰</button><button type="button" class="pm-top" id="pmTop" aria-label="Lên đầu trang">↑</button>
+<dialog class="pm-panel" id="pmPanel"><header><h2 id="pmPanelTitle"></h2><button type="button" class="pm-close" id="pmClose" aria-label="Đóng">×</button></header><div class="pm-panel-user" id="pmPanelUser" hidden><span class="pm-panel-user-avatar" aria-hidden="true">A</span><span class="pm-panel-user-copy"><b id="pmPanelUserName"></b><small id="pmPanelUserRole"></small></span><button type="button" class="pm-fs" id="pmFullscreenToggle" aria-label="Toàn màn hình (ẩn thanh địa chỉ)" hidden></button><button type="button" class="pm-theme" id="pmThemeToggle" aria-label="Đổi giao diện sáng / tối" onclick="window.toggleThemeV841534&&window.toggleThemeV841534()"></button></div><div id="pmPanelContent"></div></dialog><button type="button" class="pm-bubble" id="pmMenuBubble" aria-label="Mở menu điều hướng">☰</button><button type="button" class="pm-top" id="pmTop" aria-label="Lên đầu trang">↑</button>
 
 <header class="topbar menu-3d-v841436">
   <div class="brand" aria-label="PHI LONG TECHNOLOGY - Hệ thống quản lý"><div class="brand-text pl-logo"><div class="brand-main pl-logo-phi">PHI&nbsp;</div><div class="pl-logo-long"><div class="brand-main">LONG</div><div class="brand-sub">TECHNOLOGY</div></div></div></div>
@@ -12301,6 +12305,31 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
     else if(typeof window.plWorkView_==='function')window.plWorkView_(id);else if(window.v17EditPageRecord)window.v17EditPageRecord('work',id)}
   function render(p){try{if(p==='workProgress')renderProgress();else if(p==='workReport')renderWork()}catch(err){console.error('[pl-rpt]',err)}}
   window.plRptRender_=render;
+})();
+</script>
+<script>
+/* Ẩn thanh địa chỉ trên điện thoại. Ứng dụng Apps Script chạy trong 2 lớp iframe của Google nên khi cuộn
+   trình duyệt KHÔNG tự thu thanh địa chỉ (không sửa được bằng CSS/thẻ meta). Cách duy nhất: Fullscreen API
+   (Android Chrome/Edge/Samsung Internet; khung Apps Script có quyền fullscreen). Trình duyệt chỉ cho phép khi
+   người dùng chạm → chạm lần đầu vào ứng dụng sẽ vào toàn màn hình; nút ⛶ trong menu để bật/tắt.
+   iPhone Safari không hỗ trợ API này → nút tự ẩn. */
+(function(){
+  const d=document,el=d.documentElement;
+  const req=el.requestFullscreen||el.webkitRequestFullscreen;
+  const exit=d.exitFullscreen||d.webkitExitFullscreen;
+  const enabled=()=>!!(req&&(d.fullscreenEnabled||d.webkitFullscreenEnabled));
+  const isFs=()=>!!(d.fullscreenElement||d.webkitFullscreenElement);
+  const mobile=()=>typeof window.plIsMobile_==='function'?window.plIsMobile_():el.id==='plMobileViewport';
+  function enter(){if(!enabled()||isFs())return;try{const p=req.call(el,{navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+  function leave(){if(!isFs()||!exit)return;try{const p=exit.call(d);if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+  function sync(){el.classList.toggle('plm-fullscreen',isFs());const b=d.getElementById('pmFullscreenToggle');if(b){b.hidden=!enabled();b.setAttribute('aria-label',isFs()?'Thoát toàn màn hình':'Toàn màn hình (ẩn thanh địa chỉ)')}}
+  d.addEventListener('fullscreenchange',sync);d.addEventListener('webkitfullscreenchange',sync);
+  let autoDone=false;
+  d.addEventListener('click',e=>{
+    if(e.target.closest&&e.target.closest('#pmFullscreenToggle')){isFs()?leave():enter();return}
+    if(autoDone||!mobile())return;autoDone=true;enter();
+  },true);
+  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',sync);else sync();
 })();
 </script>
 </html>
