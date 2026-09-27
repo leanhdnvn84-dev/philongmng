@@ -175,9 +175,10 @@ function doGet() {
       .setTitle('PHILONG BUILDING')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     // Bắt buộc: khổ màn hình cho trang ngoài của Google (thiếu thẻ này điện thoại hiển thị như trang máy tính, chữ bị thu nhỏ).
-    try{output.addMetaTag('viewport','width=device-width, initial-scale=1, viewport-fit=cover');}catch(metaError){}
-    // Thử tràn vùng tai thỏ khi mở từ biểu tượng Màn hình chính (iPhone): thanh trạng thái trong suốt.
-    try{output.addMetaTag('apple-mobile-web-app-capable','yes');output.addMetaTag('apple-mobile-web-app-status-bar-style','black-translucent');}catch(metaError){}
+    // KHÔNG dùng viewport-fit=cover / status bar black-translucent: ứng dụng nằm trong iframe của Google nên
+    // env(safe-area-inset-top)=0 → thanh tiêu đề bị thanh trạng thái iPhone che. Giữ trang dưới thanh trạng thái.
+    try{output.addMetaTag('viewport','width=device-width, initial-scale=1');}catch(metaError){}
+    try{output.addMetaTag('apple-mobile-web-app-status-bar-style','black');}catch(metaError){}
     // "Thêm vào Màn hình chính" (Android + iPhone) → mở từ biểu tượng không có thanh địa chỉ. Thẻ trong index.html nằm trong iframe nên phải gắn ở đây.
     [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-title','PHILONG']]
       .forEach(function(m){try{output.addMetaTag(m[0],m[1]);}catch(metaError){}});
