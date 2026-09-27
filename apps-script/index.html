@@ -5082,7 +5082,7 @@ function v17OptionsCompute_V85(type,m){
  return [];
 }
 /* Khi SỬA: Công việc khóa Ngày giao, Người giao, Hạn hoàn thành, Mức độ; Công việc hằng ngày khóa Ngày giao, Người giao (backend cũng giữ nguyên). */
-const V17_EDIT_LOCKED={work:['NGAY_GIAO','ID_NGUOI_GIAO','DEADLINE','MUC_DO'],daily:['NGAY','ID_NGUOI_GIAO']};
+const V17_EDIT_LOCKED={work:['NGAY_GIAO','ID_NGUOI_GIAO','NGUOI_GIAO','DEADLINE','MUC_DO'],daily:['NGAY','ID_NGUOI_GIAO','NGUOI_GIAO']};
 function v17FieldHtml(f,record){const [key,label,type,arg]=f;let val=record?.[key]??'';const locked=!!(record&&V17.form&&(V17_EDIT_LOCKED[V17.form.page]||[]).includes(key)),lockAttr=locked?' disabled title="Không được sửa sau khi đã giao việc"':'';if(key==='TRANG_THAI'&&type==='select'){if(String(val)==='HOAT_DONG')val='Sử dụng';if(String(val)==='NGUNG_SU_DUNG')val='Ngừng sử dụng'}let cls='v17-field';if(arg==='full'||type==='textarea')cls+=' full';let ctrl='';
  const optionHtml=(opts)=>'<option value="">-- Chọn --</option>'+opts.map(o=>{const p=Array.isArray(o)?o:[o,o];const isDuyetLocked=key==='TRANG_THAI'&&norm(p[0])==='DA DUYET';return `<option value="${esc(p[0])}" ${String(p[0])===String(val)?'selected':''} ${isDuyetLocked?'disabled title="Chỉ duyệt được qua nút Duyệt sau khi mở khóa Hệ thống"':''}>${esc(p[1])}</option>`}).join('');
  if(type==='employeeMulti'){const selected=new Set(String(val||'').split(/[,+;\n]/).map(x=>x.trim()).filter(Boolean));const opts=v17Options('employee'),chosen=opts.filter(o=>selected.has(String(o[0]))).map(o=>o[1]),summary=chosen.length?chosen.join(', '):'-- Chọn nhân viên làm cùng --';ctrl=`<div class="v17-multi" id="v17_multi_${key}"><input type="hidden" id="v17_${key}" value="${esc([...selected].join(','))}"><button type="button" class="v17-multi-trigger ${chosen.length?'':'empty'}" onclick="v17ToggleMulti('${key}',event)">${esc(summary)}</button><div class="v17-multi-panel" onclick="event.stopPropagation()">${opts.map(o=>`<label class="v17-multi-option"><input type="checkbox" data-multi-key="${esc(key)}" value="${esc(o[0])}" ${selected.has(String(o[0]))?'checked':''} onchange="v17MultiChanged('${key}')"><span>${esc(o[1])}</span></label>`).join('')}</div></div>`}
@@ -5090,7 +5090,7 @@ function v17FieldHtml(f,record){const [key,label,type,arg]=f;let val=record?.[ke
  else if(['employee','contractor','supplier','area','areaLegacy','maintenanceArea','maintenanceItem','device','warehouseDevice','usedDevice','tenant','role','proposalMaster','materialGroup','materialUnit'].includes(type)){const opts=v17Options(type==='areaLegacy'?'area':type);if((locked||type==='areaLegacy'||type==='supplier'||type==='contractor'||type==='usedDevice')&&val&&!opts.some(o=>String(o[0])===String(val)))opts.unshift([val,type==='usedDevice'&&record?.TEN_THIET_BI?[val,record.TEN_THIET_BI,`Tồn ${record.SO_LUONG_TON??1}`].join(' · '):val]);const change=key==='ID_NGUOI_DE_XUAT'?'onchange="v8414SyncProposalDepartment_(this.value)"':key==='ID_THIET_BI'?'onchange="v841494SyncDisposalDevice_(this.value)"':'';ctrl=`<select id="v17_${key}" ${change}${lockAttr}>${optionHtml(opts)}</select>`}
  else if(type==='select'){const opts=(arg||[]).slice();if(locked&&val!==''&&!opts.some(o=>String(Array.isArray(o)?o[0]:o)===String(val)))opts.unshift(String(val));ctrl=`<select id="v17_${key}" ${key==='LOAI_GIAO_DICH'?'onchange="v17StockTypeChanged(this)"':''}${lockAttr}>${optionHtml(opts)}</select>`}
  else if(type==='textarea')ctrl=`<textarea id="v17_${key}">${esc(val)}</textarea>`;
- else ctrl=`<input id="v17_${key}" type="${type==='number'?'number':type==='date'?'date':type==='email'?'email':type==='password'?'password':'text'}" value="${esc(val)}"${locked?' readonly title="Không được sửa sau khi đã giao việc"':''} ${arg==='master'||arg==='readonly'?`readonly title="${arg==='readonly'?'Dữ liệu tự động lấy theo người đề xuất':'Dữ liệu tự động lấy từ danh mục'}"`:''}>`;
+ else ctrl=`<input id="v17_${key}" type="${type==='number'?'number':type==='date'?'date':type==='email'?'email':type==='password'?'password':'text'}" value="${esc(val)}"${locked?' readonly disabled tabindex="-1" class="v17-locked" title="Không được sửa sau khi đã giao việc"':''} ${arg==='master'||arg==='readonly'?`readonly title="${arg==='readonly'?'Dữ liệu tự động lấy theo người đề xuất':'Dữ liệu tự động lấy từ danh mục'}"`:''}>`;
  return `<div class="${cls}"><label>${esc(label)}</label>${ctrl}</div>`;
 }
 function v17MaterialPopover(){let p=document.getElementById('v17MaterialPopover');if(!p){p=document.createElement('div');p.id='v17MaterialPopover';p.className='v17-material-popover';document.body.appendChild(p)}return p;}
@@ -12169,4 +12169,19 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
   }
 })();
 </script>
+<script>
+/* Khóa trường đã giao việc khi SỬA (mọi thiết bị): Công việc — ngày giao, người giao, hạn hoàn thành, mức độ; Công việc hằng ngày — ngày giao, người giao. */
+(function(){
+ function lock(){
+  const f=window.V17&&V17.form,box=document.getElementById('v17FormFields');
+  if(!f||!box||!f.record||!f.record.ID)return;
+  (V17_EDIT_LOCKED[f.page]||[]).forEach(k=>{const el=document.getElementById('v17_'+k);if(!el||el.disabled)return;el.disabled=true;el.readOnly=true;el.tabIndex=-1;el.classList.add('v17-locked');el.title='Không được sửa sau khi đã giao việc'});
+ }
+ function init(){const box=document.getElementById('v17FormFields');if(!box)return setTimeout(init,500);new MutationObserver(lock).observe(box,{childList:true});
+  document.addEventListener('focusin',e=>{if(e.target.classList&&e.target.classList.contains('v17-locked'))e.target.blur()},true);
+  document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('.v17-locked'))e.preventDefault()},true)}
+ document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
+})();
+</script>
+<style>#v17FormFields .v17-locked,#v17FormFields select:disabled,#v17FormFields input:disabled{pointer-events:none;background:#f1f5f9!important;color:#64748b!important;-webkit-text-fill-color:#64748b;opacity:1;cursor:not-allowed}</style>
 </html>
