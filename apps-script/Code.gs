@@ -1934,6 +1934,7 @@ function autoFillWorkDoneDateV157_(x){
 }
 
 function legacyWorkRows_() {
+  ensureStageBackfillV162_(V22.SHEETS.work);
   const contacts=indexBy_(readObjects_(V22.SHEETS.employees),'ID');
   // V119 — today_() gọi Utilities.formatDate (API Apps Script, không phải JS
   // thuần) nhưng trước đây bị gọi lại bên trong .map() cho MỖI dòng dù kết
@@ -1949,6 +1950,7 @@ function legacyWorkRows_() {
 }
 
 function legacyDailyRows_() {
+  ensureStageBackfillV162_(V22.SHEETS.daily);
   const contacts=indexBy_(readObjects_(V22.SHEETS.employees),'ID');
   const contractors=indexBy_(readObjects_(V22.SHEETS.contractors),'ID');
   return mapDailyRowsV82_(readObjects_(V22.SHEETS.daily),contacts,contractors);
@@ -2968,7 +2970,8 @@ function appendObject_(sheetName,obj){
 function updateRowFields_(sheetName,rowNumber,fields){
   const sh=getSheet_(sheetName), headers=getHeaders_(sheetName);
   const row=sh.getRange(rowNumber,1,1,headers.length).getValues()[0];
-  Object.keys(fields||{}).forEach(k=>{const i=headers.indexOf(k);if(i>=0)row[i]=fields[k];});
+  const appendOnly=isWorkSheetV162_(sheetName);
+  Object.keys(fields||{}).forEach(k=>{const i=headers.indexOf(k);if(i<0)return;row[i]=appendOnly&&WORK_APPEND_ONLY_V162.indexOf(k)>=0?mergeAppendOnlyV162_(row[i],fields[k]):fields[k];});
   sh.getRange(rowNumber,1,1,headers.length).setValues([row]);
   v90AfterRowWrite_(sheetName,rowNumber);
   v20ctx_().lastWriteRows[sheetName]=rowNumber;
@@ -3045,29 +3048,111 @@ function legacyMaintenancePlans_(){
 // Các hàm save chỉ trả record vừa ghi; V20 verify một lần sau cùng.
 // Khóa trường khi SỬA: Công việc giữ nguyên Ngày giao, Người giao, Hạn hoàn thành, Mức độ;
 // Công việc hằng ngày giữ nguyên Ngày giao, Người giao. Thêm mới vẫn nhập bình thường.
-const WORK_LOCKED_FIELDS_V160={work:['NGAY_GIAO','ID_NGUOI_GIAO','NGUOI_GIAO','DEADLINE','MUC_DO'],daily:['NGAY','ID_NGUOI_GIAO','NGUOI_GIAO']};
+const WORK_LOCKED_FIELDS_V160={work:['NGAY_GIAO','ID_NGUOI_GIAO','NGUOI_GIAO','DEADLINE','MUC_DO','TIEN_DO','GIAI_DOAN','GIAI_DOAN_HIEN_TAI'],daily:['NGAY','ID_NGUOI_GIAO','NGUOI_GIAO','TIEN_DO','GIAI_DOAN','GIAI_DOAN_HIEN_TAI']};
 function keepLockedWorkFieldsV160_(sheetName,record){
   const key=sheetName===V22.SHEETS.work?'work':(sheetName===V22.SHEETS.daily?'daily':'');
-  const id=String(record&&record.ID||'').trim();if(!key||!id)return record;
-  const old=findById_(sheetName,'ID',id);if(!old)return record;
+  if(!key)return record;ensureStageColumnsV162_(sheetName);
+  const id=String(record&&record.ID||'').trim(),old=id?findById_(sheetName,'ID',id):null;
+  if(!old){delete record.GIAI_DOAN;delete record.GIAI_DOAN_HIEN_TAI;return applyProgressAppendV162_(record,null);}
   WORK_LOCKED_FIELDS_V160[key].forEach(function(k){if(Object.prototype.hasOwnProperty.call(old,k))record[k]=old[k];else delete record[k];});
-  return record;
+  return applyProgressAppendV162_(record,old);
 }
-// Popup phân tích tiến độ: ghi nhận mốc — nối 1 dòng "- dd/mm [Mốc]: nội dung" vào CUỐI ô TIEN_DO (đọc giá trị mới nhất
-// trong Sheet rồi mới nối nên không ghi đè sửa đổi của người khác). Chỉ ghi TIEN_DO (+ trạng thái khi chọn Hoàn thành).
-const WORK_MILESTONES_V161=['Khảo sát','Báo giá','Duyệt','Thi công','Hoàn thành','Chờ'];
+// ============================================================================
+// V162 — TIẾN ĐỘ & GIAI ĐOẠN "CHỈ BỔ SUNG" (Công việc + Công việc hằng ngày)
+//  - TIEN_DO, GIAI_DOAN: chỉ được nối thêm dòng, không sửa/xóa dòng cũ (chặn ở máy chủ).
+//  - Dòng mới luôn lấy NGÀY HÔM NAY của máy chủ (không cho chọn lùi ngày).
+//  - Đổi giai đoạn → nối "- dd/MM [Mới] ← Cũ: nội dung" vào GIAI_DOAN, ghi GIAI_DOAN_HIEN_TAI để lọc trên Sheet.
+//  - Client gửi nội dung mới qua TIEN_DO_MOI, giai đoạn mới qua GIAI_DOAN_MOI.
+// ============================================================================
+const WORK_STAGES_V162=['Khảo sát','Báo giá','Duyệt','Thi công','Hoàn thành','Chờ'];
+const WORK_STAGE_COLUMNS_V162=['GIAI_DOAN','GIAI_DOAN_HIEN_TAI'];
+const WORK_APPEND_ONLY_V162=['TIEN_DO','GIAI_DOAN'];
+function isWorkSheetV162_(sheetName){return sheetName===V22.SHEETS.work||sheetName===V22.SHEETS.daily;}
+function ensureStageColumnsV162_(sheetName){WORK_STAGE_COLUMNS_V162.forEach(function(c){ensureSheetColumnV8427_(sheetName,c);});}
+function stageDayV162_(){return Utilities.formatDate(new Date(),V22.TZ,'dd/MM');}
+function currentStageV162_(r){
+  const cur=String(r&&r.GIAI_DOAN_HIEN_TAI||'').trim();if(cur)return cur;
+  const lines=String(r&&r.GIAI_DOAN||'').split('\n');
+  for(let i=lines.length-1;i>=0;i--){const m=lines[i].match(/\[([^\]]+)\]/);if(m)return m[1].trim();}
+  return '';
+}
+// Nối an toàn: giữ nguyên nội dung hiện có; chỉ thêm các dòng mới chưa có (chặn sửa/xóa dòng cũ, không mất dòng khi 2 người cùng lưu).
+function mergeAppendOnlyV162_(cur,next){
+  const c=String(cur==null?'':cur).replace(/\s+$/,''),n=String(next==null?'':next).replace(/\s+$/,'');
+  if(!c)return n;if(n===c||n.indexOf(c)===0)return n||c;
+  const have={};c.split('\n').forEach(function(l){have[l.trim()]=true;});
+  const extra=n.split('\n').filter(function(l){return l.trim()&&!have[l.trim()];});
+  return extra.length?c+'\n'+extra.join('\n'):c;
+}
+// Áp dụng cập nhật lên bản ghi x (old = bản ghi đang có trong Sheet, null nếu tạo mới).
+function applyProgressAppendV162_(x,old){
+  const text=String(x.TIEN_DO_MOI||'').replace(/\s+/g,' ').trim();
+  let stage=String(x.GIAI_DOAN_MOI||'').trim();delete x.TIEN_DO_MOI;delete x.GIAI_DOAN_MOI;
+  if(stage&&WORK_STAGES_V162.indexOf(stage)<0)throw new Error('GIAI_DOAN_KHONG_HOP_LE:'+stage);
+  const day=stageDayV162_(),prev=old?currentStageV162_(old):'';
+  // Đổi trạng thái sang Hoàn thành mà chưa chọn giai đoạn → tự ghi giai đoạn Hoàn thành.
+  if(!stage&&isCompletedStatus_(x.TRANG_THAI)&&!(old&&isCompletedStatus_(old.TRANG_THAI))&&prev!=='Hoàn thành')stage='Hoàn thành';
+  if(text||stage){const line='- '+day+(stage?' ['+stage+']':'')+(text?': '+text:'');
+    const base=String((old?old.TIEN_DO:x.TIEN_DO)||'').replace(/\s+$/,'');x.TIEN_DO=(base?base+'\n':'')+line;}
+  if(stage&&stage!==prev){
+    const base=String((old?old.GIAI_DOAN:x.GIAI_DOAN)||'').replace(/\s+$/,'');
+    x.GIAI_DOAN=(base?base+'\n':'')+'- '+day+' ['+stage+'] ← '+(prev||'(chưa có)')+(text?': '+text:'');
+    x.GIAI_DOAN_HIEN_TAI=stage;
+  }
+  return x;
+}
+// Popup phân tích tiến độ: ghi nhận mốc (luôn ngày hôm nay).
 function saveWorkProgressMilestoneV161_(input){
-  const id=String(input.ID||'').trim(),tag=String(input.TAG||'').trim(),text=String(input.TEXT||'').replace(/\s+/g,' ').trim();
+  const sheetName=String(input.SHEET||'work')==='daily'?V22.SHEETS.daily:V22.SHEETS.work;
+  const id=String(input.ID||'').trim(),tag=String(input.TAG||'').trim();
   if(!id)throw new Error('WORK_ID_REQUIRED');
-  if(WORK_MILESTONES_V161.indexOf(tag)<0)throw new Error('MOC_TIEN_DO_KHONG_HOP_LE');
-  const m=String(input.DATE||'').match(/^(\d{4})-(\d{2})-(\d{2})$/),day=m?m[3]+'/'+m[2]:Utilities.formatDate(new Date(),V22.TZ,'dd/MM');
-  const row=findRowNumberByIdV20_(V22.SHEETS.work,'ID',id);if(!row)throw new Error('ROW_NOT_FOUND:'+id);
-  const old=findById_(V22.SHEETS.work,'ID',id)||{},cur=String(old.TIEN_DO||'').replace(/\s+$/,'');
-  const fields={TIEN_DO:(cur?cur+'\n':'')+'- '+day+' ['+tag+']: '+text};
-  if(tag==='Hoàn thành'&&input.COMPLETE===true){fields.TRANG_THAI='Hoàn thành';if(!old.NGAY_HOAN_THANH)fields.NGAY_HOAN_THANH=m?m[0]:today_();}
-  updateRowFields_(V22.SHEETS.work,row,fields);
-  return Object.assign({},old,fields,{ID:id});
+  if(WORK_STAGES_V162.indexOf(tag)<0)throw new Error('MOC_TIEN_DO_KHONG_HOP_LE');
+  ensureStageColumnsV162_(sheetName);
+  const lock=LockService.getScriptLock();lock.waitLock(15000);
+  try{
+    const row=findRowNumberByIdV20_(sheetName,'ID',id);if(!row)throw new Error('ROW_NOT_FOUND:'+id);
+    const old=findById_(sheetName,'ID',id)||{};
+    const x={TIEN_DO_MOI:input.TEXT||'',GIAI_DOAN_MOI:tag};
+    if(tag==='Hoàn thành'&&input.COMPLETE===true){x.TRANG_THAI='Hoàn thành';if(!dateOnly_(old.NGAY_HOAN_THANH))x.NGAY_HOAN_THANH=today_();}
+    applyProgressAppendV162_(x,old);
+    updateRowFields_(sheetName,row,x);
+    return Object.assign({},old,x,{ID:id});
+  }finally{lock.releaseLock();}
 }
+// Nhận diện giai đoạn cho dữ liệu cũ: thẻ [Mốc] → từ khóa trong tiến độ → trạng thái.
+function detectStageV162_(r){
+  const text=String(r.TIEN_DO||'');let idx=-1;
+  const KW=[/khảo sát|kiểm tra|xem qua/i,/báo giá|chào giá|dự toán/i,/duyệt|trình/i,/thi công|đang sửa|đang làm|xử lý|\bthay\b|lắp|tháo dỡ|giám sát thợ|bắt đầu|triển khai|trải|\bsơn\b|\bđục\b|\bđổ\b|quét|dán|thợ vào/i,/hoàn thành|đã xong|\bxong\b|đã sửa|nghiệm thu/i];
+  const tags=text.match(/\[([^\]]+)\]/g)||[];
+  tags.forEach(function(t){const i=WORK_STAGES_V162.indexOf(t.slice(1,-1).trim());if(i>=0&&i<5)idx=Math.max(idx,i);});
+  if(idx<0)KW.forEach(function(re,i){if(re.test(text))idx=Math.max(idx,i);});
+  const st=norm_(r.TRANG_THAI),done=isCompletedStatus_(r.TRANG_THAI)||norm_(r.KET_QUA)==='DA_XONG';
+  if(done)idx=4;else if(/^DANG/.test(st))idx=Math.max(idx,3);else if(idx===4)idx=3;
+  return idx>=0?WORK_STAGES_V162[idx]:'';
+}
+function backfillStagesV162_(sheetName){
+  ensureStageColumnsV162_(sheetName);
+  const sh=getSheet_(sheetName),last=sh.getLastRow();if(last<2)return 0;
+  const headers=getHeaders_(sheetName),iG=headers.indexOf('GIAI_DOAN'),iH=headers.indexOf('GIAI_DOAN_HIEN_TAI');if(iG<0||iH<0)return 0;
+  const values=sh.getRange(2,1,last-1,headers.length).getValues(),day=stageDayV162_();let n=0;
+  const g=values.map(function(v){return [v[iG]];}),h=values.map(function(v){return [v[iH]];});
+  values.forEach(function(v,r){
+    const o={};headers.forEach(function(k,i){o[k]=v[i];});
+    if(!String(o.ID||'').trim()||String(o.GIAI_DOAN||'').trim())return;
+    const stage=detectStageV162_(o);if(!stage)return;
+    g[r][0]='- '+day+' ['+stage+'] (tự nhận diện)';h[r][0]=stage;n++;
+  });
+  if(n){sh.getRange(2,iG+1,values.length,1).setValues(g);sh.getRange(2,iH+1,values.length,1).setValues(h);invalidateSheetV20_(sheetName,true);}
+  return n;
+}
+// Tự chạy 1 lần cho mỗi sheet (lần đầu mở trang Công việc / Hằng ngày / Báo cáo). Có thể chạy tay trong Editor.
+function ensureStageBackfillV162_(sheetName){
+  try{const props=PropertiesService.getScriptProperties(),key='PL162_STAGE_BACKFILL_'+sheetName;if(props.getProperty(key))return;
+    const lock=LockService.getScriptLock();if(!lock.tryLock(5000))return;
+    try{if(props.getProperty(key))return;const n=backfillStagesV162_(sheetName);props.setProperty(key,nowStamp_()+' · '+n);}finally{lock.releaseLock();}
+  }catch(e){console.warn('ensureStageBackfillV162_',sheetName,e);}
+}
+function backfillWorkStagesV162(){return {work:backfillStagesV162_(V22.SHEETS.work),daily:backfillStagesV162_(V22.SHEETS.daily)};}
 function legacySaveWork_(r){const x=autoFillWorkDoneDateV157_(normalizeWorkRecordV141_(keepLockedWorkFieldsV160_(V22.SHEETS.work,Object.assign({},r))));x.KET_QUA='';if(!x.ID)x.ID=nextId_(V22.SHEETS.work,'CV');upsertObject_(V22.SHEETS.work,'ID',x);return x;}
 function legacySaveDaily_(r){const x=normalizeWorkRecordV141_(keepLockedWorkFieldsV160_(V22.SHEETS.daily,Object.assign({},r)));if(!x.ID)x.ID=nextId_(V22.SHEETS.daily,'HN');upsertObject_(V22.SHEETS.daily,'ID',x);return x;}
 function legacySaveProposal_(r){const x=Object.assign({},r);legacyBlockDirectApprovalV132_(V22.SHEETS.proposals,x);ensureSheetColumnV8427_(V22.SHEETS.proposals,'NGUOI_DE_XUAT');if(x.ID_NGUOI_DE_XUAT){const employee=findById_(V22.SHEETS.employees,'ID',x.ID_NGUOI_DE_XUAT);if(employee)x.NGUOI_DE_XUAT=employeeNameV83_(employee,x.ID_NGUOI_DE_XUAT);}if(!x.ID)x.ID=nextId_(V22.SHEETS.proposals,'DX');if(!x.NGAY_TAO)x.NGAY_TAO=today_();upsertObject_(V22.SHEETS.proposals,'ID',x);return x;}
