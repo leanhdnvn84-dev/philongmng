@@ -3098,7 +3098,7 @@ function applyProgressAppendV162_(x,old,sheetName){
   const day=stageDayV162_(),prev=old?currentStageV162_(old):'';
   // Đổi trạng thái sang Hoàn thành mà chưa chọn giai đoạn → tự ghi giai đoạn Hoàn thành.
   if(!stage&&isCompletedStatus_(x.TRANG_THAI)&&!(old&&isCompletedStatus_(old.TRANG_THAI))&&prev!=='Hoàn thành')stage='Hoàn thành';
-  if(text||stage||photos.length){const line='- '+day+(stage?' ['+stage+']':'')+(text||photos.length?': '+text:'')+(photos.length?(text?' ':'')+'(📷 '+photos.length+')':'');
+  if(text||stage||photos.length){const line='- '+day+(stage?' ['+stage+']':'')+(text||photos.length?': '+text:'')+(photos.length?(text?' ':'')+'('+photos.length+' ảnh)':'');
     const base=String((old?old.TIEN_DO:x.TIEN_DO)||'').replace(/\s+$/,'');x.TIEN_DO=(base?base+'\n':'')+line;
     if(photos.length)commitWorkPhotosV163_(sheetName===V22.SHEETS.daily?'daily':'work',String(old.ID),photos,line,stage||(old?currentStageV162_(old):''));}
   if(stage&&stage!==prev){

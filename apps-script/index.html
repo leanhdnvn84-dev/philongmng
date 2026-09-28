@@ -12438,4 +12438,37 @@ html[data-theme="dark"] #plProgPop .pp{background:#111827;color:#e5e7eb}
 html[data-theme="dark"] #plProgPop :is(.k,.nx,footer){background:#1f2937;border-color:#334155}
 html[data-theme="dark"] #plProgPop footer button:not(.p){background:#111827;color:#e5e7eb;border-color:#334155}
 </style>
+<script>
+/* Bảng Công việc / Công việc hằng ngày (máy tính): ô chữ dài chỉ hiện tối đa 3 dòng; rê chuột vào ô bị cắt → khung nổi hiện đầy đủ
+   (xuống dòng theo từng mốc). Dấu "(📷 n)" cũ hiển thị thành "(n ảnh)" để máy thiếu phông biểu tượng vẫn đọc được. */
+(function(){
+  const BODIES='#w85Rows,#pldRows',d=document,fix=s=>String(s||'').replace(/\(📷\s*(\d+)\)/g,'($1 ảnh)');
+  const mobile=()=>typeof window.plIsMobile_==='function'&&window.plIsMobile_();
+  let timer=0;
+  function run(){timer=0;if(mobile())return;
+    d.querySelectorAll(BODIES).forEach(tb=>tb.querySelectorAll('td:not([data-c3])').forEach(td=>{td.dataset.c3='1';
+      if(td.querySelector('.badge,button,input,select,.v25-actions')||td.textContent.trim().length<30)return;
+      td.innerHTML='<div class="pl-c3">'+fix(td.innerHTML)+'</div>';const c=td.firstChild;
+      if(c.scrollHeight>c.clientHeight+2)td.classList.add('pl-c3-more')}))}
+  new MutationObserver(()=>{if(!timer)timer=setTimeout(run,60)}).observe(d.documentElement,{childList:true,subtree:true});
+  let pop=null;
+  function hide(){if(pop)pop.remove();pop=null;d.querySelectorAll('.pl-c3-on').forEach(x=>x.classList.remove('pl-c3-on'))}
+  d.addEventListener('mouseover',e=>{const td=e.target.closest&&e.target.closest('td.pl-c3-more');if(!td){if(pop&&!e.target.closest('#plC3Pop'))hide();return}
+    if(td.classList.contains('pl-c3-on'))return;hide();td.classList.add('pl-c3-on');
+    const th=td.closest('table')?.querySelectorAll('thead th')[td.cellIndex];pop=d.createElement('div');pop.id='plC3Pop';
+    pop.innerHTML='<b>'+(th?th.textContent.trim():'Chi tiết')+' · đầy đủ</b><div></div>';pop.lastChild.textContent=fix(td.textContent).trim();d.body.appendChild(pop);
+    const r=td.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;let x=Math.min(r.left+12,innerWidth-w-8),y=r.bottom+4;if(y+h>innerHeight-8)y=Math.max(8,r.top-h-4);
+    pop.style.left=Math.max(8,x)+'px';pop.style.top=y+'px'});
+  d.addEventListener('scroll',hide,true);
+})();
+</script>
+<style>
+:is(#w85Rows,#pldRows) .pl-c3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;max-height:4.2em}
+:is(#w85Rows,#pldRows) td.pl-c3-more{position:relative;cursor:help}
+:is(#w85Rows,#pldRows) td.pl-c3-more:after{content:"…xem";position:absolute;right:4px;bottom:3px;font-size:10px;font-weight:700;color:#a71936;background:#fff1f2;border-radius:4px;padding:0 4px;line-height:1.4}
+:is(#w85Rows,#pldRows) td.pl-c3-on{outline:2px solid #a71936;outline-offset:-2px}
+#plC3Pop{position:fixed;z-index:10060;max-width:420px;max-height:60vh;overflow:auto;background:#fff;color:#172033;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 12px 30px rgba(15,23,42,.25);padding:10px 12px;font-size:13.5px;line-height:1.45;pointer-events:auto}
+#plC3Pop b{display:block;font-size:11px;color:#a71936;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px}#plC3Pop div{white-space:pre-line}
+html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#334155}
+</style>
 </html>
