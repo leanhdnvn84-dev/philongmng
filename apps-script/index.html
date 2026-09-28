@@ -3920,8 +3920,6 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
   text-transform:uppercase;
 }
 </style>
-</head>
-<body>
 <script id="pl-dom-hub">
 /* Bộ theo dõi DOM dùng chung: MỘT MutationObserver trên body thay cho ~20 bộ riêng lẻ (mỗi lần vẽ bảng
    trước đây trình duyệt phải gom và phát bản ghi thay đổi cho từng bộ).
@@ -3934,6 +3932,8 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
   window.plOnDomFrame_=fn=>{let q=false;const cb=()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;fn()})};cb.__plName=fn;return window.plOnDom_(cb)};
 })();
 </script>
+</head>
+<body>
 <div id="plStartupGateV841592" role="dialog" aria-modal="true" aria-labelledby="plStartupTitleV841592" tabindex="-1">
   <section class="pl-startup-shell">
     <div class="pl-startup-brand" aria-label="PHI LONG TECHNOLOGY">
@@ -6244,11 +6244,8 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       observer41?.disconnect();observer41=null;return;
     }
     if(observer41||!document.body)return;
-    apply41(document); // vừa chuyển sang desktop: bù các bảng đã đổi khi đang ở mobile
-    observer41=plOnDom_(records=>{if(isMobileLayout41())return;const tables=new Set();
-      for(const r of records){const t=r.target,tb=t.closest?.('.table-wrap table');if(tb){tables.add(tb);continue}
-        r.addedNodes.forEach(n=>{if(n.nodeType!==1)return;if(n.matches('.table-wrap table'))tables.add(n);n.querySelectorAll('.table-wrap table').forEach(x=>tables.add(x))})}
-      tables.forEach(table=>apply41Table(table))});
+    // Trước: quét MỌI bảng ở MỖI lần DOM đổi (hàng trăm lần khi vẽ 1 bảng) → nay tối đa 1 lần / khung hình.
+    observer41=plOnDomFrame_(()=>{if(!isMobileLayout41())apply41(document)});
   }
   window.addEventListener('resize',installObserver41,{passive:true});
 })();
