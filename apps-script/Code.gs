@@ -2574,6 +2574,7 @@ function legacyV22DispatchNoAuth_(fn, args, user) {
 
     case 'getMaintenancePlans': requirePermission_(user,MODULES.MAINTENANCE,'XEM'); return legacyMaintenancePlans_();
 
+    case 'saveWorkProgressMilestone': requirePermission_(user,MODULES.WORK,'SUA'); return saveWorkProgressMilestoneV161_(args[0]||{});
     case 'saveWork': requirePermission_(user,MODULES.WORK,(args[0]&&args[0].ID)?'SUA':'THEM'); return legacySaveWork_(args[0]||{});
     case 'deleteWork': requireDeletePasswordV144_(args[1]); requirePermission_(user,MODULES.WORK,'XOA'); archiveAndDeleteById_(V22.SHEETS.work,'ID',args[0],user,'WORK_DELETE'); return {ok:true};
     case 'saveDailyWork': requirePermission_(user,MODULES.DAILY,(args[0]&&args[0].ID)?'SUA':'THEM'); return legacySaveDaily_(args[0]||{});
@@ -3051,6 +3052,21 @@ function keepLockedWorkFieldsV160_(sheetName,record){
   const old=findById_(sheetName,'ID',id);if(!old)return record;
   WORK_LOCKED_FIELDS_V160[key].forEach(function(k){if(Object.prototype.hasOwnProperty.call(old,k))record[k]=old[k];else delete record[k];});
   return record;
+}
+// Popup phân tích tiến độ: ghi nhận mốc — nối 1 dòng "- dd/mm [Mốc]: nội dung" vào CUỐI ô TIEN_DO (đọc giá trị mới nhất
+// trong Sheet rồi mới nối nên không ghi đè sửa đổi của người khác). Chỉ ghi TIEN_DO (+ trạng thái khi chọn Hoàn thành).
+const WORK_MILESTONES_V161=['Khảo sát','Báo giá','Duyệt','Thi công','Hoàn thành','Chờ'];
+function saveWorkProgressMilestoneV161_(input){
+  const id=String(input.ID||'').trim(),tag=String(input.TAG||'').trim(),text=String(input.TEXT||'').replace(/\s+/g,' ').trim();
+  if(!id)throw new Error('WORK_ID_REQUIRED');
+  if(WORK_MILESTONES_V161.indexOf(tag)<0)throw new Error('MOC_TIEN_DO_KHONG_HOP_LE');
+  const m=String(input.DATE||'').match(/^(\d{4})-(\d{2})-(\d{2})$/),day=m?m[3]+'/'+m[2]:Utilities.formatDate(new Date(),V22.TZ,'dd/MM');
+  const row=findRowNumberByIdV20_(V22.SHEETS.work,'ID',id);if(!row)throw new Error('ROW_NOT_FOUND:'+id);
+  const old=findById_(V22.SHEETS.work,'ID',id)||{},cur=String(old.TIEN_DO||'').replace(/\s+$/,'');
+  const fields={TIEN_DO:(cur?cur+'\n':'')+'- '+day+' ['+tag+']: '+text};
+  if(tag==='Hoàn thành'&&input.COMPLETE===true){fields.TRANG_THAI='Hoàn thành';if(!old.NGAY_HOAN_THANH)fields.NGAY_HOAN_THANH=m?m[0]:today_();}
+  updateRowFields_(V22.SHEETS.work,row,fields);
+  return Object.assign({},old,fields,{ID:id});
 }
 function legacySaveWork_(r){const x=autoFillWorkDoneDateV157_(normalizeWorkRecordV141_(keepLockedWorkFieldsV160_(V22.SHEETS.work,Object.assign({},r))));x.KET_QUA='';if(!x.ID)x.ID=nextId_(V22.SHEETS.work,'CV');upsertObject_(V22.SHEETS.work,'ID',x);return x;}
 function legacySaveDaily_(r){const x=normalizeWorkRecordV141_(keepLockedWorkFieldsV160_(V22.SHEETS.daily,Object.assign({},r)));if(!x.ID)x.ID=nextId_(V22.SHEETS.daily,'HN');upsertObject_(V22.SHEETS.daily,'ID',x);return x;}

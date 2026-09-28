@@ -12212,9 +12212,12 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
   String(txt||'').split(/\n+/).forEach(l=>{l=l.replace(/^\s*[-–•+*]\s*/,'').trim();if(!l)return;l.split(/(?<=[.;])\s+(?=(?:ngày\s*)?\d{1,2}[\/\-.]\d{1,2})/i).forEach(x=>{x=x.trim();if(x)parts.push(x)})});
   let prev=giao;return parts.map(t=>{const m=t.match(DRE);let d=null;
    if(m){const dd=+m[1],mm=+m[2],yy=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):y0;if(dd>=1&&dd<=31&&mm>=1&&mm<=12){d=new Date(yy,mm-1,dd);if(!m[3]&&giao&&d<new Date(giao-30*864e5))d.setFullYear(yy+1)}}
-   const lead=m&&t.indexOf(m[0])<6,body=lead?t.slice(t.indexOf(m[0])+m[0].length).replace(/^\s*[:\-–,]\s*/,''):t;
-   if(lead&&!body.trim())return null; // dòng "- dd/mm:" chưa gõ nội dung → bỏ qua
-   let pi=-1;PH.forEach((p,i)=>{if(p[1].test(t))pi=i});const e={d,after:d?null:prev,t:body||t,pi,wait:WAIT.test(t)};if(d)prev=d;return e}).filter(Boolean);
+   const lead=m&&t.indexOf(m[0])<6;let body=lead?t.slice(t.indexOf(m[0])+m[0].length).replace(/^\s*[:\-–,]\s*/,''):t;
+   // Thẻ mốc chọn tay "[Thi công]" ưu tiên hơn đoán theo từ khóa.
+   const tg=body.match(/^\[([^\]]+)\]\s*[:\-–]?\s*/),tag=tg?tg[1].trim().toLowerCase():'';if(tg)body=body.slice(tg[0].length);
+   if(lead&&!tg&&!body.trim())return null; // dòng "- dd/mm:" chưa gõ nội dung → bỏ qua
+   let pi=-1,wait;if(tg){pi=PH.findIndex(p=>p[0].toLowerCase()===tag);wait=tag==='chờ'}else{PH.forEach((p,i)=>{if(p[1].test(t))pi=i});wait=WAIT.test(t)}
+   const e={d,after:d?null:prev,t:body||(tg?tg[1]:t),pi,wait,tag:!!tg};if(d)prev=d;return e}).filter(Boolean);
  }
  function host(){let el=document.getElementById('plProgPop');if(el)return el;el=document.createElement('div');el.id='plProgPop';el.innerHTML='<div class="pp" role="dialog" aria-modal="true"></div>';
   el.addEventListener('click',e=>{if(e.target===el||e.target.closest('[data-pp-close]'))el.classList.remove('active')});document.body.appendChild(el);return el}
@@ -12228,7 +12231,8 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
   const k=(v,t,c)=>`<div class="k ${c||''}"><b>${v}</b><span>${t}</span></div>`;
   let h=`<header><div><span class="tag">${esc(r.MUC_DO||'—')}</span><small>Phân tích tiến độ · ${esc(window.plRptPerson_?plRptPerson_(r):'')} · Giao ${D(giao)||'—'} → Hạn ${D(han)||'—'}</small><h2>${esc(r.NOI_DUNG||r.ID)}</h2></div><button type="button" class="x" data-pp-close>×</button></header>
   <div class="kp">${k(E.length,`lần cập nhật (${known.length} có ngày)`)}${k(stale===null?'—':stale+' ngày',`từ lần cập nhật cuối${last?' ('+D(last.d)+')':''}`,stale>7?'red':'yel')}${k(cur?cur[0]:'Chưa rõ','giai đoạn hiện tại'+(lastE&&lastE.wait?' · đang chờ':''),'yel')}${k(waitDays+' ngày',`thời gian chờ${used?' ('+Math.round(waitDays*100/Math.max(1,used))+'% thời gian)':''}`,waitDays>7?'red':'')}${k(left===null?'Chưa có hạn':left<0?'Trễ '+(-left)+' ngày':'Còn '+left+' ngày',usedPct===null?'':'đã dùng '+usedPct+'% thời gian',left!==null&&left<=3?'red':'')}</div>
-  <div class="st"><div class="d">Giao việc<br>${D(giao)||'—'}</div>${PH.map((p,i)=>{const f=E.find(e=>e.pi===i&&e.d);const fc=i===curI&&!f?E.find(e=>e.d):null;return `<div class="${i<curI?(f?'d':'s'):i===curI?'c':''}">${p[0]}<br>${f?D(f.d):fc?'từ '+D(fc.d):i<curI?'bỏ qua':'—'}</div>`}).join('')}</div>
+  <div class="hint">👆 Bấm vào một mốc để ghi nhận tay</div><div class="st"><div class="d">Giao việc<br>${D(giao)||'—'}</div>${PH.map((p,i)=>{const f=E.find(e=>e.pi===i&&e.d);const fc=i===curI&&!f?E.find(e=>e.d):null;return `<div data-step="${i}" title="Bấm để ghi nhận mốc ${p[0]}" class="${i<curI?(f?'d':'s'):i===curI?'c':''}">${p[0]}<br>${f?D(f.d):fc?'từ '+D(fc.d):i<curI?'bỏ qua':'—'}</div>`}).join('')}</div>
+  <div class="mk" hidden></div>
   <div class="bd"><div><h4>Diễn biến theo ngày</h4><div class="tl">`;
   if(!E.length)h+='<p class="empty">Ô tiến độ chưa có nội dung.</p>';
   let pd=giao;E.forEach(e=>{if(e.d&&pd){const g=days(pd,e.d);if(g>0)h+=`<div class="gap ${g>7?'w':''}">↓ ${g} ngày${g>7?' không có cập nhật':''}</div>`}if(e.d)pd=e.d;
@@ -12246,6 +12250,24 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
   <h4>Nội dung gốc ô tiến độ</h4><div class="raw">${esc(r.TIEN_DO||'')}</div></div></div>
   <footer><button type="button" data-pp-add>+ Cập nhật tiến độ</button><button type="button" data-pp-view>Mở công việc</button><button type="button" class="p" data-pp-close>Đóng</button></footer>`;
   const el=host(),pp=el.firstChild;pp.innerHTML=h;
+  const mk=pp.querySelector('.mk'),MK=['Khảo sát','Báo giá','Duyệt','Thi công','Hoàn thành','Chờ'],iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  const openMk=tag=>{mk.hidden=false;pp.querySelectorAll('.st [data-step]').forEach(x=>x.classList.toggle('pick',PH[+x.dataset.step][0]===tag));
+   mk.innerHTML=`<div class="t">Ghi nhận mốc tiến độ</div><div class="chips">${MK.map(m=>`<button type="button" data-mk="${m}" class="${m===tag?'on':''} ${m==='Chờ'?'w':''}">${m===tag?'✓ ':''}${m}</button>`).join('')}</div>
+   <div class="row"><input type="date" class="d" value="${iso(today)}"><input type="text" class="c" placeholder="Nội dung đã làm / đang chờ…"><button type="button" data-mk-cancel>Hủy</button><button type="button" class="p" data-mk-save>Lưu mốc</button></div><div class="pv"></div>`;
+   mk.dataset.tag=tag;const di=mk.querySelector('.d'),ci=mk.querySelector('.c'),pv=mk.querySelector('.pv');
+   const prev=()=>{const v=di.value.split('-');pv.innerHTML='Sẽ thêm vào cuối ô Tiến độ: <code>'+esc('- '+(v[2]||'')+'/'+(v[1]||'')+' ['+mk.dataset.tag+']: '+ci.value.trim())+'</code>'};
+   di.oninput=ci.oninput=prev;prev();ci.focus();
+   mk.querySelectorAll('[data-mk]').forEach(b=>b.onclick=()=>{const v=ci.value,d=di.value;openMk(b.dataset.mk);mk.querySelector('.c').value=v;mk.querySelector('.d').value=d;mk.querySelector('.c').dispatchEvent(new Event('input'))});
+   mk.querySelector('[data-mk-cancel]').onclick=()=>{mk.hidden=true;pp.querySelectorAll('.st .pick').forEach(x=>x.classList.remove('pick'))};
+   ci.onkeydown=e=>{if(e.key==='Enter')mk.querySelector('[data-mk-save]').click()};
+   mk.querySelector('[data-mk-save]').onclick=function(){const t=mk.dataset.tag,txt=ci.value.trim();if(!txt&&t!=='Hoàn thành')return window.v17Toast&&v17Toast('Nhập nội dung cho mốc '+t+'.','warn'),ci.focus();
+    const complete=t==='Hoàn thành'&&!/hoàn thành/i.test(String(r.TRANG_THAI||''))&&confirm('Đổi trạng thái công việc sang Hoàn thành?');
+    if(typeof server!=='function')return;this.disabled=true;this.textContent='Đang lưu…';const btn=this;
+    server('saveWorkProgressMilestone',[{ID:r.ID,TAG:t,DATE:di.value,TEXT:txt,COMPLETE:complete}],res=>{Object.assign(r,res||{});window.v17Toast&&v17Toast('Đã lưu mốc '+t,'ok');
+     try{const list=window.v17RowsForPage&&v17RowsForPage('work');const o=Array.isArray(list)&&list.find(x=>String(x.ID)===String(r.ID));if(o&&o!==r)Object.assign(o,res)}catch(e){}
+     try{window.plRptRender_&&plRptRender_('workProgress')}catch(e){}window.plProgOpen_(r.ID)},
+     e=>{btn.disabled=false;btn.textContent='Lưu mốc';window.v17Toast&&v17Toast('Lưu không thành công: '+(e&&e.message||e),'err')})}};
+  pp.querySelectorAll('.st [data-step]').forEach(x=>x.onclick=()=>openMk(PH[+x.dataset.step][0]));
   pp.querySelector('[data-pp-add]').onclick=()=>{el.classList.remove('active');window.plProgEditAppend_(r.ID)};
   pp.querySelector('[data-pp-view]').onclick=()=>{el.classList.remove('active');if(window.plWorkView_)plWorkView_(r.ID);else if(window.v17EditPageRecord)v17EditPageRecord('work',r.ID)};
   el.classList.add('active');
@@ -12271,6 +12293,20 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
 #plProgPop .st div:before{content:"";position:absolute;top:6px;left:0;right:0;height:3px;background:#e2e8f0}
 #plProgPop .st div:after{content:"";position:absolute;top:1px;left:calc(50% - 6px);width:12px;height:12px;border-radius:50%;background:#e2e8f0}
 #plProgPop .st .d{color:#172033;font-weight:600}#plProgPop .st .d:before,#plProgPop .st .d:after{background:#16a34a}
+#plProgPop .hint{margin:2px 16px 0;font-size:11px;color:#64748b}
+#plProgPop .st [data-step]{cursor:pointer}#plProgPop .st [data-step]:hover{color:#a71936}
+#plProgPop .st .pick{color:#a71936!important;font-weight:800}#plProgPop .st .pick:after{background:#a71936!important;border:0!important;width:14px;height:14px;left:calc(50% - 7px);top:0;box-shadow:0 0 0 4px #fecdd3}
+#plProgPop .mk{margin:2px 16px 8px;border:1.5px solid #a71936;border-radius:12px;background:#fff7f8;padding:10px 12px}
+#plProgPop .mk .t{font-size:12px;font-weight:700;color:#a71936;margin-bottom:8px}
+#plProgPop .mk .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+#plProgPop .mk .chips button{border:1px solid #cbd5e1;background:#fff;color:#172033;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer}
+#plProgPop .mk .chips .on{background:#ea580c;border-color:#ea580c;color:#fff}#plProgPop .mk .chips .w{border-style:dashed;color:#dc2626}#plProgPop .mk .chips .w.on{color:#fff;background:#dc2626;border-color:#dc2626}
+#plProgPop .mk .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#plProgPop .mk input{height:32px;border:1px solid #cbd5e1;border-radius:8px;padding:0 8px;font:inherit;font-size:13px;background:#fff;color:#172033}
+#plProgPop .mk .d{width:140px}#plProgPop .mk .c{flex:1 1 220px;min-width:0}
+#plProgPop .mk .row button{height:32px;border-radius:8px;padding:0 12px;font-weight:700;font-size:12px;border:1px solid #cbd5e1;background:#fff;cursor:pointer}#plProgPop .mk .row .p{background:#a71936;color:#fff;border-color:#a71936}
+#plProgPop .mk .pv{margin-top:8px;font-size:12px;color:#64748b}#plProgPop .mk .pv code{background:#fff;border:1px dashed #cbd5e1;border-radius:6px;padding:2px 6px;color:#172033;white-space:pre-wrap}
+html[data-theme="dark"] #plProgPop .mk{background:#1f2937}
 #plProgPop .st .s{color:#94a3b8;font-style:italic}#plProgPop .st .s:before{background:#16a34a}#plProgPop .st .s:after{background:#fff;border:2px dashed #94a3b8;width:8px;height:8px}
 #plProgPop .st .c{color:#a71936;font-weight:700}#plProgPop .st .c:after{background:#eab308;box-shadow:0 0 0 4px #fef3c7}#plProgPop .st .c:before{background:linear-gradient(90deg,#16a34a 50%,#e2e8f0 50%)}
 #plProgPop .bd{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;padding:6px 16px 14px}
