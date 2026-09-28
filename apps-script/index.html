@@ -12449,15 +12449,16 @@ html[data-theme="dark"] #plProgPop footer button:not(.p){background:#111827;colo
 /* Bảng Công việc / Công việc hằng ngày (máy tính): ô chữ dài chỉ hiện tối đa 3 dòng; rê chuột vào ô bị cắt → khung nổi hiện đầy đủ
    (xuống dòng theo từng mốc). Dấu "(📷 n)" cũ hiển thị thành "(n ảnh)" để máy thiếu phông biểu tượng vẫn đọc được. */
 (function(){
-  const BODIES='#w85Rows,#pldRows',d=document,fix=s=>String(s||'').replace(/\(📷\s*(\d+)\)/g,'($1 ảnh)');
+  const d=document,fix=s=>String(s||'').replace(/\(📷\s*(\d+)\)/g,'($1 ảnh)');
   const mobile=()=>typeof window.plIsMobile_==='function'&&window.plIsMobile_();
-  let timer=0;
-  function run(){timer=0;if(mobile())return;
-    d.querySelectorAll(BODIES).forEach(tb=>tb.querySelectorAll('td:not([data-c3])').forEach(td=>{td.dataset.c3='1';
-      if(td.querySelector('.badge,button,input,select,.v25-actions')||td.textContent.trim().length<30)return;
-      td.innerHTML='<div class="pl-c3">'+fix(td.innerHTML)+'</div>';const c=td.firstChild;
-      if(c.scrollHeight>c.clientHeight+2)td.classList.add('pl-c3-more')}))}
-  new MutationObserver(()=>{if(!timer)timer=setTimeout(run,60)}).observe(d.documentElement,{childList:true,subtree:true});
+  // Chạy NGAY trong MutationObserver (trước khi trình duyệt vẽ) → ô không bung ra rồi mới co lại.
+  function run(){if(mobile())return;
+    const tds=d.querySelectorAll('#w85Rows td:not([data-c3]),#pldRows td:not([data-c3])');if(!tds.length)return;
+    const wrapped=[];tds.forEach(td=>{td.dataset.c3='1';if(td.querySelector('.badge,button,input,select,.v25-actions'))return;
+      const t=td.textContent;if(t.indexOf('📷')>=0&&t.trim().length<30){td.innerHTML=fix(td.innerHTML);return}
+      if(t.trim().length<30)return;td.innerHTML='<div class="pl-c3">'+fix(td.innerHTML)+'</div>';wrapped.push(td)});
+    wrapped.forEach(td=>{const c=td.firstChild;if(c.scrollHeight>c.clientHeight+2)td.classList.add('pl-c3-more')})}
+  new MutationObserver(run).observe(d.documentElement,{childList:true,subtree:true});
   let pop=null;
   function hide(){if(pop)pop.remove();pop=null;d.querySelectorAll('.pl-c3-on').forEach(x=>x.classList.remove('pl-c3-on'))}
   d.addEventListener('mouseover',e=>{const td=e.target.closest&&e.target.closest('td.pl-c3-more');if(!td){if(pop&&!e.target.closest('#plC3Pop'))hide();return}
