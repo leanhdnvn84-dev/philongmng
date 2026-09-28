@@ -52,20 +52,23 @@ html[data-theme="dark"] #v17FormModal .v17-field :is(input[readonly],select:disa
 :is(#users,#roles,#permissions,#systemAudit,#maintenanceDataTool,#systemConfig) table:not(.pl-audit-fixed) colgroup col{width:auto!important}
 #systemAudit table.pl-audit-fixed{table-layout:fixed!important;width:100%!important;min-width:0!important}
 /* Cấu hình gửi email (V85): một thanh thao tác + bảng nhập gọn, không dùng quy tắc bảng dữ liệu chung. */
-#emailConfig .pl-mail{padding:12px}
-#emailConfig .pl-mail-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
-#emailConfig .pl-mail-bar input{flex:1 1 260px;min-width:200px;height:36px;padding:0 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}
+#emailConfig .pl-mail{padding:8px 10px;display:flex;flex-direction:column;height:calc(100dvh - var(--pl-mail-top,150px));min-height:420px;box-sizing:border-box;overflow:hidden}
+#emailConfig #emailConfigBody{flex:0 1 60%;min-height:0;overflow:auto}
+#emailConfig #emailLogBody{flex:1 1 40%;min-height:0;overflow:auto}
+#emailConfig .pl-mail-table th{position:sticky;top:0;z-index:1}
+#emailConfig .pl-mail-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;flex:none}
+#emailConfig .pl-mail-bar input{flex:1 1 260px;min-width:200px;height:30px;font-size:13px!important;padding:0 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}
 #emailConfig .pl-mail-status{flex:1 0 100%;font-weight:700;font-size:13px}
 #emailConfig .pl-mail-status.ok{color:#15803d}#emailConfig .pl-mail-status.warn{color:#c2410c}
-#emailConfig .pl-mail-h{margin:16px 0 8px;font-size:15px}
+#emailConfig .pl-mail-h{margin:8px 0 4px;font-size:14px;flex:none}
 #emailConfig .pl-mail-table{width:100%;border-collapse:collapse}
-#emailConfig .pl-mail-table :is(th,td){padding:6px 8px;border:1px solid #e2e8f0;text-align:left;vertical-align:middle;font-size:13px}
+#emailConfig .pl-mail-table :is(th,td){padding:2px 6px;line-height:1.25;border:1px solid #e2e8f0;text-align:left;vertical-align:middle;font-size:13px}
 #emailConfig .pl-mail-table th{background:#f1f4f8;white-space:nowrap}
 #emailConfig .pl-mail-table td small{display:block;color:#64748b;margin-top:2px}
 #emailConfig .pl-mail-table td:first-child{text-align:center;width:48px}
-#emailConfig .pl-mail-table input:not([type=checkbox]){width:100%;box-sizing:border-box;height:32px;padding:0 8px;border:1px solid #cbd5e1;border-radius:6px;font:inherit}
+#emailConfig .pl-mail-table input:not([type=checkbox]){width:100%;box-sizing:border-box;height:26px;padding:0 6px;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:13px!important}
 #emailConfig .pl-mail-table input[type=number]{max-width:90px}#emailConfig .pl-mail-table input[type=time]{max-width:120px}
-#emailConfig .pl-mail-table input[type=checkbox]{width:18px;height:18px}
+#emailConfig .pl-mail-table input[type=checkbox]{width:16px;height:16px;margin:0}
 :where(html[data-theme="dark"]) #emailConfig .pl-mail-table th{background:#1c2735;color:#dbe4ee}
 /* MỌI form nhập/sửa: ô nội dung (textarea) cao đúng 2 dòng, vẫn kéo giãn được khi cần. */
 :is(#v17FormModal,#operationEditModalV841531,#plActionDialog) :is(.v17-field,.operation-edit-field-v841531,.v84149-master-grid,div) textarea{max-height:none;min-height:var(--pl-text-h)!important;height:var(--pl-text-h)!important;line-height:1.4!important;resize:vertical!important}
@@ -4585,6 +4588,7 @@ function renderSystemConfig(c){
 /* Cấu hình gửi email (V85): một bảng, một nút Lưu tất cả, Gửi ngay/Gửi thử dùng email đang nhập. */
 function renderEmailAlertConfig(data){
   const body=document.getElementById('emailConfigBody'),log=document.getElementById('emailLogBody'),st=document.getElementById('plMailStatus');if(!body)return;
+  requestAnimationFrame(()=>{const c=body.closest('.pl-mail');if(c&&c.offsetParent){const t=Math.round(c.getBoundingClientRect().top+window.scrollY)+12;document.documentElement.style.setProperty('--pl-mail-top',t+'px')}});
   const rows=(data&&data.rows)||[],on=rows.filter(r=>norm(r.BAT)==='BAT').length;
   if(st){st.className='pl-mail-status '+(data&&data.triggerActive?'ok':'warn');st.textContent=(data&&data.triggerActive?'● Tự động gửi đang chạy':'● Chưa bật tự động gửi (bật ít nhất 1 cảnh báo rồi Lưu)')+' · '+on+'/'+rows.length+' cảnh báo bật'+(data&&data.quota!==''&&data?.quota!=null?' · còn '+data.quota+' email hôm nay':'');}
   const recv=r=>r.EMAIL_NHAN||r.EMAIL_QUAN_TRI||'';
