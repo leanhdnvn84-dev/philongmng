@@ -2557,6 +2557,7 @@ function deleteRecordV142_(user,sheetName,id,extra){
 }
 
 function legacyV22DispatchNoAuth_(fn, args, user) {
+  v20ctx_().rpcUser=user;
   switch (fn) {
     case 'getCoreBootstrapData':
     case 'getBootstrapData': return legacyCoreBootstrap_(user);
@@ -2576,6 +2577,10 @@ function legacyV22DispatchNoAuth_(fn, args, user) {
 
     case 'getMaintenancePlans': requirePermission_(user,MODULES.MAINTENANCE,'XEM'); return legacyMaintenancePlans_();
 
+    case 'uploadWorkPhoto': requirePermission_(user,String((args[0]||{}).SRC)==='daily'?MODULES.DAILY:MODULES.WORK,'SUA'); return uploadWorkPhotoV163_(args[0]||{});
+    case 'getWorkPhotos': requirePermission_(user,String((args[0]||{}).SRC)==='daily'?MODULES.DAILY:MODULES.WORK,'XEM'); return getWorkPhotosV163_(args[0]||{});
+    case 'getWorkPhotosPrint': requirePermission_(user,String((args[0]||{}).SRC)==='daily'?MODULES.DAILY:MODULES.WORK,'XEM'); return getWorkPhotosPrintV163_(args[0]||{});
+    case 'getWorkPhotoData': try{requirePermission_(user,MODULES.WORK,'XEM');}catch(e){requirePermission_(user,MODULES.DAILY,'XEM');} return getWorkPhotoDataV163_(args[0]||{});
     case 'saveWorkProgressMilestone': requirePermission_(user,MODULES.WORK,'SUA'); return saveWorkProgressMilestoneV161_(args[0]||{});
     case 'saveWork': requirePermission_(user,MODULES.WORK,(args[0]&&args[0].ID)?'SUA':'THEM'); return legacySaveWork_(args[0]||{});
     case 'deleteWork': requireDeletePasswordV144_(args[1]); requirePermission_(user,MODULES.WORK,'XOA'); archiveAndDeleteById_(V22.SHEETS.work,'ID',args[0],user,'WORK_DELETE'); return {ok:true};
@@ -3053,9 +3058,9 @@ function keepLockedWorkFieldsV160_(sheetName,record){
   const key=sheetName===V22.SHEETS.work?'work':(sheetName===V22.SHEETS.daily?'daily':'');
   if(!key)return record;ensureStageColumnsV162_(sheetName);
   const id=String(record&&record.ID||'').trim(),old=id?findById_(sheetName,'ID',id):null;
-  if(!old){delete record.GIAI_DOAN;delete record.GIAI_DOAN_HIEN_TAI;return applyProgressAppendV162_(record,null);}
+  if(!old){delete record.GIAI_DOAN;delete record.GIAI_DOAN_HIEN_TAI;return applyProgressAppendV162_(record,null,sheetName);}
   WORK_LOCKED_FIELDS_V160[key].forEach(function(k){if(Object.prototype.hasOwnProperty.call(old,k))record[k]=old[k];else delete record[k];});
-  return applyProgressAppendV162_(record,old);
+  return applyProgressAppendV162_(record,old,sheetName);
 }
 // ============================================================================
 // V162 — TIẾN ĐỘ & GIAI ĐOẠN "CHỈ BỔ SUNG" (Công việc + Công việc hằng ngày)
@@ -3085,15 +3090,17 @@ function mergeAppendOnlyV162_(cur,next){
   return extra.length?c+'\n'+extra.join('\n'):c;
 }
 // Áp dụng cập nhật lên bản ghi x (old = bản ghi đang có trong Sheet, null nếu tạo mới).
-function applyProgressAppendV162_(x,old){
-  const text=String(x.TIEN_DO_MOI||'').replace(/\s+/g,' ').trim();
-  let stage=String(x.GIAI_DOAN_MOI||'').trim();delete x.TIEN_DO_MOI;delete x.GIAI_DOAN_MOI;
+function applyProgressAppendV162_(x,old,sheetName){
+  const text=String(x.TIEN_DO_MOI||'').replace(/\s+/g,' ').trim(),photos=parseWorkPhotoIdsV163_(x.ANH_MOI);
+  let stage=String(x.GIAI_DOAN_MOI||'').trim();delete x.TIEN_DO_MOI;delete x.GIAI_DOAN_MOI;delete x.ANH_MOI;
+  if(photos.length&&!old)throw new Error('LUU_CONG_VIEC_TRUOC_KHI_THEM_ANH');
   if(stage&&WORK_STAGES_V162.indexOf(stage)<0)throw new Error('GIAI_DOAN_KHONG_HOP_LE:'+stage);
   const day=stageDayV162_(),prev=old?currentStageV162_(old):'';
   // Đổi trạng thái sang Hoàn thành mà chưa chọn giai đoạn → tự ghi giai đoạn Hoàn thành.
   if(!stage&&isCompletedStatus_(x.TRANG_THAI)&&!(old&&isCompletedStatus_(old.TRANG_THAI))&&prev!=='Hoàn thành')stage='Hoàn thành';
-  if(text||stage){const line='- '+day+(stage?' ['+stage+']':'')+(text?': '+text:'');
-    const base=String((old?old.TIEN_DO:x.TIEN_DO)||'').replace(/\s+$/,'');x.TIEN_DO=(base?base+'\n':'')+line;}
+  if(text||stage||photos.length){const line='- '+day+(stage?' ['+stage+']':'')+(text||photos.length?': '+text:'')+(photos.length?(text?' ':'')+'(📷 '+photos.length+')':'');
+    const base=String((old?old.TIEN_DO:x.TIEN_DO)||'').replace(/\s+$/,'');x.TIEN_DO=(base?base+'\n':'')+line;
+    if(photos.length)commitWorkPhotosV163_(sheetName===V22.SHEETS.daily?'daily':'work',String(old.ID),photos,line,stage||(old?currentStageV162_(old):''));}
   if(stage&&stage!==prev){
     const base=String((old?old.GIAI_DOAN:x.GIAI_DOAN)||'').replace(/\s+$/,'');
     x.GIAI_DOAN=(base?base+'\n':'')+'- '+day+' ['+stage+'] ← '+(prev||'(chưa có)')+(text?': '+text:'');
@@ -3112,12 +3119,111 @@ function saveWorkProgressMilestoneV161_(input){
   try{
     const row=findRowNumberByIdV20_(sheetName,'ID',id);if(!row)throw new Error('ROW_NOT_FOUND:'+id);
     const old=findById_(sheetName,'ID',id)||{};
-    const x={TIEN_DO_MOI:input.TEXT||'',GIAI_DOAN_MOI:tag};
+    const x={TIEN_DO_MOI:input.TEXT||'',GIAI_DOAN_MOI:tag,ANH_MOI:input.PHOTOS||''};
     if(tag==='Hoàn thành'&&input.COMPLETE===true){x.TRANG_THAI='Hoàn thành';if(!dateOnly_(old.NGAY_HOAN_THANH))x.NGAY_HOAN_THANH=today_();}
-    applyProgressAppendV162_(x,old);
+    applyProgressAppendV162_(x,old,sheetName);
     updateRowFields_(sheetName,row,x);
     return Object.assign({},old,x,{ID:id});
   }finally{lock.releaseLock();}
+}
+// ============================================================================
+// V163 — HÌNH ẢNH CÔNG TRÌNH theo từng lần cập nhật tiến độ (Công việc + Hằng ngày)
+//  - Ảnh nén + in dấu ngày giờ/mã việc ở trình duyệt; tải lên Drive (file RIÊNG TƯ, không chia sẻ link).
+//  - Mỗi ảnh 2 file: bản lớn (≤1600px) + bản nhỏ (≤400px). Ảnh luôn đi qua máy chủ khi xem/in.
+//  - Sheet HINH_ANH_TIEN_DO: mỗi ảnh 1 dòng; không xóa, chỉ Ẩn (cột AN) bởi quản trị.
+//  - Ảnh đã tải nhưng không lưu (bấm Hủy) được dọn sau 1 ngày (trigger hằng ngày).
+// ============================================================================
+const WORK_PHOTO_SHEET_V163='HINH_ANH_TIEN_DO';
+const WORK_PHOTO_HEADERS_V163=['ID_ANH','NGUON','ID_CONG_VIEC','NGAY','GIO','GIAI_DOAN','DONG_TIEN_DO','FILE_ID','THUMB_ID','NGUOI_TAI','AN'];
+const WORK_PHOTO_MAX_V163=6,WORK_PHOTO_MAX_BYTES_V163=4*1024*1024,WORK_PHOTO_PENDING_V163='PL163_PENDING';
+function workPhotoSheetV163_(){
+  const ss=ss_();let sh=ss.getSheetByName(WORK_PHOTO_SHEET_V163);
+  if(!sh){sh=ss.insertSheet(WORK_PHOTO_SHEET_V163);sh.getRange(1,1,1,WORK_PHOTO_HEADERS_V163.length).setValues([WORK_PHOTO_HEADERS_V163]);try{sh.setFrozenRows(1)}catch(e){}invalidateSheetV20_(WORK_PHOTO_SHEET_V163,false);}
+  return sh;
+}
+function workPhotoRootV163_(){
+  const props=PropertiesService.getScriptProperties();let id=props.getProperty('PL163_PHOTO_ROOT');
+  if(id){try{return DriveApp.getFolderById(id);}catch(e){}}
+  const f=DriveApp.createFolder('PHILONG - Hình ảnh tiến độ công trình');props.setProperty('PL163_PHOTO_ROOT',f.getId());return f;
+}
+function workPhotoFolderV163_(src,id){
+  const root=workPhotoRootV163_(),name=(src==='daily'?'HN ':'CV ')+String(id).replace(/[\\/]/g,'_'),it=root.getFoldersByName(name);
+  return it.hasNext()?it.next():root.createFolder(name);
+}
+function workPhotoSheetNameV163_(src){return src==='daily'?V22.SHEETS.daily:V22.SHEETS.work;}
+function workPhotoBlobV163_(dataUrl,name){
+  const m=/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\s]+)$/i.exec(String(dataUrl||''));
+  if(!m)throw new Error('HINH_ANH_KHONG_HOP_LE');
+  const bytes=Utilities.base64Decode(m[2].replace(/\s/g,''));
+  if(!bytes.length||bytes.length>WORK_PHOTO_MAX_BYTES_V163)throw new Error('HINH_ANH_VUOT_QUA_4MB');
+  return Utilities.newBlob(bytes,m[1].toLowerCase(),name);
+}
+function ensureWorkPhotoCleanupTriggerV163_(){
+  try{if(ScriptApp.getProjectTriggers().some(function(t){return t.getHandlerFunction()==='cleanupPendingWorkPhotosV163';}))return;
+    ScriptApp.newTrigger('cleanupPendingWorkPhotosV163').timeBased().everyDays(1).atHour(2).create();}catch(e){console.warn('photo cleanup trigger',e);}
+}
+// Bước 1: tải 1 ảnh (bản lớn + bản nhỏ) — đánh dấu CHỜ LƯU cho tới khi lưu tiến độ.
+function uploadWorkPhotoV163_(input){
+  const src=String(input.SRC||'work')==='daily'?'daily':'work',id=String(input.ID||'').trim();
+  if(!id)throw new Error('LUU_CONG_VIEC_TRUOC_KHI_THEM_ANH');
+  if(!findById_(workPhotoSheetNameV163_(src),'ID',id))throw new Error('ROW_NOT_FOUND:'+id);
+  const folder=workPhotoFolderV163_(src,id),base=id.replace(/[^A-Za-z0-9_-]/g,'_')+'_'+Utilities.formatDate(new Date(),V22.TZ,'yyyy-MM-dd_HHmmss')+'_'+Math.floor(Math.random()*1000);
+  const full=folder.createFile(workPhotoBlobV163_(input.FULL,base+'.jpg')),thumb=folder.createFile(workPhotoBlobV163_(input.THUMB||input.FULL,base+'_nho.jpg'));
+  full.setDescription(WORK_PHOTO_PENDING_V163);thumb.setDescription(WORK_PHOTO_PENDING_V163);
+  ensureWorkPhotoCleanupTriggerV163_();
+  return {FILE_ID:full.getId(),THUMB_ID:thumb.getId()};
+}
+// Bước 2 (khi lưu tiến độ): xác nhận ảnh + ghi sheet HINH_ANH_TIEN_DO.
+function parseWorkPhotoIdsV163_(v){
+  return String(v||'').split(',').map(function(x){const p=x.trim().split(':');return p[0]?{f:p[0],t:p[1]||p[0]}:null;}).filter(Boolean);
+}
+function commitWorkPhotosV163_(src,id,list,line,stage){
+  if(!list.length)return 0;if(list.length>WORK_PHOTO_MAX_V163)throw new Error('TOI_DA_'+WORK_PHOTO_MAX_V163+'_ANH_MOI_LAN');
+  const sh=workPhotoSheetV163_(),now=new Date(),day=Utilities.formatDate(now,V22.TZ,'yyyy-MM-dd'),time=Utilities.formatDate(now,V22.TZ,'HH:mm');
+  const u=(v20ctx_().rpcUser||{}),who=String(u.HO_TEN||u.TEN||u.EMAIL||u.EMAIL_DANG_NHAP||''),base='ANH'+Utilities.formatDate(now,V22.TZ,'yyMMddHHmmss');
+  const rows=[];
+  list.forEach(function(p,i){
+    [p.f,p.t].forEach(function(fid){const file=DriveApp.getFileById(fid);if(file.getDescription()!==WORK_PHOTO_PENDING_V163&&fid===p.f)throw new Error('HINH_ANH_KHONG_HOP_LE');file.setDescription('PL163 '+src+' '+id);});
+    rows.push([base+'-'+(i+1),src,id,day,time,stage||'',line,p.f,p.t,who,'']);
+  });
+  sh.getRange(Math.max(2,sh.getLastRow()+1),1,rows.length,WORK_PHOTO_HEADERS_V163.length).setValues(rows);
+  invalidateSheetV20_(WORK_PHOTO_SHEET_V163,true);
+  return rows.length;
+}
+function workPhotoRowsV163_(){workPhotoSheetV163_();return readObjects_(WORK_PHOTO_SHEET_V163).filter(function(r){return String(r.FILE_ID||'').trim()&&!truthy_(r.AN);});}
+function workPhotoDataUrlV163_(fileId){
+  const cache=CacheService.getScriptCache(),key='PL163:IMG:'+fileId;try{const c=cache.get(key);if(c)return c;}catch(e){}
+  const b=DriveApp.getFileById(fileId).getBlob(),url='data:'+(b.getContentType()||'image/jpeg')+';base64,'+Utilities.base64Encode(b.getBytes());
+  if(url.length<95000){try{cache.put(key,url,21600);}catch(e){}}
+  return url;
+}
+// Danh sách ảnh của 1 việc (kèm bản nhỏ dạng dataURL — tối đa 60 ảnh mới nhất).
+function getWorkPhotosV163_(input){
+  const src=String(input.SRC||'work')==='daily'?'daily':'work',id=String(input.ID||'').trim();
+  const list=workPhotoRowsV163_().filter(function(r){return String(r.NGUON)===src&&String(r.ID_CONG_VIEC)===id;})
+    .sort(function(a,b){return (String(a.NGAY)+String(a.GIO)+String(a.ID_ANH)).localeCompare(String(b.NGAY)+String(b.GIO)+String(b.ID_ANH));});
+  return list.slice(-60).map(function(r){let thumb='';try{thumb=workPhotoDataUrlV163_(r.THUMB_ID||r.FILE_ID);}catch(e){}
+    return {ID_ANH:r.ID_ANH,NGAY:dateOnly_(r.NGAY)||String(r.NGAY||''),GIO:String(r.GIO||''),GIAI_DOAN:r.GIAI_DOAN,DONG_TIEN_DO:r.DONG_TIEN_DO,FILE_ID:r.FILE_ID,thumb:thumb};});
+}
+// Ảnh lớn: chỉ trả file có trong sheet ảnh (không đọc được file Drive bất kỳ).
+function getWorkPhotoDataV163_(input){
+  const fid=String(input.FILE_ID||'').trim();
+  if(!workPhotoRowsV163_().some(function(r){return String(r.FILE_ID)===fid||String(r.THUMB_ID)===fid;}))throw new Error('HINH_ANH_KHONG_TON_TAI');
+  return {FILE_ID:fid,data:workPhotoDataUrlV163_(fid)};
+}
+// In báo cáo: mỗi việc tối đa PER ảnh mới nhất (bản nhỏ).
+function getWorkPhotosPrintV163_(input){
+  const src=String(input.SRC||'work')==='daily'?'daily':'work',per=Math.max(1,Math.min(4,Number(input.PER)||4)),ids={},out={};
+  (Array.isArray(input.IDS)?input.IDS:[]).slice(0,80).forEach(function(x){ids[String(x)]=true;});
+  const by={};workPhotoRowsV163_().forEach(function(r){if(String(r.NGUON)!==src||!ids[String(r.ID_CONG_VIEC)])return;(by[r.ID_CONG_VIEC]=by[r.ID_CONG_VIEC]||[]).push(r);});
+  Object.keys(by).forEach(function(k){out[k]=by[k].sort(function(a,b){return (String(b.NGAY)+String(b.GIO)).localeCompare(String(a.NGAY)+String(a.GIO));}).slice(0,per).map(function(r){let d='';try{d=workPhotoDataUrlV163_(r.THUMB_ID||r.FILE_ID);}catch(e){}return {d:d,n:(dateOnly_(r.NGAY)||'')+' '+String(r.GIO||'')+(r.GIAI_DOAN?' · '+r.GIAI_DOAN:'')};}).filter(function(x){return x.d;});});
+  return out;
+}
+// Trigger hằng ngày: xóa (thùng rác) ảnh đã tải nhưng không lưu quá 1 ngày.
+function cleanupPendingWorkPhotosV163(){
+  const limit=Date.now()-86400000,folders=workPhotoRootV163_().getFolders();let n=0;
+  while(folders.hasNext()){const files=folders.next().getFiles();while(files.hasNext()){const f=files.next();if(f.getDescription()===WORK_PHOTO_PENDING_V163&&f.getDateCreated().getTime()<limit){f.setTrashed(true);n++;}}}
+  return {trashed:n};
 }
 // Nhận diện giai đoạn cho dữ liệu cũ: thẻ [Mốc] → từ khóa trong tiến độ → trạng thái.
 function detectStageV162_(r){
