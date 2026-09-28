@@ -1584,8 +1584,15 @@ function catalogSheetV70_(type){
 }
 function catalogPrefixV70_(type){type=norm_(type);return type==='NHA_THAU'?'NT':(type==='NHA_CUNG_CAP'?'NCC':'NV')}
 
+// Ô ngày → 'yyyy-MM-dd'. Nhớ theo mốc thời gian (một sheet có hàng nghìn ô ngày trùng nhau; Utilities.formatDate khá chậm).
+const NORMALIZE_DATE_MEMO_ = {};
 function normalizeSheetValue_(v) {
-  if (v instanceof Date) return Utilities.formatDate(v, V22.TZ, 'yyyy-MM-dd');
+  if (v instanceof Date) {
+    const t = v.getTime();
+    let s = NORMALIZE_DATE_MEMO_[t];
+    if (s === undefined) { s = Utilities.formatDate(v, V22.TZ, 'yyyy-MM-dd'); NORMALIZE_DATE_MEMO_[t] = s; }
+    return s;
+  }
   return v;
 }
 
@@ -2783,10 +2790,17 @@ function v84ReadSheetCache_(sheetName){
   return {headers:meta.headers||[],rows:rows};
 }
 function v84WriteSheetCache_(sheetName,headers,rows){
-  const cache=CacheService.getScriptCache(),base=v64SheetCacheKey_(sheetName),payload=JSON.stringify({headers:headers,rows:rows});
-  if(payload.length<=30000){cache.put(base,payload,V64_SHEET_CACHE_SECONDS);return}
-  const parts=[];let current=[];
-  (rows||[]).forEach(function(row){const next=current.concat([row]);if(current.length&&JSON.stringify({rows:next}).length>30000){parts.push(current);current=[row]}else current=next;});if(current.length)parts.push(current);
+  const cache=CacheService.getScriptCache(),base=v64SheetCacheKey_(sheetName);
+  // Mỗi dòng chỉ JSON.stringify 1 lần; độ dài cả gói / từng phần tính bằng cộng dồn (trước: stringify cả sheet,
+  // rồi nối mảng + stringify lại phần đang gom ở MỖI dòng → chậm theo bình phương số dòng). Cách cắt phần giữ nguyên.
+  const list=rows||[],lens=list.map(function(row){return JSON.stringify(row).length;});
+  // JSON của {headers:H,rows:[r1..rk]} = 11 ('{"headers":') + |H| + 9 (',"rows":[') + Σ|ri| + (k-1) + 2 (']}')
+  const total=22+JSON.stringify(headers).length+lens.reduce(function(a,b){return a+b;},0)+Math.max(0,list.length-1);
+  if(total<=30000){cache.put(base,JSON.stringify({headers:headers,rows:rows}),V64_SHEET_CACHE_SECONDS);return}
+  // JSON của {rows:[r1..rk]} = 11 + Σ|ri| + (k-1)
+  const parts=[];let current=[],size=11;
+  for(let i=0;i<list.length;i++){const len=lens[i];if(current.length&&size+1+len>30000){parts.push(current);if(parts.length>25)return;current=[list[i]];size=11+len}else{size+=(current.length?1:0)+len;current.push(list[i])}}
+  if(current.length)parts.push(current);
   if(!parts.length||parts.length>25)return;
   const values={};parts.forEach(function(part,i){values[base+':P'+i]=JSON.stringify({rows:part})});values[base+':META']=JSON.stringify({headers:headers,parts:parts.length});cache.putAll(values,V64_SHEET_CACHE_SECONDS);
 }
@@ -4057,6 +4071,23 @@ function v124DirectListBundle_(page,force){
   return {ok:true,page:page,modules:modules,referencesDeferred:true,
     elapsedMs:Date.now()-started,cacheHits:ctx.cacheHits,cacheMisses:ctx.cacheMisses,loadedAt:nowStamp_()};
 }
+// Ước lượng THẤP HƠN hoặc bằng độ dài JSON.stringify(v), dừng ngay khi vượt limit → gói lớn (không bao giờ vừa cache 90KB)
+// không phải stringify cả MB chỉ để đo. Trả true = chắc chắn dài hơn limit.
+function jsonLongerThanV124_(v,limit){
+  let n=0;const stack=[v];
+  while(stack.length){
+    const x=stack.pop();
+    if(x===null||x===undefined)n+=4;
+    else if(typeof x==='string')n+=x.length+2;
+    else if(typeof x==='number')n+=isFinite(x)?String(x).length:4;
+    else if(typeof x==='boolean')n+=x?4:5;
+    else if(x instanceof Date)n+=x.getTime()===x.getTime()?26:4;
+    else if(Array.isArray(x)){n+=2;for(let i=0;i<x.length;i++)stack.push(x[i]);}
+    else if(typeof x==='object'&&typeof x.toJSON!=='function'){n+=2;for(const k in x){if(!Object.prototype.hasOwnProperty.call(x,k))continue;const val=x[k];if(val===undefined||typeof val==='function')continue;n+=k.length+3;stack.push(val);}}
+    if(n>limit)return true;
+  }
+  return false;
+}
 function getPageListV124(request){
   request=request||{};const started=Date.now(),page=String(request.pageName||request.page||'').trim(),spec=V124_PAGE_SPECS[page];
   // V137: kiểm tra khóa TRƯỚC khi đọc cache để bản cache không bị lộ.
@@ -4074,7 +4105,7 @@ function getPageListV124(request){
   v124PathSet_(bundle,spec.path,rows);bundle.pagination={page:current,pageSize:size,total:total,totalPages:pages,hasNext:current<pages};bundle.listColumns=spec.columns||[];bundle.elapsedMs=Date.now()-started;bundle.serverPaged=true;bundle.cacheScope=spec.domain;
   // CacheService giới hạn 100KB tính theo BYTE (tiếng Việt UTF-8 tới 3 byte/ký tự). Ghi cache lỗi
   // không được làm hỏng lượt tải (trước đây Nhật ký hệ thống lớn làm cache.put ném lỗi -> trang trống).
-  try{const text=JSON.stringify(bundle);if(text.length<90000&&Utilities.newBlob(text).getBytes().length<90000)cache.put(cacheKey,text,spec.domain==='inventory'||spec.domain==='maintenance'?300:180)}catch(ignore){}
+  try{if(!jsonLongerThanV124_(bundle,90000)){const text=JSON.stringify(bundle);if(text.length<90000&&Utilities.newBlob(text).getBytes().length<90000)cache.put(cacheKey,text,spec.domain==='inventory'||spec.domain==='maintenance'?300:180)}}catch(ignore){}
   return bundle;
 }
 function getPageReferencesV124(page,force){

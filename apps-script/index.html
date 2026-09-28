@@ -6838,9 +6838,14 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       return true;
     }catch(ignore){return false}
   }
+  // Ghi cache (JSON.stringify cả gói dữ liệu, ~100ms+ với vài trăm dòng) lúc trình duyệt rảnh — không chặn việc vẽ trang.
+  // Nhiều lần ghi cùng trang đang chờ → chỉ ghi bản mới nhất.
+  const pendingSave=new Map();
   function saveCached(page,result){
     if(V137_NO_CACHE_PAGES.has(String(page||'')))return;
-    try{localStorage.setItem(cacheKey(page),JSON.stringify({savedAt:Date.now(),data:result}))}catch(ignore){}
+    const key=cacheKey(page),savedAt=Date.now(),first=!pendingSave.has(key);pendingSave.set(key,{savedAt:savedAt,data:result});if(!first)return;
+    const run=()=>{const v=pendingSave.get(key);pendingSave.delete(key);if(v)try{localStorage.setItem(key,JSON.stringify(v))}catch(ignore){}};
+    if(window.requestIdleCallback)requestIdleCallback(run,{timeout:3000});else setTimeout(run,300);
   }
   function label(page){return ({dashboard:'Tổng quan',work:'Công việc',daily:'Công việc hằng ngày',visitors:'Khách ra/vào',workProgress:'Báo cáo tiến độ',workReport:'Báo cáo công việc',maintenance:'Bảo trì',maintenanceLog:'Nhật ký bảo trì',maintenancePlan:'Kế hoạch bảo trì',proposal:'Đề xuất',proposalBuyMaterial:'Đề xuất mua vật tư',proposalBuy:'Đề xuất mua thiết bị',proposalDispose:'Đề xuất thanh lý',proposalMaintenance:'Đề xuất bảo trì',equipment:'Thiết bị',warehouseDevice:'Kho thiết bị',recovery:'Thu hồi Thanh lý',materialWarehouse:'Kho vật tư',materials:'Danh mục vật tư',contracts:'Hợp đồng',tenants:'Khách đang thuê',prospects:'Khách hàng tiềm năng',floors:'Toà nhà, tầng',employees:'Danh bạ nhân viên',contractors:'Danh bạ nhà thầu',suppliers:'Danh bạ nhà cung cấp',buildingAreas:'Khu vực',maintenanceItems:'Chu kỳ bảo trì',operationDetail:'Chi tiết vận hành',users:'Người dùng',roles:'Vai trò',permissions:'Phân quyền',systemAudit:'Nhật ký hệ thống',maintenanceDataTool:'Công cụ bảo trì dữ liệu',systemConfig:'Cấu hình hệ thống',emailConfig:'Cấu hình gửi email'})[page]||page}
   function mergeBundle(b,renderPage){

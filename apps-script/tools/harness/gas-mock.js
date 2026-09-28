@@ -91,7 +91,7 @@ function buildSeed(codeText, htmlText) {
     buildingAreas: 'KV', operationDetails: 'VH', proposals: 'DX', proposalBuyMaterial: 'DXVT', proposalBuy: 'DXM', proposalDispose: 'DXTL', proposalMaintenance: 'DXBT',
     contracts: 'HD', tenants: 'KT', floors: 'TANG', prospects: 'KHTN', audit: 'AUD', emailConfig: 'CFG', emailLog: 'EM',
   };
-  const N = 7;
+  const N = Number(process.env.MOCK_ROWS || 7); // MOCK_ROWS=300 để đo với dữ liệu lớn
   const id = (key, i) => (prefixOf[key] || 'X') + String(i + 1).padStart(4, '0');
   const refFor = {
     ID_NHAN_VIEN: 'employees', ID_NGUOI_THUC_HIEN: 'employees', ID_NGUOI_GIAO: 'employees', ID_NGUOI_DE_XUAT: 'employees', ID_NGUOI_NHAN: 'employees', ID_NGUOI_GUI: 'employees',
