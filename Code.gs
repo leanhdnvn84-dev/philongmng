@@ -240,7 +240,22 @@ function authContext_(ss, account, snapshot) {
 }
 
 function authSessionKey_(token) {
-  return 'PHI_LONG_LOCAL_SESSION_' + String(token || '');
+  return AUTH_SESSION_PREFIX + String(token || '');
+}
+
+var AUTH_SESSION_PREFIX = 'PHI_LONG_LOCAL_SESSION_';
+var AUTH_SESSION_IDLE_MS = 12 * 60 * 60 * 1000;
+var AUTH_SESSION_TOUCH_MS = 10 * 60 * 1000;
+
+/** Xoá các phiên không hoạt động quá hạn để Script Properties không đầy dần. */
+function authPurgeSessions_(store) {
+  var all = store.getProperties(), now = Date.now();
+  Object.keys(all).forEach(function (key) {
+    if (key.indexOf(AUTH_SESSION_PREFIX) !== 0) return;
+    var last = 0;
+    try { var session = JSON.parse(all[key]); last = Date.parse(session.lastActivityAt || session.createdAt) || 0; } catch (error) {}
+    if (!last || now - last > AUTH_SESSION_IDLE_MS) store.deleteProperty(key);
+  });
 }
 
 function authSession_(token) {
@@ -252,6 +267,15 @@ function authSession_(token) {
   if (!raw) throw new Error('Phiên làm việc không còn khả dụng. Vui lòng tải lại trang.');
   var session;
   try { session = JSON.parse(raw); } catch (error) { throw new Error('Phiên đăng nhập không hợp lệ.'); }
+  var now = Date.now(), last = Date.parse(session.lastActivityAt || session.createdAt) || now;
+  if (now - last > AUTH_SESSION_IDLE_MS) {
+    store.deleteProperty(authSessionKey_(value));
+    throw new Error('Phiên đăng nhập đã hết hạn do không hoạt động. Vui lòng đăng nhập lại.');
+  }
+  if (now - last > AUTH_SESSION_TOUCH_MS) {
+    session.lastActivityAt = new Date(now).toISOString();
+    try { store.setProperty(authSessionKey_(value), JSON.stringify(session)); } catch (error) {}
+  }
   return session;
 }
 
@@ -603,9 +627,10 @@ function loginLocal(input) {
     authWriteField_(sheet, meta, found.rowNumber, 'KHOA_DEN', '');
     authWriteField_(sheet, meta, found.rowNumber, 'LAN_DANG_NHAP_CUOI', now, 'dd/MM/yyyy HH:mm:ss');
     var user = authContext_(ss, account, authData), token = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, ''), session = { user: user, createdAt: now.toISOString(), lastActivityAt: now.toISOString() };
-    // Phiên được giữ đến khi logout hoặc bị xoá thủ công; không tự hết hạn
-    // trong lúc trang hiện tại vẫn đang được sử dụng.
-    PropertiesService.getScriptProperties().setProperty(authSessionKey_(token), JSON.stringify(session));
+    // Phiên chỉ hết hạn khi không hoạt động quá AUTH_SESSION_IDLE_MS; đang dùng thì được gia hạn.
+    var sessionStore = PropertiesService.getScriptProperties();
+    try { authPurgeSessions_(sessionStore); } catch (error) {}
+    sessionStore.setProperty(authSessionKey_(token), JSON.stringify(session));
     writeLoginLog_(ss, username, account.MA_NHAN_VIEN, 'Thành công', 'Đăng nhập hợp lệ', device);
     return { success: true, token: token, user: user };
   } finally {
