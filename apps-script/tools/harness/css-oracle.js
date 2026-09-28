@@ -21,7 +21,7 @@ const unmask = t => t.replace(/\u0000S(\d+)\u0000/g, (m, k) => scripts[+k]);
 
 // ---- 1) Luật + khai báo ứng viên trong các khối <style> tĩnh ----
 const DYN_PSEUDO = /:(hover|focus|focus-within|focus-visible|active|visited|target|checked|indeterminate|placeholder-shown|autofill|invalid|valid|default|user-invalid|open|modal|fullscreen|popover-open)\b|::|:-webkit-|:-moz-|placeholder|selection/i;
-const SKIP_PROP = /^(--|transition|animation|will-change|content$|counter-)/i;
+const SKIP_PROP = /^(--|transition|animation|will-change|content$|counter-|outline)/i;
 const blocks = [];
 html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/g, (m, open, css) => { blocks.push(css); return m; });
 const rules = []; // {b, node, sel}
@@ -38,7 +38,9 @@ const roots = blocks.map((css, b) => {
     if (ctxBad || DYN_PSEUDO.test(rule.selector) || /dark|theme/i.test(rule.selector)) { rule.append({ prop: '--plr', value: String(r) }); return; }
     rule.each(d => {
       if (d.type !== 'decl' || SKIP_PROP.test(d.prop) || seen[d.prop.toLowerCase()] > 1 || /var\(|env\(|attr\(|calc\(.*%/i.test(d.value)) return;
-      cands.push({ i: cands.length, r, prop: d.prop.toLowerCase(), imp: !!d.important, node: d });
+      // Khai báo khác trong cùng luật (để phát hiện chồng dạng viết tắt/đầy đủ, vd. font:inherit + font-weight:400).
+      const sib = []; rule.each(o => { if (o !== d && o.type === 'decl') sib.push(o.prop + ':' + o.value); });
+      cands.push({ i: cands.length, r, prop: d.prop.toLowerCase(), imp: !!d.important, node: d, self: d.prop + ':' + d.value, sib });
     });
     rule.append({ prop: '--plr', value: String(r) });
   });
@@ -97,8 +99,13 @@ function inPage(arg) {
   const parentSig = el => { const p = el.parentElement; if (!p) return ''; let v = psig.get(p); if (v !== undefined) return v; const c = getComputedStyle(p); const parts = INH.map(k => c.getPropertyValue(k)); for (let i = c.length - 1; i >= 0; i--) { const k = c[i]; if (k.startsWith('--')) parts.push(k + ':' + c.getPropertyValue(k)); else break; } v = parts.join('\u0001'); psig.set(p, v); return v; };
   const fresh = new Set(), seenSet = new Set(seen || []);
   for (const [el, a] of ruleOf) { const k = a.join(',') + '|' + (el.getAttribute('style') || '') + '|' + parentSig(el); if (!seenSet.has(k)) { seenSet.add(k); fresh.add(el); out.keys.push(k); } }
+  // Thuộc tính đầy đủ (longhand) mà 1 khai báo đặt ra — dùng phần tử nháp.
+  const lhMemo = {}; const scratch = document.createElement('div');
+  const lh = text => { if (lhMemo[text]) return lhMemo[text]; scratch.style.cssText = text; const o = []; for (let k = 0; k < scratch.style.length; k++) o.push(scratch.style[k]); return (lhMemo[text] = o); };
+  out.overlap = [];
   if (mode === 'test') {
     for (const c of cands) {
+      if (c.sib) { const mine = new Set(lh(c.self)); if (!mine.size || c.sib.some(t => lh(t).some(k => mine.has(k)))) { out.overlap.push(c.i); continue; } }
       const rule = R[c.r]; if (!rule) continue;
       const all = els(c.r); if (!all || !all.length) continue;
       out.live.push(c.i);
@@ -157,10 +164,11 @@ function inPage(arg) {
   const t0 = Date.now();
   for (let k = 0; k < snaps.length; k++) {
     const s = snaps[k], p = await load(s);
-    const todo = cands.filter(c => !needRemove.has(c.i) || (c.imp && !needImp.has(c.i))).map(c => ({ i: c.i, r: c.r, prop: c.prop, testRemove: !needRemove.has(c.i), testImp: c.imp && !needImp.has(c.i) }));
+    const todo = cands.filter(c => !needRemove.has(c.i) || (c.imp && !needImp.has(c.i))).map(c => ({ i: c.i, r: c.r, prop: c.prop, testRemove: !needRemove.has(c.i), testImp: c.imp && !needImp.has(c.i), self: c.self, sib: c.sib }));
     const o = await p.evaluate(inPage, { cands: todo, mode: 'test', removed: [], dropped: [], seen });
     if (o.keys.length) { seen.push(...o.keys); useful.push(s); }
     o.live.forEach(i => live.add(i)); o.needRemove.forEach(i => needRemove.add(i)); o.needImp.forEach(i => needImp.add(i));
+    o.overlap.forEach(i => { needRemove.add(i); needImp.add(i); });
     if (k % 25 === 0) console.error(`[${k + 1}/${snaps.length}] ${Math.round((Date.now() - t0) / 1000)}s useful ${useful.length} keys ${seen.length} live ${live.size} needRemove ${needRemove.size} needImp ${needImp.size}`);
   }
   let removed = cands.filter(c => live.has(c.i) && !needRemove.has(c.i)).map(c => c.i);
