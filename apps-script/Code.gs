@@ -3258,6 +3258,9 @@ function visitorHeadersV168_(sh){
     if(VISITOR_HEADERS_V165.indexOf(k)>=0&&head.indexOf(k)<0){sh.getRange(1,i+1).setValue(k);head[i]=k;renamed++;}});
   if(renamed)invalidateSheetV20_(VISITOR_SHEET_V165,false);
   VISITOR_HEADERS_V165.forEach(function(h){ensureSheetColumnV8427_(VISITOR_SHEET_V165,h);});
+  // Cột giờ / SĐT / CCCD / ngày để dạng chữ: Sheets không tự đổi "08:35" thành giờ và không mất số 0 đầu (làm 1 lần / mỗi bố cục cột).
+  try{const H=getHeaders_(VISITOR_SHEET_V165),key='PL168_VISITOR_FMT',sig=H.join('|'),props=PropertiesService.getScriptProperties();
+    if(props.getProperty(key)!==sig){['SDT','GIAY_TO','GIO_VAO','GIO_RA','GIO_HEN','NGAY','NGAY_HEN'].forEach(function(h){const i=H.indexOf(h);if(i>=0)sh.getRange(2,i+1,Math.max(1,sh.getMaxRows()-1),1).setNumberFormat('@');});props.setProperty(key,sig);}}catch(e){}
   return renamed;
 }
 function repairVisitorSheetV168_(){

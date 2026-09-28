@@ -12572,10 +12572,15 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
     $('plvSum').textContent=(r?'Đang chọn: '+r.HO_TEN+' · ':'')+`${n(x=>x.TRANG_THAI===IN)} khách đang trong tòa nhà · ${n(x=>x.TRANG_THAI===BOOK)} hẹn trước · ${n(x=>x.TRANG_THAI===OUT&&x.NGAY===t)} đã ra hôm nay`;
     $('plvDuty').innerHTML='Tự cập nhật mỗi phút · Người trực: <b>'+esc(staff())+'</b>'}
   function render(){if(!build())return;
-    if(!Array.isArray(core().visitors)){if(!S.asked&&window.v64LoadPage){S.asked=true;v64LoadPage('visitors',true)}$('plvRows').innerHTML='<tr><td colspan="13" class="plv-empty">Đang tải danh sách khách…</td></tr>';}
+    if(!Array.isArray(core().visitors)){$('plvRows').innerHTML='<tr><td colspan="13" class="plv-empty">Đang tải danh sách khách…</td></tr>';if(!S.asked){S.asked=true;fetchDirect()}}
     fill();kpi();if(Array.isArray(core().visitors))list();const d=new Date();$('plvSync').textContent='● Đã đồng bộ lúc '+pad(d.getHours())+':'+pad(d.getMinutes());foot();
     requestAnimationFrame(()=>{const el=$('plVisitor');if(el&&el.offsetParent)document.documentElement.style.setProperty('--plv-top',Math.round(el.getBoundingClientRect().top+window.scrollY)+'px')});
     clearInterval(S.timer);S.timer=setInterval(()=>{if(window.APP&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
+  // Dự phòng: gọi thẳng máy chủ khi bộ tải trang chưa trả dữ liệu khách; lỗi (vd. chưa cập nhật Code.gs) hiện ngay trên bảng.
+  function fetchDirect(){const run=window.google&&google.script&&google.script.run;if(!run)return;
+    run.withSuccessHandler(r=>{if(window.APP)APP.core=Object.assign({},APP.core||{},(r&&r.core)||{});if(!Array.isArray(core().visitors)&&window.APP)APP.core.visitors=[];render()})
+      .withFailureHandler(e=>{const m=String(e&&e.message||e);$('plvRows').innerHTML='<tr><td colspan="13" class="plv-empty" style="color:#b91c1c">Không tải được danh sách khách: '+esc(m)+(/not found|không tìm thấy/i.test(m)?'<br>→ Cần dán Code.gs bản mới rồi Deploy phiên bản mới.':'')+'</td></tr>';S.asked=false})
+      .getVisitorBundleV165(true)}
   function countMates(){const n=mates($('plvNGUOI_DI_CUNG').value).length;$('plvMates').textContent=n?n+' người':''}
   // Khách quen: tra theo SĐT hoặc CCCD (≥9 số) → tự điền ô còn trống (nền xanh), cảnh báo khách đang ở, gợi ý lịch hẹn hôm nay.
   let lk=0;function lookup(){if(S.edit)return;const v=$('plvSDT').value.replace(/\D/g,''),c=$('plvGIAY_TO').value.replace(/\s/g,'');S.prev=null;S.inside=null;$('plvHint').innerHTML='';
