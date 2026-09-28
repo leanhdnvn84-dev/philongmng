@@ -2579,6 +2579,7 @@ function legacyV22DispatchNoAuth_(fn, args, user) {
 
     case 'lookupVisitorByPhone': requirePermission_(user,MODULES.WORK,'XEM'); return lookupVisitorByPhoneV165_(args[0]||{});
     case 'searchVisitors': requirePermission_(user,MODULES.WORK,'XEM'); return searchVisitorsV165_(args[0]||{});
+    case 'revealVisitorId': requirePermission_(user,MODULES.WORK,'XEM'); return revealVisitorIdV169_(args[0]||{});
     case 'saveVisitor': requirePermission_(user,MODULES.WORK,['checkin','book'].indexOf(String((args[0]||{}).ACTION))>=0?'THEM':'SUA'); return saveVisitorV165_(args[0]||{});
     case 'uploadWorkPhoto': requirePermission_(user,String((args[0]||{}).SRC)==='daily'?MODULES.DAILY:MODULES.WORK,'SUA'); return uploadWorkPhotoV163_(args[0]||{});
     case 'getWorkPhotos': requirePermission_(user,String((args[0]||{}).SRC)==='daily'?MODULES.DAILY:MODULES.WORK,'XEM'); return getWorkPhotosV163_(args[0]||{});
@@ -3343,6 +3344,13 @@ function searchVisitorsV165_(input){
   return visitorRowsV165_().filter(function(r){const d=visitorDayV165_(r.NGAY)||visitorDayV165_(r.NGAY_HEN);if(from&&d<from)return false;if(d>to)return false;
     if(!q)return true;return norm_([r.ID,r.HO_TEN,r.SDT,r.NGUOI_DI_CUNG,r.DIA_CHI,r.CONG_TY,r.CONG_TY_LIEN_HE,r.NOI_DUNG,r.NGUOI_CAN_GAP,r.BIEN_SO_XE,r.TANG,r.PHONG_BAN].join(' ')).indexOf(q)>=0;})
     .sort(function(a,b){return String(b.ID).localeCompare(String(a.ID));}).slice(0,300).map(visitorPublicV165_);
+}
+// Xem CCCD đầy đủ: bắt buộc mật khẩu Hệ thống (cùng mật khẩu mở 🔒 HỆ THỐNG, có chặn dò sai 10 lần / 5 phút).
+function revealVisitorIdV169_(input){
+  const r=checkSystemLockPasswordV137_(input&&input.PASSWORD);
+  if(!r.ok)throw new Error(r.code==='SYSTEM_PASSWORD_TOO_MANY_ATTEMPTS'?'Nhập sai mật khẩu quá nhiều lần. Thử lại sau 5 phút.':r.code==='SYSTEM_PASSWORD_REQUIRED'?'Nhập mật khẩu':'Sai mật khẩu');
+  const f=visitorFindV165_(String(input.ID||'').trim());
+  return {ID:f.obj.ID,GIAY_TO:String(f.obj.GIAY_TO||'')};
 }
 // ACTION: checkin (tạo mới + vào ngay) · book (đăng ký trước) · arrive (khách hẹn trước đến) · checkout · cancel · update
 function saveVisitorV165_(input){
