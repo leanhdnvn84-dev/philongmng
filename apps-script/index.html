@@ -3922,6 +3922,18 @@ html:not(#plMobileViewport) #materialWarehouse #materialTable :is(th,td){vertica
 </style>
 </head>
 <body>
+<script id="pl-dom-hub">
+/* Bộ theo dõi DOM dùng chung: MỘT MutationObserver trên body thay cho ~20 bộ riêng lẻ (mỗi lần vẽ bảng
+   trước đây trình duyệt phải gom và phát bản ghi thay đổi cho từng bộ).
+   plOnDom_(cb)      → cb(records) chạy ngay khi DOM đổi (như MutationObserver cũ, cùng thứ tự đăng ký).
+   plOnDomFrame_(fn) → fn() chạy tối đa 1 lần mỗi khung hình sau khi DOM đổi. */
+(()=>{const subs=[];let mo=null;
+  const run=records=>{for(const f of subs.slice()){const t=window.__prof?performance.now():0;try{f(records)}catch(e){if(window.reportError)window.reportError(e);else console.error(e)}
+    if(window.__prof){const k='HUB '+String(f.__plName||f).replace(/\s+/g,' ').slice(0,110),e=window.__prof[k]||(window.__prof[k]={n:0,ms:0});e.n++;e.ms+=performance.now()-t}}};
+  window.plOnDom_=cb=>{subs.push(cb);if(!mo){mo=new MutationObserver(run);mo.observe(document.body,{childList:true,subtree:true})}return {disconnect(){const i=subs.indexOf(cb);if(i>=0)subs.splice(i,1)}}};
+  window.plOnDomFrame_=fn=>{let q=false;const cb=()=>{if(q)return;q=true;requestAnimationFrame(()=>{q=false;fn()})};cb.__plName=fn;return window.plOnDom_(cb)};
+})();
+</script>
 <div id="plStartupGateV841592" role="dialog" aria-modal="true" aria-labelledby="plStartupTitleV841592" tabindex="-1">
   <section class="pl-startup-shell">
     <div class="pl-startup-brand" aria-label="PHI LONG TECHNOLOGY">
@@ -4356,9 +4368,9 @@ window.plRefreshFooterStatus_=plRefreshFooterStatus_;
 window.plCompactPagerHtml_=plCompactPagerHtml_;
 document.addEventListener('DOMContentLoaded',()=>{
   plRefreshFooterStatus_();
-  new MutationObserver(records=>{
+  plOnDom_(records=>{
     if(records.some(record=>[...record.addedNodes].some(node=>node.nodeType===1&&(node.matches?.('.pl-data-footer')||node.querySelector?.('.pl-data-footer')))))plRefreshFooterStatus_();
-  }).observe(document.body,{childList:true,subtree:true});
+  });
 },{once:true});
 
 /* setStatus — ĐỊNH NGHĨA DUY NHẤT. Lưu ý: từ V42, lớp bọc cũ chỉ chuyển tiếp (text,type) nên tham số
@@ -6201,7 +6213,10 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   function apply41(root){
     if(isMobileLayout41())return;
     root=root||document;
-    root.querySelectorAll('.table-wrap table').forEach(table=>{
+    root.querySelectorAll('.table-wrap table').forEach(apply41Table);
+  }
+  function apply41Table(table){
+    {
       const ths=[...table.querySelectorAll('thead th')];
       if(!ths.length)return;
 
@@ -6214,7 +6229,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
           const td=tr.children[idx];if(td&&!td.classList.contains(cls))td.classList.add(cls);
         });
       });
-    });
+    }
   }
 
   /* PL_APPLY_WRAP_V41 — ĐỊNH NGHĨA DUY NHẤT: đánh dấu cột nội dung dài, rồi cân cột (V206). */
@@ -6229,8 +6244,11 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       observer41?.disconnect();observer41=null;return;
     }
     if(observer41||!document.body)return;
-    observer41=new MutationObserver(()=>{if(!isMobileLayout41())apply41(document)});
-    observer41.observe(document.body,{childList:true,subtree:true});
+    apply41(document); // vừa chuyển sang desktop: bù các bảng đã đổi khi đang ở mobile
+    observer41=plOnDom_(records=>{if(isMobileLayout41())return;const tables=new Set();
+      for(const r of records){const t=r.target,tb=t.closest?.('.table-wrap table');if(tb){tables.add(tb);continue}
+        r.addedNodes.forEach(n=>{if(n.nodeType!==1)return;if(n.matches('.table-wrap table'))tables.add(n);n.querySelectorAll('.table-wrap table').forEach(x=>tables.add(x))})}
+      tables.forEach(table=>apply41Table(table))});
   }
   window.addEventListener('resize',installObserver41,{passive:true});
 })();
@@ -6602,8 +6620,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       layoutObserver?.disconnect();layoutObserver=null;return;
     }
     if(layoutObserver||!document.body)return;
-    layoutObserver=new MutationObserver(queue);
-    layoutObserver.observe(document.body,{childList:true,subtree:true});
+    layoutObserver=plOnDom_(queue);
   }
   document.addEventListener('DOMContentLoaded',()=>{applyAll(document);installObserver()},{once:true});
   window.addEventListener('resize',()=>{
@@ -8103,8 +8120,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   }
   function start(){
     mark(document.body);
-    new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(mark)))
-      .observe(document.body,{childList:true,subtree:true});
+    plOnDom_(records=>records.forEach(record=>record.addedNodes.forEach(mark)));
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
@@ -8134,7 +8150,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   }
   function start(){
     apply();
-    new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
+    plOnDom_(schedule);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
@@ -8225,7 +8241,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
   document.addEventListener('keydown',e=>{if(e.key==='Enter')unformatAll()},true);
   function start(){
     mount(document);
-    new MutationObserver(mutations=>mutations.forEach(m=>m.addedNodes.forEach(node=>{if(node.nodeType===1)mount(node)}))).observe(document.body,{childList:true,subtree:true});
+    plOnDom_(mutations=>mutations.forEach(m=>m.addedNodes.forEach(node=>{if(node.nodeType===1)mount(node)})));
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
@@ -8342,8 +8358,7 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       observer?.disconnect();observer=null;return;
     }
     if(observer||!document.body)return;
-    observer=new MutationObserver(schedule);
-    observer.observe(document.body,{childList:true,subtree:true});
+    observer=plOnDom_(schedule);
   }
   function start(){if(isMobileLayout()){installObserver();return}applyAll();installObserver()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
@@ -8723,7 +8738,7 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{S.date=TODAY()
 <!-- V84.15.67 - Thanh công cụ màu theo chức năng, dùng một lớp CSS riêng. -->
 
 <script id="pl-v841567-daily-toolbar-controller">
-(()=>{const set=()=>{const map={pldFind:'pl-tool-find',pldAdd:'pl-tool-add',pldView:'pl-tool-view',pldEdit:'pl-tool-edit',pldRefresh:'pl-tool-refresh',pldPending:'pl-tool-pending'};Object.entries(map).forEach(([id,cls])=>{const el=document.getElementById(id);if(el&&!el.classList.contains(cls))el.classList.add(cls)})};new MutationObserver(()=>requestAnimationFrame(set)).observe(document.body,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',()=>setTimeout(set,1300));window.addEventListener('load',()=>setTimeout(set,1450))})();
+(()=>{const set=()=>{const map={pldFind:'pl-tool-find',pldAdd:'pl-tool-add',pldView:'pl-tool-view',pldEdit:'pl-tool-edit',pldRefresh:'pl-tool-refresh',pldPending:'pl-tool-pending'};Object.entries(map).forEach(([id,cls])=>{const el=document.getElementById(id);if(el&&!el.classList.contains(cls))el.classList.add(cls)})};plOnDomFrame_(set);document.addEventListener('DOMContentLoaded',()=>setTimeout(set,1300));window.addEventListener('load',()=>setTimeout(set,1450))})();
 </script>
 </body>
 <!-- V84.15.65 - Thống kê 2 dòng theo nhân sự và ngày đang chọn trên lịch. -->
@@ -8742,7 +8757,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   const monthOf=el=>{const m=(el?.textContent||'').match(/(\d{1,2})\s*\/\s*(\d{4})/);return m?{m:+m[1]-1,y:+m[2]}:null};
   function go(){const cal=document.querySelector('#daily .pl-daily-calendar');const now=today();const target={m:Number(now.slice(5,7))-1,y:Number(now.slice(0,4))};if(!cal)return;for(let i=0;i<24;i+=1){const cur=monthOf(cal.querySelector('.pl-daily-cal-head strong'));if(!cur||cur.y===target.y&&cur.m===target.m)break;const diff=(target.y-cur.y)*12+target.m-cur.m;const btn=cal.querySelector(diff<0?'[data-pld-prev]':'[data-pld-next]');if(!btn)break;btn.click();}const day=cal.querySelector('[data-pld-day="'+now+'"]');if(day)day.click()}
   function bind(){const line=document.getElementById('pldTodayText');if(line&&!line.dataset.pldTodayJump){line.dataset.pldTodayJump='1';line.addEventListener('click',go)}}
-  new MutationObserver(()=>requestAnimationFrame(bind)).observe(document.body,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,1300));window.addEventListener('load',()=>setTimeout(bind,1500));
+  plOnDomFrame_(bind);document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,1300));window.addEventListener('load',()=>setTimeout(bind,1500));
 })();
 </script>
 </body>
@@ -9333,7 +9348,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   const apply=()=>document.querySelectorAll('#v25ViewDetails .v25-detail-row').forEach(row=>row.classList.toggle('is-wide',wide.test(row.querySelector('.v25-detail-label')?.textContent||'')));
   const start=()=>{apply();const root=document.getElementById('v25ViewDetails');if(root&&!root.dataset.unifiedViewOrder){root.dataset.unifiedViewOrder='1';new MutationObserver(()=>requestAnimationFrame(apply)).observe(root,{childList:true,subtree:true})}};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  new MutationObserver(()=>requestAnimationFrame(start)).observe(document.body,{childList:true,subtree:true});
+  plOnDomFrame_(start);
 })();
 </script>
 
@@ -9354,8 +9369,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     if(exportBtn){if(exportBtn.hidden!==!active)exportBtn.hidden=!active;if(exportBtn.hasAttribute('aria-hidden')!==!active)exportBtn.toggleAttribute('aria-hidden',!active);if(active){if(exportBtn.textContent!=='Xuất dữ liệu')exportBtn.textContent='Xuất dữ liệu';if(exportBtn.title!=='Xuất dữ liệu trang đang mở')exportBtn.title='Xuất dữ liệu trang đang mở';if(exportBtn.style.getPropertyValue('display')!=='inline-flex'||exportBtn.style.getPropertyPriority('display')!=='important')exportBtn.style.setProperty('display','inline-flex','important')}else if(exportBtn.style.getPropertyValue('display'))exportBtn.style.removeProperty('display')}
   }
   plDefineSteps_('taskSubbarV841608',{afterShow:function(){requestAnimationFrame(sync);setTimeout(sync,80)}});
-  const observer=new MutationObserver(()=>requestAnimationFrame(sync));
-  observer.observe(document.body,{childList:true,subtree:true});
+  plOnDomFrame_(sync);
   sync();document.addEventListener('DOMContentLoaded',sync);window.addEventListener('load',sync);window.addEventListener('resize',sync,{passive:true});
 })();
 </script>
@@ -9428,7 +9442,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   function sync(){PAGES.forEach(page=>{const p=mount(page);if(p)renderPanel(page,p)})}
   let scheduled=false;const schedule=()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;sync()})};
   plDefineSteps_('proposalFinance',{afterShow:function(){setTimeout(sync,0)},afterRender:function(){setTimeout(sync,0)}});
-  const observer=new MutationObserver(records=>{if(records.every(r=>r.target?.closest?.('.pl-proposal-finance-panel')))return;schedule()});observer.observe(document.body,{childList:true,subtree:true});
+  plOnDom_(records=>{if(records.every(r=>r.target?.closest?.('.pl-proposal-finance-panel')))return;schedule()});
   sync();document.addEventListener('DOMContentLoaded',sync);window.addEventListener('load',sync);
   window.PL_PROPOSAL_FINANCE_STATS_V841609={sync,rowsFor,amount};
 })();
@@ -10030,7 +10044,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   document.addEventListener('DOMContentLoaded',()=>{attach();trim()});
   window.addEventListener('load',()=>{attach();trim()});
   window.addEventListener('resize',()=>{attach();trim()},{passive:true});
-  setInterval(()=>{attach();if(!isMobile())trim()},2500);
+  setInterval(()=>{if(document.hidden||!document.getElementById('materialTable'))return;attach();if(!isMobile())trim()},2500);
 })();
 </script>
 
@@ -10050,7 +10064,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     const root=document.getElementById(t.page);
     if(root&&!root.querySelector('#'+t.rowsId)&&typeof window[t.fn]==='function')window[t.fn](true);
   }
-  new MutationObserver(check).observe(document.body,{childList:true,subtree:true});
+  plOnDom_(check);
 })();
 </script>
 <script id="pl-mobile-single-controller">
@@ -11121,7 +11135,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
   window.PL_REMOVE_ACTION_COLUMN_V209=removeActionColumn;
   window.PL_SHOULD_REMOVE_ACTION_COLUMN_V209=()=>true;
   plDefineSteps_('catalogNoActionV210',{afterRenderGeneric:function(){sweep()}});
-  const start=()=>{sweep();if(!document.body)return;const observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true});};
+  const start=()=>{sweep();if(!document.body)return;plOnDom_(schedule);};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 </script>

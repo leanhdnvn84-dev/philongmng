@@ -170,8 +170,8 @@ function resetPhilongFaviconV63(){
 
 function doGet() {
   try {
-    const output = HtmlService.createTemplateFromFile('index')
-      .evaluate()
+    // index.html không có <? ?> → createHtmlOutputFromFile (không phải dựng template 1,2 MB mỗi lần mở app).
+    const output = HtmlService.createHtmlOutputFromFile('index')
       .setTitle('PHILONG BUILDING')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     // Bắt buộc: khổ màn hình cho trang ngoài của Google (thiếu thẻ này điện thoại hiển thị như trang máy tính, chữ bị thu nhỏ).
@@ -3207,7 +3207,8 @@ function getWorkPhotosV163_(input){
   const src=String(input.SRC||'work')==='daily'?'daily':'work',id=String(input.ID||'').trim();
   const list=workPhotoRowsV163_().filter(function(r){return String(r.NGUON)===src&&String(r.ID_CONG_VIEC)===id;})
     .sort(function(a,b){return (String(a.NGAY)+String(a.GIO)+String(a.ID_ANH)).localeCompare(String(b.NGAY)+String(b.GIO)+String(b.ID_ANH));});
-  return list.slice(-60).map(function(r){let thumb='';try{thumb=workPhotoDataUrlV163_(r.THUMB_ID||r.FILE_ID);}catch(e){}
+  const last=list.slice(-60),keys=last.map(function(r){return 'PL163:IMG:'+(r.THUMB_ID||r.FILE_ID);});let hit={};try{hit=CacheService.getScriptCache().getAll(keys)||{};}catch(e){}
+  return last.map(function(r,i){let thumb=hit[keys[i]]||'';if(!thumb)try{thumb=workPhotoDataUrlV163_(r.THUMB_ID||r.FILE_ID);}catch(e){}
     return {ID_ANH:r.ID_ANH,NGAY:dateOnly_(r.NGAY)||String(r.NGAY||''),GIO:String(r.GIO||''),GIAI_DOAN:r.GIAI_DOAN,DONG_TIEN_DO:r.DONG_TIEN_DO,FILE_ID:r.FILE_ID,thumb:thumb};});
 }
 // Ảnh lớn: chỉ trả file có trong sheet ảnh (không đọc được file Drive bất kỳ).
@@ -3242,28 +3243,34 @@ const VISITOR_HEADERS_V165=['ID','NGAY','GIO_VAO','NGAY_HEN','GIO_HEN','HO_TEN',
 const VISITOR_STATE_V165={IN:'ĐANG TRONG TÒA NHÀ',OUT:'ĐÃ RA',BOOK:'HẸN TRƯỚC',CANCEL:'ĐÃ HỦY'};
 const VISITOR_EDIT_FIELDS_V165=['HO_TEN','SDT','NGUOI_DI_CUNG','DIA_CHI','CONG_TY','CONG_TY_LIEN_HE','NOI_DUNG','NGUOI_CAN_GAP','PHONG_BAN','TANG','MUC_DICH','BIEN_SO_XE','GHI_CHU','NGAY_HEN','GIO_HEN'];
 function visitorSheetV165_(){
+  const ctx=v20ctx_();if(ctx.visitorSheetV165)return ctx.visitorSheetV165;
   const ss=ss_();let sh=ss.getSheetByName(VISITOR_SHEET_V165);
   if(!sh){sh=ss.insertSheet(VISITOR_SHEET_V165);sh.getRange(1,1,1,VISITOR_HEADERS_V165.length).setValues([VISITOR_HEADERS_V165]);try{sh.setFrozenRows(1)}catch(e){}
     ['SDT','GIAY_TO','GIO_VAO','GIO_RA','GIO_HEN','NGAY','NGAY_HEN'].forEach(function(h){sh.getRange(1,VISITOR_HEADERS_V165.indexOf(h)+1,sh.getMaxRows(),1).setNumberFormat('@');});
     invalidateSheetV20_(VISITOR_SHEET_V165,false);}
   else visitorHeadersV168_(sh);
-  return sh;
+  ctx.visitorSheetV165=sh;return sh;
 }
 // Sheet tạo tay (tiêu đề tiếng Việt: "Mã lượt", "Họ tên khách", "SĐT"…) → đổi tiêu đề về mã cột của app;
 // dòng nhập tay thiếu mã lượt → tự cấp mã K…; thiếu trạng thái → suy từ giờ vào / giờ ra. Chạy mỗi lần tải trang (nhẹ).
 const VISITOR_ALIAS_V168={MA_LUOT:'ID',MA:'ID',MA_KHACH:'ID',HO_TEN_KHACH:'HO_TEN',HO_VA_TEN:'HO_TEN',TEN_KHACH:'HO_TEN',SO_DIEN_THOAI:'SDT',DIEN_THOAI:'SDT',
   CCCD:'GIAY_TO',CCCD_GIAY_TO:'GIAY_TO',GIAY_TO_TUY_THAN:'GIAY_TO',NGUOI_DI_KEM:'NGUOI_DI_CUNG',NOI_DUNG_CONG_VIEC:'NOI_DUNG',BIEN_SO:'BIEN_SO_XE',NGUOI_DANG_KI:'NGUOI_DANG_KY'};
 function visitorHeadersV168_(sh){
+  // Tiêu đề (từ cache) đã đủ cột của app → không cần đọc dòng 1 trên Sheet để đổi tên.
+  const H0=getHeaders_(VISITOR_SHEET_V165);if(VISITOR_HEADERS_V165.every(function(h){return H0.indexOf(h)>=0;})){visitorFormatV168_(sh);return 0;}
   const lastCol=sh.getLastColumn();if(lastCol<1)return 0;
   const head=sh.getRange(1,1,1,lastCol).getValues()[0].map(function(h){return String(h||'').trim();});let renamed=0;
   head.forEach(function(h,i){if(!h||VISITOR_HEADERS_V165.indexOf(h)>=0)return;let k=norm_(h).replace(/[^A-Z0-9_]+/g,'_').replace(/^_+|_+$/g,'');k=VISITOR_ALIAS_V168[k]||k;
     if(VISITOR_HEADERS_V165.indexOf(k)>=0&&head.indexOf(k)<0){sh.getRange(1,i+1).setValue(k);head[i]=k;renamed++;}});
   if(renamed)invalidateSheetV20_(VISITOR_SHEET_V165,false);
   VISITOR_HEADERS_V165.forEach(function(h){ensureSheetColumnV8427_(VISITOR_SHEET_V165,h);});
+  visitorFormatV168_(sh);
+  return renamed;
+}
+function visitorFormatV168_(sh){
   // Cột giờ / SĐT / CCCD / ngày để dạng chữ: Sheets không tự đổi "08:35" thành giờ và không mất số 0 đầu (làm 1 lần / mỗi bố cục cột).
   try{const H=getHeaders_(VISITOR_SHEET_V165),key='PL168_VISITOR_FMT',sig=H.join('|'),props=PropertiesService.getScriptProperties();
     if(props.getProperty(key)!==sig){['SDT','GIAY_TO','GIO_VAO','GIO_RA','GIO_HEN','NGAY','NGAY_HEN'].forEach(function(h){const i=H.indexOf(h);if(i>=0)sh.getRange(2,i+1,Math.max(1,sh.getMaxRows()-1),1).setNumberFormat('@');});props.setProperty(key,sig);}}catch(e){}
-  return renamed;
 }
 function repairVisitorSheetV168_(){
   const sh=getSheet_(VISITOR_SHEET_V165),last=sh.getLastRow();if(last<2)return 0;
@@ -3317,7 +3324,9 @@ function getVisitorBundleV165(force){
   beginFastRequestV20_({bypassCache:!!force});
   const started=Date.now(),user=fastReadUserV121_(),ctx=v20ctx_();
   requirePermission_(user,MODULES.WORK,'XEM');
-  visitorSheetV165_();try{const lock=LockService.getScriptLock();if(lock.tryLock(3000)){try{repairVisitorSheetV168_();}finally{lock.releaseLock();}}}catch(e){console.warn('repairVisitorSheetV168_',e);}
+  visitorSheetV165_();
+  const needRepair=readObjects_(VISITOR_SHEET_V165).some(function(r){return String(r.HO_TEN||'').trim()&&(!String(r.ID||'').trim()||!String(r.TRANG_THAI||'').trim());});
+  if(needRepair)try{const lock=LockService.getScriptLock();if(lock.tryLock(3000)){try{repairVisitorSheetV168_();}finally{lock.releaseLock();}}}catch(e){console.warn('repairVisitorSheetV168_',e);}
   const now=visitorNowV165_();
   const visitors=visitorRowsV165_().filter(function(r){const st=visitorStatusV167_(r.TRANG_THAI),d=visitorDayV165_(r.NGAY),dh=visitorDayV165_(r.NGAY_HEN);
     return st===VISITOR_STATE_V165.IN||(st===VISITOR_STATE_V165.BOOK&&(!dh||dh>=now.day))||d===now.day;}).map(visitorPublicV165_);

@@ -75,10 +75,18 @@ function normalizeHtml(html) {
     .replace(/> </g, '>\n<');
 }
 
+
+// PROFILE=1: đo tổng thời gian chạy của từng MutationObserver / setInterval / addEventListener (theo đoạn đầu mã hàm).
+const PROFILER = `(function(){var P=window.__prof={};function key(t,f){return t+' '+String(f).replace(/\\s+/g,' ').slice(0,110)}
+function wrap(t,f){if(typeof f!=='function')return f;var k=key(t,f);return function(){var s=performance.now();try{return f.apply(this,arguments)}finally{var e=P[k]||(P[k]={n:0,ms:0});e.n++;e.ms+=performance.now()-s}}}
+var MO=window.MutationObserver;window.MutationObserver=function(cb){return new MO(wrap('MO',cb))};window.MutationObserver.prototype=MO.prototype;
+var si=window.setInterval;window.setInterval=function(f,t){return si.call(window,wrap('INT'+t,f),t)};
+var ael=EventTarget.prototype.addEventListener;EventTarget.prototype.addEventListener=function(t,f,o){if(this===document||this===window){var w=f&&f.__pw||(typeof f==='function'?(f.__pw=wrap('EV:'+t+(this===window?'@win':''),f)):f);return ael.call(this,t,w,o)}return ael.call(this,t,f,o)};
+var rel=EventTarget.prototype.removeEventListener;EventTarget.prototype.removeEventListener=function(t,f,o){return rel.call(this,t,f&&f.__pw||f,o)};})();`;
 async function main() {
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir, { recursive: true });
-  const html = fs.readFileSync(htmlPath, 'utf8').replace('<head>', () => '<head><script>' + MOCK_CLIENT + PAGE_HELPERS + '</script>');
+  const html = fs.readFileSync(htmlPath, 'utf8').replace('<head>', () => '<head><script>' + MOCK_CLIENT + PAGE_HELPERS + (process.env.PROFILE ? PROFILER : '') + '</script>');
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
   const report = { html: htmlPath, runs: [] };
 
@@ -128,6 +136,7 @@ async function main() {
       step++;
       const data = await page.evaluate(() => ({
         html: document.body.outerHTML,
+        root: [...document.documentElement.attributes].map(a => [a.name, a.value]),
         title: document.title,
         active: (document.querySelector('main.container>section.section.active') || {}).id || '',
         alerts: (window.__alerts || []).splice(0),
@@ -135,6 +144,18 @@ async function main() {
       }));
       const name = `${viewport.name}-${String(step).padStart(3, '0')}-${label}`;
       fs.writeFileSync(path.join(outDir, name + '.html'), normalizeHtml(data.html));
+      if (process.env.STYLES) fs.writeFileSync(path.join(outDir, name + '.root.json.txt'), JSON.stringify(data.root));
+      // STYLES=1: thêm ảnh chụp giao diện đã tính (vị trí/kích thước + style chính) của mọi phần tử đang hiện — để so CSS trước/sau.
+      if (process.env.STYLES) {
+        const css = await page.evaluate(() => {
+          const P = ['display','position','color','background-color','background-image','font-size','font-weight','line-height','border-top','border-bottom','border-left','border-right','border-radius','padding','margin','box-shadow','opacity','text-align','white-space','overflow','z-index','visibility','text-transform','letter-spacing','gap','justify-content','align-items','flex-direction','grid-template-columns','cursor','transform','outline'];
+          const out = [];const all = document.body.querySelectorAll('*');
+          for (const el of all) { const r = el.getBoundingClientRect(); if (!r.width && !r.height) continue; const cs = getComputedStyle(el); if (cs.display === 'none') continue;
+            let id = el.tagName.toLowerCase() + (el.id ? '#' + el.id : ''); let p = el.parentElement, d = 0; while (p && d < 3 && !p.id) { p = p.parentElement; d++; } if (!el.id && p && p.id) id = '#' + p.id + '>' + id + ':' + [...el.parentElement.children].indexOf(el);
+            out.push(id + ' ' + [r.x, r.y, r.width, r.height].map(v => Math.round(v)).join(',') + ' ' + P.map(k => cs.getPropertyValue(k)).join('|')); }
+          return out.join('\n'); });
+        fs.writeFileSync(path.join(outDir, name + '.css.txt'), css + '\n');
+      }
       const calls = rpcLog.splice(0);
       const errs = errors.splice(0);
       fs.writeFileSync(path.join(outDir, name + '.meta.txt'), [
@@ -229,6 +250,8 @@ async function main() {
     for (const id of PAGES) await safe('back-' + id, async () => { await goto(id); });
     await safe('refresh', async () => { await page.evaluate(() => { const b = document.getElementById('refreshBtn'); if (b) b.click(); else if (window.loadLiveData) window.loadLiveData(); }); });
     await safe('lock', async () => { await page.evaluate(() => { if (window.plLockSystemV137_) window.plLockSystemV137_(); }); });
+    if (process.env.PROFILE) { const pr = await page.evaluate(() => window.__prof || {}); fs.writeFileSync(path.join(outDir, 'profile-' + viewport.name + '.json.txt'), Object.entries(pr).sort((x, y) => y[1].ms - x[1].ms).map(([k, v]) => Math.round(v.ms) + 'ms\t' + v.n + '\t' + k).join('\n')); }
+    if (process.env.STYLES) { const dyn = await page.evaluate(() => [...document.querySelectorAll('style')].map(st => st.textContent)); fs.writeFileSync(path.join(outDir, 'styles-' + viewport.name + '.json.txt'), JSON.stringify(dyn)); }
     await context.close();
   }
   await browser.close();
