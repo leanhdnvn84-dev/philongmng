@@ -3299,8 +3299,10 @@ function visitorPublicV165_(r){
   const o={};VISITOR_HEADERS_V165.forEach(function(h){o[h]=r[h]==null?'':r[h];});
   o.NGAY=visitorDayV165_(r.NGAY);o.NGAY_HEN=visitorDayV165_(r.NGAY_HEN);o.GIO_VAO=visitorTimeV165_(r.GIO_VAO);o.GIO_RA=visitorTimeV165_(r.GIO_RA);o.GIO_HEN=visitorTimeV165_(r.GIO_HEN);
   const g=String(r.GIAY_TO||'').trim();o.GIAY_TO=g?'*'.repeat(Math.max(6,Math.min(12,g.length))):'';
-  o.SDT=String(r.SDT||'');o.TRANG_THAI=visitorStatusV167_(r.TRANG_THAI);return o;
+  o.SDT=visitorPhoneV171_(r.SDT);o.TRANG_THAI=visitorStatusV167_(r.TRANG_THAI);return o;
 }
+// SĐT lưu dạng số trên Sheet bị mất số 0 đầu (905000000) → trả lại 0905000000.
+function visitorPhoneV171_(v){const d=String(v==null?'':v).replace(/\D/g,'');return d.length===9&&d[0]!=='0'?'0'+d:(d||String(v||''));}
 function visitorRowsV165_(){visitorSheetV165_();return readObjects_(VISITOR_SHEET_V165).filter(function(r){return String(r.ID||'').trim();});}
 function nextVisitorIdV165_(){
   let max=0;visitorRowsV165_().forEach(function(r){const m=String(r.ID).match(/^K(\d+)$/);if(m)max=Math.max(max,Number(m[1]));});
@@ -3329,7 +3331,7 @@ function getVisitorBundleV165(force){
 function lookupVisitorByPhoneV165_(input){
   const sdt=String(input.SDT||'').replace(/\D/g,''),cc=String(input.GIAY_TO||'').replace(/\s/g,'');
   if(sdt.length<8&&cc.length<9)return {count:0};
-  const today=visitorNowV165_().day,same=function(r){return (sdt.length>=8&&String(r.SDT||'').replace(/\D/g,'')===sdt)||(cc.length>=9&&String(r.GIAY_TO||'').replace(/\s/g,'')===cc);};
+  const today=visitorNowV165_().day,same=function(r){return (sdt.length>=8&&visitorPhoneV171_(r.SDT)===visitorPhoneV171_(sdt))||(cc.length>=9&&String(r.GIAY_TO||'').replace(/\s/g,'')===cc);};
   const all=visitorRowsV165_().filter(function(r){return same(r)&&String(r.TRANG_THAI)!==VISITOR_STATE_V165.CANCEL;});
   const inside=all.find(function(r){return visitorStatusV167_(r.TRANG_THAI)===VISITOR_STATE_V165.IN;}),booked=all.find(function(r){const d=visitorDayV165_(r.NGAY_HEN);return visitorStatusV167_(r.TRANG_THAI)===VISITOR_STATE_V165.BOOK&&(!d||d===today);});
   const list=all.filter(function(r){return r.GIO_VAO;});
