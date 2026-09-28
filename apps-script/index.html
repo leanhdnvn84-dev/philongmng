@@ -12203,7 +12203,7 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
 /* Khóa trường đã giao việc khi SỬA (mọi thiết bị): Công việc — ngày giao, người giao, hạn hoàn thành, mức độ; Công việc hằng ngày — ngày giao, người giao. */
 (function(){
  function lock(){
-  const f=window.V17&&V17.form,box=document.getElementById('v17FormFields');
+  const f=(typeof V17!=="undefined")&&V17.form,box=document.getElementById('v17FormFields');
   if(!f||!box||!f.record||!f.record.ID)return;
   (V17_EDIT_LOCKED[f.page]||[]).forEach(k=>{const el=document.getElementById('v17_'+k);if(!el||el.disabled)return;el.disabled=true;el.readOnly=true;el.tabIndex=-1;el.classList.add('v17-locked');el.title='Không được sửa sau khi đã giao việc'});
  }
@@ -12275,7 +12275,7 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
  window.plProgAppend_=function(id){const nw=document.getElementById('v17_TIEN_DO_MOI');if(nw){nw.focus();nw.scrollIntoView({block:'center'});return}const ta=document.getElementById(id);if(!ta)return;const t=new Date(),head='- '+pad(t.getDate())+'/'+pad(t.getMonth()+1)+': ';const v=ta.value.replace(/\s+$/,'');
   if(!v.endsWith(head.trim()))ta.value=(v?v+'\n':'')+head;ta.focus();const n=ta.value.length;try{ta.setSelectionRange(n,n)}catch(e){}ta.scrollTop=ta.scrollHeight;ta.dispatchEvent(new Event('input',{bubbles:true}))};
  window.plProgEditAppend_=function(id){
-  const go=()=>{let tries=0;(function wait(){const ta=document.getElementById('v17_TIEN_DO_MOI')||document.getElementById('v17_TIEN_DO'),f=window.V17&&V17.form;if(ta&&f&&f.record&&String(f.record.ID)===String(id))return window.plProgAppend_('v17_TIEN_DO');if(++tries<40)setTimeout(wait,100)})()};
+  const go=()=>{let tries=0;(function wait(){const ta=document.getElementById('v17_TIEN_DO_MOI')||document.getElementById('v17_TIEN_DO'),f=(typeof V17!=="undefined")&&V17.form;if(ta&&f&&f.record&&String(f.record.ID)===String(id))return window.plProgAppend_('v17_TIEN_DO');if(++tries<40)setTimeout(wait,100)})()};
   if(typeof v17FindRecord==='function'&&!v17FindRecord('work',id))return window.v17Toast&&v17Toast('Chưa tải dữ liệu công việc — mở trang Công việc rồi thử lại.','warn');
   if(typeof window.editWork==='function')window.editWork(id);else if(window.v17EditPageRecord)window.v17EditPageRecord('work',id);else return;go()};
  const PH=[['Khảo sát',/khảo sát|kiểm tra|xem qua|\bđo\b/i,'#2563eb'],['Báo giá',/báo giá|chào giá|dự toán/i,'#7c3aed'],['Duyệt',/duyệt|trình/i,'#0891b2'],['Thi công',/thi công|đang sửa|đang làm|xử lý|\bthay\b|lắp|tháo dỡ|giám sát thợ|bắt đầu|triển khai|trải|\bsơn\b|\bđục\b|\bđổ\b|quét|dán|thợ vào/i,'#ea580c'],['Hoàn thành',/hoàn thành|đã xong|\bxong\b|đã sửa|nghiệm thu/i,'#16a34a']];
@@ -12489,7 +12489,7 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
   const IN='ĐANG TRONG TÒA NHÀ',OUT='ĐÃ RA',BOOK='HẸN TRƯỚC',CANCEL='ĐÃ HỦY',DEF_STAFF='Nguyễn Phương Thy',PURPOSES=['Làm việc','Giao hàng','Sửa chữa','Phỏng vấn','Khác'];
   const FIELDS=['HO_TEN','SDT','GIAY_TO','NGUOI_DI_CUNG','CONG_TY','DIA_CHI','NGUOI_CAN_GAP','PHONG_BAN','TANG','CONG_TY_LIEN_HE','NOI_DUNG','GHI_CHU','NGAY_HEN','GIO_HEN'];
   const S={mode:'checkin',edit:null,tab:'in',q:'',sel:'',purpose:'Làm việc',staff:DEF_STAFF,prev:null,inside:null,hist:null,built:false,timer:0};
-  const core=()=>(window.APP&&APP.core)||{},rows=()=>Array.isArray(core().visitors)?core().visitors:[];
+  const core=()=>((typeof APP!=="undefined")&&APP.core)||{},rows=()=>Array.isArray(core().visitors)?core().visitors:[];
   const pad=n=>String(n).padStart(2,'0'),todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
   const show=k=>k?String(k).slice(8,10)+'/'+String(k).slice(5,7)+'/'+String(k).slice(0,4):'';
   const fold=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/gi,'d').toLowerCase();
@@ -12575,10 +12575,10 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
     if(!Array.isArray(core().visitors)){$('plvRows').innerHTML='<tr><td colspan="13" class="plv-empty">Đang tải danh sách khách…</td></tr>';if(!S.asked){S.asked=true;fetchDirect()}}
     fill();kpi();if(Array.isArray(core().visitors))list();const d=new Date();$('plvSync').textContent='● Đã đồng bộ lúc '+pad(d.getHours())+':'+pad(d.getMinutes());foot();
     requestAnimationFrame(()=>{const el=$('plVisitor');if(el&&el.offsetParent)document.documentElement.style.setProperty('--plv-top',Math.round(el.getBoundingClientRect().top+window.scrollY)+'px')});
-    clearInterval(S.timer);S.timer=setInterval(()=>{if(window.APP&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
+    clearInterval(S.timer);S.timer=setInterval(()=>{if((typeof APP!=="undefined")&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
   // Dự phòng: gọi thẳng máy chủ khi bộ tải trang chưa trả dữ liệu khách; lỗi (vd. chưa cập nhật Code.gs) hiện ngay trên bảng.
   function fetchDirect(){const run=window.google&&google.script&&google.script.run;if(!run)return;
-    run.withSuccessHandler(r=>{if(window.APP)APP.core=Object.assign({},APP.core||{},(r&&r.core)||{});if(!Array.isArray(core().visitors)&&window.APP)APP.core.visitors=[];render()})
+    run.withSuccessHandler(r=>{if(typeof APP!=="undefined")APP.core=Object.assign({},APP.core||{},(r&&r.core)||{});if(!Array.isArray(core().visitors)&&typeof APP!=="undefined")APP.core.visitors=[];render()})
       .withFailureHandler(e=>{const m=String(e&&e.message||e);$('plvRows').innerHTML='<tr><td colspan="13" class="plv-empty" style="color:#b91c1c">Không tải được danh sách khách: '+esc(m)+(/not found|không tìm thấy/i.test(m)?'<br>→ Cần dán Code.gs bản mới rồi Deploy phiên bản mới.':'')+'</td></tr>';S.asked=false})
       .getVisitorBundleV165(true)}
   function countMates(){const n=mates($('plvNGUOI_DI_CUNG').value).length;$('plvMates').textContent=n?n+' người':''}
@@ -12598,7 +12598,7 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
   function fromTenant(e){const n=fold(e.target.value).trim(),t=tenants().find(x=>fold(x.TEN).trim()===n);if(!t)return;
     [['TANG',t.TANG],['CONG_TY_LIEN_HE',t.TEN]].forEach(([k,v])=>{const f=$('plv'+k);if(v&&f!==e.target&&(!f.value||f.classList.contains('auto'))){f.value=v;f.classList.add('auto')}})}
   function pick(p){S.purpose=PURPOSES.includes(p)?p:'Khác';$('plvPurpose').querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===S.purpose))}
-  function upsert(rec){const a=rows();const i=a.findIndex(r=>r.ID===rec.ID);if(i>=0)a[i]=rec;else a.push(rec);if(window.APP){APP.core=APP.core||{};APP.core.visitors=a}if(S.hist){const j=S.hist.findIndex(r=>r.ID===rec.ID);if(j>=0)S.hist[j]=rec}kpi();list()}
+  function upsert(rec){const a=rows();const i=a.findIndex(r=>r.ID===rec.ID);if(i>=0)a[i]=rec;else a.push(rec);if(typeof APP!=="undefined"){APP.core=APP.core||{};APP.core.visitors=a}if(S.hist){const j=S.hist.findIndex(r=>r.ID===rec.ID);if(j>=0)S.hist[j]=rec}kpi();list()}
   function staff(){return ($('plvStaff')&&$('plvStaff').value.trim())||S.staff||DEF_STAFF}
   function submit(){const b=$('plvSubmit');if(b.disabled)return;const ed=S.edit;
     const p={ACTION:ed?'update':S.mode,NGUOI:staff(),MUC_DICH:S.purpose,GIAY_TO_TU_LUOT:S.prev||''};if(ed)p.ID=ed.ID;
