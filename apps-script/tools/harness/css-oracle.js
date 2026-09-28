@@ -91,8 +91,12 @@ function inPage(arg) {
   // Khóa cascade của phần tử = tập luật khớp + style inline. Phần tử có khóa đã thử ở trạng thái trước → bỏ qua.
   const ruleOf = new Map();
   for (const id in R) { let m; try { m = document.querySelectorAll(R[id].selectorText); } catch (e) { continue; } for (const el of m) { let a = ruleOf.get(el); if (!a) ruleOf.set(el, a = []); a.push(id); } }
+  // + ngữ cảnh kế thừa từ phần tử cha (màu, font, line-height…, biến CSS): cùng tập luật nhưng cha khác → phản ứng khác khi bỏ khai báo.
+  const INH = ['color','font-family','font-size','font-style','font-weight','font-variant','font-stretch','line-height','letter-spacing','word-spacing','text-align','text-indent','text-transform','white-space','visibility','cursor','direction','list-style-type','list-style-position','border-collapse','border-spacing','caption-side','empty-cells','quotes','text-shadow','writing-mode','-webkit-text-fill-color','-webkit-text-stroke-width','tab-size','hyphens','overflow-wrap','word-break','text-rendering','pointer-events','color-scheme','accent-color','caret-color','orphans','widows','font-feature-settings','font-kerning','-webkit-font-smoothing','text-underline-position','paint-order','image-rendering','text-wrap','user-select','-webkit-user-select'];
+  const psig = new Map();
+  const parentSig = el => { const p = el.parentElement; if (!p) return ''; let v = psig.get(p); if (v !== undefined) return v; const c = getComputedStyle(p); const parts = INH.map(k => c.getPropertyValue(k)); for (let i = c.length - 1; i >= 0; i--) { const k = c[i]; if (k.startsWith('--')) parts.push(k + ':' + c.getPropertyValue(k)); else break; } v = parts.join('\u0001'); psig.set(p, v); return v; };
   const fresh = new Set(), seenSet = new Set(seen || []);
-  for (const [el, a] of ruleOf) { const k = a.join(',') + '|' + (el.getAttribute('style') || ''); if (!seenSet.has(k)) { seenSet.add(k); fresh.add(el); out.keys.push(k); } }
+  for (const [el, a] of ruleOf) { const k = a.join(',') + '|' + (el.getAttribute('style') || '') + '|' + parentSig(el); if (!seenSet.has(k)) { seenSet.add(k); fresh.add(el); out.keys.push(k); } }
   if (mode === 'test') {
     for (const c of cands) {
       const rule = R[c.r]; if (!rule) continue;
@@ -165,7 +169,7 @@ function inPage(arg) {
   // Kiểm lại khi áp dụng cùng lúc; khác ở đâu thì trả lại mọi ứng viên của luật chạm (phần tử, thuộc tính) đó.
   for (let round = 0; round < 12; round++) {
     let bad = new Set();
-    for (const s of useful) {
+    for (const s of snaps) {
       const p = await load(s);
       const sub = cands.filter(c => removed.includes(c.i) || dropped.includes(c.i)).map(c => ({ i: c.i, r: c.r, prop: c.prop }));
       const o = await p.evaluate(inPage, { cands: sub, mode: 'verify', removed, dropped, seen: [] });
