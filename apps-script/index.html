@@ -12123,9 +12123,9 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
 <script>
 /* Cách C — "Thêm vào Màn hình chính": mở app từ biểu tượng → không thanh địa chỉ, không lớp mờ của Safari trên đầu
    (doGet đã gắn thẻ apple-mobile-web-app-capable / mobile-web-app-capable). Trên điện thoại mở bằng trình duyệt:
-   nút 📲 trong menu + nhắc 1 lần (ẩn 7 ngày khi bấm "Để sau"). Đã mở từ màn hình chính thì không nhắc. */
+   hướng dẫn CHỈ hiện khi bấm nút 📲 trong menu (không tự bật lúc khởi động). Đã mở từ màn hình chính thì ẩn nút. */
 (function(){
-  const d=document,el=d.documentElement,ua=navigator.userAgent,KEY='plInstallTipV164';
+  const d=document,el=d.documentElement,ua=navigator.userAgent;
   const standalone=()=>navigator.standalone===true||(window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches));
   const mobile=()=>typeof window.plIsMobile_==='function'?window.plIsMobile_():el.id==='plMobileViewport';
   const ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -12133,17 +12133,15 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
   const steps=()=>inApp?'Đang mở trong Zalo/Facebook… Bấm <b>⋯</b> → <b>Mở bằng trình duyệt</b> ('+(ios?'Safari':'Chrome')+'), rồi làm theo hướng dẫn cài.'
     :ios?'<ol><li>Bấm nút <b>Chia sẻ</b> <span class="k">⬆︎</span> trên thanh Safari.</li><li>Kéo xuống, chọn <b>Thêm vào MH chính</b>.</li><li>Bấm <b>Thêm</b>, sau đó luôn mở PHILONG từ biểu tượng trên màn hình chính.</li></ol>'
     :'<ol><li>Bấm nút <b>⋮</b> góc trên của Chrome.</li><li>Chọn <b>Thêm vào màn hình chính</b> (hoặc <b>Cài đặt ứng dụng</b>).</li><li>Bấm <b>Thêm</b>, sau đó luôn mở PHILONG từ biểu tượng.</li></ol>';
-  const get=()=>{try{return +localStorage.getItem(KEY)||0}catch(e){return 0}},set=v=>{try{localStorage.setItem(KEY,String(v))}catch(e){}};
-  function show(manual){let t=d.getElementById('plInstallTip');if(t)t.remove();
+  function show(){let t=d.getElementById('plInstallTip');if(t)t.remove();
     t=d.createElement('div');t.id='plInstallTip';t.setAttribute('role','dialog');
-    t.innerHTML='<b class="h">📲 Cài PHILONG vào Màn hình chính</b><p>Mở từ biểu tượng sẽ <b>không còn thanh địa chỉ</b> và phần mờ phía trên, giống ứng dụng thật.</p>'+steps()+'<div class="a"><button type="button" data-later>'+(manual?'Đóng':'Để sau')+'</button>'+(manual?'':'<button type="button" class="p" data-never>Đã cài</button>')+'</div>';
-    t.addEventListener('click',e=>{if(e.target.closest('[data-later]')){if(!manual)set(Date.now());t.remove()}else if(e.target.closest('[data-never]')){set(Date.now()+3650*864e5);t.remove()}});
+    t.innerHTML='<b class="h">📲 Cài PHILONG vào Màn hình chính</b><p>Mở từ biểu tượng sẽ <b>không còn thanh địa chỉ</b> và phần mờ phía trên, giống ứng dụng thật.</p>'+steps()+'<div class="a"><button type="button" data-close>Đóng</button></div>';
+    t.addEventListener('click',e=>{if(e.target.closest('[data-close]'))t.remove()});
     (d.body||el).appendChild(t)}
   function init(){
     const b=d.getElementById('pmInstallToggle');
     if(standalone()){el.classList.add('plm-standalone');if(b)b.hidden=true;return}
-    if(b){b.hidden=!mobile();b.onclick=()=>show(true)}
-    if(mobile()&&Date.now()-get()>7*864e5)setTimeout(()=>{if(!standalone()&&mobile())show(false)},4000);
+    if(b){b.hidden=!mobile();b.onclick=show}
   }
   d.readyState==='loading'?d.addEventListener('DOMContentLoaded',init):init();
 })();
@@ -12152,7 +12150,7 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
 #plInstallTip{position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:2147483000;padding:14px 16px;border-radius:14px;background:#172033;color:#fff;font:500 14px/1.45 Roboto,Arial,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 #plInstallTip .h{display:block;font-size:15px;margin-bottom:4px}#plInstallTip p{margin:0 0 6px;color:#cbd5e1}#plInstallTip ol{margin:0;padding-left:20px}#plInstallTip li{margin:2px 0}
 #plInstallTip .k{display:inline-block;border:1px solid #64748b;border-radius:5px;padding:0 5px;font-size:12px}
-#plInstallTip .a{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}#plInstallTip button{border:1px solid #475569;background:transparent;color:#fff;border-radius:8px;padding:7px 14px;font-weight:700}#plInstallTip .p{background:#a71936;border-color:#a71936}
+#plInstallTip .a{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}#plInstallTip button{border:1px solid #475569;background:transparent;color:#fff;border-radius:8px;padding:7px 14px;font-weight:700}
 </style>
 <script>
 /* Máy tính: nhấp đôi vào dòng bảng = mở form Xem của dòng đó (mọi bảng).
