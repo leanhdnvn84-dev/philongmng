@@ -12213,7 +12213,8 @@ html[data-theme="dark"] .pl-rpt{--r-bg:#1b2230;--r-soft:#222b3a;--r-line:#334155
   let prev=giao;return parts.map(t=>{const m=t.match(DRE);let d=null;
    if(m){const dd=+m[1],mm=+m[2],yy=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):y0;if(dd>=1&&dd<=31&&mm>=1&&mm<=12){d=new Date(yy,mm-1,dd);if(!m[3]&&giao&&d<new Date(giao-30*864e5))d.setFullYear(yy+1)}}
    const lead=m&&t.indexOf(m[0])<6,body=lead?t.slice(t.indexOf(m[0])+m[0].length).replace(/^\s*[:\-–,]\s*/,''):t;
-   let pi=-1;PH.forEach((p,i)=>{if(p[1].test(t))pi=i});const e={d,after:d?null:prev,t:body||t,pi,wait:WAIT.test(t)};if(d)prev=d;return e});
+   if(lead&&!body.trim())return null; // dòng "- dd/mm:" chưa gõ nội dung → bỏ qua
+   let pi=-1;PH.forEach((p,i)=>{if(p[1].test(t))pi=i});const e={d,after:d?null:prev,t:body||t,pi,wait:WAIT.test(t)};if(d)prev=d;return e}).filter(Boolean);
  }
  function host(){let el=document.getElementById('plProgPop');if(el)return el;el=document.createElement('div');el.id='plProgPop';el.innerHTML='<div class="pp" role="dialog" aria-modal="true"></div>';
   el.addEventListener('click',e=>{if(e.target===el||e.target.closest('[data-pp-close]'))el.classList.remove('active')});document.body.appendChild(el);return el}
