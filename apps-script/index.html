@@ -12481,174 +12481,215 @@ html[data-theme="dark"] #plProgPop footer button:not(.p){background:#111827;colo
 html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#334155}
 </style>
 <script>
-/* V165 — KHÁCH RA/VÀO TÒA NHÀ (Lễ tân / Bảo vệ). Dữ liệu: APP.core.visitors (khách đang ở + hẹn trước + lượt hôm nay).
-   Mã lượt = mã thẻ khách (ẩn trên danh sách, hiện + in khi check-in và trong Xem chi tiết). CCCD chỉ hiện dấu *. */
+/* V167 — KHÁCH RA/VÀO TÒA NHÀ (Lễ tân / Bảo vệ). Dữ liệu: APP.core.visitors (khách đang ở + hẹn trước + lượt hôm nay).
+   Bố cục: thanh công cụ + 4 ô số liệu · form Đăng ký (Thông tin khách / Cần liên hệ, canh đều tới nút) · bảng dạng cột · chân trang.
+   Mã lượt = mã thẻ khách (ẩn trên bảng, hiện + in khi check-in / Xem). CCCD chỉ hiện dấu *. */
 (function(){
   const $=id=>document.getElementById(id),esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const IN='ĐANG TRONG TÒA NHÀ',OUT='ĐÃ RA',BOOK='HẸN TRƯỚC',CANCEL='ĐÃ HỦY',DEF_STAFF='Nguyễn Phương Thy',PURPOSES=['Làm việc','Giao hàng','Sửa chữa','Phỏng vấn','Khác'];
-  const S={mode:'checkin',tab:'in',q:'',purpose:'Làm việc',staff:DEF_STAFF,prev:null,hist:null,built:false,timer:0};
+  const FIELDS=['HO_TEN','SDT','GIAY_TO','NGUOI_DI_CUNG','CONG_TY','DIA_CHI','NGUOI_CAN_GAP','PHONG_BAN','TANG','CONG_TY_LIEN_HE','NOI_DUNG','GHI_CHU','NGAY_HEN','GIO_HEN'];
+  const S={mode:'checkin',edit:null,tab:'in',q:'',sel:'',purpose:'Làm việc',staff:DEF_STAFF,prev:null,inside:null,hist:null,built:false,timer:0};
   const core=()=>(window.APP&&APP.core)||{},rows=()=>Array.isArray(core().visitors)?core().visitors:[];
   const pad=n=>String(n).padStart(2,'0'),todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
   const show=k=>k?String(k).slice(8,10)+'/'+String(k).slice(5,7)+'/'+String(k).slice(0,4):'';
   const fold=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/gi,'d').toLowerCase();
   const phone=s=>{const d=String(s||'').replace(/\D/g,'');return d.length>=8?d.slice(0,4)+' ••• '+d.slice(-3):String(s||'')};
+  const mates=s=>String(s||'').split(',').map(x=>x.trim()).filter(Boolean);
   const toast=(m,t)=>window.v17Toast&&v17Toast(m,t||'ok');
-  function mins(r){if(!r.NGAY||!r.GIO_VAO)return null;const a=new Date(r.NGAY+'T'+r.GIO_VAO+':00'),b=r.GIO_RA?new Date((r.NGAY)+'T'+r.GIO_RA+':00'):new Date();const m=Math.round((b-a)/6e4);return m<0?null:m}
+  function mins(r){if(!r.NGAY||!r.GIO_VAO)return null;const a=new Date(r.NGAY+'T'+r.GIO_VAO+':00'),b=r.GIO_RA?new Date(r.NGAY+'T'+r.GIO_RA+':00'):new Date();const m=Math.round((b-a)/6e4);return m<0?null:m}
   const dur=m=>m===null?'—':m<60?m+' phút':Math.floor(m/60)+' giờ '+pad(m%60);
   const tone=m=>m===null?'':m>=240?'rd':m>=120?'y':'g';
+  const find=id=>rows().concat(S.hist||[]).find(x=>x.ID===id);
   function staffOptions(){const e=Array.isArray(core().visitorEmployees)?core().visitorEmployees:(Array.isArray(core().employees)?core().employees:[]);
     return [...new Set(e.map(x=>String(x.HO_TEN||x.TEN_NHAN_VIEN||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'))}
-  function tenantOpts(){const t=Array.isArray(core().visitorTenants)?core().visitorTenants:[];return {names:[...new Set(t.map(x=>x.TEN))],floors:[...new Set(t.map(x=>String(x.TANG||'')).filter(Boolean))]}}
+  const tenants=()=>Array.isArray(core().visitorTenants)?core().visitorTenants:[];
+  const inp=(k,l,x)=>`<div class="plv-f ${x&&x.cls||''}"><label>${l}${x&&x.extra||''}</label>${x&&x.area?`<textarea id="plv${k}" rows="2"></textarea>`:`<input id="plv${k}" ${x&&x.attr||''} autocomplete="off">`}${x&&x.note||''}</div>`;
   function build(){const el=$('plVisitor');if(!el||S.built)return el;S.built=true;
-    el.innerHTML=`<div class="plv-top"><button type="button" class="plv-big in" data-go="in">＋ KHÁCH VÀO<small>Check-in / Đăng ký trước</small></button><button type="button" class="plv-big out" data-go="out">⇥ KHÁCH RA<small>Tìm tên, SĐT, biển số</small></button></div>
-    <div class="plv-grid"><section class="plv-card plv-form" id="plvForm"><h3>Đăng ký khách <span>Giờ vào: tự lấy giờ máy chủ</span></h3>
+    const T=[['find','🔍','Tìm','#2563eb'],['new','＋','Khách vào','#16a34a'],['view','👁','Xem','#0891b2'],['edit','✎','Sửa','#ea580c'],['out','⇥','Check-out','#a71936'],['print','🖨','In phiếu','#475569'],['cancel','✕','Hủy lượt','#dc2626'],['reload','↻','Tải lại','#7c3aed']];
+    el.innerHTML=`<div class="plv-bar">${T.map(t=>`<button type="button" class="plv-tb" data-tool="${t[0]}" style="--c:${t[3]}"><i>${t[1]}</i>${t[2]}</button>`).join('')}<div class="plv-kp" id="plvKpi"></div></div>
+    <div class="plv-grid"><section class="plv-card plv-form" id="plvForm"><h3><span id="plvFormTitle">Đăng ký khách</span><small>Giờ vào: tự lấy giờ máy chủ</small></h3>
       <div class="plv-seg"><button type="button" data-mode="checkin" class="on">✔ Check-in ngay</button><button type="button" data-mode="book">📅 Đăng ký trước</button></div>
-      <div class="plv-2"><div class="plv-f"><label>Họ tên khách *</label><input id="plvHO_TEN" autocomplete="off"></div><div class="plv-f"><label>Công ty</label><input id="plvCONG_TY"></div></div>
-      <div class="plv-2"><div class="plv-f"><label>Số điện thoại *</label><input id="plvSDT" inputmode="tel" autocomplete="off" placeholder="Khách quen tự điền"></div><div class="plv-f"><label>CCCD / giấy tờ</label><input id="plvGIAY_TO" autocomplete="off" inputmode="numeric"></div></div><div id="plvHint"></div>
-      <div class="plv-f"><label>Địa chỉ</label><input id="plvDIA_CHI" autocomplete="off"></div>
-      <div class="plv-2"><div class="plv-f"><label>Người cần gặp</label><input id="plvNGUOI_CAN_GAP" list="plvTenants" autocomplete="off"></div><div class="plv-f"><label>Phòng ban</label><input id="plvPHONG_BAN"></div></div>
-      <div class="plv-2"><div class="plv-f"><label>Tầng</label><input id="plvTANG" list="plvFloors" autocomplete="off"><small class="plv-aut" id="plvTangNote"></small></div><div class="plv-f"><label>Biển số xe</label><input id="plvBIEN_SO_XE" autocomplete="off"></div></div>
-      <div class="plv-f"><label>Mục đích</label><div class="plv-chips" id="plvPurpose">${PURPOSES.map(p=>`<button type="button" data-p="${p}" class="${p===S.purpose?'on':''}">${p}</button>`).join('')}</div></div>
-      <div class="plv-2 plv-book"><div class="plv-f"><label>Ngày hẹn *</label><input id="plvNGAY_HEN" type="date"></div><div class="plv-f"><label>Giờ hẹn</label><input id="plvGIO_HEN" type="time"></div></div>
-      <div class="plv-f"><label>Người đăng ký / trực</label><input id="plvStaff" list="plvStaffList" autocomplete="off" placeholder="Gõ để tìm nhân viên"></div>
-      <div class="plv-f"><label>Ghi chú</label><input id="plvGHI_CHU"></div>
-      <button type="button" class="plv-submit" id="plvSubmit">➜ CHECK-IN</button>
+      <div class="plv-fl">
+        <div class="plv-sec">THÔNG TIN KHÁCH</div>
+        <div class="plv-2">${inp('HO_TEN','Họ tên khách *')}${inp('SDT','Số điện thoại *',{attr:'inputmode="tel" placeholder="Khách quen tự điền"'})}</div>
+        <div class="plv-2">${inp('GIAY_TO','CCCD / giấy tờ',{attr:'inputmode="numeric"'})}${inp('NGUOI_DI_CUNG','Người đi cùng',{extra:'<b class="plv-cnt" id="plvMates"></b>',attr:'placeholder="Nhiều người: cách nhau dấu ,"'})}</div>
+        <div id="plvHint"></div>
+        ${inp('CONG_TY','Công ty')}${inp('DIA_CHI','Địa chỉ')}
+        <div class="plv-sec">CẦN LIÊN HỆ</div>
+        <div class="plv-2">${inp('NGUOI_CAN_GAP','Người cần gặp',{attr:'list="plvTenants"'})}${inp('PHONG_BAN','Phòng ban')}</div>
+        <div class="plv-2">${inp('TANG','Tầng',{attr:'list="plvFloors"'})}${inp('CONG_TY_LIEN_HE','Công ty',{attr:'list="plvTenants"'})}</div>
+        ${inp('NOI_DUNG','Nội dung công việc',{area:1})}
+        <div class="plv-f"><label>Mục đích</label><div class="plv-chips" id="plvPurpose">${PURPOSES.map(p=>`<button type="button" data-p="${p}" class="${p===S.purpose?'on':''}">${p}</button>`).join('')}</div></div>
+        <div class="plv-2 plv-book">${inp('NGAY_HEN','Ngày hẹn *',{attr:'type="date"'})}${inp('GIO_HEN','Giờ hẹn',{attr:'type="time"'})}</div>
+        <div class="plv-2"><div class="plv-f"><label>Người đăng ký / trực</label><input id="plvStaff" list="plvStaffList" autocomplete="off" placeholder="Gõ để tìm nhân viên"></div>${inp('GHI_CHU','Ghi chú')}</div>
+      </div>
+      <div class="plv-act-row"><button type="button" class="plv-ghost" id="plvEditCancel" hidden>Hủy sửa</button><button type="button" class="plv-submit" id="plvSubmit">➜ CHECK-IN</button></div>
       <datalist id="plvTenants"></datalist><datalist id="plvFloors"></datalist><datalist id="plvStaffList"></datalist></section>
-    <section class="plv-card"><div class="plv-kp" id="plvKpi"></div>
-      <div class="plv-tabs" id="plvTabs"><button type="button" data-tab="in">Đang trong tòa nhà</button><button type="button" data-tab="book">Hẹn trước</button><button type="button" data-tab="out">Đã ra hôm nay</button><button type="button" data-tab="hist">Tìm lịch sử</button></div>
-      <div class="plv-bar"><input id="plvQ" placeholder="🔎 Tìm tên, SĐT, công ty, biển số, người cần gặp…"><span class="plv-hist"><input type="date" id="plvFrom"><input type="date" id="plvTo"><button type="button" id="plvFind">Tìm</button></span></div>
-      <div id="plvList" class="plv-list"></div></section></div>
+    <section class="plv-card plv-listcard"><div class="plv-tabs" id="plvTabs"><button type="button" data-tab="in">Đang trong tòa nhà</button><button type="button" data-tab="book">Hẹn trước</button><button type="button" data-tab="out">Đã ra hôm nay</button><button type="button" data-tab="all">Tất cả hôm nay</button><button type="button" data-tab="hist">Tìm lịch sử</button></div>
+      <div class="plv-search"><input id="plvQ" placeholder="🔎 Tìm tên, SĐT, CCCD, công ty, địa chỉ, người cần gặp, nội dung…"><span class="plv-hist"><input type="date" id="plvFrom"><input type="date" id="plvTo"><button type="button" id="plvFind">Tìm</button></span></div>
+      <div class="plv-tablewrap"><table class="plv-table"><thead><tr><th>Giờ vào</th><th>Họ tên</th><th>Đi cùng</th><th>Công ty</th><th>SĐT</th><th>CCCD</th><th>Địa chỉ</th><th>Người cần gặp</th><th>Tầng</th><th>Mục đích</th><th>Nội dung</th><th>Đã ở</th><th>Trạng thái</th></tr></thead><tbody id="plvRows"></tbody></table></div></section></div>
     <footer class="plv-foot"><span class="ok" id="plvSync"></span><span class="mid" id="plvSum"></span><span id="plvDuty"></span></footer>`;
-    el.addEventListener('click',onClick);
+    el.addEventListener('click',onClick);el.addEventListener('dblclick',e=>{const tr=e.target.closest('tr[data-id]');if(tr)view(tr.dataset.id)});
+    el.addEventListener('input',e=>{if(e.target.classList.contains('auto'))e.target.classList.remove('auto')});
     $('plvQ').addEventListener('input',()=>{S.q=$('plvQ').value;list()});
     $('plvSDT').addEventListener('input',lookup);$('plvGIAY_TO').addEventListener('input',lookup);
-    el.addEventListener('input',e=>{if(e.target.classList.contains('auto'))e.target.classList.remove('auto')});
-    $('plvNGUOI_CAN_GAP').addEventListener('change',floorFromTenant);
+    $('plvNGUOI_DI_CUNG').addEventListener('input',countMates);
+    ['plvNGUOI_CAN_GAP','plvCONG_TY_LIEN_HE'].forEach(id=>$(id).addEventListener('change',fromTenant));
     $('plvStaff').addEventListener('change',()=>{S.staff=$('plvStaff').value.trim()||DEF_STAFF;foot()});
-    $('plvSubmit').addEventListener('click',submit);
+    $('plvSubmit').addEventListener('click',submit);$('plvEditCancel').addEventListener('click',()=>{S.edit=null;reset();setMode('checkin')});
     $('plvFind').addEventListener('click',history);
     const t=todayKey();$('plvFrom').value=t.slice(0,8)+'01';$('plvTo').value=t;$('plvNGAY_HEN').min=t;
     return el}
-  function fill(){const o=tenantOpts();$('plvTenants').innerHTML=o.names.map(n=>`<option value="${esc(n)}">`).join('');$('plvFloors').innerHTML=o.floors.map(n=>`<option value="${esc(n)}">`).join('');
+  function fill(){const T=tenants();$('plvTenants').innerHTML=[...new Set(T.map(x=>x.TEN))].map(n=>`<option value="${esc(n)}">`).join('');
+    $('plvFloors').innerHTML=[...new Set(T.map(x=>String(x.TANG||'')).filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join('');
     $('plvStaffList').innerHTML=staffOptions().map(n=>`<option value="${esc(n)}">`).join('');if(!$('plvStaff').value)$('plvStaff').value=S.staff}
-  function setMode(m){S.mode=m;const f=$('plvForm');f.classList.toggle('booking',m==='book');f.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
-    $('plvSubmit').textContent=m==='book'?'📅 LƯU HẸN TRƯỚC':'➜ CHECK-IN';if(m==='book'&&!$('plvNGAY_HEN').value)$('plvNGAY_HEN').value=todayKey()}
+  function setMode(m){S.mode=m;const f=$('plvForm');f.classList.toggle('booking',m==='book'||(S.edit&&S.edit.TRANG_THAI===BOOK));f.classList.toggle('editing',!!S.edit);
+    f.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));$('plvEditCancel').hidden=!S.edit;
+    $('plvFormTitle').textContent=S.edit?'Sửa thông tin khách':'Đăng ký khách';
+    $('plvSubmit').textContent=S.edit?'💾 LƯU SỬA':m==='book'?'📅 LƯU HẸN TRƯỚC':'➜ CHECK-IN';if(m==='book'&&!S.edit&&!$('plvNGAY_HEN').value)$('plvNGAY_HEN').value=todayKey()}
+  const people=L=>L.reduce((n,r)=>n+1+mates(r.NGUOI_DI_CUNG).length,0);
   function kpi(){const R=rows(),t=todayKey(),inn=R.filter(r=>r.TRANG_THAI===IN),bk=R.filter(r=>r.TRANG_THAI===BOOK),out=R.filter(r=>r.TRANG_THAI===OUT&&r.NGAY===t),late=inn.filter(r=>(mins(r)||0)>=240);
-    $('plvKpi').innerHTML=[['Đang trong tòa nhà',inn.length,'#15803d','in'],['Hẹn trước',bk.length,'#1d4ed8','book'],['Đã ra hôm nay',out.length,'#64748b','out'],['Ở quá 4 giờ',late.length,'#b91c1c','in']].map(k=>`<button type="button" class="plv-k" data-tab="${k[3]}" style="--c:${k[2]}"><small>${k[0]}</small><b>${k[1]}</b></button>`).join('');
-    const n={in:inn.length,book:bk.length,out:out.length};$('plvTabs').querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('on',b.dataset.tab===S.tab);const c=n[b.dataset.tab];b.dataset.n=c===undefined?'':c})}
-  function card(r){const m=mins(r),bk=r.TRANG_THAI===BOOK,inn=r.TRANG_THAI===IN;
-    const head=bk?`📅 ${show(r.NGAY_HEN).slice(0,5)}${r.GIO_HEN?' '+r.GIO_HEN:''}`:(r.GIO_VAO?'Vào '+r.GIO_VAO:'')+(r.GIO_RA?' · Ra '+r.GIO_RA:'');
-    const act=inn?`<button type="button" class="plv-act out" data-out="${esc(r.ID)}">⇥ Check-out</button>`:bk?`<button type="button" class="plv-act in" data-arrive="${esc(r.ID)}">➜ Khách đến</button><button type="button" class="plv-act ghost" data-cancel="${esc(r.ID)}">Hủy</button>`:'';
-    return `<div class="plv-row ${bk?'bk':inn?tone(m):'done'}" data-id="${esc(r.ID)}"><div class="plv-c name"><b>${esc(r.HO_TEN)}</b><small>${esc(r.CONG_TY||'—')}</small></div>
-      <div class="plv-c"><small>SĐT</small>${esc(phone(r.SDT))}</div><div class="plv-c"><small>CCCD</small><span class="mask">${r.GIAY_TO?esc(r.GIAY_TO):'—'}</span></div>
-      <div class="plv-c"><small>Gặp · Tầng</small>${esc([r.NGUOI_CAN_GAP,r.TANG].filter(Boolean).join(' · ')||'—')}</div><div class="plv-c"><small>Mục đích</small>${esc(r.MUC_DICH||'—')}</div>
-      <div class="plv-c"><small>Biển số</small>${esc(r.BIEN_SO_XE||'—')}</div><div class="plv-c time"><small>${esc(head)}</small>${bk?'<span class="plv-b bl">HẸN TRƯỚC</span>':r.TRANG_THAI===CANCEL?'<span class="plv-b gr">ĐÃ HỦY</span>':`<span class="plv-b ${inn?tone(m):'gr'}">${dur(m)}</span>`}</div>
-      <div class="plv-c acts">${act}</div></div>`}
-  function list(){const t=todayKey(),q=fold(S.q),R=S.tab==='hist'?(S.hist||[]):rows().filter(r=>S.tab==='in'?r.TRANG_THAI===IN:S.tab==='book'?r.TRANG_THAI===BOOK:r.TRANG_THAI===OUT&&r.NGAY===t);
-    const L=R.filter(r=>!q||fold([r.ID,r.HO_TEN,r.SDT,r.DIA_CHI,r.CONG_TY,r.NGUOI_CAN_GAP,r.BIEN_SO_XE,r.TANG].join(' ')).includes(q))
-      .sort((a,b)=>S.tab==='book'?String(a.NGAY_HEN+a.GIO_HEN).localeCompare(String(b.NGAY_HEN+b.GIO_HEN)):String(b.NGAY+b.GIO_RA+b.GIO_VAO).localeCompare(String(a.NGAY+a.GIO_RA+a.GIO_VAO)));
+    $('plvKpi').innerHTML=[['Đang trong tòa nhà',inn.length,'#15803d','in',`lượt · ${people(inn)} người`],['Hẹn trước',bk.length,'#1d4ed8','book',''],['Đã ra hôm nay',out.length,'#64748b','out',''],['Ở quá 4 giờ',late.length,'#b91c1c','in','']]
+      .map(k=>`<button type="button" class="plv-k ${S.tab===k[3]&&k[0]!=='Ở quá 4 giờ'?'on':''}" data-tab="${k[3]}" style="--c:${k[2]}"><small>${k[0]}</small><b>${k[1]}</b>${k[4]?`<em>${k[4]}</em>`:''}</button>`).join('');
+    const n={in:inn.length,book:bk.length,out:out.length,all:R.filter(r=>r.NGAY===t||(r.TRANG_THAI===BOOK&&r.NGAY_HEN===t)||r.TRANG_THAI===IN).length};
+    $('plvTabs').querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('on',b.dataset.tab===S.tab);const c=n[b.dataset.tab];b.dataset.n=c===undefined?'':c})}
+  function tabRows(){const t=todayKey();if(S.tab==='hist')return S.hist||[];
+    return rows().filter(r=>S.tab==='in'?r.TRANG_THAI===IN:S.tab==='book'?r.TRANG_THAI===BOOK:S.tab==='out'?(r.TRANG_THAI===OUT&&r.NGAY===t):(r.NGAY===t||(r.TRANG_THAI===BOOK&&r.NGAY_HEN===t)||r.TRANG_THAI===IN))}
+  function stTag(r){const m=mins(r);return r.TRANG_THAI===IN?`<span class="plv-b g">${IN}</span>`:r.TRANG_THAI===BOOK?`<span class="plv-b bl">${BOOK}</span>`:r.TRANG_THAI===OUT?`<span class="plv-b gr">${OUT}</span>`:r.TRANG_THAI===CANCEL?`<span class="plv-b gr">${CANCEL}</span>`:`<span class="plv-b y">${esc(r.TRANG_THAI||'CHƯA RÕ')}</span>`}
+  function row(r){const m=mins(r),bk=r.TRANG_THAI===BOOK,M=mates(r.NGUOI_DI_CUNG);
+    const time=bk?`📅 ${esc(show(r.NGAY_HEN).slice(0,5))}${r.GIO_HEN?' '+esc(r.GIO_HEN):''}`:esc(r.GIO_VAO||'—')+(r.GIO_RA?`<small> → ${esc(r.GIO_RA)}</small>`:'');
+    return `<tr data-id="${esc(r.ID)}" class="${S.sel===r.ID?'sel':''}"><td>${time}</td><td><b>${esc(r.HO_TEN)}</b></td><td class="w">${M.length?`<span class="plv-b bl">+${M.length}</span> ${esc(M.join(', '))}`:'—'}</td>
+      <td class="w">${esc(r.CONG_TY||'—')}</td><td>${esc(phone(r.SDT))}</td><td class="mask">${r.GIAY_TO?esc(r.GIAY_TO):'—'}</td><td class="w">${esc(r.DIA_CHI||'—')}</td>
+      <td class="w">${esc([r.NGUOI_CAN_GAP,r.CONG_TY_LIEN_HE&&r.CONG_TY_LIEN_HE!==r.NGUOI_CAN_GAP?r.CONG_TY_LIEN_HE:''].filter(Boolean).join(' · ')||'—')}</td><td>${esc(r.TANG||'—')}</td><td>${esc(r.MUC_DICH||'—')}</td>
+      <td class="w" title="${esc(r.NOI_DUNG||'')}">${esc(r.NOI_DUNG||'—')}</td><td>${bk||!r.GIO_VAO?'—':`<span class="plv-b ${r.TRANG_THAI===IN?tone(m):'gr'}">${dur(m)}</span>`}</td><td>${stTag(r)}</td></tr>`}
+  function list(){const q=fold(S.q),L=tabRows().filter(r=>!q||fold([r.ID,r.HO_TEN,r.SDT,r.NGUOI_DI_CUNG,r.DIA_CHI,r.CONG_TY,r.NGUOI_CAN_GAP,r.CONG_TY_LIEN_HE,r.TANG,r.NOI_DUNG,r.BIEN_SO_XE].join(' ')).includes(q))
+      .sort((a,b)=>S.tab==='book'?String(a.NGAY_HEN+a.GIO_HEN).localeCompare(String(b.NGAY_HEN+b.GIO_HEN)):String((b.NGAY||b.NGAY_HEN)+(b.GIO_VAO||b.GIO_HEN)).localeCompare(String((a.NGAY||a.NGAY_HEN)+(a.GIO_VAO||a.GIO_HEN))));
     $('plVisitor').classList.toggle('hist',S.tab==='hist');
-    $('plvList').innerHTML=L.length?L.map(card).join(''):`<div class="plv-empty">${S.tab==='hist'&&!S.hist?'Chọn khoảng ngày rồi bấm Tìm.':'Không có khách.'}</div>`}
-  function foot(){const R=rows(),t=todayKey(),n=k=>R.filter(k).length;if(!$('plvSum'))return;
-    $('plvSum').textContent=`${n(r=>r.TRANG_THAI===IN)} khách đang trong tòa nhà · ${n(r=>r.TRANG_THAI===BOOK)} hẹn trước · ${n(r=>r.TRANG_THAI===OUT&&r.NGAY===t)} đã ra hôm nay`;
+    $('plvRows').innerHTML=L.length?L.map(row).join(''):`<tr><td colspan="13" class="plv-empty">${S.tab==='hist'&&!S.hist?'Đang tìm…':'Không có khách.'}</td></tr>`;tools()}
+  function tools(){const r=S.sel&&find(S.sel),st=r&&r.TRANG_THAI;const set=(k,on)=>{const b=$('plVisitor').querySelector('[data-tool="'+k+'"]');if(b)b.disabled=!on};
+    set('view',!!r);set('edit',!!r&&st!==CANCEL);set('out',st===IN);set('print',!!r&&!!r.GIO_VAO);set('cancel',st===IN||st===BOOK);foot()}
+  function foot(){if(!$('plvSum'))return;const R=rows(),t=todayKey(),n=k=>R.filter(k).length,r=S.sel&&find(S.sel);
+    $('plvSum').textContent=(r?'Đang chọn: '+r.HO_TEN+' · ':'')+`${n(x=>x.TRANG_THAI===IN)} khách đang trong tòa nhà · ${n(x=>x.TRANG_THAI===BOOK)} hẹn trước · ${n(x=>x.TRANG_THAI===OUT&&x.NGAY===t)} đã ra hôm nay`;
     $('plvDuty').innerHTML='Tự cập nhật mỗi phút · Người trực: <b>'+esc(staff())+'</b>'}
   function render(){if(!build())return;fill();kpi();list();const d=new Date();$('plvSync').textContent='● Đã đồng bộ lúc '+pad(d.getHours())+':'+pad(d.getMinutes());foot();
-    requestAnimationFrame(()=>{const el=$('plVisitor');if(el&&el.offsetParent)document.documentElement.style.setProperty('--plv-top',Math.round(el.getBoundingClientRect().top+window.scrollY)+'px')});clearInterval(S.timer);S.timer=setInterval(()=>{if(window.APP&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
-  // Khách quen: tra theo SĐT (≥9 số) hoặc CCCD (≥9 số) → tự điền ô còn trống (nền xanh), cảnh báo khách đang ở, gợi ý lịch hẹn hôm nay.
-  let lk=0;function lookup(){const v=$('plvSDT').value.replace(/\D/g,''),c=$('plvGIAY_TO').value.replace(/\s/g,'');S.prev=null;S.inside=null;$('plvHint').innerHTML='';
+    requestAnimationFrame(()=>{const el=$('plVisitor');if(el&&el.offsetParent)document.documentElement.style.setProperty('--plv-top',Math.round(el.getBoundingClientRect().top+window.scrollY)+'px')});
+    clearInterval(S.timer);S.timer=setInterval(()=>{if(window.APP&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
+  function countMates(){const n=mates($('plvNGUOI_DI_CUNG').value).length;$('plvMates').textContent=n?n+' người':''}
+  // Khách quen: tra theo SĐT hoặc CCCD (≥9 số) → tự điền ô còn trống (nền xanh), cảnh báo khách đang ở, gợi ý lịch hẹn hôm nay.
+  let lk=0;function lookup(){if(S.edit)return;const v=$('plvSDT').value.replace(/\D/g,''),c=$('plvGIAY_TO').value.replace(/\s/g,'');S.prev=null;S.inside=null;$('plvHint').innerHTML='';
     if(v.length<9&&c.length<9)return;clearTimeout(lk);
-    lk=setTimeout(()=>server('lookupVisitorByPhone',[{SDT:v,GIAY_TO:c}],r=>{if(!r||$('plvSDT').value.replace(/\D/g,'')!==v||$('plvGIAY_TO').value.replace(/\s/g,'')!==c)return;
+    lk=setTimeout(()=>server('lookupVisitorByPhone',[{SDT:v,GIAY_TO:c}],r=>{if(!r||S.edit||$('plvSDT').value.replace(/\D/g,'')!==v||$('plvGIAY_TO').value.replace(/\s/g,'')!==c)return;
       const x=r.last,msg=[];S.inside=r.inside||null;
       if(x){S.prev=r.hasId?r.fromId:null;
-        ['HO_TEN','CONG_TY','DIA_CHI','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','SDT'].forEach(k=>{const e=$('plv'+k);if(e&&!e.value&&x[k]){e.value=x[k];e.classList.add('auto')}});
+        ['HO_TEN','SDT','CONG_TY','DIA_CHI','NGUOI_CAN_GAP','PHONG_BAN','TANG','CONG_TY_LIEN_HE'].forEach(k=>{const e=$('plv'+k);if(e&&!e.value&&x[k]){e.value=x[k];e.classList.add('auto')}});
         if(x.MUC_DICH)pick(x.MUC_DICH);if(r.hasId&&!$('plvGIAY_TO').value)$('plvGIAY_TO').placeholder='Dùng CCCD lần trước ('+x.GIAY_TO+')';
         if(r.count)msg.push(`<div class="plv-hint">✓ Khách quen — đã đến ${r.count} lần, gần nhất ${show(x.NGAY||x.NGAY_HEN)}. Đã tự điền các ô nền xanh.</div>`)}
       if(r.booked)msg.push(`<div class="plv-hint bl">📅 Có lịch hẹn hôm nay${r.booked.GIO_HEN?' lúc '+r.booked.GIO_HEN:''} — <button type="button" data-arrive="${esc(r.booked.ID)}">Check-in theo lịch hẹn</button></div>`);
       if(r.inside)msg.push(`<div class="plv-hint wr">⚠ Khách này đang trong tòa nhà (vào ${esc(r.inside.GIO_VAO)}${r.inside.NGAY!==todayKey()?' ngày '+show(r.inside.NGAY):''}) — <button type="button" data-out="${esc(r.inside.ID)}">Check-out lượt cũ</button></div>`);
       $('plvHint').innerHTML=msg.join('')},()=>{}),350)}
-  // Chọn người cần gặp là khách thuê → tự điền tầng.
-  function floorFromTenant(){const n=fold($('plvNGUOI_CAN_GAP').value).trim(),t=(core().visitorTenants||[]).find(x=>fold(x.TEN).trim()===n),f=$('plvTANG');$('plvTangNote').textContent='';
-    if(t&&t.TANG&&(!f.value||f.classList.contains('auto'))){f.value=t.TANG;f.classList.add('auto');$('plvTangNote').textContent='tự lấy theo khách thuê '+t.TEN}}
+  // Chọn khách thuê ở Người cần gặp / Công ty → tự điền Tầng + Công ty liên hệ.
+  function fromTenant(e){const n=fold(e.target.value).trim(),t=tenants().find(x=>fold(x.TEN).trim()===n);if(!t)return;
+    [['TANG',t.TANG],['CONG_TY_LIEN_HE',t.TEN]].forEach(([k,v])=>{const f=$('plv'+k);if(v&&f!==e.target&&(!f.value||f.classList.contains('auto'))){f.value=v;f.classList.add('auto')}})}
   function pick(p){S.purpose=PURPOSES.includes(p)?p:'Khác';$('plvPurpose').querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===S.purpose))}
-  function upsert(rec){setTimeout(foot);const a=rows();const i=a.findIndex(r=>r.ID===rec.ID);if(i>=0)a[i]=rec;else a.push(rec);if(window.APP){APP.core=APP.core||{};APP.core.visitors=a}if(S.hist){const j=S.hist.findIndex(r=>r.ID===rec.ID);if(j>=0)S.hist[j]=rec}kpi();list()}
+  function upsert(rec){const a=rows();const i=a.findIndex(r=>r.ID===rec.ID);if(i>=0)a[i]=rec;else a.push(rec);if(window.APP){APP.core=APP.core||{};APP.core.visitors=a}if(S.hist){const j=S.hist.findIndex(r=>r.ID===rec.ID);if(j>=0)S.hist[j]=rec}kpi();list()}
   function staff(){return ($('plvStaff')&&$('plvStaff').value.trim())||S.staff||DEF_STAFF}
-  function submit(){const b=$('plvSubmit');if(b.disabled)return;const p={ACTION:S.mode,NGUOI:staff(),MUC_DICH:S.purpose,GIAY_TO_TU_LUOT:S.prev||''};
-    if(S.mode==='checkin'&&S.inside&&!confirm('Khách này đang trong tòa nhà (vào '+S.inside.GIO_VAO+'). Vẫn check-in lượt mới?'))return;
-    ['SDT','HO_TEN','GIAY_TO','DIA_CHI','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','GHI_CHU','NGAY_HEN','GIO_HEN'].forEach(k=>p[k]=$('plv'+k).value.trim());
-    if(!p.SDT||!p.HO_TEN)return toast('Nhập số điện thoại và họ tên khách','err');b.disabled=true;b.textContent='Đang lưu…';
-    server('saveVisitor',[p],r=>{b.disabled=false;setMode(S.mode);upsert(r.record);reset();if(S.mode==='checkin'){S.tab='in';ticket(r.record,true)}else{S.tab='book';toast('Đã lưu hẹn trước cho '+r.record.HO_TEN)}kpi();list()},
+  function submit(){const b=$('plvSubmit');if(b.disabled)return;const ed=S.edit;
+    const p={ACTION:ed?'update':S.mode,NGUOI:staff(),MUC_DICH:S.purpose,GIAY_TO_TU_LUOT:S.prev||''};if(ed)p.ID=ed.ID;
+    if(!ed&&S.mode==='checkin'&&S.inside&&!confirm('Khách này đang trong tòa nhà (vào '+S.inside.GIO_VAO+'). Vẫn check-in lượt mới?'))return;
+    FIELDS.forEach(k=>p[k]=$('plv'+k).value.trim());p.NGUOI_DI_CUNG=mates(p.NGUOI_DI_CUNG).join(', ');
+    if(ed&&!p.GIAY_TO)delete p.GIAY_TO;
+    if(!p.SDT||!p.HO_TEN)return toast('Nhập họ tên và số điện thoại khách','err');b.disabled=true;b.textContent='Đang lưu…';
+    server('saveVisitor',[p],r=>{b.disabled=false;upsert(r.record);S.sel=r.record.ID;S.edit=null;reset();setMode(S.mode);
+      if(ed)toast('Đã lưu sửa cho '+r.record.HO_TEN);else if(S.mode==='checkin'){S.tab='in';ticket(r.record,true)}else{S.tab='book';toast('Đã lưu hẹn trước cho '+r.record.HO_TEN)}kpi();list()},
       e=>{b.disabled=false;setMode(S.mode);toast('Lưu không thành công: '+(e&&e.message||e),'err')})}
-  function reset(){['SDT','HO_TEN','GIAY_TO','DIA_CHI','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','GHI_CHU','GIO_HEN'].forEach(k=>{const e=$('plv'+k);e.value='';e.classList.remove('auto');e.placeholder=k==='SDT'?'Khách quen tự điền':''});S.prev=null;S.inside=null;$('plvHint').innerHTML='';$('plvTangNote').textContent='';pick(S.purpose)}
-  function act(action,id,extra){const r=rows().concat(S.hist||[]).find(x=>x.ID===id);server('saveVisitor',[Object.assign({ACTION:action,ID:id,NGUOI:staff()},extra||{})],x=>{upsert(x.record);closePop();
-      if(action==='arrive')ticket(x.record,true);else toast((action==='checkout'?'Đã check-out ':'Đã cập nhật ')+(r?r.HO_TEN:''))},e=>toast('Không thành công: '+(e&&e.message||e),'err'))}
+  function reset(){FIELDS.forEach(k=>{if(k==='NGAY_HEN')return;const e=$('plv'+k);e.value='';e.classList.remove('auto');e.placeholder=k==='SDT'?'Khách quen tự điền':k==='NGUOI_DI_CUNG'?'Nhiều người: cách nhau dấu ,':''});
+    S.prev=null;S.inside=null;$('plvHint').innerHTML='';countMates();pick(S.purpose)}
+  function editRec(r){S.edit=r;reset();FIELDS.forEach(k=>{if(k!=='GIAY_TO'&&r[k]!==undefined)$('plv'+k).value=r[k]||''});$('plvGIAY_TO').placeholder=r.GIAY_TO?'Giữ CCCD cũ ('+r.GIAY_TO+') — gõ để thay':'';
+    if(r.MUC_DICH)pick(r.MUC_DICH);countMates();setMode(S.mode);$('plvHO_TEN').focus()}
+  function act(action,id,extra){const r=find(id);server('saveVisitor',[Object.assign({ACTION:action,ID:id,NGUOI:staff()},extra||{})],x=>{upsert(x.record);closePop();
+      if(action==='arrive'){reset();ticket(x.record,true)}else toast((action==='checkout'?'Đã check-out ':action==='cancel'?'Đã hủy lượt ':'Đã cập nhật ')+(r?r.HO_TEN:''))},e=>toast('Không thành công: '+(e&&e.message||e),'err'))}
   function pop(html){let p=$('plvPop');if(!p){p=document.createElement('div');p.id='plvPop';document.body.appendChild(p);p.addEventListener('click',e=>{if(e.target===p||e.target.closest('[data-close]'))closePop()})}p.innerHTML='<div class="plv-pop">'+html+'</div>';p.classList.add('active');return p}
   function closePop(){const p=$('plvPop');if(p)p.classList.remove('active')}
-  // Mã lượt = mã thẻ khách: hiện lớn khi check-in + In phiếu khách.
-  function ticket(r,fresh){const p=pop(`<header><b>${fresh?'✔ Check-in thành công':'Phiếu khách'}</b><button type="button" data-close>×</button></header>
-      <div class="plv-ticket"><small>MÃ KHÁCH</small><div class="code">${esc(r.ID)}</div><div class="nm">${esc(r.HO_TEN)}</div><div>${esc(r.CONG_TY||'')}</div>
+  function ticket(r,fresh){const M=mates(r.NGUOI_DI_CUNG);const p=pop(`<header><b>${fresh?'✔ Check-in thành công':'Phiếu khách'}</b><button type="button" data-close>×</button></header>
+      <div class="plv-ticket"><small>MÃ KHÁCH</small><div class="code">${esc(r.ID)}</div><div class="nm">${esc(r.HO_TEN)}${M.length?` <span class="plv-b bl">+${M.length}</span>`:''}</div><div>${esc(r.CONG_TY||'')}</div>
       <div class="meta">Gặp: <b>${esc(r.NGUOI_CAN_GAP||'—')}</b>${r.TANG?' · '+esc(r.TANG):''}<br>Vào: <b>${esc(r.GIO_VAO||'—')}</b> ngày ${esc(show(r.NGAY))}</div></div>
       <footer><button type="button" data-print>🖨 In phiếu khách</button><button type="button" class="p" data-close>Xong</button></footer>`);
     p.querySelector('[data-print]').onclick=()=>printTicket(r)}
-  function printTicket(r){const w=window.open('','_blank','width=420,height=560');if(!w)return toast('Trình duyệt chặn cửa sổ in','err');
-    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(r.ID)}</title><${'style'}>body{font-family:Arial,sans-serif;margin:0;padding:12px;width:72mm}h1{margin:0;font-size:14px;color:#a71936}.c{font-size:34px;font-weight:900;letter-spacing:2px;margin:8px 0;border:2px solid #000;text-align:center;padding:6px}.n{font-size:16px;font-weight:700}p{margin:4px 0;font-size:12px}@page{size:80mm auto;margin:4mm}</${'style'}></head><body><h1>PHI LONG · THẺ KHÁCH</h1><div class="c">${esc(r.ID)}</div><div class="n">${esc(r.HO_TEN)}</div><p>${esc(r.CONG_TY||'')}</p><p>Gặp: <b>${esc(r.NGUOI_CAN_GAP||'—')}</b> ${esc(r.TANG||'')}</p><p>Mục đích: ${esc(r.MUC_DICH||'')}</p><p>Vào: <b>${esc(r.GIO_VAO||'')}</b> ${esc(show(r.NGAY))}</p><p style="margin-top:10px;font-size:11px">Vui lòng trả thẻ tại quầy khi ra về.</p></body></html>`);
+  function printTicket(r){const w=window.open('','_blank','width=420,height=600');if(!w)return toast('Trình duyệt chặn cửa sổ in','err');const M=mates(r.NGUOI_DI_CUNG);
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(r.ID)}</title><${'style'}>body{font-family:Arial,sans-serif;margin:0;padding:12px;width:72mm}h1{margin:0;font-size:14px;color:#a71936}.c{font-size:34px;font-weight:900;letter-spacing:2px;margin:8px 0;border:2px solid #000;text-align:center;padding:6px}.n{font-size:16px;font-weight:700}p{margin:4px 0;font-size:12px}@page{size:80mm auto;margin:4mm}</${'style'}></head><body><h1>PHI LONG · THẺ KHÁCH</h1><div class="c">${esc(r.ID)}</div><div class="n">${esc(r.HO_TEN)}</div>${M.length?`<p>Đi cùng (${M.length}): ${esc(M.join(', '))}</p>`:''}<p>${esc(r.CONG_TY||'')}</p><p>Gặp: <b>${esc(r.NGUOI_CAN_GAP||'—')}</b> ${esc(r.TANG||'')}</p>${r.NOI_DUNG?`<p>Nội dung: ${esc(r.NOI_DUNG)}</p>`:''}<p>Vào: <b>${esc(r.GIO_VAO||'')}</b> ${esc(show(r.NGAY))}</p><p style="margin-top:10px;font-size:11px">Vui lòng trả thẻ tại quầy khi ra về.</p></body></html>`);
     w.document.close();setTimeout(()=>{w.focus();w.print()},300)}
-  function view(id){const r=rows().concat(S.hist||[]).find(x=>x.ID===id);if(!r)return;const m=mins(r);
-    const F=[['Mã lượt / thẻ',r.ID],['Trạng thái',r.TRANG_THAI],['Họ tên',r.HO_TEN],['SĐT',r.SDT],['CCCD',r.GIAY_TO||'—'],['Địa chỉ',r.DIA_CHI],['Công ty',r.CONG_TY],['Người cần gặp',r.NGUOI_CAN_GAP],['Phòng ban',r.PHONG_BAN],['Tầng',r.TANG],['Mục đích',r.MUC_DICH],['Biển số xe',r.BIEN_SO_XE],
+  function view(id){const r=find(id);if(!r)return;const m=mins(r);
+    const F=[['Mã lượt / thẻ',r.ID],['Trạng thái',r.TRANG_THAI],['Họ tên',r.HO_TEN],['SĐT',r.SDT],['CCCD',r.GIAY_TO||'—'],['Người đi cùng',r.NGUOI_DI_CUNG],['Công ty',r.CONG_TY],['Địa chỉ',r.DIA_CHI],['Người cần gặp',r.NGUOI_CAN_GAP],['Phòng ban',r.PHONG_BAN],['Tầng',r.TANG],['Công ty liên hệ',r.CONG_TY_LIEN_HE],['Nội dung công việc',r.NOI_DUNG],['Mục đích',r.MUC_DICH],['Biển số xe',r.BIEN_SO_XE],
       ['Ngày',show(r.NGAY)],['Giờ vào',r.GIO_VAO],['Giờ ra',r.GIO_RA],['Thời gian ở',r.GIO_VAO?dur(m):''],['Hẹn trước',r.NGAY_HEN?show(r.NGAY_HEN)+' '+(r.GIO_HEN||''):''],['Người đăng ký',r.NGUOI_DANG_KY],['Người check-out',r.NGUOI_CHECKOUT],['Ghi chú',r.GHI_CHU]];
-    const p=pop(`<header><b>${esc(r.HO_TEN)}</b><button type="button" data-close>×</button></header><div class="plv-view">${F.filter(f=>f[1]).map(f=>`<div><small>${f[0]}</small><span class="${f[0]==='CCCD'?'mask':''}">${esc(f[1])}</span></div>`).join('')}</div>
-      <footer>${r.TRANG_THAI===IN?`<button type="button" data-out="${esc(r.ID)}" class="p">⇥ Check-out</button>`:''}${r.TRANG_THAI===BOOK?`<button type="button" data-arrive="${esc(r.ID)}" class="p">➜ Khách đến</button><button type="button" data-cancel="${esc(r.ID)}">Hủy hẹn</button>`:''}${r.GIO_VAO?'<button type="button" data-print>🖨 In phiếu</button>':''}<button type="button" data-close>Đóng</button></footer>`);
+    const p=pop(`<header><b>${esc(r.HO_TEN)}</b><button type="button" data-close>×</button></header><div class="plv-view">${F.filter(f=>f[1]).map(f=>`<div class="${f[0]==='Nội dung công việc'||f[0]==='Địa chỉ'?'full':''}"><small>${f[0]}</small><span class="${f[0]==='CCCD'?'mask':''}">${esc(f[1])}</span></div>`).join('')}</div>
+      <footer>${r.TRANG_THAI===IN?`<button type="button" data-out="${esc(r.ID)}" class="p">⇥ Check-out</button>`:''}${r.TRANG_THAI===BOOK?`<button type="button" data-arrive="${esc(r.ID)}" class="p">➜ Khách đến</button>`:''}${r.TRANG_THAI!==CANCEL?`<button type="button" data-editid="${esc(r.ID)}">✎ Sửa</button>`:''}${r.GIO_VAO?'<button type="button" data-print>🖨 In phiếu</button>':''}<button type="button" data-close>Đóng</button></footer>`);
     const pr=p.querySelector('[data-print]');if(pr)pr.onclick=()=>printTicket(r)}
-  function history(){const q=$('plvQ').value.trim();$('plvList').innerHTML='<div class="plv-empty">Đang tìm…</div>';server('searchVisitors',[{Q:q,FROM:$('plvFrom').value,TO:$('plvTo').value}],r=>{S.hist=r||[];S.q='';list()},e=>{$('plvList').innerHTML='<div class="plv-empty">Lỗi: '+esc(e&&e.message||e)+'</div>'})}
+  function history(){$('plvRows').innerHTML='<tr><td colspan="13" class="plv-empty">Đang tìm…</td></tr>';S.hist=S.hist||[];
+    server('searchVisitors',[{Q:$('plvQ').value.trim(),FROM:$('plvFrom').value,TO:$('plvTo').value}],r=>{S.hist=r||[];if(S.tab==='hist'){S.q='';$('plvQ').value='';list()}},e=>{$('plvRows').innerHTML='<tr><td colspan="13" class="plv-empty">Lỗi: '+esc(e&&e.message||e)+'</td></tr>'})}
+  function askCancel(id){const why=prompt('Lý do hủy lượt?');if(why&&why.trim())act('cancel',id,{LY_DO:why.trim()})}
+  function tool(k){const r=S.sel&&find(S.sel);
+    if(k==='find'){$('plvQ').focus();return}
+    if(k==='new'){S.edit=null;reset();setMode('checkin');$('plvHO_TEN').focus();return}
+    if(k==='reload'){window.v64LoadPage?v64LoadPage('visitors',true):render();return}
+    if(!r)return toast('Chọn một khách trong bảng trước','warn');
+    if(k==='view')view(r.ID);else if(k==='edit')editRec(r);else if(k==='print')printTicket(r);
+    else if(k==='out'){if(confirm('Check-out khách '+r.HO_TEN+'?'))act('checkout',r.ID)}else if(k==='cancel')askCancel(r.ID)}
   function onClick(e){const t=e.target,c=s=>t.closest&&t.closest(s);let b;
-    if(b=c('[data-mode]'))return setMode(b.dataset.mode);
+    if(b=c('[data-tool]'))return tool(b.dataset.tool);
+    if(b=c('[data-mode]')){if(!S.edit)setMode(b.dataset.mode);return}
     if(b=c('[data-p]'))return pick(b.dataset.p);
-    if(b=c('[data-tab]')){S.tab=b.dataset.tab;if(S.tab==='hist'&&!S.hist)history();kpi();return list()}
-    if(b=c('[data-go]')){if(b.dataset.go==='in'){setMode('checkin');$('plvForm').scrollIntoView({behavior:'smooth'});setTimeout(()=>$('plvSDT').focus(),250)}else{S.tab='in';kpi();list();$('plvQ').scrollIntoView({behavior:'smooth'});setTimeout(()=>$('plvQ').focus(),250)}return}
-    if(b=c('[data-out]')){const r=rows().find(x=>x.ID===b.dataset.out);if(confirm('Check-out khách '+(r?r.HO_TEN:'')+'?'))act('checkout',b.dataset.out);return}
+    if(b=c('[data-tab]')){S.tab=b.dataset.tab;if(S.tab==='hist')history();kpi();return list()}
+    if(b=c('[data-out]')){const r=find(b.dataset.out);if(confirm('Check-out khách '+(r?r.HO_TEN:'')+'?'))act('checkout',b.dataset.out);return}
     if(b=c('[data-arrive]'))return act('arrive',b.dataset.arrive);
-    if(b=c('[data-cancel]')){const why=prompt('Lý do hủy hẹn?');if(why&&why.trim())act('cancel',b.dataset.cancel,{LY_DO:why.trim()});return}
-    if(b=c('.plv-row[data-id]'))return view(b.dataset.id)}
-  document.addEventListener('click',e=>{if(!e.target.closest)return;const p=$('plvPop');if(p&&p.contains(e.target)){const b=e.target.closest('[data-out],[data-arrive],[data-cancel]');if(b){e.stopPropagation();onClick({target:b})}}},true);
+    if(b=c('[data-editid]')){const r=find(b.dataset.editid);closePop();if(r)editRec(r);return}
+    if(b=c('tr[data-id]')){S.sel=b.dataset.id;$('plvRows').querySelectorAll('tr.sel').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');tools()}}
+  document.addEventListener('click',e=>{const p=$('plvPop');if(!p||!e.target.closest||!p.contains(e.target))return;const b=e.target.closest('[data-out],[data-arrive],[data-editid]');if(b){e.stopPropagation();onClick({target:b})}},true);
   window.plVisitorRender_=render;
 })();
 </script>
 <style>
-#visitors .plv{padding:10px 12px 8px;font-size:13px;color:#172033;box-sizing:border-box;display:flex;flex-direction:column;height:calc(100dvh - var(--plv-top,110px))}
-.plv-top{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.plv-big{border:0;border-radius:14px;padding:14px 10px;color:#fff;font:900 16px/1.2 inherit;cursor:pointer}.plv-big small{display:block;font-weight:500;font-size:12px;opacity:.9;margin-top:2px}.plv-big.in{background:linear-gradient(135deg,#16a34a,#15803d)}.plv-big.out{background:linear-gradient(135deg,#be123c,#9f1239)}
-.plv-grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:12px;align-items:stretch;flex:1 1 auto;min-height:0}
-.plv-form{display:flex;flex-direction:column;min-height:0;overflow:auto}.plv-grid>.plv-card:last-child{display:flex;flex-direction:column;min-height:0}
-.plv-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:12px;min-width:0}
-.plv-card h3{margin:0 0 10px;font-size:13px;color:#a71936;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}.plv-card h3 span{font-size:11px;color:#64748b;text-transform:none;font-weight:500}
-.plv-seg{display:flex;background:#f1f5f9;border-radius:8px;padding:3px;margin-bottom:10px}.plv-seg button{flex:1;border:0;background:none;padding:7px;border-radius:6px;font-weight:700;color:#64748b;cursor:pointer}.plv-seg .on{background:#a71936;color:#fff}
-.plv-f{margin-bottom:8px;min-width:0}.plv-f label{display:block;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:3px}
-.plv-f input{width:100%;box-sizing:border-box;height:34px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit;background:#fff;color:#172033}
-.plv-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.plv-book{display:none}.plv-form.booking .plv-book{display:grid}
-.plv-chips{display:flex;flex-wrap:wrap;gap:5px}.plv-chips button{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:4px 10px;font-weight:600;font-size:12px;cursor:pointer;color:#172033}.plv-chips .on{background:#a71936;border-color:#a71936;color:#fff}
-.plv-hint{background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:8px;padding:6px 8px;font-size:12px;margin:-4px 0 8px}.plv-hint.bl{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}.plv-hint.wr{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
-.plv-hint button{border:0;border-radius:6px;padding:3px 8px;margin-left:4px;font-weight:800;font-size:11.5px;cursor:pointer;color:#fff;background:#1d4ed8}.plv-hint.wr button{background:#c2410c}
-.plv-f input.auto{background:#f0fdf4;border-color:#86efac}.plv-aut{display:block;font-size:10.5px;color:#15803d;margin-top:2px}.plv-aut:empty{display:none}
-.plv-submit{width:100%;height:42px;flex:none;border:0;border-radius:9px;background:#15803d;color:#fff;font-weight:900;font-size:14px;cursor:pointer;margin-top:auto}.plv-form.booking .plv-submit{background:#1d4ed8}.plv-submit:disabled{opacity:.6;cursor:wait}
-.plv-kp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}.plv-k{border:1px solid #e2e8f0;border-bottom:3px solid var(--c);border-radius:10px;padding:7px 10px;background:#fff;text-align:left;cursor:pointer}.plv-k small{display:block;font-weight:700;color:#475569;text-transform:uppercase;font-size:11px}.plv-k b{font-size:22px;color:var(--c)}
-.plv-tabs{display:flex;gap:2px;border-bottom:2px solid #e2e8f0;margin-bottom:8px;overflow-x:auto}.plv-tabs button{border:0;background:none;padding:8px 12px;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap}.plv-tabs button[data-n]:not([data-n=""])::after{content:" (" attr(data-n) ")"}.plv-tabs .on{color:#a71936;border-color:#a71936}
-.plv-bar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}.plv-bar>input{flex:1 1 240px;height:34px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit}.plv-hist{display:none;gap:6px}.plv.hist .plv-hist{display:flex}.plv-hist input{height:34px;border:1px solid #cbd5e1;border-radius:8px;padding:0 6px}.plv-hist button{height:34px;border:0;border-radius:8px;background:#a71936;color:#fff;font-weight:700;padding:0 14px;cursor:pointer}
-.plv-list{flex:1 1 auto;min-height:0;overflow:auto}
-.plv-foot{flex:none;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;padding:8px 14px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:12.5px;color:#475569}.plv-foot .ok{color:#15803d;font-weight:700}.plv-foot .mid{font-weight:700;color:#172033}
-.plv-row{display:grid;grid-template-columns:minmax(150px,1.4fr) 110px 90px minmax(120px,1.2fr) 90px 100px 110px 190px;gap:6px;align-items:center;padding:7px 8px;border-bottom:1px solid #eef2f7;border-left:4px solid transparent;cursor:pointer}
-.plv-row:hover{background:#f8fafc}.plv-row.rd{border-left-color:#dc2626}.plv-row.y{border-left-color:#eab308}.plv-row.g{border-left-color:#16a34a}.plv-row.bk{border-left-color:#2563eb}.plv-row.done{border-left-color:#cbd5e1}
-.plv-c{min-width:0;overflow:hidden;text-overflow:ellipsis}.plv-c small{display:block;font-size:10.5px;color:#94a3b8;font-weight:700;text-transform:uppercase}.plv-c.name b{display:block;font-size:13.5px}.plv-c.name small{text-transform:none;font-weight:500;color:#64748b;font-size:12px}
-.plv-c.time small{text-transform:none}.plv-c.acts{display:flex;gap:5px;justify-content:flex-end}.mask{font-family:monospace;letter-spacing:1px;color:#64748b}
-.plv-b{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700}.plv-b.g{background:#dcfce7;color:#15803d}.plv-b.y{background:#fef3c7;color:#b45309}.plv-b.rd{background:#fee2e2;color:#b91c1c}.plv-b.bl{background:#dbeafe;color:#1d4ed8}.plv-b.gr{background:#f1f5f9;color:#64748b}
-.plv-act{border:0;border-radius:7px;padding:6px 10px;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap}.plv-act.out{background:#a71936;color:#fff}.plv-act.in{background:#15803d;color:#fff}.plv-act.ghost{background:#fff;border:1px solid #cbd5e1;color:#475569}
-.plv-empty{padding:30px;text-align:center;color:#94a3b8}
+#visitors .plv{padding:8px 12px;font-size:13px;color:#172033;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;height:calc(100dvh - var(--plv-top,110px))}
+.plv-bar{display:flex;gap:8px;align-items:stretch;flex:none}
+.plv-tb{width:84px;min-height:58px;background:#fff;border:0;border-radius:10px;border-bottom:3px solid var(--c);box-shadow:0 1px 3px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-weight:800;font-size:12px;color:#172033;cursor:pointer}
+.plv-tb i{font-style:normal;font-size:18px;color:var(--c)}.plv-tb:disabled{opacity:.4;cursor:default}
+.plv-kp{margin-left:auto;display:flex;gap:8px}.plv-k{width:160px;background:#fff;border:0;border-radius:10px;border-bottom:3px solid var(--c);box-shadow:0 1px 3px rgba(0,0,0,.1);padding:6px 12px;text-align:left;cursor:pointer}
+.plv-k small{display:block;font-size:11px;font-weight:800;color:#475569;text-transform:uppercase}.plv-k b{font-size:20px;color:var(--c)}.plv-k em{font-style:normal;font-size:11px;color:#475569;margin-left:4px}.plv-k.on{outline:2px solid var(--c)}
+.plv-grid{display:grid;grid-template-columns:370px minmax(0,1fr);gap:10px;flex:1 1 auto;min-height:0}
+.plv-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:8px 12px;min-width:0;min-height:0;display:flex;flex-direction:column}
+.plv-card h3{margin:0 0 6px;font-size:13px;color:#a71936;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}.plv-card h3 small{font-size:11px;color:#64748b;text-transform:none;font-weight:500}
+.plv-form{overflow:auto}.plv-form.editing{box-shadow:0 0 0 2px #ea580c}
+.plv-seg{display:flex;background:#f1f5f9;border-radius:8px;padding:3px;margin-bottom:6px;flex:none}.plv-seg button{flex:1;border:0;background:none;padding:5px;border-radius:6px;font-weight:700;color:#64748b;cursor:pointer}.plv-seg .on{background:#a71936;color:#fff}.plv-form.editing .plv-seg{opacity:.5}
+.plv-fl{flex:1 0 auto;display:flex;flex-direction:column;justify-content:space-between;gap:4px;margin-bottom:8px}
+.plv-sec{font-size:11.5px;font-weight:900;color:#a71936;letter-spacing:.4px;border-bottom:1.5px solid #fecdd3;padding-bottom:2px}
+.plv-f{min-width:0}.plv-f label{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:1px}
+.plv-f input,.plv-f textarea{width:100%;box-sizing:border-box;height:28px;border:1px solid #cbd5e1;border-radius:7px;padding:0 9px;font:inherit;font-size:12.5px;background:#fff;color:#172033}
+.plv-f textarea{height:40px;padding:4px 9px;resize:none;line-height:1.3}
+.plv-f input.auto,.plv-f textarea.auto{background:#f0fdf4;border-color:#86efac}
+.plv-cnt{background:#dbeafe;color:#1d4ed8;border-radius:5px;padding:0 6px;font-size:10.5px;text-transform:none}.plv-cnt:empty{display:none}
+.plv-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.plv-book{display:none}.plv-form.booking .plv-book{display:grid}
+.plv-chips{display:flex;gap:4px;flex-wrap:wrap}.plv-chips button{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:2px 8px;font-weight:600;font-size:11px;cursor:pointer;color:#172033;white-space:nowrap}.plv-chips .on{background:#a71936;border-color:#a71936;color:#fff}
+.plv-hint{background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:7px;padding:4px 8px;font-size:11.5px}.plv-hint.bl{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}.plv-hint.wr{background:#fff7ed;border-color:#fed7aa;color:#9a3412}#plvHint:empty{display:none}
+.plv-hint button{border:0;border-radius:6px;padding:2px 8px;margin-left:4px;font-weight:800;font-size:11px;cursor:pointer;color:#fff;background:#1d4ed8}.plv-hint.wr button{background:#c2410c}
+.plv-act-row{display:flex;gap:8px;flex:none;position:sticky;bottom:0;background:#fff}.plv-submit{flex:1;height:38px;border:0;border-radius:9px;background:#15803d;color:#fff;font-weight:900;font-size:14px;cursor:pointer}.plv-form.booking .plv-submit{background:#1d4ed8}.plv-form.editing .plv-submit{background:#ea580c}.plv-submit:disabled{opacity:.6;cursor:wait}
+.plv-ghost{border:1px solid #cbd5e1;background:#fff;border-radius:9px;padding:0 14px;font-weight:800;cursor:pointer}
+.plv-tabs{display:flex;gap:2px;border-bottom:2px solid #e2e8f0;margin-bottom:6px;overflow-x:auto;flex:none}.plv-tabs button{border:0;background:none;padding:7px 12px;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap}.plv-tabs button[data-n]:not([data-n=""])::after{content:" (" attr(data-n) ")"}.plv-tabs .on{color:#a71936;border-color:#a71936}
+.plv-search{display:flex;gap:6px;margin-bottom:6px;flex:none;flex-wrap:wrap}.plv-search>input{flex:1 1 240px;height:32px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit}.plv-hist{display:none;gap:6px}.plv.hist .plv-hist{display:flex}.plv-hist input{height:32px;border:1px solid #cbd5e1;border-radius:8px;padding:0 6px}.plv-hist button{height:32px;border:0;border-radius:8px;background:#a71936;color:#fff;font-weight:700;padding:0 14px;cursor:pointer}
+.plv-tablewrap{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid #e2e8f0;border-radius:8px}
+.plv-table{width:100%;border-collapse:collapse}.plv-table th{position:sticky;top:0;z-index:1;background:#eef2f7;font-size:12px;padding:7px 6px;text-align:left;border-bottom:1px solid #dbe2ea;white-space:nowrap}
+.plv-table td{padding:6px;border-bottom:1px solid #eef2f7;white-space:nowrap;vertical-align:middle}.plv-table td.w{white-space:normal;min-width:90px;max-width:220px;overflow:hidden;text-overflow:ellipsis;display:table-cell}
+.plv-table tbody tr{cursor:pointer}.plv-table tbody tr:hover td{background:#f8fafc}.plv-table tr.sel td{background:#dbeafe}.plv-table tr.sel td:first-child{box-shadow:inset 3px 0 #2563eb}.plv-table td small{color:#64748b}
+.mask{font-family:monospace;letter-spacing:1px;color:#64748b}
+.plv-b{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;white-space:nowrap}.plv-b.g{background:#dcfce7;color:#15803d}.plv-b.y{background:#fef3c7;color:#b45309}.plv-b.rd{background:#fee2e2;color:#b91c1c}.plv-b.bl{background:#dbeafe;color:#1d4ed8}.plv-b.gr{background:#f1f5f9;color:#64748b}
+.plv-empty{padding:30px!important;text-align:center;color:#94a3b8}
+.plv-foot{flex:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 14px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:12.5px;color:#475569}.plv-foot .ok{color:#15803d;font-weight:700}.plv-foot .mid{font-weight:700;color:#172033}
 #plvPop{position:fixed;inset:0;z-index:2147483400;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center}#plvPop.active{display:flex}
-.plv-pop{width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.35);color:#172033}
+.plv-pop{width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.35);color:#172033}
 .plv-pop header{display:flex;align-items:center;padding:12px 16px;background:#a71936;color:#fff}.plv-pop header b{font-size:16px}.plv-pop header button{margin-left:auto;background:none;border:0;color:#fff;font-size:24px;cursor:pointer}
 .plv-pop footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:10px 16px;border-top:1px solid #e2e8f0;background:#f8fafc}.plv-pop footer button{border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer}.plv-pop footer .p{background:#a71936;border-color:#a71936;color:#fff}
 .plv-ticket{padding:18px;text-align:center}.plv-ticket small{font-weight:800;color:#64748b;letter-spacing:1px}.plv-ticket .code{font-size:40px;font-weight:900;letter-spacing:3px;color:#a71936;border:2px dashed #a71936;border-radius:12px;padding:6px;margin:6px auto 10px;max-width:300px}.plv-ticket .nm{font-size:18px;font-weight:800}.plv-ticket .meta{margin-top:8px;color:#475569}
-.plv-view{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}.plv-view div{border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px}.plv-view small{display:block;font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase}
-@media(max-width:900px){#visitors .plv{display:block;height:auto}.plv-form{overflow:visible}.plv-submit{margin-top:6px}.plv-foot{flex-wrap:wrap;justify-content:center;text-align:center}.plv-top{display:grid}.plv-grid{grid-template-columns:1fr}.plv-kp{grid-template-columns:repeat(2,1fr)}.plv-list{max-height:none;overflow:visible}
- .plv-row{grid-template-columns:1fr 1fr;border:1px solid #e2e8f0;border-left-width:5px;border-radius:12px;margin-bottom:8px;background:#fff}.plv-c.name,.plv-c.acts{grid-column:1/-1}.plv-c.acts{justify-content:stretch}.plv-c.acts .plv-act{flex:1;padding:10px}.plv-view{grid-template-columns:1fr}}
-html[data-theme="dark"] :is(.plv-card,.plv-pop,.plv-k,.plv-row){background:#1f2937;color:#e5e7eb;border-color:#334155}html[data-theme="dark"] .plv-f input,html[data-theme="dark"] .plv-bar input{background:#111827;color:#e5e7eb;border-color:#334155}
+.plv-view{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}.plv-view div{border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px}.plv-view .full{grid-column:1/-1}.plv-view small{display:block;font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase}
+@media(max-width:900px){#visitors .plv{display:block;height:auto}.plv-bar{flex-wrap:wrap}.plv-tb{width:auto;flex:1 0 22%;min-height:50px}.plv-kp{margin-left:0;width:100%;display:grid;grid-template-columns:1fr 1fr}.plv-k{width:auto}
+ .plv-grid{grid-template-columns:1fr;margin-top:8px}.plv-form{overflow:visible}.plv-fl{gap:6px}.plv-tablewrap{max-height:none}.plv-foot{flex-wrap:wrap;justify-content:center;text-align:center;margin-top:8px}.plv-view{grid-template-columns:1fr}}
+html[data-theme="dark"] :is(.plv-card,.plv-pop,.plv-k,.plv-tb,.plv-foot,.plv-act-row){background:#1f2937;color:#e5e7eb}html[data-theme="dark"] :is(.plv-f input,.plv-f textarea,.plv-search input){background:#111827;color:#e5e7eb;border-color:#334155}html[data-theme="dark"] .plv-table th{background:#111827;color:#cbd5e1}
 </style>
 </html>

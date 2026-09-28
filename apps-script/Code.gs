@@ -3236,9 +3236,9 @@ function cleanupPendingWorkPhotosV163(){
 //  - Quyền: dùng quyền module Công việc (Xem / Thêm / Sửa).
 // ============================================================================
 const VISITOR_SHEET_V165='KHACH_RA_VAO';
-const VISITOR_HEADERS_V165=['ID','NGAY','GIO_VAO','NGAY_HEN','GIO_HEN','HO_TEN','SDT','GIAY_TO','DIA_CHI','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','MUC_DICH','BIEN_SO_XE','NGUOI_DANG_KY','GIO_RA','NGUOI_CHECKOUT','TRANG_THAI','GHI_CHU','CAP_NHAT'];
+const VISITOR_HEADERS_V165=['ID','NGAY','GIO_VAO','NGAY_HEN','GIO_HEN','HO_TEN','SDT','GIAY_TO','NGUOI_DI_CUNG','DIA_CHI','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','CONG_TY_LIEN_HE','NOI_DUNG','MUC_DICH','BIEN_SO_XE','NGUOI_DANG_KY','GIO_RA','NGUOI_CHECKOUT','TRANG_THAI','GHI_CHU','CAP_NHAT'];
 const VISITOR_STATE_V165={IN:'ĐANG TRONG TÒA NHÀ',OUT:'ĐÃ RA',BOOK:'HẸN TRƯỚC',CANCEL:'ĐÃ HỦY'};
-const VISITOR_EDIT_FIELDS_V165=['HO_TEN','SDT','DIA_CHI','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','MUC_DICH','BIEN_SO_XE','GHI_CHU','NGAY_HEN','GIO_HEN'];
+const VISITOR_EDIT_FIELDS_V165=['HO_TEN','SDT','NGUOI_DI_CUNG','DIA_CHI','CONG_TY','CONG_TY_LIEN_HE','NOI_DUNG','NGUOI_CAN_GAP','PHONG_BAN','TANG','MUC_DICH','BIEN_SO_XE','GHI_CHU','NGAY_HEN','GIO_HEN'];
 function visitorSheetV165_(){
   const ss=ss_();let sh=ss.getSheetByName(VISITOR_SHEET_V165);
   if(!sh){sh=ss.insertSheet(VISITOR_SHEET_V165);sh.getRange(1,1,1,VISITOR_HEADERS_V165.length).setValues([VISITOR_HEADERS_V165]);try{sh.setFrozenRows(1)}catch(e){}
@@ -3253,7 +3253,15 @@ function visitorText_(v,max){return String(v==null?'':v).replace(/\s+/g,' ').tri
 function visitorNormalizeV166_(x){
   if(x.HO_TEN!==undefined)x.HO_TEN=String(x.HO_TEN).toLowerCase().replace(/(^|\s)(\S)/g,function(m,a,b){return a+b.toUpperCase();});
   if(x.BIEN_SO_XE!==undefined)x.BIEN_SO_XE=String(x.BIEN_SO_XE).toUpperCase();
+  if(x.NGUOI_DI_CUNG!==undefined)x.NGUOI_DI_CUNG=String(x.NGUOI_DI_CUNG).split(',').map(function(v){return v.replace(/\s+/g,' ').trim();}).filter(Boolean).join(', ');
   return x;
+}
+// Trạng thái nhập tay trên Sheet (viết thường / không dấu) → chuẩn hóa về 4 trạng thái của app.
+function visitorStatusV167_(v){
+  const n=norm_(v);if(!n)return '';
+  if(n.indexOf('HUY')>=0)return VISITOR_STATE_V165.CANCEL;if(n.indexOf('HEN')>=0)return VISITOR_STATE_V165.BOOK;
+  if(n.indexOf('DANG')>=0||n.indexOf('TRONG')>=0)return VISITOR_STATE_V165.IN;if(n==='DA_RA'||n.indexOf('RA')>=0)return VISITOR_STATE_V165.OUT;
+  return String(v);
 }
 function visitorDayV165_(v){if(v instanceof Date)return Utilities.formatDate(v,V22.TZ,'yyyy-MM-dd');const s=String(v||'').trim();return /^\d{4}-\d{2}-\d{2}/.test(s)?s.slice(0,10):(dateOnly_(s)||s);}
 function visitorTimeV165_(v){if(v instanceof Date)return Utilities.formatDate(v,V22.TZ,'HH:mm');const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?('0'+m[1]).slice(-2)+':'+m[2]:'';}
@@ -3262,7 +3270,7 @@ function visitorPublicV165_(r){
   const o={};VISITOR_HEADERS_V165.forEach(function(h){o[h]=r[h]==null?'':r[h];});
   o.NGAY=visitorDayV165_(r.NGAY);o.NGAY_HEN=visitorDayV165_(r.NGAY_HEN);o.GIO_VAO=visitorTimeV165_(r.GIO_VAO);o.GIO_RA=visitorTimeV165_(r.GIO_RA);o.GIO_HEN=visitorTimeV165_(r.GIO_HEN);
   const g=String(r.GIAY_TO||'').trim();o.GIAY_TO=g?'*'.repeat(Math.max(6,Math.min(12,g.length))):'';
-  o.SDT=String(r.SDT||'');return o;
+  o.SDT=String(r.SDT||'');o.TRANG_THAI=visitorStatusV167_(r.TRANG_THAI);return o;
 }
 function visitorRowsV165_(){visitorSheetV165_();return readObjects_(VISITOR_SHEET_V165).filter(function(r){return String(r.ID||'').trim();});}
 function nextVisitorIdV165_(){
@@ -3279,7 +3287,7 @@ function getVisitorBundleV165(force){
   const started=Date.now(),user=fastReadUserV121_(),ctx=v20ctx_();
   requirePermission_(user,MODULES.WORK,'XEM');
   const now=visitorNowV165_();
-  const visitors=visitorRowsV165_().filter(function(r){const st=String(r.TRANG_THAI||''),d=visitorDayV165_(r.NGAY),dh=visitorDayV165_(r.NGAY_HEN);
+  const visitors=visitorRowsV165_().filter(function(r){const st=visitorStatusV167_(r.TRANG_THAI),d=visitorDayV165_(r.NGAY),dh=visitorDayV165_(r.NGAY_HEN);
     return st===VISITOR_STATE_V165.IN||(st===VISITOR_STATE_V165.BOOK&&(!dh||dh>=now.day))||d===now.day;}).map(visitorPublicV165_);
   const employees=readObjects_(V22.SHEETS.employees).map(function(e){return {ID:e.ID,HO_TEN:e.HO_TEN||e.TEN_NHAN_VIEN||e.ID,TRANG_THAI:e.TRANG_THAI};});
   let tenants=[];try{tenants=readObjects_(V22.SHEETS.tenants).map(function(t){return {TEN:t.TEN_KHACH_THUE||'',TANG:t.TANG_KHU_VUC||t.ID_KHU_VUC||''};}).filter(function(t){return t.TEN;});}catch(e){}
@@ -3293,7 +3301,7 @@ function lookupVisitorByPhoneV165_(input){
   if(sdt.length<8&&cc.length<9)return {count:0};
   const today=visitorNowV165_().day,same=function(r){return (sdt.length>=8&&String(r.SDT||'').replace(/\D/g,'')===sdt)||(cc.length>=9&&String(r.GIAY_TO||'').replace(/\s/g,'')===cc);};
   const all=visitorRowsV165_().filter(function(r){return same(r)&&String(r.TRANG_THAI)!==VISITOR_STATE_V165.CANCEL;});
-  const inside=all.find(function(r){return String(r.TRANG_THAI)===VISITOR_STATE_V165.IN;}),booked=all.find(function(r){const d=visitorDayV165_(r.NGAY_HEN);return String(r.TRANG_THAI)===VISITOR_STATE_V165.BOOK&&(!d||d===today);});
+  const inside=all.find(function(r){return visitorStatusV167_(r.TRANG_THAI)===VISITOR_STATE_V165.IN;}),booked=all.find(function(r){const d=visitorDayV165_(r.NGAY_HEN);return visitorStatusV167_(r.TRANG_THAI)===VISITOR_STATE_V165.BOOK&&(!d||d===today);});
   const list=all.filter(function(r){return r.GIO_VAO;});
   const out={count:list.length,inside:inside?{ID:inside.ID,GIO_VAO:visitorTimeV165_(inside.GIO_VAO),NGAY:visitorDayV165_(inside.NGAY)}:null,booked:booked?visitorPublicV165_(booked):null};
   if(!list.length&&!booked)return out;
@@ -3305,7 +3313,7 @@ function lookupVisitorByPhoneV165_(input){
 function searchVisitorsV165_(input){
   const q=norm_(input.Q||''),from=String(input.FROM||''),to=String(input.TO||'9999');
   return visitorRowsV165_().filter(function(r){const d=visitorDayV165_(r.NGAY)||visitorDayV165_(r.NGAY_HEN);if(from&&d<from)return false;if(d>to)return false;
-    if(!q)return true;return norm_([r.ID,r.HO_TEN,r.SDT,r.DIA_CHI,r.CONG_TY,r.NGUOI_CAN_GAP,r.BIEN_SO_XE,r.TANG,r.PHONG_BAN].join(' ')).indexOf(q)>=0;})
+    if(!q)return true;return norm_([r.ID,r.HO_TEN,r.SDT,r.NGUOI_DI_CUNG,r.DIA_CHI,r.CONG_TY,r.CONG_TY_LIEN_HE,r.NOI_DUNG,r.NGUOI_CAN_GAP,r.BIEN_SO_XE,r.TANG,r.PHONG_BAN].join(' ')).indexOf(q)>=0;})
     .sort(function(a,b){return String(b.ID).localeCompare(String(a.ID));}).slice(0,300).map(visitorPublicV165_);
 }
 // ACTION: checkin (tạo mới + vào ngay) · book (đăng ký trước) · arrive (khách hẹn trước đến) · checkout · cancel · update
@@ -3315,7 +3323,7 @@ function saveVisitorV165_(input){
   try{
     visitorSheetV165_();
     if(act==='checkin'||act==='book'){
-      const x={};VISITOR_EDIT_FIELDS_V165.forEach(function(k){x[k]=visitorText_(input[k],k==='GHI_CHU'?500:200);});
+      const x={};VISITOR_EDIT_FIELDS_V165.forEach(function(k){x[k]=visitorText_(input[k],k==='GHI_CHU'||k==='NOI_DUNG'?500:200);});
       x.SDT=String(input.SDT||'').replace(/[^\d+]/g,'');
       if(!x.HO_TEN)throw new Error('Nhập họ tên khách');if(x.SDT.replace(/\D/g,'').length<8)throw new Error('Số điện thoại chưa đúng');
       let g=String(input.GIAY_TO||'').replace(/\s/g,'');
@@ -3326,13 +3334,13 @@ function saveVisitorV165_(input){
       appendObject_(VISITOR_SHEET_V165,x);
       return {ok:true,record:visitorPublicV165_(x)};
     }
-    const id=String(input.ID||'').trim(),f=visitorFindV165_(id),o=f.obj,st=String(o.TRANG_THAI||''),patch={CAP_NHAT:now.stamp};
+    const id=String(input.ID||'').trim(),f=visitorFindV165_(id),o=f.obj,st=visitorStatusV167_(o.TRANG_THAI),patch={CAP_NHAT:now.stamp};
     if(act==='arrive'){if(st!==VISITOR_STATE_V165.BOOK)throw new Error('Lượt này không ở trạng thái hẹn trước');patch.NGAY=now.day;patch.GIO_VAO=now.time;patch.TRANG_THAI=VISITOR_STATE_V165.IN;if(staff)patch.NGUOI_DANG_KY=staff;}
     else if(act==='checkout'){if(st!==VISITOR_STATE_V165.IN)throw new Error('Khách không còn trong tòa nhà ('+st+')');patch.GIO_RA=now.time;patch.NGUOI_CHECKOUT=staff;patch.TRANG_THAI=VISITOR_STATE_V165.OUT;
       if(visitorDayV165_(o.NGAY)!==now.day)patch.GHI_CHU=visitorText_((o.GHI_CHU?o.GHI_CHU+' · ':'')+'Ra ngày '+Utilities.formatDate(new Date(),V22.TZ,'dd/MM/yyyy'),500);}
     else if(act==='cancel'){if(st===VISITOR_STATE_V165.OUT)throw new Error('Lượt đã ra, không hủy được');const why=visitorText_(input.LY_DO,200);if(!why)throw new Error('Nhập lý do hủy');
       patch.TRANG_THAI=VISITOR_STATE_V165.CANCEL;patch.GHI_CHU=visitorText_((o.GHI_CHU?o.GHI_CHU+' · ':'')+'Hủy: '+why+(staff?' ('+staff+')':''),500);}
-    else if(act==='update'){VISITOR_EDIT_FIELDS_V165.forEach(function(k){if(input[k]!==undefined)patch[k]=k==='SDT'?String(input[k]).replace(/[^\d+]/g,''):visitorText_(input[k],k==='GHI_CHU'?500:200);});
+    else if(act==='update'){VISITOR_EDIT_FIELDS_V165.forEach(function(k){if(input[k]!==undefined)patch[k]=k==='SDT'?String(input[k]).replace(/[^\d+]/g,''):visitorText_(input[k],k==='GHI_CHU'||k==='NOI_DUNG'?500:200);});
       if(st!==VISITOR_STATE_V165.BOOK){delete patch.NGAY_HEN;delete patch.GIO_HEN;}
       if(input.GIAY_TO&&!/^\*+$/.test(String(input.GIAY_TO)))patch.GIAY_TO=String(input.GIAY_TO).replace(/\s/g,'').slice(0,30);visitorNormalizeV166_(patch);}
     else throw new Error('ACTION_KHONG_HOP_LE');
