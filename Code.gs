@@ -205,11 +205,26 @@ function authRoleName_(ss, roleCode, snapshot) {
   return row ? (row.TEN_VAI_TRO || roleCode) : (roleCode || 'Chưa gán vai trò');
 }
 
+var AUTH_PERMISSION_CACHE_KEY = 'PHI_LONG_PHAN_QUYEN_ROWS';
+
+/** Bảng phân quyền được lưu tạm 5 phút; xoá tạm khi lưu hoặc khởi tạo quyền. */
+function authPermissionRows_(ss) {
+  var cache = CacheService.getScriptCache(), hit = cache.get(AUTH_PERMISSION_CACHE_KEY);
+  if (hit) { try { return JSON.parse(hit); } catch (error) {} }
+  var rows = readSheet_(ss, 'PHAN_QUYEN').rows;
+  try { cache.put(AUTH_PERMISSION_CACHE_KEY, JSON.stringify(rows), 300); } catch (error) {}
+  return rows;
+}
+
+function authClearPermissionCache_() {
+  try { CacheService.getScriptCache().remove(AUTH_PERMISSION_CACHE_KEY); } catch (error) {}
+}
+
 function authCan_(ss, roleCode, moduleCode, action, snapshot) {
   if (key_(roleCode) === 'role-admin') return true;
   var row = snapshot && snapshot.permissionsByKey
     ? snapshot.permissionsByKey[key_(roleCode) + '|' + key_(moduleCode)]
-    : readSheet_(ss, 'PHAN_QUYEN').rows.find(function (item) {
+    : authPermissionRows_(ss).find(function (item) {
       return key_(item.MA_VAI_TRO) === key_(roleCode) && key_(item.MA_CHUC_NANG) === key_(moduleCode);
     });
   return !!(row && authFlag_(row[action]));
@@ -323,7 +338,7 @@ function authSeedRoles_(ss) {
 }
 
 function authSeedPermissions_(ss) {
-  var sheet = ensureAuthSheet_(ss, 'PHAN_QUYEN'), existing = readSheet_(ss, 'PHAN_QUYEN').rows;
+  var sheet = ensureAuthSheet_(ss, 'PHAN_QUYEN'), existing = readSheet_(ss, 'PHAN_QUYEN').rows, added = 0;
   AUTH_ROLE_SEEDS.forEach(function (role) {
     AUTH_MODULE_SEEDS.forEach(function (module) {
       if (existing.some(function (row) { return key_(row.MA_VAI_TRO) === key_(role[0]) && key_(row.MA_CHUC_NANG) === key_(module[0]); })) return;
@@ -339,6 +354,7 @@ function authSeedPermissions_(ss) {
       } else if (role[0] === 'ROLE-VIEW') {
         view = ['TONG_QUAN', 'HO_SO', 'BAO_CAO'].indexOf(module[0]) !== -1; exportFile = module[0] === 'BAO_CAO';
       }
+      added++;
       appendAuthRecord_(sheet, {
         ID_QUYEN: 'PERM_' + Utilities.getUuid(), MA_VAI_TRO: role[0], MA_CHUC_NANG: module[0], TEN_CHUC_NANG: module[1],
         XEM: view ? 'Có' : 'Không', THEM: add ? 'Có' : 'Không', SUA: edit ? 'Có' : 'Không', XOA: remove ? 'Có' : 'Không',
@@ -346,6 +362,7 @@ function authSeedPermissions_(ss) {
       });
     });
   });
+  if (added) authClearPermissionCache_();
 }
 
 function ensureAuthData_(ss) {
@@ -585,10 +602,18 @@ function saveSystemPermissions(input) {
     if (!roleCode || !moduleCode) return;
     var index = values.findIndex(function (row) { return key_(row[meta.columns.MA_VAI_TRO - 1]) === key_(roleCode) && key_(row[meta.columns.MA_CHUC_NANG - 1]) === key_(moduleCode); });
     if (index === -1) return;
-    var rowNumber = index + 2;
-    SYSTEM_PERMISSION_ACTIONS.forEach(function (action) { authWriteField_(sheet, meta, rowNumber, action, authFlag_(item[action]) ? 'Có' : 'Không', '@'); });
+    SYSTEM_PERMISSION_ACTIONS.forEach(function (action) { if (meta.columns[action]) values[index][meta.columns[action] - 1] = authFlag_(item[action]) ? 'Có' : 'Không'; });
     updated++;
   });
+  // Ghi mỗi cột quyền một lần thay vì từng ô.
+  if (updated) SYSTEM_PERMISSION_ACTIONS.forEach(function (action) {
+    var column = meta.columns[action];
+    if (!column) return;
+    var range = sheet.getRange(2, column, values.length, 1);
+    range.setNumberFormat('@');
+    range.setValues(values.map(function (row) { return [row[column - 1]]; }));
+  });
+  authClearPermissionCache_();
   writeSystemLog_(ss, auth, 'HE_THONG', 'SUA', 'PHAN_QUYEN', null, { rows: updated }, 'Cập nhật ma trận phân quyền.');
   SpreadsheetApp.flush();
   return { success: true, updated: updated };
@@ -867,6 +892,16 @@ function appendFormRecord_(sheet, meta, record) {
   return rowNumber;
 }
 
+/** Chỉ đối chiếu danh mục mẫu khi bộ mẫu gốc trong code đổi hoặc sheet bị thiếu, tránh đọc/ghi lặp mỗi lần tải. */
+function ensureFormCatalogReady_(ss) {
+  var props = PropertiesService.getScriptProperties(), key = 'PHI_LONG_FORM_CATALOG_VERSION';
+  var version = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify([FORM_TEMPLATE_SEEDS, FORM_TEMPLATE_LEGAL_PROFILES]), Utilities.Charset.UTF_8));
+  if (props.getProperty(key) === version && ss.getSheetByName('DM_BIEU_MAU') && ss.getSheetByName('PHIEU_BIEU_MAU')) return;
+  ensureDefaultFormTemplates_(ss);
+  ensureFormSheet_(ss, 'PHIEU_BIEU_MAU');
+  props.setProperty(key, version);
+}
+
 function ensureDefaultFormTemplates_(ss) {
   var sheet = ensureFormSheet_(ss, 'DM_BIEU_MAU'), meta = headers_(sheet), existing = readSheet_(ss, 'DM_BIEU_MAU').rows, added = 0, updated = 0;
   FORM_TEMPLATE_SEEDS.forEach(function (seed) {
@@ -915,7 +950,7 @@ function formTemplateById_(ss, value) {
 function saveFormRequest(input) {
   input = input || {};
   var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', 'THEM'), ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  ensureDefaultFormTemplates_(ss);
+  ensureFormCatalogReady_(ss);
   var template = formTemplateById_(ss, input.ID_BIEU_MAU);
   if (!template) throw new Error('Biểu mẫu đã chọn không tồn tại trong DM_BIEU_MAU.');
   var employeeCode = String(input.MA_NHAN_VIEN || '').trim(), employee = null;
@@ -1186,8 +1221,7 @@ function getAppData(input) {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     if (requested.indexOf('DM_BIEU_MAU') !== -1 || requested.indexOf('PHIEU_BIEU_MAU') !== -1) {
       // Bổ sung mẫu mặc định theo kiểu không phá dữ liệu cũ khi mở chức năng Biểu mẫu.
-      ensureDefaultFormTemplates_(ss);
-      ensureFormSheet_(ss, 'PHIEU_BIEU_MAU');
+      ensureFormCatalogReady_(ss);
     }
     requested.forEach(function (name) {
       try {
