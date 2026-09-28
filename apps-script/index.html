@@ -6215,17 +6215,21 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     root=root||document;
     root.querySelectorAll('.table-wrap table').forEach(apply41Table);
   }
+  // Nhớ kết quả phân loại theo chữ tiêu đề (chuẩn hóa NFD mỗi lần DOM đổi rất tốn); danh sách dòng lấy 1 lần mỗi bảng.
+  const cls41=new Map();
+  function classifyCached41(text){let c=cls41.get(text);if(c===undefined){c=classify41(text);if(cls41.size>2000)cls41.clear();cls41.set(text,c)}return c}
   function apply41Table(table){
     {
-      const ths=[...table.querySelectorAll('thead th')];
+      const ths=table.querySelectorAll('thead th');
       if(!ths.length)return;
+      let rows=null;
 
       ths.forEach((th,idx)=>{
-        const cls=classify41(th.textContent);
+        const cls=classifyCached41(th.textContent);
         if(!cls)return;
 
         if(!th.classList.contains(cls))th.classList.add(cls);
-        table.querySelectorAll('tbody tr').forEach(tr=>{
+        (rows||(rows=table.querySelectorAll('tbody tr'))).forEach(tr=>{
           const td=tr.children[idx];if(td&&!td.classList.contains(cls))td.classList.add(cls);
         });
       });
@@ -6244,8 +6248,8 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
       observer41?.disconnect();observer41=null;return;
     }
     if(observer41||!document.body)return;
-    // Trước: quét MỌI bảng ở MỖI lần DOM đổi (hàng trăm lần khi vẽ 1 bảng) → nay tối đa 1 lần / khung hình.
-    observer41=plOnDomFrame_(()=>{if(!isMobileLayout41())apply41(document)});
+    // Chạy NGAY mỗi lần DOM đổi (khối dọn class cũ của bảng xóa pl-col-*/pl-wrap-* bằng đổi thuộc tính → phải thêm lại ngay sau đó).
+    observer41=plOnDom_(()=>{if(!isMobileLayout41())apply41(document)});
   }
   window.addEventListener('resize',installObserver41,{passive:true});
 })();

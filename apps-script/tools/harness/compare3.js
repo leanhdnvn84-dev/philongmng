@@ -5,16 +5,20 @@
 const fs = require('fs');
 const path = require('path');
 const [a, b, c] = process.argv.slice(2).map(p => path.resolve(p));
-const skip = f => /^(report|profile-|styles-)/.test(f);
+const skip = f => /^(report|profile-|styles-)/.test(f) || f.endsWith('.root.json.txt');
 const fc = fs.readdirSync(c).filter(f => !skip(f)).sort();
 const fa = new Set(fs.readdirSync(a));
+// Chuẩn hóa thứ tự thuộc tính + thứ tự class trong thẻ (cùng thuộc tính, chỉ khác lúc được gán → không phải khác biệt).
+const norm = (f, t) => !f.endsWith('.html') ? t : t.replace(/<([a-zA-Z0-9-]+)((?:\s+[^\s=>]+(?:="[^"]*")?)*)\s*(\/?)>/g, (m, tag, attrs, sl) => {
+  const L = (attrs.match(/[^\s=>]+(?:="[^"]*")?/g) || []).map(x => x.replace(/^class="([^"]*)"$/, (q, v) => 'class="' + v.split(/\s+/).filter(Boolean).sort().join(' ') + '"')).sort();
+  return '<' + tag + (L.length ? ' ' + L.join(' ') : '') + sl + '>'; });
 let diffs = 0;
 for (const f of fc) {
   if (!fa.has(f)) { console.log('CHỈ CÓ Ở MỚI: ' + f); diffs++; continue; }
-  const z = fs.readFileSync(path.join(c, f), 'utf8');
-  const x = fs.readFileSync(path.join(a, f), 'utf8');
+  const z = norm(f, fs.readFileSync(path.join(c, f), 'utf8'));
+  const x = norm(f, fs.readFileSync(path.join(a, f), 'utf8'));
   if (z === x) continue;
-  const yp = path.join(b, f), y = fs.existsSync(yp) ? fs.readFileSync(yp, 'utf8') : null;
+  const yp = path.join(b, f), y = fs.existsSync(yp) ? norm(f, fs.readFileSync(yp, 'utf8')) : null;
   if (z === y) continue;
   // Từng dòng: dòng của C phải có mặt ở A hoặc B cùng vị trí.
   const lz = z.split('\n'), lx = x.split('\n'), ly = y ? y.split('\n') : [];
