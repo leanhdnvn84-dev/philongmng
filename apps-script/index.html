@@ -12503,11 +12503,11 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
     el.innerHTML=`<div class="plv-top"><button type="button" class="plv-big in" data-go="in">＋ KHÁCH VÀO<small>Check-in / Đăng ký trước</small></button><button type="button" class="plv-big out" data-go="out">⇥ KHÁCH RA<small>Tìm tên, SĐT, biển số</small></button></div>
     <div class="plv-grid"><section class="plv-card plv-form" id="plvForm"><h3>Đăng ký khách <span>Giờ vào: tự lấy giờ máy chủ</span></h3>
       <div class="plv-seg"><button type="button" data-mode="checkin" class="on">✔ Check-in ngay</button><button type="button" data-mode="book">📅 Đăng ký trước</button></div>
-      <div class="plv-f"><label>Số điện thoại *</label><input id="plvSDT" inputmode="tel" autocomplete="off" placeholder="Gõ SĐT — khách quen tự điền"></div><div id="plvHint"></div>
-      <div class="plv-f"><label>Họ tên khách *</label><input id="plvHO_TEN" autocomplete="off"></div>
-      <div class="plv-2"><div class="plv-f"><label>CCCD / giấy tờ</label><input id="plvGIAY_TO" autocomplete="off" inputmode="numeric"></div><div class="plv-f"><label>Công ty</label><input id="plvCONG_TY"></div></div>
+      <div class="plv-2"><div class="plv-f"><label>Họ tên khách *</label><input id="plvHO_TEN" autocomplete="off"></div><div class="plv-f"><label>Công ty</label><input id="plvCONG_TY"></div></div>
+      <div class="plv-2"><div class="plv-f"><label>Số điện thoại *</label><input id="plvSDT" inputmode="tel" autocomplete="off" placeholder="Khách quen tự điền"></div><div class="plv-f"><label>CCCD / giấy tờ</label><input id="plvGIAY_TO" autocomplete="off" inputmode="numeric"></div></div><div id="plvHint"></div>
+      <div class="plv-f"><label>Địa chỉ</label><input id="plvDIA_CHI" autocomplete="off"></div>
       <div class="plv-2"><div class="plv-f"><label>Người cần gặp</label><input id="plvNGUOI_CAN_GAP" list="plvTenants" autocomplete="off"></div><div class="plv-f"><label>Phòng ban</label><input id="plvPHONG_BAN"></div></div>
-      <div class="plv-2"><div class="plv-f"><label>Tầng</label><input id="plvTANG" list="plvFloors" autocomplete="off"></div><div class="plv-f"><label>Biển số xe</label><input id="plvBIEN_SO_XE" autocomplete="off"></div></div>
+      <div class="plv-2"><div class="plv-f"><label>Tầng</label><input id="plvTANG" list="plvFloors" autocomplete="off"><small class="plv-aut" id="plvTangNote"></small></div><div class="plv-f"><label>Biển số xe</label><input id="plvBIEN_SO_XE" autocomplete="off"></div></div>
       <div class="plv-f"><label>Mục đích</label><div class="plv-chips" id="plvPurpose">${PURPOSES.map(p=>`<button type="button" data-p="${p}" class="${p===S.purpose?'on':''}">${p}</button>`).join('')}</div></div>
       <div class="plv-2 plv-book"><div class="plv-f"><label>Ngày hẹn *</label><input id="plvNGAY_HEN" type="date"></div><div class="plv-f"><label>Giờ hẹn</label><input id="plvGIO_HEN" type="time"></div></div>
       <div class="plv-f"><label>Người đăng ký / trực</label><input id="plvStaff" list="plvStaffList" autocomplete="off" placeholder="Gõ để tìm nhân viên"></div>
@@ -12517,11 +12517,14 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
     <section class="plv-card"><div class="plv-kp" id="plvKpi"></div>
       <div class="plv-tabs" id="plvTabs"><button type="button" data-tab="in">Đang trong tòa nhà</button><button type="button" data-tab="book">Hẹn trước</button><button type="button" data-tab="out">Đã ra hôm nay</button><button type="button" data-tab="hist">Tìm lịch sử</button></div>
       <div class="plv-bar"><input id="plvQ" placeholder="🔎 Tìm tên, SĐT, công ty, biển số, người cần gặp…"><span class="plv-hist"><input type="date" id="plvFrom"><input type="date" id="plvTo"><button type="button" id="plvFind">Tìm</button></span></div>
-      <div id="plvList" class="plv-list"></div></section></div>`;
+      <div id="plvList" class="plv-list"></div></section></div>
+    <footer class="plv-foot"><span class="ok" id="plvSync"></span><span class="mid" id="plvSum"></span><span id="plvDuty"></span></footer>`;
     el.addEventListener('click',onClick);
     $('plvQ').addEventListener('input',()=>{S.q=$('plvQ').value;list()});
-    $('plvSDT').addEventListener('input',lookup);
-    $('plvStaff').addEventListener('change',()=>{S.staff=$('plvStaff').value.trim()||DEF_STAFF});
+    $('plvSDT').addEventListener('input',lookup);$('plvGIAY_TO').addEventListener('input',lookup);
+    el.addEventListener('input',e=>{if(e.target.classList.contains('auto'))e.target.classList.remove('auto')});
+    $('plvNGUOI_CAN_GAP').addEventListener('change',floorFromTenant);
+    $('plvStaff').addEventListener('change',()=>{S.staff=$('plvStaff').value.trim()||DEF_STAFF;foot()});
     $('plvSubmit').addEventListener('click',submit);
     $('plvFind').addEventListener('click',history);
     const t=todayKey();$('plvFrom').value=t.slice(0,8)+'01';$('plvTo').value=t;$('plvNGAY_HEN').min=t;
@@ -12542,25 +12545,40 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
       <div class="plv-c"><small>Biển số</small>${esc(r.BIEN_SO_XE||'—')}</div><div class="plv-c time"><small>${esc(head)}</small>${bk?'<span class="plv-b bl">HẸN TRƯỚC</span>':r.TRANG_THAI===CANCEL?'<span class="plv-b gr">ĐÃ HỦY</span>':`<span class="plv-b ${inn?tone(m):'gr'}">${dur(m)}</span>`}</div>
       <div class="plv-c acts">${act}</div></div>`}
   function list(){const t=todayKey(),q=fold(S.q),R=S.tab==='hist'?(S.hist||[]):rows().filter(r=>S.tab==='in'?r.TRANG_THAI===IN:S.tab==='book'?r.TRANG_THAI===BOOK:r.TRANG_THAI===OUT&&r.NGAY===t);
-    const L=R.filter(r=>!q||fold([r.ID,r.HO_TEN,r.SDT,r.CONG_TY,r.NGUOI_CAN_GAP,r.BIEN_SO_XE,r.TANG].join(' ')).includes(q))
+    const L=R.filter(r=>!q||fold([r.ID,r.HO_TEN,r.SDT,r.DIA_CHI,r.CONG_TY,r.NGUOI_CAN_GAP,r.BIEN_SO_XE,r.TANG].join(' ')).includes(q))
       .sort((a,b)=>S.tab==='book'?String(a.NGAY_HEN+a.GIO_HEN).localeCompare(String(b.NGAY_HEN+b.GIO_HEN)):String(b.NGAY+b.GIO_RA+b.GIO_VAO).localeCompare(String(a.NGAY+a.GIO_RA+a.GIO_VAO)));
     $('plVisitor').classList.toggle('hist',S.tab==='hist');
     $('plvList').innerHTML=L.length?L.map(card).join(''):`<div class="plv-empty">${S.tab==='hist'&&!S.hist?'Chọn khoảng ngày rồi bấm Tìm.':'Không có khách.'}</div>`}
-  function render(){if(!build())return;fill();kpi();list();clearInterval(S.timer);S.timer=setInterval(()=>{if(window.APP&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
-  let lk=0;function lookup(){const v=$('plvSDT').value.replace(/\D/g,'');S.prev=null;$('plvHint').innerHTML='';if(v.length<9)return;clearTimeout(lk);
-    lk=setTimeout(()=>server('lookupVisitorByPhone',[{SDT:v}],r=>{if(!r||!r.count||$('plvSDT').value.replace(/\D/g,'')!==v)return;const x=r.last;S.prev=r.hasId?r.fromId:null;
-      ['HO_TEN','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE'].forEach(k=>{const e=$('plv'+k);if(e&&!e.value)e.value=x[k]||''});if(x.MUC_DICH)pick(x.MUC_DICH);
-      if(r.hasId&&!$('plvGIAY_TO').value)$('plvGIAY_TO').placeholder='Dùng CCCD lần trước ('+x.GIAY_TO+')';
-      $('plvHint').innerHTML=`<div class="plv-hint">✓ Khách quen — đã đến ${r.count} lần, gần nhất ${show(x.NGAY||x.NGAY_HEN)}. Đã tự điền thông tin.</div>`},()=>{}),350)}
+  function foot(){const R=rows(),t=todayKey(),n=k=>R.filter(k).length;if(!$('plvSum'))return;
+    $('plvSum').textContent=`${n(r=>r.TRANG_THAI===IN)} khách đang trong tòa nhà · ${n(r=>r.TRANG_THAI===BOOK)} hẹn trước · ${n(r=>r.TRANG_THAI===OUT&&r.NGAY===t)} đã ra hôm nay`;
+    $('plvDuty').innerHTML='Tự cập nhật mỗi phút · Người trực: <b>'+esc(staff())+'</b>'}
+  function render(){if(!build())return;fill();kpi();list();const d=new Date();$('plvSync').textContent='● Đã đồng bộ lúc '+pad(d.getHours())+':'+pad(d.getMinutes());foot();
+    requestAnimationFrame(()=>{const el=$('plVisitor');if(el&&el.offsetParent)document.documentElement.style.setProperty('--plv-top',Math.round(el.getBoundingClientRect().top+window.scrollY)+'px')});clearInterval(S.timer);S.timer=setInterval(()=>{if(window.APP&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
+  // Khách quen: tra theo SĐT (≥9 số) hoặc CCCD (≥9 số) → tự điền ô còn trống (nền xanh), cảnh báo khách đang ở, gợi ý lịch hẹn hôm nay.
+  let lk=0;function lookup(){const v=$('plvSDT').value.replace(/\D/g,''),c=$('plvGIAY_TO').value.replace(/\s/g,'');S.prev=null;S.inside=null;$('plvHint').innerHTML='';
+    if(v.length<9&&c.length<9)return;clearTimeout(lk);
+    lk=setTimeout(()=>server('lookupVisitorByPhone',[{SDT:v,GIAY_TO:c}],r=>{if(!r||$('plvSDT').value.replace(/\D/g,'')!==v||$('plvGIAY_TO').value.replace(/\s/g,'')!==c)return;
+      const x=r.last,msg=[];S.inside=r.inside||null;
+      if(x){S.prev=r.hasId?r.fromId:null;
+        ['HO_TEN','CONG_TY','DIA_CHI','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','SDT'].forEach(k=>{const e=$('plv'+k);if(e&&!e.value&&x[k]){e.value=x[k];e.classList.add('auto')}});
+        if(x.MUC_DICH)pick(x.MUC_DICH);if(r.hasId&&!$('plvGIAY_TO').value)$('plvGIAY_TO').placeholder='Dùng CCCD lần trước ('+x.GIAY_TO+')';
+        if(r.count)msg.push(`<div class="plv-hint">✓ Khách quen — đã đến ${r.count} lần, gần nhất ${show(x.NGAY||x.NGAY_HEN)}. Đã tự điền các ô nền xanh.</div>`)}
+      if(r.booked)msg.push(`<div class="plv-hint bl">📅 Có lịch hẹn hôm nay${r.booked.GIO_HEN?' lúc '+r.booked.GIO_HEN:''} — <button type="button" data-arrive="${esc(r.booked.ID)}">Check-in theo lịch hẹn</button></div>`);
+      if(r.inside)msg.push(`<div class="plv-hint wr">⚠ Khách này đang trong tòa nhà (vào ${esc(r.inside.GIO_VAO)}${r.inside.NGAY!==todayKey()?' ngày '+show(r.inside.NGAY):''}) — <button type="button" data-out="${esc(r.inside.ID)}">Check-out lượt cũ</button></div>`);
+      $('plvHint').innerHTML=msg.join('')},()=>{}),350)}
+  // Chọn người cần gặp là khách thuê → tự điền tầng.
+  function floorFromTenant(){const n=fold($('plvNGUOI_CAN_GAP').value).trim(),t=(core().visitorTenants||[]).find(x=>fold(x.TEN).trim()===n),f=$('plvTANG');$('plvTangNote').textContent='';
+    if(t&&t.TANG&&(!f.value||f.classList.contains('auto'))){f.value=t.TANG;f.classList.add('auto');$('plvTangNote').textContent='tự lấy theo khách thuê '+t.TEN}}
   function pick(p){S.purpose=PURPOSES.includes(p)?p:'Khác';$('plvPurpose').querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===S.purpose))}
-  function upsert(rec){const a=rows();const i=a.findIndex(r=>r.ID===rec.ID);if(i>=0)a[i]=rec;else a.push(rec);if(window.APP){APP.core=APP.core||{};APP.core.visitors=a}if(S.hist){const j=S.hist.findIndex(r=>r.ID===rec.ID);if(j>=0)S.hist[j]=rec}kpi();list()}
+  function upsert(rec){setTimeout(foot);const a=rows();const i=a.findIndex(r=>r.ID===rec.ID);if(i>=0)a[i]=rec;else a.push(rec);if(window.APP){APP.core=APP.core||{};APP.core.visitors=a}if(S.hist){const j=S.hist.findIndex(r=>r.ID===rec.ID);if(j>=0)S.hist[j]=rec}kpi();list()}
   function staff(){return ($('plvStaff')&&$('plvStaff').value.trim())||S.staff||DEF_STAFF}
   function submit(){const b=$('plvSubmit');if(b.disabled)return;const p={ACTION:S.mode,NGUOI:staff(),MUC_DICH:S.purpose,GIAY_TO_TU_LUOT:S.prev||''};
-    ['SDT','HO_TEN','GIAY_TO','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','GHI_CHU','NGAY_HEN','GIO_HEN'].forEach(k=>p[k]=$('plv'+k).value.trim());
+    if(S.mode==='checkin'&&S.inside&&!confirm('Khách này đang trong tòa nhà (vào '+S.inside.GIO_VAO+'). Vẫn check-in lượt mới?'))return;
+    ['SDT','HO_TEN','GIAY_TO','DIA_CHI','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','GHI_CHU','NGAY_HEN','GIO_HEN'].forEach(k=>p[k]=$('plv'+k).value.trim());
     if(!p.SDT||!p.HO_TEN)return toast('Nhập số điện thoại và họ tên khách','err');b.disabled=true;b.textContent='Đang lưu…';
     server('saveVisitor',[p],r=>{b.disabled=false;setMode(S.mode);upsert(r.record);reset();if(S.mode==='checkin'){S.tab='in';ticket(r.record,true)}else{S.tab='book';toast('Đã lưu hẹn trước cho '+r.record.HO_TEN)}kpi();list()},
       e=>{b.disabled=false;setMode(S.mode);toast('Lưu không thành công: '+(e&&e.message||e),'err')})}
-  function reset(){['SDT','HO_TEN','GIAY_TO','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','GHI_CHU','GIO_HEN'].forEach(k=>{const e=$('plv'+k);e.value='';e.placeholder=k==='SDT'?'Gõ SĐT — khách quen tự điền':''});S.prev=null;$('plvHint').innerHTML='';pick('Làm việc')}
+  function reset(){['SDT','HO_TEN','GIAY_TO','DIA_CHI','CONG_TY','NGUOI_CAN_GAP','PHONG_BAN','TANG','BIEN_SO_XE','GHI_CHU','GIO_HEN'].forEach(k=>{const e=$('plv'+k);e.value='';e.classList.remove('auto');e.placeholder=k==='SDT'?'Khách quen tự điền':''});S.prev=null;S.inside=null;$('plvHint').innerHTML='';$('plvTangNote').textContent='';pick(S.purpose)}
   function act(action,id,extra){const r=rows().concat(S.hist||[]).find(x=>x.ID===id);server('saveVisitor',[Object.assign({ACTION:action,ID:id,NGUOI:staff()},extra||{})],x=>{upsert(x.record);closePop();
       if(action==='arrive')ticket(x.record,true);else toast((action==='checkout'?'Đã check-out ':'Đã cập nhật ')+(r?r.HO_TEN:''))},e=>toast('Không thành công: '+(e&&e.message||e),'err'))}
   function pop(html){let p=$('plvPop');if(!p){p=document.createElement('div');p.id='plvPop';document.body.appendChild(p);p.addEventListener('click',e=>{if(e.target===p||e.target.closest('[data-close]'))closePop()})}p.innerHTML='<div class="plv-pop">'+html+'</div>';p.classList.add('active');return p}
@@ -12575,7 +12593,7 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(r.ID)}</title><${'style'}>body{font-family:Arial,sans-serif;margin:0;padding:12px;width:72mm}h1{margin:0;font-size:14px;color:#a71936}.c{font-size:34px;font-weight:900;letter-spacing:2px;margin:8px 0;border:2px solid #000;text-align:center;padding:6px}.n{font-size:16px;font-weight:700}p{margin:4px 0;font-size:12px}@page{size:80mm auto;margin:4mm}</${'style'}></head><body><h1>PHI LONG · THẺ KHÁCH</h1><div class="c">${esc(r.ID)}</div><div class="n">${esc(r.HO_TEN)}</div><p>${esc(r.CONG_TY||'')}</p><p>Gặp: <b>${esc(r.NGUOI_CAN_GAP||'—')}</b> ${esc(r.TANG||'')}</p><p>Mục đích: ${esc(r.MUC_DICH||'')}</p><p>Vào: <b>${esc(r.GIO_VAO||'')}</b> ${esc(show(r.NGAY))}</p><p style="margin-top:10px;font-size:11px">Vui lòng trả thẻ tại quầy khi ra về.</p></body></html>`);
     w.document.close();setTimeout(()=>{w.focus();w.print()},300)}
   function view(id){const r=rows().concat(S.hist||[]).find(x=>x.ID===id);if(!r)return;const m=mins(r);
-    const F=[['Mã lượt / thẻ',r.ID],['Trạng thái',r.TRANG_THAI],['Họ tên',r.HO_TEN],['SĐT',r.SDT],['CCCD',r.GIAY_TO||'—'],['Công ty',r.CONG_TY],['Người cần gặp',r.NGUOI_CAN_GAP],['Phòng ban',r.PHONG_BAN],['Tầng',r.TANG],['Mục đích',r.MUC_DICH],['Biển số xe',r.BIEN_SO_XE],
+    const F=[['Mã lượt / thẻ',r.ID],['Trạng thái',r.TRANG_THAI],['Họ tên',r.HO_TEN],['SĐT',r.SDT],['CCCD',r.GIAY_TO||'—'],['Địa chỉ',r.DIA_CHI],['Công ty',r.CONG_TY],['Người cần gặp',r.NGUOI_CAN_GAP],['Phòng ban',r.PHONG_BAN],['Tầng',r.TANG],['Mục đích',r.MUC_DICH],['Biển số xe',r.BIEN_SO_XE],
       ['Ngày',show(r.NGAY)],['Giờ vào',r.GIO_VAO],['Giờ ra',r.GIO_RA],['Thời gian ở',r.GIO_VAO?dur(m):''],['Hẹn trước',r.NGAY_HEN?show(r.NGAY_HEN)+' '+(r.GIO_HEN||''):''],['Người đăng ký',r.NGUOI_DANG_KY],['Người check-out',r.NGUOI_CHECKOUT],['Ghi chú',r.GHI_CHU]];
     const p=pop(`<header><b>${esc(r.HO_TEN)}</b><button type="button" data-close>×</button></header><div class="plv-view">${F.filter(f=>f[1]).map(f=>`<div><small>${f[0]}</small><span class="${f[0]==='CCCD'?'mask':''}">${esc(f[1])}</span></div>`).join('')}</div>
       <footer>${r.TRANG_THAI===IN?`<button type="button" data-out="${esc(r.ID)}" class="p">⇥ Check-out</button>`:''}${r.TRANG_THAI===BOOK?`<button type="button" data-arrive="${esc(r.ID)}" class="p">➜ Khách đến</button><button type="button" data-cancel="${esc(r.ID)}">Hủy hẹn</button>`:''}${r.GIO_VAO?'<button type="button" data-print>🖨 In phiếu</button>':''}<button type="button" data-close>Đóng</button></footer>`);
@@ -12595,10 +12613,11 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
 })();
 </script>
 <style>
-#visitors .plv{padding:10px 12px;font-size:13px;color:#172033}
+#visitors .plv{padding:10px 12px 8px;font-size:13px;color:#172033;box-sizing:border-box;display:flex;flex-direction:column;height:calc(100dvh - var(--plv-top,110px))}
 .plv-top{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .plv-big{border:0;border-radius:14px;padding:14px 10px;color:#fff;font:900 16px/1.2 inherit;cursor:pointer}.plv-big small{display:block;font-weight:500;font-size:12px;opacity:.9;margin-top:2px}.plv-big.in{background:linear-gradient(135deg,#16a34a,#15803d)}.plv-big.out{background:linear-gradient(135deg,#be123c,#9f1239)}
-.plv-grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:12px;align-items:start}
+.plv-grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:12px;align-items:stretch;flex:1 1 auto;min-height:0}
+.plv-form{display:flex;flex-direction:column;min-height:0;overflow:auto}.plv-grid>.plv-card:last-child{display:flex;flex-direction:column;min-height:0}
 .plv-card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:12px;min-width:0}
 .plv-card h3{margin:0 0 10px;font-size:13px;color:#a71936;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}.plv-card h3 span{font-size:11px;color:#64748b;text-transform:none;font-weight:500}
 .plv-seg{display:flex;background:#f1f5f9;border-radius:8px;padding:3px;margin-bottom:10px}.plv-seg button{flex:1;border:0;background:none;padding:7px;border-radius:6px;font-weight:700;color:#64748b;cursor:pointer}.plv-seg .on{background:#a71936;color:#fff}
@@ -12606,12 +12625,15 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
 .plv-f input{width:100%;box-sizing:border-box;height:34px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit;background:#fff;color:#172033}
 .plv-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.plv-book{display:none}.plv-form.booking .plv-book{display:grid}
 .plv-chips{display:flex;flex-wrap:wrap;gap:5px}.plv-chips button{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:4px 10px;font-weight:600;font-size:12px;cursor:pointer;color:#172033}.plv-chips .on{background:#a71936;border-color:#a71936;color:#fff}
-.plv-hint{background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:8px;padding:6px 8px;font-size:12px;margin:-4px 0 8px}
-.plv-submit{width:100%;height:42px;border:0;border-radius:9px;background:#15803d;color:#fff;font-weight:900;font-size:14px;cursor:pointer;margin-top:4px}.plv-form.booking .plv-submit{background:#1d4ed8}.plv-submit:disabled{opacity:.6;cursor:wait}
+.plv-hint{background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:8px;padding:6px 8px;font-size:12px;margin:-4px 0 8px}.plv-hint.bl{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}.plv-hint.wr{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+.plv-hint button{border:0;border-radius:6px;padding:3px 8px;margin-left:4px;font-weight:800;font-size:11.5px;cursor:pointer;color:#fff;background:#1d4ed8}.plv-hint.wr button{background:#c2410c}
+.plv-f input.auto{background:#f0fdf4;border-color:#86efac}.plv-aut{display:block;font-size:10.5px;color:#15803d;margin-top:2px}.plv-aut:empty{display:none}
+.plv-submit{width:100%;height:42px;flex:none;border:0;border-radius:9px;background:#15803d;color:#fff;font-weight:900;font-size:14px;cursor:pointer;margin-top:auto}.plv-form.booking .plv-submit{background:#1d4ed8}.plv-submit:disabled{opacity:.6;cursor:wait}
 .plv-kp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}.plv-k{border:1px solid #e2e8f0;border-bottom:3px solid var(--c);border-radius:10px;padding:7px 10px;background:#fff;text-align:left;cursor:pointer}.plv-k small{display:block;font-weight:700;color:#475569;text-transform:uppercase;font-size:11px}.plv-k b{font-size:22px;color:var(--c)}
 .plv-tabs{display:flex;gap:2px;border-bottom:2px solid #e2e8f0;margin-bottom:8px;overflow-x:auto}.plv-tabs button{border:0;background:none;padding:8px 12px;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap}.plv-tabs button[data-n]:not([data-n=""])::after{content:" (" attr(data-n) ")"}.plv-tabs .on{color:#a71936;border-color:#a71936}
 .plv-bar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}.plv-bar>input{flex:1 1 240px;height:34px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit}.plv-hist{display:none;gap:6px}.plv.hist .plv-hist{display:flex}.plv-hist input{height:34px;border:1px solid #cbd5e1;border-radius:8px;padding:0 6px}.plv-hist button{height:34px;border:0;border-radius:8px;background:#a71936;color:#fff;font-weight:700;padding:0 14px;cursor:pointer}
-.plv-list{max-height:calc(100dvh - 330px);overflow:auto}
+.plv-list{flex:1 1 auto;min-height:0;overflow:auto}
+.plv-foot{flex:none;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;padding:8px 14px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:12.5px;color:#475569}.plv-foot .ok{color:#15803d;font-weight:700}.plv-foot .mid{font-weight:700;color:#172033}
 .plv-row{display:grid;grid-template-columns:minmax(150px,1.4fr) 110px 90px minmax(120px,1.2fr) 90px 100px 110px 190px;gap:6px;align-items:center;padding:7px 8px;border-bottom:1px solid #eef2f7;border-left:4px solid transparent;cursor:pointer}
 .plv-row:hover{background:#f8fafc}.plv-row.rd{border-left-color:#dc2626}.plv-row.y{border-left-color:#eab308}.plv-row.g{border-left-color:#16a34a}.plv-row.bk{border-left-color:#2563eb}.plv-row.done{border-left-color:#cbd5e1}
 .plv-c{min-width:0;overflow:hidden;text-overflow:ellipsis}.plv-c small{display:block;font-size:10.5px;color:#94a3b8;font-weight:700;text-transform:uppercase}.plv-c.name b{display:block;font-size:13.5px}.plv-c.name small{text-transform:none;font-weight:500;color:#64748b;font-size:12px}
@@ -12625,7 +12647,7 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
 .plv-pop footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:10px 16px;border-top:1px solid #e2e8f0;background:#f8fafc}.plv-pop footer button{border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer}.plv-pop footer .p{background:#a71936;border-color:#a71936;color:#fff}
 .plv-ticket{padding:18px;text-align:center}.plv-ticket small{font-weight:800;color:#64748b;letter-spacing:1px}.plv-ticket .code{font-size:40px;font-weight:900;letter-spacing:3px;color:#a71936;border:2px dashed #a71936;border-radius:12px;padding:6px;margin:6px auto 10px;max-width:300px}.plv-ticket .nm{font-size:18px;font-weight:800}.plv-ticket .meta{margin-top:8px;color:#475569}
 .plv-view{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}.plv-view div{border:1px solid #e2e8f0;border-radius:8px;padding:6px 8px}.plv-view small{display:block;font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase}
-@media(max-width:900px){.plv-top{display:grid}.plv-grid{grid-template-columns:1fr}.plv-kp{grid-template-columns:repeat(2,1fr)}.plv-list{max-height:none}
+@media(max-width:900px){#visitors .plv{display:block;height:auto}.plv-form{overflow:visible}.plv-submit{margin-top:6px}.plv-foot{flex-wrap:wrap;justify-content:center;text-align:center}.plv-top{display:grid}.plv-grid{grid-template-columns:1fr}.plv-kp{grid-template-columns:repeat(2,1fr)}.plv-list{max-height:none;overflow:visible}
  .plv-row{grid-template-columns:1fr 1fr;border:1px solid #e2e8f0;border-left-width:5px;border-radius:12px;margin-bottom:8px;background:#fff}.plv-c.name,.plv-c.acts{grid-column:1/-1}.plv-c.acts{justify-content:stretch}.plv-c.acts .plv-act{flex:1;padding:10px}.plv-view{grid-template-columns:1fr}}
 html[data-theme="dark"] :is(.plv-card,.plv-pop,.plv-k,.plv-row){background:#1f2937;color:#e5e7eb;border-color:#334155}html[data-theme="dark"] .plv-f input,html[data-theme="dark"] .plv-bar input{background:#111827;color:#e5e7eb;border-color:#334155}
 </style>
