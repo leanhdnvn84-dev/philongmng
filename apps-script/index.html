@@ -7862,9 +7862,9 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementBy
     const modal=document.getElementById('v17FormModal');v841438MarkForm3d_('proposalBuyMaterial');modal.classList.add('v84149-material-modal','active');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
     const btn=document.getElementById('v17SaveBtn');btn.disabled=false;btn.classList.remove('busy');btn.innerHTML='Lưu &amp; đóng';btn.setAttribute('onclick','v17SaveForm()');
     recalc();
-    if(masterId&&typeof server==='function'){const help=document.getElementById('v17FormHelp');if(help)help.textContent='Đang tải đầy đủ dữ liệu đề xuất '+masterId+'…';
-      server('getProposalMaterialBundle',[{ID_DE_XUAT:masterId}],res=>{if(!V17.form||V17.form.masterId!==String(masterId)||!res||!res.ok)return;fillFull(res);if(help)help.textContent='Phòng ban tự lấy theo người đề xuất. Có thể thêm nhiều vật tư trong cùng một đề xuất.'},
-        e=>{if(help)help.textContent='Không tải được dữ liệu đầy đủ ('+(e&&e.message||e)+') — đang dùng dữ liệu trên bảng.'})}
+    if(masterId&&typeof server==='function'){const help=document.getElementById('v17FormHelp');if(help)help.textContent='Đang tải đầy đủ dữ liệu đề xuất '+masterId+'…';const off=window.plLoadOv_?window.plLoadOv_(modal.querySelector('.v17-dialog')||modal,'Đang tải dữ liệu đề xuất…',masterId):function(){};
+      server('getProposalMaterialBundle',[{ID_DE_XUAT:masterId}],res=>{off();if(!V17.form||V17.form.masterId!==String(masterId)||!res||!res.ok)return;fillFull(res);if(help)help.textContent='Phòng ban tự lấy theo người đề xuất. Có thể thêm nhiều vật tư trong cùng một đề xuất.'},
+        e=>{off();if(help)help.textContent='Không tải được dữ liệu đầy đủ ('+(e&&e.message||e)+') — đang dùng dữ liệu trên bảng.'})}
   }
   // Điền lại form bằng dữ liệu đầy đủ đọc thẳng từ Sheet (lý do, ghi chú, trạng thái, từng dòng vật tư + tên vật tư).
   function fillFull(res){const m=res.master||{},L=Array.isArray(res.lines)?res.lines:[],f=L[0]||{},set=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined&&v!==null&&String(v)!=='')e.value=v};
@@ -12265,12 +12265,16 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
    if(x.full){img.src=x.full;return}lb.classList.add('loading');server('getWorkPhotoData',[{FILE_ID:x.FILE_ID}],r=>{x.full=r.data;if(list[i]===x)img.src=r.data;lb.classList.remove('loading')},()=>lb.classList.remove('loading'))};
   lb.go=d=>show(i+d);lb.querySelector('.pv').onclick=e=>{e.stopPropagation();lb.go(-1)};lb.querySelector('.nx').onclick=e=>{e.stopPropagation();lb.go(1)};lb.classList.add('active');show(i)};
  document.addEventListener('keydown',e=>{const lb=document.getElementById('plPhotoLb');if(!lb||!lb.classList.contains('active'))return;if(e.key==='Escape')lb.classList.remove('active');else if(e.key==='ArrowLeft')lb.go(-1);else if(e.key==='ArrowRight')lb.go(1)});
+ // Hộp “Đang tải…” nằm giữa popup (vòng xoay + chữ); trả về hàm tắt.
+ window.plLoadOv_=function(host,text,sub){if(!host)return function(){};if(getComputedStyle(host).position==='static')host.style.position='relative';
+  const o=document.createElement('div');o.className='pl-load-ov';o.innerHTML='<div class="bx"><i></i><b>'+esc(text||'Đang tải…')+'</b><small>'+esc(sub||'Vui lòng chờ trong giây lát')+'</small></div>';host.appendChild(o);
+  return function(){o.remove()}};
  // Dải ảnh trong form Xem (Công việc / Hằng ngày).
- window.plPhotoStrip_=function(box,src,id,cls){if(!box||typeof server!=='function')return;box.dataset.pid=id;const sec=document.createElement('section');sec.className=cls+' full pl-photo-strip';sec.innerHTML='<small>Hình ảnh công trình</small><div>Đang tải ảnh…</div>';box.appendChild(sec);
-  server('getWorkPhotos',[{SRC:src,ID:id}],list=>{if(box.dataset.pid!==String(id)||!sec.isConnected)return;list=(list||[]).filter(x=>x.thumb);const d=sec.querySelector('div');
+ window.plPhotoStrip_=function(box,src,id,cls){if(!box||typeof server!=='function')return;box.dataset.pid=id;const sec=document.createElement('section');sec.className=cls+' full pl-photo-strip';sec.innerHTML='<small>Hình ảnh công trình</small><div></div>';box.appendChild(sec);const off=window.plLoadOv_(box.closest('[role=dialog]')||box,'Đang tải ảnh công trình…');
+  server('getWorkPhotos',[{SRC:src,ID:id}],list=>{off();if(box.dataset.pid!==String(id)||!sec.isConnected)return;list=(list||[]).filter(x=>x.thumb);const d=sec.querySelector('div');
    if(!list.length){d.textContent='Chưa có ảnh';return}const lastN=list.slice(-8).reverse();
    d.innerHTML='<div class="ph">'+lastN.map(x=>`<img src="${x.thumb}" data-pi="${list.indexOf(x)}" alt="" title="${esc(x.NGAY+' '+x.GIO)}">`).join('')+'</div>'+(list.length>8?`<em>${list.length} ảnh — bấm ảnh để xem tất cả</em>`:'');
-   d.onclick=e=>{const im=e.target.closest('img[data-pi]');if(im)window.plPhotoView_(list,+im.dataset.pi)}},()=>{sec.querySelector('div').textContent='Không tải được ảnh'})};
+   d.onclick=e=>{const im=e.target.closest('img[data-pi]');if(im)window.plPhotoView_(list,+im.dataset.pi)}},()=>{off();sec.querySelector('div').textContent='Không tải được ảnh'})};
  /* Ô Tiến độ trong form Sửa: nội dung cũ chỉ đọc; thêm dòng mới (ngày hôm nay do máy chủ ghi) + chọn giai đoạn. */
  const STAGES=['Khảo sát','Báo giá','Duyệt','Thi công','Chờ','Hoàn thành'];
  window.plProgFieldHtml_=function(record){const cur=String(record&&record.GIAI_DOAN_HIEN_TAI||'').trim(),old=String(record&&record.TIEN_DO||'');
@@ -12334,7 +12338,7 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
   if(guess)notes.push(`${guess} dòng không có ngày → xếp theo thứ tự, hiện “sau dd/mm”.`);
   if(!known.length&&E.length)notes.push('Chưa dòng nào có ngày — dùng nút <b>+ Cập nhật tiến độ</b> để ghi theo mẫu “- dd/mm: nội dung”.');
   h+=`</div></div><div><h4>Nhận xét tự động</h4><div class="nx"><div>Thời gian đã dùng</div><div class="bar"><i style="width:${Math.min(100,usedPct||0)}%;background:#ea580c"></i></div><div>Tiến trình giai đoạn</div><div class="bar"><i style="width:${(curI+1)*100/PH.length}%;background:#16a34a"></i></div><ul>${notes.map(n=>'<li>'+n+'</li>').join('')}</ul></div>
-  <h4>Hình ảnh công trình</h4><div class="gal">Đang tải ảnh…</div>
+  <h4>Hình ảnh công trình</h4><div class="gal"></div>
   <h4>Nội dung gốc ô tiến độ</h4><div class="raw">${esc(r.TIEN_DO||'')}</div></div></div>
   <footer><button type="button" data-pp-add>+ Cập nhật tiến độ</button><button type="button" data-pp-view>Mở công việc</button><button type="button" class="p" data-pp-close>Đóng</button></footer>`;
   const el=host(),pp=el.firstChild;pp.innerHTML=h;
@@ -12360,14 +12364,14 @@ html[data-theme="dark"] #plStaffPop .sp-card{background:#111827;color:#e5e7eb}ht
   pp.querySelector('[data-pp-view]').onclick=()=>{el.classList.remove('active');if(window.plWorkView_)plWorkView_(r.ID);else if(window.v17EditPageRecord)v17EditPageRecord('work',r.ID)};
   el.classList.add('active');
   // Ảnh công trình: gắn dưới từng dòng diễn biến + thư viện theo giai đoạn (ảnh đi qua máy chủ).
-  const gal=pp.querySelector('.gal');if(typeof server==='function')server('getWorkPhotos',[{SRC:'work',ID:r.ID}],list=>{if(!pp.isConnected||pp.querySelector('.gal')!==gal)return;list=(list||[]).filter(x=>x.thumb);
+  const gal=pp.querySelector('.gal'),off=typeof server==='function'?window.plLoadOv_(pp,'Đang tải ảnh công trình…'):function(){};if(typeof server==='function')server('getWorkPhotos',[{SRC:'work',ID:r.ID}],list=>{off();if(!pp.isConnected||pp.querySelector('.gal')!==gal)return;list=(list||[]).filter(x=>x.thumb);
    if(!list.length){gal.innerHTML='<span class="empty">Chưa có ảnh — bấm một mốc hoặc “+ Cập nhật tiến độ” để thêm.</span>';return}
    const norm=v=>String(v||'').replace(/^\s*-\s*/,'').trim(),img=(x,i)=>`<img src="${x.thumb}" data-pi="${i}" alt="" title="${esc(x.NGAY+' '+x.GIO+(x.GIAI_DOAN?' · '+x.GIAI_DOAN:''))}">`;
    const byLine={};list.forEach((x,i)=>{const ei=E.findIndex(e=>norm(e.raw)===norm(x.DONG_TIEN_DO));if(ei>=0)(byLine[ei]=byLine[ei]||[]).push(img(x,i))});
    Object.keys(byLine).forEach(ei=>{const e=pp.querySelector('.e[data-ei="'+ei+'"]');if(e)e.insertAdjacentHTML('beforeend','<div class="ph">'+byLine[ei].join('')+'</div>')});
    const groups={};list.forEach((x,i)=>{const g=x.GIAI_DOAN||'Khác';(groups[g]=groups[g]||[]).push(img(x,i))});
    gal.innerHTML=[...PH.map(p=>p[0]),'Chờ','Khác'].filter(g=>groups[g]).map(g=>`<div class="g"><b>${esc(g)} · ${groups[g].length}</b><div class="ph">${groups[g].join('')}</div></div>`).join('');
-   pp.onclick=e=>{const im=e.target.closest('img[data-pi]');if(im)window.plPhotoView_(list,+im.dataset.pi)}},()=>{gal.innerHTML='<span class="empty">Không tải được ảnh.</span>'});
+   pp.onclick=e=>{const im=e.target.closest('img[data-pi]');if(im)window.plPhotoView_(list,+im.dataset.pi)}},()=>{off();gal.innerHTML='<span class="empty">Không tải được ảnh.</span>'});
  };
  document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('.pl-prog-link[data-prog]');if(!t)return;e.stopPropagation();e.preventDefault();window.plProgOpen_(t.dataset.prog)},true);
 })();
@@ -12582,14 +12586,16 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
     $('plvSum').textContent=(r?'Đang chọn: '+r.HO_TEN+' · ':'')+`${n(x=>x.TRANG_THAI===IN)} khách đang trong tòa nhà · ${n(x=>x.TRANG_THAI===BOOK)} hẹn trước · ${n(x=>x.TRANG_THAI===OUT&&x.NGAY===t)} đã ra hôm nay`;
     $('plvDuty').innerHTML='Tự cập nhật mỗi phút · Người trực: <b>'+esc(staff())+'</b>'}
   function render(){if(!build())return;
-    if(!Array.isArray(core().visitors)){$('plvRows').innerHTML='<tr><td colspan="14" class="plv-empty">Đang tải danh sách khách…</td></tr>';if(!S.asked){S.asked=true;fetchDirect()}}
+    const wrap=$('plVisitor').querySelector('.plv-tablewrap');
+    if(!Array.isArray(core().visitors)){$('plvRows').innerHTML='<tr><td colspan="14" class="plv-empty">&nbsp;</td></tr>';if(!S.ov&&window.plLoadOv_)S.ov=window.plLoadOv_(wrap,'Đang tải danh sách khách…');if(!S.asked){S.asked=true;fetchDirect()}}
+    else if(S.ov){S.ov();S.ov=null}
     fill();kpi();if(Array.isArray(core().visitors))list();const d=new Date();$('plvSync').textContent='● Đã đồng bộ lúc '+pad(d.getHours())+':'+pad(d.getMinutes());foot();
     requestAnimationFrame(()=>{const el=$('plVisitor');if(el&&el.offsetParent)document.documentElement.style.setProperty('--plv-top',Math.round(el.getBoundingClientRect().top+window.scrollY)+'px')});
     clearInterval(S.timer);S.timer=setInterval(()=>{if((typeof APP!=="undefined")&&APP.currentPage==='visitors'){kpi();if(S.tab!=='hist')list()}else clearInterval(S.timer)},60000)}
   // Dự phòng: gọi thẳng máy chủ khi bộ tải trang chưa trả dữ liệu khách; lỗi (vd. chưa cập nhật Code.gs) hiện ngay trên bảng.
   function fetchDirect(){const run=window.google&&google.script&&google.script.run;if(!run)return;
     run.withSuccessHandler(r=>{if(typeof APP!=="undefined")APP.core=Object.assign({},APP.core||{},(r&&r.core)||{});if(!Array.isArray(core().visitors)&&typeof APP!=="undefined")APP.core.visitors=[];render()})
-      .withFailureHandler(e=>{const m=String(e&&e.message||e);$('plvRows').innerHTML='<tr><td colspan="14" class="plv-empty" style="color:#b91c1c">Không tải được danh sách khách: '+esc(m)+(/not found|không tìm thấy/i.test(m)?'<br>→ Cần dán Code.gs bản mới rồi Deploy phiên bản mới.':'')+'</td></tr>';S.asked=false})
+      .withFailureHandler(e=>{if(S.ov){S.ov();S.ov=null}const m=String(e&&e.message||e);$('plvRows').innerHTML='<tr><td colspan="14" class="plv-empty" style="color:#b91c1c">Không tải được danh sách khách: '+esc(m)+(/not found|không tìm thấy/i.test(m)?'<br>→ Cần dán Code.gs bản mới rồi Deploy phiên bản mới.':'')+'</td></tr>';S.asked=false})
       .getVisitorBundleV165(true)}
   function countMates(){const n=mates($('plvNGUOI_DI_CUNG').value).length;$('plvMates').textContent=n?n+' người':''}
   // Khách quen: tra theo SĐT hoặc CCCD (≥9 số) → tự điền ô còn trống (nền xanh), cảnh báo khách đang ở, gợi ý lịch hẹn hôm nay.
@@ -12700,7 +12706,12 @@ html[data-theme="dark"] #plC3Pop{background:#1f2937;color:#e5e7eb;border-color:#
 .plv-ghost{border:1px solid #cbd5e1;background:#fff;border-radius:9px;padding:0 14px;font-weight:800;cursor:pointer}
 .plv-tabs{display:flex;gap:2px;border-bottom:2px solid #e2e8f0;margin-bottom:6px;overflow-x:auto;flex:none}.plv-tabs button{border:0;background:none;padding:7px 12px;font-weight:700;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap}.plv-tabs button[data-n]:not([data-n=""])::after{content:" (" attr(data-n) ")"}.plv-tabs .on{color:#a71936;border-color:#a71936}
 .plv-search{display:flex;gap:6px;margin-bottom:6px;flex:none;flex-wrap:wrap}.plv-search>input{flex:1 1 240px;height:32px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit}.plv-hist{display:none;gap:6px}.plv.hist .plv-hist{display:flex}.plv-hist input{height:32px;border:1px solid #cbd5e1;border-radius:8px;padding:0 6px}.plv-hist button{height:32px;border:0;border-radius:8px;background:#a71936;color:#fff;font-weight:700;padding:0 14px;cursor:pointer}
-.plv-tablewrap{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid #e2e8f0;border-radius:8px}
+.plv-tablewrap{flex:1 1 auto;min-height:0;overflow:auto;border:1px solid #e2e8f0;border-radius:8px;position:relative;min-height:180px}
+.pl-load-ov{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.45);border-radius:inherit}
+.pl-load-ov .bx{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 32px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(15,23,42,.22);color:#0f172a;text-align:center}
+.pl-load-ov .bx b{font-size:15px;font-weight:600}.pl-load-ov .bx small{font-size:12.5px;color:#64748b}
+.pl-load-ov .bx i{width:40px;height:40px;border-radius:50%;border:4px solid #dbeafe;border-top-color:#2563eb;animation:plLoadSpin .8s linear infinite}
+@keyframes plLoadSpin{to{transform:rotate(360deg)}}
 .plv-table{width:100%;min-width:1340px;border-collapse:collapse;table-layout:fixed}#visitors .plv-table :is(th,td){font-size:12.5px!important;line-height:1.35}#visitors .plv-table th{font-size:12px!important}.plv-table th{position:sticky;top:0;z-index:1;background:#eef2f7;font-size:12px;padding:7px 6px;text-align:left;border-bottom:1px solid #dbe2ea;white-space:nowrap}
 .plv-table :is(th,td){overflow:hidden;text-overflow:ellipsis}.plv-table td{padding:6px;border-bottom:1px solid #eef2f7;white-space:nowrap;vertical-align:middle}.plv-table :is(th,td).c{text-align:center}.plv-table tbody tr:nth-child(even) td{background:#fbfcfe}.plv-hen{color:#1d4ed8;font-weight:700}.plv-eye{border:0;background:none;padding:0;font:inherit;color:#64748b;cursor:pointer;letter-spacing:1px}.plv-eye:hover{color:#a71936}.plv-cccd{color:#a71936;letter-spacing:.5px;font-family:monospace}
 .plv-pw{padding:16px}.plv-pw label{display:block;font-weight:700;font-size:12px;color:#475569;margin-bottom:4px}.plv-pw input{width:100%;box-sizing:border-box;height:36px;border:1px solid #cbd5e1;border-radius:8px;padding:0 10px;font:inherit}.plv-pw small{display:block;color:#b91c1c;margin-top:6px;min-height:16px}
