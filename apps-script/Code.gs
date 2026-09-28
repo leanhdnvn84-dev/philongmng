@@ -2593,6 +2593,7 @@ function legacyV22DispatchNoAuth_(fn, args, user) {
 
     case 'getProposalList': requirePermission_(user,MODULES.PROPOSAL,'XEM'); return legacyProposalList_();
     case 'exportProposalFileV8414': requirePermission_(user,MODULES.PROPOSAL,'IN_XUAT'); return exportProposalFileV8414_(user,args[0],args[1]);
+    case 'getProposalMaterialBundle': requirePermission_(user,MODULES.PROPOSAL,'XEM'); return getProposalMaterialBundleV170_(args[0]||{});
     case 'saveProposalMaterialBundleV84149': return saveProposalMaterialBundleV84149_(user,args[0]||{});
     case 'saveOperationDetailV841531': return saveOperationDetailV841531_(user,args[0]||{});
     case 'saveProposal': requirePermission_(user,MODULES.PROPOSAL,(args[0]&&args[0].ID)?'SUA':'THEM'); return legacySaveProposal_(args[0]||{});
@@ -4840,6 +4841,19 @@ function exportProposalFileV8414_(user,id,format){
 }
 
 // V84.14.9 - Lưu một đề xuất mua vật tư gồm một hồ sơ tổng và nhiều dòng chi tiết.
+// Sửa đề xuất mua vật tư: đọc ĐẦY ĐỦ phiếu (phiếu chính + mọi dòng vật tư + tên/ĐVT vật tư) thẳng từ Sheet.
+function proposalMaterialLinesViewV170_(masterId,master){
+  const mats=indexBy_(readObjects_(V22.SHEETS.materials),'ID');
+  return readObjects_(V22.SHEETS.proposalBuyMaterial).filter(function(x){return String(x.ID_DE_XUAT||'')===masterId;}).map(function(x){
+    const m=mats[String(x.ID_VAT_TU||'')]||{};return Object.assign({},x,{TEN_VAT_TU:x.TEN_VAT_TU||m.TEN_VAT_TU||m.TEN||'',DVT:x.DVT||m.DVT||m.DON_VI_TINH||'',NHA_CUNG_CAP_HIEN_THI:x.NHA_CUNG_CAP_HIEN_THI||x.NHA_CUNG_CAP||'',
+      MUC_DICH_LY_DO:x.MUC_DICH_LY_DO||(master&&master.NOI_DUNG)||'',NGAY_DE_XUAT:dateOnly_(x.NGAY_DE_XUAT||(master&&master.NGAY_DE_XUAT))||''});});
+}
+function getProposalMaterialBundleV170_(input){
+  const id=String(input&&input.ID_DE_XUAT||'').trim();if(!id)throw new Error('PROPOSAL_ID_REQUIRED');
+  const master=findById_(V22.SHEETS.proposals,'ID',id)||{};
+  const m=Object.assign({},master,{NGAY_DE_XUAT:dateOnly_(master.NGAY_DE_XUAT)||''});
+  return {ok:true,master:m,lines:proposalMaterialLinesViewV170_(id,master)};
+}
 function saveProposalMaterialBundleV84149_(user,input){
   input=input||{};const requestedMasterId=String(input.ID_DE_XUAT||'').trim(),action=requestedMasterId?'SUA':'THEM';requirePermission_(user,MODULES.PROPOSAL,action);
   legacyBlockDirectApprovalV132_(V22.SHEETS.proposals,input);
@@ -4877,7 +4891,7 @@ function saveProposalMaterialBundleV84149_(user,input){
       upsertObject_(sheet,'ID',detail);return detail;
     });
     existing.forEach(function(row){if(!kept[String(row.ID||'')])archiveAndDeleteById_(sheet,'ID',row.ID,user,'PROPOSAL_MATERIAL_LINE_REMOVE');});
-    return {ok:true,ID_DE_XUAT:masterId,master:masterRecord,lines:saved,total:saved.reduce(function(sum,x){return sum+Number(x.THANH_TIEN||0);},0)};
+    return {ok:true,ID_DE_XUAT:masterId,master:masterRecord,lines:saved,view:proposalMaterialLinesViewV170_(masterId,masterRecord),total:saved.reduce(function(sum,x){return sum+Number(x.THANH_TIEN||0);},0)};
   }finally{lock.releaseLock();}
 }
 // ============================================================================
