@@ -3244,8 +3244,32 @@ function visitorSheetV165_(){
   if(!sh){sh=ss.insertSheet(VISITOR_SHEET_V165);sh.getRange(1,1,1,VISITOR_HEADERS_V165.length).setValues([VISITOR_HEADERS_V165]);try{sh.setFrozenRows(1)}catch(e){}
     ['SDT','GIAY_TO','GIO_VAO','GIO_RA','GIO_HEN','NGAY','NGAY_HEN'].forEach(function(h){sh.getRange(1,VISITOR_HEADERS_V165.indexOf(h)+1,sh.getMaxRows(),1).setNumberFormat('@');});
     invalidateSheetV20_(VISITOR_SHEET_V165,false);}
-  else VISITOR_HEADERS_V165.forEach(function(h){ensureSheetColumnV8427_(VISITOR_SHEET_V165,h);});
+  else visitorHeadersV168_(sh);
   return sh;
+}
+// Sheet tạo tay (tiêu đề tiếng Việt: "Mã lượt", "Họ tên khách", "SĐT"…) → đổi tiêu đề về mã cột của app;
+// dòng nhập tay thiếu mã lượt → tự cấp mã K…; thiếu trạng thái → suy từ giờ vào / giờ ra. Chạy mỗi lần tải trang (nhẹ).
+const VISITOR_ALIAS_V168={MA_LUOT:'ID',MA:'ID',MA_KHACH:'ID',HO_TEN_KHACH:'HO_TEN',HO_VA_TEN:'HO_TEN',TEN_KHACH:'HO_TEN',SO_DIEN_THOAI:'SDT',DIEN_THOAI:'SDT',
+  CCCD:'GIAY_TO',CCCD_GIAY_TO:'GIAY_TO',GIAY_TO_TUY_THAN:'GIAY_TO',NGUOI_DI_KEM:'NGUOI_DI_CUNG',NOI_DUNG_CONG_VIEC:'NOI_DUNG',BIEN_SO:'BIEN_SO_XE',NGUOI_DANG_KI:'NGUOI_DANG_KY'};
+function visitorHeadersV168_(sh){
+  const lastCol=sh.getLastColumn();if(lastCol<1)return 0;
+  const head=sh.getRange(1,1,1,lastCol).getValues()[0].map(function(h){return String(h||'').trim();});let renamed=0;
+  head.forEach(function(h,i){if(!h||VISITOR_HEADERS_V165.indexOf(h)>=0)return;let k=norm_(h).replace(/[^A-Z0-9_]+/g,'_').replace(/^_+|_+$/g,'');k=VISITOR_ALIAS_V168[k]||k;
+    if(VISITOR_HEADERS_V165.indexOf(k)>=0&&head.indexOf(k)<0){sh.getRange(1,i+1).setValue(k);head[i]=k;renamed++;}});
+  if(renamed)invalidateSheetV20_(VISITOR_SHEET_V165,false);
+  VISITOR_HEADERS_V165.forEach(function(h){ensureSheetColumnV8427_(VISITOR_SHEET_V165,h);});
+  return renamed;
+}
+function repairVisitorSheetV168_(){
+  const sh=getSheet_(VISITOR_SHEET_V165),last=sh.getLastRow();if(last<2)return 0;
+  const H=getHeaders_(VISITOR_SHEET_V165),iId=H.indexOf('ID'),iName=H.indexOf('HO_TEN'),iSt=H.indexOf('TRANG_THAI'),iIn=H.indexOf('GIO_VAO'),iOut=H.indexOf('GIO_RA');
+  const vals=sh.getRange(2,1,last-1,H.length).getValues();let max=0,fixed=0;
+  vals.forEach(function(r){const m=String(r[iId]||'').match(/^K(\d+)$/);if(m)max=Math.max(max,Number(m[1]));});
+  vals.forEach(function(r){if(!String(r[iName]||'').trim())return;
+    if(!String(r[iId]||'').trim()){r[iId]='K'+String(++max).padStart(6,'0');fixed++;}
+    if(!String(r[iSt]||'').trim()){r[iSt]=String(r[iOut]||'').trim()?VISITOR_STATE_V165.OUT:String(r[iIn]||'').trim()?VISITOR_STATE_V165.IN:'';if(r[iSt])fixed++;}});
+  if(fixed){sh.getRange(2,iId+1,vals.length,1).setValues(vals.map(function(r){return [r[iId]];}));sh.getRange(2,iSt+1,vals.length,1).setValues(vals.map(function(r){return [r[iSt]];}));invalidateSheetV20_(VISITOR_SHEET_V165,true);}
+  return fixed;
 }
 function visitorNowV165_(){const d=new Date();return {day:Utilities.formatDate(d,V22.TZ,'yyyy-MM-dd'),time:Utilities.formatDate(d,V22.TZ,'HH:mm'),stamp:nowStamp_()};}
 function visitorText_(v,max){return String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,max||200);}
@@ -3286,6 +3310,7 @@ function getVisitorBundleV165(force){
   beginFastRequestV20_({bypassCache:!!force});
   const started=Date.now(),user=fastReadUserV121_(),ctx=v20ctx_();
   requirePermission_(user,MODULES.WORK,'XEM');
+  visitorSheetV165_();try{const lock=LockService.getScriptLock();if(lock.tryLock(3000)){try{repairVisitorSheetV168_();}finally{lock.releaseLock();}}}catch(e){console.warn('repairVisitorSheetV168_',e);}
   const now=visitorNowV165_();
   const visitors=visitorRowsV165_().filter(function(r){const st=visitorStatusV167_(r.TRANG_THAI),d=visitorDayV165_(r.NGAY),dh=visitorDayV165_(r.NGAY_HEN);
     return st===VISITOR_STATE_V165.IN||(st===VISITOR_STATE_V165.BOOK&&(!dh||dh>=now.day))||d===now.day;}).map(visitorPublicV165_);
