@@ -21,7 +21,8 @@ const unmask = t => t.replace(/\u0000S(\d+)\u0000/g, (m, k) => scripts[+k]);
 
 // ---- 1) Luật + khai báo ứng viên trong các khối <style> tĩnh ----
 const DYN_PSEUDO = /:(hover|focus|focus-within|focus-visible|active|visited|target|checked|indeterminate|placeholder-shown|autofill|invalid|valid|default|user-invalid|open|modal|fullscreen|popover-open)\b|::|:-webkit-|:-moz-|placeholder|selection/i;
-const SKIP_PROP = /^(--|transition|animation|will-change|content$|counter-|outline)/i;
+// font-size / line-height / font: khối cỡ chữ mobile viết lại giá trị trong CSSOM lúc chạy (cộng thêm theo bộ chọn) → không thử được bằng dựng lại trang.
+const SKIP_PROP = /^(--|transition|animation|will-change|content$|counter-|outline|font-size$|line-height$|font$)/i;
 const blocks = [];
 html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/g, (m, open, css) => { blocks.push(css); return m; });
 const rules = []; // {b, node, sel}
