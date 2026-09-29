@@ -25,6 +25,11 @@ const DYN_PSEUDO = /:(hover|focus|focus-within|focus-visible|active|visited|targ
 const SKIP_PROP = /^(--|transition|animation|will-change|content$|counter-|outline|font-size$|line-height$|font$)/i;
 const blocks = [];
 html.replace(/(<style[^>]*>)([\s\S]*?)(<\/style>)/g, (m, open, css) => { blocks.push(css); return m; });
+// Biến CSS mà JS ghi lúc chạy (vd. JS đo chiều cao rồi đặt --plm-tools-h): thuộc tính nào có luật dùng các biến này
+// thì không thử — dựng lại trang mang giá trị biến đã đo nên không thấy vòng phụ thuộc JS ↔ CSS.
+const JS_VARS = new Set(scripts.join('\n').match(/--[a-zA-Z][\w-]*/g) || []);
+const JS_DEP_PROPS = new Set();
+blocks.forEach(css => postcss.parse(css).walkDecls(d => { const m = String(d.value).match(/var\(\s*(--[\w-]+)/g); if (m && m.some(x => JS_VARS.has(x.replace(/^var\(\s*/, '')))) JS_DEP_PROPS.add(d.prop.toLowerCase()); }));
 const rules = []; // {b, node, sel}
 const cands = []; // {i, r, prop, imp, node}
 const roots = blocks.map((css, b) => {
@@ -38,7 +43,7 @@ const roots = blocks.map((css, b) => {
     rule.each(d => { if (d.type === 'decl') seen[d.prop.toLowerCase()] = (seen[d.prop.toLowerCase()] || 0) + 1; });
     if (ctxBad || DYN_PSEUDO.test(rule.selector) || /dark|theme/i.test(rule.selector)) { rule.append({ prop: '--plr', value: String(r) }); return; }
     rule.each(d => {
-      if (d.type !== 'decl' || SKIP_PROP.test(d.prop) || seen[d.prop.toLowerCase()] > 1 || /var\(|env\(|attr\(|calc\(.*%/i.test(d.value)) return;
+      if (d.type !== 'decl' || SKIP_PROP.test(d.prop) || JS_DEP_PROPS.has(d.prop.toLowerCase()) || seen[d.prop.toLowerCase()] > 1 || /var\(|env\(|attr\(|calc\(.*%/i.test(d.value)) return;
       // Khai báo khác trong cùng luật (để phát hiện chồng dạng viết tắt/đầy đủ, vd. font:inherit + font-weight:400).
       const sib = []; rule.each(o => { if (o !== d && o.type === 'decl') sib.push(o.prop + ':' + o.value); });
       cands.push({ i: cands.length, r, prop: d.prop.toLowerCase(), imp: !!d.important, node: d, self: d.prop + ':' + d.value, sib });
@@ -48,6 +53,7 @@ const roots = blocks.map((css, b) => {
   return root;
 });
 const instr = roots.map(r => r.toString());
+console.error('thuộc tính phụ thuộc biến JS: ' + [...JS_DEP_PROPS].join(', '));
 console.error(`blocks ${blocks.length}, rules ${rules.length}, candidates ${cands.length} (important ${cands.filter(c => c.imp).length})`);
 
 // ---- 2) Trạng thái đã chụp ----
