@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<!-- Trang bọc philong.cloud: nhúng web app Apps Script "PHILONG BUILDING" toàn màn hình.
+     Chỉ cần sửa APP_URL bên dưới thành link /exec của bản Deploy (Deploy → Manage deployments → Web app URL).
+     Apps Script đã cho nhúng (Code.gs doGet: XFrameOptionsMode.ALLOWALL). -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#9e1730">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="PHILONG">
+<title>PHILONG BUILDING</title>
+<style>
+  html,body{margin:0;height:100%;background:#fff;overflow:hidden}
+  #app{position:fixed;inset:0;width:100%;height:100%;height:100dvh;border:0;display:block}
+  #wait{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    font:600 15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#1f2937;background:#fff;z-index:2;transition:opacity .25s}
+  #wait.hide{opacity:0;pointer-events:none}
+  #wait i{width:40px;height:40px;border-radius:50%;border:4px solid #f3d3da;border-top-color:#9e1730;animation:s .8s linear infinite}
+  #wait a{display:none;margin-top:4px;padding:9px 16px;border-radius:10px;background:#9e1730;color:#fff;text-decoration:none;font-weight:700}
+  #wait.slow a{display:inline-block}
+  #wait small{color:#64748b;font-weight:400;display:none}
+  #wait.slow small{display:block}
+  @keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="wait"><i></i><b>Đang mở PHILONG BUILDING…</b><small>Máy chủ Google khởi động hơi lâu — nếu quá lâu, mở trực tiếp:</small><a id="direct" target="_top" rel="noopener">Mở trực tiếp</a></div>
+<iframe id="app" title="PHILONG BUILDING"
+  allow="clipboard-read; clipboard-write; camera; microphone; geolocation; fullscreen; web-share"
+  allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+<script>
+  // ↓↓↓ Link web app (Deploy → Web app URL, dạng https://script.google.com/macros/s/…/exec)
+  var APP_URL = 'https://script.google.com/macros/s/THAY_BANG_MA_DEPLOY/exec';
+  var f = document.getElementById('app'), w = document.getElementById('wait');
+  document.getElementById('direct').href = APP_URL;
+  // Chuyển tiếp ?tham số và #hash của philong.cloud vào app (vd. philong.cloud/?page=work).
+  f.src = APP_URL + (location.search || '') + (location.hash || '');
+  f.addEventListener('load', function(){ w.classList.add('hide'); });
+  setTimeout(function(){ w.classList.add('slow'); }, 12000);
+</script>
+</body>
+</html>
