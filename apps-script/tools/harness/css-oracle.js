@@ -76,7 +76,9 @@ console.error(`snapshots ${snaps.length} (unique of ${files.length})`);
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 function docFor(s) {
   const attrs = s.rootAttrs.map(([k, v]) => ` ${k}="${esc(v)}"`).join('');
-  return `<!doctype html><html${attrs}><head><meta charset="utf-8">${dyn[s.vp].map(t => '<style>' + t + '</style>').join('')}</head>${s.body}</html>`;
+  // Tắt transition/animation: nếu không, getComputedStyle ngay sau khi sửa CSSOM vẫn trả giá trị CŨ (đang chuyển tiếp) → tưởng khai báo vô tác dụng.
+  const still = '<style>*,*::before,*::after{transition:none!important;animation:none!important}</style>';
+  return `<!doctype html><html${attrs}><head><meta charset="utf-8">${dyn[s.vp].map(t => '<style>' + t + '</style>').join('')}${still}</head>${s.body}</html>`;
 }
 
 // ---- 3) Hàm chạy trong trang ----
