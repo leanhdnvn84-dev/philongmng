@@ -78,7 +78,8 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 function docFor(s) {
   const attrs = s.rootAttrs.map(([k, v]) => ` ${k}="${esc(v)}"`).join('');
   // Tắt transition/animation: nếu không, getComputedStyle ngay sau khi sửa CSSOM vẫn trả giá trị CŨ (đang chuyển tiếp) → tưởng khai báo vô tác dụng.
-  const still = '<style>*,*::before,*::after{transition:none!important;animation:none!important}</style>';
+  // Đặt trong @layer: !important trong layer THẮNG mọi !important ngoài layer (kể cả bộ chọn cụ thể hơn của app).
+  const still = '<style>@layer plstill{*,*::before,*::after{transition:none!important;animation:none!important}}</style>';
   return `<!doctype html><html${attrs}><head><meta charset="utf-8">${dyn[s.vp].map(t => '<style>' + t + '</style>').join('')}${still}</head>${s.body}</html>`;
 }
 
@@ -92,7 +93,7 @@ function inPage(arg) {
   const els = r => { if (matchCache[r]) return matchCache[r]; let m = []; try { m = [...document.querySelectorAll(R[r].selectorText)]; } catch (e) { m = null; } return (matchCache[r] = m); };
   const longhands = st => { const o = {}; for (let k = 0; k < st.length; k++) o[st[k]] = st.getPropertyValue(st[k]) + '|' + st.getPropertyPriority(st[k]); return o; };
   const cs = new Map(); const comp = el => { let c = cs.get(el); if (!c) { c = getComputedStyle(el); cs.set(el, c); } return c; };
-  const out = { live: [], needRemove: [], needImp: [], diffs: [], keys: [] };
+  const out = { live: [], needRemove: [], needImp: [], diffs: [], keys: [], dbgHits: null };
   // Khóa cascade của phần tử = tập luật khớp + style inline. Phần tử có khóa đã thử ở trạng thái trước → bỏ qua.
   const ruleOf = new Map();
   for (const id in R) { let m; try { m = document.querySelectorAll(R[id].selectorText); } catch (e) { continue; } for (const el of m) { let a = ruleOf.get(el); if (!a) ruleOf.set(el, a = []); a.push(id); } }
@@ -119,8 +120,11 @@ function inPage(arg) {
         st.removeProperty(c.prop); const after = longhands(st);
         const props = Object.keys(before).filter(k => !(k in after));
         st.cssText = saved; const a = snap(props);
-        st.removeProperty(c.prop); const b = snap(props); st.cssText = saved;
+        st.removeProperty(c.prop); const b = snap(props);
+        if (c.dbg) { const el = m[0], hits = []; const w = (rs, ctx) => { for (const r of rs) { if (r.cssRules && !r.selectorText) { w(r.cssRules, ctx + '@'); continue; } if (!r.style) continue; let ok = false; try { ok = el.matches(r.selectorText); } catch (e) {} if (ok && r.style.getPropertyValue(c.prop)) hits.push(ctx + r.selectorText.slice(0, 60) + '=' + r.style.getPropertyValue(c.prop) + ' plr=' + r.style.getPropertyValue('--plr')); } }; for (const sh of document.styleSheets) w(sh.cssRules, ''); out.dbgHits = hits.concat(['self-after=' + st.getPropertyValue(c.prop) + ' inline=' + el.getAttribute('style')]); }
+        st.cssText = saved;
         if (a.join('\u0002') !== b.join('\u0002')) out.needRemove.push(c.i);
+        if (c.dbg) out.dbg = { props, n: m.length, all: all.length, a: a.slice(0, 3), b: b.slice(0, 3), sel: rule.selectorText.slice(0, 80) };
       }
       if (c.testImp) {
         const props = Object.keys(before).filter(k => before[k].endsWith('|important'));
@@ -167,13 +171,15 @@ function inPage(arg) {
   const t0 = Date.now();
   for (let k = 0; k < snaps.length; k++) {
     const s = snaps[k], p = await load(s);
-    const todo = cands.filter(c => !needRemove.has(c.i) || (c.imp && !needImp.has(c.i))).map(c => ({ i: c.i, r: c.r, prop: c.prop, testRemove: !needRemove.has(c.i), testImp: c.imp && !needImp.has(c.i), self: c.self, sib: c.sib }));
+    const todo = cands.filter(c => !needRemove.has(c.i) || (c.imp && !needImp.has(c.i))).map(c => ({ i: c.i, r: c.r, prop: c.prop, testRemove: !needRemove.has(c.i), testImp: c.imp && !needImp.has(c.i), self: c.self, sib: c.sib, dbg: String(c.i) === process.env.WATCHI }));
     const o = await p.evaluate(inPage, { cands: todo, mode: 'test', removed: [], dropped: [], seen });
     if (o.keys.length) { seen.push(...o.keys); useful.push(s); }
+    if (o.dbg) console.error('DBG', s.f, JSON.stringify(o.dbg), JSON.stringify(o.dbgHits));
     o.live.forEach(i => live.add(i)); o.needRemove.forEach(i => needRemove.add(i)); o.needImp.forEach(i => needImp.add(i));
     o.overlap.forEach(i => { needRemove.add(i); needImp.add(i); });
     if (k % 25 === 0) console.error(`[${k + 1}/${snaps.length}] ${Math.round((Date.now() - t0) / 1000)}s useful ${useful.length} keys ${seen.length} live ${live.size} needRemove ${needRemove.size} needImp ${needImp.size}`);
   }
+  if (process.env.WATCH) cands.filter(c => rules[c.r].node.selector.includes(process.env.WATCH)).forEach(c => console.error('WATCH', c.i, rules[c.r].node.selector.replace(/\s+/g, ' ').slice(0, 80), c.self, 'live', live.has(c.i), 'needRemove', needRemove.has(c.i), 'needImp', needImp.has(c.i)));
   let removed = cands.filter(c => live.has(c.i) && !needRemove.has(c.i)).map(c => c.i);
   let dropped = cands.filter(c => c.imp && live.has(c.i) && needRemove.has(c.i) && !needImp.has(c.i)).map(c => c.i);
   console.error(`độc lập: bỏ được ${removed.length} khai báo, bỏ !important ${dropped.length}`);
