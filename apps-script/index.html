@@ -8720,7 +8720,9 @@ document.addEventListener('click',e=>{if(e.target.closest('#daily [data-pld-day]
     state.releaseTimer=window.setTimeout(function(){
       if(!state.released){
         hideGate();
-        if(typeof window.setStatus==='function')window.setStatus('Đang đồng bộ dữ liệu Công việc...','');
+        // Chỉ khi vẫn đang ở Công việc: setStatus ghi vào chân bảng của TRANG ĐANG MỞ — nếu người dùng đã sang
+        // trang khác (vd. Kho vật tư đã tải xong) thì dòng này làm chân bảng trang đó kẹt "Đang đồng bộ..." mãi.
+        if(typeof window.setStatus==='function'&&typeof APP!=='undefined'&&APP.currentPage==='work')window.setStatus('Đang đồng bộ dữ liệu Công việc...','');
       }
     },4500);
     window.showPage('work');
