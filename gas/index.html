@@ -3266,6 +3266,44 @@ html#plMobileViewport[data-theme="dark"] .pm-panel .pm-theme::before{content:"�
   box-shadow:0 2px 8px rgba(0,0,0,.15);
   font-size:20px;
 }
+/* Thanh nút menu mobile dưới đáy: Menu · Công việc · Bảo trì · Thiết bị · Tài khoản.
+   Nút Menu trên thanh thay cho bong bóng ☰; nút lên đầu trang và bảng menu nằm trên thanh. */
+#plMobileViewport .pm-nav{
+  display:flex;
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:9050;
+  height:calc(58px + env(safe-area-inset-bottom));
+  padding:0 4px env(safe-area-inset-bottom);
+  background:var(--plm-surface);
+  border-top:1px solid var(--plm-line);
+  box-shadow:0 -2px 10px rgba(0,0,0,.08);
+}
+#plMobileViewport .pm-nav>button{
+  flex:1 1 0;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  border:0;
+  background:transparent;
+  color:var(--plm-muted);
+  font-size:calc(11px);
+  font-weight:600;
+  line-height:1.1;
+  white-space:nowrap;
+}
+#plMobileViewport .pm-nav>button>span{font-size:calc(20px);line-height:1}
+#plMobileViewport .pm-nav>button.active{color:var(--plm-accent)}
+#plMobileViewport .pm-nav>button:active{background:var(--plm-surface-soft)}
+#plMobileViewport .pm-bubble{display:none!important}
+#plMobileViewport .pm-top{bottom:calc(58px + 10px + env(safe-area-inset-bottom))}
+#plMobileViewport .pm-panel[open]{inset:auto auto calc(58px + 8px + env(safe-area-inset-bottom)) 10px;max-height:calc(100dvh - 58px - 58px - env(safe-area-inset-bottom))}
+#plMobileViewport body:has(>#plStartupGateV841592:not([hidden])) .pm-nav{display:none!important}
 #plMobileViewport :is(.v17-dialog,.v25-view-dialog,.operation-dialog-v841420,.operation-edit-dialog-v841531,#plw85View .card,.pld-view-card){
   width:calc(100vw - 16px)!important;
   max-width:100%!important;
