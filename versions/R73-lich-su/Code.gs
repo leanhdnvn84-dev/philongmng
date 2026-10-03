@@ -25,13 +25,14 @@ const WORK_HISTORY_HEADERS = [
 const FORM_TEMPLATE_HEADERS = [
   'ID_BIEU_MAU', 'MA_BIEU_MAU', 'TEN_BIEU_MAU', 'NHOM_BIEU_MAU',
   'MO_TA', 'TRANG_THAI', 'THU_TU', 'NGAY_CAP_NHAT', 'LOAI_MAU',
-  'PHAM_VI_SU_DUNG', 'CAN_CU_PHAP_LY', 'MAU_CHUAN', 'LINK_MAU_GOC'
+  'PHAM_VI_SU_DUNG', 'CAN_CU_PHAP_LY', 'MAU_CHUAN', 'LINK_MAU_GOC', 'PHAN_HE'
 ];
 
 const FORM_REQUEST_HEADERS = [
   'ID_PHIEU', 'ID_BIEU_MAU', 'TEN_BIEU_MAU', 'MA_NHAN_VIEN', 'HO_VA_TEN',
   'NGAY_LAP', 'TIEU_DE', 'NOI_DUNG', 'TRANG_THAI', 'NGUOI_TAO', 'NGAY_TAO',
-  'NGUOI_DUYET', 'NGAY_DUYET', 'GHI_CHU', 'DU_LIEU_MAU_JSON'
+  'NGUOI_DUYET', 'NGAY_DUYET', 'GHI_CHU', 'DU_LIEU_MAU_JSON',
+  'SO_VAN_BAN', 'LOAI_VAN_BAN', 'PHONG_BAN', 'DOI_TAC', 'NGAY_HIEU_LUC', 'NGAY_HET_HAN', 'GIA_TRI', 'MUC_BAO_MAT', 'LINK_FILE'
 ];
 
 const FORM_TEMPLATE_SEEDS = [
@@ -49,8 +50,56 @@ const FORM_TEMPLATE_SEEDS = [
   ['FM_CAP_PHAT_TAI_SAN', 'BM-TS-01', 'Mẫu cấp phát tài sản', 'Tài sản', 'Ghi nhận cấp phát, bàn giao hoặc thu hồi tài sản, công cụ làm việc.', 12],
   ['FM_BHXH_01B', '01B-HSB', 'Mẫu 01B-HSB - Danh sách đề nghị BHXH', 'BHXH', 'Danh sách do đơn vị sử dụng lao động lập để đề nghị giải quyết chế độ ốm đau, thai sản, dưỡng sức phục hồi sức khỏe.', 13],
   ['FM_BHXH_13', '13-HSB', 'Mẫu 13-HSB - Giấy ủy quyền BHXH', 'BHXH', 'Giấy ủy quyền lĩnh thay hoặc thực hiện thủ tục BHXH; không dùng thay mẫu ủy quyền nội bộ.', 14],
-  ['FM_BHXH_14', '14-HSB', 'Mẫu 14-HSB - Đơn đề nghị BHXH', 'BHXH', 'Đơn đề nghị BHXH dùng theo đúng thủ tục áp dụng, không dùng như mẫu đề nghị chung.', 15]
+  ['FM_BHXH_14', '14-HSB', 'Mẫu 14-HSB - Đơn đề nghị BHXH', 'BHXH', 'Đơn đề nghị BHXH dùng theo đúng thủ tục áp dụng, không dùng như mẫu đề nghị chung.', 15],
+  ["FM_HD_KINH_TE", "BM-HD-02", "Hợp đồng kinh tế – dịch vụ", "Hợp đồng", "Hợp đồng mua bán, nguyên tắc, dịch vụ, thuê, thi công, bảo trì, vận chuyển, hợp tác, đại lý, gia công, tư vấn, phần mềm.", 16],
+  ["FM_PHU_LUC_HD", "BM-HD-03", "Phụ lục hợp đồng", "Phụ lục hợp đồng", "Gia hạn, điều chỉnh giá trị, khối lượng, thời gian, phạm vi công việc hoặc thông tin các bên.", 17],
+  ["FM_BB_HOP_DONG", "BM-HD-04", "Biên bản nghiệm thu – thanh lý hợp đồng", "Biên bản hợp đồng", "Biên bản nghiệm thu, bàn giao, đối chiếu, xác nhận khối lượng, thanh lý hợp đồng.", 18],
+  ["FM_THOA_THUAN", "BM-HD-05", "Cam kết – Thỏa thuận", "Cam kết – Thỏa thuận", "Cam kết, bảo mật (NDA), biên bản ghi nhớ (MOU), thỏa thuận nguyên tắc, trách nhiệm, sử dụng tài sản.", 19],
+  ["FM_TO_TRINH", "BM-HC-01", "Tờ trình", "Tờ trình", "Xin chủ trương, phê duyệt mua sắm, thanh toán, đầu tư, nhân sự, ngân sách, sửa chữa.", 20],
+  ["FM_BIEN_BAN", "BM-HC-02", "Biên bản họp – làm việc", "Biên bản", "Biên bản họp, làm việc, xác nhận, kiểm tra.", 21],
+  ["FM_QUYET_DINH", "BM-HC-03", "Quyết định", "Quyết định", "Bổ nhiệm, miễn nhiệm, điều chuyển, tiếp nhận, tăng lương, khen thưởng, kỷ luật, thành lập tổ/ban, phân công.", 22],
+  ["FM_THONG_BAO", "BM-HC-04", "Thông báo", "Thông báo", "Thông báo nội bộ, nghỉ lễ, lịch làm việc, nhân sự, chính sách, sự kiện, thay đổi quy định.", 23],
+  ["FM_CONG_VAN", "BM-HC-05", "Công văn", "Công văn", "Công văn đi, đến, đề nghị, trả lời, phúc đáp, giải trình, xác nhận.", 24],
+  ["FM_GIAY_GIOI_THIEU", "BM-HC-06", "Giấy giới thiệu", "Giấy giới thiệu", "Giới thiệu đi công tác, liên hệ đối tác, ngân hàng, cơ quan nhà nước.", 25],
+  ["FM_CONG_TAC", "BM-HC-07", "Đề nghị công tác", "Công tác", "Đề nghị công tác, kế hoạch công tác, quyết toán công tác phí.", 26],
+  ["FM_SU_CO", "BM-HC-08", "Biên bản sự cố – vi phạm", "Sự cố – vi phạm", "Biên bản sự cố, vi phạm, mất tài sản, hư hỏng, bồi thường, giải trình.", 27],
+  ["FM_KE_HOACH", "BM-HC-09", "Kế hoạch", "Kế hoạch", "Kế hoạch ngày, tuần, tháng, năm; kinh doanh, nhân sự, mua sắm, bảo trì, ngân sách.", 28],
+  ["FM_BAO_CAO", "BM-HC-10", "Báo cáo", "Báo cáo", "Báo cáo công việc, kinh doanh, tài chính, nhân sự, kho, kỹ thuật, bảo trì, sự cố.", 29],
+  ["FM_DON_KHAC", "BM-NS-02", "Đơn (các loại)", "Mẫu đơn", "Đơn xin nghỉ không lương, nghỉ việc, xin việc, điều chuyển, xác nhận, đề nghị, khiếu nại, giải trình.", 30],
+  ["FM_NHAN_SU", "BM-NS-03", "Phiếu nhân sự", "Nhân sự", "Phiếu thông tin nhân viên, tiếp nhận, đánh giá thử việc, đánh giá định kỳ, tăng lương, nghỉ việc.", 31],
+  ["FM_CHAM_CONG", "BM-NS-04", "Đăng ký chấm công – tăng ca", "Chấm công – nghỉ phép", "Đăng ký tăng ca, đi muộn/về sớm, công tác, điều chỉnh chấm công.", 32],
+  ["FM_LUONG", "BM-NS-05", "Lương – chế độ", "Lương – chế độ", "Bảng lương, phụ cấp, thưởng, đề nghị tăng lương, xác nhận thu nhập.", 33],
+  ["FM_TUYEN_DUNG_HS", "BM-NS-06", "Hồ sơ tuyển dụng", "Tuyển dụng", "Mô tả công việc (JD), đánh giá phỏng vấn, thư mời nhận việc.", 34],
+  ["FM_DAO_TAO", "BM-NS-07", "Hồ sơ đào tạo", "Đào tạo", "Kế hoạch đào tạo, danh sách học viên, đánh giá kết quả, chứng nhận.", 35],
+  ["FM_KHEN_THUONG_KY_LUAT", "BM-NS-08", "Khen thưởng – kỷ luật", "Khen thưởng – kỷ luật", "Đề xuất khen thưởng, đề xuất kỷ luật, biên bản, bản giải trình.", 36],
+  ["FM_PHIEU_THU_CHI", "BM-TC-01", "Phiếu thu – chi", "Phiếu thu – chi", "Phiếu thu, phiếu chi, đề nghị chi, xác nhận thu/chi.", 37],
+  ["FM_KE_TOAN", "BM-TC-02", "Chứng từ kế toán", "Tài chính – kế toán", "Hóa đơn, chứng từ, ủy nhiệm chi (UNC), đối chiếu công nợ, quyết toán.", 38],
+  ["FM_CONG_NO", "BM-TC-03", "Công nợ khách hàng", "Khách hàng – công nợ", "Xác nhận công nợ, đề nghị thanh toán, cam kết thanh toán, gia hạn công nợ.", 39],
+  ["FM_DE_NGHI_MUA_HANG", "BM-MH-01", "Đề nghị mua hàng", "Đề nghị mua hàng", "Đề nghị mua vật tư, thiết bị, công cụ dụng cụ, hàng hóa, dịch vụ.", 40],
+  ["FM_DON_DAT_HANG", "BM-MH-02", "Đơn đặt hàng (PO)", "Đơn đặt hàng", "PO mua hàng, đặt dịch vụ, đặt vật tư, thiết bị.", 41],
+  ["FM_NHA_CUNG_CAP", "BM-MH-03", "Hồ sơ nhà cung cấp", "Nhà cung cấp", "Hồ sơ nhà cung cấp, đánh giá NCC, báo giá, so sánh giá.", 42],
+  ["FM_NGHIEM_THU", "BM-MH-04", "Biên bản nghiệm thu", "Nghiệm thu", "Nghiệm thu hàng hóa, thiết bị, dịch vụ, công việc, thi công, khối lượng.", 43],
+  ["FM_KHO", "BM-KO-01", "Phiếu kho", "Kho – vật tư", "Phiếu nhập kho, xuất kho, chuyển kho, trả hàng, điều chỉnh tồn.", 44],
+  ["FM_KIEM_KE", "BM-KO-02", "Biên bản kiểm kê", "Kiểm kê", "Kiểm kê hàng hóa, kho, tài sản, thiết bị, công cụ dụng cụ.", 45],
+  ["FM_TAI_SAN", "BM-TS-02", "Phiếu tài sản – thiết bị", "Tài sản – thiết bị", "Thu hồi, điều chuyển, sửa chữa, bảo hành, bảo trì tài sản và thiết bị.", 46],
+  ["FM_THANH_LY", "BM-TS-03", "Biên bản thanh lý", "Thanh lý", "Thanh lý tài sản, thiết bị, hàng hóa, công cụ dụng cụ.", 47],
+  ["FM_BAO_GIA", "BM-KD-01", "Báo giá", "Báo giá", "Báo giá bán hàng, dịch vụ, thi công, sửa chữa.", 48],
+  ["FM_KINH_DOANH", "BM-KD-02", "Đề xuất kinh doanh", "Kinh doanh", "Đề xuất giá, chính sách giá, chiết khấu, đơn hàng, xác nhận đơn hàng.", 49],
+  ["FM_MARKETING", "BM-KD-03", "Marketing – sự kiện", "Marketing – sự kiện", "Kế hoạch, đề xuất ngân sách, duyệt nội dung, nghiệm thu, quyết toán sự kiện.", 50],
+  ["FM_PHIEU_YEU_CAU", "BM-KT-01", "Phiếu yêu cầu", "Phiếu yêu cầu", "Yêu cầu IT Support, sửa chữa, bảo trì, cấp quyền, cấp thiết bị, vật tư, dịch vụ.", 51],
+  ["FM_BAO_TRI", "BM-KT-02", "Bảo trì – kỹ thuật", "Bảo trì – kỹ thuật", "Kế hoạch bảo trì, nhật ký, biên bản sửa chữa, nghiệm thu.", 52],
+  ["FM_CNTT", "BM-KT-03", "CNTT – tài khoản hệ thống", "CNTT – hệ thống", "Cấp tài khoản, cấp quyền, thay đổi quyền, bàn giao tài khoản, thu hồi quyền.", 53],
+  ["FM_CHECKLIST", "BM-KT-04", "Checklist kiểm tra", "Checklist", "Kiểm tra công việc, thiết bị, bảo trì, vệ sinh, an toàn, bàn giao.", 54],
+  ["FM_AN_TOAN", "BM-KT-05", "An toàn – PCCC", "An toàn – PCCC", "Biên bản kiểm tra, checklist, kế hoạch, hồ sơ huấn luyện, xử lý sự cố an toàn – PCCC.", 55],
+  ["FM_QUY_TRINH", "BM-PL-01", "Quy trình", "Quy trình", "Quy trình mua hàng, bán hàng, thanh toán, kho, nhân sự, tài sản, bảo trì, phê duyệt.", 56],
+  ["FM_QUY_DINH", "BM-PL-02", "Quy định – Quy chế", "Quy định – Quy chế", "Nội quy, quy định nhân sự, tài chính, lương thưởng, tài sản, bảo mật, sử dụng hệ thống.", 57],
+  ["FM_HUONG_DAN", "BM-PL-03", "Hướng dẫn", "Hướng dẫn", "Hướng dẫn nghiệp vụ, vận hành, sử dụng thiết bị/phần mềm, xử lý sự cố.", 58],
+  ["FM_PHAP_LY_DN", "BM-PL-04", "Hồ sơ pháp lý doanh nghiệp", "Pháp lý doanh nghiệp", "Đăng ký kinh doanh, giấy phép, chứng nhận, đăng ký, hồ sơ thay đổi doanh nghiệp.", 59],
+  ["FM_THU", "BM-PL-05", "Thư (các loại)", "Văn bản khác", "Thư mời, thư xác nhận, thư cảm ơn, thư đề nghị, thư trao đổi, hồ sơ khác.", 60]
 ];
+
+/** Phân hệ (10 nhóm lớn) của từng biểu mẫu; app dùng cột PHAN_HE để gom menu. */
+const FORM_TEMPLATE_MODULES = {"FM_HOP_DONG": "Hợp đồng", "FM_UY_QUYEN": "Hành chính", "FM_DE_XUAT": "Hành chính", "FM_BAN_GIAO": "Hành chính", "FM_NGHI_PHEP": "Nhân sự", "FM_DE_NGHI_TUYEN_DUNG": "Nhân sự", "FM_DIEU_CHUYEN_NHAN_SU": "Nhân sự", "FM_XAC_NHAN_CONG_TAC": "Nhân sự", "FM_DE_NGHI_DAO_TAO": "Nhân sự", "FM_BHXH_01B": "Nhân sự", "FM_BHXH_13": "Nhân sự", "FM_BHXH_14": "Nhân sự", "FM_DE_NGHI_THANH_TOAN": "Tài chính – Kế toán", "FM_DE_NGHI_TAM_UNG": "Tài chính – Kế toán", "FM_CAP_PHAT_TAI_SAN": "Tài sản – Thiết bị", "FM_HD_KINH_TE": "Hợp đồng", "FM_PHU_LUC_HD": "Hợp đồng", "FM_BB_HOP_DONG": "Hợp đồng", "FM_THOA_THUAN": "Hợp đồng", "FM_TO_TRINH": "Hành chính", "FM_BIEN_BAN": "Hành chính", "FM_QUYET_DINH": "Hành chính", "FM_THONG_BAO": "Hành chính", "FM_CONG_VAN": "Hành chính", "FM_GIAY_GIOI_THIEU": "Hành chính", "FM_CONG_TAC": "Hành chính", "FM_SU_CO": "Hành chính", "FM_KE_HOACH": "Hành chính", "FM_BAO_CAO": "Hành chính", "FM_DON_KHAC": "Nhân sự", "FM_NHAN_SU": "Nhân sự", "FM_CHAM_CONG": "Nhân sự", "FM_LUONG": "Nhân sự", "FM_TUYEN_DUNG_HS": "Nhân sự", "FM_DAO_TAO": "Nhân sự", "FM_KHEN_THUONG_KY_LUAT": "Nhân sự", "FM_PHIEU_THU_CHI": "Tài chính – Kế toán", "FM_KE_TOAN": "Tài chính – Kế toán", "FM_CONG_NO": "Tài chính – Kế toán", "FM_DE_NGHI_MUA_HANG": "Mua hàng – NCC", "FM_DON_DAT_HANG": "Mua hàng – NCC", "FM_NHA_CUNG_CAP": "Mua hàng – NCC", "FM_NGHIEM_THU": "Mua hàng – NCC", "FM_KHO": "Kho", "FM_KIEM_KE": "Kho", "FM_TAI_SAN": "Tài sản – Thiết bị", "FM_THANH_LY": "Tài sản – Thiết bị", "FM_BAO_GIA": "Kinh doanh", "FM_KINH_DOANH": "Kinh doanh", "FM_MARKETING": "Kinh doanh", "FM_PHIEU_YEU_CAU": "Kỹ thuật – Bảo trì", "FM_BAO_TRI": "Kỹ thuật – Bảo trì", "FM_CNTT": "Kỹ thuật – Bảo trì", "FM_CHECKLIST": "Kỹ thuật – Bảo trì", "FM_AN_TOAN": "Kỹ thuật – Bảo trì", "FM_QUY_TRINH": "Pháp lý & văn bản khác", "FM_QUY_DINH": "Pháp lý & văn bản khác", "FM_HUONG_DAN": "Pháp lý & văn bản khác", "FM_PHAP_LY_DN": "Pháp lý & văn bản khác", "FM_THU": "Pháp lý & văn bản khác"};
 
 /** Hồ sơ pháp lý chỉ dùng để phân biệt mẫu nội bộ và mẫu cơ quan nhà nước. */
 const FORM_TEMPLATE_LEGAL_PROFILES = {
@@ -838,7 +887,8 @@ function formTemplateRecord_(seed) {
     ID_BIEU_MAU: seed[0], MA_BIEU_MAU: seed[1], TEN_BIEU_MAU: seed[2], NHOM_BIEU_MAU: seed[3],
     MO_TA: seed[4], TRANG_THAI: 'Đang sử dụng', THU_TU: seed[5], NGAY_CAP_NHAT: new Date(),
     LOAI_MAU: legal.LOAI_MAU || 'Nội bộ doanh nghiệp', PHAM_VI_SU_DUNG: legal.PHAM_VI_SU_DUNG || seed[4],
-    CAN_CU_PHAP_LY: legal.CAN_CU_PHAP_LY || '', MAU_CHUAN: legal.MAU_CHUAN || 'Không có mẫu bắt buộc chung', LINK_MAU_GOC: legal.LINK_MAU_GOC || ''
+    CAN_CU_PHAP_LY: legal.CAN_CU_PHAP_LY || '', MAU_CHUAN: legal.MAU_CHUAN || 'Không có mẫu bắt buộc chung', LINK_MAU_GOC: legal.LINK_MAU_GOC || '',
+    PHAN_HE: FORM_TEMPLATE_MODULES[seed[0]] || ''
   };
 }
 
@@ -865,6 +915,11 @@ function ensureDefaultFormTemplates_(ss) {
           updated++;
         }
       });
+      if (meta.columns.PHAN_HE && FORM_TEMPLATE_MODULES[seed[0]] && !String(existing[existingIndex].PHAN_HE || '').trim()) {
+        sheet.getRange(existingIndex + 2, meta.columns.PHAN_HE).setValue(FORM_TEMPLATE_MODULES[seed[0]]);
+        existing[existingIndex].PHAN_HE = FORM_TEMPLATE_MODULES[seed[0]];
+        updated++;
+      }
       return;
     }
     var formRecord = formTemplateRecord_(seed);
@@ -906,11 +961,12 @@ function saveFormRequest(input) {
     employee = masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', employeeCode);
     if (!employee) throw new Error('Không tìm thấy nhân viên liên quan.');
   }
-  var formDataJson = String(input.DU_LIEU_MAU_JSON || '').trim();
+  var formDataJson = String(input.DU_LIEU_MAU_JSON || '').trim(), detail = {};
   if (formDataJson.length > 45000) throw new Error('Nội dung mẫu vượt quá giới hạn lưu trữ của một ô Google Sheets.');
   if (formDataJson) {
-    try { JSON.parse(formDataJson); } catch (error) { throw new Error('Dữ liệu chi tiết biểu mẫu không hợp lệ.'); }
+    try { detail = JSON.parse(formDataJson) || {}; } catch (error) { throw new Error('Dữ liệu chi tiết biểu mẫu không hợp lệ.'); }
   }
+  var shared = formSharedFields_(detail.fields || {});
   var sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet), now = new Date(), formDate = input.NGAY_LAP ? parseAttendanceDate_(input.NGAY_LAP, 'Ngày lập') : now;
   var record = {
     ID_PHIEU: 'PH_' + Utilities.getUuid(), ID_BIEU_MAU: template.ID_BIEU_MAU || template.MA_BIEU_MAU || '',
@@ -919,11 +975,26 @@ function saveFormRequest(input) {
     NOI_DUNG: String(input.NOI_DUNG || '').trim(), TRANG_THAI: 'Nháp', NGUOI_TAO: auth.username || auth.email || 'Hệ thống',
     NGAY_TAO: now, NGUOI_DUYET: '', NGAY_DUYET: '', GHI_CHU: String(input.GHI_CHU || '').trim(), DU_LIEU_MAU_JSON: formDataJson
   };
+  Object.keys(shared).forEach(function (field) { record[field] = shared[field]; });
   var rowNumber = appendFormRecord_(sheet, meta, record);
   ['ID_PHIEU', 'ID_BIEU_MAU', 'MA_NHAN_VIEN'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
   ['NGAY_LAP', 'NGAY_TAO'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm'); });
+  ['NGAY_HIEU_LUC', 'NGAY_HET_HAN'].forEach(function (field) { if (meta.columns[field] && record[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy'); });
+  ['SO_VAN_BAN', 'PHONG_BAN'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
   writeSystemLog_(ss, auth, 'BIEU_MAU', 'THEM', record.ID_PHIEU, null, record, 'Tạo phiếu biểu mẫu.');
   return { success: true, id: record.ID_PHIEU };
+}
+
+/** Tách bộ trường quản lý dùng chung từ dữ liệu biểu mẫu để lọc, nhắc hạn và báo cáo trên Sheet. */
+function formSharedFields_(fields) {
+  var text = function (key) { var value = fields[key]; if (value && typeof value === 'object') value = value.label || value.value; return String(value == null ? '' : value).trim(); };
+  var date = function (key) { var match = text(key).match(/^(\d{4})-(\d{2})-(\d{2})$/); return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : ''; };
+  var amount = Number(text('amount').replace(/[^\d.-]/g, ''));
+  return {
+    SO_VAN_BAN: text('docNumber'), LOAI_VAN_BAN: text('docType'), PHONG_BAN: text('department'), DOI_TAC: text('partner'),
+    NGAY_HIEU_LUC: date('effectiveDate'), NGAY_HET_HAN: date('expiryDate'), GIA_TRI: text('amount') && isFinite(amount) ? amount : '',
+    MUC_BAO_MAT: text('confidentiality'), LINK_FILE: text('attachment')
+  };
 }
 
 function updateFormRequestStatus(input) {
