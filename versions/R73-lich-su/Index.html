@@ -147,8 +147,8 @@
     .toast{position:fixed;right:24px;bottom:24px;border-radius:9px;padding:13px 16px;background:#172a3b;color:#fff;box-shadow:var(--shadow);opacity:0;transform:translateY(60px);transition:.2s}
     .toast.show{opacity:1;transform:none}
     .toast.error{background:#bd3e4a}
-    .profile-modern-wrap{width:min(1460px,calc(100vw - 28px));max-height:94vh;padding:0;border:1px solid #3c4d5d;background:linear-gradient(145deg,#101923,#080d14);color:#eef3f7}
-    .pm-header{display:flex;align-items:center;gap:12px;height:58px;padding:0 20px;border-bottom:1px solid #2e3d4c;background:#101821}
+    .profile-modern-wrap{width:min(1460px,calc(100vw - 28px));max-height:94vh;padding:0;border:1px solid #3c4d5d;background:linear-gradient(145deg,#101923,#080d14);color:#eef3f7;display:flex;flex-direction:column;overflow:hidden}
+    .pm-header{display:flex;align-items:center;gap:12px;height:58px;padding:0 20px;border-bottom:1px solid #2e3d4c;background:#101821;flex:0 0 auto}
     .pm-header h2{margin:0;color:#ffaaa6;font-size:20px}
     .pm-header .btn{margin-left:auto}
     .pm-close{border:0;background:transparent;color:#ffaaa6;font-size:25px}
@@ -642,8 +642,8 @@
     }
     .r72-foot{display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:#9aa7b5;font-size:12px}
     #employees.view.active>.panel .scroll{height:calc(100vh - 232px)}
-    .r72-profile{padding:18px}
-    .r72-hero{display:grid;grid-template-columns:128px minmax(0,1fr) minmax(220px,300px);gap:20px;align-items:center;margin-bottom:14px}
+    .r72-profile{padding:18px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    .r72-hero{display:grid;grid-template-columns:128px minmax(0,1fr) minmax(220px,300px);gap:20px;align-items:center;margin-bottom:14px;flex:0 0 auto}
     .r72-photo{width:118px;height:118px}
     .r72-photo em{position:absolute;left:0;right:0;bottom:16px;z-index:1;text-align:center;color:#ffd08a;font-size:10px;font-weight:700}
     .r72-hero-main h1{margin:0;font-size:24px}
@@ -653,10 +653,10 @@
     .r72-bar i{display:block;height:100%;background:linear-gradient(90deg,#c72d31,#f0a73a)}
     .r72-missing{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
     .r72-missing span{padding:2px 7px;border-radius:6px;background:#3d2a10;color:#ffd08a;font-size:11px}
-    .r72-tabs{display:flex;gap:6px;overflow:auto;margin:6px 0 14px;padding:5px;border:1px solid #334454;border-radius:10px;background:#0d151e}
+    .r72-tabs{display:flex;gap:6px;overflow:auto;margin:6px 0 14px;padding:5px;border:1px solid #334454;border-radius:10px;background:#0d151e;flex:0 0 auto}
     .r72-tab{flex:0 0 auto;border:0;border-radius:8px;padding:9px 13px;background:transparent;color:#bcc8d2;font-weight:700;cursor:pointer;white-space:nowrap}
     .r72-tab.active{background:linear-gradient(135deg,#8f1820,#c72d31);color:#fff}
-    .r72-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .r72-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;flex:1 1 auto;min-height:0;overflow-y:auto;align-content:start;padding-right:4px}
     .r72-sec{padding:14px 16px;border:1px solid #2e3d4c;border-radius:12px;background:#101821}
     .r72-sec h3{margin:0 0 11px;color:#ffaaa6;font-size:14px}
     .r72-kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:7px 12px;font-size:13px}
@@ -724,7 +724,8 @@
       .r72-foot{flex-direction:column}
       #employees.view.active>.panel .scroll{height:calc(100vh - 300px)}
     }
-  </style>
+      @media(max-height:560px){.r72-profile{overflow-y:auto}.r72-grid{flex:none;overflow:visible}}
+</style>
 </head>
 <body>
   <section class="auth-gate" id="loginGate" aria-labelledby="loginTitle">
