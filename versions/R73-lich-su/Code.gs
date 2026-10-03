@@ -32,8 +32,12 @@ const FORM_REQUEST_HEADERS = [
   'ID_PHIEU', 'ID_BIEU_MAU', 'TEN_BIEU_MAU', 'MA_NHAN_VIEN', 'HO_VA_TEN',
   'NGAY_LAP', 'TIEU_DE', 'NOI_DUNG', 'TRANG_THAI', 'NGUOI_TAO', 'NGAY_TAO',
   'NGUOI_DUYET', 'NGAY_DUYET', 'GHI_CHU', 'DU_LIEU_MAU_JSON',
-  'SO_VAN_BAN', 'LOAI_VAN_BAN', 'PHONG_BAN', 'DOI_TAC', 'NGAY_HIEU_LUC', 'NGAY_HET_HAN', 'GIA_TRI', 'MUC_BAO_MAT', 'LINK_FILE'
+  'SO_VAN_BAN', 'LOAI_VAN_BAN', 'PHONG_BAN', 'DOI_TAC', 'NGAY_HIEU_LUC', 'NGAY_HET_HAN', 'GIA_TRI', 'MUC_BAO_MAT', 'LINK_FILE',
+  'LINK_PDF', 'NGAY_LUU_PDF', 'LICH_SU', 'DA_NHAC_HAN'
 ];
+
+const FORM_REMIND_DAYS = 7;
+const FORM_DRIVE_FOLDER_NAME = 'PHI LONG HR - Văn bản biểu mẫu';
 
 const FORM_TEMPLATE_SEEDS = [
   ['FM_UY_QUYEN', 'BM-UQ-01', 'Mẫu ủy quyền', 'Ủy quyền', 'Ủy quyền nội bộ, giao nhận hồ sơ hoặc thay mặt xử lý công việc.', 1],
@@ -976,6 +980,7 @@ function saveFormRequest(input) {
     NGAY_TAO: now, NGUOI_DUYET: '', NGAY_DUYET: '', GHI_CHU: String(input.GHI_CHU || '').trim(), DU_LIEU_MAU_JSON: formDataJson
   };
   Object.keys(shared).forEach(function (field) { record[field] = shared[field]; });
+  record.LICH_SU = JSON.stringify([formHistoryEntry_(auth, 'Tạo phiếu', 'Lưu nháp')]);
   var rowNumber = appendFormRecord_(sheet, meta, record);
   ['ID_PHIEU', 'ID_BIEU_MAU', 'MA_NHAN_VIEN'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
   ['NGAY_LAP', 'NGAY_TAO'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm'); });
@@ -997,23 +1002,130 @@ function formSharedFields_(fields) {
   };
 }
 
-function updateFormRequestStatus(input) {
-  input = input || {};
-  var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', 'DUYET'), id = String(input.ID_PHIEU || '').trim(), status = String(input.TRANG_THAI || '').trim();
-  if (!id) throw new Error('Thiếu phiếu biểu mẫu cần xử lý.');
-  if (['Đã duyệt', 'Từ chối', 'Đã hủy'].indexOf(status) === -1) throw new Error('Trạng thái phiếu không hợp lệ.');
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet);
+function formHistoryEntry_(auth, action, note) {
+  return { t: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm'), u: auth && (auth.username || auth.email) || 'Hệ thống', a: action, n: note || '' };
+}
+
+function formRequestFind_(ss, id) {
+  var sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet);
   var values = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, meta.headers.length).getDisplayValues() : [];
   var index = values.findIndex(function (row) { return key_(row[meta.columns.ID_PHIEU - 1]) === key_(id); });
   if (index === -1) throw new Error('Không tìm thấy phiếu biểu mẫu.');
-  var rowNumber = index + 2, before = objectFromRow_(meta, values[index]), now = new Date();
+  return { sheet: sheet, meta: meta, rowNumber: index + 2, data: objectFromRow_(meta, values[index]) };
+}
+
+function formHistoryWrite_(found, entry) {
+  if (!found.meta.columns.LICH_SU) return;
+  var list = [];
+  try { list = JSON.parse(String(found.data.LICH_SU || '[]')) || []; } catch (error) { list = []; }
+  list.push(entry);
+  found.sheet.getRange(found.rowNumber, found.meta.columns.LICH_SU).setValue(JSON.stringify(list.slice(-60)));
+}
+
+/** Email: người tạo phiếu và/hoặc các tài khoản có quyền duyệt BIEU_MAU. Lỗi gửi mail không chặn nghiệp vụ. */
+function formNotifyEmails_(ss, options) {
+  var emails = [];
+  authAccountRows_(ss).forEach(function (item) {
+    var row = item.data, email = String(row.EMAIL || '').trim();
+    if (!email || key_(row.TRANG_THAI) === key_('Ngừng hoạt động')) return;
+    if (options.usernames && options.usernames.some(function (name) { return key_(name) === key_(row.TEN_DANG_NHAP) || key_(name) === key_(email); })) emails.push(email);
+    else if (options.approvers && (key_(row.MA_VAI_TRO) === 'role-admin' || authCan_(ss, row.MA_VAI_TRO, 'BIEU_MAU', 'DUYET'))) emails.push(email);
+  });
+  return emails.filter(function (email, index) { return emails.indexOf(email) === index; });
+}
+
+function formSendMail_(emails, subject, body) {
+  if (!emails.length) return 0;
+  try { MailApp.sendEmail({ to: emails.join(','), subject: subject, body: body }); return emails.length; } catch (error) { return 0; }
+}
+
+/**
+ * Quy trình phiếu: Nháp → Chờ duyệt (trình duyệt) → Đã duyệt / Từ chối; Nháp/Chờ duyệt/Từ chối → Đã hủy.
+ * Trình duyệt và hủy cần quyền THEM; duyệt và từ chối cần quyền DUYET.
+ */
+function updateFormRequestStatus(input) {
+  input = input || {};
+  var id = String(input.ID_PHIEU || '').trim(), status = String(input.TRANG_THAI || '').trim(), reason = String(input.LY_DO || '').trim();
+  var rules = {
+    'Chờ duyệt': { action: 'THEM', from: ['Nháp', 'Từ chối'], label: 'Trình duyệt' },
+    'Đã duyệt': { action: 'DUYET', from: ['Nháp', 'Chờ duyệt'], label: 'Duyệt / ký' },
+    'Từ chối': { action: 'DUYET', from: ['Nháp', 'Chờ duyệt'], label: 'Từ chối' },
+    'Đã hủy': { action: 'THEM', from: ['Nháp', 'Chờ duyệt', 'Từ chối'], label: 'Hủy phiếu' }
+  }, rule = rules[status];
+  if (!id) throw new Error('Thiếu phiếu biểu mẫu cần xử lý.');
+  if (!rule) throw new Error('Trạng thái phiếu không hợp lệ.');
+  var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', rule.action), ss = SpreadsheetApp.openById(SPREADSHEET_ID), found = formRequestFind_(ss, id);
+  var current = String(found.data.TRANG_THAI || 'Nháp').trim() || 'Nháp';
+  if (rule.from.map(key_).indexOf(key_(current)) === -1) throw new Error('Phiếu đang ở trạng thái "' + current + '", không thể chuyển sang "' + status + '".');
+  var sheet = found.sheet, meta = found.meta, rowNumber = found.rowNumber, before = found.data, now = new Date();
   if (meta.columns.TRANG_THAI) sheet.getRange(rowNumber, meta.columns.TRANG_THAI).setValue(status);
-  if (meta.columns.NGUOI_DUYET) sheet.getRange(rowNumber, meta.columns.NGUOI_DUYET).setValue(auth.username || auth.email || 'Hệ thống');
-  if (meta.columns.NGAY_DUYET) sheet.getRange(rowNumber, meta.columns.NGAY_DUYET).setValue(now).setNumberFormat('dd/MM/yyyy HH:mm');
+  if (rule.action === 'DUYET') {
+    if (meta.columns.NGUOI_DUYET) sheet.getRange(rowNumber, meta.columns.NGUOI_DUYET).setValue(auth.username || auth.email || 'Hệ thống');
+    if (meta.columns.NGAY_DUYET) sheet.getRange(rowNumber, meta.columns.NGAY_DUYET).setValue(now).setNumberFormat('dd/MM/yyyy HH:mm');
+  }
   if (meta.columns.GHI_CHU && Object.prototype.hasOwnProperty.call(input, 'GHI_CHU')) sheet.getRange(rowNumber, meta.columns.GHI_CHU).setValue(String(input.GHI_CHU || '').trim());
+  formHistoryWrite_(found, formHistoryEntry_(auth, rule.label, reason));
   var after = objectFromRow_(meta, sheet.getRange(rowNumber, 1, 1, meta.headers.length).getDisplayValues()[0]);
-  writeSystemLog_(ss, auth, 'BIEU_MAU', 'DUYET', id, before, after, 'Cập nhật trạng thái phiếu biểu mẫu.');
-  return { success: true };
+  writeSystemLog_(ss, auth, 'BIEU_MAU', rule.action, id, before, after, rule.label + (reason ? ': ' + reason : '') + '.');
+  var title = (before.TIEU_DE || before.TEN_BIEU_MAU || 'Phiếu biểu mẫu') + (before.SO_VAN_BAN ? ' (' + before.SO_VAN_BAN + ')' : ''), sent = 0;
+  if (status === 'Chờ duyệt') sent = formSendMail_(formNotifyEmails_(ss, { approvers: true }), '[PHI LONG HR] Phiếu chờ duyệt: ' + title, (auth.displayName || auth.username || 'Người dùng') + ' đã trình duyệt phiếu "' + title + '".\nVui lòng mở PHI LONG HR > Biểu mẫu để xem và duyệt.');
+  if (status === 'Đã duyệt' || status === 'Từ chối') sent = formSendMail_(formNotifyEmails_(ss, { usernames: [before.NGUOI_TAO] }), '[PHI LONG HR] Phiếu ' + status.toLowerCase() + ': ' + title, 'Phiếu "' + title + '" đã được ' + status.toLowerCase() + ' bởi ' + (auth.displayName || auth.username || '') + '.' + (reason ? '\nLý do: ' + reason : ''));
+  return { success: true, notified: sent };
+}
+
+function formDriveFolder_(moduleName) {
+  var store = PropertiesService.getScriptProperties(), rootId = store.getProperty('FORM_DRIVE_FOLDER_ID'), root = null;
+  if (rootId) { try { root = DriveApp.getFolderById(rootId); } catch (error) { root = null; } }
+  if (!root) { root = DriveApp.createFolder(FORM_DRIVE_FOLDER_NAME); store.setProperty('FORM_DRIVE_FOLDER_ID', root.getId()); }
+  var name = String(moduleName || 'Khác').trim() || 'Khác', folders = root.getFoldersByName(name);
+  return folders.hasNext() ? folders.next() : root.createFolder(name);
+}
+
+/** Ký → PDF → lưu Drive: chỉ cho phiếu đã duyệt; HTML do trình duyệt dựng từ đúng mẫu in. */
+function saveFormPdf(input) {
+  input = input || {};
+  var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', 'THEM'), id = String(input.ID_PHIEU || '').trim(), html = String(input.HTML || '');
+  if (!id) throw new Error('Thiếu phiếu biểu mẫu cần lưu PDF.');
+  if (!html || html.length > 2000000) throw new Error('Nội dung in không hợp lệ hoặc quá lớn.');
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), found = formRequestFind_(ss, id), row = found.data;
+  if (key_(row.TRANG_THAI) !== key_('Đã duyệt')) throw new Error('Chỉ lưu PDF cho phiếu đã duyệt.');
+  var template = formTemplateById_(ss, row.ID_BIEU_MAU) || {}, folder = formDriveFolder_(template.PHAN_HE || FORM_TEMPLATE_MODULES[row.ID_BIEU_MAU]);
+  var name = [row.SO_VAN_BAN, row.TIEU_DE || row.TEN_BIEU_MAU, row.NGAY_LAP].filter(function (part) { return String(part || '').trim(); }).join(' - ').replace(/[\\/:*?"<>|]+/g, '-').slice(0, 150) || id;
+  var pdf = Utilities.newBlob(html, 'text/html', name + '.html').getAs('application/pdf').setName(name + '.pdf'), file = folder.createFile(pdf), now = new Date();
+  if (found.meta.columns.LINK_PDF) found.sheet.getRange(found.rowNumber, found.meta.columns.LINK_PDF).setValue(file.getUrl());
+  if (found.meta.columns.NGAY_LUU_PDF) found.sheet.getRange(found.rowNumber, found.meta.columns.NGAY_LUU_PDF).setValue(now).setNumberFormat('dd/MM/yyyy HH:mm');
+  formHistoryWrite_(found, formHistoryEntry_(auth, 'Lưu PDF Drive', folder.getName() + '/' + file.getName()));
+  writeSystemLog_(ss, auth, 'BIEU_MAU', 'THEM', id, row, { LINK_PDF: file.getUrl() }, 'Lưu PDF phiếu biểu mẫu vào Google Drive.');
+  return { success: true, url: file.getUrl(), name: file.getName() };
+}
+
+/** Chạy hằng ngày (cài bằng setupFormReminderTrigger): email nhắc phiếu sắp/đã hết hạn, mỗi phiếu nhắc 1 lần/ngày hết hạn. */
+function remindFormExpiry() {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet);
+  if (sheet.getLastRow() < 2 || !meta.columns.NGAY_HET_HAN) return { success: true, reminded: 0 };
+  var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, meta.headers.length).getValues(), today = new Date(), reminded = 0;
+  today.setHours(0, 0, 0, 0);
+  values.forEach(function (values_, index) {
+    var row = objectFromRow_(meta, values_), expiry = row.NGAY_HET_HAN instanceof Date ? row.NGAY_HET_HAN : null;
+    if (!expiry || ['Đã hủy', 'Từ chối'].map(key_).indexOf(key_(row.TRANG_THAI)) !== -1) return;
+    var left = Math.round((new Date(expiry.getFullYear(), expiry.getMonth(), expiry.getDate()) - today) / 86400000), marker = Utilities.formatDate(expiry, Session.getScriptTimeZone(), 'dd/MM/yyyy');
+    if (left > FORM_REMIND_DAYS || String(row.DA_NHAC_HAN || '').indexOf(marker) !== -1) return;
+    var title = (row.TIEU_DE || row.TEN_BIEU_MAU || 'Phiếu') + (row.SO_VAN_BAN ? ' (' + row.SO_VAN_BAN + ')' : '');
+    var sent = formSendMail_(formNotifyEmails_(ss, { usernames: [row.NGUOI_TAO], approvers: true }), '[PHI LONG HR] Nhắc hạn: ' + title, 'Văn bản "' + title + '" ' + (left < 0 ? 'đã hết hạn ' + (-left) + ' ngày' : left === 0 ? 'hết hạn hôm nay' : 'còn ' + left + ' ngày nữa hết hạn') + ' (ngày hết hạn ' + marker + ').' + (row.DOI_TAC ? '\nĐối tác: ' + row.DOI_TAC : ''));
+    if (!sent) return;
+    var found = { sheet: sheet, meta: meta, rowNumber: index + 2, data: row };
+    if (meta.columns.DA_NHAC_HAN) sheet.getRange(index + 2, meta.columns.DA_NHAC_HAN).setValue(marker + ' · ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm'));
+    formHistoryWrite_(found, formHistoryEntry_(null, 'Nhắc hạn', 'Đã gửi email cho ' + sent + ' người'));
+    reminded++;
+  });
+  return { success: true, reminded: reminded };
+}
+
+/** Chạy một lần trong trình sửa Apps Script để cài lịch nhắc hạn lúc 8 giờ sáng mỗi ngày. */
+function setupFormReminderTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (trigger) { if (trigger.getHandlerFunction() === 'remindFormExpiry') ScriptApp.deleteTrigger(trigger); });
+  ScriptApp.newTrigger('remindFormExpiry').timeBased().everyDays(1).atHour(8).create();
+  return { success: true, message: 'Đã cài nhắc hạn biểu mẫu lúc 8 giờ sáng hằng ngày.' };
 }
 
 function setupAttendanceData() {
