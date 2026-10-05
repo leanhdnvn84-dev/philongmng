@@ -1,0 +1,178 @@
+QL_TC_2026 – v5.9.1 (03/10/2026) · BỎ TRANG KHỞI ĐỘNG, MỞ APP VÀO THẲNG LỊCH TRẢ NỢ
+- Xóa hoàn toàn trang Khởi động: nút "⌂ KHỞI ĐỘNG" trên menu, mục "⌂ Trang khởi động" trong menu điện thoại, ô tìm phân hệ, các hàm renderStart_/openStart_/mStartFilter_ và CSS riêng của trang.
+- Mở app luôn vào Lịch trả nợ, tháng hiện tại (tự lùi về tháng gần nhất có dữ liệu nếu tháng này trống). Không còn nhớ "trang mở gần đây".
+- Bấm logo Cafef-RCG → về Lịch trả nợ.
+- Máy chủ: getInitialAppData mặc định LICH_TRA_NO (nếu người dùng không có quyền thì mở phân hệ đầu tiên được phép). Khóa cache BOOT_V591_.
+- Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
+QL_TC_2026 – v5.9.0 (03/10/2026) · TẢI NHANH, CHẠY TRƠN (thực hiện cả nhóm A, B, C)
+Đo trên bản chạy thử, giả lập mỗi lần gọi máy chủ Apps Script mất 0,9 giây, điện thoại CPU chậm 4 lần:
+  · Mở trang (đã tải trước): 1,0 giây → 0,09 giây   · Quay lại trang vừa xem: 0,96 → 0,08 giây
+  · Tìm kiếm: 1,26 → 0,18 giây (gồm 0,15 giây chờ gõ)  · Xóa tìm: 0,96 → 0,05 giây
+  · Lưu bản ghi: 1,86 giây (2 lần gọi + màn che) → 0,94 giây (1 lần gọi, không che màn hình)
+NHÓM A
+- A1 Trình duyệt giữ dữ liệu từng phân hệ: mở lại trang hiện ngay, máy chủ chỉ được hỏi "có gì mới không" (rất nhẹ) khi dữ liệu cũ hơn 60 giây hoặc vừa có thay đổi; có thay đổi mới vẽ lại.
+- A2 Tải trước ngầm 16 phân hệ + danh mục form ngay sau khi mở app (lần lượt, không làm chậm trang đang xem).
+- A3 Bỏ làm mờ/khóa cả trang: thay bằng thanh chạy mảnh trên đầu; trang chưa có dữ liệu hiện khung xương ngay.
+- A4 Máy chủ chỉ mở bảng tính khi thật sự đọc/ghi sheet; đọc/ghi cache 1 lần (getAll/putAll).
+- A5 Tìm kiếm, lọc, chọn tháng, chia trang tính ngay trên máy (đã đối chiếu 576 trường hợp: giống hệt kết quả máy chủ).
+NHÓM B
+- B1 Lưu/Xóa/Duyệt/Nhập file/Tạo tháng/Đồng bộ: 1 lần gọi (mutateAndFetch) trả luôn dữ liệu mới; các phân hệ khác tự làm mới khi mở.
+- B2 Cache máy chủ 30 phút (trước 10 phút) + dấu phiên bản DVER_; mảnh cache 24.000 ký tự an toàn cho chữ có dấu, không giới hạn 12 mảnh; ghi Nhật ký/Phê duyệt xóa cache tương ứng.
+- B3 Chọn dòng (máy tính) / mở chi tiết (điện thoại) không vẽ lại cả danh sách; logo ngân hàng khai báo 1 lần bằng CSS thay vì nhúng ảnh vào từng dòng.
+- B4 Lần hỏi "có gì mới" không gửi cấu hình, không gửi dòng.
+NHÓM C
+- Điện thoại: danh sách dài vẽ trước 40 thẻ, cuộn tới đâu vẽ thêm tới đó. Nhật ký vẫn chia trang từ máy chủ, nội dung dài >2.000 ký tự rút gọn trong danh sách (đầy đủ trong sheet NHAT_KY).
+LƯU Ý
+- Sửa trực tiếp trên Google Sheet (không qua app): app thấy sau tối đa 30 phút, hoặc bấm "↻ Tải lại" (máy tính) / Menu ☰ → "⟳ Tải lại dữ liệu trang này" (điện thoại).
+- Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới. Khóa cache BOOT_V590_.
+
+QL_TC_2026 – v5.8.0 (03/10/2026) · SỬA GIAO DIỆN ĐIỆN THOẠI KHÔNG CHẠY + GOM 1 BỘ CODE MOBILE
+- Nguyên nhân điện thoại vẫn hiện giao diện máy tính: Apps Script bỏ qua thẻ <meta viewport> trong index.html, nên trình duyệt điện thoại dựng khung rộng 980px → hệ thống nhận là máy tính.
+  · Code.gs/doGet: thêm .addMetaTag('viewport','width=device-width, initial-scale=1, viewport-fit=cover').
+  · index.html: nhận diện điện thoại thêm dự phòng theo màn hình cảm ứng nhỏ (isPhone_), không chỉ dựa bề rộng khung.
+- Xóa toàn bộ code mobile cũ rải rác (CSS mobile cũ, 2 khối @media 849px, 6 lớp bản vá v5.7.4 chồng nhau, các hàm clearMobileUI_/mShell_/mMenu_/filterStart_/ltnMobileNav_/mFilterAuto_…).
+- Thay bằng 1 khối CSS + 1 khối JS "MOBILE · BỘ GIAO DIỆN ĐIỆN THOẠI DUY NHẤT", bật/tắt bằng một công tắc body.is-mobile. Mỗi thành phần khai báo đúng 1 lần.
+- Sửa lỗi nhỏ: ô tìm kiếm trên điện thoại không còn gắn thêm sự kiện mỗi lần vẽ lại; loadData() chạy sau cùng; khung app dùng 100dvh để không bị thanh địa chỉ điện thoại che.
+- Giao diện giữ nguyên như v5.7.4 (đã so sánh từng điểm ảnh 34 màn hình điện thoại + máy tính: trùng khớp 100%).
+- CẬP NHẬT: chép đè Code.gs và index.html, sau đó Triển khai → Quản lý triển khai → Sửa → Phiên bản mới → Triển khai (bắt buộc để doGet mới có hiệu lực). Khóa cache BOOT_V580_.
+
+QL_TC_2026 – v5.7.4 (02/10/2026) · GIAO DIỆN ĐIỆN THOẠI
+- Thanh tiêu đề chỉ còn logo + ô tìm kiếm. Ô tìm kiếm tìm trong trang đang mở (Lịch trả nợ: tìm trên mọi tháng); ở trang Khởi động thì tìm phân hệ (gõ có dấu/không dấu, Enter mở). Có nút × xóa nhanh.
+- Menu chuyển thành nút tròn ☰ góc dưới trái: thông tin người dùng, Trang khởi động và 17 phân hệ theo nhóm (2 cột), trang đang mở tô đỏ.
+- Nút Lọc màu đỏ nhỏ gọn giữa mép trái màn hình, mặc định ẩn thành gờ đỏ mảnh; chạm gờ → tab thò ra (thụt lại khi cuộn, đổi trang hoặc sau khi mở bảng lọc); chạm tab → bảng lọc trượt từ dưới lên: Tháng/Năm, Trạng thái, Khoảng ngày, Điều kiện khác, Xóa bộ lọc / Áp dụng. Đang có lọc: tab đậm + số điều kiện, gờ có chấm trắng.
+- Điều kiện đang lọc hiện thành nhãn phía trên KPI, bấm × để bỏ từng điều kiện. Bỏ hàng chọn tháng/năm + trạng thái và ô tìm kiếm cũ trong trang.
+- Nút ☰, Lọc tự ẩn khi xem chi tiết; giao diện máy tính không đổi.
+- Cập nhật: chỉ chép đè index.html (Code.gs giữ nguyên v5.7.3).
+
+QL_TC_2026 – v5.7.3 (02/10/2026) · LỊCH TRẢ NỢ THEO THÁNG
+- Bỏ các nút trang ở Lịch trả nợ, thay bằng dải nút tháng (‹ T8 T9 [T10] T11 T12 ›), mỗi nút kèm số kỳ trả trong tháng; tháng hiện tại được đánh dấu.
+- Hiển thị TẤT CẢ kỳ trả của tháng đang chọn, không chia trang; mặc định mở tháng hiện tại. Nếu tháng hiện tại chưa có kỳ nào, tự chuyển 1 lần sang tháng gần nhất có dữ liệu (không vượt quá tháng hiện tại).
+- Bỏ "Tất cả tháng" và 2 ô Tháng/Năm của riêng Lịch trả nợ; nút "⌂ Tháng hiện tại" để quay về nhanh.
+- Ô tìm kiếm: khi đang gõ tìm thì tìm trên MỌI tháng, kết quả gom nhóm theo tháng (dòng tiêu đề "Tháng 10/2026 · n kỳ"), không chia trang; nút "× Xóa tìm kiếm" quay về tháng đang chọn.
+- KPI chân bảng tính theo đúng tập đang hiển thị (tháng đang chọn hoặc kết quả tìm).
+- Điện thoại: dải tháng cuộn ngang, dính dưới tiêu đề, tự cuộn tới tháng đang chọn.
+- Tạo tháng mới / Nhập file / Đồng bộ dư nợ mặc định theo tháng đang xem.
+- Máy chủ: cấu hình monthNav + noPaging; listRecords trả thêm danh sách tháng và số kỳ (bỏ kỳ HUY); sắp xếp mặc định theo ngày đến hạn rồi mã khoản vay. Khóa cache BOOT_V573_.
+- Cập nhật: chỉ cần chép đè Code.gs và index.html, không thêm cột dữ liệu.
+
+QL_TC_2026 v5.7.2 — Đồng bộ dư nợ: chọn tháng chốt, tính theo GỐC PHẢI TRẢ
+==========================================================================
+Thay Code.gs + index.html → Deploy → New version → Ctrl+F5.
+- Màn Đồng bộ: chọn THÁNG CHỐT (danh sách các tháng có kỳ trả, mới nhất ở trên; mặc định = tháng mới nhất không vượt quá tháng hiện tại).
+- Số ghi vào = Dư nợ sau khi trả của KỲ CUỐI tháng chốt trong Lịch trả nợ (trừ theo Gốc phải trả, không dùng số trả thực tế).
+  → khớp đúng con số đang thấy trên Lịch trả nợ. Kỳ quá hạn / chưa trả vẫn bị trừ (có nhãn cảnh báo để biết).
+- Ghi vào bảng Khoản vay: cột DU_NO_GOC_DAU_KY (Dư nợ gốc đầu kỳ – đã có sẵn) + NGAY_CHOT_DU_NO_DAU_KY (Ngày chốt dư nợ – đã có sẵn) = ngày cuối tháng.
+- Không trừ gốc 2 lần: Lịch trả nợ luôn tính từ DU_NO_GOC_BAN_DAU (cột mới, tự tạo & tự chép ở lần đồng bộ đầu), không đọc lại cột vừa ghi.
+- Kỳ HUY không còn bị trừ gốc; kỳ đến hạn ≤ Ngày dư nợ gốc ban đầu không trừ (đã nằm trong số gốc ban đầu).
+- Bỏ phần "gốc đã trả thực tế" của v5.7.0/5.7.1.
+
+QL_TC_2026 v5.7.1 — Khoản vay: hiển thị tất cả dòng trên một trang
+==================================================================
+- Bảng Khoản vay (desktop + mobile) hiện toàn bộ khoản vay theo bộ lọc, không chia trang; thanh phân trang tự ẩn.
+- KPI chân bảng vẫn tính trên toàn bộ kết quả lọc. Các phân hệ khác giữ phân trang 25 dòng.
+- Bật/tắt bằng cấu hình UI_MODULES.<PHÂN_HỆ>.noPaging (Code.gs) – có thể áp dụng cho phân hệ khác.
+- Chỉ Code.gs thay đổi (index.html giữ nguyên v5.7.0). Khóa cache cấu hình BOOT_V571_.
+
+QL_TC_2026 v5.7.0 — Lịch trả nợ: Đồng bộ dư nợ khoản vay + Nhập từ file
+=========================================================================
+Thay Code.gs + index.html → Deploy → New version → Ctrl+F5. Không cần thêm quyền (appsscript.json giữ nguyên).
+
+A. ⟳ ĐỒNG BỘ DƯ NỢ (phương án ③, số theo gốc thực trả)
+- Nút trên Lịch trả nợ (người có quyền ghi). Chọn ngày chốt (mặc định cuối tháng đang lọc) → xem trước → Đồng bộ.
+- Công thức: Dư nợ gốc đầu kỳ = Dư nợ gốc ban đầu − Gốc đã trả thực tế (Phân bổ trả nợ, ngày thanh toán ≤ ngày chốt).
+- Ghi vào Khoản vay: DU_NO_GOC_DAU_KY + NGAY_CHOT_DU_NO_DAU_KY + nhật ký từng khoản vay. Server tự tính lại, không dùng số từ trình duyệt.
+- Cột mới trên Khoản vay (tự tạo lần đầu): DU_NO_GOC_BAN_DAU + NGAY_GOC_BAN_DAU — chép tự động từ Dư nợ gốc đầu kỳ / Ngày chốt
+  hiện có ở lần đồng bộ đầu tiên; KHÔNG bao giờ bị đồng bộ ghi đè. Có thể chạy trước hàm capNhatDataGoc_KhoanVay (tùy chọn).
+- Đồng bộ lại nhiều lần ra cùng số; khoản trả bù nhập muộn được tính ở lần chốt sau; dư nợ 0 vẫn là 0 (sửa lỗi cũ).
+- Bỏ qua: khoản vay Dự kiến, Đã tất toán, không có kỳ đến ngày chốt, ngày chốt trước ngày gốc ban đầu.
+- Lịch trả nợ khớp Khoản vay: kỳ đến hạn ≤ ngày chốt trừ gốc ĐÃ TRẢ thực tế; kỳ sau ngày chốt trừ gốc KẾ HOẠCH.
+  (Khoản vay chưa đồng bộ lần nào: tính như cũ.)
+
+B. ⇪ NHẬP FILE
+- Bước 1: tải file mẫu trống, hoặc xuất 1 tháng có sẵn thành file điền sẵn cho tháng sau (mã kỳ để trống).
+- Bước 2: tải file .xlsx/.csv lên → xem trước từng dòng: Thêm mới / Cập nhật (có mã kỳ) / Trùng / Lỗi (kèm lý do).
+  Khóa trùng: Mã khoản vay + Kỳ tháng (như "Tạo tháng mới"). Trùng kỳ đã có: Bỏ qua (mặc định) hoặc Vẫn thêm.
+- Bước 3: chỉ ghi dòng hợp lệ (server kiểm tra lại), ghi nhật ký, tải được file các dòng lỗi để sửa và nhập lại; bảng chuyển sang kỳ vừa nhập.
+- Tối đa 1.000 dòng / lần. Số tiền chấp nhận 10000000 hoặc 10.000.000; ngày dd/mm/yyyy hoặc yyyy-mm-dd.
+- File .xlsx được tạo/đọc ngay trên trình duyệt (thư viện SheetJS từ cdnjs, chỉ tải khi mở chức năng) → cần mạng;
+  file do hệ thống tạo không có ô chọn sổ xuống (giới hạn thư viện) – mọi lỗi được báo ở bước xem trước.
+- Giữ nguyên "▣ Tạo tháng mới" (sao chép nhanh khi số không đổi).
+
+Kiểm thử: tests/v2-regression.cjs, tests/v56-design1.cjs, tests/v57-dongbo-nhapfile.cjs (đều đạt) + chạy giao diện với dữ liệu giả lập
+(17 phân hệ desktop/mobile; đồng bộ 2 lần; trả bù nhập muộn; nhập CSV 34 dòng có lỗi/trùng/cập nhật; quyền Người duyệt không thấy nút và bị chặn ở server).
+Chưa kiểm thử được: đọc/ghi .xlsx thật qua SheetJS (môi trường kiểm thử không tải được thư viện) – nhờ thử trên máy thật.
+
+QL_TC_2026 v5.6.5 — Lịch trả nợ: 5 KPI mới
+==========================================
+KPI chân bảng (theo thứ tự), tính trên toàn bộ kết quả lọc:
+  1. Tổng dư nợ đầu kỳ     = cộng "Tổng dư nợ" của kỳ SỚM NHẤT mỗi khoản vay (không cộng dồn nhiều kỳ của cùng khoản vay)
+  2. Tổng gốc phải trả     = cộng Gốc phải trả
+  3. Tổng dư nợ sau khi trả = cộng "Dư nợ sau khi trả" của kỳ MUỘN NHẤT mỗi khoản vay
+  4. Lãi phải trả          = cộng Lãi phải trả
+  5. Tổng thanh toán       = cộng Gốc + Lãi + Phí + Điều chỉnh (khớp cột "Tổng thanh toán" trong bảng)
+  → kiểm tra nhanh: (1) − (2) = (3) khi lọc đủ các kỳ của khoản vay.
+- Bỏ KPI cũ V5.5 "Tổng phải trả" và "Tổng đã thanh toán" (số đã thanh toán vẫn xem được trong panel chi tiết từng kỳ).
+- Mobile: hiện đủ mọi KPI (trước đây chỉ 4 ô đầu); ô lẻ cuối dàn hết hàng. Áp dụng cho cả Nguồn vốn (5 KPI).
+- Khóa cache cấu hình BOOT_V565_ (version 5.6.5). Thay cả Code.gs + index.html.
+
+QL_TC_2026 v5.6.4 — Nguồn vốn: thêm Có thể / Không thể giải ngân, Ghi chú; sắp lại KPI
+=======================================================================================
+- Cột mới trong bảng (theo thứ tự): ... Đã giải ngân · Có thể giải ngân · Không thể giải ngân · Dư nợ phải trả · Ngày dự kiến · Trạng thái · Ghi chú.
+  CO_THE_GIAI_NGAN, KHONG_THE_GIAI_NGAN: số tiền nhập tay (form → nhóm Số liệu). GHI_CHU: ô ghi chú (đã có trong form).
+- KPI chân bảng: Tổng dự kiến · Đã duyệt · Đã giải ngân · Có thể giải ngân · Không thể giải ngân (bỏ qua bản ghi Không thực hiện).
+  (Dư nợ phải trả vẫn là cột, không còn trong KPI.)
+- Thẻ mobile: dòng phụ hiện Có thể / Không thể giải ngân.
+- Cập nhật DATA GỐC: chạy 1 lần hàm  capNhatDataGoc_NguonVon  (thay cho capNhatDataGoc_V562) — tự thêm các cột còn thiếu
+  CO_THE_GIAI_NGAN, KHONG_THE_GIAI_NGAN, DU_NO_PHAI_TRA, GHI_CHU vào cuối sheet NGUON_VON, định dạng số #,##0, chạy lại an toàn.
+  (Không chạy thì hệ thống vẫn tự thêm cột ở lần mở/lưu Nguồn vốn đầu tiên.)
+- Khóa cache cấu hình BOOT_V564_ (version 5.6.4). Thay cả Code.gs + index.html.
+
+QL_TC_2026 v5.6.3 — Chân bảng KPI cao và rõ hơn
+================================================
+- Chỉ index.html thay đổi (CSS): chân bảng 50px → 76px; nhãn KPI 9px → 11px; số liệu 13px → 18px đậm;
+  mỗi ô KPI rộng tối thiểu 165px, giãn cách đều. Áp dụng cho cả 17 phân hệ trên desktop.
+- Code.gs giữ nguyên v5.6.2.
+
+QL_TC_2026 v5.6.2 — Nguồn vốn: thêm cột "Dư nợ phải trả"
+========================================================
+- Trường mới DU_NO_PHAI_TRA (số tiền, nhập tay) trong phân hệ Nguồn vốn.
+- Hệ thống TỰ THÊM cột DU_NO_PHAI_TRA vào cuối hàng tiêu đề sheet NGUON_VON ở lần mở/lưu đầu tiên — không cần sửa sheet.
+- Hiển thị: cột trong bảng (sau "Đã giải ngân"), ô nhập trong form (nhóm Số liệu), dòng trong panel chi tiết,
+  dòng phụ trên thẻ mobile, và chỉ số tổng "Dư nợ phải trả" ở chân bảng / ô tổng mobile (bỏ qua bản ghi Không thực hiện).
+- Chỉ số Nguồn vốn: Tổng dự kiến · Đã giải ngân · Dư nợ phải trả · Chưa giải ngân · Đã duyệt.
+- Khóa cache cấu hình BOOT_V562_ (version 5.6.2) để giao diện nhận cột mới ngay sau khi triển khai.
+- Dữ liệu Nguồn vốn đang lưu cache có thể hiện "—" ở cột mới tối đa 10 phút đầu.
+
+CẬP NHẬT DATA GỐC (sheet NGUON_VON) — làm 1 lần ngay sau khi dán Code.gs:
+  1. Apps Script → ô chọn hàm phía trên → chọn  capNhatDataGoc_V562  → bấm Chạy (cấp quyền nếu được hỏi).
+  2. Nhật ký thực thi báo: "Đã thêm cột DU_NO_PHAI_TRA tại cột N của sheet NGUON_VON…".
+  3. Mở sheet NGUON_VON: cột DU_NO_PHAI_TRA ở cuối, tiêu đề cùng định dạng, ô số định dạng #,##0, giá trị để trống.
+  - Chạy lại nhiều lần vẫn an toàn (không tạo trùng, không xóa dữ liệu). Có ghi vào NHAT_KY.
+
+QL_TC_2026 v5.6.1 — Design 1, bố cục gọn, CSS hợp nhất
+=======================================================
+Thay 2 file trong Apps Script: Code.gs + index.html → Deploy → New version → Ctrl+F5.
+
+Bố cục (desktop)
+- 1 thanh duy nhất: Tiêu đề + số bản ghi | Tìm kiếm · Tháng · Năm · Trạng thái · ☷ Bộ lọc · ⇩ CSV · ↻ · + Thêm.
+  Bỏ hàng lọc thứ 2, nút "Hiển thị tất cả N" (trùng số bản ghi), dòng "Tải xx ms", thanh "Tác vụ" phía trên.
+- Thao tác bản ghi chỉ còn ở cuối panel chi tiết (Sửa, Trình duyệt, Duyệt, Từ chối, Hủy…) đúng theo quyền & trạng thái.
+  Sửa lỗi: nút "Điều chỉnh" ở Lịch trả nợ thực chất là Hủy bản ghi → đã bỏ.
+  Phân hệ không có trạng thái (Số dư đầu kỳ, Lịch sử lãi suất, Chứng từ…): nút "Xóa bản ghi" gọi đúng deleteRecord.
+- Panel chi tiết không lặp lại thông tin đã có ở phần đầu (mã, tiêu đề, trạng thái, số tiền chính); bỏ tiêu đề "THÔNG TIN CHI TIẾT".
+- Chân bảng: chỉ số tổng + phân trang (ẩn phân trang khi chỉ có 1 trang); bỏ dòng "Hiển thị x–y trên N".
+- Thanh menu: bỏ nút ◐ không có chức năng, ngày cố định "01/10/2026", mũi tên ⌄ không có menu; avatar lấy theo tên người dùng.
+- Trang khởi động: bỏ banner lớn, chỉ còn lời chào + nhóm phân hệ.
+- Tiêu đề tab trình duyệt theo phân hệ đang mở.
+
+Mobile (<850px)
+- Dùng chung bộ lọc/thao tác với desktop; nút "Tạo tháng mới" nằm trong hàng chip; bỏ dòng nhóm phân hệ thừa.
+
+CSS
+- Viết lại toàn bộ: 1 khối duy nhất, mỗi thành phần khai báo 1 lần, biến dùng chung (--h, --r);
+  bỏ ~40 class không còn dùng (smart-filter, record-toolbar, toolbar-*, start-hero, cards, metric, mobile-nav…).
+  CSS: 31,4 KB → 23 KB; index.html: 121 KB → 108 KB.
+
+Code.gs: không đổi so với v5.6 (card/metrics, logo ngân hàng, cache BOOT_V56_).
+Kiểm tra: chỉ kiểm tra tĩnh (cú pháp JS, cân bằng CSS, tests/*.cjs) — CHƯA chạy thử giao diện theo yêu cầu.
