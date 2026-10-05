@@ -30,7 +30,7 @@ assert.equal(g[0]._NH_MA_TAI_KHOAN_NGUON,'BIDV');assert.equal(g[0]._TEN_MA_TAI_K
 ctx.__k=[{MA_KHOAN_VAY:'KV1',MA_NGAN_HANG:'VCB'}];
 assert.equal(run(`enrichBankRefs_({},'KHOAN_VAY',APP_MODULES.KHOAN_VAY,__k)[0]._NH_MA_KHOAN_VAY`),undefined,'không tự tham chiếu khóa chính');
 // 5. Cache bootstrap đổi khóa để nhận cấu hình mới ngay
-assert.ok(code.includes("'BOOT_V591_'")&&code.includes("version:'5.9.1'"));
+assert.ok(code.includes("'BOOT_V592_'")&&code.includes("version:'5.9.2'"));
 // 6. Nguồn vốn: cột Dư nợ phải trả (tiền, hiển thị trong bảng, tự tạo cột trên sheet, có chỉ số tổng)
 assert.equal(run("APP_MODULES.NGUON_VON.amounts.includes('DU_NO_PHAI_TRA')&&APP_MODULES.NGUON_VON.columns.includes('DU_NO_PHAI_TRA')&&APP_MODULES.NGUON_VON.autoColumns.includes('DU_NO_PHAI_TRA')"),true);
 assert.equal(run("UI_MODULES.NGUON_VON.metrics.map(m=>m.l).join('|')"),'Tổng dự kiến|Đã duyệt|Đã giải ngân|Có thể giải ngân|Không thể giải ngân');

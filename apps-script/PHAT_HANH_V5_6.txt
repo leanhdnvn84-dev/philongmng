@@ -1,3 +1,13 @@
+QL_TC_2026 – v5.9.2 (05/10/2026) · SỬA LỖI
+- Sửa lỗi nút "Đổi trạng thái" (Tài khoản, Danh mục, Người dùng) luôn báo "Assignment to constant variable" – nay bật/tắt Hoạt động ⇄ Ngừng hoạt động bình thường.
+- Trình duyệt / Duyệt / Từ chối / Hủy / Đổi trạng thái… (transitionRecord) nay có khóa ghi như các thao tác khác – 2 người bấm cùng lúc không ghi đè nhau.
+- Người dùng: sửa / khóa / đổi vai trò qua app có hiệu lực ngay ở lần mở app kế tiếp (xóa cache quyền của email đó). Sửa trực tiếp trên sheet NGUOI_DUNG: tối đa 30 phút (trước đây tới 6 giờ).
+- Nhập file .csv: đọc đúng ô có dấu ngoặc kép ("" = 1 dấu "), ô chứa dấu phẩy/chấm phẩy hoặc xuống dòng.
+- Form nhập: các ô chọn (Trạng thái, Loại…) hiện nhãn tiếng Việt thay vì mã (giá trị lưu vẫn là mã).
+- Bộ lọc năm: theo năm hiện tại (±2 năm) thay vì cố định 2024–2028, mặc định năm hiện tại; thêm "Tất cả năm" để xem dữ liệu mọi năm.
+- Khóa cache BOOT_V592_. Kiểm thử: tests/*.cjs (6 bộ, đều đạt), thêm tests/v592-sua-loi.cjs.
+- Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
 QL_TC_2026 – v5.9.1 (03/10/2026) · BỎ TRANG KHỞI ĐỘNG, MỞ APP VÀO THẲNG LỊCH TRẢ NỢ
 - Xóa hoàn toàn trang Khởi động: nút "⌂ KHỞI ĐỘNG" trên menu, mục "⌂ Trang khởi động" trong menu điện thoại, ô tìm phân hệ, các hàm renderStart_/openStart_/mStartFilter_ và CSS riêng của trang.
 - Mở app luôn vào Lịch trả nợ, tháng hiện tại (tự lùi về tháng gần nhất có dữ liệu nếu tháng này trống). Không còn nhớ "trang mở gần đây".

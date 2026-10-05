@@ -52,7 +52,7 @@ assert.match(code,/function moduleConfigMeta_/);
 assert.match(code,/function cacheGetJson_/);
 assert.match(code,/function cachePutJson_/);
 assert.match(code,/DATA_V55_/);
-assert.match(code,/cachePutJson_\(cache,key,out,21600\)/);
+assert.match(code,/cachePutJson_\(cache,key,out,1800\)/);
 assert.doesNotMatch(code,/function getDashboardData/);
 assert.doesNotMatch(html,/data-key="DASHBOARD"|renderDashboard|TỔNG QUAN/);
 assert.match(html,/TONG_DU_NO:'Tổng dư nợ'/);
