@@ -1352,6 +1352,23 @@ function formSendMail_(emails, subject, body) {
  * Quy trình phiếu: Nháp → Chờ duyệt (trình duyệt) → Đã duyệt / Từ chối; Nháp/Chờ duyệt/Từ chối → Đã hủy.
  * Trình duyệt và hủy cần quyền THEM; duyệt và từ chối cần quyền DUYET.
  */
+/** Ảnh nhân viên dạng data URL để vẽ thiệp sinh nhật (tránh lỗi CORS của ảnh Drive). */
+function getEmployeePhotoData(input) {
+  input = input || {};
+  requireAuth_(input._sessionToken);
+  try {
+    var id = driveFileId_(input.id);
+    if (!id) return '';
+    var file = DriveApp.getFileById(id), mimeType = String(file.getMimeType() || '');
+    if (!/^image\//i.test(mimeType)) return '';
+    var blob = file.getSize() > 1500000 ? file.getThumbnail() : file.getBlob();
+    if (!blob) return '';
+    return 'data:' + (blob.getContentType() || mimeType) + ';base64,' + Utilities.base64Encode(blob.getBytes());
+  } catch (error) {
+    return '';
+  }
+}
+
 function updateFormRequestStatus(input) {
   input = input || {};
   var id = String(input.ID_PHIEU || '').trim(), status = String(input.TRANG_THAI || '').trim(), reason = String(input.LY_DO || '').trim();
