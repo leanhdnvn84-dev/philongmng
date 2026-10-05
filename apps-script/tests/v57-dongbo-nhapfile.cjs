@@ -47,7 +47,7 @@ assert.equal(chk[7][2],'2025-12');// số ngày Excel 46000 = 09/12/2025, kỳ t
 assert.throws(()=>run("scheduleImportCheck_({},new Array(1001).fill({}))"),/tối đa 1.000 dòng/);
 // ---- V5.7.1: bảng Khoản vay hiển thị tất cả dòng trên 1 trang
 run(`openFinanceSpreadsheet_=()=>({});getCurrentUser_=()=>({role:'ADMIN'});readSheetCached_=(ss,k)=>({meta:{headers:['MA_KHOAN_VAY','NGAY_DAO_HAN','HAN_MUC_VAY','TRANG_THAI']},rows:k==='KHOAN_VAY'?Array.from({length:60},(_,i)=>({MA_KHOAN_VAY:'KV'+i,NGAY_DAO_HAN:'',HAN_MUC_VAY:100,TRANG_THAI:'DANG_VAY'})):[]})`);
-const lr=J("(r=>({n:r.rows.length,pages:r.pages,page:r.page,total:r.total,m:r.metrics[0].value}))(listRecords('KHOAN_VAY',{},{},3,25))");
+const lr=J("(r=>({n:r.rows.length,pages:r.pages,page:r.page,total:r.total,m:r.metrics.find(x=>x.label==='Tổng hạn mức').value}))(listRecords('KHOAN_VAY',{},{},3,25))");
 assert.deepEqual(lr,{n:60,pages:1,page:1,total:60,m:6000});
 assert.equal(J("listRecords('LICH_SU_LAI_SUAT',{},{},1,25).pages")>=1,true);
 // ---- V5.7.3: Lịch trả nợ theo tháng, không chia trang; tìm kiếm trên mọi tháng

@@ -1,3 +1,12 @@
+QL_TC_2026 – v5.9.6 (05/10/2026) · KHOẢN VAY: THÊM CHỈ SỐ DƯ NỢ, ĐANG VAY LÊN ĐẦU
+- Chân bảng Khoản vay (máy tính + điện thoại), theo thứ tự: Đang vay · Tổng hạn mức · Đã giải ngân · Dư nợ gốc ban đầu · Dư nợ gốc đầu kỳ.
+  ("Dư nợ đầu kỳ" cũ chính là cột Dư nợ gốc đầu kỳ – đổi tên cho rõ, không bị lặp.)
+- Sửa: Khoản vay đang lọc theo NĂM ĐÁO HẠN (mặc định năm hiện tại) nên khoản đáo hạn năm khác bị ẩn khỏi danh sách và khỏi tổng.
+  Trên dữ liệu thật: 4 khoản KV-T10-TAM-001…004 (đáo hạn 02/2027, dư nợ 19,1 tỷ) bị ẩn → 90 thay vì 94 khoản.
+  Nay Khoản vay bỏ ô Tháng/Năm (cấu hình UI_MODULES.KHOAN_VAY.periodFilter:false); vẫn lọc được Từ ngày–Đến ngày trong ☷ Bộ lọc.
+- Khóa cache BOOT_V596_ (để giao diện nhận cấu hình chỉ số mới ngay). 8 bộ tests/*.cjs đều đạt.
+- Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
 QL_TC_2026 – v5.9.5 (05/10/2026) · DƯ NỢ GỐC BAN ĐẦU = DƯ NỢ THÁNG 8/2026
 - Theo yêu cầu: số ở cột F file DE_XUAT_DU_NO_GOC_BAN_DAU_T10.xlsx (88 khoản, tổng 4.470.657.239.339 đ) là DƯ NỢ BAN ĐẦU THÁNG 8
   → hàm capNhatDataGoc_DuNoGocBanDau_T10 ghi NGAY_GOC_BAN_DAU = 31/08/2026 (v5.9.4 là 30/09/2026). Số tiền không đổi.

@@ -27,3 +27,15 @@ assert.equal(sheets.NHAT_KY.rows.length,1);assert.equal(sheets.NHAT_KY.rows[0][5
 // chạy lại: không ghi thêm
 const w=writes;run('capNhatDataGoc_DuNoGocBanDau_T10()');assert.equal(writes,w);assert.match(run('xemTruoc_DuNoGocBanDau_T10()'),/^Sẽ cập nhật 0/);
 console.log('PASS V5.9.4: ghi Dư nợ gốc ban đầu 88 khoản (31/08/2026) – xem trước không ghi, chạy lại an toàn, giữ nguyên khoản ngoài file và cột khác.');
+// V5.9.6: chỉ số chân bảng Khoản vay – Đang vay lên đầu, thêm Dư nợ gốc ban đầu, Dư nợ gốc đầu kỳ
+assert.equal(run("UI_MODULES.KHOAN_VAY.metrics.map(m=>m.l).join('|')"),'Đang vay|Tổng hạn mức|Đã giải ngân|Dư nợ gốc ban đầu|Dư nợ gốc đầu kỳ');
+const km=JSON.parse(run(`JSON.stringify(computeMetrics_([{TRANG_THAI:'DANG_VAY',HAN_MUC_VAY:10,TONG_GOC_GIAI_NGAN:8,DU_NO_GOC_BAN_DAU:7,DU_NO_GOC_DAU_KY:6},{TRANG_THAI:'DA_TAT_TOAN',HAN_MUC_VAY:5,TONG_GOC_GIAI_NGAN:5,DU_NO_GOC_BAN_DAU:'',DU_NO_GOC_DAU_KY:0}],UI_MODULES.KHOAN_VAY.metrics))`));
+assert.deepEqual(km.map(m=>[m.value,m.money]),[[1,false],[15,true],[13,true],[7,true],[6,true]]);
+console.log('PASS V5.9.6: chỉ số Khoản vay – Đang vay | Tổng hạn mức | Đã giải ngân | Dư nợ gốc ban đầu | Dư nợ gốc đầu kỳ.');
+// V5.9.6: Khoản vay không lọc theo Tháng/Năm (khoản đáo hạn 2027 vẫn hiện khi đang chọn năm 2026)
+assert.equal(run('UI_MODULES.KHOAN_VAY.periodFilter'),false);
+const html=fs.readFileSync(__dirname+'/../index.html','utf8');
+assert.match(html,/const noPeriod_=\(\)=>uiOf_\(\)\.periodFilter===false;/);
+assert.match(html,/month:ltn\?\(S\.q\?'':\+lp\[1\]\|\|''\):noPeriod_\(\)\?'':S\.month,year:ltn\?\(S\.q\?'':lp\[0\]\|\|''\):noPeriod_\(\)\?'':S\.year,/);
+assert.match(html,/S\.module==='LICH_TRA_NO'\|\|noPeriod_\(\)\?'':periodSelects_/);
+console.log('PASS V5.9.6: Khoản vay bỏ lọc Tháng/Năm theo ngày đáo hạn.');
