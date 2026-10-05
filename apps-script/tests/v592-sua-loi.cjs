@@ -22,13 +22,13 @@ assert.equal(run("transitionRecord('TAI_KHOAN','TK1','TOGGLE',{}).status"),'HOAT
 assert.ok(locks>=2&&locks===released,'transitionRecord phải lấy và nhả khóa');
 assert.throws(()=>run("transitionRecord('TAI_KHOAN','TK9','TOGGLE',{})"),/Không tìm thấy/);assert.equal(locks,released,'lỗi vẫn phải nhả khóa');
 // 2. Khóa người dùng B qua app → xóa cache quyền + cache khởi động của B, không đụng cache của người khác
-store['USER_V51_b@x.vn']=JSON.stringify({email:'b@x.vn',role:'KE_TOAN'});store['BOOT_V593_b@x.vn']='{"x":1}';store['BOOT_V593_c@x.vn']='{"x":1}';
+store['USER_V51_b@x.vn']=JSON.stringify({email:'b@x.vn',role:'KE_TOAN'});store['BOOT_V594_b@x.vn']='{"x":1}';store['BOOT_V594_c@x.vn']='{"x":1}';
 assert.equal(run("transitionRecord('NGUOI_DUNG','b@x.vn','TOGGLE',{}).status"),'NGUNG_HOAT_DONG');
-assert.equal(store['USER_V51_b@x.vn'],undefined);assert.equal(store['BOOT_V593_b@x.vn'],undefined);assert.equal(store['BOOT_V593_c@x.vn'],'{"x":1}');
+assert.equal(store['USER_V51_b@x.vn'],undefined);assert.equal(store['BOOT_V594_b@x.vn'],undefined);assert.equal(store['BOOT_V594_c@x.vn'],'{"x":1}');
 // email viết hoa trong sheet vẫn xóa được khóa chữ thường
 store['USER_V51_b@x.vn']='{"role":"X"}';run("invalidateUserCache_('B@X.vn')");assert.equal(store['USER_V51_b@x.vn'],undefined);
 // cache khởi động: khóa mới, giữ 30 phút
-assert.ok(code.includes("BOOT_KEY_='BOOT_V593_'")&&/cachePutJson_\(cache,key,out,1800\)/.test(code));
+assert.ok(code.includes("BOOT_KEY_='BOOT_V594_'")&&/cachePutJson_\(cache,key,out,1800\)/.test(code));
 // 3. CSV: "" → ", dấu phẩy/chấm phẩy và xuống dòng trong ô có ngoặc kép, CRLF, BOM
 const m=html.match(/function parseCsv_\(text\)\{[\s\S]*?return grid\}/);assert.ok(m,'thiếu parseCsv_');
 const parseCsv_=new Function(m[0]+';return parseCsv_')();

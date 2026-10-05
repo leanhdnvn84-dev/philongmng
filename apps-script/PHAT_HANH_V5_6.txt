@@ -1,3 +1,17 @@
+QL_TC_2026 – v5.9.4 (05/10/2026) · GHI DƯ NỢ GỐC BAN ĐẦU TỪ BÁO CÁO GỐC LÃI T10/2026
+- Data gốc KHOAN_VAY đang ghi SAI cột Dư nợ gốc ban đầu: phần lớn là số gốc phải trả 1 kỳ (vd KV-T9-037: 40.000.000 thay vì 9,8 tỷ).
+- Thêm 2 hàm chạy tay trong Apps Script (lấy số từ báo cáo gốc lãi T10/2026, sheet Tinh-T10.2026, cột Dư nợ còn lại):
+  1. xemTruoc_DuNoGocBanDau_T10 – chỉ in danh sách sẽ đổi (cũ → mới) ra Nhật ký thực thi, KHÔNG ghi.
+  2. capNhatDataGoc_DuNoGocBanDau_T10 – ghi Dư nợ gốc ban đầu + Ngày gốc ban đầu 30/09/2026 cho 88 khoản vay, ghi NHAT_KY. Chạy lại an toàn.
+- Cách ghép: mỗi khoản vay trên phần mềm = tổng các dòng cùng Công ty + Ngân hàng của báo cáo (gốc và lãi kỳ 10/2026 khớp 88/88).
+  Tổng 88 khoản = 4.470.657.239.339 đ (= tổng cột Dư nợ còn lại của báo cáo).
+- Ngày 30/09/2026 (không phải 31/08 như tiêu đề báo cáo): số dư trong báo cáo là SAU kỳ trả tháng 9 (kiểm bằng lãi kỳ 9).
+  → Lịch trả nợ không trừ kỳ tháng 9 nữa, bắt đầu trừ từ kỳ 10/2026.
+- Không đổi: 6 khoản không có trong báo cáo (KV-T9-019, 023, 054, 055, 058, 080) và cột Dư nợ gốc đầu kỳ.
+- SAU KHI CHẠY: Lịch trả nợ → ⟳ Đồng bộ dư nợ → tháng 10/2026 → Đồng bộ (cập nhật Dư nợ gốc đầu kỳ = dư nợ 30/09 − gốc tháng 10).
+- Đã chạy thử trên bản sao dữ liệu thật: 88 khoản, tổng khớp, chạy lại không ghi thêm, cột khác không đổi.
+- Khóa cache BOOT_V594_. Kiểm thử: 8 bộ tests/*.cjs đều đạt (thêm tests/v594-du-no-goc.cjs).
+
 QL_TC_2026 – v5.9.3 (05/10/2026) · DÒ LẠI, SỬA LỖI, DỌN CSS
 SỬA LỖI
 - "⇩ CSV" trước chỉ xuất 25 dòng của trang đang xem → nay xuất TOÀN BỘ kết quả đang lọc (Nhật ký: trang đang xem). Có thông báo số dòng đã xuất.
