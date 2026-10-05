@@ -1,3 +1,12 @@
+QL_TC_2026 – v5.9.5 (05/10/2026) · DƯ NỢ GỐC BAN ĐẦU = DƯ NỢ THÁNG 8/2026
+- Theo yêu cầu: số ở cột F file DE_XUAT_DU_NO_GOC_BAN_DAU_T10.xlsx (88 khoản, tổng 4.470.657.239.339 đ) là DƯ NỢ BAN ĐẦU THÁNG 8
+  → hàm capNhatDataGoc_DuNoGocBanDau_T10 ghi NGAY_GOC_BAN_DAU = 31/08/2026 (v5.9.4 là 30/09/2026). Số tiền không đổi.
+- Ảnh hưởng: Lịch trả nợ trừ gốc từ kỳ 9/2026 (40 kỳ có gốc, tổng 70.619.316.870 đ) rồi kỳ 10/2026 (50.224.399.870 đ).
+  Dư nợ sau kỳ 10 của 88 khoản = 4.349.813.522.599 đ (báo cáo ghi 4.420.432.839.469 đ – chênh đúng bằng gốc kỳ 9).
+  Nếu xác nhận số trong báo cáo là sau kỳ trả tháng 9: sửa NGAY trong DU_NO_GOC_T10_2026_ thành '2026-09-30' rồi chạy lại hàm (chỉ đổi ngày).
+- Thông báo của 2 hàm lấy ngày từ hằng số (không ghi cứng). Khóa cache BOOT_V595_. 8 bộ tests/*.cjs đều đạt.
+- Cách chạy: xemTruoc_DuNoGocBanDau_T10 (xem) → capNhatDataGoc_DuNoGocBanDau_T10 (ghi) → Lịch trả nợ → ⟳ Đồng bộ dư nợ tháng 10/2026.
+
 QL_TC_2026 – v5.9.4 (05/10/2026) · GHI DƯ NỢ GỐC BAN ĐẦU TỪ BÁO CÁO GỐC LÃI T10/2026
 - Data gốc KHOAN_VAY đang ghi SAI cột Dư nợ gốc ban đầu: phần lớn là số gốc phải trả 1 kỳ (vd KV-T9-037: 40.000.000 thay vì 9,8 tỷ).
 - Thêm 2 hàm chạy tay trong Apps Script (lấy số từ báo cáo gốc lãi T10/2026, sheet Tinh-T10.2026, cột Dư nợ còn lại):
