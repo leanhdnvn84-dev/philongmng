@@ -15,7 +15,7 @@ sheets.KHOAN_VAY={h:KV.concat(KV.includes('GHI_CHU')?[]:['GHI_CHU']),rows:Array.
 store['USER_V51_a@x.vn']=JSON.stringify({email:'a@x.vn',name:'A',role:'ADMIN'});
 // 1. Lần đầu: đọc sheet (mở bảng tính 1 lần), có dấu phiên bản
 const r1=J("getModuleData('KHOAN_VAY','',false)");assert.equal(r1.rows.length,40);assert.equal(opens,1);assert.match(r1.ver,/^KHOAN_VAY:\d+$/);
-assert.ok(Object.keys(store).some(k=>/^DATA_V55_KHOAN_VAY__\d+$/.test(k)),'dữ liệu lớn phải được chia mảnh và vẫn cache được');
+assert.ok(Object.keys(store).some(k=>/^DATA_V593_KHOAN_VAY__\d+$/.test(k)),'dữ liệu lớn phải được chia mảnh và vẫn cache được');
 // 2. Hỏi "có gì mới không": không đổi → chỉ trả same, KHÔNG mở bảng tính, không gửi dòng
 const r2=J(`getModuleData('KHOAN_VAY','${r1.ver}',false)`);assert.equal(r2.same,true);assert.equal(r2.rows,undefined);assert.equal(opens,1);
 // 3. Tải lại toàn bộ khi cache còn: lấy từ cache, không mở bảng tính; nội dung tiếng Việt nguyên vẹn

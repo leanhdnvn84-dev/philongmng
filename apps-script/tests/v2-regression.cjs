@@ -51,7 +51,7 @@ assert.match(html,/getInitialAppData',\['LICH_TRA_NO'/);
 assert.match(code,/function moduleConfigMeta_/);
 assert.match(code,/function cacheGetJson_/);
 assert.match(code,/function cachePutJson_/);
-assert.match(code,/DATA_V55_/);
+assert.match(code,/DATA_V593_/);
 assert.match(code,/cachePutJson_\(cache,key,out,1800\)/);
 assert.doesNotMatch(code,/function getDashboardData/);
 assert.doesNotMatch(html,/data-key="DASHBOARD"|renderDashboard|TỔNG QUAN/);

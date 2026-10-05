@@ -1,3 +1,18 @@
+QL_TC_2026 – v5.9.3 (05/10/2026) · DÒ LẠI, SỬA LỖI, DỌN CSS
+SỬA LỖI
+- "⇩ CSV" trước chỉ xuất 25 dòng của trang đang xem → nay xuất TOÀN BỘ kết quả đang lọc (Nhật ký: trang đang xem). Có thông báo số dòng đã xuất.
+- Tìm kiếm: tìm được theo tên khoản vay, số hợp đồng, ngân hàng và công ty vay (trước ở Lịch trả nợ chỉ tìm được mã KV-…).
+- Nhật ký: trước chỉ đọc 2.000 dòng ĐẦU sheet nên khi vượt 2.000 dòng sẽ không thấy nhật ký mới → nay giữ 2.000 dòng MỚI NHẤT, mới nhất lên đầu, hiện cả giờ (01/10/2026 14:05).
+- Các phân hệ khác: giới hạn đọc nâng từ 2.000 lên 5.000 dòng (trước đó dòng thứ 2.001 trở đi bị ẩn không báo).
+- Đổi phân hệ: bỏ "Từ ngày / Đến ngày" của phân hệ trước (trên máy tính không có nhãn báo nên dễ tưởng mất dữ liệu).
+- Bỏ làm mờ cả trang khi tải (đúng như v5.9 đã công bố) – chỉ còn thanh chạy mảnh trên đầu.
+DỌN CSS (giao diện giữ nguyên – so từng điểm ảnh 29 màn hình máy tính + điện thoại: 26 trùng khớp 100%, 3 khác đúng chỗ chủ ý sửa)
+- Bỏ lớp không còn dùng: .nav-direct, .m-menu-home (trang Khởi động cũ), quy tắc rỗng .view-loading, #workspace.view-loading.
+- Hết ghi đè chồng chéo: .modal-foot, .field textarea, .imp-card (mỗi thuộc tính chỉ khai báo 1 lần).
+- Gom CSS Đồng bộ dư nợ & Nhập file về 1 mục (trước nằm lẫn trong khối điện thoại); .start-group → .imp-box; nút Tải lại menu điện thoại gộp 1 lớp .m-menu-reload; 100dvh dùng chung.
+- Khóa cache BOOT_V593_, DATA_V593_. Kiểm thử: 7 bộ tests/*.cjs đều đạt (thêm tests/v593-do-lai.cjs).
+- Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
 QL_TC_2026 – v5.9.2 (05/10/2026) · SỬA LỖI
 - Sửa lỗi nút "Đổi trạng thái" (Tài khoản, Danh mục, Người dùng) luôn báo "Assignment to constant variable" – nay bật/tắt Hoạt động ⇄ Ngừng hoạt động bình thường.
 - Trình duyệt / Duyệt / Từ chối / Hủy / Đổi trạng thái… (transitionRecord) nay có khóa ghi như các thao tác khác – 2 người bấm cùng lúc không ghi đè nhau.
