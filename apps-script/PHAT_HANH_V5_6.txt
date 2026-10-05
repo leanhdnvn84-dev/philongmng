@@ -1,3 +1,43 @@
+QL_TC_2026 – v5.9.7 (05/10/2026) · DÒ TOÀN BỘ GIAO DIỆN NGHIỆP VỤ – LÀM ĐỦ 21 MỤC
+A. KIỂM SOÁT NGHIỆP VỤ
+ 1. Nút Duyệt / Từ chối chỉ hiện khi bản ghi "Chờ duyệt" (trước hiện cả khi Nháp).
+ 2. "Xác nhận đã thực hiện" chỉ sau khi Đã duyệt (trước bấm được từ Nháp, bỏ qua duyệt). Thêm "Đối soát" → Hoàn thành, ghi ngày đối soát.
+ 3. Người lập không được tự duyệt; Quản trị tự duyệt vẫn được nhưng Phê duyệt ghi "[Tự duyệt]" và có cảnh báo trước khi bấm.
+ 4. Tổng chân bảng Khoản vay không cộng khoản Đã tất toán; Lịch trả nợ không cộng kỳ Hủy.
+ 5. Form Khoản vay: Dư nợ gốc đầu kỳ + Ngày chốt chỉ xem (do Đồng bộ dư nợ ghi); máy chủ cũng chặn sửa tay.
+B. HIỂN THỊ
+ 6–7. Mọi mã hiện chữ tiếng Việt: Thu/Chi/Chuyển nội bộ, Vận hành, Ngân hàng, Tiền mặt, Cố định…, Nhật ký: Tạo mới, Cập nhật, Đồng bộ dư nợ…
+ 8. Ô nhập tiền tự thêm dấu chấm khi gõ (1.234.567), nhãn có "(đ)"; phần trăm có "(%)".
+ 9. Bảng không lặp "₫" ở từng ô – đơn vị ghi 1 lần ở tiêu đề cột "(đ)"; ô tổng, chi tiết, thẻ điện thoại giữ ₫.
+ 10. Tên thống nhất "Cafef-RCG · Quản lý tài chính" (tab trình duyệt, tiêu đề trang). Tên người dùng lấy từ sheet NGUOI_DUNG.
+ 11. Kỳ trả nợ là ô chọn tháng, tự theo Ngày đến hạn; máy chủ tự điền nếu để trống. Kỳ hiển thị dạng 10/2026.
+ 12. Form xếp theo nhóm nghiệp vụ (Khoản vay: Hợp đồng · Số tiền · Lãi suất · Thời hạn · Trạng thái; tương tự Lịch trả nợ, Giao dịch, Kế hoạch, Nguồn vốn, Công nợ, Tài khoản).
+C. TRÙNG LẶP
+ 13. Khoản vay thêm cột Công ty vay (đầu bảng); thẻ/chi tiết lấy Công ty làm tiêu đề (chưa có thì lấy Tên khoản vay).
+ 14. Lịch trả nợ / Lãi suất / mọi nơi có Khoản vay: Người vay · Ngân hàng (không lặp tên) · Số HĐ · Mã.
+ 15. Chi tiết không lặp dòng Ngân hàng / Khoản vay đã có ở phần đầu.
+ 16. "Thu chi (dữ liệu cũ)" → "Thu chi (lưu trữ)", chuyển vào nhóm Hệ thống, không tải trước.
+ 17. Lãi suất: Lịch sử lãi suất là nguồn gốc – lưu một mức đã áp dụng (ngày ≤ hôm nay) thì Khoản vay tự cập nhật lãi suất.
+ 18. Menu theo đúng nhóm nghiệp vụ: Dòng tiền · Nguồn vốn & vay · Công nợ · Kiểm soát · Hệ thống.
+D. TÁC VỤ MỚI (bỏ 2 tác vụ trùng: Phân bổ = Thanh toán, Thay tệp = Sửa)
+ - Lịch trả nợ: Xác nhận thanh toán (ghi Phân bổ trả nợ, tự chuyển Đã trả một phần / Đã thanh toán), Điều chỉnh (kèm lý do), Mở khoản vay.
+ - Quá hạn tự động: mỗi ngày khi mở Lịch trả nợ / Công nợ, kỳ chưa trả đã qua hạn → Quá hạn (có nhật ký). Hàm tay: capNhatQuaHan.
+ - Sửa/xóa Phân bổ trả nợ, Phân bổ công nợ → trạng thái kỳ trả / công nợ tự cập nhật lại.
+ - Công nợ: Ghi nhận thanh toán. Kế hoạch: Tạo giao dịch (từ kế hoạch đã duyệt), Nhân bản. Danh mục: Nhân bản.
+ - Khoản vay: Cập nhật lãi suất, Thêm kỳ trả nợ, Xem lịch trả nợ. Nguồn vốn: Ghi nhận giải ngân (cộng dồn), Liên kết khoản vay.
+ - Giao dịch: Thêm chứng từ. Chứng từ: Mở tệp, Gỡ tệp. Phân bổ / Phê duyệt / Nhật ký: Mở bản ghi gốc. Số dư đầu kỳ: Sao chép sang kỳ mới.
+ - Phân bổ không bắt buộc Mã giao dịch. Tìm kiếm tìm trên mọi kỳ (như Lịch trả nợ).
+ - Chưa làm: tải tệp lên Drive (cần thêm quyền Drive cho ứng dụng) – Chứng từ vẫn dán đường dẫn.
+E. DANH MỤC & DỮ LIỆU (hàm chạy tay trong Apps Script, đều có bước xem trước, chạy lại an toàn)
+ 19. Ô Công ty / Dự án / Ngân hàng / Đối tác / Tiền tệ / Nhóm thu chi có gợi ý từ Danh mục + giá trị đang dùng; Loại danh mục là danh sách chọn.
+     xemTruoc_TaoDanhMuc → taoDanhMucTuDuLieu: tạo danh mục từ dữ liệu đang có (MA = giá trị cũ, không đổi dữ liệu nghiệp vụ). Thử trên bản sao: 87 mục.
+ 20. xemTruoc_ChuanHoaKhoanVay → chuanHoaDuLieuKhoanVay: điền ô trống từ báo cáo T10 (ngày vay, đáo hạn, số HĐ/TK vay, lãi suất), sửa ngày ký đảo ngày/tháng,
+     dời ngày đáo hạn nằm nhầm ô giải ngân, xóa hạn mức / gốc giải ngân dương nhỏ hơn dư nợ (là số gốc 1 kỳ). Không ghi đè số đã có. Thử trên bản sao: 79 khoản.
+     Chi tiết Khoản vay hiện hộp "Cần bổ sung" (thiếu HĐ, lãi suất, đáo hạn, hạn mức…).
+ 21. 6 khoản không có trong báo cáo (KV-T9-019, 023, 054, 055, 058, 080): hiện cảnh báo, chờ xác nhận tất toán hoặc bổ sung số dư (KV-T9-058 đang ghi 25.000.000).
+KIỂM THỬ: 9 bộ tests/*.cjs đều đạt (thêm tests/v597-nghiep-vu.cjs); chạy giao diện máy tính + điện thoại không lỗi; đọc đủ 17 phân hệ trên bản sao dữ liệu thật.
+Khóa cache BOOT_V597_. Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
 QL_TC_2026 – v5.9.6 (05/10/2026) · KHOẢN VAY: THÊM CHỈ SỐ DƯ NỢ, ĐANG VAY LÊN ĐẦU
 - Chân bảng Khoản vay (máy tính + điện thoại), theo thứ tự: Đang vay · Tổng hạn mức · Đã giải ngân · Dư nợ gốc ban đầu · Dư nợ gốc đầu kỳ.
   ("Dư nợ đầu kỳ" cũ chính là cột Dư nợ gốc đầu kỳ – đổi tên cho rõ, không bị lặp.)
