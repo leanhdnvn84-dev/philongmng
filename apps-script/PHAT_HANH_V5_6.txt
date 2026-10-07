@@ -1,3 +1,20 @@
+QL_TC_2026 – v5.9.8 (07/10/2026) · NGUỒN DƯ · THU/CHI TÁCH CỘT · KẾ HOẠCH THU CHI TỰ ĐỘNG · TÁCH CÔNG NỢ PHẢI TRẢ
+1. Nguồn vốn: cột "Tổng nguồn dư" = Có thể giải ngân − Dư nợ phải trả (tự tính, không lưu sheet; âm hiện đỏ). Chân bảng thêm "Tổng nguồn dư" kèm nhãn Đủ / Đang hụt.
+   Trên dữ liệu thật: tổng 344.539.846.799 đ; NV-T9-002 (10 căn XD C25) âm 12.412.938.738 đ.
+2. Kế hoạch thu chi + Giao dịch tiền: tách cột Thu / Chi (Giao dịch thêm cột Chuyển nội bộ) thay cho cột Loại + Số tiền.
+   Chân bảng "Chênh lệch" (Thu − Chi): âm → "Đang hụt" (đỏ), dương → "Đủ". Giao dịch: đổi "Ròng" thành "Chênh lệch".
+3. Kế hoạch thu chi tự có dòng "Gốc lãi ngày dd/mm (n kỳ trả nợ)" = tổng gốc + lãi (+ phí, điều chỉnh) các kỳ Lịch trả nợ đến hạn cùng ngày (bỏ kỳ Hủy).
+   Tháng 10/2026 trên dữ liệu thật: ngày 10, 15, 20, 25, 26, 28 – tổng 85.688.754.962 đ, khớp Lịch trả nợ. Dòng tự động có nhãn "Tự động", chỉ xem;
+   nút "Mở nguồn số liệu" mở các kỳ của ngày đó. Kỳ trả hết → Đã thực hiện. Dòng nhập tay "Gốc lãi…" / "Công nợ…" cùng kỳ có cảnh báo trùng.
+4. Chi khác ngoài gốc lãi lấy từ Phân bổ công nợ: mỗi kỳ phân bổ của công nợ PHẢI TRẢ thành 1 dòng "Trả công nợ <đối tác> · HĐ … · Kỳ i/n" trong Kế hoạch thu chi.
+   - Công nợ phải trả: nút "Tách kỳ thanh toán" (số kỳ, ngày kỳ đầu, cách nhau mấy tháng) → tạo các kỳ Phân bổ công nợ trạng thái "Kế hoạch", chia đều, kỳ cuối nhận phần lẻ.
+   - Phân bổ công nợ có trạng thái Kế hoạch / Đã trả; nút "Xác nhận đã trả" → công nợ tự chuyển Thanh toán một phần / Đã thanh toán. Kỳ Kế hoạch chưa tính là đã trả.
+   - "Ghi nhận thanh toán" trên Công nợ tạo kỳ "Đã trả" như trước. Chân bảng Phân bổ: Kế hoạch trả · Đã trả · Tổng · Số kỳ.
+Khác: tiền VND làm tròn đến đồng khi hiển thị; Kỳ dạng 10/2026 (kể cả kỳ lưu dạng ngày); bổ sung nhãn tiếng Việt còn thiếu (Điều kiện thực hiện, Kỳ hạn…);
+ chân bảng ≥ 6 chỉ số tự thu gọn. Sheet PHAN_BO_CONG_NO tự thêm cột TRANG_THAI ở lần mở đầu tiên.
+Kiểm thử: 10 bộ tests/*.cjs đều đạt (thêm tests/v598-thu-chi.cjs); chạy giao diện trên bản sao dữ liệu thật không lỗi. Khóa cache BOOT_V598_.
+Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
 QL_TC_2026 – v5.9.7 (05/10/2026) · DÒ TOÀN BỘ GIAO DIỆN NGHIỆP VỤ – LÀM ĐỦ 21 MỤC
 A. KIỂM SOÁT NGHIỆP VỤ
  1. Nút Duyệt / Từ chối chỉ hiện khi bản ghi "Chờ duyệt" (trước hiện cả khi Nháp).

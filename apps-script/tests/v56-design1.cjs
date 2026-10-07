@@ -12,7 +12,7 @@ assert.equal(bad.length,0,'Trường không tồn tại: '+bad.join(', '));
 const rows=[{LOAI:'THU',SO:100,TRANG_THAI:'DA_DUYET'},{LOAI:'THU',SO:50,TRANG_THAI:'HUY'},{LOAI:'CHI',SO:30,TRANG_THAI:'CHO_DUYET'},{LOAI:'CHI',SO:20,TRANG_THAI:'DA_DUYET'}];
 ctx.__rows=rows;
 const m=run(`computeMetrics_(__rows,[{l:'Thu',sum:'SO',where:{LOAI:'THU'},not:{TRANG_THAI:['HUY']}},{l:'Chi',sum:'SO',where:{LOAI:'CHI'}},{l:'Chênh',diff:[0,1]},{l:'Tổng',add:[0,1]},{l:'Chờ',count:1,where:{TRANG_THAI:['CHO_DUYET','NHAP']}}])`);
-assert.deepEqual(JSON.parse(JSON.stringify(m)),[{label:'Thu',value:100,money:true},{label:'Chi',value:50,money:true},{label:'Chênh',value:50,money:true},{label:'Tổng',value:150,money:true},{label:'Chờ',value:1,money:false}]);
+assert.deepEqual(JSON.parse(JSON.stringify(m)).map(({gap,...x})=>x),[{label:'Thu',value:100,money:true},{label:'Chi',value:50,money:true},{label:'Chênh',value:50,money:true},{label:'Tổng',value:150,money:true},{label:'Chờ',value:1,money:false}]);
 assert.equal(run('computeMetrics_([],null)'),null);
 // 3. LICH_TRA_NO: 5 KPI theo thứ tự yêu cầu V5.6.5; dư nợ đầu kỳ/sau trả lấy theo từng khoản vay (không cộng dồn các kỳ)
 assert.deepEqual(JSON.parse(run("JSON.stringify(UI_MODULES.LICH_TRA_NO.metrics.map(x=>x.l))")),['Tổng dư nợ đầu kỳ','Tổng gốc phải trả','Tổng dư nợ sau khi trả','Lãi phải trả','Tổng thanh toán']);
@@ -30,10 +30,10 @@ assert.equal(g[0]._NH_MA_TAI_KHOAN_NGUON,'BIDV');assert.equal(g[0]._TEN_MA_TAI_K
 ctx.__k=[{MA_KHOAN_VAY:'KV1',MA_NGAN_HANG:'VCB'}];
 assert.equal(run(`enrichBankRefs_({},'KHOAN_VAY',APP_MODULES.KHOAN_VAY,__k)[0]._NH_MA_KHOAN_VAY`),undefined,'không tự tham chiếu khóa chính');
 // 5. Cache bootstrap đổi khóa để nhận cấu hình mới ngay
-assert.ok(code.includes("'BOOT_V597_'")&&code.includes("version:'5.9.7'"));
+assert.ok(code.includes("'BOOT_V598_'")&&code.includes("version:'5.9.8'"));
 // 6. Nguồn vốn: cột Dư nợ phải trả (tiền, hiển thị trong bảng, tự tạo cột trên sheet, có chỉ số tổng)
 assert.equal(run("APP_MODULES.NGUON_VON.amounts.includes('DU_NO_PHAI_TRA')&&APP_MODULES.NGUON_VON.columns.includes('DU_NO_PHAI_TRA')&&APP_MODULES.NGUON_VON.autoColumns.includes('DU_NO_PHAI_TRA')"),true);
-assert.equal(run("UI_MODULES.NGUON_VON.metrics.map(m=>m.l).join('|')"),'Tổng dự kiến|Đã duyệt|Đã giải ngân|Có thể giải ngân|Không thể giải ngân');
+assert.equal(run("UI_MODULES.NGUON_VON.metrics.map(m=>m.l).join('|')"),'Tổng dự kiến|Đã duyệt|Đã giải ngân|Có thể giải ngân|Không thể giải ngân|Tổng nguồn dư');
 assert.equal(run("['CO_THE_GIAI_NGAN','KHONG_THE_GIAI_NGAN','GHI_CHU'].every(k=>APP_MODULES.NGUON_VON.columns.includes(k)&&APP_MODULES.NGUON_VON.autoColumns.includes(k))"),true);
 // mô phỏng sheet 3 cột, lưới chỉ có 3 cột → phải chèn thêm cột rồi ghi tiêu đề
 run(`var __log=[],__hdr=['MA_NGUON_VON','KY_DU_KIEN','LOAI_NGUON'],__max=3;__sh={getLastColumn:()=>__hdr.length,getMaxColumns:()=>__max,getMaxRows:()=>10,getLastRow:()=>5,insertColumnsAfter:(a,n)=>{__max+=n;__log.push('insert'+n)},getRange:(r,c,nr,nc)=>({getDisplayValues:()=>[__hdr.slice()],copyFormatToRange:()=>__log.push('fmtHeader'),setValues:v=>{__hdr=__hdr.concat(v[0]);__log.push('set@'+c)},setNumberFormat:f=>__log.push('num@'+c+':'+f)})}`);
