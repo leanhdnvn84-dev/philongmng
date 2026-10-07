@@ -42,7 +42,7 @@ const CONTRACT_CLAUSE_SEEDS = [["DK_HOP_DONG_CHUNG_01", "FM_HOP_DONG", "", 1, "C
 
 /** Thông tin công ty dùng cho mọi biểu mẫu (sửa trên sheet DM_CONG_TY, cột GIA_TRI). */
 const COMPANY_INFO_HEADERS = ['KHOA', 'GIA_TRI', 'MO_TA'];
-const COMPANY_INFO_SEEDS = [["TEN_DON_VI", "Công ty TNHH Công nghệ Tin học Phi Long", "Tên đầy đủ (in trong hợp đồng, căn cứ)"], ["TEN_DAU_TRANG", "CÔNG TY TNHH CÔNG NGHỆ\nTIN HỌC PHI LONG", "Tên in ở góc trái đầu trang Quốc hiệu (xuống dòng bằng Alt+Enter)"], ["DIA_CHI", "152-158 Hàm Nghi, Phường Thanh Khê, TP. Đà Nẵng, Việt Nam", "Địa chỉ đầy đủ"], ["DIA_CHI_NGAN", "152-158 Hàm Nghi, P. Thanh Khê, TP. Đà Nẵng", "Địa chỉ ngắn in dưới logo"], ["MA_SO_THUE", "0400127402", "Mã số thuế"], ["NGUOI_DAI_DIEN", "Nguyễn Khoa Long", "Người đại diện theo pháp luật"], ["CHUC_VU", "Giám đốc", "Chức vụ người đại diện"], ["SO_TAI_KHOAN", "10201 0000 618 243", "Số tài khoản"], ["NGAN_HANG", "Ngân hàng Công Thương Việt Nam – CN Đà Nẵng", "Ngân hàng"], ["DIEN_THOAI", "(0236) 3 888 000", "Điện thoại (cần xác nhận)"], ["EMAIL", "philong@philong.com.vn", "Email (cần xác nhận)"], ["WEBSITE", "www.philong.com.vn", "Website (cần xác nhận)"], ["NOI_BAN_HANH", "Đà Nẵng", "Địa danh ghi ngày tháng"]];
+const COMPANY_INFO_SEEDS = [["TEN_DON_VI", "Công ty TNHH Công nghệ Tin học Phi Long", "Tên đầy đủ (in trong hợp đồng, căn cứ)"], ["TEN_DAU_TRANG", "CÔNG TY TNHH CÔNG NGHỆ\nTIN HỌC PHI LONG", "Tên in ở góc trái đầu trang Quốc hiệu (xuống dòng bằng Alt+Enter)"], ["DIA_CHI", "152-158 Hàm Nghi, Phường Thanh Khê, TP. Đà Nẵng, Việt Nam", "Địa chỉ đầy đủ"], ["DIA_CHI_NGAN", "152-158 Hàm Nghi, TP. Đà Nẵng", "Địa chỉ ngắn in dưới logo"], ["MA_SO_THUE", "0400127402", "Mã số thuế"], ["NGUOI_DAI_DIEN", "Nguyễn Khoa Long", "Người đại diện theo pháp luật"], ["CHUC_VU", "Giám đốc", "Chức vụ người đại diện"], ["SO_TAI_KHOAN", "10201 0000 618 243", "Số tài khoản"], ["NGAN_HANG", "Ngân hàng Công Thương Việt Nam – CN Đà Nẵng", "Ngân hàng"], ["DIEN_THOAI", "(0236) 3 888 000", "Điện thoại (cần xác nhận)"], ["EMAIL", "philong@philong.com.vn", "Email (cần xác nhận)"], ["WEBSITE", "www.philong.com.vn", "Website (cần xác nhận)"], ["NOI_BAN_HANH", "Đà Nẵng", "Địa danh ghi ngày tháng"]];
 
 const FORM_REMIND_DAYS = 7;
 const FORM_DRIVE_FOLDER_NAME = 'PHI LONG HR - Văn bản biểu mẫu';
@@ -1213,6 +1213,10 @@ function ensureDefaultFormTemplates_(ss) {
 function ensureCompanyInfo_(ss) {
   var sheet = ensureFormSheet_(ss, 'DM_CONG_TY'), meta = headers_(sheet), known = {}, pending = [];
   readSheet_(ss, 'DM_CONG_TY').rows.forEach(function (row) { known[key_(row.KHOA)] = true; });
+  var keyCol = meta.headers.indexOf('KHOA'), valueCol = meta.headers.indexOf('GIA_TRI');
+  if (keyCol >= 0 && valueCol >= 0 && sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow() - 1, meta.headers.length).getDisplayValues().forEach(function (values, index) {
+    if (key_(values[keyCol]) === key_('DIA_CHI_NGAN') && String(values[valueCol]).trim() === '152-158 Hàm Nghi, P. Thanh Khê, TP. Đà Nẵng') sheet.getRange(index + 2, valueCol + 1).setValue('152-158 Hàm Nghi, TP. Đà Nẵng');
+  });
   COMPANY_INFO_SEEDS.forEach(function (seed) {
     if (known[key_(seed[0])]) return;
     var record = { KHOA: seed[0], GIA_TRI: seed[1], MO_TA: seed[2] };
