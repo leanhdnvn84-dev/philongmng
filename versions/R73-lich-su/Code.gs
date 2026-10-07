@@ -402,6 +402,17 @@ const AUTH_SHEET_HEADERS = {
 const AUTH_MAX_FAILED_ATTEMPTS = 5;
 const AUTH_LOCK_MINUTES = 15;
 const AUTH_MIN_PASSWORD_LENGTH = 8;
+/** Phiên đăng nhập: hết hạn khi không thao tác 8 giờ hoặc tối đa 7 ngày; mỗi tài khoản giữ tối đa 5 phiên. */
+const AUTH_SESSION_PREFIX = 'PHI_LONG_LOCAL_SESSION_';
+const AUTH_SESSION_IDLE_HOURS = 8;
+const AUTH_SESSION_MAX_DAYS = 7;
+const AUTH_SESSION_MAX_PER_USER = 5;
+const AUTH_SESSION_CHECK_MINUTES = 5;
+const AUTH_VERSION_KEY = 'PHI_LONG_AUTH_VERSION';
+const AUTH_SESSION_ENDED = 'Phiên đăng nhập đã hết hạn hoặc không còn khả dụng. Vui lòng đăng nhập lại.';
+/** Mật khẩu lưu dạng băm: pbk1$<số vòng>$<salt>$<HMAC-SHA256 lặp>. */
+const AUTH_HASH_PREFIX = 'pbk1';
+const AUTH_HASH_ROUNDS = 300;
 const AUTH_ROLE_SEEDS = [
   ['ROLE-ADMIN', 'Quản trị hệ thống'],
   ['ROLE-MANAGER', 'Quản lý'],
@@ -476,12 +487,70 @@ function ensureAuthSheet_(ss, name) {
   return sheet;
 }
 
+/** appendRow là thao tác nguyên tử: hai người ghi cùng lúc không đè lên nhau. */
 function appendAuthRecord_(sheet, record, suppliedMeta) {
-  var meta = suppliedMeta || headers_(sheet), rowNumber = Math.max(2, sheet.getLastRow() + 1);
-  sheet.getRange(rowNumber, 1, 1, meta.headers.length).setValues([meta.headers.map(function (header) {
+  var meta = suppliedMeta || headers_(sheet);
+  sheet.appendRow(meta.headers.map(function (header) {
     return header ? (record[header] == null ? '' : record[header]) : '';
-  })]);
-  return rowNumber;
+  }));
+  return sheet.getLastRow();
+}
+
+function authHashRaw_(password, salt, rounds) {
+  var key = Utilities.newBlob(String(salt)).getBytes(), bytes = Utilities.computeHmacSha256Signature(Utilities.newBlob(String(password)).getBytes(), key);
+  for (var i = 1; i < rounds; i++) bytes = Utilities.computeHmacSha256Signature(bytes, key);
+  return Utilities.base64Encode(bytes);
+}
+
+function authIsHashed_(stored) {
+  return /^pbk1\$\d+\$[0-9a-f]+\$[A-Za-z0-9+\/=]+$/.test(String(stored || ''));
+}
+
+function authPasswordHash_(password) {
+  var salt = Utilities.getUuid().replace(/-/g, '');
+  return [AUTH_HASH_PREFIX, AUTH_HASH_ROUNDS, salt, authHashRaw_(password, salt, AUTH_HASH_ROUNDS)].join('$');
+}
+
+/** Hỗ trợ cả mật khẩu cũ chưa băm để chuyển đổi dần, không bắt người dùng đổi mật khẩu. */
+function authPasswordMatches_(stored, password) {
+  stored = String(stored || ''); password = String(password || '');
+  if (!stored || !password) return false;
+  if (!authIsHashed_(stored)) return stored === password;
+  var parts = stored.split('$'), expected = parts[3], actual = authHashRaw_(password, parts[2], Number(parts[1]) || AUTH_HASH_ROUNDS), diff = expected.length ^ actual.length;
+  for (var i = 0; i < Math.min(expected.length, actual.length); i++) diff |= expected.charCodeAt(i) ^ actual.charCodeAt(i);
+  return diff === 0;
+}
+
+function authIsAdmin_(user) {
+  return key_(user && user.roleCode) === 'role-admin';
+}
+
+function authActiveAdminCount_(ss, exceptRow) {
+  return authAccountRows_(ss).filter(function (item) {
+    return item.rowNumber !== exceptRow && key_(item.data.MA_VAI_TRO) === 'role-admin' && authActive_(item.data.TRANG_THAI);
+  }).length;
+}
+
+/** Băm mọi mật khẩu còn ở dạng chữ thường. Trả về số tài khoản đã chuyển. */
+function authMigratePasswords_(ss) {
+  var sheet = ss.getSheetByName('NGUOI_DUNG');
+  if (!sheet) return 0;
+  var meta = headers_(sheet), count = 0;
+  authAccountRows_(ss).forEach(function (item) {
+    var stored = String(item.data.MAT_KHAU || '');
+    if (!stored || authIsHashed_(stored)) return;
+    authWriteField_(sheet, meta, item.rowNumber, 'MAT_KHAU', authPasswordHash_(stored), '@');
+    count++;
+  });
+  if (count) SpreadsheetApp.flush();
+  return count;
+}
+
+/** Chạy thủ công một lần trong Apps Script để băm toàn bộ mật khẩu cũ ngay. */
+function hashLocalPasswords() {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try { return { success: true, hashed: authMigratePasswords_(ss) }; } finally { lock.releaseLock(); }
 }
 
 function authFlag_(value) {
@@ -519,7 +588,7 @@ function authWriteField_(sheet, meta, rowNumber, field, value, format) {
 
 function authAccountRows_(ss, snapshot) {
   var result = [], data = snapshot && snapshot.accounts || readSheet_(ss, 'NGUOI_DUNG').rows;
-  data.forEach(function (row, index) { result.push({ data: row, rowNumber: index + 2 }); });
+  data.forEach(function (row, index) { result.push({ data: row, rowNumber: row.__row || index + 2 }); });
   return result;
 }
 
@@ -596,19 +665,78 @@ function authContext_(ss, account, snapshot) {
 }
 
 function authSessionKey_(token) {
-  return 'PHI_LONG_LOCAL_SESSION_' + String(token || '');
+  return AUTH_SESSION_PREFIX + String(token || '');
+}
+
+function authSessionExpired_(session, now) {
+  var created = Date.parse(session && session.createdAt || ''), last = Date.parse(session && (session.lastActivityAt || session.createdAt) || '');
+  if (!created || !last) return true;
+  return now - last > AUTH_SESSION_IDLE_HOURS * 3600000 || now - created > AUTH_SESSION_MAX_DAYS * 86400000;
+}
+
+/** Xoá phiên hết hạn và phiên cũ vượt số lượng cho phép của một tài khoản; tránh đầy Script Properties (500KB). */
+function authPurgeSessions_(store, username, reserve) {
+  var all = store.getProperties(), now = Date.now(), mine = [], removed = 0;
+  Object.keys(all).forEach(function (key) {
+    if (key.indexOf(AUTH_SESSION_PREFIX) !== 0) return;
+    var session = null;
+    try { session = JSON.parse(all[key]); } catch (error) {}
+    if (!session || authSessionExpired_(session, now)) { store.deleteProperty(key); removed++; return; }
+    if (username && key_(session.user && session.user.username) === key_(username)) mine.push({ key: key, last: Date.parse(session.lastActivityAt || session.createdAt) || 0 });
+  });
+  mine.sort(function (a, b) { return b.last - a.last; }).slice(Math.max(0, AUTH_SESSION_MAX_PER_USER - (reserve || 0))).forEach(function (item) { store.deleteProperty(item.key); removed++; });
+  return removed;
+}
+
+/** Kết thúc mọi phiên của một tài khoản (khi khoá, reset/đổi mật khẩu), trừ phiên đang dùng. */
+function authRevokeUserSessions_(username, exceptToken) {
+  var store = PropertiesService.getScriptProperties(), all = store.getProperties(), keep = exceptToken ? authSessionKey_(exceptToken) : '';
+  Object.keys(all).forEach(function (key) {
+    if (key.indexOf(AUTH_SESSION_PREFIX) !== 0 || key === keep) return;
+    try { if (key_(JSON.parse(all[key]).user.username) === key_(username)) store.deleteProperty(key); } catch (error) { store.deleteProperty(key); }
+  });
+}
+
+/** Báo cho mọi phiên kiểm tra lại tài khoản/quyền ở lần gọi kế tiếp. */
+function authBumpVersion_() {
+  PropertiesService.getScriptProperties().setProperty(AUTH_VERSION_KEY, String(Date.now()));
 }
 
 function authSession_(token) {
   var value = String(token || '').trim();
-  if (!value) throw new Error('Phiên đăng nhập không hợp lệ.');
+  if (!value) throw new Error(AUTH_SESSION_ENDED);
   // Không dùng CacheService cho phiên đăng nhập: CacheService có thể tự xoá
   // sau thời gian giới hạn dù người dùng vẫn đang làm việc.
-  var store = PropertiesService.getScriptProperties(), raw = store.getProperty(authSessionKey_(value));
-  if (!raw) throw new Error('Phiên làm việc không còn khả dụng. Vui lòng tải lại trang.');
+  var store = PropertiesService.getScriptProperties(), key = authSessionKey_(value), raw = store.getProperty(key), now = Date.now();
+  if (!raw) throw new Error(AUTH_SESSION_ENDED);
   var session;
-  try { session = JSON.parse(raw); } catch (error) { throw new Error('Phiên đăng nhập không hợp lệ.'); }
+  try { session = JSON.parse(raw); } catch (error) { store.deleteProperty(key); throw new Error(AUTH_SESSION_ENDED); }
+  if (authSessionExpired_(session, now)) { store.deleteProperty(key); throw new Error(AUTH_SESSION_ENDED); }
+  var version = store.getProperty(AUTH_VERSION_KEY) || '0', changed = false;
+  if (session.authVersion !== version || now - (Date.parse(session.checkedAt || '') || 0) > AUTH_SESSION_CHECK_MINUTES * 60000) {
+    // Đọc lại tài khoản: khoá/đổi vai trò/đổi quyền có hiệu lực ngay, không chờ đăng xuất.
+    var ss = SpreadsheetApp.openById(SPREADSHEET_ID), snapshot = authSnapshot_(ss), wanted = key_(session.user && session.user.id), found = authAccountRows_(ss, snapshot).find(function (item) {
+      return wanted ? key_(item.data.ID_NGUOI_DUNG) === wanted : key_(item.data.TEN_DANG_NHAP) === key_(session.user && session.user.username);
+    }), lockedUntil = found && authDate_(found.data.KHOA_DEN);
+    if (!found || !authActive_(found.data.TRANG_THAI) || (lockedUntil && lockedUntil.getTime() > now)) {
+      store.deleteProperty(key);
+      throw new Error('Phiên đăng nhập đã kết thúc vì tài khoản đã bị khóa hoặc ngừng hoạt động.');
+    }
+    session.user = authContext_(ss, found.data, snapshot);
+    session.authVersion = version;
+    session.checkedAt = new Date(now).toISOString();
+    changed = true;
+  }
+  if (changed || now - (Date.parse(session.lastActivityAt || '') || 0) > AUTH_SESSION_CHECK_MINUTES * 60000) {
+    session.lastActivityAt = new Date(now).toISOString();
+    store.setProperty(key, JSON.stringify(session));
+  }
   return session;
+}
+
+/** Chạy thủ công (hoặc gắn trigger hằng ngày) để dọn phiên hết hạn. */
+function cleanupLocalSessions() {
+  return { success: true, removed: authPurgeSessions_(PropertiesService.getScriptProperties(), '', 0) };
 }
 
 function requireAuth_(token) {
@@ -691,11 +819,11 @@ function setupLocalAuth() {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   ensureAuthData_(ss);
   var accounts = authAccountRows_(ss);
-  if (accounts.length) return authOutput_({ success: true, created: false, message: 'Dữ liệu xác thực đã tồn tại; không tạo lại tài khoản. Nếu quên mật khẩu, chạy resetLocalAdminPassword().' });
+  if (accounts.length) return authOutput_({ success: true, created: false, hashed: authMigratePasswords_(ss), removedSessions: authPurgeSessions_(PropertiesService.getScriptProperties(), '', 0), message: 'Dữ liệu xác thực đã tồn tại; không tạo lại tài khoản. Nếu quên mật khẩu, chạy resetLocalAdminPassword().' });
   var temporaryPassword = authTemporaryPassword_(), sheet = ensureAuthSheet_(ss, 'NGUOI_DUNG');
   appendAuthRecord_(sheet, {
     ID_NGUOI_DUNG: 'USR_' + Utilities.getUuid(), TEN_DANG_NHAP: 'admin', TEN_HIEN_THI: 'Admin', EMAIL: '', MA_NHAN_VIEN: '',
-    MA_VAI_TRO: 'ROLE-ADMIN', TRANG_THAI: 'Đang hoạt động', MAT_KHAU: temporaryPassword,
+    MA_VAI_TRO: 'ROLE-ADMIN', TRANG_THAI: 'Đang hoạt động', MAT_KHAU: authPasswordHash_(temporaryPassword),
     MAT_KHAU_CAP_NHAT_LUC: new Date(), BAT_DOI_MAT_KHAU: 'Có', SO_LAN_SAI: 0, KHOA_DEN: '', LAN_DANG_NHAP_CUOI: '', NGAY_CAP_NHAT: new Date(), GHI_CHU: 'Tài khoản khởi tạo; bắt buộc đổi mật khẩu.'
   });
   SpreadsheetApp.flush();
@@ -713,7 +841,7 @@ function resetLocalAdminPassword() {
   if (!found) throw new Error('Chưa có tài khoản admin. Hãy chạy setupLocalAuth() trước.');
   var sheet = ensureAuthSheet_(ss, 'NGUOI_DUNG'), meta = headers_(sheet), now = new Date();
   var temporaryPassword = authTemporaryPassword_();
-  authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', temporaryPassword, '@');
+  authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', authPasswordHash_(temporaryPassword), '@');
   authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU_CAP_NHAT_LUC', now, 'dd/MM/yyyy HH:mm:ss');
   authWriteField_(sheet, meta, found.rowNumber, 'BAT_DOI_MAT_KHAU', 'Có', '@');
   authWriteField_(sheet, meta, found.rowNumber, 'SO_LAN_SAI', 0, '@');
@@ -721,6 +849,8 @@ function resetLocalAdminPassword() {
   authWriteField_(sheet, meta, found.rowNumber, 'NGAY_CAP_NHAT', now, 'dd/MM/yyyy HH:mm:ss');
   authWriteField_(sheet, meta, found.rowNumber, 'GHI_CHU', 'Đã reset mật khẩu; bắt buộc đổi mật khẩu sau khi đăng nhập.', '@');
   writeSystemLog_(ss, { username: 'Hệ thống', employeeCode: '' }, 'HE_THONG', 'DAT_LAI_MAT_KHAU', found.data.ID_NGUOI_DUNG || 'admin', null, null, 'Reset mật khẩu tài khoản admin thủ công.');
+  authRevokeUserSessions_(found.data.TEN_DANG_NHAP || 'admin');
+  authBumpVersion_();
   SpreadsheetApp.flush();
   return authOutput_({ success: true, reset: true, username: found.data.TEN_DANG_NHAP || 'admin', temporaryPassword: temporaryPassword, message: 'Đã reset mật khẩu admin. Đăng nhập bằng mật khẩu tạm và đổi mật khẩu ngay.' });
 }
@@ -783,6 +913,10 @@ function getSystemData(sessionToken) {
   if (key_(auth.roleCode) !== 'role-admin' && !authCan_(ss, auth.roleCode, 'HE_THONG', 'XEM', snapshot)) {
     throw new Error('Tài khoản không có quyền XEM tại chức năng này.');
   }
+  if (authIsAdmin_(auth) && snapshot.accounts.some(function (row) { return row.MAT_KHAU && !authIsHashed_(row.MAT_KHAU); })) {
+    var migrateLock = LockService.getScriptLock();
+    if (migrateLock.tryLock(10000)) { try { authMigratePasswords_(ss); } finally { migrateLock.releaseLock(); } }
+  }
   var rawAccounts = snapshot.accounts;
   var accounts = rawAccounts.map(function (row) { return systemSafeAccount_(ss, row, snapshot); });
   var roles = snapshot.roles;
@@ -824,7 +958,10 @@ function saveSystemAccount(input) {
   if (!username) throw new Error('Vui lòng nhập tên đăng nhập.');
   if (!displayName) throw new Error('Vui lòng nhập tên hiển thị.');
   if (password && password.length < AUTH_MIN_PASSWORD_LENGTH) throw new Error('Mật khẩu phải có ít nhất ' + AUTH_MIN_PASSWORD_LENGTH + ' ký tự.');
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  if (key_(roleCode) === 'role-admin' && !authIsAdmin_(auth)) throw new Error('Chỉ Quản trị hệ thống được tạo tài khoản có vai trò Quản trị.');
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
   ensureAuthData_(ss);
   if (authFindAccount_(ss, username)) throw new Error('Tên đăng nhập hoặc email đã tồn tại.');
   if (email && authFindAccount_(ss, email)) throw new Error('Tên đăng nhập hoặc email đã tồn tại.');
@@ -835,7 +972,7 @@ function saveSystemAccount(input) {
   var record = {
     ID_NGUOI_DUNG: 'USR_' + Utilities.getUuid(), TEN_DANG_NHAP: username, TEN_HIEN_THI: displayName, EMAIL: email,
     MA_NHAN_VIEN: employeeCode, MA_VAI_TRO: roleCode, TRANG_THAI: systemStatus_(input.TRANG_THAI || 'Đang hoạt động'),
-    MAT_KHAU: password || temporaryPassword, MAT_KHAU_CAP_NHAT_LUC: now, BAT_DOI_MAT_KHAU: 'Có', SO_LAN_SAI: 0,
+    MAT_KHAU: authPasswordHash_(password || temporaryPassword), MAT_KHAU_CAP_NHAT_LUC: now, BAT_DOI_MAT_KHAU: 'Có', SO_LAN_SAI: 0,
     KHOA_DEN: '', LAN_DANG_NHAP_CUOI: '', NGAY_CAP_NHAT: now, GHI_CHU: generatedPassword ? 'Tài khoản tạo mới; dùng mật khẩu tạm và đổi sau lần đăng nhập đầu tiên.' : ''
   };
   appendAuthRecord_(sheet, record);
@@ -843,7 +980,11 @@ function saveSystemAccount(input) {
   SpreadsheetApp.flush();
   var result = { success: true, created: true, id: record.ID_NGUOI_DUNG, username: username, message: 'Đã tạo tài khoản.' };
   if (generatedPassword) result.temporaryPassword = temporaryPassword;
-  return authOutput_(result);
+  // Không ghi mật khẩu tạm vào Execution log; chỉ trả về cho người tạo.
+  return result;
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function updateSystemAccount(input) {
@@ -855,9 +996,14 @@ function updateSystemAccount(input) {
   var found = systemFindAccount_(ss, id);
   if (!found) throw new Error('Không tìm thấy tài khoản.');
   var status = Object.prototype.hasOwnProperty.call(input, 'TRANG_THAI') ? systemStatus_(input.TRANG_THAI) : '';
-  if (status && key_(found.data.TEN_DANG_NHAP) === key_(auth.username) && status !== 'Đang hoạt động') throw new Error('Không thể tự khóa tài khoản đang đăng nhập.');
+  var self = key_(found.data.TEN_DANG_NHAP) === key_(auth.username), targetAdmin = key_(found.data.MA_VAI_TRO) === 'role-admin';
+  if (status && self && status !== 'Đang hoạt động') throw new Error('Không thể tự khóa tài khoản đang đăng nhập.');
   var roleCode = String(input.MA_VAI_TRO || '').trim();
   if (roleCode && !systemRole_(ss, roleCode)) throw new Error('Vai trò đã chọn không tồn tại.');
+  var roleChanged = !!roleCode && key_(roleCode) !== key_(found.data.MA_VAI_TRO);
+  if (!authIsAdmin_(auth) && (targetAdmin || key_(roleCode) === 'role-admin')) throw new Error('Chỉ Quản trị hệ thống được sửa tài khoản Quản trị hoặc gán vai trò Quản trị.');
+  if (self && roleChanged) throw new Error('Không thể tự đổi vai trò của tài khoản đang đăng nhập.');
+  if (targetAdmin && ((roleChanged && key_(roleCode) !== 'role-admin') || (status && status !== 'Đang hoạt động')) && !authActiveAdminCount_(ss, found.rowNumber)) throw new Error('Phải còn ít nhất một tài khoản Quản trị đang hoạt động.');
   var email = String(input.EMAIL || '').trim();
   if (email) {
     var emailFound = authFindAccount_(ss, email);
@@ -871,7 +1017,7 @@ function updateSystemAccount(input) {
     if (pair[1] !== '') authWriteField_(sheet, meta, found.rowNumber, pair[0], pair[1], '@');
   });
   if (password) {
-    authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', password, '@');
+    authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', authPasswordHash_(password), '@');
     authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU_CAP_NHAT_LUC', now, 'dd/MM/yyyy HH:mm:ss');
     authWriteField_(sheet, meta, found.rowNumber, 'BAT_DOI_MAT_KHAU', 'Có', '@');
   }
@@ -879,6 +1025,8 @@ function updateSystemAccount(input) {
   var after = systemSafeAccount_(ss, Object.assign({}, found.data, { TEN_HIEN_THI: String(input.TEN_HIEN_THI || found.data.TEN_HIEN_THI), EMAIL: email || found.data.EMAIL, MA_NHAN_VIEN: employeeCode || found.data.MA_NHAN_VIEN, MA_VAI_TRO: roleCode || found.data.MA_VAI_TRO, TRANG_THAI: status || found.data.TRANG_THAI }));
   writeSystemLog_(ss, auth, 'HE_THONG', 'SUA', id, before, after, password ? 'Cập nhật tài khoản và đặt mật khẩu mới.' : 'Cập nhật thông tin tài khoản.');
   SpreadsheetApp.flush();
+  if (!self && (password || (status && status !== 'Đang hoạt động'))) authRevokeUserSessions_(found.data.TEN_DANG_NHAP);
+  authBumpVersion_();
   return { success: true, updated: true };
 }
 
@@ -890,8 +1038,9 @@ function resetSystemAccountPassword(input) {
   ensureAuthData_(ss);
   var found = systemFindAccount_(ss, id);
   if (!found) throw new Error('Không tìm thấy tài khoản.');
+  if (key_(found.data.MA_VAI_TRO) === 'role-admin' && !authIsAdmin_(auth)) throw new Error('Chỉ Quản trị hệ thống được reset mật khẩu tài khoản Quản trị.');
   var sheet = ensureAuthSheet_(ss, 'NGUOI_DUNG'), meta = headers_(sheet), now = new Date(), temporaryPassword = authTemporaryPassword_();
-  authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', temporaryPassword, '@');
+  authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', authPasswordHash_(temporaryPassword), '@');
   authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU_CAP_NHAT_LUC', now, 'dd/MM/yyyy HH:mm:ss');
   authWriteField_(sheet, meta, found.rowNumber, 'BAT_DOI_MAT_KHAU', 'Có', '@');
   authWriteField_(sheet, meta, found.rowNumber, 'SO_LAN_SAI', 0, '@');
@@ -900,12 +1049,15 @@ function resetSystemAccountPassword(input) {
   authWriteField_(sheet, meta, found.rowNumber, 'GHI_CHU', 'Đã reset mật khẩu; bắt buộc đổi sau lần đăng nhập tiếp theo.', '@');
   writeSystemLog_(ss, auth, 'HE_THONG', 'DAT_LAI_MAT_KHAU', id, null, null, 'Reset mật khẩu tài khoản.');
   SpreadsheetApp.flush();
-  return authOutput_({ success: true, reset: true, username: found.data.TEN_DANG_NHAP || '', temporaryPassword: temporaryPassword, message: 'Đã reset mật khẩu. Đăng nhập bằng mật khẩu tạm và đổi ngay.' });
+  if (key_(found.data.TEN_DANG_NHAP) !== key_(auth.username)) authRevokeUserSessions_(found.data.TEN_DANG_NHAP);
+  authBumpVersion_();
+  return { success: true, reset: true, username: found.data.TEN_DANG_NHAP || '', temporaryPassword: temporaryPassword, message: 'Đã reset mật khẩu. Đăng nhập bằng mật khẩu tạm và đổi ngay.' };
 }
 
 function saveSystemPermissions(input) {
   input = input || {};
   var auth = requirePermission_(input._sessionToken, 'HE_THONG', 'SUA'), items = Array.isArray(input.items) ? input.items : [];
+  if (!authIsAdmin_(auth)) throw new Error('Chỉ Quản trị hệ thống được thay đổi phân quyền.');
   if (!items.length) throw new Error('Chưa có quyền nào để lưu.');
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   ensureAuthData_(ss);
@@ -913,7 +1065,7 @@ function saveSystemPermissions(input) {
   var values = lastRow > 1 ? sheet.getRange(2, 1, lastRow - 1, meta.headers.length).getDisplayValues() : [], updated = 0;
   items.forEach(function (item) {
     var roleCode = String(item.MA_VAI_TRO || '').trim(), moduleCode = String(item.MA_CHUC_NANG || '').trim();
-    if (!roleCode || !moduleCode) return;
+    if (!roleCode || !moduleCode || key_(roleCode) === 'role-admin') return;
     var index = values.findIndex(function (row) { return key_(row[meta.columns.MA_VAI_TRO - 1]) === key_(roleCode) && key_(row[meta.columns.MA_CHUC_NANG - 1]) === key_(moduleCode); });
     if (index === -1) return;
     var rowNumber = index + 2;
@@ -922,6 +1074,7 @@ function saveSystemPermissions(input) {
   });
   writeSystemLog_(ss, auth, 'HE_THONG', 'SUA', 'PHAN_QUYEN', null, { rows: updated }, 'Cập nhật ma trận phân quyền.');
   SpreadsheetApp.flush();
+  authBumpVersion_();
   return { success: true, updated: updated };
 }
 
@@ -946,7 +1099,7 @@ function loginLocal(input) {
       writeLoginLog_(ss, username, account.MA_NHAN_VIEN, 'Thất bại', 'Tài khoản đã bị khóa hoặc ngừng hoạt động', device);
       throw new Error('Tài khoản đã bị khóa hoặc ngừng hoạt động.');
     }
-    var valid = String(account.MAT_KHAU || '') === password, failed = Number(account.SO_LAN_SAI || 0);
+    var valid = authPasswordMatches_(account.MAT_KHAU, password), failed = Number(account.SO_LAN_SAI || 0);
     if (!valid) {
       failed += 1;
       authWriteField_(sheet, meta, found.rowNumber, 'SO_LAN_SAI', failed, '@');
@@ -957,10 +1110,13 @@ function loginLocal(input) {
     authWriteField_(sheet, meta, found.rowNumber, 'SO_LAN_SAI', 0, '@');
     authWriteField_(sheet, meta, found.rowNumber, 'KHOA_DEN', '');
     authWriteField_(sheet, meta, found.rowNumber, 'LAN_DANG_NHAP_CUOI', now, 'dd/MM/yyyy HH:mm:ss');
-    var user = authContext_(ss, account, authData), token = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, ''), session = { user: user, createdAt: now.toISOString(), lastActivityAt: now.toISOString() };
-    // Phiên được giữ đến khi logout hoặc bị xoá thủ công; không tự hết hạn
-    // trong lúc trang hiện tại vẫn đang được sử dụng.
-    PropertiesService.getScriptProperties().setProperty(authSessionKey_(token), JSON.stringify(session));
+    if (!authIsHashed_(account.MAT_KHAU)) authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', authPasswordHash_(password), '@');
+    var store = PropertiesService.getScriptProperties(), user = authContext_(ss, account, authData), token = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, '');
+    var session = { user: user, createdAt: now.toISOString(), lastActivityAt: now.toISOString(), checkedAt: now.toISOString(), authVersion: store.getProperty(AUTH_VERSION_KEY) || '0' };
+    // Phiên hết hạn sau AUTH_SESSION_IDLE_HOURS giờ không thao tác hoặc AUTH_SESSION_MAX_DAYS ngày;
+    // dọn phiên cũ trước khi tạo phiên mới để Script Properties không bị đầy.
+    authPurgeSessions_(store, username, 1);
+    store.setProperty(authSessionKey_(token), JSON.stringify(session));
     writeLoginLog_(ss, username, account.MA_NHAN_VIEN, 'Thành công', 'Đăng nhập hợp lệ', device);
     return { success: true, token: token, user: user };
   } finally {
@@ -995,14 +1151,18 @@ function changeLocalPassword(input) {
   if (current === next) throw new Error('Mật khẩu mới phải khác mật khẩu hiện tại.');
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID), found = authFindAccount_(ss, user.username);
   if (!found) throw new Error('Không tìm thấy tài khoản.');
-  if (String(found.data.MAT_KHAU || '') !== current) throw new Error('Mật khẩu hiện tại không đúng.');
+  if (!authPasswordMatches_(found.data.MAT_KHAU, current)) throw new Error('Mật khẩu hiện tại không đúng.');
   var sheet = ensureAuthSheet_(ss, 'NGUOI_DUNG'), meta = headers_(sheet);
-  authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', next, '@');
+  authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', authPasswordHash_(next), '@');
   authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU_CAP_NHAT_LUC', new Date(), 'dd/MM/yyyy HH:mm:ss');
   authWriteField_(sheet, meta, found.rowNumber, 'BAT_DOI_MAT_KHAU', 'Không', '@');
   authWriteField_(sheet, meta, found.rowNumber, 'NGAY_CAP_NHAT', new Date(), 'dd/MM/yyyy HH:mm:ss');
   writeSystemLog_(ss, user, 'HE_THONG', 'SUA', found.data.ID_NGUOI_DUNG || user.username, null, null, 'Đổi mật khẩu local.');
   SpreadsheetApp.flush();
+  // Đổi mật khẩu: đăng xuất các thiết bị khác, phiên hiện tại đọc lại tài khoản ở lần gọi kế tiếp.
+  authRevokeUserSessions_(user.username, input._sessionToken);
+  var store = PropertiesService.getScriptProperties(), key = authSessionKey_(input._sessionToken), raw = store.getProperty(key);
+  if (raw) { try { var session = JSON.parse(raw); session.checkedAt = ''; store.setProperty(key, JSON.stringify(session)); } catch (error) {} }
   return { success: true };
 }
 
@@ -1653,14 +1813,15 @@ function readSheet_(ss, name) {
   if (!values.length) return { headers: [], rows: [], meta: { headers: [], columns: {} } };
   var meta = headersFromRow_(values[0]);
   if (values.length < 2) return { headers: meta.headers.filter(String), rows: [], meta: meta };
-  var rows = values.slice(1).filter(function (row) {
-    return row.some(function (value) { return String(value || '').trim() !== ''; });
-  }).map(function (row) {
+  var rows = [];
+  values.slice(1).forEach(function (row, offset) {
+    if (!row.some(function (value) { return String(value || '').trim() !== ''; })) return;
     var item = {};
     meta.headers.forEach(function (header, index) {
       if (header) item[header] = row[index] || '';
     });
-    return item;
+    Object.defineProperty(item, '__row', { value: offset + 2, enumerable: false });
+    rows.push(item);
   });
   return { headers: meta.headers.filter(String), rows: rows, meta: meta };
 }
