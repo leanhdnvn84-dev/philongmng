@@ -458,6 +458,10 @@ const AUTH_SHEET_MODULES = {
 const AUTH_DEFAULT_LEVELS = { 'ROLE-ADMIN': 2, 'ROLE-MANAGER': 1 };
 const SYSTEM_PERMISSION_ACTIONS = ['XEM', 'THEM', 'SUA', 'XOA', 'DUYET', 'XUAT_FILE'];
 const SYSTEM_SHEET_NAMES = ['NGUOI_DUNG', 'VAI_TRO', 'PHAN_QUYEN', 'NHAT_KY_DANG_NHAP', 'NHAT_KY_HE_THONG'];
+/** Trang Hệ thống chỉ tải tối đa ngần này dòng mỗi loại nhật ký; nhật ký cũ hơn SYSTEM_LOG_KEEP_DAYS ngày được chuyển sang NHAT_KY_LUU_TRU. */
+const SYSTEM_LOG_LIMIT = 500;
+const SYSTEM_LOG_KEEP_DAYS = 90;
+const SYSTEM_LOG_ARCHIVE_HEADERS = ['NGUON', 'ID_NHAT_KY', 'THOI_GIAN', 'TEN_DANG_NHAP', 'MA_NHAN_VIEN', 'CHUC_NANG', 'HANH_DONG', 'KHOA_BAN_GHI', 'KET_QUA', 'LY_DO', 'THIET_BI', 'DU_LIEU_TRUOC', 'DU_LIEU_SAU', 'GHI_CHU'];
 
 /** R72: cột nhạy cảm của DM_NHAN_VIEN. Cấp 0 không thấy pháp lý/hợp đồng; cấp 1 thấy pháp lý/hợp đồng; cấp 2 thấy cả lương. */
 const EMPLOYEE_LEGAL_FIELDS = ['SO_CCCD', 'NGAY_CAP', 'MA_SO_BHXH', 'NGAY_THAM_GIA_BHXH', 'LOAI_HD', 'NOI_LAM_VIEC', 'THOI_DIEM_CHAM_DUT_HD_VA_LY_DO'];
@@ -553,6 +557,23 @@ function authPasswordMatches_(stored, password) {
   return diff === 0;
 }
 
+/**
+ * Hàm cài đặt/bảo trì chỉ được chạy trong trình soạn thảo Apps Script.
+ * Mọi hàm không kết thúc bằng "_" đều gọi được từ trình duyệt qua google.script.run,
+ * nên phải chặn: người chạy phải chính là chủ dự án.
+ */
+function requireEditorRun_() {
+  var active = '', owner = '';
+  try { active = Session.getActiveUser().getEmail(); owner = Session.getEffectiveUser().getEmail(); } catch (error) {}
+  if (!active || !owner || key_(active) !== key_(owner)) throw new Error('Chỉ chạy hàm này trong trình soạn thảo Apps Script (Run).');
+}
+
+/** Hàm chạy theo lịch: cho phép trigger (có triggerUid) hoặc chạy tay trong trình soạn thảo. */
+function requireEditorOrTrigger_(event) {
+  if (event && event.triggerUid) return;
+  requireEditorRun_();
+}
+
 function authIsAdmin_(user) {
   return key_(user && user.roleCode) === 'role-admin';
 }
@@ -580,6 +601,7 @@ function authMigratePasswords_(ss) {
 
 /** Chạy thủ công một lần trong Apps Script để băm toàn bộ mật khẩu cũ ngay. */
 function hashLocalPasswords() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID), lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try { return { success: true, hashed: authMigratePasswords_(ss) }; } finally { lock.releaseLock(); }
@@ -781,6 +803,7 @@ function authSession_(token) {
 
 /** Chạy thủ công (hoặc gắn trigger hằng ngày) để dọn phiên hết hạn. */
 function cleanupLocalSessions() {
+  requireEditorRun_();
   return { success: true, removed: authPurgeSessions_(PropertiesService.getScriptProperties(), '', 0) };
 }
 
@@ -910,6 +933,7 @@ function ensureAuthData_(ss) {
 
 /** Chạy một lần trong Apps Script để tạo danh mục quyền và tài khoản admin tạm thời. */
 function setupLocalAuth() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   ensureAuthData_(ss);
   var accounts = authAccountRows_(ss);
@@ -929,6 +953,7 @@ function setupLocalAuth() {
  * Mật khẩu mới được lưu vào MAT_KHAU và trả về trong Execution log.
  */
 function resetLocalAdminPassword() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   ensureAuthData_(ss);
   var found = authFindAccount_(ss, 'admin');
@@ -950,6 +975,7 @@ function resetLocalAdminPassword() {
 }
 
 function getLocalAuthStatus() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   ensureAuthData_(ss);
   return { initialized: true, accountCount: authAccountRows_(ss).length };
@@ -1013,23 +1039,60 @@ function systemSheetHealth_(ss) {
   var props = PropertiesService.getScriptProperties().getProperties(), count = 0, bytes = 0;
   Object.keys(props).forEach(function (key) { bytes += key.length + String(props[key]).length; if (key.indexOf(AUTH_SESSION_PREFIX) === 0) count++; });
   result.push({ name: 'Phiên đăng nhập (Script Properties)', group: 'Hệ thống', rows: count, status: bytes > 400000 ? 'Gần đầy' : 'Sẵn sàng', note: Math.round(bytes / 1024) + ' / 500 KB' });
+  var handlers = {};
+  try { ScriptApp.getProjectTriggers().forEach(function (trigger) { handlers[trigger.getHandlerFunction()] = true; }); } catch (error) {}
+  [['remindFormExpiry', 'Lịch nhắc hạn biểu mẫu', 'setupFormReminderTrigger'], ['archiveSystemLogs', 'Lịch lưu trữ nhật ký hằng tháng', 'setupSystemLogArchiveTrigger']].forEach(function (item) {
+    result.push({ name: item[1], group: 'Lịch chạy', rows: handlers[item[0]] ? 1 : 0, status: handlers[item[0]] ? 'Sẵn sàng' : 'Chưa cài', note: handlers[item[0]] ? '' : 'Chạy ' + item[2] + '() trong Apps Script' });
+  });
   return result;
 }
 
 /** Dữ liệu cho trang Hệ thống; tuyệt đối không trả MAT_KHAU về trình duyệt. */
-function getSystemData(sessionToken) {
-  var auth = requireAuth_(sessionToken), ss = SpreadsheetApp.openById(SPREADSHEET_ID), snapshot = authSnapshot_(ss);
+/** Đọc nhật ký từ cuối sheet lên (mới nhất trước), dừng khi đủ limit hoặc qua mốc from. */
+function systemReadLogs_(ss, name, limit, from, to) {
+  var sheet = ss.getSheetByName(name), result = { rows: [], total: 0, truncated: false };
+  if (!sheet || sheet.getLastRow() < 2) return result;
+  var meta = headers_(sheet), end = sheet.getLastRow(), stop = false;
+  result.total = end - 1;
+  while (end >= 2 && !stop && result.rows.length < limit) {
+    var start = Math.max(2, end - 999), values = sheet.getRange(start, 1, end - start + 1, meta.headers.length).getDisplayValues();
+    for (var i = values.length - 1; i >= 0; i--) {
+      if (!values[i].some(function (value) { return String(value || '').trim() !== ''; })) continue;
+      var row = objectFromRow_(meta, values[i]), time = authDate_(row.THOI_GIAN), stamp = time ? time.getTime() : 0;
+      if (to && stamp && stamp > to) continue;
+      if (from && stamp && stamp < from) { stop = true; break; }
+      if (result.rows.length >= limit) { result.truncated = true; stop = true; break; }
+      result.rows.push(row);
+    }
+    end = start - 1;
+  }
+  if (!stop && end >= 2) result.truncated = true;
+  if (result.rows.length >= limit && end >= 2) result.truncated = true;
+  return result;
+}
+
+function systemDateInput_(value, endOfDay) {
+  var text = String(value || '').trim(), match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return 0;
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0).getTime();
+}
+
+function getSystemData(input) {
+  var options = input && typeof input === 'object' ? input : { _sessionToken: input };
+  var auth = requireAuth_(options._sessionToken), ss = SpreadsheetApp.openById(SPREADSHEET_ID), snapshot = authSnapshot_(ss);
   if (key_(auth.roleCode) !== 'role-admin' && !authCan_(ss, auth.roleCode, 'HE_THONG', 'XEM', snapshot)) {
     throw new Error('Tài khoản không có quyền XEM tại chức năng này.');
   }
-  var permissionSync = { added: 0, modules: [] };
+  var permissionSync = { added: 0, modules: [] }, resignedLocked = 0;
   if (authIsAdmin_(auth)) {
     var adminLock = LockService.getScriptLock();
     if (adminLock.tryLock(10000)) {
       try {
         if (snapshot.accounts.some(function (row) { return row.MAT_KHAU && !authIsHashed_(row.MAT_KHAU); })) authMigratePasswords_(ss);
         permissionSync = ensureAuthData_(ss);
-        if (permissionSync.added) { SpreadsheetApp.flush(); authBumpVersion_(); snapshot = authSnapshot_(ss); }
+        resignedLocked = authLockResignedAccounts_(ss, auth, '');
+        if (permissionSync.added) { SpreadsheetApp.flush(); authBumpVersion_(); }
+        if (permissionSync.added || resignedLocked) snapshot = authSnapshot_(ss);
       } finally { adminLock.releaseLock(); }
     }
   }
@@ -1045,8 +1108,9 @@ function getSystemData(sessionToken) {
     var oa = order[key_(a.MA_CHUC_NANG)], ob = order[key_(b.MA_CHUC_NANG)];
     return (oa == null ? 9999 : oa) - (ob == null ? 9999 : ob);
   }).map(function (row) { var copy = Object.assign({}, row); copy.LA_MUC_CON = String(row.MA_CHUC_NANG || '').indexOf('.') !== -1; return copy; });
-  var loginLogs = readSheet_(ss, 'NHAT_KY_DANG_NHAP').rows;
-  var systemLogs = readSheet_(ss, 'NHAT_KY_HE_THONG').rows;
+  var logFrom = systemDateInput_(options.logFrom, false), logTo = systemDateInput_(options.logTo, true), logLimit = Math.max(50, Math.min(2000, Number(options.logLimit) || SYSTEM_LOG_LIMIT));
+  var loginRead = systemReadLogs_(ss, 'NHAT_KY_DANG_NHAP', logLimit, logFrom, logTo), systemRead = systemReadLogs_(ss, 'NHAT_KY_HE_THONG', logLimit, logFrom, logTo);
+  var loginLogs = loginRead.rows, systemLogs = systemRead.rows;
   return {
     success: true,
     accounts: { headers: ['ID_NGUOI_DUNG', 'TEN_DANG_NHAP', 'TEN_HIEN_THI', 'EMAIL', 'MA_NHAN_VIEN', 'MA_VAI_TRO', 'TEN_VAI_TRO', 'TRANG_THAI', 'BAT_DOI_MAT_KHAU', 'SO_LAN_SAI', 'KHOA_DEN', 'LAN_DANG_NHAP_CUOI', 'NGAY_CAP_NHAT', 'GHI_CHU'], rows: accounts },
@@ -1061,8 +1125,13 @@ function getSystemData(sessionToken) {
       activeAccounts: accounts.filter(function (row) { return authActive_(row.TRANG_THAI); }).length,
       roles: roles.length,
       permissions: permissions.length,
-      loginLogs: loginLogs.length,
-      systemLogs: systemLogs.length
+      loginLogs: loginRead.total,
+      systemLogs: systemRead.total,
+      logShown: loginLogs.length + systemLogs.length,
+      logTruncated: loginRead.truncated || systemRead.truncated,
+      logLimit: logLimit,
+      logKeepDays: SYSTEM_LOG_KEEP_DAYS,
+      resignedLocked: resignedLocked
     }
   };
 }
@@ -1197,6 +1266,93 @@ function saveSystemPermissions(input) {
   SpreadsheetApp.flush();
   authBumpVersion_();
   return { success: true, updated: updated };
+}
+
+/** Chuyển nhật ký cũ hơn SYSTEM_LOG_KEEP_DAYS ngày (khối dòng đầu sheet) sang NHAT_KY_LUU_TRU. */
+function systemArchiveLogs_(ss) {
+  var cutoff = Date.now() - SYSTEM_LOG_KEEP_DAYS * 86400000, archive = ss.getSheetByName('NHAT_KY_LUU_TRU'), moved = {};
+  if (!archive) archive = ss.insertSheet('NHAT_KY_LUU_TRU');
+  ensureColumns_(archive, SYSTEM_LOG_ARCHIVE_HEADERS);
+  archive.setFrozenRows(1);
+  var archiveMeta = headers_(archive);
+  [['NHAT_KY_DANG_NHAP', 'Đăng nhập'], ['NHAT_KY_HE_THONG', 'Hệ thống']].forEach(function (pair) {
+    var sheet = ss.getSheetByName(pair[0]);
+    moved[pair[0]] = 0;
+    if (!sheet || sheet.getLastRow() < 2) return;
+    var meta = headers_(sheet), values = sheet.getRange(2, 1, sheet.getLastRow() - 1, meta.headers.length).getValues(), count = 0;
+    // Nhật ký ghi theo thời gian: chỉ chuyển khối liên tục ở đầu sheet để không xáo trộn dòng mới.
+    while (count < values.length) {
+      var time = values[count][meta.columns.THOI_GIAN - 1], date = time instanceof Date ? time : authDate_(time);
+      if (!date || date.getTime() >= cutoff) break;
+      count++;
+    }
+    if (!count) return;
+    var rows = values.slice(0, count).map(function (row) {
+      var item = objectFromRow_(meta, row);
+      item.NGUON = pair[1];
+      return archiveMeta.headers.map(function (header) { return header ? (item[header] == null ? '' : item[header]) : ''; });
+    });
+    archive.getRange(archive.getLastRow() + 1, 1, rows.length, archiveMeta.headers.length).setValues(rows);
+    sheet.deleteRows(2, count);
+    moved[pair[0]] = count;
+  });
+  SpreadsheetApp.flush();
+  return moved;
+}
+
+/** Chạy theo lịch hằng tháng (setupSystemLogArchiveTrigger) hoặc chạy tay trong trình soạn thảo. */
+function archiveSystemLogs(event) {
+  requireEditorOrTrigger_(event);
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try { return { success: true, moved: systemArchiveLogs_(SpreadsheetApp.openById(SPREADSHEET_ID)) }; } finally { lock.releaseLock(); }
+}
+
+/** Nút "Lưu trữ nhật ký cũ" trên trang Hệ thống (chỉ Quản trị). */
+function archiveSystemLogsNow(input) {
+  input = input || {};
+  var auth = requirePermission_(input._sessionToken, 'HE_THONG', 'SUA');
+  if (!authIsAdmin_(auth)) throw new Error('Chỉ Quản trị hệ thống được lưu trữ nhật ký.');
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var moved = systemArchiveLogs_(ss);
+    writeSystemLog_(ss, auth, 'HE_THONG', 'LUU_TRU', 'NHAT_KY', null, moved, 'Lưu trữ nhật ký cũ hơn ' + SYSTEM_LOG_KEEP_DAYS + ' ngày.');
+    return { success: true, moved: moved, keepDays: SYSTEM_LOG_KEEP_DAYS };
+  } finally { lock.releaseLock(); }
+}
+
+/** Chạy một lần: lưu trữ nhật ký tự động ngày 1 hằng tháng lúc 2 giờ sáng. */
+function setupSystemLogArchiveTrigger() {
+  requireEditorRun_();
+  ScriptApp.getProjectTriggers().forEach(function (trigger) { if (trigger.getHandlerFunction() === 'archiveSystemLogs') ScriptApp.deleteTrigger(trigger); });
+  ScriptApp.newTrigger('archiveSystemLogs').timeBased().onMonthDay(1).atHour(2).create();
+  return { success: true, message: 'Đã cài lịch lưu trữ nhật ký ngày 1 hằng tháng.' };
+}
+
+/**
+ * Khóa tài khoản gắn với nhân viên đã "Nghỉ việc" (onlyCode: chỉ xét một mã nhân viên).
+ * Không khóa nếu đó là Quản trị đang hoạt động cuối cùng. Trả về số tài khoản đã khóa.
+ */
+function authLockResignedAccounts_(ss, auth, onlyCode) {
+  var employees = readSheet_(ss, 'DM_NHAN_VIEN').rows, resigned = {}, locked = 0;
+  employees.forEach(function (row) { if (plain_(row.TRANG_THAI) === 'nghi viec' && row.MA_NHAN_VIEN) resigned[key_(row.MA_NHAN_VIEN)] = true; });
+  var sheet = ss.getSheetByName('NGUOI_DUNG');
+  if (!sheet) return 0;
+  var meta = headers_(sheet), now = new Date();
+  authAccountRows_(ss).forEach(function (item) {
+    var code = key_(item.data.MA_NHAN_VIEN);
+    if (!code || !resigned[code] || (onlyCode && code !== key_(onlyCode)) || !authActive_(item.data.TRANG_THAI)) return;
+    if (key_(item.data.MA_VAI_TRO) === 'role-admin' && !authActiveAdminCount_(ss, item.rowNumber)) return;
+    authWriteField_(sheet, meta, item.rowNumber, 'TRANG_THAI', 'Ngừng hoạt động', '@');
+    authWriteField_(sheet, meta, item.rowNumber, 'NGAY_CAP_NHAT', now, 'dd/MM/yyyy HH:mm:ss');
+    authWriteField_(sheet, meta, item.rowNumber, 'GHI_CHU', 'Tự khóa: nhân viên ' + item.data.MA_NHAN_VIEN + ' đã nghỉ việc.', '@');
+    writeSystemLog_(ss, auth, 'HE_THONG', 'KHOA_TU_DONG', item.data.ID_NGUOI_DUNG || item.data.TEN_DANG_NHAP, null, { TRANG_THAI: 'Ngừng hoạt động' }, 'Tự khóa tài khoản vì nhân viên đã nghỉ việc.');
+    authRevokeUserSessions_(item.data.TEN_DANG_NHAP);
+    locked++;
+  });
+  if (locked) { SpreadsheetApp.flush(); authBumpVersion_(); }
+  return locked;
 }
 
 /** Thêm/sửa vai trò; vai trò mới được tự tạo dòng quyền (mặc định Không). Chỉ Quản trị. */
@@ -1561,6 +1717,7 @@ function ensureContractClauses_(ss) {
 
 /** Chạy một lần để tạo danh mục biểu mẫu dùng chung và bảng lưu phiếu. */
 function setupFormCatalog() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID), result = ensureDefaultFormTemplates_(ss), templateSheet = result.sheet;
   ensureContractClauses_(ss);
   ensureCompanyInfo_(ss);
@@ -1748,7 +1905,8 @@ function saveFormPdf(input) {
 }
 
 /** Chạy hằng ngày (cài bằng setupFormReminderTrigger): email nhắc phiếu sắp/đã hết hạn, mỗi phiếu nhắc 1 lần/ngày hết hạn. */
-function remindFormExpiry() {
+function remindFormExpiry(event) {
+  requireEditorOrTrigger_(event);
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID), sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet);
   if (sheet.getLastRow() < 2 || !meta.columns.NGAY_HET_HAN) return { success: true, reminded: 0 };
   var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, meta.headers.length).getValues(), today = new Date(), reminded = 0;
@@ -1771,12 +1929,14 @@ function remindFormExpiry() {
 
 /** Chạy một lần trong trình sửa Apps Script để cài lịch nhắc hạn lúc 8 giờ sáng mỗi ngày. */
 function setupFormReminderTrigger() {
+  requireEditorRun_();
   ScriptApp.getProjectTriggers().forEach(function (trigger) { if (trigger.getHandlerFunction() === 'remindFormExpiry') ScriptApp.deleteTrigger(trigger); });
   ScriptApp.newTrigger('remindFormExpiry').timeBased().everyDays(1).atHour(8).create();
   return { success: true, message: 'Đã cài nhắc hạn biểu mẫu lúc 8 giờ sáng hằng ngày.' };
 }
 
 function setupAttendanceData() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   Object.keys(ATTENDANCE_SHEET_HEADERS).forEach(function (name) { ensureAttendanceSheet_(ss, name); });
   SpreadsheetApp.flush();
@@ -1938,6 +2098,7 @@ function saveTransferProposal(input) {
 
 /** Chạy một lần để tạo danh mục Phòng ban → Bộ phận → Nhóm, không xóa dữ liệu cũ. */
 function setupOrganizationHierarchy() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var definitions = {
     DM_BO_PHAN: ['ID_BO_PHAN', 'MA_BO_PHAN', 'TEN_BO_PHAN', 'MA_PHONG_BAN', 'TRANG_THAI', 'GHI_CHU', 'NGAY_CAP_NHAT'],
@@ -2059,6 +2220,7 @@ function getAppData(input) {
 
 /** Chạy hàm này một lần trong Apps Script để kiểm tra kết nối bảng dữ liệu. */
 function testConnection() {
+  requireEditorRun_();
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sheet = ss.getSheetByName('DM_NHAN_VIEN');
   if (!sheet) throw new Error('Không tìm thấy sheet DM_NHAN_VIEN trong bảng dữ liệu.');
@@ -2228,7 +2390,8 @@ function writeEmployee_(input, editing) {
     var after = objectFromRow_(meta, sheet.getRange(rowNumber, 1, 1, meta.headers.length).getDisplayValues()[0]);
     if (editing && before) appendWorkHistory_(ss, before, after, input, auth);
     writeSystemLog_(ss, auth, 'NHAN_SU', editing ? 'SUA' : 'THEM', code, before, after, editing ? 'Cập nhật hồ sơ nhân viên.' : 'Tạo hồ sơ nhân viên.');
-    return { success: true, code: code };
+    var lockedAccounts = plain_(after && after.TRANG_THAI) === 'nghi viec' && plain_(before && before.TRANG_THAI) !== 'nghi viec' ? authLockResignedAccounts_(ss, auth, code) : 0;
+    return { success: true, code: code, lockedAccounts: lockedAccounts };
   } finally {
     lock.releaseLock();
   }
