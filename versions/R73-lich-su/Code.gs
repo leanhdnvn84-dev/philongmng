@@ -393,7 +393,7 @@ const ATTENDANCE_SHEET_HEADERS = {
 /** Xác thực nội bộ: lưu mật khẩu dạng text trong MAT_KHAU theo yêu cầu bản nội bộ/test. */
 const AUTH_SHEET_HEADERS = {
   NGUOI_DUNG: ['ID_NGUOI_DUNG', 'TEN_DANG_NHAP', 'TEN_HIEN_THI', 'EMAIL', 'MA_NHAN_VIEN', 'MA_VAI_TRO', 'TRANG_THAI', 'MAT_KHAU', 'MAT_KHAU_CAP_NHAT_LUC', 'BAT_DOI_MAT_KHAU', 'SO_LAN_SAI', 'KHOA_DEN', 'LAN_DANG_NHAP_CUOI', 'NGAY_CAP_NHAT', 'GHI_CHU'],
-  VAI_TRO: ['MA_VAI_TRO', 'TEN_VAI_TRO', 'TRANG_THAI', 'GHI_CHU'],
+  VAI_TRO: ['MA_VAI_TRO', 'TEN_VAI_TRO', 'TRANG_THAI', 'GHI_CHU', 'CAP_BAO_MAT'],
   PHAN_QUYEN: ['ID_QUYEN', 'MA_VAI_TRO', 'MA_CHUC_NANG', 'TEN_CHUC_NANG', 'XEM', 'THEM', 'SUA', 'XOA', 'DUYET', 'XUAT_FILE', 'GHI_CHU'],
   NHAT_KY_DANG_NHAP: ['ID_NHAT_KY', 'THOI_GIAN', 'TEN_DANG_NHAP', 'MA_NHAN_VIEN', 'KET_QUA', 'LY_DO', 'THIET_BI'],
   NHAT_KY_HE_THONG: ['ID_NHAT_KY', 'THOI_GIAN', 'TEN_DANG_NHAP', 'MA_NHAN_VIEN', 'CHUC_NANG', 'HANH_DONG', 'KHOA_BAN_GHI', 'DU_LIEU_TRUOC', 'DU_LIEU_SAU', 'GHI_CHU']
@@ -432,6 +432,30 @@ const AUTH_MODULE_SEEDS = [
   ['DANH_MUC', 'Danh mục', 'catalog'],
   ['HE_THONG', 'Hệ thống', 'system']
 ];
+/**
+ * Mục con trong menu, phân quyền XEM riêng từng mục. Nhãn phải trùng data-page-label ở Index.html.
+ * Thêm chức năng mới: thêm 1 dòng vào AUTH_MODULE_SEEDS (và mục con ở đây nếu có) — dòng quyền
+ * cho mọi vai trò được tự tạo khi Quản trị mở trang Hệ thống, mặc định Không.
+ */
+const AUTH_MODULE_CHILDREN = {
+  HO_SO: ['Hồ sơ nhân viên', 'Nhân viên nghỉ việc'],
+  TUYEN_DUNG: ['Vị trí tuyển dụng', 'Ứng viên', 'Phỏng vấn', 'Tiếp nhận nhân viên'],
+  BIEU_MAU: ['Biểu mẫu Hợp đồng', 'Biểu mẫu Hành chính', 'Biểu mẫu Nhân sự', 'Biểu mẫu Tài chính – Kế toán', 'Biểu mẫu Mua hàng – NCC', 'Biểu mẫu Kho', 'Biểu mẫu Tài sản – Thiết bị', 'Biểu mẫu Kinh doanh', 'Biểu mẫu Kỹ thuật – Bảo trì', 'Biểu mẫu Pháp lý & văn bản khác'],
+  BAO_CAO: ['Báo cáo nhân sự', 'Báo cáo biến động', 'Báo cáo chấm công', 'Báo cáo lương'],
+  DANH_MUC: ['Phòng ban', 'Chức vụ', 'Chi nhánh – địa điểm', 'Loại hợp đồng', 'Chính sách phép'],
+  HE_THONG: ['Tài khoản', 'Vai trò – phân quyền', 'Cấu hình hệ thống', 'Nhật ký thao tác']
+};
+/** Sheet thuộc chức năng nào: phải có quyền XEM ở ít nhất một chức năng mới được tải. '*' = bất kỳ chức năng nào. Sheet không có ở đây là danh mục dùng chung. */
+const AUTH_SHEET_MODULES = {
+  DM_NHAN_VIEN: '*',
+  LICH_SU_CONG_VIEC: ['LUAN_CHUYEN', 'HO_SO', 'BAO_CAO'],
+  CC_CA_LAM_VIEC: ['NGHI_PHEP', 'BAO_CAO'], CC_CHAM_CONG: ['NGHI_PHEP', 'BAO_CAO'], CC_TANG_CA: ['NGHI_PHEP', 'BAO_CAO'],
+  CC_NGHI_PHEP: ['NGHI_PHEP', 'BAO_CAO'], CC_BANG_CONG_THANG: ['NGHI_PHEP', 'BAO_CAO'],
+  DM_BIEU_MAU: ['BIEU_MAU'], PHIEU_BIEU_MAU: ['BIEU_MAU'], DM_DIEU_KHOAN: ['BIEU_MAU'],
+  TUYEN_DUNG_NHU_CAU: ['TUYEN_DUNG'], TUYEN_DUNG_UNG_VIEN: ['TUYEN_DUNG']
+};
+/** Mức xem dữ liệu nhạy cảm mặc định: 0 = không CCCD/BHXH/hợp đồng/lương; 1 = có CCCD/BHXH/hợp đồng; 2 = có cả lương. */
+const AUTH_DEFAULT_LEVELS = { 'ROLE-ADMIN': 2, 'ROLE-MANAGER': 1 };
 const SYSTEM_PERMISSION_ACTIONS = ['XEM', 'THEM', 'SUA', 'XOA', 'DUYET', 'XUAT_FILE'];
 const SYSTEM_SHEET_NAMES = ['NGUOI_DUNG', 'VAI_TRO', 'PHAN_QUYEN', 'NHAT_KY_DANG_NHAP', 'NHAT_KY_HE_THONG'];
 
@@ -445,11 +469,19 @@ function plain_(value) {
   return String(value == null ? '' : value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
 }
 
-function sensitiveLevel_(roleCode) {
+function sensitiveLevel_(roleCode, snapshot) {
   var role = key_(roleCode);
   if (role === 'role-admin') return 2;
-  if (role === 'role-manager' || role === 'role-user') return 1;
-  return 0;
+  var row = snapshot && snapshot.roleByKey ? snapshot.roleByKey[role] : readSheet_(SpreadsheetApp.openById(SPREADSHEET_ID), 'VAI_TRO').rows.find(function (item) { return key_(item.MA_VAI_TRO) === role; });
+  if (!row || !authActive_(row.TRANG_THAI || 'Đang hoạt động')) return 0;
+  var level = parseInt(row.CAP_BAO_MAT, 10);
+  if (isNaN(level)) level = AUTH_DEFAULT_LEVELS[String(roleCode).trim().toUpperCase()] || 0;
+  return Math.max(0, Math.min(2, level));
+}
+
+/** Mức bảo mật của người đang gọi: lấy từ phiên (được làm mới 5 phút/lần). */
+function authLevel_(auth) {
+  return auth && auth.sensitiveLevel != null ? Number(auth.sensitiveLevel) : sensitiveLevel_(auth && auth.roleCode);
 }
 
 function hiddenEmployeeFields_(level) {
@@ -612,10 +644,12 @@ function authSnapshot_(ss) {
     roles: roleData.rows,
     permissions: permissionData.rows,
     roleNames: {},
+    roleByKey: {},
     permissionsByKey: {}
   };
   snapshot.roles.forEach(function (item) {
     snapshot.roleNames[key_(item.MA_VAI_TRO)] = item.TEN_VAI_TRO || item.MA_VAI_TRO || '';
+    snapshot.roleByKey[key_(item.MA_VAI_TRO)] = item;
   });
   snapshot.permissions.forEach(function (item) {
     snapshot.permissionsByKey[key_(item.MA_VAI_TRO) + '|' + key_(item.MA_CHUC_NANG)] = item;
@@ -631,6 +665,8 @@ function authRoleName_(ss, roleCode, snapshot) {
 
 function authCan_(ss, roleCode, moduleCode, action, snapshot) {
   if (key_(roleCode) === 'role-admin') return true;
+  var role = snapshot && snapshot.roleByKey ? snapshot.roleByKey[key_(roleCode)] : null;
+  if (role && !authActive_(role.TRANG_THAI || 'Đang hoạt động')) return false;
   var row = snapshot && snapshot.permissionsByKey
     ? snapshot.permissionsByKey[key_(roleCode) + '|' + key_(moduleCode)]
     : readSheet_(ss, 'PHAN_QUYEN').rows.find(function (item) {
@@ -655,11 +691,20 @@ function authContext_(ss, account, snapshot) {
     roleCode: roleCode,
     roleName: authRoleName_(ss, roleCode, snapshot),
     forcePasswordChange: authFlag_(account.BAT_DOI_MAT_KHAU),
-    sensitiveLevel: sensitiveLevel_(roleCode),
-    menuAccess: {}
+    sensitiveLevel: sensitiveLevel_(roleCode, snapshot),
+    menuAccess: {},
+    permissions: {},
+    menuDenied: []
   };
-  AUTH_MODULE_SEEDS.forEach(function (module) {
-    context.menuAccess[module[2]] = authCan_(ss, roleCode, module[0], 'XEM', snapshot);
+  // Gọn để phiên nhỏ: permissions[MÃ] = chuỗi 0/1 theo SYSTEM_PERMISSION_ACTIONS; menuDenied = mục con bị ẩn ('view|nhãn').
+  authModuleList_().forEach(function (module) {
+    if (module.parent) {
+      var row = snapshot && snapshot.permissionsByKey && snapshot.permissionsByKey[key_(roleCode) + '|' + key_(module.code)];
+      if (context.menuAccess[module.view] && row && !authFlag_(row.XEM) && key_(roleCode) !== 'role-admin') context.menuDenied.push(module.view + '|' + module.label);
+      return;
+    }
+    context.permissions[module.code] = SYSTEM_PERMISSION_ACTIONS.map(function (action) { return authCan_(ss, roleCode, module.code, action, snapshot) ? '1' : '0'; }).join('');
+    context.menuAccess[module.view] = context.permissions[module.code].charAt(0) === '1';
   });
   return context;
 }
@@ -778,40 +823,89 @@ function authSeedRoles_(ss) {
   var sheet = ensureAuthSheet_(ss, 'VAI_TRO'), existing = readSheet_(ss, 'VAI_TRO').rows;
   AUTH_ROLE_SEEDS.forEach(function (seed) {
     if (existing.some(function (row) { return key_(row.MA_VAI_TRO) === key_(seed[0]); })) return;
-    appendAuthRecord_(sheet, { MA_VAI_TRO: seed[0], TEN_VAI_TRO: seed[1], TRANG_THAI: 'Đang hoạt động', GHI_CHU: '' });
+    appendAuthRecord_(sheet, { MA_VAI_TRO: seed[0], TEN_VAI_TRO: seed[1], TRANG_THAI: 'Đang hoạt động', GHI_CHU: '', CAP_BAO_MAT: AUTH_DEFAULT_LEVELS[seed[0]] || 0 });
   });
 }
 
-function authSeedPermissions_(ss) {
-  var sheet = ensureAuthSheet_(ss, 'PHAN_QUYEN'), existing = readSheet_(ss, 'PHAN_QUYEN').rows;
-  AUTH_ROLE_SEEDS.forEach(function (role) {
-    AUTH_MODULE_SEEDS.forEach(function (module) {
-      if (existing.some(function (row) { return key_(row.MA_VAI_TRO) === key_(role[0]) && key_(row.MA_CHUC_NANG) === key_(module[0]); })) return;
-      var admin = role[0] === 'ROLE-ADMIN', view = admin, add = admin, edit = admin, remove = admin, approve = admin, exportFile = admin;
-      if (role[0] === 'ROLE-MANAGER') {
-        view = true; add = ['NHAN_SU', 'LUAN_CHUYEN', 'NGHI_PHEP', 'BIEU_MAU'].indexOf(module[0]) !== -1;
-        edit = add; approve = ['LUAN_CHUYEN', 'NGHI_PHEP', 'BIEU_MAU'].indexOf(module[0]) !== -1; exportFile = true;
-      } else if (role[0] === 'ROLE-IT') {
-        view = true; edit = ['HE_THONG', 'DANH_MUC'].indexOf(module[0]) !== -1; exportFile = true;
-      } else if (role[0] === 'ROLE-USER') {
-        view = ['TONG_QUAN', 'NHAN_SU', 'HO_SO', 'LUAN_CHUYEN', 'NGHI_PHEP', 'BIEU_MAU'].indexOf(module[0]) !== -1;
-        add = ['NGHI_PHEP', 'BIEU_MAU'].indexOf(module[0]) !== -1; edit = false; exportFile = false;
-      } else if (role[0] === 'ROLE-VIEW') {
-        view = ['TONG_QUAN', 'HO_SO', 'BAO_CAO'].indexOf(module[0]) !== -1; exportFile = module[0] === 'BAO_CAO';
-      }
-      appendAuthRecord_(sheet, {
-        ID_QUYEN: 'PERM_' + Utilities.getUuid(), MA_VAI_TRO: role[0], MA_CHUC_NANG: module[0], TEN_CHUC_NANG: module[1],
-        XEM: view ? 'Có' : 'Không', THEM: add ? 'Có' : 'Không', SUA: edit ? 'Có' : 'Không', XOA: remove ? 'Có' : 'Không',
-        DUYET: approve ? 'Có' : 'Không', XUAT_FILE: exportFile ? 'Có' : 'Không', GHI_CHU: ''
-      });
+function authChildCode_(moduleCode, label) {
+  return moduleCode + '.' + plain_(label).toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+/** Toàn bộ chức năng theo thứ tự hiển thị, mục con đứng sau chức năng cha. */
+function authModuleList_() {
+  var list = [];
+  AUTH_MODULE_SEEDS.forEach(function (module) {
+    list.push({ code: module[0], name: module[1], view: module[2], parent: '' });
+    (AUTH_MODULE_CHILDREN[module[0]] || []).forEach(function (label) {
+      list.push({ code: authChildCode_(module[0], label), name: label, view: module[2], parent: module[0], label: label });
     });
   });
+  return list;
+}
+
+/** Quyền mặc định cho 5 vai trò gốc; vai trò tự tạo mặc định không có quyền. */
+function authSeedDefault_(roleCode, moduleCode) {
+  var role = String(roleCode).trim().toUpperCase(), admin = role === 'ROLE-ADMIN', flags = { XEM: admin, THEM: admin, SUA: admin, XOA: admin, DUYET: admin, XUAT_FILE: admin };
+  if (role === 'ROLE-MANAGER') {
+    flags.XEM = moduleCode !== 'HE_THONG'; flags.THEM = ['NHAN_SU', 'LUAN_CHUYEN', 'NGHI_PHEP', 'BIEU_MAU'].indexOf(moduleCode) !== -1;
+    flags.SUA = flags.THEM; flags.DUYET = ['LUAN_CHUYEN', 'NGHI_PHEP', 'BIEU_MAU'].indexOf(moduleCode) !== -1; flags.XUAT_FILE = moduleCode !== 'HE_THONG';
+  } else if (role === 'ROLE-IT') {
+    flags.XEM = true; flags.SUA = ['HE_THONG', 'DANH_MUC'].indexOf(moduleCode) !== -1; flags.XUAT_FILE = true;
+  } else if (role === 'ROLE-USER') {
+    flags.XEM = ['TONG_QUAN', 'NHAN_SU', 'HO_SO', 'LUAN_CHUYEN', 'NGHI_PHEP', 'BIEU_MAU'].indexOf(moduleCode) !== -1;
+    flags.THEM = ['NGHI_PHEP', 'BIEU_MAU'].indexOf(moduleCode) !== -1;
+  } else if (role === 'ROLE-VIEW') {
+    flags.XEM = ['TONG_QUAN', 'HO_SO', 'BAO_CAO'].indexOf(moduleCode) !== -1; flags.XUAT_FILE = moduleCode === 'BAO_CAO';
+  }
+  return flags;
+}
+
+/**
+ * Đồng bộ PHAN_QUYEN với danh sách chức năng và mọi vai trò trong VAI_TRO (kể cả vai trò thêm tay).
+ * Dòng thiếu được thêm: chức năng mới mặc định theo vai trò gốc / Không; mục con mới kế thừa quyền XEM của cha.
+ * Điền CAP_BAO_MAT còn trống. Trả về số dòng quyền đã thêm.
+ */
+function authSyncPermissions_(ss) {
+  var sheet = ensureAuthSheet_(ss, 'PHAN_QUYEN'), roleSheet = ensureAuthSheet_(ss, 'VAI_TRO'), meta = headers_(sheet), roleMeta = headers_(roleSheet);
+  var roles = readSheet_(ss, 'VAI_TRO').rows, existing = readSheet_(ss, 'PHAN_QUYEN').rows, have = {}, rows = [], newModules = {}, store = PropertiesService.getScriptProperties();
+  if (!store.getProperty('PHI_LONG_PERM_V2')) {
+    // Một lần: Quản lý không còn mặc định thấy menu Hệ thống.
+    existing.forEach(function (row) {
+      if (key_(row.MA_VAI_TRO) !== 'role-manager' || key_(row.MA_CHUC_NANG) !== 'he_thong') return;
+      SYSTEM_PERMISSION_ACTIONS.forEach(function (action) { authWriteField_(sheet, meta, row.__row, action, 'Không', '@'); row[action] = 'Không'; });
+    });
+    store.setProperty('PHI_LONG_PERM_V2', '1');
+  }
+  existing.forEach(function (row) { have[key_(row.MA_VAI_TRO) + '|' + key_(row.MA_CHUC_NANG)] = row; });
+  var modules = authModuleList_();
+  roles.forEach(function (role) {
+    var roleCode = String(role.MA_VAI_TRO || '').trim();
+    if (!roleCode) return;
+    if (String(role.CAP_BAO_MAT == null ? '' : role.CAP_BAO_MAT).trim() === '' && roleMeta.columns.CAP_BAO_MAT) authWriteField_(roleSheet, roleMeta, role.__row, 'CAP_BAO_MAT', AUTH_DEFAULT_LEVELS[roleCode.toUpperCase()] || 0, '@');
+    modules.forEach(function (module) {
+      var k = key_(roleCode) + '|' + key_(module.code);
+      if (have[k]) return;
+      var record = { ID_QUYEN: 'PERM_' + Utilities.getUuid(), MA_VAI_TRO: roleCode, MA_CHUC_NANG: module.code, TEN_CHUC_NANG: module.parent ? '↳ ' + module.name : module.name, GHI_CHU: '' };
+      if (module.parent) {
+        var parent = have[key_(roleCode) + '|' + key_(module.parent)];
+        SYSTEM_PERMISSION_ACTIONS.forEach(function (action) { record[action] = action === 'XEM' ? (key_(roleCode) === 'role-admin' || (parent && authFlag_(parent.XEM)) ? 'Có' : 'Không') : ''; });
+      } else {
+        var flags = authSeedDefault_(roleCode, module.code);
+        SYSTEM_PERMISSION_ACTIONS.forEach(function (action) { record[action] = flags[action] ? 'Có' : 'Không'; });
+        newModules[module.name] = true;
+      }
+      have[k] = record;
+      rows.push(meta.headers.map(function (header) { return header ? (record[header] == null ? '' : record[header]) : ''; }));
+    });
+  });
+  if (rows.length) sheet.getRange(Math.max(2, sheet.getLastRow() + 1), 1, rows.length, meta.headers.length).setNumberFormat('@').setValues(rows);
+  return { added: rows.length, modules: Object.keys(newModules) };
 }
 
 function ensureAuthData_(ss) {
   Object.keys(AUTH_SHEET_HEADERS).forEach(function (name) { ensureAuthSheet_(ss, name); });
   authSeedRoles_(ss);
-  authSeedPermissions_(ss);
+  return authSyncPermissions_(ss);
 }
 
 /** Chạy một lần trong Apps Script để tạo danh mục quyền và tài khoản admin tạm thời. */
@@ -902,9 +996,24 @@ function systemStatus_(value) {
   return status;
 }
 
-function systemSheetSnapshot_(ss, name) {
-  var result = readSheet_(ss, name);
-  return { name: name, rows: result.rows.length, status: result.missing ? 'Thiếu' : 'Sẵn sàng' };
+/** Kiểm tra thật: sheet khai báo có tồn tại không, sheet lạ chưa khai báo, dung lượng phiên đăng nhập. */
+function systemSheetHealth_(ss) {
+  var result = [], known = {};
+  DATA_SHEETS.concat(SYSTEM_SHEET_NAMES, ['NHAT_KY_LUU_TRU']).forEach(function (name) {
+    if (known[name]) return;
+    known[name] = true;
+    var sheet = ss.getSheetByName(name);
+    if (!sheet && name === 'NHAT_KY_LUU_TRU') return;
+    result.push({ name: name, group: SYSTEM_SHEET_NAMES.indexOf(name) !== -1 ? 'Hệ thống' : 'Dữ liệu', rows: sheet ? Math.max(0, sheet.getLastRow() - 1) : 0, status: sheet ? 'Sẵn sàng' : 'Thiếu' });
+  });
+  ss.getSheets().forEach(function (sheet) {
+    var name = sheet.getName();
+    if (!known[name]) result.push({ name: name, group: 'Khác', rows: Math.max(0, sheet.getLastRow() - 1), status: 'Chưa khai báo' });
+  });
+  var props = PropertiesService.getScriptProperties().getProperties(), count = 0, bytes = 0;
+  Object.keys(props).forEach(function (key) { bytes += key.length + String(props[key]).length; if (key.indexOf(AUTH_SESSION_PREFIX) === 0) count++; });
+  result.push({ name: 'Phiên đăng nhập (Script Properties)', group: 'Hệ thống', rows: count, status: bytes > 400000 ? 'Gần đầy' : 'Sẵn sàng', note: Math.round(bytes / 1024) + ' / 500 KB' });
+  return result;
 }
 
 /** Dữ liệu cho trang Hệ thống; tuyệt đối không trả MAT_KHAU về trình duyệt. */
@@ -913,31 +1022,40 @@ function getSystemData(sessionToken) {
   if (key_(auth.roleCode) !== 'role-admin' && !authCan_(ss, auth.roleCode, 'HE_THONG', 'XEM', snapshot)) {
     throw new Error('Tài khoản không có quyền XEM tại chức năng này.');
   }
-  if (authIsAdmin_(auth) && snapshot.accounts.some(function (row) { return row.MAT_KHAU && !authIsHashed_(row.MAT_KHAU); })) {
-    var migrateLock = LockService.getScriptLock();
-    if (migrateLock.tryLock(10000)) { try { authMigratePasswords_(ss); } finally { migrateLock.releaseLock(); } }
+  var permissionSync = { added: 0, modules: [] };
+  if (authIsAdmin_(auth)) {
+    var adminLock = LockService.getScriptLock();
+    if (adminLock.tryLock(10000)) {
+      try {
+        if (snapshot.accounts.some(function (row) { return row.MAT_KHAU && !authIsHashed_(row.MAT_KHAU); })) authMigratePasswords_(ss);
+        permissionSync = ensureAuthData_(ss);
+        if (permissionSync.added) { SpreadsheetApp.flush(); authBumpVersion_(); snapshot = authSnapshot_(ss); }
+      } finally { adminLock.releaseLock(); }
+    }
   }
   var rawAccounts = snapshot.accounts;
   var accounts = rawAccounts.map(function (row) { return systemSafeAccount_(ss, row, snapshot); });
   var roles = snapshot.roles;
-  var permissions = snapshot.permissions;
+  var order = {};
+  authModuleList_().forEach(function (module, index) { order[key_(module.code)] = index; });
+  var permissions = snapshot.permissions.slice().sort(function (a, b) {
+    var ra = key_(a.MA_VAI_TRO) === 'role-admin' ? 0 : 1, rb = key_(b.MA_VAI_TRO) === 'role-admin' ? 0 : 1;
+    if (ra !== rb) return ra - rb;
+    if (key_(a.MA_VAI_TRO) !== key_(b.MA_VAI_TRO)) return key_(a.MA_VAI_TRO) < key_(b.MA_VAI_TRO) ? -1 : 1;
+    var oa = order[key_(a.MA_CHUC_NANG)], ob = order[key_(b.MA_CHUC_NANG)];
+    return (oa == null ? 9999 : oa) - (ob == null ? 9999 : ob);
+  }).map(function (row) { var copy = Object.assign({}, row); copy.LA_MUC_CON = String(row.MA_CHUC_NANG || '').indexOf('.') !== -1; return copy; });
   var loginLogs = readSheet_(ss, 'NHAT_KY_DANG_NHAP').rows;
   var systemLogs = readSheet_(ss, 'NHAT_KY_HE_THONG').rows;
-  var sheetRows = {
-    NGUOI_DUNG: rawAccounts.length,
-    VAI_TRO: roles.length,
-    PHAN_QUYEN: permissions.length,
-    NHAT_KY_DANG_NHAP: loginLogs.length,
-    NHAT_KY_HE_THONG: systemLogs.length
-  };
   return {
     success: true,
     accounts: { headers: ['ID_NGUOI_DUNG', 'TEN_DANG_NHAP', 'TEN_HIEN_THI', 'EMAIL', 'MA_NHAN_VIEN', 'MA_VAI_TRO', 'TEN_VAI_TRO', 'TRANG_THAI', 'BAT_DOI_MAT_KHAU', 'SO_LAN_SAI', 'KHOA_DEN', 'LAN_DANG_NHAP_CUOI', 'NGAY_CAP_NHAT', 'GHI_CHU'], rows: accounts },
-    roles: { headers: ['MA_VAI_TRO', 'TEN_VAI_TRO', 'TRANG_THAI', 'GHI_CHU'], rows: roles },
+    roles: { headers: ['MA_VAI_TRO', 'TEN_VAI_TRO', 'TRANG_THAI', 'GHI_CHU', 'CAP_BAO_MAT'], rows: roles },
+    permissionSync: permissionSync,
     permissions: { headers: AUTH_SHEET_HEADERS.PHAN_QUYEN.slice(), rows: permissions },
     loginLogs: { headers: AUTH_SHEET_HEADERS.NHAT_KY_DANG_NHAP.slice(), rows: loginLogs },
     systemLogs: { headers: AUTH_SHEET_HEADERS.NHAT_KY_HE_THONG.slice(), rows: systemLogs },
-    sheets: SYSTEM_SHEET_NAMES.map(function (name) { return { name: name, rows: sheetRows[name] || 0, status: 'Sẵn sàng' }; }),
+    sheets: systemSheetHealth_(ss),
     summary: {
       accounts: accounts.length,
       activeAccounts: accounts.filter(function (row) { return authActive_(row.TRANG_THAI); }).length,
@@ -1068,14 +1186,54 @@ function saveSystemPermissions(input) {
     if (!roleCode || !moduleCode || key_(roleCode) === 'role-admin') return;
     var index = values.findIndex(function (row) { return key_(row[meta.columns.MA_VAI_TRO - 1]) === key_(roleCode) && key_(row[meta.columns.MA_CHUC_NANG - 1]) === key_(moduleCode); });
     if (index === -1) return;
-    var rowNumber = index + 2;
-    SYSTEM_PERMISSION_ACTIONS.forEach(function (action) { authWriteField_(sheet, meta, rowNumber, action, authFlag_(item[action]) ? 'Có' : 'Không', '@'); });
+    var rowNumber = index + 2, child = moduleCode.indexOf('.') !== -1;
+    SYSTEM_PERMISSION_ACTIONS.forEach(function (action) {
+      if (!Object.prototype.hasOwnProperty.call(item, action) || (child && action !== 'XEM')) return;
+      authWriteField_(sheet, meta, rowNumber, action, authFlag_(item[action]) ? 'Có' : 'Không', '@');
+    });
     updated++;
   });
   writeSystemLog_(ss, auth, 'HE_THONG', 'SUA', 'PHAN_QUYEN', null, { rows: updated }, 'Cập nhật ma trận phân quyền.');
   SpreadsheetApp.flush();
   authBumpVersion_();
   return { success: true, updated: updated };
+}
+
+/** Thêm/sửa vai trò; vai trò mới được tự tạo dòng quyền (mặc định Không). Chỉ Quản trị. */
+function saveSystemRole(input) {
+  input = input || {};
+  var auth = requirePermission_(input._sessionToken, 'HE_THONG', 'SUA');
+  if (!authIsAdmin_(auth)) throw new Error('Chỉ Quản trị hệ thống được thêm hoặc sửa vai trò.');
+  var name = String(input.TEN_VAI_TRO || '').trim(), level = Number(input.CAP_BAO_MAT), status = String(input.TRANG_THAI || 'Đang hoạt động').trim(), note = String(input.GHI_CHU || '').trim();
+  if (!name) throw new Error('Vui lòng nhập tên vai trò.');
+  if ([0, 1, 2].indexOf(level) === -1) throw new Error('Mức bảo mật không hợp lệ.');
+  if (['Đang hoạt động', 'Ngừng hoạt động'].indexOf(status) === -1) throw new Error('Trạng thái vai trò không hợp lệ.');
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    ensureAuthData_(ss);
+    var sheet = ensureAuthSheet_(ss, 'VAI_TRO'), meta = headers_(sheet), roles = readSheet_(ss, 'VAI_TRO').rows, isNew = !!input.isNew;
+    var code = String(input.MA_VAI_TRO || '').trim().toUpperCase();
+    if (isNew) {
+      if (!code) code = 'ROLE-' + plain_(name).toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30);
+      if (!/^ROLE-[A-Z0-9-]{2,30}$/.test(code)) throw new Error('Mã vai trò phải có dạng ROLE-XXX (chữ không dấu, số, gạch ngang).');
+      if (roles.some(function (row) { return key_(row.MA_VAI_TRO) === key_(code); })) throw new Error('Mã vai trò đã tồn tại.');
+      appendAuthRecord_(sheet, { MA_VAI_TRO: code, TEN_VAI_TRO: name, TRANG_THAI: status, GHI_CHU: note, CAP_BAO_MAT: level }, meta);
+    } else {
+      var row = roles.find(function (item) { return key_(item.MA_VAI_TRO) === key_(code); });
+      if (!row) throw new Error('Không tìm thấy vai trò.');
+      if (key_(code) === 'role-admin' && (status !== 'Đang hoạt động' || level !== 2)) throw new Error('Không thể ngừng hoặc hạ mức bảo mật của vai trò Quản trị hệ thống.');
+      [['TEN_VAI_TRO', name], ['TRANG_THAI', status], ['CAP_BAO_MAT', level], ['GHI_CHU', note]].forEach(function (pair) { authWriteField_(sheet, meta, row.__row, pair[0], pair[1], '@'); });
+    }
+    SpreadsheetApp.flush();
+    var sync = authSyncPermissions_(ss), users = authAccountRows_(ss).filter(function (item) { return key_(item.data.MA_VAI_TRO) === key_(code) && authActive_(item.data.TRANG_THAI); }).length;
+    writeSystemLog_(ss, auth, 'HE_THONG', isNew ? 'THEM' : 'SUA', code, null, { TEN_VAI_TRO: name, TRANG_THAI: status, CAP_BAO_MAT: level }, isNew ? 'Thêm vai trò.' : 'Sửa vai trò.');
+    SpreadsheetApp.flush();
+    authBumpVersion_();
+    return { success: true, code: code, created: isNew, addedPermissions: sync.added, activeUsers: users };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function loginLocal(input) {
@@ -1826,6 +1984,15 @@ function readSheet_(ss, name) {
   return { headers: meta.headers.filter(String), rows: rows, meta: meta };
 }
 
+function authCanSheet_(auth, name) {
+  if (authIsAdmin_(auth)) return true;
+  var modules = AUTH_SHEET_MODULES[name], perms = auth && auth.permissions;
+  if (!modules) return true;
+  if (!perms) return false;
+  var list = modules === '*' ? Object.keys(perms) : modules;
+  return list.some(function (code) { return String(perms[code] || '').charAt(0) === '1'; });
+}
+
 function requestedDataSheets_(names) {
   if (!Array.isArray(names) || !names.length) return APP_BOOTSTRAP_SHEETS.slice();
   var allowed = {}, seen = {}, result = [];
@@ -1841,6 +2008,12 @@ function getAppData(input) {
   var isRequest = input && typeof input === 'object', sessionToken = isRequest ? input._sessionToken : input;
   var auth = requireAuth_(sessionToken), requested = isRequest ? requestedDataSheets_(input.sheets) : DATA_SHEETS.slice();
   var data = {};
+  // Máy chủ lọc theo quyền XEM: ẩn menu thôi chưa đủ, sheet không được phép trả về rỗng.
+  requested = requested.filter(function (name) {
+    if (authCanSheet_(auth, name)) return true;
+    data[name] = { headers: [], rows: [], denied: true };
+    return false;
+  });
   try {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     if (requested.indexOf('DM_BIEU_MAU') !== -1 || requested.indexOf('PHIEU_BIEU_MAU') !== -1) {
@@ -1866,7 +2039,7 @@ function getAppData(input) {
       error: 'Không mở được bảng dữ liệu. Hãy triển khai Web App với mục “Thực thi ứng dụng với tư cách: Tôi” và cấp quyền cho Apps Script. Chi tiết: ' + message
     };
   }
-  var level = sensitiveLevel_(auth.roleCode);
+  var level = authLevel_(auth);
   if (data.DM_NHAN_VIEN && Array.isArray(data.DM_NHAN_VIEN.rows) && level < 2) {
     var hidden = hiddenEmployeeFields_(level);
     data.DM_NHAN_VIEN.rows = data.DM_NHAN_VIEN.rows.map(function (row) { return stripEmployeeRow_(row, level); });
@@ -1905,7 +2078,7 @@ function getEmployeeByKey(code, sessionToken) {
   var found = rows.find(function (row) {
     return key_(row.MA_NHAN_VIEN) === wanted || key_(row.ID_NHAN_VIEN) === wanted;
   }) || null;
-  return stripEmployeeRow_(found, sensitiveLevel_(auth.roleCode));
+  return stripEmployeeRow_(found, authLevel_(auth));
 }
 
 function saveEmployee(input) {
@@ -1921,7 +2094,7 @@ function writeEmployee_(input, editing) {
   var auth = requirePermission_(input._sessionToken, 'NHAN_SU', editing ? 'SUA' : 'THEM');
   if (!String(input.HO_VA_TEN || '').trim()) throw new Error('Vui lòng nhập họ và tên.');
   // R72: tài khoản không đủ cấp thì bỏ qua cột nhạy cảm, giữ nguyên giá trị đang có trong Sheet.
-  hiddenEmployeeFields_(sensitiveLevel_(auth.roleCode)).forEach(function (field) { delete input[field]; });
+  hiddenEmployeeFields_(authLevel_(auth)).forEach(function (field) { delete input[field]; });
   if (Object.prototype.hasOwnProperty.call(input, 'TRANG_THAI') && String(input.TRANG_THAI || '').trim() && EMPLOYEE_STATUS_VALUES.indexOf(String(input.TRANG_THAI).trim()) === -1) {
     throw new Error('Trạng thái nhân viên không hợp lệ.');
   }
