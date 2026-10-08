@@ -1014,12 +1014,15 @@ function systemRole_(ss, roleCode) {
   }) || null;
 }
 
-/** Tài khoản phải gắn một nhân viên có thật, chưa nghỉ việc và chưa có tài khoản khác. */
-function systemCheckEmployeeLink_(ss, employee, employeeCode, exceptId) {
+/**
+ * Tài khoản phải gắn một nhân viên có thật, chưa nghỉ việc.
+ * Một nhân viên được có nhiều tài khoản (mỗi tài khoản một vai trò để chia việc), nhưng không trùng vai trò.
+ */
+function systemCheckEmployeeLink_(ss, employee, employeeCode, exceptId, roleCode) {
   if (!employee) throw new Error('Mã nhân viên ' + employeeCode + ' không có trong DM_NHAN_VIEN.');
   if (plain_(employee.TRANG_THAI) === 'nghi viec') throw new Error('Nhân viên ' + employeeCode + ' đã nghỉ việc, không tạo tài khoản được.');
-  var other = authAccountRows_(ss).find(function (item) { return key_(item.data.MA_NHAN_VIEN) === key_(employeeCode) && key_(item.data.ID_NGUOI_DUNG) !== key_(exceptId); });
-  if (other) throw new Error('Nhân viên ' + employeeCode + ' đã có tài khoản "' + (other.data.TEN_DANG_NHAP || '') + '".');
+  var same = authAccountRows_(ss).find(function (item) { return key_(item.data.MA_NHAN_VIEN) === key_(employeeCode) && key_(item.data.MA_VAI_TRO) === key_(roleCode) && key_(item.data.ID_NGUOI_DUNG) !== key_(exceptId); });
+  if (same) throw new Error('Nhân viên ' + employeeCode + ' đã có tài khoản "' + (same.data.TEN_DANG_NHAP || '') + '" với vai trò ' + authRoleName_(ss, roleCode) + '. Hãy chọn vai trò khác.');
 }
 
 function systemStatus_(value) {
@@ -1162,7 +1165,7 @@ function saveSystemAccount(input) {
   if (email && authFindAccount_(ss, email)) throw new Error('Tên đăng nhập hoặc email đã tồn tại.');
   if (!systemRole_(ss, roleCode)) throw new Error('Vai trò đã chọn không tồn tại.');
   var employee = masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', employeeCode);
-  systemCheckEmployeeLink_(ss, employee, employeeCode, '');
+  systemCheckEmployeeLink_(ss, employee, employeeCode, '', roleCode);
   // Tên hiển thị và email để trống thì lấy từ hồ sơ nhân viên.
   if (!displayName) displayName = String(employee.HO_VA_TEN || '').trim();
   if (!email && /^[^@\s,]+@[^@\s,]+\.[A-Za-z.]{2,}$/.test(String(employee.EMAIL || '').trim()) && !authFindAccount_(ss, String(employee.EMAIL).trim())) email = String(employee.EMAIL).trim();
@@ -1210,7 +1213,10 @@ function updateSystemAccount(input) {
     if (emailFound && emailFound.rowNumber !== found.rowNumber) throw new Error('Email đã được dùng cho tài khoản khác.');
   }
   var employeeCode = String(input.MA_NHAN_VIEN || '').trim();
-  if (employeeCode && key_(employeeCode) !== key_(found.data.MA_NHAN_VIEN)) systemCheckEmployeeLink_(ss, masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', employeeCode), employeeCode, found.data.ID_NGUOI_DUNG);
+  var linkCode = employeeCode || String(found.data.MA_NHAN_VIEN || '').trim(), linkRole = roleCode || found.data.MA_VAI_TRO;
+  var codeChanged = !!employeeCode && key_(employeeCode) !== key_(found.data.MA_NHAN_VIEN), linkEmployee = linkCode ? masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', linkCode) : null;
+  // Chỉ đổi vai trò của tài khoản gắn mã nhân viên cũ đã xóa khỏi danh bạ: không chặn.
+  if (linkCode && (codeChanged || (roleChanged && linkEmployee))) systemCheckEmployeeLink_(ss, linkEmployee, linkCode, found.data.ID_NGUOI_DUNG, linkRole);
   var password = String(input.MAT_KHAU || ''), sheet = ensureAuthSheet_(ss, 'NGUOI_DUNG'), meta = headers_(sheet), before = systemSafeAccount_(ss, found.data), now = new Date();
   if (password && password.length < AUTH_MIN_PASSWORD_LENGTH) throw new Error('Mật khẩu mới phải có ít nhất ' + AUTH_MIN_PASSWORD_LENGTH + ' ký tự.');
   [['TEN_HIEN_THI', String(input.TEN_HIEN_THI || '').trim()], ['EMAIL', email], ['MA_NHAN_VIEN', employeeCode], ['MA_VAI_TRO', roleCode], ['TRANG_THAI', status]].forEach(function (pair) {
