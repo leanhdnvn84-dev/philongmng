@@ -1530,7 +1530,7 @@
     }
     function formCompanyHeaderHtml(companyClass,rowClass) {
       var outer=companyClass||'form-editor-company',row=rowClass||'form-editor-company-row',c=formCompany();
-      var items=[['Địa chỉ',c.DIA_CHI_NGAN||c.DIA_CHI],['MST',c.MA_SO_THUE],['Điện thoại',c.DIEN_THOAI],['Email',c.EMAIL],['Website',c.WEBSITE]].filter(function(item){return item[1];});
+      var items=[['Địa chỉ',c.DIA_CHI_NGAN||c.DIA_CHI],['Điện thoại',c.DIEN_THOAI],['Email',c.EMAIL]].filter(function(item){return item[1];});
       if(outer==='company')return '<table class="company" cellpadding="0" cellspacing="0">'+items.map(function(item){return '<tr><td class="k" align="left">'+esc(item[0])+'</td><td align="left">: '+esc(item[1])+'</td></tr>';}).join('')+'</table>';
       return '<div class="'+outer+'">'+items.map(function(item){return '<div class="'+row+'"><b>'+esc(item[0])+'</b><span>: '+esc(item[1])+'</span></div>';}).join('')+'</div>';
     }
@@ -1958,7 +1958,7 @@
     }
     /* Đầu trang giống biểu mẫu: tiêu đề bên trái; logo + Địa chỉ/MST/Điện thoại/Email/Website bên phải; kẻ đường dưới. */
     function docHeaderHtml(title,sub,logoSrc) {
-      var c=formCompany(),line='border-bottom:1px solid #111;padding:0 0 5pt 0;',rows=[['Địa chỉ',c.DIA_CHI_NGAN||c.DIA_CHI],['MST',c.MA_SO_THUE],['Điện thoại',c.DIEN_THOAI],['Email',c.EMAIL],['Website',c.WEBSITE]].filter(function(row){return row[1];});
+      var c=formCompany(),line='border-bottom:1px solid #111;padding:0 0 5pt 0;',rows=[['Địa chỉ',c.DIA_CHI_NGAN||c.DIA_CHI],['Điện thoại',c.DIEN_THOAI],['Email',c.EMAIL]].filter(function(row){return row[1];});
       return '<table class="doc-head" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr><td valign="bottom" style="'+line+'padding-right:12pt;border-top:0;border-left:0;border-right:0"><p style="margin:0;font-size:17pt;font-weight:bold;color:#111;text-transform:uppercase">'+esc(String(title||'').toUpperCase())+'</p>'+(sub?'<p style="margin:3pt 0 0;font-size:10pt;font-style:italic;color:#4b5b6b">'+esc(sub)+'</p>':'')+'</td><td valign="bottom" align="right" width="200" style="'+line+'width:150pt;border-top:0;border-left:0;border-right:0"><p align="right" style="margin:0 0 3pt;text-align:right"><img src="'+logoSrc+'" width="176" height="55" alt="Phi Long"></p><table align="right" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-left:auto">'+rows.map(function(row){return '<tr><td align="left" style="border:0;padding:0 3pt 0 0;font-size:8.5pt;font-weight:bold;color:#111;white-space:nowrap">'+esc(row[0])+'</td><td align="left" style="border:0;padding:0;font-size:8.5pt;color:#4b5b6b;white-space:nowrap">: '+esc(row[1])+'</td></tr>';}).join('')+'</table></td></tr></table>';
     }
     function docDateLine(left,date) {
