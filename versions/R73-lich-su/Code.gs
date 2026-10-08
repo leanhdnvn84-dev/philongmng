@@ -1014,6 +1014,14 @@ function systemRole_(ss, roleCode) {
   }) || null;
 }
 
+/** Tài khoản phải gắn một nhân viên có thật, chưa nghỉ việc và chưa có tài khoản khác. */
+function systemCheckEmployeeLink_(ss, employee, employeeCode, exceptId) {
+  if (!employee) throw new Error('Mã nhân viên ' + employeeCode + ' không có trong DM_NHAN_VIEN.');
+  if (plain_(employee.TRANG_THAI) === 'nghi viec') throw new Error('Nhân viên ' + employeeCode + ' đã nghỉ việc, không tạo tài khoản được.');
+  var other = authAccountRows_(ss).find(function (item) { return key_(item.data.MA_NHAN_VIEN) === key_(employeeCode) && key_(item.data.ID_NGUOI_DUNG) !== key_(exceptId); });
+  if (other) throw new Error('Nhân viên ' + employeeCode + ' đã có tài khoản "' + (other.data.TEN_DANG_NHAP || '') + '".');
+}
+
 function systemStatus_(value) {
   var status = String(value || 'Đang hoạt động').trim();
   if (['Đang hoạt động', 'Tạm khóa', 'Ngừng hoạt động'].indexOf(status) === -1) {
@@ -1143,7 +1151,7 @@ function saveSystemAccount(input) {
   var email = String(input.EMAIL || '').trim(), employeeCode = String(input.MA_NHAN_VIEN || '').trim();
   var password = String(input.MAT_KHAU || ''), roleCode = String(input.MA_VAI_TRO || 'ROLE-VIEW').trim();
   if (!username) throw new Error('Vui lòng nhập tên đăng nhập.');
-  if (!displayName) throw new Error('Vui lòng nhập tên hiển thị.');
+  if (!employeeCode) throw new Error('Vui lòng chọn nhân viên cho tài khoản (lấy từ DM_NHAN_VIEN).');
   if (password && password.length < AUTH_MIN_PASSWORD_LENGTH) throw new Error('Mật khẩu phải có ít nhất ' + AUTH_MIN_PASSWORD_LENGTH + ' ký tự.');
   if (key_(roleCode) === 'role-admin' && !authIsAdmin_(auth)) throw new Error('Chỉ Quản trị hệ thống được tạo tài khoản có vai trò Quản trị.');
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID), lock = LockService.getScriptLock();
@@ -1153,7 +1161,12 @@ function saveSystemAccount(input) {
   if (authFindAccount_(ss, username)) throw new Error('Tên đăng nhập hoặc email đã tồn tại.');
   if (email && authFindAccount_(ss, email)) throw new Error('Tên đăng nhập hoặc email đã tồn tại.');
   if (!systemRole_(ss, roleCode)) throw new Error('Vai trò đã chọn không tồn tại.');
-  if (employeeCode && !masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', employeeCode)) throw new Error('Mã nhân viên đã chọn không tồn tại.');
+  var employee = masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', employeeCode);
+  systemCheckEmployeeLink_(ss, employee, employeeCode, '');
+  // Tên hiển thị và email để trống thì lấy từ hồ sơ nhân viên.
+  if (!displayName) displayName = String(employee.HO_VA_TEN || '').trim();
+  if (!email && /^[^@\s,]+@[^@\s,]+\.[A-Za-z.]{2,}$/.test(String(employee.EMAIL || '').trim()) && !authFindAccount_(ss, String(employee.EMAIL).trim())) email = String(employee.EMAIL).trim();
+  if (!displayName) throw new Error('Vui lòng nhập tên nhân viên hiển thị.');
   var generatedPassword = !password, temporaryPassword = generatedPassword ? authTemporaryPassword_() : '';
   var sheet = ensureAuthSheet_(ss, 'NGUOI_DUNG'), now = new Date();
   var record = {
@@ -1197,7 +1210,7 @@ function updateSystemAccount(input) {
     if (emailFound && emailFound.rowNumber !== found.rowNumber) throw new Error('Email đã được dùng cho tài khoản khác.');
   }
   var employeeCode = String(input.MA_NHAN_VIEN || '').trim();
-  if (employeeCode && !masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', employeeCode)) throw new Error('Mã nhân viên đã chọn không tồn tại.');
+  if (employeeCode && key_(employeeCode) !== key_(found.data.MA_NHAN_VIEN)) systemCheckEmployeeLink_(ss, masterRowByCode_(ss, 'DM_NHAN_VIEN', 'MA_NHAN_VIEN', employeeCode), employeeCode, found.data.ID_NGUOI_DUNG);
   var password = String(input.MAT_KHAU || ''), sheet = ensureAuthSheet_(ss, 'NGUOI_DUNG'), meta = headers_(sheet), before = systemSafeAccount_(ss, found.data), now = new Date();
   if (password && password.length < AUTH_MIN_PASSWORD_LENGTH) throw new Error('Mật khẩu mới phải có ít nhất ' + AUTH_MIN_PASSWORD_LENGTH + ' ký tự.');
   [['TEN_HIEN_THI', String(input.TEN_HIEN_THI || '').trim()], ['EMAIL', email], ['MA_NHAN_VIEN', employeeCode], ['MA_VAI_TRO', roleCode], ['TRANG_THAI', status]].forEach(function (pair) {
