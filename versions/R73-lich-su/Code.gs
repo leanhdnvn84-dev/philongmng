@@ -2243,6 +2243,30 @@ function getEmployeeByKey(code, sessionToken) {
   return stripEmployeeRow_(found, authLevel_(auth));
 }
 
+/**
+ * Nhập danh sách nhân viên từ Excel (trình duyệt đã đọc file, đổi tên phòng ban/chức vụ sang mã).
+ * Mỗi dòng đi qua writeEmployee_ như khi thêm/sửa tay: cùng kiểm quyền, kiểm dữ liệu, nhật ký.
+ * Dòng có code = cập nhật nhân viên đó; không có code = thêm mới (mã tự cấp). Tối đa 25 dòng mỗi lần gọi.
+ */
+function importEmployees(input) {
+  input = input || {};
+  requireAuth_(input._sessionToken);
+  var items = Array.isArray(input.items) ? input.items.slice(0, 25) : [], results = [];
+  if (!items.length) throw new Error('Không có dòng nào để nhập.');
+  items.forEach(function (item) {
+    var data = Object.assign({}, item && item.data || {}), code = String(item && item.code || '').trim();
+    data._sessionToken = input._sessionToken;
+    if (code) data._originalCode = code;
+    try {
+      var result = writeEmployee_(data, !!code);
+      results.push({ line: item.line, ok: true, code: result.code, updated: !!code, lockedAccounts: result.lockedAccounts || 0 });
+    } catch (error) {
+      results.push({ line: item.line, ok: false, error: String(error && error.message || error) });
+    }
+  });
+  return { success: true, results: results };
+}
+
 function saveEmployee(input) {
   return writeEmployee_(input, false);
 }
