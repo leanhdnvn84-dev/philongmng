@@ -2267,6 +2267,117 @@ function getEmployeeByKey(code, sessionToken) {
  * Mỗi dòng đi qua writeEmployee_ như khi thêm/sửa tay: cùng kiểm quyền, kiểm dữ liệu, nhật ký.
  * Dòng có code = cập nhật nhân viên đó; không có code = thêm mới (mã tự cấp). Tối đa 25 dòng mỗi lần gọi.
  */
+/** ===== Văn bản nhân sự: cấp số quyết định tăng dần theo năm, lưu PHIEU_BIEU_MAU, ghi ngược hồ sơ khi được chọn ===== */
+const HR_DOC_TYPES = {
+  raise: { id: 'FMV_QUYET_DINH_TANG_LUONG', name: 'Quyết định nâng lương', numbered: true },
+  terminate: { id: 'FMV_QUYET_DINH_CHAM_DUT_HDLD', name: 'Quyết định chấm dứt hợp đồng lao động', numbered: true },
+  unpaid: { id: 'FMV_QUYET_DINH_NGHI_KHONG_LUONG', name: 'Quyết định nghỉ không hưởng lương', numbered: true },
+  sunday: { id: 'FMV_CAM_KET_LAM_CHU_NHAT', name: 'Cam kết làm việc ngày Chủ nhật', numbered: false }
+};
+const HR_DOC_SUFFIX = '/QĐ-PL';
+
+function hrDocAuth_(token) {
+  var user = requireAuth_(token);
+  if (key_(user.roleCode) === 'role-admin') return user;
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  if (authCan_(ss, user.roleCode, 'HO_SO', 'XUAT_FILE') || authCan_(ss, user.roleCode, 'NHAN_SU', 'XUAT_FILE')) return user;
+  throw new Error('Tài khoản không có quyền in văn bản nhân sự.');
+}
+
+/** Số lớn nhất đã dùng trong năm (dạng 25/2026/QĐ-PL), tính trên PHIEU_BIEU_MAU. */
+function hrDocLastNumber_(sheet, meta, year) {
+  var column = meta.columns.SO_VAN_BAN, last = sheet.getLastRow(), max = 0;
+  if (!column || last < 2) return 0;
+  var pattern = new RegExp('^\\s*(\\d+)\\s*/\\s*' + year + '\\s*/\\s*QĐ-PL\\s*$', 'i');
+  sheet.getRange(2, column, last - 1, 1).getDisplayValues().forEach(function (row) {
+    var match = String(row[0] || '').match(pattern);
+    if (match) max = Math.max(max, Number(match[1]));
+  });
+  return max;
+}
+
+/**
+ * input: { kind, signDate (yyyy-mm-dd), effectiveDate, docs: [{ codes: [], names: '', payload: {...} }],
+ *          writeBack: bool, salaries: [{ code, salary }], termination: { code, endDate, reason } }
+ * Trả về số đã cấp cho từng văn bản (theo thứ tự docs) và kết quả ghi hồ sơ.
+ */
+function issueHrDocuments(input) {
+  input = input || {};
+  var auth = hrDocAuth_(input._sessionToken), type = HR_DOC_TYPES[input.kind];
+  if (!type) throw new Error('Loại văn bản không hợp lệ.');
+  var docs = Array.isArray(input.docs) ? input.docs.slice(0, 200) : [];
+  if (!docs.length) throw new Error('Chưa có văn bản nào để in.');
+  if (input.kind === 'raise' && authLevel_(auth) < 2) throw new Error('Quyết định nâng lương cần quyền xem lương (mức 2).');
+  var signDate = parseAttendanceDate_(input.signDate, 'Ngày ký'), year = signDate.getFullYear();
+  var effective = input.effectiveDate ? parseAttendanceDate_(input.effectiveDate, 'Ngày hiệu lực') : '';
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), numbers = [], ids = [], now = new Date();
+  var lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    var sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet), next = type.numbered ? hrDocLastNumber_(sheet, meta, year) : 0;
+    docs.forEach(function (doc) {
+      var number = type.numbered ? (++next) + '/' + year + HR_DOC_SUFFIX : '', codes = (doc.codes || []).map(function (code) { return String(code || '').trim(); }).filter(Boolean);
+      var payload = JSON.stringify({ hrDoc: input.kind, number: number, signDate: input.signDate, payload: doc.payload || {} });
+      if (payload.length > 45000) throw new Error('Nội dung văn bản quá dài để lưu.');
+      var record = {
+        ID_PHIEU: 'PH_' + Utilities.getUuid(), ID_BIEU_MAU: type.id, TEN_BIEU_MAU: type.name,
+        MA_NHAN_VIEN: codes.length === 1 ? codes[0] : codes.slice(0, 20).join(', '), HO_VA_TEN: String(doc.names || '').slice(0, 300),
+        NGAY_LAP: signDate, TIEU_DE: type.name + (doc.names ? ' – ' + String(doc.names).slice(0, 120) : ''), NOI_DUNG: '',
+        TRANG_THAI: 'Đã in', NGUOI_TAO: auth.username || auth.email || 'Hệ thống', NGAY_TAO: now, NGUOI_DUYET: '', NGAY_DUYET: '',
+        GHI_CHU: codes.length > 1 ? codes.length + ' nhân viên' : '', DU_LIEU_MAU_JSON: payload,
+        SO_VAN_BAN: number, LOAI_VAN_BAN: type.numbered ? 'Quyết định' : 'Cam kết', NGAY_HIEU_LUC: effective || '',
+        LICH_SU: JSON.stringify([formHistoryEntry_(auth, 'In văn bản', number || type.name)])
+      };
+      var rowNumber = appendFormRecord_(sheet, meta, record);
+      ['ID_PHIEU', 'ID_BIEU_MAU', 'MA_NHAN_VIEN', 'SO_VAN_BAN'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
+      ['NGAY_LAP', 'NGAY_TAO'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm'); });
+      if (meta.columns.NGAY_HIEU_LUC && effective) sheet.getRange(rowNumber, meta.columns.NGAY_HIEU_LUC).setNumberFormat('dd/MM/yyyy');
+      numbers.push(number); ids.push(record.ID_PHIEU);
+    });
+  } finally {
+    lock.releaseLock();
+  }
+  writeSystemLog_(ss, auth, 'HO_SO', 'XUAT_FILE', ids.join(','), null, { loai: type.name, so: numbers.join(', ') }, 'In văn bản nhân sự.');
+  var applied = { salaries: 0, resigned: 0, lockedAccounts: 0, errors: [] };
+  if (input.writeBack) hrDocWriteBack_(ss, auth, input, numbers[0] || '', applied);
+  return { success: true, numbers: numbers, ids: ids, applied: applied };
+}
+
+/** Ghi ngược hồ sơ: lương mới (+ lịch sử “Nâng lương”) hoặc chuyển “Nghỉ việc” (lịch sử + khóa tài khoản do writeEmployee_ lo). */
+function hrDocWriteBack_(ss, auth, input, number, applied) {
+  var employees = readSheet_(ss, 'DM_NHAN_VIEN').rows, find = function (code) { return employees.find(function (row) { return key_(row.MA_NHAN_VIEN) === key_(code); }); };
+  if (input.kind === 'raise') {
+    var history = ensureWorkHistorySheet_(ss), meta = headers_(history), effective = input.effectiveDate ? parseAttendanceDate_(input.effectiveDate, 'Ngày hiệu lực') : new Date();
+    (input.salaries || []).slice(0, 200).forEach(function (item) {
+      var person = find(item && item.code), salary = String(item && item.salary || '').replace(/[^\d]/g, '');
+      if (!person || !salary) { applied.errors.push((item && item.code || '?') + ': không tìm thấy nhân viên hoặc thiếu lương mới.'); return; }
+      try {
+        writeEmployee_({ _sessionToken: input._sessionToken, _originalCode: person.MA_NHAN_VIEN, HO_VA_TEN: person.HO_VA_TEN, LUONG_CO_BAN: salary }, true);
+        var record = {
+          ID_LICH_SU: 'LS_' + Utilities.getUuid(), MA_NHAN_VIEN: person.MA_NHAN_VIEN, HO_VA_TEN: person.HO_VA_TEN || '', NGAY_HIEU_LUC: effective,
+          LOAI_BIEN_DONG: 'Nâng lương', MA_PHONG_BAN_CU: person.MA_PHONG_BAN || '', MA_BO_PHAN_CU: person.MA_BO_PHAN || '', MA_NHOM_CU: person.MA_NHOM || '', MA_CHUC_VU_CU: person.MA_CHUC_VU || '',
+          MA_PHONG_BAN_MOI: person.MA_PHONG_BAN || '', MA_BO_PHAN_MOI: person.MA_BO_PHAN || '', MA_NHOM_MOI: person.MA_NHOM || '', MA_CHUC_VU_MOI: person.MA_CHUC_VU || '',
+          TRANG_THAI_CU: person.TRANG_THAI || '', TRANG_THAI_MOI: person.TRANG_THAI || '', SO_QUYET_DINH: number,
+          GHI_CHU: 'Lương cơ bản: ' + (person.LUONG_CO_BAN || '—') + ' → ' + Number(salary).toLocaleString('vi-VN'), NGUOI_TAO: auth.username || auth.email || 'Hệ thống', NGAY_TAO: new Date(), TRANG_THAI: 'Đã ghi nhận'
+        };
+        var rowNumber = Math.max(2, history.getLastRow() + 1);
+        history.getRange(rowNumber, 1, 1, meta.headers.length).setValues([meta.headers.map(function (header) { return header ? (record[header] == null ? '' : record[header]) : ''; })]);
+        ['ID_LICH_SU', 'MA_NHAN_VIEN', 'SO_QUYET_DINH'].forEach(function (field) { if (meta.columns[field]) history.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
+        ['NGAY_HIEU_LUC', 'NGAY_TAO'].forEach(function (field) { if (meta.columns[field]) history.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm'); });
+        applied.salaries++;
+      } catch (error) { applied.errors.push(person.MA_NHAN_VIEN + ': ' + (error && error.message || error)); }
+    });
+  } else if (input.kind === 'terminate') {
+    var t = input.termination || {}, person = find(t.code);
+    if (!person) { applied.errors.push('Không tìm thấy nhân viên cần chuyển nghỉ việc.'); return; }
+    try {
+      var end = parseAttendanceDate_(t.endDate, 'Ngày chấm dứt'), text = Utilities.formatDate(end, Session.getScriptTimeZone(), 'dd/MM/yyyy') + ' – ' + String(t.reason || '').trim();
+      var result = writeEmployee_({ _sessionToken: input._sessionToken, _originalCode: person.MA_NHAN_VIEN, HO_VA_TEN: person.HO_VA_TEN, TRANG_THAI: 'Nghỉ việc', THOI_DIEM_CHAM_DUT_HD_VA_LY_DO: text, NGAY_HIEU_LUC: t.endDate, SO_QUYET_DINH: number, GHI_CHU_LICH_SU: String(t.reason || '').trim() }, true);
+      applied.resigned = 1; applied.lockedAccounts = result.lockedAccounts || 0;
+    } catch (error) { applied.errors.push(person.MA_NHAN_VIEN + ': ' + (error && error.message || error)); }
+  }
+}
+
 function importEmployees(input) {
   input = input || {};
   requireAuth_(input._sessionToken);
