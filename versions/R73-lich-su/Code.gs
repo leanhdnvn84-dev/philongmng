@@ -1808,7 +1808,7 @@ function saveFormRequest(input) {
     ID_PHIEU: 'PH_' + Utilities.getUuid(), ID_BIEU_MAU: template.ID_BIEU_MAU || template.MA_BIEU_MAU || '',
     TEN_BIEU_MAU: template.TEN_BIEU_MAU || '', MA_NHAN_VIEN: employeeCode, HO_VA_TEN: employee && employee.HO_VA_TEN || '',
     NGAY_LAP: formDate, TIEU_DE: String(input.TIEU_DE || '').trim() || template.TEN_BIEU_MAU || '',
-    NOI_DUNG: String(input.NOI_DUNG || '').trim().slice(0, 2000), TRANG_THAI: 'Nháp', NGUOI_TAO: auth.username || auth.email || 'Hệ thống',
+    NOI_DUNG: String(input.NOI_DUNG || '').trim().slice(0, 2000), TRANG_THAI: 'Đã lập', NGUOI_TAO: auth.username || auth.email || 'Hệ thống',
     NGAY_TAO: now, NGUOI_DUYET: '', NGAY_DUYET: '', GHI_CHU: String(input.GHI_CHU || '').trim(), DU_LIEU_MAU_JSON: formDataJson
   };
   Object.keys(shared).forEach(function (field) { record[field] = shared[field]; });
@@ -1946,7 +1946,8 @@ function saveFormPdf(input) {
   if (!id) throw new Error('Thiếu phiếu biểu mẫu cần lưu PDF.');
   if (!html || html.length > 2000000) throw new Error('Nội dung in không hợp lệ hoặc quá lớn.');
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID), found = formRequestFind_(ss, id), row = found.data;
-  if (key_(row.TRANG_THAI) !== key_('Đã duyệt')) throw new Error('Chỉ lưu PDF cho phiếu đã duyệt.');
+  // Phiếu dùng cho cá nhân từng tài khoản, không qua duyệt: lưu PDF được ngay, trừ phiếu đã hủy.
+  if (key_(row.TRANG_THAI) === key_('Đã hủy')) throw new Error('Phiếu đã hủy, không lưu PDF.');
   var template = formTemplateById_(ss, row.ID_BIEU_MAU) || {}, folder = formDriveFolder_(template.PHAN_HE || FORM_TEMPLATE_MODULES[row.ID_BIEU_MAU]);
   var name = [row.SO_VAN_BAN, row.TIEU_DE || row.TEN_BIEU_MAU, row.NGAY_LAP].filter(function (part) { return String(part || '').trim(); }).join(' - ').replace(/[\\/:*?"<>|]+/g, '-').slice(0, 150) || id;
   var pdf = Utilities.newBlob(html, 'text/html', name + '.html').getAs('application/pdf').setName(name + '.pdf'), file = folder.createFile(pdf), now = new Date();
