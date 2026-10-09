@@ -3195,7 +3195,9 @@ function hireCandidate(input) {
     SO_DIEN_THOAI: phone, EMAIL: candidate.EMAIL || '', MA_PHONG_BAN: need.MA_PHONG_BAN, MA_BO_PHAN: need.MA_BO_PHAN || '', MA_CHUC_VU: need.MA_CHUC_VU || '',
     NGAY_VAO_LAM: recruitIsoDate_(source.NGAY_VAO_LAM), TRANG_THAI: days > 0 ? 'Thử việc' : 'Đang hoạt động', LOAI_HD: contract,
     NOI_LAM_VIEC: String(source.NOI_LAM_VIEC || candidate.DIA_DIEM_LAM_VIEC || '').trim(), SO_CCCD: cccd, NGAY_CAP: recruitIsoDate_(source.NGAY_CAP),
-    DIA_CHI: String(source.DIA_CHI || '').trim(), QUOC_TICH: String(source.QUOC_TICH || 'Việt Nam').trim(), GHI_CHU: 'Tiếp nhận từ ứng viên ' + candidate.ID_UNG_VIEN + (candidate.SO_THU_MOI ? ', thư mời ' + candidate.SO_THU_MOI : '')
+    DIA_CHI: String(source.DIA_CHI || '').trim(), QUOC_TICH: String(source.QUOC_TICH || 'Việt Nam').trim(),
+    // GHI_CHU của DM_NHAN_VIEN đang dùng làm cột "Đơn vị" (PHI LONG / ATOMA) ở Danh bạ.
+    GHI_CHU: String(source.DON_VI || 'PHI LONG').trim()
   };
   var salary = recruitMoney_(source.LUONG_CO_BAN !== undefined && String(source.LUONG_CO_BAN).trim() ? source.LUONG_CO_BAN : candidate.LUONG_DE_NGHI);
   if (salary) employee.LUONG_CO_BAN = salary;
