@@ -19,7 +19,7 @@ const WORK_HISTORY_HEADERS = [
   'MA_PHONG_BAN_CU', 'MA_BO_PHAN_CU', 'MA_NHOM_CU', 'MA_CHUC_VU_CU',
   'MA_PHONG_BAN_MOI', 'MA_BO_PHAN_MOI', 'MA_NHOM_MOI', 'MA_CHUC_VU_MOI',
   'TRANG_THAI_CU', 'TRANG_THAI_MOI', 'SO_QUYET_DINH', 'GHI_CHU',
-  'NGUOI_TAO', 'NGAY_TAO', 'TRANG_THAI'
+  'NGUOI_TAO', 'NGAY_TAO', 'TRANG_THAI', 'LOAI_HD_CU', 'LOAI_HD_MOI', 'LUONG_CU', 'LUONG_MOI'
 ];
 
 const FORM_TEMPLATE_HEADERS = [
@@ -438,7 +438,7 @@ const AUTH_MODULE_SEEDS = [
  * cho mọi vai trò được tự tạo khi Quản trị mở trang Hệ thống, mặc định Không.
  */
 const AUTH_MODULE_CHILDREN = {
-  HO_SO: ['Hồ sơ nhân viên', 'Nhân viên nghỉ việc'],
+  HO_SO: ['Hồ sơ nhân viên', 'Nhân viên nghỉ việc', 'Sổ quản lý lao động'],
   TUYEN_DUNG: ['Vị trí tuyển dụng', 'Ứng viên', 'Phỏng vấn', 'Tiếp nhận nhân viên'],
   BIEU_MAU: ['Biểu mẫu Hợp đồng', 'Biểu mẫu Hành chính', 'Biểu mẫu Nhân sự', 'Biểu mẫu Tài chính – Kế toán', 'Biểu mẫu Mua hàng – NCC', 'Biểu mẫu Kho', 'Biểu mẫu Tài sản – Thiết bị', 'Biểu mẫu Kinh doanh', 'Biểu mẫu Kỹ thuật – Bảo trì', 'Biểu mẫu Pháp lý & văn bản khác'],
   BAO_CAO: ['Báo cáo nhân sự', 'Báo cáo biến động', 'Báo cáo chấm công', 'Báo cáo lương'],
@@ -811,17 +811,11 @@ function requireAuth_(token) {
   return authSession_(token).user;
 }
 
-function authUserCan_(user, moduleCode, action) {
-  if (key_(user.roleCode) === 'role-admin') return true;
-  var flags = user.permissions && user.permissions[moduleCode], index = SYSTEM_PERMISSION_ACTIONS.indexOf(action);
-  if (typeof flags === 'string' && index !== -1) return flags.charAt(index) === '1';
-  return authCan_(SpreadsheetApp.openById(SPREADSHEET_ID), user.roleCode, moduleCode, action);
-}
-
 function requirePermission_(token, moduleCode, action) {
   var user = requireAuth_(token);
   if (key_(user.roleCode) === 'role-admin') return user;
-  if (!authUserCan_(user, moduleCode, action)) {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  if (!authCan_(ss, user.roleCode, moduleCode, action)) {
     throw new Error('Tài khoản không có quyền ' + action + ' tại chức năng này.');
   }
   return user;
@@ -1360,10 +1354,8 @@ function setupSystemLogArchiveTrigger() {
  * Không khóa nếu đó là Quản trị đang hoạt động cuối cùng. Trả về số tài khoản đã khóa.
  */
 function authLockResignedAccounts_(ss, auth, onlyCode) {
-  var resigned = {}, locked = 0;
-  // Đã biết đúng người vừa nghỉ thì không cần đọc lại cả danh bạ.
-  if (onlyCode) resigned[key_(onlyCode)] = true;
-  else readSheet_(ss, 'DM_NHAN_VIEN').rows.forEach(function (row) { if (plain_(row.TRANG_THAI) === 'nghi viec' && row.MA_NHAN_VIEN) resigned[key_(row.MA_NHAN_VIEN)] = true; });
+  var employees = readSheet_(ss, 'DM_NHAN_VIEN').rows, resigned = {}, locked = 0;
+  employees.forEach(function (row) { if (plain_(row.TRANG_THAI) === 'nghi viec' && row.MA_NHAN_VIEN) resigned[key_(row.MA_NHAN_VIEN)] = true; });
   var sheet = ss.getSheetByName('NGUOI_DUNG');
   if (!sheet) return 0;
   var meta = headers_(sheet), now = new Date();
@@ -1554,17 +1546,22 @@ function normalizeEmployeeImage_(value) {
 function requireMasterCode_(ss, sheetName, codeHeader, value, label) {
   var code = String(value == null ? '' : value).trim();
   if (!code) throw new Error('Vui lòng chọn ' + label + ' từ danh mục.');
-  var data = readMasterCached_(ss, sheetName);
-  if (data.missing) throw new Error('Không tìm thấy danh mục ' + sheetName + '.');
-  if (!data.meta || !data.meta.columns[codeHeader]) throw new Error(sheetName + ' chưa có cột ' + codeHeader + '.');
-  var found = data.rows.some(function (row) { return key_(row[codeHeader]) === key_(code); });
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) throw new Error('Không tìm thấy danh mục ' + sheetName + '.');
+  var meta = headers_(sheet);
+  if (!meta.columns[codeHeader]) throw new Error(sheetName + ' chưa có cột ' + codeHeader + '.');
+  var lastRow = sheet.getLastRow();
+  var values = lastRow > 1
+    ? sheet.getRange(2, meta.columns[codeHeader], lastRow - 1, 1).getDisplayValues()
+    : [];
+  var found = values.some(function (row) { return key_(row[0]) === key_(code); });
   if (!found) throw new Error(label + ' đã chọn không tồn tại trong ' + sheetName + '.');
   return code;
 }
 
 function masterRowByCode_(ss, sheetName, codeHeader, value) {
   var wanted = key_(value);
-  return readMasterCached_(ss, sheetName).rows.find(function (row) {
+  return readSheet_(ss, sheetName).rows.find(function (row) {
     return key_(row[codeHeader]) === wanted;
   }) || null;
 }
@@ -1609,10 +1606,24 @@ function objectFromRow_(meta, row) {
 }
 
 function ensureWorkHistorySheet_(ss) {
-  var sheet = ss.getSheetByName('LICH_SU_CONG_VIEC'), created = !sheet;
-  if (created) sheet = ss.insertSheet('LICH_SU_CONG_VIEC');
+  var sheet = ss.getSheetByName('LICH_SU_CONG_VIEC');
+  if (!sheet) sheet = ss.insertSheet('LICH_SU_CONG_VIEC');
   ensureColumns_(sheet, WORK_HISTORY_HEADERS);
-  if (created) sheet.setFrozenRows(1);
+  sheet.setFrozenRows(1);
+  var meta = headers_(sheet), column = meta.columns.LOAI_BIEN_DONG;
+  if (column && sheet.getMaxRows() > 1) {
+    var range = sheet.getRange(2, column, sheet.getMaxRows() - 1, 1);
+    var allowed = ['Điều chuyển phòng ban', 'Điều chuyển bộ phận', 'Điều chuyển nhóm', 'Thay đổi chức vụ', 'Bổ nhiệm', 'Miễn nhiệm', 'Nghỉ việc', 'Quay lại làm việc', 'Cập nhật trạng thái', 'Đề xuất điều chuyển', 'Nâng lương', 'Thay đổi loại hợp đồng', 'Cập nhật lương'];
+    range.getDataValidations().forEach(function (row) {
+      var rule = row[0];
+      if (rule && rule.getCriteriaType() === SpreadsheetApp.DataValidationCriteria.VALUE_IN_LIST) {
+        (rule.getCriteriaValues()[0] || []).forEach(function (value) {
+          if (allowed.indexOf(String(value)) === -1) allowed.push(String(value));
+        });
+      }
+    });
+    range.setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(allowed, true).setAllowInvalid(false).build());
+  }
   return sheet;
 }
 
@@ -1634,10 +1645,10 @@ function ensureFormSheet_(ss, name) {
     DM_CONG_TY: COMPANY_INFO_HEADERS
   };
   if (!definitions[name]) throw new Error('Không xác định được bảng biểu mẫu: ' + name + '.');
-  var sheet = ss.getSheetByName(name), created = !sheet;
-  if (created) sheet = ss.insertSheet(name);
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name);
   ensureColumns_(sheet, definitions[name]);
-  if (created) sheet.setFrozenRows(1);
+  sheet.setFrozenRows(1);
   return sheet;
 }
 
@@ -1758,7 +1769,7 @@ function formTemplateById_(ss, value) {
 function saveFormRequest(input) {
   input = input || {};
   var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', 'THEM'), ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  ensureFormSeeds_(ss, ['DM_BIEU_MAU']);
+  ensureDefaultFormTemplates_(ss);
   var template = formTemplateById_(ss, input.ID_BIEU_MAU);
   if (!template) throw new Error('Biểu mẫu đã chọn không tồn tại trong DM_BIEU_MAU.');
   var employeeCode = String(input.MA_NHAN_VIEN || '').trim(), employee = null;
@@ -2061,18 +2072,9 @@ function workHistoryType_(before, after) {
     if (plain_(after.TRANG_THAI).indexOf('tam nghi') !== -1) return 'Tạm nghỉ';
     return 'Cập nhật trạng thái';
   }
+  if(key_(before.LOAI_HD)!==key_(after.LOAI_HD))return 'Thay đổi loại hợp đồng';
+  if(String(before.LUONG_CO_BAN||'').replace(/[^0-9]/g,'')!==String(after.LUONG_CO_BAN||'').replace(/[^0-9]/g,''))return 'Cập nhật lương';
   return '';
-}
-
-/** Ghi nhiều dòng lịch sử bằng 1 lệnh ghi + 2 lệnh định dạng. */
-function appendWorkHistoryRows_(sheet, meta, records) {
-  if (!records.length) return;
-  var rowNumber = Math.max(2, sheet.getLastRow() + 1), n = records.length;
-  setFormats_(sheet, ['ID_LICH_SU', 'MA_NHAN_VIEN', 'SO_QUYET_DINH'].map(function (field) { return [rowNumber, meta.columns[field], n]; }), '@');
-  setFormats_(sheet, ['NGAY_HIEU_LUC', 'NGAY_TAO'].map(function (field) { return [rowNumber, meta.columns[field], n]; }), 'dd/MM/yyyy HH:mm');
-  sheet.getRange(rowNumber, 1, n, meta.headers.length).setValues(records.map(function (record) {
-    return meta.headers.map(function (header) { return header ? (record[header] == null ? '' : record[header]) : ''; });
-  }));
 }
 
 function appendWorkHistory_(ss, before, after, input, auth) {
@@ -2095,10 +2097,19 @@ function appendWorkHistory_(ss, before, after, input, auth) {
     MA_NHOM_MOI: after.MA_NHOM || '', MA_CHUC_VU_MOI: after.MA_CHUC_VU || '',
     TRANG_THAI_CU: before.TRANG_THAI || '', TRANG_THAI_MOI: after.TRANG_THAI || '',
     SO_QUYET_DINH: String(input.SO_QUYET_DINH || '').trim(),
-    GHI_CHU: String(input.GHI_CHU_LICH_SU || '').trim(),
+    GHI_CHU: String(input.GHI_CHU_LICH_SU || '').trim() || (type==='Cập nhật lương'?'Lương cơ bản: '+String(before.LUONG_CO_BAN||'—')+' → '+String(after.LUONG_CO_BAN||'—'):''),
+    LOAI_HD_CU:before.LOAI_HD||'', LOAI_HD_MOI:after.LOAI_HD||'', LUONG_CU:before.LUONG_CO_BAN||'', LUONG_MOI:after.LUONG_CO_BAN||'',
     NGUOI_TAO: actor, NGAY_TAO: now, TRANG_THAI: 'Đã ghi nhận'
   };
-  appendWorkHistoryRows_(sheet, meta, [record]);
+  var rowNumber = Math.max(2, sheet.getLastRow() + 1);
+  var values = meta.headers.map(function (header) { return header ? (record[header] == null ? '' : record[header]) : ''; });
+  sheet.getRange(rowNumber, 1, 1, meta.headers.length).setValues([values]);
+  ['ID_LICH_SU', 'MA_NHAN_VIEN', 'SO_QUYET_DINH'].forEach(function (field) {
+    if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@');
+  });
+  ['NGAY_HIEU_LUC', 'NGAY_TAO'].forEach(function (field) {
+    if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm');
+  });
   return true;
 }
 
@@ -2148,50 +2159,6 @@ function setupOrganizationHierarchy() {
     createdSheets: created,
     message: 'Đã sẵn sàng danh mục DM_BO_PHAN, DM_NHOM và hai cột liên kết trong DM_NHAN_VIEN.'
   };
-}
-
-/** Danh mục (DM_*) đọc một lần cho mỗi lần gọi máy chủ: một lần lưu hồ sơ trước đây đọc lại phòng ban/bộ phận/chức vụ 7–8 lần. */
-var READ_CACHE_ = {};
-/** Tăng khi sửa nội dung mẫu ngoài các mảng seed (vd: căn cứ pháp lý) để buộc bổ sung lại một lần. */
-var SEED_REVISION = 'R73-1';
-function readMasterCached_(ss, name) {
-  if (!/^DM_/.test(name) || name === 'DM_NHAN_VIEN') return readSheet_(ss, name);
-  if (!READ_CACHE_[name]) READ_CACHE_[name] = readSheet_(ss, name);
-  return READ_CACHE_[name];
-}
-
-function columnLetter_(column) {
-  var text = '';
-  for (var n = column; n > 0; n = Math.floor((n - 1) / 26)) text = String.fromCharCode(65 + (n - 1) % 26) + text;
-  return text;
-}
-
-/** Đặt định dạng cho nhiều ô/cột rời nhau bằng 1 lệnh. cells: [[row, column, rowCount?]]. */
-function setFormats_(sheet, cells, format) {
-  var list = cells.filter(function (cell) { return cell && cell[1]; }).map(function (cell) {
-    var count = cell[2] || 1, letter = columnLetter_(cell[1]);
-    return count > 1 ? letter + cell[0] + ':' + letter + (cell[0] + count - 1) : letter + cell[0];
-  });
-  if (list.length) sheet.getRangeList(list).setNumberFormat(format);
-}
-
-/** Chỉ chạy bổ sung dữ liệu mẫu khi mã nguồn đổi (theo dấu vân tay) hoặc sheet chưa có, không quét lại mỗi lần mở trang. */
-function seedOnce_(ss, name, seeds, fn) {
-  var store = PropertiesService.getScriptProperties(), key = 'SEED_' + name;
-  var digest = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(seeds)));
-  if (store.getProperty(key) === digest && ss.getSheetByName(name)) return false;
-  fn(ss);
-  store.setProperty(key, digest);
-  return true;
-}
-
-function ensureFormSeeds_(ss, names) {
-  if (names.indexOf('DM_BIEU_MAU') !== -1 || names.indexOf('PHIEU_BIEU_MAU') !== -1) {
-    seedOnce_(ss, 'DM_BIEU_MAU', [SEED_REVISION, FORM_TEMPLATE_SEEDS, FORM_TEMPLATE_RETIRED, FORM_TEMPLATE_MODULES, FORM_TEMPLATE_HEADERS], ensureDefaultFormTemplates_);
-    seedOnce_(ss, 'PHIEU_BIEU_MAU', FORM_REQUEST_HEADERS, function (book) { ensureFormSheet_(book, 'PHIEU_BIEU_MAU'); });
-  }
-  if (names.indexOf('DM_DIEU_KHOAN') !== -1) seedOnce_(ss, 'DM_DIEU_KHOAN', [CONTRACT_CLAUSE_SEEDS, CONTRACT_CLAUSE_HEADERS], ensureContractClauses_);
-  if (names.indexOf('DM_CONG_TY') !== -1) seedOnce_(ss, 'DM_CONG_TY', [COMPANY_INFO_SEEDS, COMPANY_INFO_HEADERS], ensureCompanyInfo_);
 }
 
 function readSheet_(ss, name) {
@@ -2246,8 +2213,13 @@ function getAppData(input) {
   });
   try {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    // Bổ sung mẫu mặc định (không phá dữ liệu cũ) – chỉ khi mã nguồn có mẫu mới, không quét lại mỗi lần mở trang.
-    ensureFormSeeds_(ss, requested);
+    if (requested.indexOf('DM_BIEU_MAU') !== -1 || requested.indexOf('PHIEU_BIEU_MAU') !== -1) {
+      // Bổ sung mẫu mặc định theo kiểu không phá dữ liệu cũ khi mở chức năng Biểu mẫu.
+      ensureDefaultFormTemplates_(ss);
+      ensureFormSheet_(ss, 'PHIEU_BIEU_MAU');
+    }
+    if (requested.indexOf('DM_DIEU_KHOAN') !== -1) ensureContractClauses_(ss);
+    if (requested.indexOf('DM_CONG_TY') !== -1) ensureCompanyInfo_(ss);
     requested.forEach(function (name) {
       try {
         data[name] = readSheet_(ss, name);
@@ -2324,7 +2296,8 @@ const HR_DOC_SUFFIX = '/QĐ-PL';
 function hrDocAuth_(token) {
   var user = requireAuth_(token);
   if (key_(user.roleCode) === 'role-admin') return user;
-  if (authUserCan_(user, 'HO_SO', 'XUAT_FILE') || authUserCan_(user, 'NHAN_SU', 'XUAT_FILE')) return user;
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  if (authCan_(ss, user.roleCode, 'HO_SO', 'XUAT_FILE') || authCan_(ss, user.roleCode, 'NHAN_SU', 'XUAT_FILE')) return user;
   throw new Error('Tài khoản không có quyền in văn bản nhân sự.');
 }
 
@@ -2359,12 +2332,11 @@ function issueHrDocuments(input) {
   lock.waitLock(15000);
   try {
     var sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet), next = type.numbered ? hrDocLastNumber_(sheet, meta, year) : 0;
-    var records = docs.map(function (doc) {
+    docs.forEach(function (doc) {
       var number = type.numbered ? (++next) + '/' + year + HR_DOC_SUFFIX : '', codes = (doc.codes || []).map(function (code) { return String(code || '').trim(); }).filter(Boolean);
       var payload = JSON.stringify({ hrDoc: input.kind, number: number, signDate: input.signDate, payload: doc.payload || {} });
       if (payload.length > 45000) throw new Error('Nội dung văn bản quá dài để lưu.');
-      numbers.push(number);
-      return {
+      var record = {
         ID_PHIEU: 'PH_' + Utilities.getUuid(), ID_BIEU_MAU: type.id, TEN_BIEU_MAU: type.name,
         MA_NHAN_VIEN: codes.length === 1 ? codes[0] : codes.slice(0, 20).join(', '), HO_VA_TEN: String(doc.names || '').slice(0, 300),
         NGAY_LAP: signDate, TIEU_DE: type.name + (doc.names ? ' – ' + String(doc.names).slice(0, 120) : ''), NOI_DUNG: '',
@@ -2373,14 +2345,12 @@ function issueHrDocuments(input) {
         SO_VAN_BAN: number, LOAI_VAN_BAN: type.numbered ? 'Quyết định' : 'Cam kết', NGAY_HIEU_LUC: effective || '',
         LICH_SU: JSON.stringify([formHistoryEntry_(auth, 'In văn bản', number || type.name)])
       };
+      var rowNumber = appendFormRecord_(sheet, meta, record);
+      ['ID_PHIEU', 'ID_BIEU_MAU', 'MA_NHAN_VIEN', 'SO_VAN_BAN'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
+      ['NGAY_LAP', 'NGAY_TAO'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm'); });
+      if (meta.columns.NGAY_HIEU_LUC && effective) sheet.getRange(rowNumber, meta.columns.NGAY_HIEU_LUC).setNumberFormat('dd/MM/yyyy');
+      numbers.push(number); ids.push(record.ID_PHIEU);
     });
-    // Ghi tất cả văn bản bằng 1 lệnh, định dạng theo khối cột.
-    var start = Math.max(2, sheet.getLastRow() + 1), n = records.length, block = function (fields) { return fields.map(function (field) { return [start, meta.columns[field], n]; }); };
-    setFormats_(sheet, block(['ID_PHIEU', 'ID_BIEU_MAU', 'MA_NHAN_VIEN', 'SO_VAN_BAN']), '@');
-    setFormats_(sheet, block(['NGAY_LAP', 'NGAY_TAO']), 'dd/MM/yyyy HH:mm');
-    if (effective) setFormats_(sheet, block(['NGAY_HIEU_LUC']), 'dd/MM/yyyy');
-    sheet.getRange(start, 1, n, meta.headers.length).setValues(records.map(function (record) { return meta.headers.map(function (header) { return header ? (record[header] == null ? '' : record[header]) : ''; }); }));
-    records.forEach(function (record) { ids.push(record.ID_PHIEU); });
   } finally {
     lock.releaseLock();
   }
@@ -2390,71 +2360,37 @@ function issueHrDocuments(input) {
   return { success: true, numbers: numbers, ids: ids, applied: applied };
 }
 
-/**
- * Ghi lương mới cho nhiều người trong 1 lượt: đọc danh bạ 1 lần, ghi từng ô lương (không đọc lại),
- * lịch sử “Nâng lương” 1 lệnh ghi, nhật ký 1 dòng. Trước đây mỗi người là 1 lần lưu hồ sơ đầy đủ (~15 lần đọc/người).
- */
-function hrBatchSalaries_(ss, auth, input, number, applied) {
-  if (!authUserCan_(auth, 'NHAN_SU', 'SUA')) { applied.errors.push('Tài khoản không có quyền sửa hồ sơ nhân viên.'); return; }
-  if (authLevel_(auth) < 2) { applied.errors.push('Cần quyền xem lương (mức 2) để ghi lương.'); return; }
-  var items = (input.salaries || []).slice(0, 300), effective = input.effectiveDate ? parseAttendanceDate_(input.effectiveDate, 'Ngày hiệu lực') : new Date(), now = new Date();
-  var lock = LockService.getScriptLock();
-  lock.waitLock(15000);
-  try {
-    var sheet = ss.getSheetByName('DM_NHAN_VIEN');
-    if (!sheet) { applied.errors.push('Không tìm thấy sheet DM_NHAN_VIEN.'); return; }
-    var range = sheet.getDataRange(), values = range.getValues(), display = range.getDisplayValues(), meta = headersFromRow_(display[0] || []);
-    var codeCol = meta.columns.MA_NHAN_VIEN, salaryCol = meta.columns.LUONG_CO_BAN, updatedCol = meta.columns.NGAY_CAP_NHAT;
-    if (!codeCol || !salaryCol) { applied.errors.push('DM_NHAN_VIEN chưa có cột MA_NHAN_VIEN hoặc LUONG_CO_BAN.'); return; }
-    var formulas = sheet.getRange(1, salaryCol, values.length, 1).getFormulas(), byCode = {};
-    for (var r = 1; r < values.length; r++) { var key = key_(display[r][codeCol - 1]); if (key) byCode[key] = byCode[key] ? -1 : r; }
-    var history = [], changed = {}, rows = [], level = authLevel_(auth);
-    items.forEach(function (item) {
-      var code = String(item && item.code || '').trim(), r = byCode[key_(code)], salary = String(item && item.salary || '').replace(/[^\d]/g, '');
-      if (!salary || r === undefined) { applied.errors.push((code || '?') + ': không tìm thấy nhân viên hoặc thiếu lương mới.'); return; }
-      if (r === -1) { applied.errors.push(code + ': mã nhân viên bị trùng trong danh bạ.'); return; }
-      if (formulas[r][0]) { applied.errors.push(code + ': ô lương đang là công thức, không ghi đè.'); return; }
-      var row = display[r], get = function (field) { return meta.columns[field] ? row[meta.columns[field] - 1] : ''; }, old = get('LUONG_CO_BAN');
-      sheet.getRange(r + 1, salaryCol).setValue(Number(salary));
-      if (updatedCol) sheet.getRange(r + 1, updatedCol).setValue(now);
-      changed[code] = { cu: old, moi: Number(salary) };
-      history.push({
-        ID_LICH_SU: 'LS_' + Utilities.getUuid(), MA_NHAN_VIEN: get('MA_NHAN_VIEN'), HO_VA_TEN: get('HO_VA_TEN'), NGAY_HIEU_LUC: effective, LOAI_BIEN_DONG: 'Nâng lương',
-        MA_PHONG_BAN_CU: get('MA_PHONG_BAN'), MA_BO_PHAN_CU: get('MA_BO_PHAN'), MA_NHOM_CU: get('MA_NHOM'), MA_CHUC_VU_CU: get('MA_CHUC_VU'),
-        MA_PHONG_BAN_MOI: get('MA_PHONG_BAN'), MA_BO_PHAN_MOI: get('MA_BO_PHAN'), MA_NHOM_MOI: get('MA_NHOM'), MA_CHUC_VU_MOI: get('MA_CHUC_VU'),
-        TRANG_THAI_CU: get('TRANG_THAI'), TRANG_THAI_MOI: get('TRANG_THAI'), SO_QUYET_DINH: number,
-        GHI_CHU: 'Lương cơ bản: ' + (old || '—') + ' → ' + Number(salary).toLocaleString('vi-VN'), NGUOI_TAO: auth.username || auth.email || 'Hệ thống', NGAY_TAO: now, TRANG_THAI: 'Đã ghi nhận'
-      });
-      var copy = {};
-      meta.headers.forEach(function (header, index) { if (header) copy[header] = row[index] || ''; });
-      copy.LUONG_CO_BAN = Number(salary).toLocaleString('vi-VN');
-      rows.push(stripEmployeeRow_(copy, level));
-      applied.salaries++;
-    });
-    if (history.length) {
-      if (updatedCol) setFormats_(sheet, [[2, updatedCol, values.length - 1]], 'dd/MM/yyyy HH:mm');
-      var historySheet = ensureWorkHistorySheet_(ss);
-      appendWorkHistoryRows_(historySheet, headers_(historySheet), history);
-      writeSystemLog_(ss, auth, 'NHAN_SU', 'SUA', Object.keys(changed).join(','), null, { LUONG_CO_BAN: changed, SO_QUYET_DINH: number }, 'Nâng lương theo quyết định ' + number + '.');
-    }
-    applied.rows = rows;
-  } finally {
-    lock.releaseLock();
-  }
-}
-
 /** Ghi ngược hồ sơ: lương mới (+ lịch sử “Nâng lương”) hoặc chuyển “Nghỉ việc” (lịch sử + khóa tài khoản do writeEmployee_ lo). */
 function hrDocWriteBack_(ss, auth, input, number, applied) {
+  var employees = readSheet_(ss, 'DM_NHAN_VIEN').rows, find = function (code) { return employees.find(function (row) { return key_(row.MA_NHAN_VIEN) === key_(code); }); };
   if (input.kind === 'raise') {
-    hrBatchSalaries_(ss, auth, input, number, applied);
+    var history = ensureWorkHistorySheet_(ss), meta = headers_(history), effective = input.effectiveDate ? parseAttendanceDate_(input.effectiveDate, 'Ngày hiệu lực') : new Date();
+    (input.salaries || []).slice(0, 200).forEach(function (item) {
+      var person = find(item && item.code), salary = String(item && item.salary || '').replace(/[^\d]/g, '');
+      if (!person || !salary) { applied.errors.push((item && item.code || '?') + ': không tìm thấy nhân viên hoặc thiếu lương mới.'); return; }
+      try {
+        writeEmployee_({ _sessionToken: input._sessionToken, _originalCode: person.MA_NHAN_VIEN, HO_VA_TEN: person.HO_VA_TEN, LUONG_CO_BAN: salary }, true, true);
+        var record = {
+          ID_LICH_SU: 'LS_' + Utilities.getUuid(), MA_NHAN_VIEN: person.MA_NHAN_VIEN, HO_VA_TEN: person.HO_VA_TEN || '', NGAY_HIEU_LUC: effective,
+          LOAI_BIEN_DONG: 'Nâng lương', MA_PHONG_BAN_CU: person.MA_PHONG_BAN || '', MA_BO_PHAN_CU: person.MA_BO_PHAN || '', MA_NHOM_CU: person.MA_NHOM || '', MA_CHUC_VU_CU: person.MA_CHUC_VU || '',
+          MA_PHONG_BAN_MOI: person.MA_PHONG_BAN || '', MA_BO_PHAN_MOI: person.MA_BO_PHAN || '', MA_NHOM_MOI: person.MA_NHOM || '', MA_CHUC_VU_MOI: person.MA_CHUC_VU || '',
+          TRANG_THAI_CU: person.TRANG_THAI || '', TRANG_THAI_MOI: person.TRANG_THAI || '', SO_QUYET_DINH: number,
+          GHI_CHU: 'Lương cơ bản: ' + (person.LUONG_CO_BAN || '—') + ' → ' + Number(salary).toLocaleString('vi-VN'), NGUOI_TAO: auth.username || auth.email || 'Hệ thống', NGAY_TAO: new Date(), TRANG_THAI: 'Đã ghi nhận'
+        };
+        var rowNumber = Math.max(2, history.getLastRow() + 1);
+        history.getRange(rowNumber, 1, 1, meta.headers.length).setValues([meta.headers.map(function (header) { return header ? (record[header] == null ? '' : record[header]) : ''; })]);
+        ['ID_LICH_SU', 'MA_NHAN_VIEN', 'SO_QUYET_DINH'].forEach(function (field) { if (meta.columns[field]) history.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
+        ['NGAY_HIEU_LUC', 'NGAY_TAO'].forEach(function (field) { if (meta.columns[field]) history.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm'); });
+        applied.salaries++;
+      } catch (error) { applied.errors.push(person.MA_NHAN_VIEN + ': ' + (error && error.message || error)); }
+    });
   } else if (input.kind === 'terminate') {
-    var employees = readSheet_(ss, 'DM_NHAN_VIEN').rows, find = function (code) { return employees.find(function (row) { return key_(row.MA_NHAN_VIEN) === key_(code); }); };
     var t = input.termination || {}, person = find(t.code);
     if (!person) { applied.errors.push('Không tìm thấy nhân viên cần chuyển nghỉ việc.'); return; }
     try {
       var end = parseAttendanceDate_(t.endDate, 'Ngày chấm dứt'), text = Utilities.formatDate(end, Session.getScriptTimeZone(), 'dd/MM/yyyy') + ' – ' + String(t.reason || '').trim();
       var result = writeEmployee_({ _sessionToken: input._sessionToken, _originalCode: person.MA_NHAN_VIEN, HO_VA_TEN: person.HO_VA_TEN, TRANG_THAI: 'Nghỉ việc', THOI_DIEM_CHAM_DUT_HD_VA_LY_DO: text, NGAY_HIEU_LUC: t.endDate, SO_QUYET_DINH: number, GHI_CHU_LICH_SU: String(t.reason || '').trim() }, true);
-      applied.resigned = 1; applied.lockedAccounts = result.lockedAccounts || 0; applied.rows = result.row ? [result.row] : [];
+      applied.resigned = 1; applied.lockedAccounts = result.lockedAccounts || 0;
     } catch (error) { applied.errors.push(person.MA_NHAN_VIEN + ': ' + (error && error.message || error)); }
   }
 }
@@ -2486,7 +2422,7 @@ function updateEmployee(input) {
   return writeEmployee_(input, true);
 }
 
-function writeEmployee_(input, editing) {
+function writeEmployee_(input, editing, skipSalaryHistory) {
   input = input || {};
   var auth = requirePermission_(input._sessionToken, 'NHAN_SU', editing ? 'SUA' : 'THEM');
   if (!String(input.HO_VA_TEN || '').trim()) throw new Error('Vui lòng nhập họ và tên.');
@@ -2508,6 +2444,30 @@ function writeEmployee_(input, editing) {
     }
     if (Object.prototype.hasOwnProperty.call(input, 'ANH_DAI_DIEN') && !meta.columns.ANH_DAI_DIEN) {
       throw new Error('DM_NHAN_VIEN chưa có cột ANH_DAI_DIEN để lưu ảnh đại diện.');
+    }
+    if (Object.prototype.hasOwnProperty.call(input, 'MA_PHONG_BAN')) {
+      input.MA_PHONG_BAN = requireMasterCode_(ss, 'DM_PHONG_BAN', 'MA_PHONG_BAN', input.MA_PHONG_BAN, 'phòng ban');
+    }
+    if (Object.prototype.hasOwnProperty.call(input, 'MA_CHUC_VU') && String(input.MA_CHUC_VU || '').trim()) {
+      input.MA_CHUC_VU = requireMasterCode_(ss, 'DM_CHUC_VU', 'MA_CHUC_VU', input.MA_CHUC_VU, 'chức vụ');
+    }
+    if (Object.prototype.hasOwnProperty.call(input, 'MA_BO_PHAN') && String(input.MA_BO_PHAN || '').trim()) {
+      input.MA_BO_PHAN = requireMasterCode_(ss, 'DM_BO_PHAN', 'MA_BO_PHAN', input.MA_BO_PHAN, 'bộ phận');
+    }
+    if (Object.prototype.hasOwnProperty.call(input, 'MA_NHOM') && String(input.MA_NHOM || '').trim()) {
+      input.MA_NHOM = requireMasterCode_(ss, 'DM_NHOM', 'MA_NHOM', input.MA_NHOM, 'nhóm');
+    }
+    if (input.MA_BO_PHAN && input.MA_PHONG_BAN) {
+      var unit = masterRowByCode_(ss, 'DM_BO_PHAN', 'MA_BO_PHAN', input.MA_BO_PHAN);
+      if (!unit || key_(unit.MA_PHONG_BAN) !== key_(input.MA_PHONG_BAN)) {
+        throw new Error('Bộ phận đã chọn không thuộc phòng ban đã chọn.');
+      }
+    }
+    if (input.MA_NHOM && input.MA_BO_PHAN) {
+      var team = masterRowByCode_(ss, 'DM_NHOM', 'MA_NHOM', input.MA_NHOM);
+      if (!team || key_(team.MA_BO_PHAN) !== key_(input.MA_BO_PHAN)) {
+        throw new Error('Nhóm đã chọn không thuộc bộ phận đã chọn.');
+      }
     }
     var code = String(input._originalCode || '').trim();
     var rowNumber;
@@ -2545,33 +2505,7 @@ function writeEmployee_(input, editing) {
       for (var blankIndex = 0; blankIndex < meta.headers.length; blankIndex++) rowValues.push('');
     }
 
-    // Chỉ đối chiếu danh mục khi mã thay đổi so với hồ sơ đang có (sửa SĐT, ảnh… không cần đọc lại danh mục).
-    var changedMaster = function (field) { return Object.prototype.hasOwnProperty.call(input, field) && (!editing || !before || key_(before[field]) !== key_(input[field])); };
-    if (changedMaster('MA_PHONG_BAN') || (Object.prototype.hasOwnProperty.call(input, 'MA_PHONG_BAN') && !editing)) {
-      input.MA_PHONG_BAN = requireMasterCode_(ss, 'DM_PHONG_BAN', 'MA_PHONG_BAN', input.MA_PHONG_BAN, 'phòng ban');
-    }
-    if (changedMaster('MA_CHUC_VU') && String(input.MA_CHUC_VU || '').trim()) {
-      input.MA_CHUC_VU = requireMasterCode_(ss, 'DM_CHUC_VU', 'MA_CHUC_VU', input.MA_CHUC_VU, 'chức vụ');
-    }
-    if (changedMaster('MA_BO_PHAN') && String(input.MA_BO_PHAN || '').trim()) {
-      input.MA_BO_PHAN = requireMasterCode_(ss, 'DM_BO_PHAN', 'MA_BO_PHAN', input.MA_BO_PHAN, 'bộ phận');
-    }
-    if (changedMaster('MA_NHOM') && String(input.MA_NHOM || '').trim()) {
-      input.MA_NHOM = requireMasterCode_(ss, 'DM_NHOM', 'MA_NHOM', input.MA_NHOM, 'nhóm');
-    }
-    if (input.MA_BO_PHAN && input.MA_PHONG_BAN && (changedMaster('MA_BO_PHAN') || changedMaster('MA_PHONG_BAN'))) {
-      var unit = masterRowByCode_(ss, 'DM_BO_PHAN', 'MA_BO_PHAN', input.MA_BO_PHAN);
-      if (!unit || key_(unit.MA_PHONG_BAN) !== key_(input.MA_PHONG_BAN)) {
-        throw new Error('Bộ phận đã chọn không thuộc phòng ban đã chọn.');
-      }
-    }
-    if (input.MA_NHOM && input.MA_BO_PHAN && (changedMaster('MA_NHOM') || changedMaster('MA_BO_PHAN'))) {
-      var team = masterRowByCode_(ss, 'DM_NHOM', 'MA_NHOM', input.MA_NHOM);
-      if (!team || key_(team.MA_BO_PHAN) !== key_(input.MA_BO_PHAN)) {
-        throw new Error('Nhóm đã chọn không thuộc bộ phận đã chọn.');
-      }
-    }
-    var fields = ['HO_VA_TEN', 'GIOI_TINH', 'NGAY_SINH', 'QUOC_TICH', 'SO_CCCD', 'NGAY_CAP', 'SO_DIEN_THOAI', 'EMAIL', 'DIA_CHI', 'GHI_CHU', 'MA_PHONG_BAN', 'MA_BO_PHAN', 'MA_NHOM', 'MA_CHUC_VU', 'NGAY_VAO_LAM', 'TRANG_THAI', 'ANH_DAI_DIEN', 'LOAI_HD', 'NOI_LAM_VIEC', 'MA_SO_BHXH', 'NGAY_THAM_GIA_BHXH', 'LUONG_CO_BAN', 'THOI_DIEM_CHAM_DUT_HD_VA_LY_DO'];
+    var fields = ['HO_VA_TEN', 'GIOI_TINH', 'NGAY_SINH', 'QUOC_TICH', 'SO_CCCD', 'NGAY_CAP', 'SO_DIEN_THOAI', 'EMAIL', 'DIA_CHI', 'GHI_CHU', 'MA_PHONG_BAN', 'MA_BO_PHAN', 'MA_NHOM', 'MA_CHUC_VU', 'NGAY_VAO_LAM', 'TRANG_THAI', 'ANH_DAI_DIEN', 'LOAI_HD', 'NOI_LAM_VIEC', 'MA_SO_BHXH', 'NGAY_THAM_GIA_BHXH', 'LUONG_CO_BAN', 'THOI_DIEM_CHAM_DUT_HD_VA_LY_DO', 'TRINH_DO_CHUYEN_MON', 'BAC_KY_NANG_NGHE'];
     var touchedFields = {};
     fields.forEach(function (field) {
       var column = headerColumn_(meta, field);
@@ -2598,7 +2532,6 @@ function writeEmployee_(input, editing) {
     [['MA_PHONG_BAN', 'TEN_PHONG_BAN', 'DM_PHONG_BAN', 'TEN_PHONG_BAN'], ['MA_BO_PHAN', 'TEN_MA_BO_PHAN', 'DM_BO_PHAN', 'TEN_BO_PHAN'], ['MA_CHUC_VU', 'TEN_MA_CHUC_VU', 'DM_CHUC_VU', 'TEN_CHUC_VU'], ['MA_NHOM', 'TEN_MA_NHOM', 'DM_NHOM', 'TEN_NHOM']].forEach(function (map) {
       var codeColumn = meta.columns[map[0]], nameColumn = meta.columns[map[1]];
       if (!touchedFields[map[0]] || !codeColumn || !nameColumn || currentFormulas[nameColumn - 1]) return;
-      if (editing && before && !changedMaster(map[0]) && String(before[map[1]] || '').trim()) return;
       var selectedCode = String(rowValues[codeColumn - 1] || '').trim(), master = selectedCode ? masterRowByCode_(ss, map[2], map[0], selectedCode) : null;
       rowValues[nameColumn - 1] = master ? (master[map[3]] || '') : '';
       touchedFields[map[1]] = true;
@@ -2613,18 +2546,87 @@ function writeEmployee_(input, editing) {
       var header = meta.headers[index];
       if (formula && !touchedFields[header]) rowValues[index] = formula;
     });
-    // Đặt định dạng trước khi ghi (giữ số 0 đầu của CCCD, điện thoại, mã BHXH) – gộp thành 3 lệnh thay vì ~15.
-    var cell = function (field) { return meta.columns[field] ? [rowNumber, meta.columns[field]] : null; };
-    setFormats_(sheet, ['MA_NHAN_VIEN', 'ID_NHAN_VIEN', 'SO_CCCD', 'SO_DIEN_THOAI', 'MA_PHONG_BAN', 'MA_BO_PHAN', 'MA_NHOM', 'MA_CHUC_VU', 'ANH_DAI_DIEN', 'MA_SO_BHXH'].map(cell), '@');
-    setFormats_(sheet, ['NGAY_SINH', 'NGAY_VAO_LAM', 'NGAY_CAP', 'NGAY_THAM_GIA_BHXH'].map(cell), 'dd/MM/yyyy');
-    setFormats_(sheet, [cell('NGAY_CAP_NHAT')], 'dd/MM/yyyy HH:mm');
+    // Đặt định dạng văn bản trước khi ghi để không mất số 0 đầu (CCCD, điện thoại, mã BHXH).
+    ['SO_CCCD', 'SO_DIEN_THOAI', 'MA_SO_BHXH'].forEach(function (field) {
+      if (meta.columns[field] && touchedFields[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@');
+    });
     sheet.getRange(rowNumber, 1, 1, meta.headers.length).setValues([rowValues]);
+    ['MA_NHAN_VIEN', 'ID_NHAN_VIEN', 'SO_CCCD', 'SO_DIEN_THOAI', 'MA_PHONG_BAN', 'MA_BO_PHAN', 'MA_NHOM', 'MA_CHUC_VU', 'ANH_DAI_DIEN', 'MA_SO_BHXH'].forEach(function (field) {
+      if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@');
+    });
+    ['NGAY_SINH', 'NGAY_VAO_LAM', 'NGAY_CAP', 'NGAY_THAM_GIA_BHXH'].forEach(function (field) {
+      if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy');
+    });
+    if (meta.columns.NGAY_CAP_NHAT) sheet.getRange(rowNumber, meta.columns.NGAY_CAP_NHAT).setNumberFormat('dd/MM/yyyy HH:mm');
     var after = objectFromRow_(meta, sheet.getRange(rowNumber, 1, 1, meta.headers.length).getDisplayValues()[0]);
-    if (editing && before) appendWorkHistory_(ss, before, after, input, auth);
+    if (editing && before && !(skipSalaryHistory && workHistoryType_(before,after)==='Cập nhật lương')) appendWorkHistory_(ss, before, after, input, auth);
     writeSystemLog_(ss, auth, 'NHAN_SU', editing ? 'SUA' : 'THEM', code, before, after, editing ? 'Cập nhật hồ sơ nhân viên.' : 'Tạo hồ sơ nhân viên.');
     var lockedAccounts = plain_(after && after.TRANG_THAI) === 'nghi viec' && plain_(before && before.TRANG_THAI) !== 'nghi viec' ? authLockResignedAccounts_(ss, auth, code) : 0;
-    return { success: true, code: code, lockedAccounts: lockedAccounts, row: stripEmployeeRow_(after, authLevel_(auth)) };
+    return { success: true, code: code, lockedAccounts: lockedAccounts };
   } finally {
     lock.releaseLock();
   }
+}
+
+const LABOR_EMPLOYEE_FIELDS = ['TRINH_DO_CHUYEN_MON','BAC_KY_NANG_NGHE'];
+/** Chạy một lần trong trình biên tập để chuyển dữ liệu sheet cũ sang danh mục nhân viên. */
+function migrateLaborRegisterToEmployees() {
+  requireEditorRun_();
+  var lock=LockService.getScriptLock();lock.waitLock(15000);
+  try {
+    var ss=SpreadsheetApp.openById(SPREADSHEET_ID),employees=ss.getSheetByName('DM_NHAN_VIEN');
+    if(!employees)throw new Error('Không tìm thấy DM_NHAN_VIEN.');
+    ensureColumns_(employees,LABOR_EMPLOYEE_FIELDS);
+    var old=ss.getSheetByName('SO_QUAN_LY_LAO_DONG');
+    if(!old)return {success:true,migrated:0,message:'Không có sheet cũ; hai cột đã có trong DM_NHAN_VIEN.'};
+    var em=headers_(employees),om=headers_(old),employeeRows=employees.getLastRow()>1?employees.getRange(2,1,employees.getLastRow()-1,em.headers.length).getDisplayValues():[],oldRows=old.getLastRow()>1?old.getRange(2,1,old.getLastRow()-1,om.headers.length).getDisplayValues():[];
+    if(!oldRows.some(function(row){return row.some(function(value){return String(value||'').trim();});})){ss.deleteSheet(old);return {success:true,migrated:0,deletedEmptySheet:true,message:'Đã xóa sheet SO_QUAN_LY_LAO_DONG không có dữ liệu.'};}
+    var positions={},seen={},conflicts=[],missing=[],updates=[];
+    employeeRows.forEach(function(row,i){var code=key_(row[em.columns.MA_NHAN_VIEN-1]);if(!code)return;if(positions[code])throw new Error('Trùng mã nhân viên trong DM_NHAN_VIEN: '+code);positions[code]=i+2;});
+    oldRows.forEach(function(row){var code=key_(row[(om.columns.MA_NHAN_VIEN||0)-1]);if(!code)return;if(seen[code])throw new Error('Trùng mã nhân viên trong SO_QUAN_LY_LAO_DONG: '+code);seen[code]=true;var rowNumber=positions[code];if(!rowNumber){missing.push(code);return;}
+      LABOR_EMPLOYEE_FIELDS.forEach(function(field){var sourceColumn=om.columns[field],targetColumn=em.columns[field];if(!sourceColumn)return;var source=String(row[sourceColumn-1]||'').trim(),target=String(employeeRows[rowNumber-2][targetColumn-1]||'').trim();if(!source)return;if(target&&target!==source){conflicts.push(code+' / '+field);return;}if(!target)updates.push({row:rowNumber,column:targetColumn,value:source});});
+    });
+    if(conflicts.length||missing.length)return {success:false,migrated:0,conflicts:conflicts,missing:missing,message:'Có dữ liệu cần đối chiếu; chưa chuyển hoặc lưu trữ sheet cũ.'};
+    updates.forEach(function(item){employees.getRange(item.row,item.column).setValue(/^[=+@]/.test(item.value)?"'"+item.value:item.value);});
+    SpreadsheetApp.flush();
+    if(!ss.getSheetByName('SO_QUAN_LY_LAO_DONG_BACKUP'))old.setName('SO_QUAN_LY_LAO_DONG_BACKUP');
+    old.hideSheet();
+    return {success:true,migrated:updates.length,employees:Object.keys(seen).length,message:'Đã chuyển dữ liệu; sheet cũ được ẩn làm bản sao lưu.'};
+  }finally{lock.releaseLock();}
+}
+function getLaborRegister(input) {
+  input=input||{};
+  var auth=requirePermission_(input._sessionToken,'NHAN_SU','XEM'),ss=SpreadsheetApp.openById(SPREADSHEET_ID),code=String(input.code||'').trim(),level=authLevel_(auth);
+  var supplements=readSheet_(ss,'DM_NHAN_VIEN').rows;
+  if(key_(auth.roleCode)==='role-user'&&(!auth.employeeCode||(code&&key_(code)!==key_(auth.employeeCode))))throw new Error('Không có quyền xem nhân viên này.');
+  if(!code)return {supplements:supplements.filter(function(r){return key_(auth.roleCode)!=='role-user'||!auth.employeeCode||key_(r.MA_NHAN_VIEN)===key_(auth.employeeCode);}).map(function(r){return {MA_NHAN_VIEN:r.MA_NHAN_VIEN,TRINH_DO_CHUYEN_MON:r.TRINH_DO_CHUYEN_MON||'',BAC_KY_NANG_NGHE:r.BAC_KY_NANG_NGHE||''};})};
+  var person=readSheet_(ss,'DM_NHAN_VIEN').rows.find(function(r){return key_(r.MA_NHAN_VIEN)===key_(code);});
+  if(!person)throw new Error('Không tìm thấy nhân viên.');
+  var events=[],historyAllowed=authCanSheet_(auth,'LICH_SU_CONG_VIEC'),docsAllowed=authCanSheet_(auth,'PHIEU_BIEU_MAU');
+  if(historyAllowed&&ss.getSheetByName('LICH_SU_CONG_VIEC'))readSheet_(ss,'LICH_SU_CONG_VIEC').rows.forEach(function(r){
+    if(key_(r.MA_NHAN_VIEN)!==key_(code))return;
+    if(level<2&&/lương|luong/i.test(r.LOAI_BIEN_DONG||''))return;
+    events.push({source:'Lịch sử công việc',date:r.NGAY_HIEU_LUC||r.NGAY_TAO||'',type:r.LOAI_BIEN_DONG||'',number:r.SO_QUYET_DINH||'',status:r.TRANG_THAI||'',before:[r.MA_PHONG_BAN_CU,r.MA_BO_PHAN_CU,r.MA_NHOM_CU,r.MA_CHUC_VU_CU,r.TRANG_THAI_CU].filter(Boolean).join(' · '),after:[r.MA_PHONG_BAN_MOI,r.MA_BO_PHAN_MOI,r.MA_NHOM_MOI,r.MA_CHUC_VU_MOI,r.TRANG_THAI_MOI].filter(Boolean).join(' · '),note:level>=2?r.GHI_CHU||'':'',oldSalary:level>=2?r.LUONG_CU||'':'',newSalary:level>=2?r.LUONG_MOI||'':'',oldContract:level>=1?r.LOAI_HD_CU||'':'',newContract:level>=1?r.LOAI_HD_MOI||'':''});
+  });
+  if(docsAllowed&&level>=1&&ss.getSheetByName('PHIEU_BIEU_MAU'))readSheet_(ss,'PHIEU_BIEU_MAU').rows.forEach(function(r){
+    var saved;try{saved=JSON.parse(r.DU_LIEU_MAU_JSON||'{}');}catch(e){return;}
+    var payload=saved.payload||{},members=payload.people||[],matches=key_(r.MA_NHAN_VIEN)===key_(code)||(payload.person&&key_(payload.person.code)===key_(code))||members.some(function(p){return key_(p.code)===key_(code);});
+    if(!matches||(!saved.hrDoc&&!/HOP_DONG/i.test(r.ID_BIEU_MAU||'')))return;
+    if(level<2&&saved.hrDoc==='raise')return;
+    events.push({source:'Văn bản đã lưu',date:saved.signDate||r.NGAY_LAP||r.NGAY_TAO||'',type:saved.hrDoc==='raise'?'Quyết định nâng lương':saved.hrDoc==='terminate'?'Quyết định nghỉ việc':r.TIEU_DE||r.ID_BIEU_MAU||'Văn bản',number:saved.number||r.SO_VAN_BAN||'',status:r.TRANG_THAI||'',before:'',after:'',note:''});
+  });
+  var supplement=supplements.find(function(r){return key_(r.MA_NHAN_VIEN)===key_(code);})||{};
+  return {supplement:{MA_NHAN_VIEN:code,TRINH_DO_CHUYEN_MON:supplement.TRINH_DO_CHUYEN_MON||'',BAC_KY_NANG_NGHE:supplement.BAC_KY_NANG_NGHE||''},events:events,historyAllowed:historyAllowed,docsAllowed:docsAllowed};
+}
+function saveLaborRegister(input) {
+  input=input||{};var auth=requirePermission_(input._sessionToken,'NHAN_SU','SUA'),code=String(input.code||'').trim();
+  if(key_(auth.roleCode)==='role-user'&&(!auth.employeeCode||key_(code)!==key_(auth.employeeCode)))throw new Error('Không có quyền sửa nhân viên này.');
+  var lock=LockService.getScriptLock();lock.waitLock(15000);
+  try{var ss=SpreadsheetApp.openById(SPREADSHEET_ID),sheet=ss.getSheetByName('DM_NHAN_VIEN');if(!sheet)throw new Error('Không tìm thấy DM_NHAN_VIEN.');
+    ensureColumns_(sheet,LABOR_EMPLOYEE_FIELDS);var meta=headers_(sheet),values=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,meta.headers.length).getDisplayValues():[],matches=values.map(function(r,i){return key_(r[meta.columns.MA_NHAN_VIEN-1])===key_(code)?i+2:0;}).filter(Boolean);
+    if(matches.length!==1)throw new Error(matches.length?'Mã nhân viên bị trùng.':'Không tìm thấy nhân viên.');
+    var row=matches[0],before=objectFromRow_(meta,values[row-2]),record={};LABOR_EMPLOYEE_FIELDS.forEach(function(field){record[field]=String(input[field]||'').trim().slice(0,1000);var value=record[field];sheet.getRange(row,meta.columns[field]).setValue(/^[=+@]/.test(value)?"'"+value:value);});
+    if(meta.columns.NGAY_CAP_NHAT)sheet.getRange(row,meta.columns.NGAY_CAP_NHAT).setValue(new Date());
+    writeSystemLog_(ss,auth,'NHAN_SU','SUA',code,before,record,'Cập nhật trình độ trong DM_NHAN_VIEN.');return {success:true};
+  }finally{lock.releaseLock();}
 }
