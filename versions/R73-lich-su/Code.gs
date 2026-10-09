@@ -23,7 +23,7 @@ const WORK_HISTORY_HEADERS = [
 ];
 
 /** Các loại biến động cho danh sách chọn ở LICH_SU_CONG_VIEC (thêm loại mới tại đây). */
-const WORK_HISTORY_TYPES = ['Điều chuyển phòng ban', 'Điều chuyển bộ phận', 'Điều chuyển nhóm', 'Thay đổi chức vụ', 'Bổ nhiệm', 'Miễn nhiệm', 'Nghỉ việc', 'Quay lại làm việc', 'Cập nhật trạng thái', 'Đề xuất điều chuyển', 'Nâng lương', 'Thay đổi loại hợp đồng', 'Cập nhật lương'];
+const WORK_HISTORY_TYPES = ['Điều chuyển phòng ban', 'Điều chuyển bộ phận', 'Điều chuyển nhóm', 'Thay đổi chức vụ', 'Bổ nhiệm', 'Miễn nhiệm', 'Nghỉ việc', 'Quay lại làm việc', 'Cập nhật trạng thái', 'Đề xuất điều chuyển', 'Nâng lương', 'Thay đổi loại hợp đồng', 'Cập nhật lương', 'Tiếp nhận'];
 
 const FORM_TEMPLATE_HEADERS = [
   'ID_BIEU_MAU', 'MA_BIEU_MAU', 'TEN_BIEU_MAU', 'NHOM_BIEU_MAU',
@@ -3147,6 +3147,85 @@ function respondOffer(input) {
     recruitWriteRow_(ss.getSheetByName('TUYEN_DUNG_UNG_VIEN'), candidate.__row, record);
     writeSystemLog_(ss, auth, 'TUYEN_DUNG', 'SUA', candidate.ID_UNG_VIEN, { PHAN_HOI: candidate.PHAN_HOI }, { PHAN_HOI: response }, candidate.HO_VA_TEN + ' ' + response.toLowerCase() + ' thư mời nhận việc.');
     return { success: true };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* ===================== TUYỂN DỤNG – ĐỢT 3: tiếp nhận ứng viên thành nhân viên ===================== */
+function recruitIsoDate_(value) {
+  var text = String(value || '').trim(), dmy = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/), iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return iso[1] + '-' + iso[2] + '-' + iso[3];
+  return dmy ? dmy[3] + '-' + String(dmy[2]).padStart(2, '0') + '-' + String(dmy[1]).padStart(2, '0') : '';
+}
+
+/**
+ * Tiếp nhận: tạo hồ sơ DM_NHAN_VIEN (qua writeEmployee_, cần quyền Thêm ở Nhân sự), ghi Lịch sử công việc "Tiếp nhận",
+ * chuyển ứng viên sang Nhận việc, cập nhật số đã tuyển của vị trí (đủ thì đóng "Đã đủ").
+ */
+function hireCandidate(input) {
+  input = input || {};
+  var auth = requirePermission_(input._sessionToken, 'TUYEN_DUNG', 'SUA'), source = input.record || {};
+  requirePermission_(input._sessionToken, 'NHAN_SU', 'THEM');
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  ensureRecruitSheets_(ss);
+  var candidate = recruitCandidateFor_(ss, auth, input.id), stage = String(candidate.VONG || '').trim();
+  if (String(candidate.MA_NHAN_VIEN || '').trim()) throw new Error('Ứng viên đã được tiếp nhận (mã ' + candidate.MA_NHAN_VIEN + ').');
+  if (stage !== 'Đề nghị nhận việc') throw new Error('Chỉ tiếp nhận ứng viên ở vòng Đề nghị nhận việc.');
+  if (String(candidate.PHAN_HOI || '').trim() === 'Từ chối') throw new Error('Ứng viên đã từ chối thư mời.');
+  var need = recruitFind_(ss, 'TUYEN_DUNG_NHU_CAU', 'ID_NHU_CAU', candidate.ID_NHU_CAU).row;
+  if (!need) throw new Error('Không tìm thấy vị trí tuyển dụng của ứng viên.');
+  if (['Đang tuyển', 'Tạm dừng'].indexOf(String(need.TRANG_THAI || '').trim()) === -1) throw new Error('Vị trí ' + need.ID_NHU_CAU + ' đang ở trạng thái "' + need.TRANG_THAI + '", không tiếp nhận thêm.');
+  var start = parseAttendanceDate_(source.NGAY_VAO_LAM, 'Ngày vào làm'), days = parseInt(source.THU_VIEC_NGAY, 10);
+  if (isNaN(days)) days = parseInt(candidate.THU_VIEC_NGAY, 10) || 0;
+  if (days < 0 || days > 180) throw new Error('Thời gian thử việc tối đa 180 ngày (Điều 25 Bộ luật Lao động).');
+  var contract = days > 0 ? 'Thử việc' : String(source.LOAI_HD || '').trim();
+  if (!contract) throw new Error('Vui lòng chọn loại hợp đồng.');
+  var cccd = String(source.SO_CCCD || '').replace(/\s/g, '');
+  if (cccd && !/^\d{9}$|^\d{12}$/.test(cccd)) throw new Error('Số CCCD/CMND phải gồm 12 (hoặc 9) chữ số.');
+  var phone = String(candidate.DIEN_THOAI || '').replace(/\D/g, '');
+  if (!input.allowDuplicate) {
+    var same = readSheet_(ss, 'DM_NHAN_VIEN').rows.find(function (row) {
+      return (cccd && String(row.SO_CCCD || '').replace(/\s/g, '') === cccd) || (phone.length >= 9 && String(row.SO_DIEN_THOAI || '').replace(/\D/g, '') === phone);
+    });
+    if (same) return { success: false, duplicate: { MA_NHAN_VIEN: same.MA_NHAN_VIEN, HO_VA_TEN: same.HO_VA_TEN, TRANG_THAI: same.TRANG_THAI } };
+  }
+  var employee = {
+    _sessionToken: input._sessionToken, HO_VA_TEN: String(candidate.HO_VA_TEN || '').replace(/^'/, ''), GIOI_TINH: candidate.GIOI_TINH || '', NGAY_SINH: recruitIsoDate_(candidate.NGAY_SINH),
+    SO_DIEN_THOAI: phone, EMAIL: candidate.EMAIL || '', MA_PHONG_BAN: need.MA_PHONG_BAN, MA_BO_PHAN: need.MA_BO_PHAN || '', MA_CHUC_VU: need.MA_CHUC_VU || '',
+    NGAY_VAO_LAM: recruitIsoDate_(source.NGAY_VAO_LAM), TRANG_THAI: days > 0 ? 'Thử việc' : 'Đang hoạt động', LOAI_HD: contract,
+    NOI_LAM_VIEC: String(source.NOI_LAM_VIEC || candidate.DIA_DIEM_LAM_VIEC || '').trim(), SO_CCCD: cccd, NGAY_CAP: recruitIsoDate_(source.NGAY_CAP),
+    DIA_CHI: String(source.DIA_CHI || '').trim(), QUOC_TICH: String(source.QUOC_TICH || 'Việt Nam').trim(), GHI_CHU: 'Tiếp nhận từ ứng viên ' + candidate.ID_UNG_VIEN + (candidate.SO_THU_MOI ? ', thư mời ' + candidate.SO_THU_MOI : '')
+  };
+  var salary = recruitMoney_(source.LUONG_CO_BAN !== undefined && String(source.LUONG_CO_BAN).trim() ? source.LUONG_CO_BAN : candidate.LUONG_DE_NGHI);
+  if (salary) employee.LUONG_CO_BAN = salary;
+  var created = writeEmployee_(employee, false), code = created.code, lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var staffSheet = ss.getSheetByName('DM_NHAN_VIEN'), staffMeta = headers_(staffSheet);
+    if (candidate.TRINH_DO && staffMeta.columns.TRINH_DO_CHUYEN_MON) {
+      var staffRow = readSheet_(ss, 'DM_NHAN_VIEN').rows.find(function (row) { return key_(row.MA_NHAN_VIEN) === key_(code); });
+      if (staffRow && !String(staffRow.TRINH_DO_CHUYEN_MON || '').trim()) staffSheet.getRange(staffRow.__row, staffMeta.columns.TRINH_DO_CHUYEN_MON).setValue(candidate.TRINH_DO);
+    }
+    var historySheet = ensureWorkHistorySheet_(ss), now = new Date();
+    recruitWriteRow_(historySheet, 0, {
+      ID_LICH_SU: 'LS_' + Utilities.getUuid(), MA_NHAN_VIEN: code, HO_VA_TEN: employee.HO_VA_TEN, NGAY_HIEU_LUC: start, LOAI_BIEN_DONG: 'Tiếp nhận',
+      MA_PHONG_BAN_MOI: need.MA_PHONG_BAN, MA_BO_PHAN_MOI: need.MA_BO_PHAN || '', MA_CHUC_VU_MOI: need.MA_CHUC_VU || '', TRANG_THAI_MOI: employee.TRANG_THAI, LOAI_HD_MOI: contract,
+      SO_QUYET_DINH: candidate.SO_THU_MOI ? "'" + candidate.SO_THU_MOI : '', GHI_CHU: 'Tiếp nhận từ tuyển dụng (' + need.ID_NHU_CAU + ')' + (days > 0 ? '; thử việc ' + days + ' ngày' : ''),
+      NGUOI_TAO: auth.username, NGAY_TAO: now, TRANG_THAI: 'Đã ghi nhận'
+    });
+    var fresh = recruitFind_(ss, 'TUYEN_DUNG_UNG_VIEN', 'ID_UNG_VIEN', candidate.ID_UNG_VIEN), row = fresh.row;
+    var record = recruitStageRecord_(row, 'Nhận việc', '', '', auth, start, 'Tiếp nhận thành nhân viên ' + code);
+    record.MA_NHAN_VIEN = "'" + code;
+    if (String(row.SO_THU_MOI || '').trim() && String(row.PHAN_HOI || '').trim() !== 'Đồng ý') { record.PHAN_HOI = 'Đồng ý'; record.NGAY_PHAN_HOI = now; }
+    recruitWriteRow_(ss.getSheetByName('TUYEN_DUNG_UNG_VIEN'), row.__row, record);
+    var hired = fresh.table.rows.filter(function (item) { return key_(item.ID_NHU_CAU) === key_(need.ID_NHU_CAU) && (item === row || String(item.VONG || '').trim() === 'Nhận việc'); }).length;
+    var freshNeed = recruitFind_(ss, 'TUYEN_DUNG_NHU_CAU', 'ID_NHU_CAU', need.ID_NHU_CAU).row, quantity = parseInt(freshNeed.SO_LUONG, 10) || 0, full = quantity && hired >= quantity;
+    var needRecord = { DA_TUYEN: hired, NGAY_CAP_NHAT: now };
+    if (full) needRecord.TRANG_THAI = 'Đã đủ';
+    recruitWriteRow_(ss.getSheetByName('TUYEN_DUNG_NHU_CAU'), freshNeed.__row, needRecord);
+    writeSystemLog_(ss, auth, 'TUYEN_DUNG', 'SUA', candidate.ID_UNG_VIEN, { VONG: stage }, { VONG: 'Nhận việc', MA_NHAN_VIEN: code, DA_TUYEN: hired }, 'Tiếp nhận ' + employee.HO_VA_TEN + ' thành nhân viên ' + code + (full ? '; vị trí ' + need.ID_NHU_CAU + ' đã đủ.' : '.'));
+    return { success: true, code: code, hired: hired, quantity: quantity, full: !!full };
   } finally {
     lock.releaseLock();
   }

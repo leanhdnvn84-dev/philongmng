@@ -832,7 +832,7 @@
     .rc-stage{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.rc-modal .rc-stage label{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #d4dee7;border-radius:10px;color:#33475b;cursor:pointer}.rc-stage label.on{border-color:#1d5bd6;background:#eef4ff}.rc-stage label.off{opacity:.5;cursor:not-allowed}
     .rc-person{display:flex;gap:12px;align-items:center;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:#f3f6f9}.rc-person>div{flex:1}.rc-av{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#183047;color:#fff;font-weight:700}
     .rc-history{margin-top:14px;padding:10px 12px;border:1px solid #e1e8ef;border-radius:10px;max-height:150px;overflow:auto}.rc-history b{display:block;margin-bottom:6px;color:#183047}.rc-history p{margin:0 0 5px;color:#4b5f73;font-size:13px}
-    .rc-pre{white-space:pre-line}.rc-modal [hidden]{display:none!important}
+    .rc-pre{white-space:pre-line}.rc-modal [hidden]{display:none!important}.rc-muted-t{color:var(--muted);font-size:13px}#recruitment .panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}#recruitment .panel-head h2{margin:0;font-size:17px}
     .rc-score{font-variant-numeric:tabular-nums}
     .rc-crits{display:grid;gap:8px}.rc-crit{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;border:1px solid #e1e8ef;border-radius:10px}.rc-crit b{display:block;color:#183047}.rc-crit small{color:#71849a;font-size:12.5px}
     .rc-pills{display:flex;gap:6px;flex:0 0 auto}.rc-pills label{position:relative;cursor:pointer}.rc-pills input{position:absolute;opacity:0;pointer-events:none}.rc-pills span{display:grid;place-items:center;width:36px;height:36px;border:1px solid #cfd9e3;border-radius:9px;color:#33475b;font-weight:700}.rc-pills label.on span{border-color:#1d5bd6;background:#1d5bd6;color:#fff}.rc-pills input:focus-visible+span{outline:2px solid #1d5bd6;outline-offset:2px}
@@ -1402,7 +1402,7 @@
     /* Hỏi xác nhận rồi bấm lại nút vừa bấm (dùng cho đoạn code chạy đồng bộ). Trả về true nếu đã được đồng ý cho lần bấm này. */
     function confirmThenRepeat(button,opts) { if(button&&button.dataset.appConfirmed==='1'){delete button.dataset.appConfirmed;return true;}appConfirm(opts).then(function(ok){if(ok&&button&&document.contains(button)){button.dataset.appConfirmed='1';button.click();}});return false; }
     /* ===== Bảng báo đang xử lý: mọi lời gọi máy chủ (call/publicCall) và việc dài trên trình duyệt (tạo PDF) ===== */
-    var BUSY_LABELS={saveInterview:'Đang lưu lịch phỏng vấn…',cancelInterview:'Đang hủy lịch…',evaluateInterview:'Đang lưu đánh giá…',saveOffer:'Đang lưu thư mời…',respondOffer:'Đang ghi nhận phản hồi…',saveRecruitmentNeed:'Đang lưu đề nghị tuyển dụng…',decideRecruitmentNeed:'Đang cập nhật đề nghị…',saveCandidate:'Đang lưu ứng viên…',moveCandidateStage:'Đang chuyển vòng ứng viên…',getAppData:'Đang tải dữ liệu…',getSystemData:'Đang tải dữ liệu hệ thống…',loginLocal:'Đang đăng nhập…',getSessionContext:'Đang khôi phục phiên làm việc…',logoutLocal:'Đang đăng xuất…',saveEmployee:'Đang lưu nhân viên mới…',updateEmployee:'Đang lưu hồ sơ nhân viên…',saveTransferProposal:'Đang gửi đề xuất luân chuyển…',saveFormRequest:'Đang lưu phiếu…',updateFormRequestStatus:'Đang cập nhật trạng thái phiếu…',saveFormPdf:'Đang tạo PDF và lưu Google Drive…',saveLeaveRequest:'Đang gửi đơn nghỉ…',updateLeaveRequestStatus:'Đang cập nhật đơn nghỉ…',saveSystemAccount:'Đang tạo tài khoản…',updateSystemAccount:'Đang cập nhật tài khoản…',resetSystemAccountPassword:'Đang đặt lại mật khẩu…',saveSystemPermissions:'Đang lưu phân quyền…',saveSystemRole:'Đang lưu vai trò…',archiveSystemLogsNow:'Đang lưu trữ nhật ký…',importEmployees:'Đang nhập dữ liệu nhân viên…',issueHrDocuments:'Đang cấp số và lưu văn bản…',changeLocalPassword:'Đang đổi mật khẩu…',getEmployeePhotoData:''},BUSY_SHEETS=[[/NHAN_VIEN/,'nhân sự'],[/\bCC_/,'chấm công – nghỉ phép'],[/BIEU_MAU|DIEU_KHOAN|CONG_TY/,'biểu mẫu'],[/LICH_SU/,'lịch sử công việc'],[/TUYEN_DUNG/,'tuyển dụng']],busyTasks=[],busyTimer=null,busyTick=null,busySeq=0;
+    var BUSY_LABELS={hireCandidate:'Đang tiếp nhận nhân viên…',saveInterview:'Đang lưu lịch phỏng vấn…',cancelInterview:'Đang hủy lịch…',evaluateInterview:'Đang lưu đánh giá…',saveOffer:'Đang lưu thư mời…',respondOffer:'Đang ghi nhận phản hồi…',saveRecruitmentNeed:'Đang lưu đề nghị tuyển dụng…',decideRecruitmentNeed:'Đang cập nhật đề nghị…',saveCandidate:'Đang lưu ứng viên…',moveCandidateStage:'Đang chuyển vòng ứng viên…',getAppData:'Đang tải dữ liệu…',getSystemData:'Đang tải dữ liệu hệ thống…',loginLocal:'Đang đăng nhập…',getSessionContext:'Đang khôi phục phiên làm việc…',logoutLocal:'Đang đăng xuất…',saveEmployee:'Đang lưu nhân viên mới…',updateEmployee:'Đang lưu hồ sơ nhân viên…',saveTransferProposal:'Đang gửi đề xuất luân chuyển…',saveFormRequest:'Đang lưu phiếu…',updateFormRequestStatus:'Đang cập nhật trạng thái phiếu…',saveFormPdf:'Đang tạo PDF và lưu Google Drive…',saveLeaveRequest:'Đang gửi đơn nghỉ…',updateLeaveRequestStatus:'Đang cập nhật đơn nghỉ…',saveSystemAccount:'Đang tạo tài khoản…',updateSystemAccount:'Đang cập nhật tài khoản…',resetSystemAccountPassword:'Đang đặt lại mật khẩu…',saveSystemPermissions:'Đang lưu phân quyền…',saveSystemRole:'Đang lưu vai trò…',archiveSystemLogsNow:'Đang lưu trữ nhật ký…',importEmployees:'Đang nhập dữ liệu nhân viên…',issueHrDocuments:'Đang cấp số và lưu văn bản…',changeLocalPassword:'Đang đổi mật khẩu…',getEmployeePhotoData:''},BUSY_SHEETS=[[/NHAN_VIEN/,'nhân sự'],[/\bCC_/,'chấm công – nghỉ phép'],[/BIEU_MAU|DIEU_KHOAN|CONG_TY/,'biểu mẫu'],[/LICH_SU/,'lịch sử công việc'],[/TUYEN_DUNG/,'tuyển dụng']],busyTasks=[],busyTimer=null,busyTick=null,busySeq=0;
     function busyLabel(method,args) { if(method==='getAppData'&&args&&Array.isArray(args.sheets)){var names=args.sheets.join(' '),hit=BUSY_SHEETS.find(function(item){return item[0].test(names);});if(hit)return 'Đang tải dữ liệu '+hit[1]+'…';}return BUSY_LABELS[method]==null?'Đang xử lý…':BUSY_LABELS[method]; }
     function busyRender() {
       var pop=$('#busyPop'),bar=$('#busyBar');if(!pop)return;
@@ -1998,7 +1998,7 @@
       var page=state.rcPage||'Vị trí tuyển dụng';
       if(page==='Ứng viên'){renderRcCands(root);return;}
       if(page==='Phỏng vấn'){renderRcInterviews(root);return;}
-      if(page==='Tiếp nhận nhân viên'){root.innerHTML='<article class="card panel rc-soon"><b>'+esc(page)+'</b><p>Chức năng này thuộc '+(page==='Phỏng vấn'?'Đợt 2 (lịch phỏng vấn, chấm điểm, in phiếu đánh giá và thư mời nhận việc)':'Đợt 3 (tạo hồ sơ nhân viên từ ứng viên, in hợp đồng thử việc, cập nhật số đã tuyển)')+'.</p><button class="btn" type="button" data-rc="goto-cands">👥 Mở danh sách ứng viên</button></article>';return;}
+      if(page==='Tiếp nhận nhân viên'){renderRcHire(root);return;}
       renderRcNeeds(root);
     }
     function renderRcNeeds(root) {
@@ -2149,7 +2149,7 @@
     function rcMoveModal(row,preset) {
       var stage=rcStage(row),edit=can('TUYEN_DUNG','SUA')&&stage!=='Nhận việc',need=rcNeedById(row.ID_NHU_CAU),pick=preset||'',initials=String(row.HO_VA_TEN||'?').trim().split(/\s+/).slice(-2).map(function(w){return w.charAt(0);}).join('').toUpperCase();
       var history=String(row.LICH_SU_VONG||'').split(/\n/).filter(function(line){return line.trim();}).reverse();
-      var options=RC_STAGES.filter(function(s){return s[0]!==stage;}).map(function(s){var off=s[0]==='Nhận việc';return '<label class="'+(pick===s[0]?'on':'')+(off?' off':'')+'"'+(off?' title="Chuyển sang Nhận việc bằng nút Tiếp nhận nhân viên (Đợt 3)"':'')+'><input type="radio" name="rcmStage" value="'+esc(s[0])+'"'+(pick===s[0]?' checked':'')+(off?' disabled':'')+'> '+rcBadge(s[0],s[1])+'</label>';}).join('');
+      var options=RC_STAGES.filter(function(s){return s[0]!==stage;}).map(function(s){var off=s[0]==='Nhận việc'&&!(rcReady(row)&&rcCanHire());return '<label class="'+(pick===s[0]?'on':'')+(off?' off':'')+'"'+(off?' title="Chỉ tiếp nhận ứng viên ở vòng Đề nghị nhận việc (cần quyền Thêm ở Nhân sự)"':'')+'><input type="radio" name="rcmStage" value="'+esc(s[0])+'"'+(pick===s[0]?' checked':'')+(off?' disabled':'')+'> '+rcBadge(s[0],s[1])+'</label>';}).join('');
       rcOpenModal('<h2>'+(edit?'Chuyển vòng ứng viên':'Lịch sử ứng viên')+'</h2><div class="rc-person"><span class="rc-av">'+esc(initials)+'</span><div><b>'+esc(row.HO_VA_TEN)+'</b><div class="rc-sub" style="margin:2px 0 0">'+esc(rcNeedTitle(need))+' · đang ở vòng '+rcBadge(stage,rcStageTone(stage))+'</div></div>'+(row.LINK_CV&&/^https:\/\//i.test(row.LINK_CV)?'<a class="rc-cv" href="'+esc(row.LINK_CV)+'" target="_blank" rel="noopener noreferrer">📎 CV</a>':'')+'</div>'+
         (edit?'<div class="rc-stage">'+options+'</div><div class="form" style="margin-top:14px"><label id="rcmReasonBox"'+(pick==='Loại'?'':' hidden')+'>Lý do loại<select id="rcmReason">'+rcOptions(RC_REJECT,'','— Chọn lý do —')+'</select></label><label>Ngày<input id="rcmDate" type="date" value="'+esc(rcIso(new Date()))+'"></label><label class="full">Ghi chú<textarea id="rcmNote" rows="2" placeholder="Nhận xét, kết quả trao đổi…"></textarea></label></div>':'')+
         rcCandExtraHtml(row)+(history.length?'<div class="rc-history"><b>Lịch sử</b>'+history.map(function(line){return '<p>'+esc(line)+'</p>';}).join('')+'</div>':'')+
@@ -2159,7 +2159,7 @@
     }
     function rcMoveSave(id) {
       var err=$('#rcmErr'),checked=document.querySelector('input[name="rcmStage"]:checked'),stage=checked?checked.value:'',reason=$('#rcmReason')?$('#rcmReason').value:'';
-      if(!stage){err.textContent='Vui lòng chọn vòng mới.';return;}if(stage==='Loại'&&!reason){err.textContent='Vui lòng chọn lý do loại.';return;}
+      if(!stage){err.textContent='Vui lòng chọn vòng mới.';return;}if(stage==='Nhận việc'){var hc=rcCandById(id);if(hc)rcHireModal(hc);return;}if(stage==='Loại'&&!reason){err.textContent='Vui lòng chọn lý do loại.';return;}
       rcMove(id,stage,reason,$('#rcmDate').value,$('#rcmNote').value,err);
     }
     function rcMove(id,stage,reason,date,note,errBox) {
@@ -2168,7 +2168,7 @@
     }
     function rcDrop(id,stage) {
       var row=rcCandById(id);if(!row||rcStage(row)===stage)return;
-      if(stage==='Nhận việc'){toast('Chuyển sang Nhận việc bằng nút Tiếp nhận nhân viên (Đợt 3).',true);return;}
+      if(stage==='Nhận việc'){if(rcReady(row)&&rcCanHire())rcHireModal(row);else toast(rcCanHire()?'Chỉ tiếp nhận ứng viên ở vòng Đề nghị nhận việc.':'Cần quyền Thêm ở Nhân sự để tiếp nhận nhân viên.',true);return;}
       if(stage==='Loại'){rcMoveModal(row,'Loại');return;}
       rcMove(id,stage,'','','');
     }
@@ -2187,7 +2187,7 @@
         var el=e.target.closest('[data-rc]');if(!el||!(el.closest('#recruitment')||el.closest('#modal')||el.closest('#rcMenu')))return;
         var act=el.dataset.rc,id=el.dataset.id,st=rcState(),need=id&&rcNeedById(id),cand=id&&rcCandById(id);
         if(act!=='need-menu'&&act!=='iv-menu')rcCloseMenu();
-        if(rcIvClick(act,el))return;
+        if(rcIvClick(act,el)||rcHireClick(act,el))return;
         if(act==='need-new')return rcNeedModal(null);
         if(act==='need-edit'&&need)return rcNeedModal(need);
         if(act==='need-save')return rcSaveNeed(el.dataset.submit==='1');
@@ -2356,7 +2356,9 @@
       if(open&&can('TUYEN_DUNG','THEM'))html+='<button class="btn" type="button" data-rc="iv-new" data-cand="'+esc(c.ID_UNG_VIEN)+'">📅 Đặt lịch phỏng vấn</button>';
       html+='</div>';
       if(String(c.SO_THU_MOI||'').trim()){var resp=String(c.PHAN_HOI||'Chờ phản hồi').trim();html+='<div class="rc-box"><b>Thư mời nhận việc</b><div class="rc-line"><span>Số '+esc(c.SO_THU_MOI)+' · đi làm '+esc(rcDay(c.NGAY_DI_LAM))+' · hạn phản hồi '+esc(rcDay(c.HAN_PHAN_HOI))+'</span><span>'+rcBadge(resp,resp==='Đồng ý'?'green':resp==='Từ chối'?'red':'amber')+'</span></div><div class="rc-act">'+(rcShowSalary()?'<button class="btn" type="button" data-rc="offer-view" data-id="'+esc(c.ID_UNG_VIEN)+'">✉ Xem / in thư mời</button>':'')+(edit&&rcShowSalary()&&open&&resp==='Chờ phản hồi'?'<button class="btn" type="button" data-rc="offer-edit" data-id="'+esc(c.ID_UNG_VIEN)+'">✎ Sửa thư mời</button>':'')+(edit&&open&&resp==='Chờ phản hồi'?'<button class="btn" type="button" data-rc="offer-yes" data-id="'+esc(c.ID_UNG_VIEN)+'">✓ Ứng viên đồng ý</button><button class="btn" type="button" data-rc="offer-no" data-id="'+esc(c.ID_UNG_VIEN)+'">✕ Ứng viên từ chối</button>':'')+'</div></div>';}
-      else if(open&&edit&&rcShowSalary()&&(stage==='Phỏng vấn'||stage==='Đề nghị nhận việc'))html+='<div class="rc-box"><b>Thư mời nhận việc</b><p class="rc-muted">Chưa lập thư mời.</p><button class="btn" type="button" data-rc="offer-edit" data-id="'+esc(c.ID_UNG_VIEN)+'">✉ Lập thư mời nhận việc</button></div>';
+      if(rcReady(c)&&rcCanHire())html+='<div class="rc-box"><b>Tiếp nhận</b><p class="rc-muted">Tạo hồ sơ nhân viên từ ứng viên này.</p><button class="btn primary" type="button" data-rc="hire" data-id="'+esc(c.ID_UNG_VIEN)+'">✓ Tiếp nhận nhân viên</button></div>';
+      if(stage==='Nhận việc'&&c.MA_NHAN_VIEN)html+='<div class="rc-box"><b>Đã tiếp nhận</b><p class="rc-muted">Mã nhân viên '+esc(String(c.MA_NHAN_VIEN).replace(/^'/,''))+' · ngày '+esc(rcDay(c.NGAY_CHUYEN_VONG))+'</p></div>';
+      else if(!String(c.SO_THU_MOI||'').trim()&&open&&edit&&rcShowSalary()&&(stage==='Phỏng vấn'||stage==='Đề nghị nhận việc'))html+='<div class="rc-box"><b>Thư mời nhận việc</b><p class="rc-muted">Chưa lập thư mời.</p><button class="btn" type="button" data-rc="offer-edit" data-id="'+esc(c.ID_UNG_VIEN)+'">✉ Lập thư mời nhận việc</button></div>';
       return html;
     }
     function rcIvClick(act,el) {
@@ -2379,6 +2381,58 @@
       if(act==='offer-no'&&cand){rcRespond(id,'Từ chối');return true;}
       if(act==='doc-pdf'){rcDocExport('pdf');return true;}
       if(act==='doc-word'){rcDocExport('word');return true;}
+      return false;
+    }
+    /* ===================== TUYỂN DỤNG – ĐỢT 3: tiếp nhận nhân viên ===================== */
+    function rcCanHire() { return can('TUYEN_DUNG','SUA')&&can('NHAN_SU','THEM'); }
+    function rcReady(c) { return rcStage(c)==='Đề nghị nhận việc'&&String(c.PHAN_HOI||'').trim()!=='Từ chối'&&!String(c.MA_NHAN_VIEN||'').trim(); }
+    function renderRcHire(root) {
+      var all=rcCands(),ready=all.filter(rcReady).sort(function(a,b){return (rcDate(a.NGAY_DI_LAM)||0)-(rcDate(b.NGAY_DI_LAM)||0);}),year=new Date().getFullYear(),now=new Date();now.setHours(0,0,0,0);
+      var hired=all.filter(function(c){return rcStage(c)==='Nhận việc';}).sort(function(a,b){return (rcDate(b.NGAY_CHUYEN_VONG)||0)-(rcDate(a.NGAY_CHUYEN_VONG)||0);}),hiredYear=hired.filter(function(c){var d=rcDate(c.NGAY_CHUYEN_VONG);return d&&d.getFullYear()===year;}).length;
+      var soon=ready.filter(function(c){var d=rcDate(c.NGAY_DI_LAM);return d&&d>=now&&d-now<=7*864e5;}).length,gap=rcNeeds().filter(function(r){return rcStatus(r)==='Đang tuyển';}).reduce(function(s,r){return s+Math.max(0,rcNum(r.SO_LUONG)-rcNum(r.DA_TUYEN));},0),canHire=rcCanHire(),canPrint=canPrintContracts();
+      var readyRows=ready.map(function(c){var need=rcNeedById(c.ID_NHU_CAU),d=rcDate(c.NGAY_DI_LAM),left=d?Math.round((d-now)/864e5):null,resp=String(c.PHAN_HOI||'').trim(),id=esc(c.ID_UNG_VIEN);
+        return '<tr><td><button class="rc-name" type="button" data-rc="cand-move" data-id="'+id+'">'+esc(c.HO_VA_TEN)+'</button><small>'+esc([c.DIEN_THOAI,c.TRINH_DO].filter(Boolean).join(' · '))+'</small></td><td>'+esc(rcNeedTitle(need))+'<small>'+esc(need?rcNeedUnit(need):'')+'</small></td><td>'+(c.SO_THU_MOI?esc(c.SO_THU_MOI)+'<small>'+rcBadge(resp||'Chờ phản hồi',resp==='Đồng ý'?'green':'amber')+'</small>':'<span class="rc-muted-t">Chưa có thư mời</span>')+'</td><td>'+(d?'<b>'+esc(rcDay(c.NGAY_DI_LAM))+'</b><small>'+(left===0?'hôm nay':left>0?'còn '+left+' ngày':'đã qua '+(-left)+' ngày')+'</small>':'—')+'</td><td>'+(Number(c.THU_VIEC_NGAY)?esc(c.THU_VIEC_NGAY)+' ngày':'—')+'</td><td><div class="rc-act">'+(canHire?'<button class="btn primary" type="button" data-rc="hire" data-id="'+id+'">✓ Tiếp nhận</button>':'')+(c.SO_THU_MOI&&rcShowSalary()?'<button class="btn" type="button" data-rc="offer-view" data-id="'+id+'">✉ Thư mời</button>':'')+'</div></td></tr>';}).join('');
+      var doneRows=hired.slice(0,30).map(function(c){var need=rcNeedById(c.ID_NHU_CAU),code=String(c.MA_NHAN_VIEN||'').replace(/^'/,''),person=code&&findPerson(code);
+        return '<tr><td><b>'+esc(code||'—')+'</b></td><td>'+esc(c.HO_VA_TEN)+'<small>'+esc(c.ID_UNG_VIEN)+'</small></td><td>'+esc(rcNeedTitle(need))+'<small>'+esc(need?department(need.MA_PHONG_BAN):'')+'</small></td><td>'+esc(person&&person.NGAY_VAO_LAM?rcDay(person.NGAY_VAO_LAM):rcDay(c.NGAY_CHUYEN_VONG))+'</td><td>'+(person?rcBadge(person.TRANG_THAI||'—',normalize(person.TRANG_THAI)==='thu viec'?'amber':'green'):'—')+'</td><td><div class="rc-act">'+(person&&canPrint?'<button class="btn" type="button" data-rc="hire-contract" data-id="'+esc(code)+'" data-kind="'+(normalize(person.LOAI_HD)==='thu viec'?'probation':'labor')+'">🖨 '+(normalize(person.LOAI_HD)==='thu viec'?'HĐ thử việc':'HĐ lao động')+'</button>':'')+(person?'<button class="btn" type="button" data-rc="hire-profile" data-id="'+esc(code)+'">👤 Hồ sơ</button>':'')+'</div></td></tr>';}).join('');
+      root.innerHTML='<div class="rc-wrap"><div class="kpis rc-kpis"><div class="kpi"><label>Chờ tiếp nhận</label><b>'+ready.length+'</b><small>ứng viên đã nhận thư mời</small></div><div class="kpi"><label>Đi làm trong 7 ngày</label><b>'+soon+'</b><small>cần chuẩn bị chỗ làm, tài khoản</small></div><div class="kpi"><label>Đã tiếp nhận năm '+year+'</label><b>'+hiredYear+'</b><small>tổng '+hired.length+' người</small></div><div class="kpi"><label>Vị trí còn thiếu</label><b>'+gap+'</b><small>người ở các vị trí đang tuyển</small></div></div>'+
+        '<article class="card panel"><div class="panel-head"><h2>Chờ tiếp nhận</h2><span class="rc-note">'+(canHire?'Tiếp nhận sẽ tạo hồ sơ nhân viên, ghi lịch sử công việc và cập nhật số đã tuyển':'Cần quyền Sửa ở Tuyển dụng và quyền Thêm ở Nhân sự để tiếp nhận')+'</span></div><div class="scroll"><table class="table rc-t"><thead><tr><th>Ứng viên</th><th>Vị trí</th><th>Thư mời</th><th>Ngày đi làm</th><th>Thử việc</th><th>Thao tác</th></tr></thead><tbody>'+(readyRows||'<tr><td colspan="6" class="placeholder">Chưa có ứng viên chờ tiếp nhận. Ứng viên ở vòng "Đề nghị nhận việc" sẽ hiện ở đây.</td></tr>')+'</tbody></table></div></article>'+
+        '<article class="card panel"><div class="panel-head"><h2>Đã tiếp nhận</h2><span class="rc-note">'+hired.length+' nhân viên</span></div><div class="scroll"><table class="table rc-t"><thead><tr><th>Mã NV</th><th>Họ và tên</th><th>Vị trí</th><th>Ngày vào làm</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>'+(doneRows||'<tr><td colspan="6" class="placeholder">Chưa tiếp nhận nhân viên nào.</td></tr>')+'</tbody></table></div></article></div>';
+    }
+    function rcHireModal(c) {
+      if(!rcCanHire()){toast('Cần quyền Sửa ở Tuyển dụng và quyền Thêm ở Nhân sự để tiếp nhận.',true);return;}
+      var need=rcNeedById(c.ID_NHU_CAU)||{},days=Number(c.THU_VIEC_NGAY),hasOffer=!!String(c.SO_THU_MOI||'').trim(),probation=hasOffer?days>0:/chính thức/i.test(need.HINH_THUC||'Chính thức'),company=formCompany(),salary=rcShowSalary();
+      if(!hasOffer)days=rcProbationMax(c.TRINH_DO)[0];
+      rcOpenModal('<h2>Tiếp nhận nhân viên</h2><div class="rc-person"><span class="rc-av">✓</span><div><b>'+esc(c.HO_VA_TEN)+'</b><div class="rc-sub" style="margin:2px 0 0">'+esc(rcNeedTitle(need))+' · '+esc(rcNeedUnit(need))+(hasOffer?' · thư mời '+esc(c.SO_THU_MOI):'')+'</div></div></div>'+
+        '<div class="form rc-3"><label>Ngày vào làm<input id="rchStart" type="date" value="'+esc(rcIso(c.NGAY_DI_LAM)||rcIso(new Date()))+'"></label><label>Hình thức<select id="rchMode">'+rcOptions([['probation','Thử việc'],['labor','Ký HĐLĐ ngay']],probation?'probation':'labor')+'</select></label><label id="rchDaysBox">Số ngày thử việc<input id="rchDays" type="number" min="1" max="180" value="'+esc(days||60)+'"></label><label id="rchTypeBox">Loại hợp đồng<select id="rchType">'+rcOptions(['Xác định thời hạn','Không xác định thời hạn'],'Xác định thời hạn')+'</select></label></div>'+
+        '<div class="form rc-3"><label>Số CCCD<input id="rchId" inputmode="numeric" maxlength="12" placeholder="12 chữ số"></label><label>Ngày cấp<input id="rchIdDate" type="date"></label><label>Quốc tịch<input id="rchNation" value="Việt Nam"></label></div>'+
+        '<div class="form" style="margin-top:12px"><label class="full">Địa chỉ thường trú<input id="rchAddr" placeholder="Số nhà, đường, phường/xã, tỉnh/thành phố"></label><label class="full">Nơi làm việc<input id="rchPlace" value="'+esc(c.DIA_DIEM_LAM_VIEC||company.DIA_CHI||'')+'"></label>'+(salary?'<label>Lương cơ bản (đồng/tháng)<input id="rchSalary" inputmode="numeric" value="'+esc(rcNum(c.LUONG_DE_NGHI)?rcNum(c.LUONG_DE_NGHI).toLocaleString('vi-VN'):'')+'"></label>':'')+
+        (canPrintContracts()?'<label class="full rc-consent"><input type="checkbox" id="rchPrint" checked><span>Mở in hợp đồng ngay sau khi tiếp nhận<small>Hợp đồng lấy dữ liệu từ hồ sơ nhân viên vừa tạo; có thể bổ sung CCCD, địa chỉ sau ở Danh bạ.</small></span></label>':'')+'</div>'+
+        '<p class="rc-note">Tạo mã nhân viên mới trong Danh bạ (trạng thái <b id="rchState"></b>), ghi Lịch sử công việc "Tiếp nhận", chuyển ứng viên sang Nhận việc và cộng số đã tuyển của vị trí '+esc(need.ID_NHU_CAU||'')+' ('+rcNum(need.DA_TUYEN)+'/'+rcNum(need.SO_LUONG)+').</p><p class="rc-err" id="rchErr"></p>'+
+        '<div class="modal-actions"><button class="btn" type="button" data-close>Hủy</button><button class="btn primary" type="button" data-rc="hire-save" data-id="'+esc(c.ID_UNG_VIEN)+'">✓ Tiếp nhận</button></div>',function(e){
+          if(e&&e.target&&e.target.id)$('#rchErr').textContent='';
+          if(e&&e.target&&e.target.id==='rchSalary'&&e.type==='input'){var n=rcNum(e.target.value);e.target.value=n?n.toLocaleString('vi-VN'):'';}
+          if(e&&e.target&&e.target.id==='rchId'&&e.type==='input')e.target.value=e.target.value.replace(/\D/g,'').slice(0,12);
+          var p=$('#rchMode').value==='probation';$('#rchDaysBox').hidden=!p;$('#rchTypeBox').hidden=p;$('#rchState').textContent=p?'Thử việc':'Đang hoạt động';
+        });
+      $('#modal').onchange({});
+    }
+    function rcHireSave(id,allowDuplicate) {
+      var err=$('#rchErr'),v=function(k){return String(($('#'+k)||{}).value||'').trim();},p=v('rchMode')==='probation',record={NGAY_VAO_LAM:v('rchStart'),THU_VIEC_NGAY:p?v('rchDays'):'0',LOAI_HD:p?'Thử việc':v('rchType'),SO_CCCD:v('rchId'),NGAY_CAP:v('rchIdDate'),QUOC_TICH:v('rchNation'),DIA_CHI:v('rchAddr'),NOI_LAM_VIEC:v('rchPlace')},print=$('#rchPrint')&&$('#rchPrint').checked;
+      if($('#rchSalary'))record.LUONG_CO_BAN=v('rchSalary');
+      var d=Number(record.THU_VIEC_NGAY)||0,problem=!record.NGAY_VAO_LAM?'Vui lòng chọn ngày vào làm.':p&&(d<1||d>180)?'Số ngày thử việc từ 1 đến 180 (Điều 25 BLLĐ).':record.SO_CCCD&&!/^\d{9}$|^\d{12}$/.test(record.SO_CCCD)?'Số CCCD phải gồm 12 chữ số.':'';
+      if(problem){err.textContent=problem;return;}
+      call('hireCandidate',{id:id,record:record,allowDuplicate:!!allowDuplicate},function(res){
+        if(res&&res.duplicate){appConfirm({title:'Đã có nhân viên trùng thông tin',message:'Trùng CCCD hoặc số điện thoại với '+res.duplicate.MA_NHAN_VIEN+' – '+res.duplicate.HO_VA_TEN+' ('+(res.duplicate.TRANG_THAI||'—')+'). Vẫn tạo hồ sơ nhân viên mới?',tone:'warn',ok:'Vẫn tạo mới'}).then(function(yes){if(yes)rcHireSave(id,true);});return;}
+        closeModal();toast('Đã tiếp nhận nhân viên '+res.code+(res.full?' – vị trí đã tuyển đủ '+res.hired+'/'+res.quantity:' ('+res.hired+'/'+res.quantity+')')+'.');
+        load(['DM_NHAN_VIEN','TUYEN_DUNG_NHU_CAU','TUYEN_DUNG_UNG_VIEN','TUYEN_DUNG_PHONG_VAN','LICH_SU_CONG_VIEC'],function(){var person=findPerson(res.code);if(print&&person){openContractDialog(person,p?'probation':'labor');[['ctDays',p?record.THU_VIEC_NGAY:''],['ctSign',record.NGAY_VAO_LAM]].forEach(function(item){var box=$('#'+item[0]);if(box&&item[1]){box.value=item[1];box.dispatchEvent(new Event('input',{bubbles:true}));box.dispatchEvent(new Event('change',{bubbles:true}));}});}});
+      },function(message){err.textContent=message;});
+    }
+    function rcHireClick(act,el) {
+      var id=el.dataset.id,cand=id&&rcCandById(id);
+      if(act==='hire'&&cand){rcHireModal(cand);return true;}
+      if(act==='hire-save'){rcHireSave(id);return true;}
+      if(act==='hire-contract'){var person=findPerson(id);if(person)openContractDialog(person,el.dataset.kind||'probation');return true;}
+      if(act==='hire-profile'){var p2=findPerson(id);if(p2)openProfile(p2);return true;}
       return false;
     }
     function findPerson(key) { var wanted=normalize(key); return state.employees.find(function(p){return normalize(personKey(p))===wanted;}); }
