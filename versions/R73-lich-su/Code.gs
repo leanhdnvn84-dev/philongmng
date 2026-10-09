@@ -22,6 +22,9 @@ const WORK_HISTORY_HEADERS = [
   'NGUOI_TAO', 'NGAY_TAO', 'TRANG_THAI', 'LOAI_HD_CU', 'LOAI_HD_MOI', 'LUONG_CU', 'LUONG_MOI'
 ];
 
+/** Các loại biến động cho danh sách chọn ở LICH_SU_CONG_VIEC (thêm loại mới tại đây). */
+const WORK_HISTORY_TYPES = ['Điều chuyển phòng ban', 'Điều chuyển bộ phận', 'Điều chuyển nhóm', 'Thay đổi chức vụ', 'Bổ nhiệm', 'Miễn nhiệm', 'Nghỉ việc', 'Quay lại làm việc', 'Cập nhật trạng thái', 'Đề xuất điều chuyển', 'Nâng lương', 'Thay đổi loại hợp đồng', 'Cập nhật lương'];
+
 const FORM_TEMPLATE_HEADERS = [
   'ID_BIEU_MAU', 'MA_BIEU_MAU', 'TEN_BIEU_MAU', 'NHOM_BIEU_MAU',
   'MO_TA', 'TRANG_THAI', 'THU_TU', 'NGAY_CAP_NHAT', 'LOAI_MAU',
@@ -1606,15 +1609,32 @@ function objectFromRow_(meta, row) {
 }
 
 function ensureWorkHistorySheet_(ss) {
-  var sheet = ss.getSheetByName('LICH_SU_CONG_VIEC');
-  if (!sheet) sheet = ss.insertSheet('LICH_SU_CONG_VIEC');
+  var sheet = ss.getSheetByName('LICH_SU_CONG_VIEC'), created = !sheet;
+  if (created) sheet = ss.insertSheet('LICH_SU_CONG_VIEC');
   ensureColumns_(sheet, WORK_HISTORY_HEADERS);
-  sheet.setFrozenRows(1);
+  if (created) sheet.setFrozenRows(1);
+  ensureWorkHistoryValidation_(sheet, created);
+  return sheet;
+}
+
+/**
+ * Danh sách chọn cho cột LOAI_BIEN_DONG. Trước đây chạy ở MỖI lần ghi lịch sử: đọc quy tắc của cả cột (~1.000 ô) rồi đặt lại → chậm vài giây.
+ * Nay chỉ chạy đầy đủ khi danh sách loại biến động trong mã đổi; nếu sheet chỉ dài thêm thì áp cho phần dòng mới.
+ */
+function ensureWorkHistoryValidation_(sheet, created) {
+  var store = PropertiesService.getScriptProperties(), maxRows = sheet.getMaxRows(), key = 'HISTORY_VALIDATION';
+  var saved = {}; try { saved = JSON.parse(store.getProperty(key) || '{}') || {}; } catch (error) { saved = {}; }
+  var signature = WORK_HISTORY_TYPES.join('|');
+  if (!created && saved.signature === signature && saved.rows >= maxRows) return;
   var meta = headers_(sheet), column = meta.columns.LOAI_BIEN_DONG;
-  if (column && sheet.getMaxRows() > 1) {
-    var range = sheet.getRange(2, column, sheet.getMaxRows() - 1, 1);
-    var allowed = ['Điều chuyển phòng ban', 'Điều chuyển bộ phận', 'Điều chuyển nhóm', 'Thay đổi chức vụ', 'Bổ nhiệm', 'Miễn nhiệm', 'Nghỉ việc', 'Quay lại làm việc', 'Cập nhật trạng thái', 'Đề xuất điều chuyển', 'Nâng lương', 'Thay đổi loại hợp đồng', 'Cập nhật lương'];
-    range.getDataValidations().forEach(function (row) {
+  if (!column || maxRows < 2) return;
+  var allowed = (saved.signature === signature && saved.allowed) ? saved.allowed.slice() : WORK_HISTORY_TYPES.slice();
+  if (!created && saved.signature === signature && saved.rows > 1) {
+    // Chỉ dài thêm: áp đúng danh sách đã dùng cho phần dòng mới, không đọc lại cả cột.
+    sheet.getRange(saved.rows + 1, column, maxRows - saved.rows, 1).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(allowed, true).setAllowInvalid(false).build());
+  } else {
+    var range = sheet.getRange(2, column, maxRows - 1, 1);
+    if (!created) range.getDataValidations().forEach(function (row) {
       var rule = row[0];
       if (rule && rule.getCriteriaType() === SpreadsheetApp.DataValidationCriteria.VALUE_IN_LIST) {
         (rule.getCriteriaValues()[0] || []).forEach(function (value) {
@@ -1624,7 +1644,7 @@ function ensureWorkHistorySheet_(ss) {
     });
     range.setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(allowed, true).setAllowInvalid(false).build());
   }
-  return sheet;
+  store.setProperty(key, JSON.stringify({ signature: signature, rows: maxRows, allowed: allowed }));
 }
 
 function ensureAttendanceSheet_(ss, name) {
@@ -2600,7 +2620,7 @@ function getLaborRegister(input) {
   var supplements=readSheet_(ss,'DM_NHAN_VIEN').rows;
   if(key_(auth.roleCode)==='role-user'&&(!auth.employeeCode||(code&&key_(code)!==key_(auth.employeeCode))))throw new Error('Không có quyền xem nhân viên này.');
   if(!code)return {supplements:supplements.filter(function(r){return key_(auth.roleCode)!=='role-user'||!auth.employeeCode||key_(r.MA_NHAN_VIEN)===key_(auth.employeeCode);}).map(function(r){return {MA_NHAN_VIEN:r.MA_NHAN_VIEN,TRINH_DO_CHUYEN_MON:r.TRINH_DO_CHUYEN_MON||'',BAC_KY_NANG_NGHE:r.BAC_KY_NANG_NGHE||''};})};
-  var person=readSheet_(ss,'DM_NHAN_VIEN').rows.find(function(r){return key_(r.MA_NHAN_VIEN)===key_(code);});
+  var person=supplements.find(function(r){return key_(r.MA_NHAN_VIEN)===key_(code);});
   if(!person)throw new Error('Không tìm thấy nhân viên.');
   var events=[],historyAllowed=authCanSheet_(auth,'LICH_SU_CONG_VIEC'),docsAllowed=authCanSheet_(auth,'PHIEU_BIEU_MAU');
   if(historyAllowed&&ss.getSheetByName('LICH_SU_CONG_VIEC'))readSheet_(ss,'LICH_SU_CONG_VIEC').rows.forEach(function(r){
@@ -2609,7 +2629,8 @@ function getLaborRegister(input) {
     events.push({source:'Lịch sử công việc',date:r.NGAY_HIEU_LUC||r.NGAY_TAO||'',type:r.LOAI_BIEN_DONG||'',number:r.SO_QUYET_DINH||'',status:r.TRANG_THAI||'',before:[r.MA_PHONG_BAN_CU,r.MA_BO_PHAN_CU,r.MA_NHOM_CU,r.MA_CHUC_VU_CU,r.TRANG_THAI_CU].filter(Boolean).join(' · '),after:[r.MA_PHONG_BAN_MOI,r.MA_BO_PHAN_MOI,r.MA_NHOM_MOI,r.MA_CHUC_VU_MOI,r.TRANG_THAI_MOI].filter(Boolean).join(' · '),note:level>=2?r.GHI_CHU||'':'',oldSalary:level>=2?r.LUONG_CU||'':'',newSalary:level>=2?r.LUONG_MOI||'':'',oldContract:level>=1?r.LOAI_HD_CU||'':'',newContract:level>=1?r.LOAI_HD_MOI||'':''});
   });
   if(docsAllowed&&level>=1&&ss.getSheetByName('PHIEU_BIEU_MAU'))readSheet_(ss,'PHIEU_BIEU_MAU').rows.forEach(function(r){
-    var saved;try{saved=JSON.parse(r.DU_LIEU_MAU_JSON||'{}');}catch(e){return;}
+    var raw=String(r.DU_LIEU_MAU_JSON||'');if(key_(r.MA_NHAN_VIEN)!==key_(code)&&raw.toUpperCase().indexOf(String(code).toUpperCase())===-1)return;
+    var saved;try{saved=JSON.parse(raw||'{}');}catch(e){return;}
     var payload=saved.payload||{},members=payload.people||[],matches=key_(r.MA_NHAN_VIEN)===key_(code)||(payload.person&&key_(payload.person.code)===key_(code))||members.some(function(p){return key_(p.code)===key_(code);});
     if(!matches||(!saved.hrDoc&&!/HOP_DONG/i.test(r.ID_BIEU_MAU||'')))return;
     if(level<2&&saved.hrDoc==='raise')return;
