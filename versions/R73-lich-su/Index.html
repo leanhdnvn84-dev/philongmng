@@ -814,10 +814,10 @@
       <div class="auth-brand"><img class="auth-logo on-dark" data-logo="dark" width="208" height="65" alt="Phi Long Technology"><img class="auth-logo on-light" data-logo="color" width="208" height="65" alt="Phi Long Technology"></div>
       <h1 id="loginTitle">Đăng nhập hệ thống</h1>
       <p>Sử dụng tài khoản nội bộ để truy cập hệ thống quản lý nhân sự.</p>
-      <form class="auth-form" id="loginForm">
+      <form class="auth-form" id="loginForm" method="post" action="#" onsubmit="return false">
         <label>Tên đăng nhập<input id="loginUsername" name="username" autocomplete="username" required autofocus></label>
         <label>Mật khẩu<input id="loginPassword" name="password" type="password" autocomplete="current-password" required></label>
-        <button class="btn primary" type="submit" id="loginSubmit">Đăng nhập</button>
+        <button class="btn primary" type="submit" id="loginSubmit" disabled>Đang tải ứng dụng…</button>
       </form>
       <div class="auth-status" id="loginStatus" role="status" aria-live="polite"></div>
       <p class="auth-hint">Tài khoản do quản trị hệ thống cấp. Lần đầu chạy <b>setupLocalAuth</b>; nếu quên mật khẩu, quản trị viên chạy <b>resetLocalAdminPassword</b> trong Apps Script.</p>
@@ -874,6 +874,10 @@
   <div class="app-dialog-bg" id="appDialog" hidden><div class="app-dialog" role="alertdialog" aria-modal="true" aria-labelledby="appDialogTitle"><div class="app-dialog-head"><span class="app-dialog-ic" id="appDialogIcon">?</span><b id="appDialogTitle"></b></div><p id="appDialogText"></p><textarea id="appDialogInput" rows="3" hidden></textarea><small id="appDialogErr"></small><div class="app-dialog-foot"><button class="btn" type="button" id="appDialogCancel">Hủy</button><button class="btn primary" type="button" id="appDialogOk">Đồng ý</button></div></div></div><div class="busy-bar" id="busyBar" hidden></div><div class="busy-pop" id="busyPop" role="status" aria-live="polite" hidden><span class="busy-spin" aria-hidden="true"></span><div><b id="busyText">Đang xử lý…</b><small id="busyMeta"></small></div></div><div id="modalBg" class="modal-bg"><div class="modal" id="modal"></div></div><div class="form-viewer" id="formViewer" hidden role="dialog" aria-modal="true" aria-labelledby="fvTitle"><header class="fv-bar"><div class="fv-title"><small id="fvMode">XEM BIỂU MẪU A4</small><h2 id="fvTitle">Biểu mẫu</h2></div><div class="fv-actions"><button class="btn fv-zoom" type="button" data-fv="zoom-out" title="Thu nhỏ">−</button><button class="btn fv-zoom fv-zoom-value" type="button" data-fv="fit" title="Vừa khung"><span id="fvZoom">100%</span></button><button class="btn fv-zoom" type="button" data-fv="zoom-in" title="Phóng to">＋</button><span class="fv-sep"></span><button class="btn" type="button" data-fv="blank" id="fvBlank">▢ Mẫu trắng</button><button class="btn" type="button" data-fv="pdf">📄 Xuất PDF</button><button class="btn" type="button" data-fv="word">📝 Word</button><button class="btn primary" type="button" data-fv="new" id="fvNew">＋ Tạo phiếu</button><button class="fv-close" type="button" data-fv="close" aria-label="Đóng">✕</button></div></header><iframe class="fv-frame" id="fvFrame" title="Trang biểu mẫu A4"></iframe></div>
   <div class="bd-overlay" id="birthdayPopup" role="dialog" aria-modal="true" aria-labelledby="birthdayTitle"><div class="bd-confetti" id="birthdayConfetti" aria-hidden="true"></div><section class="bd-card" id="birthdayCard"></section><section class="bd-cardview" id="birthdayCardView" hidden><div class="bd-cv-preview"><img id="bdCardImg" alt="Thiệp chúc mừng sinh nhật"></div><div class="bd-cv-side"><h3 id="bdCardTitle">Thiệp chúc mừng</h3><p>Thiệp 1080×1350, hợp để gửi Zalo, Messenger hoặc đăng nhóm công ty.</p><label>Lời chúc<textarea id="bdCardMsg"></textarea></label><label>Người gửi<input id="bdCardSender"></label><div class="bd-cv-acts"><button class="btn primary" type="button" data-bd-download>⬇ Tải thiệp (JPG)</button><button class="btn" type="button" data-bd-back>← Quay lại</button></div></div></section></div>
   <div class="toast" id="toast"></div>
+  <script>
+    /* Chạy trước script chính: nếu script chính lỗi khi tải, hiện lỗi trên màn hình đăng nhập thay vì im lặng. */
+    window.addEventListener('error',function(e){var box=document.getElementById('loginStatus'),button=document.getElementById('loginSubmit');if(button&&button.disabled&&button.textContent.indexOf('Đang tải')===0){button.textContent='Không tải được ứng dụng';}if(box&&!document.body.classList.contains('authenticated')){box.textContent='Lỗi tải ứng dụng: '+(e.message||'không rõ')+(e.lineno?' (dòng '+e.lineno+')':'')+'. Hãy tải lại trang; nếu vẫn lỗi, chụp màn hình gửi quản trị.';box.style.color='#ffaaa6';}});
+  </script>
   <script>
   (function () {
     'use strict';
@@ -2738,7 +2742,7 @@
       if(event.target.closest('[data-bd-all]')){var list=state.birthdayToday||[],k=0;(function next(){if(k>=list.length){toast('Đã tải '+list.length+' thiệp chúc mừng.');return;}var i=k++,o=birthdayCardOptions(i);birthdayCardCanvas(o).then(function(c){birthdayDownload(c,o.name);birthdayMarkDone(i);setTimeout(next,600);});})();}
     });
     ['bdCardMsg','bdCardSender'].forEach(function(id){var timer;$('#'+id).addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(renderBirthdayCardView,250);});});
-    $('#loginForm').addEventListener('submit',submitLogin);
+    $('#loginForm').addEventListener('submit',submitLogin);$('#loginSubmit').disabled=false;$('#loginSubmit').textContent='Đăng nhập';
     $('#loginThemeToggle').addEventListener('click',function(){if(window.phiLongToggleTheme)window.phiLongToggleTheme();});
     $('#logoutButton').addEventListener('click',logoutCurrent);
     $('#changePasswordTop').addEventListener('click',function(){if(auth.user)openPasswordModal(false);});
