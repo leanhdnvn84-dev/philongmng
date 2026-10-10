@@ -1,29 +1,30 @@
-﻿PHI LONG V5.4.93 — BỘ MÃ THIẾT BỊ / THANH CÔNG CỤ
+﻿PHI LONG V5.4.95 — DÒ LẠI, SỬA CODE, DỌN CSS
 
 Tệp ứng dụng: Code.gs, index.html, iframe.html, logo.png.
-Nền: V5.4.92 đã gỡ ping, giữ logo PNG trong suốt và bản quyền đăng nhập © 2026.
+Nền: V5.4.93 (thanh công cụ Thiết bị) + V5.4.94 (chân trang chung).
 
-Bố cục:
-- Hàng trên: thao tác căn phải, thông tin thiết bị chọn bên trái.
-- Hàng dưới: bộ lọc căn trái, có Phòng ban, Vị trí, Lọc thêm và nhãn bộ lọc đang chọn.
-- 4 thao tác chính: Xem, Sửa, Chuyển, Thu hồi.
-- Thêm thao tác: Sửa chữa/Bảo trì, Đề xuất thanh lý, Lịch sử, In tem.
-- Excel giữ đủ: xuất danh sách, xuất theo phòng ban, nhập Excel, tải mẫu nhập.
-- Màn hình hẹp cho phép các nhóm xuống hàng, không cắt mất nút.
+Chân trang chung (V5.4.94):
+- Trái: © <năm> Phi Long Technology · Hệ thống quản lý tài sản IT.
+- Phải: Trang đang mở · Người dùng (Vai trò) · Thứ, dd/mm/yyyy.
+- Desktop cố định đáy (30px), mobile nằm cuối nội dung. Ẩn ở màn đăng nhập và khi in.
 
-CSS:
-- Chỉnh trực tiếp stylesheet desktop hiện có; không chèn thêm một stylesheet ghi đè mới.
-- Tách CSS menu một hàng cũ và quy tắc responsive ẩn nút/lọc sang phạm vi .plp-page.
-- Trang Thiết bị dùng một nhóm quy tắc #equipment riêng cho thanh công cụ hai hàng.
-- Giữ CSS dùng chung, CSS mobile, CSS dark mode và các khác biệt có chủ ý.
-- Rà trùng hoàn toàn không tìm thấy quy tắc/khai báo có thể xóa tự động an toàn; không xóa hàng loạt theo tên selector.
+Sửa code (V5.4.95):
+- Gộp hai đối tượng APP (const APP và window.APP) thành một; gắn V17, V17_CONFIG, V16_TABLE_LABELS vào window.
+  Hết lỗi: mở Đề xuất xong nút "+ Thêm" vẫn làm theo trang trước; nhãn ngắn nút Thêm; form Tài khoản tự điền email theo nhân viên.
+- Trang Đề xuất: nút "+ Thêm" mở form đề xuất.
+- Xóa 2 chuỗi chữ "\n" lọt ra màn hình mobile.
+- Code.gs: so sánh mật khẩu băm bằng hàm thời gian hằng.
+
+Dọn CSS:
+- Bỏ bọc 19 khối @media luôn đúng; xóa 669 khai báo bị đè hoàn toàn (99 quy tắc rỗng); xóa 117 selector trỏ tới class/id không còn tồn tại.
+- index.html giảm khoảng 33 KB.
+- Không gộp/viết lại các quy tắc !important giữa các lớp phiên bản (đổi thứ tự cascade, rủi ro).
 
 Kiểm tra:
-- 54 script nhúng và Code.gs: cú pháp đạt.
-- Kiểm tra sinh menu: đủ 12 chức năng, 2 bộ chọn lọc, 3 bộ lọc phụ, trạng thái chọn thiết bị và chip lọc: đạt.
-- 16 kiểm tra hồi quy về dữ liệu, cache, quyền truy cập và kho: đạt.
-- Không còn mô-đun/API ping.
-- Chưa xác nhận trực quan bằng trình duyệt tự động: Edge không khởi chạy được trong môi trường kiểm tra Windows hiện tại.
+- Code.gs và 57 khối script: cú pháp đạt; ESLint (no-undef, trùng khóa…) không còn lỗi thật.
+- Mở 15 trang trên desktop và mobile (Chromium, chạy ngoài Web App): không lỗi JavaScript.
+- So sánh getComputedStyle mọi phần tử trước/sau dọn CSS: 6 cỡ màn hình × sáng/tối × đăng nhập + 15 trang: không khác biệt.
+- Chưa chạy với dữ liệu thật trong Web App.
 
 TRIỂN KHAI:
 Bộ mã này CHƯA được cập nhật lên Web App đang chạy.

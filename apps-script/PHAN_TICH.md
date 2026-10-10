@@ -75,3 +75,18 @@ localStorage: `PHI_LONG_AUTH_TOKEN_V5467` (token), `philong-theme` (sáng/tối)
 - Mobile (≤1024px): nằm cuối nội dung, 2 dòng căn giữa, ẩn người dùng (đã có ở topbar), chừa 92px đáy cho 2 nút nổi.
 - Ẩn khi `body.auth-pending` (màn đăng nhập có dòng bản quyền riêng) và khi in. Có màu dark mode.
 - Đã sửa: 2 chuỗi chữ `\n` thừa sau `</script>` (dòng ~967–968) lọt ra `<body>`, hiện thành "\n\n" ở góc dưới trái trên mobile.
+
+### V5.4.95 — Dò lại, sửa code, dọn CSS (`APP_CONFIG.VERSION = '5.4.95-cleanup'`)
+**Sửa code**
+- `const APP` / `const V17` / `const V17_CONFIG` / `const V16_TABLE_LABELS` (cấp cao nhất) không tự gắn vào `window`, trong khi nhiều lớp sau đọc `window.APP`, `window.V17`… → có **hai object APP** (lớp cũ `window.APP=window.APP||{}` tạo object thứ hai). Hậu quả: mở trang Đề xuất xong `APP.currentPage` vẫn là trang trước (nút "+ Thêm" mở nhầm form của trang trước, vd. Nhân viên); nhãn ngắn nút Thêm (V42) và form Tài khoản tự điền email theo nhân viên (V5468) không bao giờ chạy. Sửa: `<script id="philongGlobalBridgeV5495">` ngay sau script V17 gắn các biến này vào `window` (giữ một object APP duy nhất).
+- `<script id="philongProposalAddV5495">` cuối trang: trên trang Đề xuất, nút "+ Thêm" mở `PROPOSAL_APP_V5463.openForm()` và đặt nhãn "+ Đề xuất".
+- Code.gs `authVerifyPasswordV5467_`: so sánh hash bằng `authSafeEqualV5471_` (thời gian hằng) thay cho `===`.
+
+**Dọn CSS** (công cụ dựa trên postcss, chỉ xóa phần chắc chắn không có tác dụng):
+1. Bỏ bọc 19 khối `@media` luôn đúng trong stylesheet của chúng (vd. `@media(max-width:1099px)` bên trong stylesheet mobile ≤1024px; `@media(min-width:761px)` bên trong stylesheet desktop).
+2. Xóa 669 khai báo bị một khai báo **sau** đè hoàn toàn: cùng selector, cùng thuộc tính, điều kiện media bao trùm, mức `!important` ≥ (không tính các giá trị có thể là fallback: `dvh`, `env()`, `min()/max()/clamp()`, tiền tố `-webkit-`…). 99 quy tắc rỗng sau đó bị xóa.
+3. Xóa 117 selector trỏ tới class/id không còn xuất hiện ở bất kỳ đâu trong HTML/JS/Code.gs (trang cũ đã gỡ: `.pl-filter-fields-v1`, `.brand-sub`, `.brand-main`, `.page-scroll`, `.material-history-*`, `.plv3-table`…).
+- Kiểm chứng: so `getComputedStyle` (kể cả `::before/::after`) của mọi phần tử, trước/sau, ở 6 cỡ màn hình × sáng/tối × màn đăng nhập + 15 trang → không khác biệt.
+- Chưa gộp/viết lại các quy tắc `!important` chồng nhau giữa các lớp phiên bản: việc đó đổi thứ tự cascade, cần kiểm thử với dữ liệu thật.
+
+**Còn tồn tại (chưa sửa, cần dữ liệu thật để kiểm)**: các trang cũ `work`, `daily`, `maintenance…`, `systemConfig`, `emailConfig` không còn section nhưng mã JS vẫn còn (đều kiểm tra null nên không lỗi).

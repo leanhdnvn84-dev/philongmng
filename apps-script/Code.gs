@@ -13,7 +13,7 @@
 const APP_CONFIG = {
   APP_NAME: 'PHI LONG TECHNOLOGY',
   APP_SUBTITLE: 'IT ASSET MANAGEMENT',
-  VERSION: '5.4.94-footer',
+  VERSION: '5.4.95-cleanup',
   SPREADSHEET_ID: '1ggFuX2kHKmzJciIPuTVdIWIlyO4Ryn1fnUegdywK3lE',
   TIMEZONE: 'Asia/Saigon',
   DATE_FORMAT: 'dd/MM/yyyy',
@@ -1282,7 +1282,7 @@ function authWritePasswordV5467_(account,password){
   sh.getRange(rowIndex+1,1,1,headers.length).setValues([headers.map(function(h){return normalizeWriteValue_(row[h]);})]);
   account.MAT_KHAU_SALT=salt;account.MAT_KHAU_HASH=hash;account.MAT_KHAU_CAP_NHAT_LUC=now;return account;
 }
-function authVerifyPasswordV5467_(account,password){return !!account&&!!account.MAT_KHAU_HASH&&authHashV5467_(password,account.MAT_KHAU_SALT)===String(account.MAT_KHAU_HASH);}
+function authVerifyPasswordV5467_(account,password){return !!account&&!!account.MAT_KHAU_HASH&&authSafeEqualV5471_(authHashV5467_(password,account.MAT_KHAU_SALT),String(account.MAT_KHAU_HASH));}
 function authSessionKeyV5467_(token){return 'AUTH_V5467_'+Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(token||''),Utilities.Charset.UTF_8)).slice(0,38);}
 function authCreateSessionV5467_(account){
   const token=Utilities.getUuid().replace(/-/g,'')+Utilities.getUuid().replace(/-/g,''),user=authSafeUserV5467_(account),session={user:user,createdAt:Date.now(),refreshedAt:Date.now()};
