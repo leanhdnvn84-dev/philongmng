@@ -74,4 +74,4 @@ localStorage: `PHI_LONG_AUTH_TOKEN_V5467` (token), `philong-theme` (sáng/tối)
 - Desktop (>1024px): cố định đáy, cao `--plf-h:30px`; `html body main.container{bottom:var(--plf-h)!important}` để bảng không bị che. 1025–1280px ẩn dòng "Hệ thống quản lý tài sản IT".
 - Mobile (≤1024px): nằm cuối nội dung, 2 dòng căn giữa, ẩn người dùng (đã có ở topbar), chừa 92px đáy cho 2 nút nổi.
 - Ẩn khi `body.auth-pending` (màn đăng nhập có dòng bản quyền riêng) và khi in. Có màu dark mode.
-- Lỗi có sẵn phát hiện khi kiểm tra (chưa sửa): có nút văn bản chữ `\n` / `\n\n` lọt ra `<body>` giữa các thẻ script, hiện thành chữ "\n\n" ở góc dưới trái trên mobile.
+- Đã sửa: 2 chuỗi chữ `\n` thừa sau `</script>` (dòng ~967–968) lọt ra `<body>`, hiện thành "\n\n" ở góc dưới trái trên mobile.
