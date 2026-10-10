@@ -581,6 +581,61 @@ html[data-theme="dark"] body.plp-eq .container{background:#0e1220}
 <section id="roles" class="section"><div class="page-title"><div><h1>Vai trò</h1><p>Quản lý nhóm vai trò của người dùng</p></div></div><div class="card"><div id="rolesTable" class="table-wrap"></div></div></section>
 <section id="permissions" class="section"><div class="page-title"><div><h1>Phân quyền</h1><p>Thiết lập quyền xem và thao tác theo từng vai trò</p></div></div><div class="card"><div id="permissionsTable" class="table-wrap"></div></div></section>
 </main>
+<footer class="plf-footer" id="plFooterV5494" role="contentinfo" aria-label="Thông tin hệ thống">
+  <div class="plf-left"><span>&copy; <span data-plf="year">2026</span> <strong>Phi Long Technology</strong></span><span class="plf-sep" aria-hidden="true">·</span><span class="plf-muted">Hệ thống quản lý tài sản IT</span></div>
+  <div class="plf-right"><span data-plf="page">Thiết bị đang sử dụng</span><span class="plf-sep plf-user-sep" aria-hidden="true" hidden>·</span><span data-plf="user" hidden></span><span class="plf-sep" aria-hidden="true">·</span><span data-plf="version">Phiên bản 5.4.94</span><span class="plf-sep" aria-hidden="true">·</span><time data-plf="date"></time></div>
+</footer>
+<style id="philongFooterV5494">/* V5.4.94 - CHÂN TRANG CHUNG toàn hệ thống. Desktop: thanh cố định đáy màn hình, vùng nội dung chừa chỗ (--plf-h). Mobile: nằm cuối nội dung, căn giữa, tránh 2 nút nổi. */
+:root{--plf-h:30px}
+.plf-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;box-sizing:border-box;font-family:"Be Vietnam Pro","Roboto",Arial,sans-serif;font-size:11.5px;line-height:1.4;color:#5b6678;background:#fff;border-top:1px solid #e3e7ee}
+.plf-footer strong{color:#172033;font-weight:700}
+.plf-left,.plf-right{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap}
+.plf-right{justify-content:flex-end;overflow:hidden}
+.plf-right>span,.plf-right>time{overflow:hidden;text-overflow:ellipsis}
+.plf-sep{color:#a3acba}
+.plf-muted{color:#7a8597}
+.plf-right [data-plf="page"]{color:#981b2f;font-weight:600}
+[hidden].plf-sep,.plf-footer [hidden]{display:none!important}
+body.auth-pending .plf-footer{display:none!important}
+html[data-theme="dark"] .plf-footer{background:#111827;border-top-color:#253045;color:#9aa6b8}
+html[data-theme="dark"] .plf-footer strong{color:#e5e9f0}
+html[data-theme="dark"] .plf-right [data-plf="page"]{color:#f0788b}
+html[data-theme="dark"] .plf-sep{color:#4b5568}
+@media (min-width:1025px){
+  .plf-footer{position:fixed;left:0;right:0;bottom:0;height:var(--plf-h);padding:0 20px;z-index:900}
+  html body main.container{bottom:var(--plf-h)!important}
+  body.auth-pending main.container{bottom:0!important}
+}
+@media (min-width:1025px) and (max-width:1280px){.plf-muted,.plf-muted+.plf-sep,.plf-left .plf-sep{display:none}}
+/* Mobile: 2 dòng gọn (bản quyền / trang · phiên bản · ngày); người dùng đã có trên topbar. Chừa đáy cho 2 nút nổi 60px. */
+@media (max-width:1024px){
+  .plf-footer{flex-direction:column;justify-content:center;gap:3px;margin:8px 0 0;padding:12px 12px calc(92px + env(safe-area-inset-bottom,0px));text-align:center;background:transparent;border-top:1px solid rgba(148,163,184,.3)}
+  .plf-left,.plf-right{flex-wrap:wrap;justify-content:center;column-gap:5px;row-gap:0}
+  .plf-right{font-size:11px}
+  .plf-left .plf-sep,.plf-muted,.plf-footer [data-plf="user"],.plf-footer .plf-user-sep{display:none!important}
+}
+@media print{.plf-footer{display:none!important}}
+</style>
+<script id="philongFooterScriptV5494">/* V5.4.94 - Nội dung chân trang: năm, trang đang mở (theo #crumb), người dùng đăng nhập, phiên bản, ngày hôm nay. */
+(function(){
+"use strict";
+var DAYS=["Chủ nhật","Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7"];
+function q(k){return document.querySelector('#plFooterV5494 [data-plf="'+k+'"]')}
+function p2(n){return String(n).padStart(2,"0")}
+function setDate(){var d=new Date(),y=q("year"),t=q("date");if(y)y.textContent=d.getFullYear();if(t){t.textContent=DAYS[d.getDay()]+", "+p2(d.getDate())+"/"+p2(d.getMonth()+1)+"/"+d.getFullYear();t.setAttribute("datetime",d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()))}}
+function setPage(){var c=document.getElementById("crumb"),el=q("page");if(!el)return;var v=String(c&&c.textContent||"").trim();el.textContent=v||"PHI LONG"}
+function setUser(u){var el=q("user"),sep=document.querySelector("#plFooterV5494 .plf-user-sep");if(!el)return;var name=String(u&&(u.name||u.email)||"").trim(),role=String(u&&u.roleName||"").trim();
+  el.textContent=name?name+(role?" ("+role+")":""):"";el.hidden=!name;if(sep)sep.hidden=!name}
+function init(){
+  setDate();setPage();
+  try{var g=window.AUTH_GATE_V5467;if(g&&typeof g.getUser==="function"&&g.getUser())setUser(g.getUser())}catch(e){}
+  var c=document.getElementById("crumb");if(c&&window.MutationObserver)new MutationObserver(setPage).observe(c,{childList:true,characterData:true,subtree:true});
+  document.addEventListener("philong:user-ready",function(e){setUser(e&&e.detail)});
+  /* Đổi ngày khi để ứng dụng mở qua nửa đêm. */
+  setInterval(setDate,60000);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();</script>
 <div class="plm-floating-controls" aria-label="Điều hướng mobile">
   <button type="button" id="plmFloatingMenu" aria-label="Mở menu" aria-controls="mainNavigation" aria-expanded="false">☰</button>
   <button type="button" id="plmScrollTop" aria-label="Lên đầu trang">↑</button>

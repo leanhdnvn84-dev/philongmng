@@ -64,3 +64,14 @@ localStorage: `PHI_LONG_AUTH_TOKEN_V5467` (token), `philong-theme` (sáng/tối)
 - Header comment Code.gs vẫn ghi `V5.4.76-split-desktop-mobile`; phiên bản thật lấy ở `APP_CONFIG.VERSION`.
 - README gốc: bản này **chưa** triển khai lên Web App đang chạy; chưa kiểm tra trực quan bằng trình duyệt.
 - `iframe.html` là khung nhúng tham khảo trỏ tới deployment `AKfycbz87D2h…/exec`.
+
+## 6. Lịch sử sửa trong repo
+
+### V5.4.94 — Chân trang chung (`APP_CONFIG.VERSION = '5.4.94-footer'`)
+- index.html, ngay sau `</main>`: `<footer id="plFooterV5494" class="plf-footer">` + `<style id="philongFooterV5494">` + `<script id="philongFooterScriptV5494">`.
+- Nội dung: trái `© <năm> Phi Long Technology · Hệ thống quản lý tài sản IT`; phải `<trang đang mở> · <người dùng (vai trò)> · Phiên bản 5.4.94 · <Thứ, dd/mm/yyyy>`.
+  - Trang lấy từ `#crumb` (MutationObserver); người dùng từ sự kiện `philong:user-ready` / `AUTH_GATE_V5467.getUser()`; ngày tự cập nhật mỗi phút. Phiên bản ghi cứng trong HTML — nhớ sửa khi nâng phiên bản.
+- Desktop (>1024px): cố định đáy, cao `--plf-h:30px`; `html body main.container{bottom:var(--plf-h)!important}` để bảng không bị che. 1025–1280px ẩn dòng "Hệ thống quản lý tài sản IT".
+- Mobile (≤1024px): nằm cuối nội dung, 2 dòng căn giữa, ẩn người dùng (đã có ở topbar), chừa 92px đáy cho 2 nút nổi.
+- Ẩn khi `body.auth-pending` (màn đăng nhập có dòng bản quyền riêng) và khi in. Có màu dark mode.
+- Lỗi có sẵn phát hiện khi kiểm tra (chưa sửa): có nút văn bản chữ `\n` / `\n\n` lọt ra `<body>` giữa các thẻ script, hiện thành chữ "\n\n" ở góc dưới trái trên mobile.

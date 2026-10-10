@@ -13,7 +13,7 @@
 const APP_CONFIG = {
   APP_NAME: 'PHI LONG TECHNOLOGY',
   APP_SUBTITLE: 'IT ASSET MANAGEMENT',
-  VERSION: '5.4.93-toolbar',
+  VERSION: '5.4.94-footer',
   SPREADSHEET_ID: '1ggFuX2kHKmzJciIPuTVdIWIlyO4Ryn1fnUegdywK3lE',
   TIMEZONE: 'Asia/Saigon',
   DATE_FORMAT: 'dd/MM/yyyy',
