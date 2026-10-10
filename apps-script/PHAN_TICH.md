@@ -69,8 +69,8 @@ localStorage: `PHI_LONG_AUTH_TOKEN_V5467` (token), `philong-theme` (sáng/tối)
 
 ### V5.4.94 — Chân trang chung (`APP_CONFIG.VERSION = '5.4.94-footer'`)
 - index.html, ngay sau `</main>`: `<footer id="plFooterV5494" class="plf-footer">` + `<style id="philongFooterV5494">` + `<script id="philongFooterScriptV5494">`.
-- Nội dung: trái `© <năm> Phi Long Technology · Hệ thống quản lý tài sản IT`; phải `<trang đang mở> · <người dùng (vai trò)> · Phiên bản 5.4.94 · <Thứ, dd/mm/yyyy>`.
-  - Trang lấy từ `#crumb` (MutationObserver); người dùng từ sự kiện `philong:user-ready` / `AUTH_GATE_V5467.getUser()`; ngày tự cập nhật mỗi phút. Phiên bản ghi cứng trong HTML — nhớ sửa khi nâng phiên bản.
+- Nội dung: trái `© <năm> Phi Long Technology · Hệ thống quản lý tài sản IT`; phải `<trang đang mở> · <người dùng (vai trò)> · <Thứ, dd/mm/yyyy>` (đã bỏ số phiên bản theo yêu cầu).
+  - Trang lấy từ `#crumb` (MutationObserver); người dùng từ sự kiện `philong:user-ready` / `AUTH_GATE_V5467.getUser()`; ngày tự cập nhật mỗi phút.
 - Desktop (>1024px): cố định đáy, cao `--plf-h:30px`; `html body main.container{bottom:var(--plf-h)!important}` để bảng không bị che. 1025–1280px ẩn dòng "Hệ thống quản lý tài sản IT".
 - Mobile (≤1024px): nằm cuối nội dung, 2 dòng căn giữa, ẩn người dùng (đã có ở topbar), chừa 92px đáy cho 2 nút nổi.
 - Ẩn khi `body.auth-pending` (màn đăng nhập có dòng bản quyền riêng) và khi in. Có màu dark mode.
