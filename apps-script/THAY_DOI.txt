@@ -1,0 +1,9 @@
+PHI LONG V5.4.93
+- Thao tác hàng trên bên phải; bộ lọc hàng dưới bên trái.
+- Giữ đủ 8 thao tác thiết bị và 4 chức năng Excel.
+- Dùng chung, Lệch phòng ban, Người đã nghỉ nằm trong Lọc thêm; hiển thị chip bộ lọc đang chọn.
+- CSS bố cục mới chỉ áp dụng trang Thiết bị desktop. CSS menu một hàng cũ được giới hạn cho các trang danh sách khác.
+- Xóa 0 quy tắc CSS và 0 khai báo CSS trùng hoàn toàn. Giữ khác biệt media, fallback và thứ tự ghi đè cần thiết.
+- Giữ logo PNG trong suốt, bản quyền đăng nhập, tìm kiếm IP; không có ping.
+- Đã kiểm tra cú pháp 54 khối script.
+- Đây là bộ mã đóng gói, chưa cập nhật Web App đang chạy.
