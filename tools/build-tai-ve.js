@@ -16,6 +16,7 @@ const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'apps-script', 'Index.html');
 const OUT = path.join(ROOT, 'tai-ve', 'NguyenHien-2000-2003.html');
+const OUT_GAS = path.join(ROOT, 'tai-ve', 'Index.html'); // bản dán vào Apps Script (file HTML tên Index)
 const IDS = ['v-home', 'v-classes', 'v-events', 'v-yearbook', 'v-gallery', 'v-connect', 'foot', 'navTop', 'navBot', 'albumList'];
 
 const NOJS_CSS = `
@@ -46,7 +47,7 @@ function put(s, a, b) {
   let s = fs.readFileSync(SRC, 'utf8');
   s = put(s, '<html lang="vi">', '<html lang="vi" class="nojs">');
   s = put(s, '/* ===== RESPONSIVE ===== */', NOJS_CSS + '\n/* ===== RESPONSIVE ===== */');
-  s = put(s, '<body data-p="home">', '<body data-p="home">\n<div class="nojs-only">Bạn đang xem bản đọc (trình xem tệp không chạy được nút bấm). Mở tệp bằng Safari hoặc Chrome để tìm bạn, xem ảnh lớn và chuyển trang.</div>');
+  s = put(s, '<body data-p="home">', '<body data-p="home">\n<div class="nojs-only">Đang hiển thị bản đọc vì nút bấm chưa chạy được. Nếu mở tệp tải về, hãy mở bằng Safari hoặc Chrome để tìm bạn, xem ảnh lớn và chuyển trang.</div>');
   IDS.forEach(id => {
     const re = new RegExp('(<(section|footer|nav|datalist)\\b[^>]*\\bid="' + id + '"[^>]*>)(</\\2>)');
     if (!re.test(s)) throw new Error('Không tìm thấy khung #' + id);
@@ -55,5 +56,6 @@ function put(s, a, b) {
   s = put(s, "if(window.google&&google.script&&google.script.run)loadPublic().catch(err);\n</script>",
     "if(window.google&&google.script&&google.script.run)loadPublic().catch(err);\ndocument.documentElement.classList.remove('nojs');\n</script>");
   fs.writeFileSync(OUT, s);
+  fs.writeFileSync(OUT_GAS, s);
   console.log('Đã ghi', path.relative(ROOT, OUT), (s.length / 1024).toFixed(0) + ' KB');
 })().catch(e => { console.error(e); process.exit(1); });

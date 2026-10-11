@@ -48,4 +48,6 @@ Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
 - `tai-ve/NguyenHien-2000-2003.html` là bản **tạo ra** từ `apps-script/Index.html`, không sửa tay.
   Sau mỗi lần sửa Index.html, chạy lại: `PLAYWRIGHT=/opt/node-tools/node_modules/playwright node tools/build-tai-ve.js`.
   Script vẽ sẵn nội dung các trang vào HTML, vì trình xem tệp trên điện thoại (iPhone…) không chạy JavaScript.
-- `tai-ve/NguyenHien-AppsScript.zip`: gói `Code.gs` + `Index.html` để dán vào Apps Script (đóng gói lại khi sửa).
+- Script cũng ghi `tai-ve/Index.html` (cùng nội dung) để **dán vào Apps Script**: nếu JS lỗi (vd. dán thiếu
+  dòng `DEMO` rất dài) trang vẫn hiện bản đọc, và dòng đỏ ở cuối trang báo lỗi + số dòng (bắt lỗi ở `<script>` đầu `<head>`).
+- `tai-ve/Code.gs` + `tai-ve/NguyenHien-AppsScript.zip` (Code.gs + Index.html bản dựng): đóng gói lại sau mỗi lần build.
