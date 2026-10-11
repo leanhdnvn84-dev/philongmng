@@ -50,6 +50,8 @@ Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
   (base64 có thể chứa `//`).
 - `tai-ve/NguyenHien-iframe.html`: trang khung toàn màn hình nhúng web app (link `/exec`), có favicon logo, màn chờ.
   Đặt lên hosting/Google Sites để có link gọn, không hiện dải "Ứng dụng này do một người dùng Google Apps Script tạo".
+- `cloudflare/worker.js` + `cloudflare/index.html` tạo từ trang khung bằng `node tools/build-cloudflare.js` (Worker
+  `nguyenhien.leanhdnvn84.workers.dev` trả trang khung cho mọi đường dẫn). Màn chờ `.cho` phải có z-index cao hơn iframe.
 
 ### Lưu ý Apps Script (quan trọng)
 Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … */` trong `<script>` **kể cả khi nằm trong chuỗi/template/regex**
