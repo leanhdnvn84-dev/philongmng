@@ -44,6 +44,11 @@ Trang chủ (phượng vĩ) · Các lớp (vở ô ly) · Ngoại khoá (sông H
 Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
 Ảnh hiển thị qua `https://drive.google.com/thumbnail?id=...&sz=w...`; ảnh tải lên được nén ≤1600px JPEG ở client (`readImg`).
 
+### Lưu ý Apps Script (quan trọng)
+Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … */` trong `<script>` **kể cả khi nằm trong chuỗi/template/regex**
+→ trang trắng, lỗi kiểu `Unexpected identifier 'src'`. Trong script chỉ dùng `/* */` cho dòng chú thích thật; viết
+`https:\/\/…` trong chuỗi, regex dùng `[/]` thay cho `\/`, `accept="image/\*"`. `tools/build-tai-ve.js` tự kiểm tra và báo lỗi.
+
 ### Bản tải về (`tai-ve/`)
 - `tai-ve/NguyenHien-2000-2003.html` là bản **tạo ra** từ `apps-script/Index.html`, không sửa tay.
   Sau mỗi lần sửa Index.html, chạy lại: `PLAYWRIGHT=/opt/node-tools/node_modules/playwright node tools/build-tai-ve.js`.

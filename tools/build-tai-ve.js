@@ -45,6 +45,14 @@ function put(s, a, b) {
   await b.close();
 
   let s = fs.readFileSync(SRC, 'utf8');
+  // Apps Script cắt "//…" tới hết dòng và "/* … */" trong <script>, kể cả khi nằm trong chuỗi
+  // → chỉ được dùng hai cặp ký tự này cho chú thích thật (dòng bắt đầu bằng /*).
+  [...s.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m => {
+    m[1].split('\n').forEach((l, i) => {
+      const t = l.replace(/^\s*\/\*.*?\*\/\s*/, '');
+      if (/\/\/|\/\*/.test(t)) throw new Error('Có "//" hoặc "/*" trong script (Apps Script sẽ cắt mất): ' + t.trim().slice(0, 100));
+    });
+  });
   s = put(s, '<html lang="vi">', '<html lang="vi" class="nojs">');
   s = put(s, '/* ===== RESPONSIVE ===== */', NOJS_CSS + '\n/* ===== RESPONSIVE ===== */');
   s = put(s, '<body data-p="home">', '<body data-p="home">\n<div class="nojs-only">Đang hiển thị bản đọc vì nút bấm chưa chạy được. Nếu mở tệp tải về, hãy mở bằng Safari hoặc Chrome để tìm bạn, xem ảnh lớn và chuyển trang.</div>');

@@ -415,7 +415,7 @@ const col=i=>COL[Math.abs(i)%6], grad=i=>`linear-gradient(135deg,${col(i)},${col
 const ALBUMS=['Ảnh tập thể','Giao lưu','Hội trại 26/3','Văn nghệ','Họp lớp','Ngày ấy','Bây giờ'];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const imgUrl=(id,w)=>`https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${w||800}`;
+const imgUrl=(id,w)=>`https:\/\/drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${w||800}`;
 const img=(id,w)=>id?`<img src="${imgUrl(id,w)}" loading="lazy" alt="">`:'';
 function icFor(p){const s=((p&&p.album)||'')+' '+((p&&p.chuThich)||'');const t=s.toLowerCase();return /trại/.test(t)?'⛺':/văn nghệ|hát/.test(t)?'🎤':/bóng|phù đổng|thể thao/.test(t)?'⚽':/họp lớp|bây giờ/.test(t)?'🥂':/chia tay|tri ân/.test(t)?'🌺':/tập thể|ngày ấy|chụp/.test(t)?'🎓':/sinh nhật/.test(t)?'🎂':/dã ngoại/.test(t)?'🚌':/giao lưu/.test(t)?'🤝':'📷'}
 const pic=(p,w)=>p&&p.fileId?img(p.fileId,w):icFor(p);
@@ -452,7 +452,7 @@ function go(k){cur=k;document.body.dataset.p=k;document.querySelectorAll('.view'
 async function loadPublic(){try{setD(await api('getPublicData'))}catch(e){setD(null);throw e}finally{renderPublic()}}
 function renderPublic(){const c=D.cfg;$('hTen').textContent=(c.tenTruong||'Nguyễn Hiền').replace(/^THPT\s*/i,'');$('hSub').textContent='Đà Nẵng, khoá '+(c.nienKhoa||'');
  document.title=(c.tenTruong||'')+' · Khoá '+(c.nienKhoa||'');
- $('foot').innerHTML=`<div><b>Trường ${esc(c.tenTruong)}</b><br>${esc(c.diaChi)}</div><div>Trang của khoá ${esc(c.nienKhoa)}, do Ban liên lạc khoá quản lý. <span style="opacity:.6">(Bản 11/10/2026)</span><br>Trang chính thức của trường: <a href="https://thpt-nguyenhien-danang.edu.vn/" target="_blank" rel="noopener">thpt-nguyenhien-danang.edu.vn</a></div>`;
+ $('foot').innerHTML=`<div><b>Trường ${esc(c.tenTruong)}</b><br>${esc(c.diaChi)}</div><div>Trang của khoá ${esc(c.nienKhoa)}, do Ban liên lạc khoá quản lý. <span style="opacity:.6">(Bản 11/10/2026)</span><br>Trang chính thức của trường: <a href="https:\/\/thpt-nguyenhien-danang.edu.vn/" target="_blank" rel="noopener">thpt-nguyenhien-danang.edu.vn</a></div>`;
  renderHome();renderClasses();renderEvents();renderYb();renderGal();renderConnect();fillAlbums()}
 function fillAlbums(){const s=new Set(ALBUMS);D.hoatDong.forEach(e=>s.add(e.tieuDe));D.anh.forEach(a=>s.add(a.album));if(A)A.anh.forEach(a=>s.add(a.album));$('albumList').innerHTML=[...s].map(a=>`<option value="${esc(a)}">`).join('')}
 
@@ -574,7 +574,7 @@ function renderGal(){const lops=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id)),h
  <p class="phan">Còn tấm ảnh cũ nào nằm trong hộc tủ?<small>Chụp lại gửi admin lớp, để bảng này có thêm một gương mặt thân quen.</small></p>`}
 
 /* ===================== KẾT NỐI ===================== */
-function contactLink(v){v=String(v||'').trim();if(!v)return '';if(/@/.test(v))return 'mailto:'+v;if(/^https?:\/\//i.test(v))return v;const d=v.replace(/[^\d+]/g,'');if(d.length>=9)return 'https://zalo.me/'+d.replace(/^\+84/,'0');return ''}
+function contactLink(v){v=String(v||'').trim();if(!v)return '';if(/@/.test(v))return 'mailto:'+v;if(/^https?:[/][/]/i.test(v))return v;const d=v.replace(/[^\d+]/g,'');if(d.length>=9)return 'https:\/\/zalo.me/'+d.replace(/^\+84/,'0');return ''}
 function ngayOf(s){const p=String(s||'').split(/[\/\-.]/).map(Number);return p.length===3&&p[2]>1900?new Date(p[2],p[1]-1,p[0]):null}
 function renderConnect(){const c=D.cfg,lead=D.tinTuc.find(t=>t.noiBat==='1')||D.tinTuc[0],others=D.tinTuc.filter(t=>t!==lead).slice(0,6);
  const nLop=Object.keys(D.dangKy.theoLop||{}).length,yrs=new Date().getFullYear()-(Number(c.namRaTruong)||2003);
@@ -607,7 +607,7 @@ function form(title,fields,v,onSave,label){v=v||{};FORM={fields,onSave};
  $('mBody').innerHTML=`<h3>${esc(title)}</h3>`+fields.map(f=>{const c=v[f.k]!=null?v[f.k]:(f.def!=null?f.def:'');let inp;
   if(f.t==='textarea')inp=`<textarea id="f_${f.k}" rows="${f.rows||4}" placeholder="${esc(f.ph||'')}">${esc(c)}</textarea>`;
   else if(f.t==='select')inp=`<select id="f_${f.k}">${f.o.map(([a,b])=>`<option value="${esc(a)}" ${String(a)===String(c)?'selected':''}>${esc(b)}</option>`).join('')}</select>`;
-  else if(f.t==='file')inp=`<input id="f_${f.k}" type="file" accept="image/*">`;
+  else if(f.t==='file')inp=`<input id="f_${f.k}" type="file" accept="image/\*">`;
   else inp=`<input id="f_${f.k}" type="${f.t||'text'}" value="${esc(c)}" placeholder="${esc(f.ph||'')}" ${f.list?`list="${f.list}"`:''} autocomplete="off">`;
   return `<div class="fld"><label for="f_${f.k}">${esc(f.l)}${f.req?' *':''}</label>${inp}${f.hint?`<small>${esc(f.hint)}</small>`:''}</div>`}).join('')+
  `<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px"><button class="btn2 o" onclick="closeForm()">Huỷ</button><button class="btn2" onclick="submitForm()">${esc(label||'Lưu')}</button></div>`;
@@ -673,7 +673,7 @@ const R={
 
  'Hình ảnh':()=>{const s=isS();const list=s&&apF?A.anh.filter(a=>apF==='_'?!a.lopId:a.lopId===apF):A.anh;window.APL=list;
   return `<h3>Tải ảnh lên${s?'':' lớp '+esc(lopName(A.me.lopId))}</h3><div class="form" style="max-width:none;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">${s?`<label>Thuộc<select id="upL"><option value="">Ảnh chung cả khoá</option>${A.lop.map(l=>`<option value="${l.id}">Lớp ${esc(l.ten)}</option>`).join('')}</select></label>`:''}<label>Album<input id="upA" list="albumList" value="${s?'Giao lưu':'Ảnh tập thể'}"></label><label>Chú thích (tuỳ chọn)<input id="upC" maxlength="200"></label></div>
-  <label class="drop" style="margin-top:12px"><b style="color:#4A2C8F">Chọn ảnh để tải lên</b> (chọn được nhiều ảnh)<br><span id="upN">Ảnh được thu nhỏ trước khi tải lên và lưu vào thư mục ANH trên Drive</span><input id="upF" type="file" accept="image/*" multiple style="display:none" onchange="$('upN').textContent=this.files.length+' ảnh đã chọn'"></label>
+  <label class="drop" style="margin-top:12px"><b style="color:#4A2C8F">Chọn ảnh để tải lên</b> (chọn được nhiều ảnh)<br><span id="upN">Ảnh được thu nhỏ trước khi tải lên và lưu vào thư mục ANH trên Drive</span><input id="upF" type="file" accept="image/\*" multiple style="display:none" onchange="$('upN').textContent=this.files.length+' ảnh đã chọn'"></label>
   <div style="margin-top:10px"><button class="btn2" onclick="upPhotos()">Tải lên</button></div>
   <p class="who" style="margin-top:8px">Album “Ngày ấy” và “Bây giờ” hiện ở Kỷ yếu. Đặt tên album trùng tên hoạt động để hiện nút “Xem ảnh hoạt động” ở trang Ngoại khoá.</p>
   <div class="ph3" style="margin-top:22px"><h3>Ảnh đã có (${list.length})</h3>${s?`<select style="max-width:220px" onchange="apF=this.value;renderAdmin()" aria-label="Lọc ảnh"><option value="">Tất cả</option><option value="_" ${apF==='_'?'selected':''}>Ảnh chung</option>${A.lop.map(l=>`<option value="${l.id}" ${apF===l.id?'selected':''}>Lớp ${esc(l.ten)}</option>`).join('')}</select>`:''}</div>
@@ -706,7 +706,7 @@ function fClass(id){const l=id?A.lop.find(x=>x.id===id):{thuTu:String(A.lop.leng
  async o=>{o.id=id||'';await api('saveClass',TOK,o);toast('Đã lưu lớp')})}
 function fAdmin(lopId){const l=A.lop.find(x=>x.id===lopId),has=!!l.adminUser;
  form('Admin lớp '+l.ten,[{k:'hoTen',l:'Họ tên admin',req:1,ph:'Ví dụ: Nguyễn Văn An'},{k:'user',l:'Tên đăng nhập',req:1,hint:'Chữ thường không dấu, số, dấu _ hoặc .'},{k:'pw',l:has?'Mật khẩu mới (để trống nếu giữ nguyên)':'Mật khẩu',req:!has,hint:'Từ 6 ký tự. Gửi cho admin lớp và nhắc họ đổi lại.'}],
- {hoTen:l.admin,user:l.adminUser||('admin_'+l.ten.toLowerCase().replace(/\//g,'_').replace(/[^a-z0-9_]/g,''))},
+ {hoTen:l.admin,user:l.adminUser||('admin_'+l.ten.toLowerCase().replace(/[/]/g,'_').replace(/[^a-z0-9_]/g,''))},
  async o=>{await api('setClassAdmin',TOK,lopId,o.user,o.hoTen,o.pw);toast('Đã gán admin lớp '+l.ten)})}
 function fStudent(id){const l=curAdLop(),s=id?l.hs.find(x=>x.id===id):{thuTu:String(l.hs.length+1)};
  form(id?'Sửa học sinh':'Thêm học sinh lớp '+l.ten,[{k:'hoTen',l:'Họ tên',req:1},{k:'chucVu',l:'Chức vụ',ph:'Ví dụ: Lớp trưởng, Bí thư'},{k:'hienO',l:'Hiện ở',ph:'Ví dụ: Đà Nẵng, TP.HCM, Úc'},{k:'thuTu',l:'STT',t:'number'}],s,
