@@ -35,7 +35,8 @@ updateMyContact, seedDemo, clearDemo`.
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
 
 ### Dữ liệu mẫu
-Mọi dòng mẫu có id bắt đầu `mau_`. `autoSeed_()` tự nạp khi Sheet trống (một lần, cờ `DEMO_AUTO`).
+Mọi dòng mẫu có id bắt đầu `mau_`. Nội dung mẫu viết trong `napDuLieuMau_()` (Code.gs); dòng `const DEMO=` trong Index.html
+là bản chụp của nó, **tạo lại** bằng `node tools/build-demo.js` (chạy Code.gs trên Sheet giả lập) rồi build tai-ve. `autoSeed_()` tự nạp khi Sheet trống (một lần, cờ `DEMO_AUTO`).
 `seedDemo/clearDemo` (Quản trị → Cài đặt) hoặc `napDuLieuMau/xoaDuLieuMau` (trình soạn thảo).
 
 ### Giao diện (Index.html)

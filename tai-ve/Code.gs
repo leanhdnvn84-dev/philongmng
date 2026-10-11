@@ -812,87 +812,123 @@ function napDuLieuMau_() {
 
   const GV = ['Cô Nguyễn Thị Hoa', 'Thầy Trần Văn Lộc', 'Cô Lê Thị Mỹ', 'Thầy Phạm Quốc Hùng', 'Cô Võ Thị Lan', 'Thầy Đỗ Minh Tâm', 'Cô Huỳnh Thu Hà', 'Thầy Bùi Văn Sơn', 'Cô Phan Thị Nga', 'Thầy Ngô Đức Trí', 'Cô Đặng Mỹ Linh', 'Thầy Lê Văn Đức'];
   const BAN = ['Ban A', 'Ban A', 'Ban A', 'Ban B', 'Ban B', 'Ban B', 'Ban C', 'Ban C', 'Ban C', 'Ban D', 'Ban D', 'Ban D'];
-  const NOI = ['tiết mục múa “Áo trắng” giải nhất văn nghệ 20/11', 'đội bóng đá vô địch Hội khoẻ Phù Đổng', 'trại đẹp nhất hội trại 26/3', 'báo tường giải nhất ngày 9/1', 'đội rung chuông vàng vào chung kết', 'lớp có nhiều bạn đi học xa nhất'];
+  const GT = [
+    'Lớp ngồi tầng hai dãy nhà A, cửa sổ nhìn thẳng ra gốc phượng. Giờ ra chơi cả lớp đứng hành lang thả máy bay giấy xuống sân, bị thầy giám thị gọi tên hoài.',
+    'Đội văn nghệ của lớp tập “Áo trắng” dưới mưa suốt một tuần, rồi giành giải nhất đêm 20/11. Cái áo dài ướt sũng hôm đó, có bạn vẫn còn giữ.',
+    'Lớp nhiều “mọt sách” nhất khối, nhưng cũng là lớp trốn tiết ra căng tin bị bắt nhiều nhất. Thầy chủ nhiệm giận mà vẫn mua bánh mì cho cả lớp.',
+    'Đội bóng đá nam vô địch Hội khoẻ Phù Đổng. Trận chung kết cả lớp khản cổ cổ vũ, cô chủ nhiệm cũng hét theo, quên cả giữ dáng.',
+    'Trại của lớp dựng bằng tre và lá dừa, đẹp nhất hội trại 26/3. Đêm đó cả lớp thức trắng kể chuyện ma, sáng ra ai cũng thâm quầng mắt.',
+    'Lớp của những tờ báo tường giải nhất. Bài thơ “Gửi mái trường” của lớp, đến giờ thầy cô vẫn còn nhắc.',
+    'Lớp có nhiều bạn đi xa nhất: Úc, Mỹ, Nhật, Đức. Mỗi lần họp lớp là một lần gọi video vòng quanh thế giới, lệch múi giờ mà vẫn đủ mặt.',
+    'Nổi tiếng với chiếc trống tự chế từ thùng sơn và những buổi sinh hoạt lớp cuối tuần chẳng bao giờ về đúng giờ.',
+    'Đội Rung chuông vàng vào tới chung kết. Câu hỏi cuối cùng, cả sân trường nín thở nhìn lớp trưởng giơ tấm bảng lên.',
+    'Lớp ồn nhất dãy nhà B nhưng thương nhau nhất: có bạn ốm là cả lớp kéo tới nhà, mang theo tập vở chép bài hộ.',
+    'Lớp có ban nhạc “Phượng Hồng”, chơi guitar ở mọi đêm lửa trại. Bài tủ là “Mong ước kỷ niệm xưa”, hát tới đâu khóc tới đó.',
+    'Lớp út của khoá, ngồi cuối dãy, gần căng tin nhất. Lời hứa “mười năm nữa gặp lại” của lớp đã giữ được hai lần rồi.'
+  ];
   lops.forEach(function (l, i) {
     if (!l.gvcn) l.gvcn = GV[i % GV.length];
     if (!l.ban) l.ban = BAN[i % BAN.length];
-    if (!l.gioiThieu) l.gioiThieu = 'Lớp ' + l.ten + ' học dãy ' + (i < 6 ? 'nhà A' : 'nhà B') + ', nhớ nhất ' + NOI[i % NOI.length] + '.';
+    if (!l.gioiThieu) l.gioiThieu = GT[i % GT.length];
     update_('Lop', l);
   });
 
-  const HO = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Võ', 'Đặng', 'Bùi', 'Đỗ', 'Huỳnh', 'Phan', 'Ngô'];
-  const DEM = ['Văn', 'Thị', 'Minh', 'Ngọc', 'Thanh', 'Quốc', 'Hoàng', 'Thu', 'Hữu', 'Mỹ'];
-  const TEN = ['An', 'Bình', 'Châu', 'Dũng', 'Hà', 'Hải', 'Hằng', 'Hùng', 'Khoa', 'Lan', 'Linh', 'Long', 'Mai', 'Nam', 'Nhi', 'Phúc', 'Quang', 'Tâm', 'Thảo', 'Trang', 'Tuấn', 'Vy', 'Yến', 'Đạt'];
-  const CITY = ['Đà Nẵng', 'Đà Nẵng', 'Đà Nẵng', 'TP.HCM', 'TP.HCM', 'Hà Nội', 'Quảng Nam', 'Huế', 'Hội An', 'Úc', 'Mỹ', 'Nhật Bản', 'Đức', 'Canada'];
+  const HO = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Võ', 'Đặng', 'Bùi', 'Đỗ', 'Huỳnh', 'Phan', 'Ngô', 'Trương', 'Dương', 'Hồ', 'Lương'];
+  const DEM_NAM = ['Văn', 'Minh', 'Quốc', 'Hữu', 'Đức', 'Thanh', 'Hoàng', 'Công', 'Ngọc', 'Gia'];
+  const DEM_NU = ['Thị', 'Ngọc', 'Thu', 'Mỹ', 'Kim', 'Thanh', 'Bảo', 'Hoài', 'Phương', 'Diệu'];
+  const TEN_NAM = ['An', 'Bình', 'Dũng', 'Hải', 'Hùng', 'Khoa', 'Long', 'Nam', 'Phúc', 'Quang', 'Tâm', 'Tuấn', 'Đạt', 'Huy', 'Khánh', 'Lộc', 'Nhân', 'Sơn', 'Thắng', 'Vinh', 'Trí', 'Hiếu', 'Bảo', 'Toàn'];
+  const TEN_NU = ['Hà', 'Hằng', 'Lan', 'Linh', 'Mai', 'Nhi', 'Thảo', 'Trang', 'Vy', 'Yến', 'Hương', 'Ngân', 'Phương', 'Quyên', 'Diễm', 'Uyên', 'Hạnh', 'Thư', 'Châu', 'Nga', 'Loan', 'Trâm', 'Duyên', 'Thủy'];
+  const CITY = ['Đà Nẵng', 'Đà Nẵng', 'Đà Nẵng', 'Đà Nẵng', 'TP.HCM', 'TP.HCM', 'Hà Nội', 'Hội An', 'Tam Kỳ', 'Huế', 'Nha Trang', 'Úc', 'Mỹ', 'Nhật Bản', 'Đức', 'Canada', 'Singapore', 'Hàn Quốc'];
+  const CV = ['Lớp trưởng', 'Bí thư', 'Lớp phó học tập', 'Lớp phó văn nghệ', 'Lớp phó lao động', 'Thủ quỹ'];
   const hs = [];
   lops.forEach(function (l, i) {
-    const cnt = 40 + (i * 5) % 9;
+    const cnt = 40 + (i * 5) % 9, seen = {};
     for (let k = 0; k < cnt; k++) {
-      hs.push({ id: id('hs'), lopId: l.id, hoTen: HO[(k + i) % 12] + ' ' + DEM[(k * 3 + i) % 10] + ' ' + TEN[(k * 7 + i * 3) % 24],
-        chucVu: k === 0 ? 'Lớp trưởng' : k === 1 ? 'Bí thư' : k === 2 ? 'Lớp phó học tập' : k === 3 ? 'Lớp phó văn nghệ' : '',
-        hienO: CITY[(k * 3 + i) % CITY.length], thuTu: String(k + 1) });
+      const nu = (k * 7 + i * 3) % 5 < 2 || k === 1 || k === 3;
+      let ten, tries = 0;
+      do {
+        const r = k * 13 + i * 7 + tries * 5;
+        ten = HO[(r + k) % HO.length] + ' ' + (nu ? DEM_NU : DEM_NAM)[(r * 3 + tries) % 10] + ' ' + (nu ? TEN_NU : TEN_NAM)[(r * 7 + i) % 24];
+        tries++;
+      } while (seen[ten] && tries < 20);
+      seen[ten] = 1;
+      hs.push({ id: id('hs'), lopId: l.id, hoTen: ten, chucVu: CV[k] || '', hienO: CITY[(k * 5 + i * 3) % CITY.length], thuTu: String(k + 1) });
     }
   });
   appendMany_('HocSinh', hs);
 
   const EV = [
-    ['2000–2001', '20/11/2000', 'Đêm văn nghệ 20/11', 'Lần đầu khối 10 lên sân khấu trường. Tiết mục múa “Áo trắng” giành giải nhất.', '🎤'],
-    ['2000–2001', '26/03/2001', 'Hội trại 26/3', 'Hai ngày một đêm dựng trại, trò chơi lớn và đốt lửa trại.', '⛺'],
-    ['2001–2002', '12/2001', 'Hội khoẻ Phù Đổng', 'Bóng đá nam, bóng chuyền nữ, kéo co giữa các lớp khối 11.', '⚽'],
-    ['2001–2002', '04/2002', 'Dã ngoại về nguồn', 'Thăm di tích, trồng cây và giao lưu với trường bạn.', '🚌'],
-    ['2002–2003', '09/01/2003', 'Rung chuông vàng', 'Ngày Học sinh – Sinh viên, mười hai lớp thi báo tường và rung chuông vàng.', '🔔'],
-    ['2002–2003', '05/2003', 'Lễ tri ân và chia tay', 'Đêm cuối dưới mái trường, hát “Mong ước kỷ niệm xưa”, trao lưu bút.', '🌺'],
-    ['Sau ra trường', '08/2013', 'Họp lớp 10 năm', 'Cả khoá về thăm trường, gặp lại thầy cô chủ nhiệm.', '🥂'],
-    ['Sau ra trường', '07/2023', 'Họp lớp 20 năm', 'Họp mặt ở biển Mỹ Khê, hơn 300 bạn về dự.', '🎉']
+    ['2000–2001', '05/09/2000', 'Ngày khai giảng đầu tiên', 'Lần đầu bước qua cổng trường Nguyễn Hiền trong tà áo trắng còn thơm mùi vải mới. Ai cũng lạ, ai cũng rụt rè, chẳng ai ngờ ba năm sau lại khóc vì phải rời nơi này.', '🎒'],
+    ['2000–2001', '20/11/2000', 'Đêm văn nghệ 20/11', 'Lần đầu khối 10 lên sân khấu trường. Tiết mục múa “Áo trắng” giành giải nhất, cả hội trường vỗ tay mãi không dứt.', '🎤'],
+    ['2000–2001', '26/03/2001', 'Hội trại 26/3', 'Hai ngày một đêm dựng trại bằng tre, lá dừa. Đêm lửa trại, cả khối nắm tay thành vòng tròn, hát tới khàn giọng.', '⛺'],
+    ['2001–2002', '12/2001', 'Hội khoẻ Phù Đổng', 'Bóng đá nam, bóng chuyền nữ, kéo co giữa các lớp khối 11. Thắng thua giờ chẳng ai nhớ, chỉ nhớ những chai nước chuyền tay giữa sân nắng.', '⚽'],
+    ['2001–2002', '04/2002', 'Dã ngoại về nguồn', 'Chuyến xe sớm về Mỹ Sơn, cả lớp hát suốt dọc đường. Lần đầu tiên tụi mình đi xa cùng nhau.', '🚌'],
+    ['2002–2003', '09/01/2003', 'Rung chuông vàng', 'Ngày Học sinh – Sinh viên, mười hai lớp thi báo tường và rung chuông vàng. Cả sân trường hồi hộp theo từng câu hỏi.', '🔔'],
+    ['2002–2003', '03/2003', 'Trăm ngày trước kỳ thi', 'Lễ thắp nến “100 ngày” dưới sân trường. Ai cũng ước một điều, nhiều người ước được ở lại thêm một chút.', '🕯️'],
+    ['2002–2003', '05/2003', 'Lễ tri ân và chia tay', 'Đêm cuối dưới mái trường. Cả khoá hát “Mong ước kỷ niệm xưa”, trao nhau lưu bút, ôm thầy cô thật lâu.', '🌺'],
+    ['Sau ra trường', '08/2013', 'Họp lớp 10 năm', 'Cả khoá về thăm trường, gặp lại thầy cô chủ nhiệm. Có bạn đã bế con theo, đứng chụp ảnh đúng chỗ ngồi ngày xưa.', '🥂'],
+    ['Sau ra trường', '07/2023', 'Họp lớp 20 năm', 'Họp mặt ở biển Mỹ Khê, hơn 300 bạn về dự. Có một phút lặng để nhớ những người bạn, người thầy không thể về nữa.', '🎉']
   ];
   appendMany_('HoatDong', EV.map(function (e) { return { id: id('hd'), namHoc: e[0], ngay: e[1], tieuDe: e[2], moTa: e[3], icon: e[4], anhId: '', trangThai: 'published', lopDeXuat: '', taoLuc: t }; }));
 
-  const TC = [['Thầy Nguyễn Văn Thành', 'Hiệu trưởng'], ['Cô Trần Thị Thu', 'Phó hiệu trưởng'], ['Thầy Lê Quang Vinh', 'Bí thư Đoàn trường']];
+  const TC = [['Thầy Nguyễn Văn Thành', 'Hiệu trưởng'], ['Cô Trần Thị Thu', 'Phó hiệu trưởng'], ['Thầy Lê Quang Vinh', 'Bí thư Đoàn trường'], ['Cô Hồ Thị Minh', 'Tổ trưởng Ngữ văn'], ['Thầy Trương Công Bình', 'Giám thị, người gác cổng trường']];
   lops.forEach(function (l, i) { TC.push([l.gvcn || GV[i % GV.length], 'Chủ nhiệm ' + l.ten]); });
   const seen = {};
   appendMany_('ThayCo', TC.filter(function (x) { if (seen[x[0]]) return false; seen[x[0]] = 1; return true; })
     .map(function (x, i) { return { id: id('tc'), hoTen: x[0], vaiTro: x[1], anhId: '', thuTu: String(i + 1) }; }));
 
   const L = function (i) { return lops[i % lops.length].id; };
+  /* hiển thị từ dưới lên (mới nhất trước) */
   const LB = [
-    ['Hải', 1, 'Mong 20 năm nữa tụi mình vẫn gọi nhau là mày tao như hồi ngồi bàn cuối.'],
-    ['Trang', 4, 'Cảm ơn cô chủ nhiệm đã tin con, kể cả lúc con không tin chính mình.'],
+    ['Thảo', -1, 'Hẹn cả khoá ngày 20/11 năm nay, nhớ về đông đủ nha. Đừng để ghế nào trống.'],
+    ['Dũng', -1, 'Có những người bạn đã đi xa mãi, không về họp lớp được nữa. Mỗi lần nhắc tên, cả bọn lại im lặng một lúc. Thương lắm.'],
+    ['Phúc', -1, 'Ba năm Nguyễn Hiền là ba năm đẹp nhất. Cảm ơn tất cả, kể cả những lần bị phạt đứng ngoài hành lang.'],
+    ['Yến', 9, 'Nhớ ổ bánh mì ở cổng trường, hai ngàn một ổ. Nhớ cái nắng tháng Năm chiếu qua cửa lớp. Nhớ tụi bây nhiều lắm.'],
+    ['Nam', 7, 'Tiếng trống trường là âm thanh mình nhớ nhất. Sáng nào đi ngang trường cũ, mình vẫn chậm xe lại một chút.'],
+    ['Quang', 11, 'Gửi mình năm 18 tuổi: đừng sợ thi trượt. Đáng sợ hơn là không kịp nói cảm ơn mẹ, cảm ơn thầy cô. Nói sớm đi nhé.'],
+    ['Khoa', 8, 'Gửi bạn ngồi bàn trên năm lớp 11: mình là đứa hay giật tóc bạn đó. Xin lỗi nha. Thật ra hồi đó mình chỉ muốn bạn quay xuống nói chuyện.'],
+    ['Mai', 10, 'Nhớ buổi tập văn nghệ dưới mưa trước ngày 20/11. Áo ướt hết mà cả bọn vẫn cười. Giờ chẳng còn ai rủ mình tắm mưa nữa.'],
+    ['Vy', 5, 'Năm đó mình chưa kịp đưa lưu bút cho bạn ký thì bạn chuyển vào Sài Gòn. Cuốn sổ vẫn còn, trang của bạn vẫn để trống. Về họp lớp, ký giùm mình nha.'],
+    ['Tuấn', 2, 'Đứa nào mượn Kính Vạn Hoa tập 23 của tui thì trả nha. Không cần trả sách, về họp lớp là được.'],
+    ['Hằng', 3, 'Thầy ơi, thầy dạy em phương trình, nhưng điều em nhớ nhất là câu thầy nói hôm chia tay: “Sống tử tế, rồi mọi thứ sẽ ổn.” Em vẫn nhớ, thầy ạ.'],
+    ['Linh', 6, 'Lớp mình còn nợ nhau một chuyến đi Hội An. Hứa từ năm lớp 12, giờ con tụi mình cũng sắp bằng tuổi mình hồi đó rồi.'],
+    ['Nhi', 2, 'Mẩu giấy gấp tư năm lớp 12 mình không dám đưa, giờ vẫn kẹp trong cuốn Văn học 12. Người ấy hạnh phúc rồi, mình cũng vậy. Chỉ là nhớ cái cảm giác tim đập thình thịch hồi đó.'],
     ['Long', 0, 'Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.'],
-    ['Linh', 6, 'Lớp mình còn nợ nhau một chuyến đi Hội An.'],
-    ['Tuấn', 2, 'Đứa nào mượn Kính Vạn Hoa tập 23 của tui thì trả nha.'],
-    ['Mai', 10, 'Nhớ buổi tập văn nghệ dưới mưa trước ngày 20/11.'],
-    ['Phúc', -1, 'Ba năm Nguyễn Hiền là ba năm đẹp nhất. Cảm ơn tất cả.'],
-    ['Thảo', -1, 'Hẹn cả khoá ngày 20/11 năm nay, nhớ về đông đủ nha.']
+    ['Trang', 4, 'Cô ơi, năm đó con nghỉ học mấy tuần vì nhà khó khăn, cô đạp xe tới tận nhà xin cho con đi học lại. Giờ con cũng làm cô giáo. Con cảm ơn cô, muộn hơn hai mươi năm.'],
+    ['Hải', 1, 'Mày nhớ không, bàn cuối dãy cửa sổ, tụi mình khắc tên lên mặt bàn rồi bị thầy giám thị bắt. Chỗ khắc đó chắc bị sơn lại lâu rồi, nhưng tên mày thì vẫn còn trong tao.']
   ];
   appendMany_('LuuBut', LB.map(function (x) { return { id: id('lb'), lopId: x[1] < 0 ? '' : L(x[1]), tacGia: x[0], noiDung: x[2], trangThai: 'approved', taoLuc: t }; }));
 
-  appendMany_('TinTuc', [
-    { id: id('tt'), loai: 'Họp lớp', tieuDe: 'Họp lớp toàn khoá 2026: hẹn nhau dịp 20/11', noiDung: 'Lớp 12/5 đề xuất, Ban liên lạc đã chốt: cả khoá về thăm trường 61 Phan Đăng Lưu buổi sáng, chiều họp mặt ở biển Mỹ Khê. Mời thầy cô chủ nhiệm cả 12 lớp.', ngay: '20/11/2026', noiBat: '1', trangThai: 'published', taoLuc: t },
-    { id: id('tt'), loai: 'Thông báo', tieuDe: 'Cập nhật “Giờ đang ở”', noiDung: 'Admin các lớp nhờ mọi người báo nơi đang sống để làm biểu đồ bạn bè đang ở đâu.', ngay: '', noiBat: '0', trangThai: 'published', taoLuc: t },
-    { id: id('tt'), loai: 'Tri ân', tieuDe: 'Thăm thầy cô ngày 20/11', noiDung: 'Danh sách thầy cô đã nghỉ hưu cần ghé thăm, xem ở mục Kỷ yếu.', ngay: '', noiBat: '0', trangThai: 'published', taoLuc: t },
-    { id: id('tt'), loai: 'Tìm người', tieuDe: 'Lớp 12/9 tìm bạn Phúc', noiDung: 'Ai còn liên lạc với bạn Phúc báo admin lớp 12/9 giúp.', ngay: '', noiBat: '0', trangThai: 'published', taoLuc: t }
-  ]);
+  const TT = [
+    ['Họp lớp', 'Về trường mình, thêm một lần nữa: họp lớp toàn khoá dịp 20/11', 'Ban liên lạc đã chốt: buổi sáng cả khoá về thăm trường 61 Phan Đăng Lưu, chụp ảnh dưới gốc phượng, thắp nén hương nhớ thầy cô và bạn bè đã khuất. Buổi chiều họp mặt ở biển Mỹ Khê. Mời thầy cô chủ nhiệm cả 12 lớp. Hãy về, dù chỉ một buổi.', '20/11/2026', '1'],
+    ['Tri ân', 'Cùng đi thăm thầy cô đã nghỉ hưu', 'Nhiều thầy cô của khoá mình đã nghỉ hưu, có thầy cô sức khoẻ đã yếu. Ban liên lạc lập danh sách để các lớp chia nhau đến thăm trước ngày 20/11. Một bó hoa, một cái nắm tay, với thầy cô là đủ.', '', '0'],
+    ['Tìm người', 'Lớp 12/9 tìm bạn Phúc', 'Phúc ngồi bàn ba dãy giữa, chuyển vào Sài Gòn năm 2004 rồi mất liên lạc. Ai còn số điện thoại hay Facebook của Phúc, báo admin lớp 12/9 giúp. Cả lớp vẫn chờ.', '', '0'],
+    ['Thông báo', 'Gửi ảnh cũ để làm cuốn kỷ yếu 23 năm', 'Ai còn ảnh lớp, ảnh hội trại, trang lưu bút… chụp lại gửi admin lớp. Ban liên lạc sẽ in thành cuốn kỷ yếu tặng mỗi bạn trong buổi họp lớp.', '', '0'],
+    ['Thông báo', 'Cập nhật “Giờ đang ở”', 'Nhờ mọi người báo nơi đang sống để vẽ bản đồ bạn bè khắp nơi. Biết đâu bạn cũ đang ở ngay thành phố của mình.', '', '0']
+  ];
+  appendMany_('TinTuc', TT.map(function (x) { return { id: id('tt'), loai: x[0], tieuDe: x[1], noiDung: x[2], ngay: x[3], noiBat: x[4], trangThai: 'published', taoLuc: t }; }));
 
-  const ANH = [['Hội trại 26/3', 'Dựng trại'], ['Đêm văn nghệ 20/11', 'Tập văn nghệ'], ['Hội khoẻ Phù Đổng', 'Giao lưu bóng đá'], ['Ảnh tập thể', 'Chụp ảnh lớp'], ['Họp lớp 20 năm', 'Họp lớp ở Mỹ Khê'], ['Giao lưu', 'Giao lưu hai lớp'], ['Lễ tri ân và chia tay', 'Ngày chia tay']];
+  const ANH = [['Hội trại 26/3', 'Đêm lửa trại'], ['Đêm văn nghệ 20/11', 'Tập văn nghệ dưới mưa'], ['Hội khoẻ Phù Đổng', 'Trận chung kết bóng đá'], ['Ảnh tập thể', 'Cả lớp dưới gốc phượng'], ['Họp lớp 20 năm', 'Gặp lại ở Mỹ Khê'], ['Trăm ngày trước kỳ thi', 'Thắp nến trăm ngày'], ['Lễ tri ân và chia tay', 'Ôm thầy cô ngày chia tay'], ['Ngày khai giảng đầu tiên', 'Áo trắng ngày đầu'], ['Giao lưu', 'Giao lưu hai lớp']];
   const anh = [];
-  for (let i = 0; i < 24; i++) {
+  for (let i = 0; i < 27; i++) {
     const a = ANH[i % ANH.length];
     anh.push({ id: id('anh'), album: a[0], lopId: L(i), chuThich: a[1], fileId: '', nguoiDang: 'Dữ liệu mẫu', taoLuc: t });
   }
   for (let i = 0; i < 6; i++) {
-    anh.push({ id: id('anh'), album: 'Ngày ấy', lopId: L(i), chuThich: 'Ảnh lớp năm 2003', fileId: '', nguoiDang: 'Dữ liệu mẫu', taoLuc: t });
-    anh.push({ id: id('anh'), album: 'Bây giờ', lopId: L(i), chuThich: 'Họp lớp năm 2023', fileId: '', nguoiDang: 'Dữ liệu mẫu', taoLuc: t });
+    anh.push({ id: id('anh'), album: 'Ngày ấy', lopId: L(i), chuThich: 'Ảnh lớp, tháng Năm 2003', fileId: '', nguoiDang: 'Dữ liệu mẫu', taoLuc: t });
+    anh.push({ id: id('anh'), album: 'Bây giờ', lopId: L(i), chuThich: 'Gặp lại sau hai mươi năm', fileId: '', nguoiDang: 'Dữ liệu mẫu', taoLuc: t });
   }
   appendMany_('Anh', anh);
 
+  const GC = ['Đi cùng gia đình', '', 'Bay từ Úc về', '', 'Sẽ mang theo cuốn lưu bút cũ', 'Muốn gặp lại cô chủ nhiệm', '', 'Đến muộn một chút'];
   const dk = [];
   for (let i = 0; i < 24; i++) {
     const h = hs[(i * 37) % hs.length];
-    dk.push({ id: id('dk'), lopId: h.lopId, hoTen: h.hoTen, lienHe: '0900 000 ' + String(100 + i), ghiChu: i % 5 === 0 ? 'Đi cùng gia đình' : '', trangThai: i % 3 === 0 ? 'xacnhan' : 'cho', taoLuc: t });
+    dk.push({ id: id('dk'), lopId: h.lopId, hoTen: h.hoTen, lienHe: '0900 000 ' + String(100 + i), ghiChu: GC[i % GC.length], trangThai: i % 3 === 0 ? 'xacnhan' : 'cho', taoLuc: t });
   }
   appendMany_('DangKy', dk);
 
-  return 'Đã nạp: ' + hs.length + ' học sinh, ' + EV.length + ' hoạt động, ' + LB.length + ' lưu bút, ' + anh.length + ' ảnh minh hoạ, 4 tin, ' + dk.length + ' đăng ký.';
+  return 'Đã nạp: ' + hs.length + ' học sinh, ' + EV.length + ' hoạt động, ' + LB.length + ' lưu bút, ' + anh.length + ' ảnh minh hoạ, ' + TT.length + ' tin, ' + dk.length + ' đăng ký.';
 }
 
 function xoaDuLieuMau_() {
