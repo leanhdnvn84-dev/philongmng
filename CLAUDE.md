@@ -44,6 +44,13 @@ Trang chủ (phượng vĩ) · Các lớp (vở ô ly) · Ngoại khoá (sông H
 Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
 Ảnh hiển thị qua `https://drive.google.com/thumbnail?id=...&sz=w...`; ảnh tải lên được nén ≤1600px JPEG ở client (`readImg`).
 
+### Logo & trang nhúng
+- Logo trường: `assets/logo-nguyen-hien.png` (bản gốc, nền ngoài hình thoi trong suốt). Index.html nhúng bản 128px dạng
+  data URI ở `#hLogo` (header) + favicon; footer và trang chủ dùng lại `$('hLogo').src`. **Không** đặt data URI trong `<script>`
+  (base64 có thể chứa `//`).
+- `tai-ve/NguyenHien-iframe.html`: trang khung toàn màn hình nhúng web app (link `/exec`), có favicon logo, màn chờ.
+  Đặt lên hosting/Google Sites để có link gọn, không hiện dải "Ứng dụng này do một người dùng Google Apps Script tạo".
+
 ### Lưu ý Apps Script (quan trọng)
 Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … */` trong `<script>` **kể cả khi nằm trong chuỗi/template/regex**
 → trang trắng, lỗi kiểu `Unexpected identifier 'src'`. Trong script chỉ dùng `/* */` cho dòng chú thích thật; viết
