@@ -43,3 +43,9 @@ Mọi dòng mẫu có id bắt đầu `mau_`. `autoSeed_()` tự nạp khi Sheet
 Trang chủ (phượng vĩ) · Các lớp (vở ô ly) · Ngoại khoá (sông Hàn) · Kỷ yếu (album kraft) ·
 Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
 Ảnh hiển thị qua `https://drive.google.com/thumbnail?id=...&sz=w...`; ảnh tải lên được nén ≤1600px JPEG ở client (`readImg`).
+
+### Bản tải về (`tai-ve/`)
+- `tai-ve/NguyenHien-2000-2003.html` là bản **tạo ra** từ `apps-script/Index.html`, không sửa tay.
+  Sau mỗi lần sửa Index.html, chạy lại: `PLAYWRIGHT=/opt/node-tools/node_modules/playwright node tools/build-tai-ve.js`.
+  Script vẽ sẵn nội dung các trang vào HTML, vì trình xem tệp trên điện thoại (iPhone…) không chạy JavaScript.
+- `tai-ve/NguyenHien-AppsScript.zip`: gói `Code.gs` + `Index.html` để dán vào Apps Script (đóng gói lại khi sửa).
