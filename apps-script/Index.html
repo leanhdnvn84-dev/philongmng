@@ -298,6 +298,50 @@ footer.g a{color:#4A2C8F}
 .modal .fld{margin-bottom:12px}.modal .fld label{display:block;font-size:13.5px;color:#6E6A85;margin-bottom:4px}
 .modal .fld small{color:#6E6A85;font-size:12px}
 
+/* ===== CẢM XÚC · KÝ ỨC ===== */
+.view.on{animation:hien .6s ease both}
+@keyframes hien{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view.on{animation:none}}
+.p-home .thu{margin:80px 32px 0;display:grid;grid-template-columns:1fr 1.5fr;gap:48px;align-items:center}
+.p-home .thu h2{margin-bottom:10px}
+.p-home .giay{position:relative;background:#FFFDF8;background-image:linear-gradient(90deg,transparent 46px,#F3B7BE 46px,#F3B7BE 48px,transparent 48px),repeating-linear-gradient(transparent 0 35px,#E9E1F2 35px 36px);padding:28px 32px 26px 70px;box-shadow:0 14px 34px rgba(91,58,46,.14);transform:rotate(-.6deg);font-family:'Charm',cursive;font-size:23px;line-height:36px;color:#3A2E5C}
+.p-home .giay p{white-space:pre-line}
+.p-home .giay .ky{text-align:right;margin-top:12px;color:var(--do)}
+.p-home .giay svg{position:absolute;right:16px;top:-22px;width:58px;height:58px;transform:rotate(18deg)}
+.p-home .dem{margin:72px 32px 0;padding:44px 32px;background:#2B2A33;color:#fff;border-radius:4px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+.p-home .dem b{display:block;font-family:'Playfair Display',serif;font-size:clamp(36px,4.4vw,58px);font-weight:600;line-height:1.05;color:#FFB3BC}
+.p-home .dem span{font-size:14px;opacity:.8}
+.p-home .dem p{grid-column:1/-1;font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(18px,2vw,22px);opacity:.9;margin-top:8px}
+.p-home .nho{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.p-home .nho button{min-height:150px;background:var(--lua);border:0;border-radius:4px;padding:22px;text-align:left;color:var(--muc);transition:background .3s,box-shadow .3s}
+.p-home .nho i{font-style:normal;font-size:30px;display:block}
+.p-home .nho b{display:block;font-family:'Playfair Display',serif;font-size:22px;font-weight:600;margin:6px 0 4px}
+.p-home .nho p{font-size:15px;color:#4C4750;max-height:0;opacity:0;overflow:hidden;transition:max-height .6s,opacity .6s}
+.p-home .nho small{color:var(--do);font-weight:600;font-size:13px}
+.p-home .nho button.on{background:#fff;box-shadow:inset 0 0 0 1.5px var(--do)}
+.p-home .nho button.on p{max-height:220px;opacity:1}
+.p-home .nho button.on small{display:none}
+.p-cls .nhoai{max-width:640px;background:#fff;border:2px dashed var(--muc);border-radius:14px;padding:16px 18px;margin-bottom:28px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.p-cls .nhoai p{flex:1;min-width:220px;font-family:'Patrick Hand',cursive;font-size:23px;color:var(--muc);line-height:1.3}
+.p-cls .nhoai p small{display:block;font-family:'Be Vietnam Pro';font-size:13.5px;color:var(--mo);margin-top:4px}
+.p-cls .nhoai button{background:var(--muc);color:#fff;border:0;border-radius:99px;padding:8px 16px;font-weight:600;font-size:14px}
+.p-cls .diemdanh{font-family:'Patrick Hand',cursive;font-size:24px;color:var(--muc);margin-bottom:12px;line-height:1.25}
+.p-cls .diemdanh small{display:block;font-family:'Be Vietnam Pro';font-size:14px;color:var(--mo);margin-top:2px}
+.p-ev .year .cam{font-style:italic;color:#3D4C61;font-size:15px;margin:-8px 0 18px;border-left:3px solid var(--c);padding-left:10px}
+.p-ev .loi{padding:60px 32px 0;text-align:center;max-width:780px;margin:auto}
+.p-ev .loi p{font-size:clamp(20px,2.3vw,27px);font-weight:700;line-height:1.4;letter-spacing:-.01em}
+.p-ev .loi small{display:block;color:var(--mo);margin-top:10px;font-size:14.5px}
+.p-yb .intro{font-family:'Charm',cursive;font-size:24px;color:var(--do);margin:-6px 0 24px;max-width:62ch;line-height:1.4}
+.p-yb .goiy{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.p-yb .goiy button{background:#fff;border:1.5px dashed #B98F64;color:var(--nau);border-radius:99px;padding:4px 12px;font-size:13px}
+.p-gal .phan{text-align:center;font-size:clamp(22px,2.6vw,30px);margin-top:24px;opacity:.92}
+.p-gal .phan small{display:block;font-family:'Be Vietnam Pro';font-size:14px;opacity:.7;margin-top:6px}
+.p-kn .ghe{grid-column:span 12;background:var(--den)!important;color:#fff;text-align:center;padding:36px 22px!important}
+.p-kn .ghe h3{font-size:clamp(28px,3.6vw,46px);color:var(--vang)}
+.p-kn .ghe p{max-width:62ch;margin:auto;font-size:17px;line-height:1.75}
+.p-kn .ghe .btn{background:var(--vang);color:var(--den);margin-top:18px}
+.p-kn .facts .dd b{color:var(--do)}
+
 /* ===== RESPONSIVE ===== */
 @media(min-width:761px){.modal{align-items:center}.modal .box{border-radius:16px}}
 @media(max-width:1000px){
@@ -305,6 +349,7 @@ footer.g a{color:#4A2C8F}
  .p-ev .years{grid-template-columns:1fr}.p-ev .band{grid-template-columns:1fr}
  .p-kn .lead,.p-kn .reg,.p-kn .find,.p-kn .where,.p-kn .dir{grid-column:span 12}
  .p-kn .dir .g{grid-template-columns:repeat(3,1fr)}
+ .p-home .nho{grid-template-columns:1fr 1fr}
 }
 @media(max-width:760px){
  body{padding-bottom:64px}
@@ -323,6 +368,9 @@ footer.g a{color:#4A2C8F}
  .p-kn .mast{padding:18px 16px}.p-kn .mast h1{padding-right:70px}.p-kn .mast:after{width:64px;height:64px;margin-top:-32px;right:12px}.p-kn .mast .top{max-width:calc(100% - 70px);flex-direction:column;gap:0}
  .p-kn .board{padding:24px 16px 0}.p-kn .news{grid-template-columns:1fr}.p-kn .dir .g{grid-template-columns:repeat(2,1fr)}
  .p-adm .adm{grid-template-columns:1fr}.p-adm .side{display:flex;overflow-x:auto}.p-adm .side button{white-space:nowrap;width:auto}
+ .p-home .thu{grid-template-columns:1fr;margin:56px 16px 0;gap:22px}.p-home .giay{padding:24px 18px 22px 58px;font-size:21px}.p-home .giay{background-image:linear-gradient(90deg,transparent 40px,#F3B7BE 40px,#F3B7BE 42px,transparent 42px),repeating-linear-gradient(transparent 0 35px,#E9E1F2 35px 36px)}
+ .p-home .dem{grid-template-columns:1fr 1fr;margin:56px 16px 0;padding:30px 16px}.p-home .nho{grid-template-columns:1fr}
+ .p-ev .loi{padding:44px 16px 0}
  .hide-m{display:none}
  footer.g{padding:22px 16px}
 }
@@ -373,7 +421,7 @@ const pic=(p,w)=>p&&p.fileId?img(p.fileId,w):icFor(p);
 const ini=n=>(String(n||'?').trim().split(/\s+/).pop()||'?')[0].toUpperCase();
 const dk=s=>{const p=String(s||'').split(/[\/\-.]/).map(Number).filter(n=>!isNaN(n));if(p.length>=3)return p[2]*1e4+p[1]*100+p[0];if(p.length===2)return p[1]*1e4+p[0]*100;return (p[0]||0)*1e4};
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}};
-function api(fn,...a){return new Promise((res,rej)=>google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...a))}
+function api(fn,...a){return new Promise((res,rej)=>{if(!(window.google&&google.script&&google.script.run))return rej(new Error('Đây là bản xem thử, chưa nối với Google Sheet nên chưa gửi được.'));google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...a)})}
 let busyN=0;
 function busy(on,txt){busyN+=on?1:-1;if(busyN<0)busyN=0;$('loader').classList.toggle('on',busyN>0);if(on)$('loadTxt').textContent=txt||'Đang xử lý…'}
 function toast(m,isErr){const t=$('toast');t.textContent=m;t.className='toast'+(isErr?' err':'');t.style.display='block';clearTimeout(window._t);window._t=setTimeout(()=>t.style.display='none',isErr?4200:2400)}
@@ -398,7 +446,7 @@ function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}
  $('navBot').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>${t}</button>`).join('')}
 function go(k){cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
- if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();scrollTo(0,0)}
+ if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0)}
 
 async function loadPublic(){try{setD(await api('getPublicData'))}catch(e){setD(null);throw e}finally{renderPublic()}}
 function renderPublic(){const c=D.cfg;$('hTen').textContent=(c.tenTruong||'Nguyễn Hiền').replace(/^THPT\s*/i,'');$('hSub').textContent='Đà Nẵng, khoá '+(c.nienKhoa||'');
@@ -421,7 +469,20 @@ function phuongSvg(){let s='',f='',p='';const pts=[[520,80],[470,110],[430,150],
   for(let k=0;k<4;k++){const cx=x+((i*37+k*29)%50)-25,cy=y+((i*23+k*41)%40)-20;f+=`<g transform="translate(${cx} ${cy})">${[0,72,144,216,288].map(r=>`<ellipse rx="7" ry="4" cx="6" cy="0" transform="rotate(${r})" fill="${k%2?'#E8505B':'#C8102E'}"/>`).join('')}<circle r="2.2" fill="#FFD23F"/></g>`}});
  for(let k=0;k<9;k++)p+=`<ellipse class="petal" cx="${120+k*55}" cy="${(k*67)%300}" rx="7" ry="4" fill="#C8102E" style="animation-delay:-${k*1.1}s;animation-duration:${8+k%4}s"/>`;
  return `<svg viewBox="0 0 600 620" preserveAspectRatio="xMidYMid slice"><path d="M640 40 C 520 80, 430 120, 360 210 S 250 330, 150 360" stroke="#5B3A2E" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M470 105 C 470 170, 520 210, 560 230" stroke="#5B3A2E" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M360 210 C 330 260, 340 300, 330 340" stroke="#5B3A2E" stroke-width="8" fill="none" stroke-linecap="round"/><g fill="#3E7B47" opacity=".9">${s}</g><g>${f}</g><g>${p}</g></svg>`}
+const NHO=[['🥁','Tiếng trống trường','Ba hồi trống tan học, cả sân ùa ra như ong vỡ tổ. Hồi đó chỉ mong trống đánh sớm, giờ lại mong được nghe thêm một lần.'],
+ ['📖','Cuốn sổ lưu bút','Chuyền tay cả lớp, trang nào cũng ép một cánh phượng khô, cuối trang ghi “đừng quên nhau nha”. Mình có quên đâu, chỉ là lâu quá không gặp.'],
+ ['🚲','Chiếc xe đạp','Đạp xe chở nhau trên đường Phan Đăng Lưu, tà áo dài bay, cặp sách kẹp sau yên. Con đường ấy giờ đông xe lắm, mà sao vẫn thấy thiếu.'],
+ ['🍧','Quán cổng trường','Ly chè, bịch bò bía, cây kem que. Còn nợ cô bán hàng mấy trăm đồng, giờ muốn trả mà không biết tìm cô ở đâu.'],
+ ['🌺','Tiếng ve tháng Năm','Ve kêu là biết sắp thi, sắp xa. Hồi đó sợ thi, giờ mới biết thứ đáng sợ hơn là xa nhau.'],
+ ['🖍️','Bảng đen, phấn trắng','Bụi phấn bay trong nắng sớm, thầy cô viết kín bảng rồi lại xoá. Có những điều thầy cô viết vào đời mình thì không bao giờ xoá được.'],
+ ['⏰','Mười lăm phút ra chơi','Nhảy dây, đá cầu, chạy xuống căng tin. Mười lăm phút ngắn nhất trong ngày, mà là mười lăm phút nhớ nhất cả đời.'],
+ ['✉️','Mẩu giấy gấp tư','Ai cũng từng có một người để ý, một mẩu giấy gấp tư chưa dám đưa. Người ấy giờ ở đâu, có còn nhớ không?'],
+ ['🎶','Mong ước kỷ niệm xưa','Ngày chia tay, cả khoá cùng hát. Đứa nào cũng cố cười, mà hát chưa hết bài thì mắt đã đỏ hoe.']];
+function countUp(r){if(!r||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))return;r.querySelectorAll('[data-n]').forEach(el=>{const n=Number(el.dataset.n)||0,t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/1800);el.textContent=Math.round(n*(1-Math.pow(1-k,3))).toLocaleString('vi-VN');if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
+function nhoTg(b){b.classList.toggle('on');b.setAttribute('aria-expanded',b.classList.contains('on'))}
+const epPhuong='<svg viewBox="-30 -30 60 60" aria-hidden="true">'+[0,72,144,216,288].map(r=>`<ellipse rx="15" ry="8" cx="13" cy="0" transform="rotate(${r})" fill="${r===0?'#F4C430':'#C8102E'}" opacity=".85"/>`).join('')+'<circle r="4" fill="#7A1F1F"/></svg>';
 function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTruong)||2003);
+ const ngay=Math.max(0,Math.floor((Date.now()-new Date(Number(c.namRaTruong)||2003,4,31))/864e5)),tongHs=D.lop.reduce((s,l)=>s+l.hs.length,0);
  const lead=D.tinTuc.find(t=>t.noiBat==='1')||D.tinTuc[0],note=D.luuBut[0],ph=D.anh[0],items=[];
  if(lead)items.push(`<article><b>${esc(lead.tieuDe)}</b><p>${esc(String(lead.noiDung).slice(0,140))}${D.dangKy.tong?` Đã có ${D.dangKy.tong} bạn đăng ký.`:''}</p><button onclick="go('connect')">Xem trang Kết nối</button></article>`);
  else items.push(`<article><b>Kết nối cả khoá</b><p>Tìm bạn cũ theo tên, xem bạn bè đang ở đâu và liên hệ admin từng lớp.</p><button onclick="go('connect')">Mở trang Kết nối</button></article>`);
@@ -432,12 +493,15 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  $('v-home').innerHTML=`<div class="hero"><div class="l"><div class="k">${esc(c.tenTruong)}, Đà Nẵng</div><h1>${esc(c.cauMoDau)}</h1>
   <p>Tháng Năm ${esc(c.namRaTruong)}, sân trường ${esc(String(c.diaChi||'').split(',')[0])} đỏ rực hoa phượng. ${n>0?n+' năm sau':'Giờ đây'}, ${D.lop.length} lớp hẹn gặp lại nhau ở đây.</p>
   <div><button class="btn" onclick="go('classes')">Tìm lớp của bạn</button><button class="btn o" onclick="ybT=3;go('yearbook')">Viết lưu bút</button></div></div><div class="r" aria-hidden="true">${phuongSvg()}</div></div>
+ ${c.loiNgo?`<div class="thu"><div><div class="k">Thư gửi những người bạn cũ</div><h2>Gửi bạn, người từng ngồi cùng bàn</h2><p class="sub">Cho những ai từng mặc áo trắng dưới gốc phượng ${esc(String(c.tenTruong||'').replace(/^THPT\s*/i,''))}, từng chép bài hộ nhau, từng giận nhau một buổi rồi lại chia nhau gói xôi.</p></div><div class="giay">${epPhuong}<p>${esc(c.loiNgo)}</p><div class="ky">${esc(c.nguoiKy)}</div></div></div>`:''}
+ <div class="dem">${[[n,'năm xa trường'],[ngay,'ngày chưa nghe lại tiếng trống'],[D.lop.length,'lớp mười hai'],[tongHs,'gương mặt áo trắng']].map(([v,t])=>`<div><b data-n="${v}">${Number(v).toLocaleString('vi-VN')}</b><span>${t}</span></div>`).join('')}<p>Đếm từ buổi chia tay tháng Năm năm ${esc(c.namRaTruong)}. Còn bao nhiêu ngày nữa thì mình gặp lại nhau?</p></div>
  <div class="sec"><div class="sh"><div><h2>${D.lop.length} lớp</h2><p class="sub">Chọn lớp để xem danh sách bạn học, ảnh và lưu bút.</p></div><button class="more" onclick="go('classes')">Xem trang các lớp</button></div>
   <div class="cls">${D.lop.map(l=>`<button onclick="openCls('${l.id}')"><b>${esc(l.ten)}</b><span>${esc(l.gvcn||'Chưa có GVCN')}<br>${l.hs.length} bạn</span></button>`).join('')}</div></div>
+ <div class="sec"><h2>Nhớ không…</h2><p class="sub">Bấm vào từng ô, để ký ức tự kể tiếp.</p><div class="nho">${NHO.map(([i,t,p])=>`<button aria-expanded="false" onclick="nhoTg(this)"><i aria-hidden="true">${i}</i><b>${t}</b><small>Nhớ không?</small><p>${p}</p></button>`).join('')}</div></div>
  <div class="sec"><div class="sh"><div><h2>Ảnh giao lưu</h2><p class="sub">Ảnh mới nhất các lớp vừa tải lên.</p></div><button class="more" onclick="go('gallery')">Mở bảng ảnh</button></div>
   ${D.anh.length?`<div class="gal">${D.anh.slice(0,5).map((p,i)=>`<div class="ph" style="background:${grad(i)}" onclick="openLb(D.anh,${i})">${pic(p,i?500:900)}<span>${esc(p.chuThich||p.album)}</span></div>`).join('')}</div>`:'<p class="empty">Chưa có ảnh nào.</p>'}</div>
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three">${items.join('')}</div></div>
- ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`}
+ ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'))}
 
 /* ===================== CÁC LỚP ===================== */
 let clsQ='',curCls=null,cT=0;
@@ -446,13 +510,16 @@ function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp
  <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>${hit?`<div class="hit">Có: ${hit}</div>`:''}</${T}>`}
 function openCls(id){curCls=id;cT=0;if(cur!=='classes')go('classes');else renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
- el.innerHTML=`<h2>Danh sách các lớp</h2><p class="sub">Bấm vào nhãn vở để xem danh sách bạn học, ảnh và lưu bút của lớp.</p>
- <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="${esc(clsQ)}" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"><div class="labels" id="clsGrid"></div>`;drawLabels()}
+ el.innerHTML=`<h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
+ <div class="nhoai"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
+ <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="${esc(clsQ)}" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"><div class="labels" id="clsGrid"></div>`;drawLabels();nhoAi()}
+function nhoAi(){const el=$('nhoAi');if(!el)return;const all=[];D.lop.forEach(c=>c.hs.forEach(s=>all.push({s,c})));if(!all.length){el.parentNode.style.display='none';return}
+ const {s,c}=all[Math.floor(Math.random()*all.length)];el.innerHTML=`Hôm nay, bạn có nhớ <b>${esc(s.hoTen)}</b>, lớp ${esc(c.ten)}?<small>${s.chucVu?'Ngày ấy là '+esc(s.chucVu.toLowerCase())+' của lớp. ':''}${s.hienO?'Giờ bạn ấy đang ở '+esc(s.hienO)+'. ':''}Có khi chỉ một tin nhắn là tìm lại được nhau.</small>`}
 function drawLabels(){const q=clsQ.trim().toLowerCase();
  const l=D.lop.map((c,i)=>({c,i})).map(o=>{if(!q)return o;const inName=(o.c.ten+' '+o.c.gvcn).toLowerCase().includes(q);const hs=o.c.hs.filter(s=>s.hoTen.toLowerCase().includes(q)).map(s=>esc(s.hoTen));return inName||hs.length?Object.assign(o,{hit:inName?'':hs.slice(0,3).join(', ')}):null}).filter(Boolean);
  $('clsGrid').innerHTML=l.map(({c,i,hit})=>nhan(c,i,0,hit)).join('')||`<p class="empty">${D.lop.length?'Không thấy lớp hay bạn nào khớp. Thử gõ ngắn hơn, ví dụ chỉ tên gọi.':'Chưa có lớp nào.'}</p>`}
 function drawCls(){const c=D.lop.find(l=>l.id===curCls),i=lopIdx(curCls);const ph=D.anh.filter(p=>p.lopId===c.id),nt=D.luuBut.filter(n=>n.lopId===c.id);let b='';
- if(cT===0)b=c.hs.length?`<div class="roster"><table><thead><tr><th>STT</th><th>Họ tên</th><th>Chức vụ</th><th class="hide-m">Giờ đang ở</th></tr></thead><tbody>${c.hs.map((s,k)=>`<tr><td>${k+1}</td><td class="n">${esc(s.hoTen)}</td><td>${s.chucVu?`<span class="cv">${esc(s.chucVu)}</span>`:''}</td><td class="hide-m">${esc(s.hienO)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Lớp chưa cập nhật danh sách.</p>';
+ if(cT===0)b=c.hs.length?`<p class="diemdanh">Điểm danh lại một lần nữa nhé, lớp ${esc(c.ten)}…<small>${c.hs.length} bạn, giờ ở ${new Set(c.hs.map(s=>String(s.hienO||'').trim()).filter(Boolean)).size||'nhiều'} nơi khác nhau. Đọc chậm từng cái tên, biết đâu lại nghe tiếng “Có!” năm nào.</small></p><div class="roster"><table><thead><tr><th>STT</th><th>Họ tên</th><th>Chức vụ</th><th class="hide-m">Giờ đang ở</th></tr></thead><tbody>${c.hs.map((s,k)=>`<tr><td>${k+1}</td><td class="n">${esc(s.hoTen)}</td><td>${s.chucVu?`<span class="cv">${esc(s.chucVu)}</span>`:''}</td><td class="hide-m">${esc(s.hienO)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty">Lớp chưa cập nhật danh sách.</p>';
  if(cT===1)b=ph.length?`<div class="mini">${ph.map((p,k)=>`<div class="ph" style="background:${grad(k)}" onclick="openLb(D.anh.filter(a=>a.lopId==='${c.id}'),${k})">${pic(p,500)}</div>`).join('')}</div>`:'<p class="empty">Lớp chưa có ảnh. Admin lớp có thể tải ảnh trong mục Quản trị.</p>';
  if(cT===2)b=(nt.length?nt.map(n=>`<p class="lb-note">“${esc(n.noiDung)}” <small>${esc(n.tacGia)}</small></p>`).join(''):'<p class="empty">Chưa có lưu bút gửi lớp này.</p>')+`<button class="back" onclick="ybT=3;wLop='${c.id}';go('yearbook')">Viết lưu bút cho lớp ${esc(c.ten)}</button>`;
  $('v-classes').innerHTML=`<button class="back" onclick="curCls=null;renderClasses()">← Tất cả các lớp</button><div class="head">${nhan(c,i,1)}<div><h2>Lớp ${esc(c.ten)}</h2>${c.gioiThieu?`<p>${esc(c.gioiThieu)}</p>`:''}<p class="sub" style="margin-top:8px">${c.ban?esc(c.ban)+' · ':''}Admin lớp: <b>${esc(c.admin||'chưa có')}</b></p></div></div>
@@ -461,54 +528,60 @@ function drawCls(){const c=D.lop.find(l=>l.id===curCls),i=lopIdx(curCls);const p
 /* ===================== NGOẠI KHOÁ ===================== */
 function yearOf(nh){const s=String(nh||'');if(/2000/.test(s)&&/2001/.test(s))return 0;if(/2001/.test(s)&&/2002/.test(s))return 1;if(/2002/.test(s)&&/2003/.test(s))return 2;return -1}
 function evAlbum(e){return D.anh.some(a=>a.album===e.tieuDe)}
-function renderEvents(){const Y=[['Lớp 10','Năm học 2000 – 2001','#FF8A3D'],['Lớp 11','Năm học 2001 – 2002','#1D7FD3'],['Lớp 12','Năm học 2002 – 2003','#C8102E']];
+function renderEvents(){const Y=[['Lớp 10','Năm học 2000 – 2001','#FF8A3D','Năm của những lần đầu: áo trắng còn thơm mùi vải mới, bạn bàn bên còn lạ, đêm văn nghệ đầu tiên run tay cầm micro.'],['Lớp 11','Năm học 2001 – 2002','#1D7FD3','Năm của tuổi mười bảy: nắng sân trường, trận bóng chiều, và những rung động chưa dám gọi tên.'],['Lớp 12','Năm học 2002 – 2003','#C8102E','Năm của những lần cuối: buổi học cuối, tiếng trống cuối, cái ôm cuối dưới gốc phượng.']];
  const evs=D.hoatDong.slice().sort((a,b)=>dk(a.ngay)-dk(b.ngay));const after=evs.filter(e=>yearOf(e.namHoc)<0);window.EVS=evs;
  const card=(e,k)=>{const j=evs.indexOf(e);return `<article class="ev"><div class="ph" style="background:${grad(k+j)}">${e.anhId?img(e.anhId,700):esc(e.icon||'🎪')}${e.ngay?`<i>${esc(e.ngay)}</i>`:''}</div><div class="b"><b>${esc(e.tieuDe)}</b>${e.moTa?`<p>${esc(e.moTa)}</p>`:''}${evAlbum(e)?`<button onclick="gF='';gA=EVS[${j}].tieuDe;go('gallery')">Xem ảnh hoạt động</button>`:''}</div></article>`};
  const lead=D.tinTuc.find(t=>t.noiBat==='1')||D.tinTuc[0];
- $('v-events').innerHTML=`<div class="hero"><div class="c"><div class="yr">${esc(String(D.cfg.nienKhoa||'').replace(/\s/g,''))}</div><h1>Ba năm ngoại khoá bên sông Hàn</h1><p>Từ đêm văn nghệ đầu tiên của khối 10, hội trại 26/3, Hội khoẻ Phù Đổng đến buổi chia tay cuối năm 12.</p></div>
+ $('v-events').innerHTML=`<div class="hero"><div class="c"><div class="yr">${esc(String(D.cfg.nienKhoa||'').replace(/\s/g,''))}</div><h1>Ba năm ngoại khoá bên sông Hàn</h1><p>Từ đêm văn nghệ đầu tiên của khối 10, hội trại 26/3, Hội khoẻ Phù Đổng đến buổi chia tay cuối năm 12. Những buổi chiều ở lại trường tới tối mịt, áo ướt mồ hôi, giọng khàn đặc vì cổ vũ, mà về nhà vẫn còn cười.</p></div>
   <svg class="scene" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true"><circle cx="1120" cy="150" r="70" fill="#FFB400" opacity=".9"/><path d="M0 210 L120 205 L140 120 L150 205 L300 200 L310 150 L318 198 L470 196 L480 90 L490 196 L700 190 L705 140 L712 190 L900 188 L910 110 L920 188 L1440 185 L1440 300 L0 300Z" fill="#0B2545" opacity=".55"/><path d="M380 205 C 460 160, 540 240, 620 190 S 760 150, 840 200 S 980 230, 1040 190" stroke="#FFD25E" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="1048" cy="186" r="9" fill="#FFD25E"/><path d="M0 230 Q 180 210 360 232 T 720 230 T 1080 232 T 1440 228 L1440 300 L0 300Z" fill="#1D7FD3"/><path d="M0 255 Q 200 240 400 258 T 800 256 T 1200 258 T 1440 254 L1440 300 L0 300Z" fill="#fff"/></svg></div>
- <div class="years">${Y.map((y,k)=>{const l=evs.filter(e=>yearOf(e.namHoc)===k);return `<div class="year" style="--c:${y[2]}"><h3>${y[0]}</h3><div class="yy">${y[1]}</div>${l.length?l.map(e=>card(e,k*2)).join(''):'<p class="empty" style="color:#5C6B80">Chưa có hoạt động.</p>'}</div>`}).join('')}</div>
+ <div class="years">${Y.map((y,k)=>{const l=evs.filter(e=>yearOf(e.namHoc)===k);return `<div class="year" style="--c:${y[2]}"><h3>${y[0]}</h3><div class="yy">${y[1]}</div><p class="cam">${y[3]}</p>${l.length?l.map(e=>card(e,k*2)).join(''):'<p class="empty" style="color:#5C6B80">Chưa có hoạt động.</p>'}</div>`}).join('')}</div>
+ <div class="loi"><p>“Hồi đó cứ nghĩ ngày mai còn dài lắm. Đâu biết có những đêm lửa trại, những buổi tập văn nghệ dưới mưa, cả đời chỉ đến một lần.”</p><small>${evs.length} hoạt động · ba mùa phượng · một thời áo trắng</small></div>
  <div class="band"><h3>Sau ra trường</h3><div class="n">${after.map(e=>{const j=evs.indexOf(e);return `<div><b>${esc(e.tieuDe)}</b><small>${esc(e.ngay)}${e.moTa?', '+esc(String(e.moTa).slice(0,80)):''}</small>${evAlbum(e)?`<button onclick="gF='';gA=EVS[${j}].tieuDe;go('gallery')">Xem ảnh</button>`:''}</div>`}).join('')}
   <div><b>${lead?esc(lead.tieuDe):'Họp lớp sắp tới'}</b><small>${lead&&lead.ngay?esc(lead.ngay):'Theo dõi trang Kết nối'}</small><button onclick="go('connect')">Đăng ký</button></div></div></div>`}
 
 /* ===================== KỶ YẾU ===================== */
 let ybT=0,wLop='';
-function renderYb(){const T=['Thầy cô','Lưu bút','Ngày ấy, bây giờ','Viết lưu bút'];let h='';
+function goiY(){return ['Nhớ nhất là…','Cảm ơn…','Xin lỗi vì ngày ấy…','Nếu được quay lại năm '+(D.cfg.namRaTruong||'2003')+'…','Gửi tôi năm 18 tuổi…','Hẹn gặp lại ở…']}
+function themGoiY(k){const t=$('w3');t.value=(t.value.trim()?t.value.trim()+'\n':'')+goiY()[k].replace('…',' ');t.focus();pv()}
+function renderYb(){const T=['Thầy cô','Lưu bút','Ngày ấy, bây giờ','Viết lưu bút'];let h='';const ny=new Date().getFullYear()-(Number(D.cfg.namRaTruong)||2003);
+ const INTRO=['Những người đưa đò năm ấy. Có thầy cô giờ tóc đã bạc, có thầy cô đã đi xa. Một lời cảm ơn, muộn mấy cũng không thừa.','Ngày xưa viết vào sổ rồi chuyền tay, chưa kịp đi hết lớp thì đã ra trường. Giờ viết ở đây, để mấy chục năm nữa vẫn còn đọc lại được.','Cùng một lớp, cách nhau '+(ny>0?ny+' năm':'nhiều năm')+'. Tóc có thể khác, dáng có thể khác, nụ cười thì vẫn vậy.','Viết cho bạn bè, cho thầy cô, hay cho chính mình năm mười tám tuổi. Không cần hay, chỉ cần thật.'];
  if(ybT===0)h=D.thayCo.length?`<div class="teachers">${D.thayCo.map((t,i)=>`<figure class="tc" style="--r:${[-2,1.5,-1,2,-1.5,1][i%6]}deg"><span class="corner tl"></span><span class="corner br"></span><div class="ph" style="background:${grad(i)}">${t.anhId?img(t.anhId,400):esc(ini(t.hoTen))}</div><b>${esc(t.hoTen)}</b><small>${esc(t.vaiTro)}</small></figure>`).join('')}</div>`:'<p class="empty">Ban liên lạc chưa cập nhật danh sách thầy cô.</p>';
  if(ybT===1)h=D.luuBut.length?`<div class="notes">${D.luuBut.map(n=>`<div class="ticket"><span class="tape"></span>“${esc(n.noiDung)}”<small>${esc(n.tacGia)}${n.lopId?', lớp '+esc(lopName(n.lopId)):', gửi cả khoá'}</small></div>`).join('')}</div>`:'<p class="empty">Chưa có lưu bút nào. Hãy là người viết đầu tiên.</p>';
  if(ybT===2){const rows=D.lop.map((c,i)=>{const t=D.anh.find(a=>a.lopId===c.id&&a.album==='Ngày ấy'),b=D.anh.find(a=>a.lopId===c.id&&a.album==='Bây giờ');if(!t&&!b)return '';
    const f=(p,ic,cap,k)=>`<figure ${p?`onclick="openLb([D.anh.find(a=>a.id==='${p.id}')],0)"`:''}><div class="ph" style="background:${grad(i+k)}">${p&&p.fileId?img(p.fileId,500):ic}</div><figcaption>${cap}</figcaption></figure>`;
-   return `<div class="pair"><h4>Lớp ${esc(c.ten)}</h4><div class="two">${f(t,'🎓','Ngày ấy',0)}${f(b,'🥂','Bây giờ',3)}</div></div>`}).join('');
+   return `<div class="pair"><h4>Lớp ${esc(c.ten)}</h4><div class="two">${f(t,'🎓','Ngày ấy, '+esc(D.cfg.namRaTruong||''),0)}${f(b,'🥂','Bây giờ',3)}</div></div>`}).join('');
   h=rows?`<div class="pairs">${rows}</div>`:'<p class="empty">Admin lớp tải ảnh vào album “Ngày ấy” và “Bây giờ” để hiện ở đây.</p>'}
- if(ybT===3)h=`<div class="write"><div><label for="w1">Tên bạn</label><input id="w1" maxlength="60" placeholder="Ví dụ: Nguyễn Văn Hải" oninput="pv()"><label for="w2">Gửi cho</label><select id="w2" onchange="pv()"><option value="">Cả khoá</option>${D.lop.map(c=>`<option value="${c.id}" ${c.id===wLop?'selected':''}>Lớp ${esc(c.ten)}</option>`).join('')}</select><label for="w3">Lời lưu bút</label><textarea id="w3" rows="6" maxlength="1500" placeholder="Viết cho bạn bè, thầy cô, hay cho chính mình năm 18 tuổi" oninput="pv()"></textarea>
+ if(ybT===3)h=`<div class="write"><div><label for="w1">Tên bạn</label><input id="w1" maxlength="60" placeholder="Ví dụ: Nguyễn Văn Hải" oninput="pv()"><label for="w2">Gửi cho</label><select id="w2" onchange="pv()"><option value="">Cả khoá</option>${D.lop.map(c=>`<option value="${c.id}" ${c.id===wLop?'selected':''}>Lớp ${esc(c.ten)}</option>`).join('')}</select><label for="w3">Lời lưu bút</label><textarea id="w3" rows="6" maxlength="1500" placeholder="Viết cho bạn bè, thầy cô, hay cho chính mình năm 18 tuổi" oninput="pv()"></textarea><div class="goiy" aria-label="Gợi ý mở đầu">${goiY().map((g,k)=>`<button type="button" onclick="themGoiY(${k})">${esc(g)}</button>`).join('')}</div>
   <button class="btn" onclick="sendNote()">Gửi lưu bút</button><p style="font-size:13px;color:#7B6455;margin-top:8px">Lưu bút gửi lớp do admin lớp duyệt, gửi cả khoá do Ban liên lạc duyệt.</p></div>
   <div><p style="font-size:13px;color:#7B6455;margin-bottom:10px">Xem trước trang lưu bút</p><div class="ticket pv" id="pvN"></div></div></div>`;
  $('v-yearbook').innerHTML=`<div class="book"><h2>Kỷ yếu khoá ${esc(D.cfg.nienKhoa)}</h2><p class="sub">Cuốn album chung của cả khoá: thầy cô, lưu bút, ảnh ngày ấy và bây giờ.</p>
-  <div class="tabs">${T.map((t,i)=>`<button class="${i===ybT?'on':''}" onclick="ybT=${i};renderYb()">${t}</button>`).join('')}</div>${h}</div>`;if(ybT===3)pv()}
+  <div class="tabs">${T.map((t,i)=>`<button class="${i===ybT?'on':''}" onclick="ybT=${i};renderYb()">${t}</button>`).join('')}</div><p class="intro">${INTRO[ybT]}</p>${h}</div>`;if(ybT===3)pv()}
 function pv(){const s=$('w2');$('pvN').innerHTML=`<span class="tape"></span>${esc($('w3').value.trim()||'Viết gì đó đi, trang album đang chờ…')}<small>${esc($('w1').value.trim()||'Tên bạn')}, gửi ${esc(s.options[s.selectedIndex].text.toLowerCase())}</small>`}
 async function sendNote(){const t=$('w1').value.trim(),l=$('w2').value,n=$('w3').value.trim();if(!t||!n)return toast('Vui lòng nhập tên và lời lưu bút',1);
- try{busy(1,'Đang gửi…');await api('submitNote',t,l,n);$('w3').value='';pv();toast('Đã gửi. Lưu bút sẽ hiện sau khi được duyệt.')}catch(e){err(e)}finally{busy(0)}}
+ try{busy(1,'Đang gửi…');await api('submitNote',t,l,n);$('w3').value='';pv();toast('Cảm ơn bạn đã viết tiếp trang lưu bút. Lời bạn sẽ hiện sau khi được duyệt.')}catch(e){err(e)}finally{busy(0)}}
 
 /* ===================== HÌNH ẢNH ===================== */
 let gF='',gA='';
 function renderGal(){const lops=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id)),hasChung=D.anh.some(a=>!a.lopId);
  const byL=D.anh.filter(a=>!gF||(gF==='_'?!a.lopId:a.lopId===gF));const albs=[...new Set(byL.map(a=>a.album))];if(gA&&!albs.includes(gA))gA='';
  const list=byL.filter(a=>!gA||a.album===gA);window.GAL=list;window.ALBS=albs;
- $('v-gallery').innerHTML=`<h2>Ảnh dán đầy bảng</h2><p class="sub">Ảnh các lớp giao lưu, hội trại, văn nghệ và họp lớp. Bấm vào ảnh để xem lớn.</p>
+ $('v-gallery').innerHTML=`<h2>Ảnh dán đầy bảng</h2><p class="sub">Mỗi tấm ảnh là một buổi chiều không quay lại được: hội trại, văn nghệ, giao lưu, họp lớp. Bấm vào ảnh để xem lớn, rồi thử tìm mình trong đó.</p>
  <div class="chips"><button class="${!gF?'on':''}" onclick="gF='';gA='';renderGal()">Cả khoá</button>${hasChung?`<button class="${gF==='_'?'on':''}" onclick="gF='_';gA='';renderGal()">Ảnh chung</button>`:''}${lops.map(l=>`<button class="${gF===l.id?'on':''}" onclick="gF='${l.id}';gA='';renderGal()">${esc(l.ten)}</button>`).join('')}</div>
  ${albs.length>1?`<div class="chips al"><button class="${!gA?'on':''}" onclick="gA='';renderGal()">Mọi album</button>${albs.map((a,k)=>`<button class="${gA===a?'on':''}" onclick="gA=ALBS[${k}];renderGal()">${esc(a)}</button>`).join('')}</div>`:''}
  <div class="count">${list.length} tấm ảnh${gF&&gF!=='_'?' của lớp '+esc(lopName(gF)):''}${gA?', album '+esc(gA):''}</div>
- ${list.length?`<div class="grid">${list.map((p,i)=>`<figure style="--r:${[-1.5,1,-.6,1.4,-.2,-1][i%6]}deg" onclick="openLb(GAL,${i})"><span class="magnet" style="--m:${['#F6D86B','#F2A7B0','#9ED7E8'][i%3]}"></span><div class="ph${p.fileId?' auto':''}" style="aspect-ratio:4/3;background:${grad(i)}">${pic(p,600)}</div><figcaption>${esc(p.chuThich||p.album)}<small>${p.lopId?'Lớp '+esc(lopName(p.lopId)):'Ảnh chung'}, album ${esc(p.album)}</small></figcaption></figure>`).join('')}</div>`:'<p class="empty" style="font-family:\'Be Vietnam Pro\'">Chưa có ảnh nào. Admin mỗi lớp có thể tải ảnh lên trong mục Quản trị.</p>'}`}
+ ${list.length?`<div class="grid">${list.map((p,i)=>`<figure style="--r:${[-1.5,1,-.6,1.4,-.2,-1][i%6]}deg" onclick="openLb(GAL,${i})"><span class="magnet" style="--m:${['#F6D86B','#F2A7B0','#9ED7E8'][i%3]}"></span><div class="ph${p.fileId?' auto':''}" style="aspect-ratio:4/3;background:${grad(i)}">${pic(p,600)}</div><figcaption>${esc(p.chuThich||p.album)}<small>${p.lopId?'Lớp '+esc(lopName(p.lopId)):'Ảnh chung'}, album ${esc(p.album)}</small></figcaption></figure>`).join('')}</div>`:'<p class="empty" style="font-family:\'Be Vietnam Pro\'">Chưa có ảnh nào. Admin mỗi lớp có thể tải ảnh lên trong mục Quản trị.</p>'}
+ <p class="phan">Còn tấm ảnh cũ nào nằm trong hộc tủ?<small>Chụp lại gửi admin lớp, để bảng này có thêm một gương mặt thân quen.</small></p>`}
 
 /* ===================== KẾT NỐI ===================== */
 function contactLink(v){v=String(v||'').trim();if(!v)return '';if(/@/.test(v))return 'mailto:'+v;if(/^https?:\/\//i.test(v))return v;const d=v.replace(/[^\d+]/g,'');if(d.length>=9)return 'https://zalo.me/'+d.replace(/^\+84/,'0');return ''}
+function ngayOf(s){const p=String(s||'').split(/[\/\-.]/).map(Number);return p.length===3&&p[2]>1900?new Date(p[2],p[1]-1,p[0]):null}
 function renderConnect(){const c=D.cfg,lead=D.tinTuc.find(t=>t.noiBat==='1')||D.tinTuc[0],others=D.tinTuc.filter(t=>t!==lead).slice(0,6);
  const nLop=Object.keys(D.dangKy.theoLop||{}).length,yrs=new Date().getFullYear()-(Number(c.namRaTruong)||2003);
- const m={};D.lop.forEach(l=>l.hs.forEach(s=>{const k=String(s.hienO||'').trim();if(k)m[k]=(m[k]||0)+1}));const ar=Object.entries(m).sort((x,y)=>y[1]-x[1]).slice(0,8),mx=ar.length?ar[0][1]:1;
+ const hd=lead&&ngayOf(lead.ngay),con=hd?Math.ceil((hd-new Date())/864e5):0;const m={};D.lop.forEach(l=>l.hs.forEach(s=>{const k=String(s.hienO||'').trim();if(k)m[k]=(m[k]||0)+1}));const ar=Object.entries(m).sort((x,y)=>y[1]-x[1]).slice(0,8),mx=ar.length?ar[0][1]:1;
  $('v-connect').innerHTML=`<div class="mast"><div class="top"><span>${yrs>0?yrs+' năm ra trường':'Khoá '+esc(c.nienKhoa)}</span><span>Ban liên lạc khoá ${esc(c.nienKhoa)}</span></div><h1>KẾT NỐI KHOÁ ${esc(String(c.nienKhoa||'').replace(/\s/g,''))}</h1><div class="tg">Tìm bạn cũ, đăng ký họp lớp, liên lạc admin ${D.lop.length} lớp</div></div>
  <div class="board">
   <article class="card lead"><span class="pin"></span>${lead?`<h2>${esc(lead.tieuDe)}</h2>${lead.noiDung?`<p>${esc(lead.noiDung)}</p>`:''}`:`<h2>Chưa có tin họp lớp</h2><p>Ban liên lạc sẽ đăng thông tin họp lớp ở đây. Bạn vẫn có thể đăng ký trước để admin lớp liên hệ.</p>`}
-   <div class="facts">${lead&&lead.ngay?`<div><b>${esc(lead.ngay)}</b>Thời gian</div>`:''}<div><b>${D.dangKy.tong||0}</b>Bạn đã đăng ký</div><div><b>${nLop}/${D.lop.length}</b>Lớp có người đăng ký</div></div></article>
+   <div class="facts">${lead&&lead.ngay?`<div><b>${esc(lead.ngay)}</b>Thời gian</div>`:''}${con>0?`<div class="dd"><b>${con}</b>ngày nữa là gặp lại</div>`:''}<div><b>${D.dangKy.tong||0}</b>Bạn đã đăng ký</div><div><b>${nLop}/${D.lop.length}</b>Lớp có người đăng ký</div></div></article>
   <aside class="card reg"><span class="pin"></span><h3>Đăng ký tham gia</h3>
    <label for="r1">Họ tên</label><input id="r1" maxlength="60" placeholder="Ví dụ: Trần Thị Bình">
    <label for="r2">Lớp</label><select id="r2"><option value="">Chọn lớp…</option>${D.lop.map(l=>`<option value="${l.id}">Lớp ${esc(l.ten)}</option>`).join('')}</select>
@@ -516,15 +589,16 @@ function renderConnect(){const c=D.cfg,lead=D.tinTuc.find(t=>t.noiBat==='1')||D.
    <label for="r4">Ghi chú (tuỳ chọn)</label><input id="r4" maxlength="300" placeholder="Ví dụ: đi cùng gia đình, đến muộn">
    <button class="btn" onclick="sendReg()">Đăng ký tham gia</button></aside>
   <section class="card find"><span class="pin"></span><h3>Tìm bạn cũ</h3><input id="fq" placeholder="Gõ tên bạn cần tìm, ví dụ: Hằng" oninput="findF(this.value)" aria-label="Tìm bạn"><div class="res" id="fres"></div></section>
-  <aside class="card where"><span class="pin"></span><h3>Bạn bè đang ở đâu</h3><div class="bars">${ar.length?ar.map(([k,v])=>`<div><span>${esc(k)}</span><i style="width:${v/mx*100}%"></i><b>${v}</b></div>`).join(''):'<p style="font-family:\'Be Vietnam Pro\';font-size:14px">Chưa có dữ liệu. Admin lớp điền cột “Hiện ở” cho các bạn để hiện biểu đồ này.</p>'}</div></aside>
+  <aside class="card where"><span class="pin"></span><h3>Bạn bè đang ở đâu</h3><p style="font-family:'Be Vietnam Pro';font-size:13.5px;opacity:.85;margin:-4px 0 10px">Mỗi người một phương, nhưng vẫn chung một sân trường.</p><div class="bars">${ar.length?ar.map(([k,v])=>`<div><span>${esc(k)}</span><i style="width:${v/mx*100}%"></i><b>${v}</b></div>`).join(''):'<p style="font-family:\'Be Vietnam Pro\';font-size:14px">Chưa có dữ liệu. Admin lớp điền cột “Hiện ở” cho các bạn để hiện biểu đồ này.</p>'}</div></aside>
   <section class="card dir"><span class="pin"></span><h3>Danh bạ admin ${D.lop.length} lớp</h3><div class="g">${D.lop.map(l=>{const lk=contactLink(l.adminLienHe);return `<div class="c"><b>${esc(l.ten)}</b><span>Admin: ${esc(l.admin||'chưa có')}<br>Chủ nhiệm: ${esc(l.gvcn||'…')}</span>${lk?`<a href="${esc(lk)}" target="_blank" rel="noopener">Liên hệ</a>`:l.adminLienHe?`<span>${esc(l.adminLienHe)}</span>`:''}</div>`}).join('')}</div></section>
   ${others.length?`<div class="news">${others.map(t=>`<div class="card"><span class="pin"></span><small>${esc(t.loai)}${t.ngay?' · '+esc(t.ngay):''}</small><h3>${esc(t.tieuDe)}</h3><p>${esc(t.noiDung)}</p></div>`).join('')}</div>`:''}
+  <section class="card ghe"><span class="pin"></span><h3>Đừng để ghế của bạn trống</h3><p>${yrs>0?yrs+' năm rồi. ':''}Có những người bạn mình chưa kịp nói lời tạm biệt, có những thầy cô mình chưa kịp nói lời cảm ơn. Lần họp lớp này, về đi, dù chỉ để ngồi lại một chút dưới gốc phượng, gọi tên nhau như ngày xưa.</p><button class="btn" onclick="$('r1').focus()">Mình sẽ về</button></section>
  </div>`;findF('')}
 function findF(q){q=String(q||'').trim().toLowerCase();const el=$('fres');if(!el)return;if(q.length<2){el.innerHTML='<p style="opacity:.7">Gõ ít nhất 2 chữ cái để tìm trong danh sách các lớp.</p>';return}
  const r=[];D.lop.forEach(c=>c.hs.forEach(s=>{if(s.hoTen.toLowerCase().includes(q))r.push({s,c})}));
- el.innerHTML=r.length?r.slice(0,10).map(({s,c})=>`<div><span><b>${esc(s.hoTen)}</b>, lớp ${esc(c.ten)}</span><span>${esc(s.hienO)}</span></div>`).join('')+(r.length>10?`<p style="margin-top:6px">Và ${r.length-10} bạn nữa. Gõ thêm để lọc.</p>`:''):'<p>Chưa thấy ai tên như vậy. Thử gõ tên gọi, bỏ họ và tên đệm.</p>'}
+ el.innerHTML=r.length?r.slice(0,10).map(({s,c})=>`<div><span><b>${esc(s.hoTen)}</b>, lớp ${esc(c.ten)}</span><span>${esc(s.hienO)}</span></div>`).join('')+(r.length>10?`<p style="margin-top:6px">Và ${r.length-10} bạn nữa. Gõ thêm để lọc.</p>`:''):'<p>Chưa thấy ai tên như vậy. Thử gõ tên gọi, bỏ họ và tên đệm. Nếu vẫn không thấy, nhắn admin lớp: biết đâu bạn ấy cũng đang tìm bạn.</p>'}
 async function sendReg(){const n=$('r1').value.trim(),l=$('r2').value,p=$('r3').value.trim(),g=$('r4').value.trim();if(!n||!l||!p)return toast('Vui lòng nhập họ tên, chọn lớp và để lại số liên hệ',1);
- try{busy(1,'Đang đăng ký…');await api('submitRegistration',n,l,p,g);setD(await api('getPublicData'));renderPublic();toast('Đã đăng ký. Admin lớp sẽ liên hệ bạn.')}catch(e){err(e)}finally{busy(0)}}
+ try{busy(1,'Đang đăng ký…');await api('submitRegistration',n,l,p,g);setD(await api('getPublicData'));renderPublic();toast('Đã đăng ký. Hẹn gặp bạn ở trường! Admin lớp sẽ liên hệ.')}catch(e){err(e)}finally{busy(0)}}
 
 /* ===================== FORM MODAL ===================== */
 let FORM=null;
@@ -549,7 +623,7 @@ const AT_C=['Thông tin lớp','Học sinh','Hình ảnh','Lưu bút','Đăng k�
 let aT=0,adLop='',nbF='pending',dkF='cho',apF='';
 const isS=()=>A&&A.me.role==='super';
 async function openAdmin(){if(A)return renderAdmin();if(!TOK)return renderLogin();try{busy(1,'Đang tải…');A=await api('getAdminData',TOK);fillAlbums();renderAdmin()}catch(e){err(e);renderLogin()}finally{busy(0)}}
-function renderLogin(){$('v-admin').innerHTML=`<div class="login"><h2>Đăng nhập quản trị</h2><p class="who" style="margin:6px 0 18px">Dành cho Ban liên lạc và admin của từng lớp</p><input id="lgU" placeholder="Tên đăng nhập" autocomplete="username" aria-label="Tên đăng nhập"><input id="lgP" type="password" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu" onkeydown="if(event.key==='Enter')doLogin()"><button class="btn2" style="width:100%" onclick="doLogin()">Đăng nhập</button></div>`}
+function renderLogin(){$('v-admin').innerHTML=`<div class="login"><h2>Đăng nhập quản trị</h2><p class="who" style="margin:6px 0 18px">Dành cho Ban liên lạc và admin của từng lớp. Cảm ơn bạn đã giữ lửa cho khoá mình.</p><input id="lgU" placeholder="Tên đăng nhập" autocomplete="username" aria-label="Tên đăng nhập"><input id="lgP" type="password" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu" onkeydown="if(event.key==='Enter')doLogin()"><button class="btn2" style="width:100%" onclick="doLogin()">Đăng nhập</button></div>`}
 async function doLogin(){const u=$('lgU').value.trim(),p=$('lgP').value;if(!u||!p)return toast('Nhập tên đăng nhập và mật khẩu',1);
  try{busy(1,'Đang đăng nhập…');const r=await api('login',u,p);TOK=r.token;store.set('nh_tok',TOK);A=await api('getAdminData',TOK);aT=0;fillAlbums();renderAdmin();toast('Xin chào '+r.hoTen)}catch(e){err(e)}finally{busy(0)}}
 function localLogout(){TOK=null;A=null;store.set('nh_tok',null);if(cur==='admin')renderLogin()}
@@ -616,6 +690,7 @@ const R={
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><label>Niên khoá<input id="cf_nienKhoa" value="${esc(c.nienKhoa)}"></label><label>Năm ra trường<input id="cf_namRaTruong" value="${esc(c.namRaTruong)}" inputmode="numeric"></label></div>
   <label>Câu mở đầu trang chủ<input id="cf_cauMoDau" value="${esc(c.cauMoDau)}"></label>
   <label>Câu trích dẫn cuối trang chủ<textarea id="cf_trichDan" rows="2">${esc(c.trichDan)}</textarea></label><label>Người viết câu trích dẫn<input id="cf_trichDanTacGia" value="${esc(c.trichDanTacGia)}"></label>
+  <label>Thư gửi bạn cũ (hiện ở trang chủ)<textarea id="cf_loiNgo" rows="5">${esc(c.loiNgo)}</textarea></label><label>Người ký thư<input id="cf_nguoiKy" value="${esc(c.nguoiKy)}"></label>
   <div><button class="btn2" onclick="saveCfg()">Lưu cài đặt</button></div></div>
   <h3 style="margin-top:28px">Dữ liệu mẫu</h3><p class="who" style="max-width:62ch;margin-bottom:12px">Nạp nội dung mẫu giống bản demo (chủ nhiệm, học sinh, hoạt động, thầy cô, lưu bút, tin họp lớp, ảnh minh hoạ) để xem trước trang. Khi có dữ liệu thật, bấm xoá dữ liệu mẫu; dữ liệu bạn tự nhập không bị ảnh hưởng.</p>
   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn2" onclick="demoData('seedDemo')">Nạp dữ liệu mẫu</button><button class="btn2 red" onclick="demoData('clearDemo')">Xoá dữ liệu mẫu</button></div>`},
@@ -654,7 +729,7 @@ async function upPhotos(){const files=[...$('upF').files];if(!files.length)retur
  catch(e){err(e);if(ok)setTimeout(()=>toast('Đã tải '+ok+'/'+files.length+' ảnh trước khi gặp lỗi',1),4300)}
  finally{try{await refresh()}catch(e){}busy(0)}}
 async function demoData(fn){if(fn==='clearDemo'&&!confirm('Xoá toàn bộ dữ liệu mẫu?'))return;try{busy(1,fn==='seedDemo'?'Đang nạp dữ liệu mẫu…':'Đang xoá dữ liệu mẫu…');const m=await api(fn,TOK);await refresh();toast(m)}catch(e){err(e)}finally{busy(0)}}
-function saveCfg(){const o={};['tenTruong','diaChi','nienKhoa','namRaTruong','cauMoDau','trichDan','trichDanTacGia'].forEach(k=>o[k]=$('cf_'+k).value);act(()=>api('saveConfig',TOK,o),'','Đã lưu cài đặt')}
+function saveCfg(){const o={};['tenTruong','diaChi','nienKhoa','namRaTruong','cauMoDau','trichDan','trichDanTacGia','loiNgo','nguoiKy'].forEach(k=>o[k]=$('cf_'+k).value);act(()=>api('saveConfig',TOK,o),'','Đã lưu cài đặt')}
 async function changePw(){const o=$('pwO').value,n=$('pwN').value,r=$('pwR').value;if(n!==r)return toast('Mật khẩu nhập lại không khớp',1);if(n.length<6)return toast('Mật khẩu mới phải từ 6 ký tự',1);
  try{busy(1);await api('changePassword',TOK,o,n);toast('Đã đổi mật khẩu');['pwO','pwN','pwR'].forEach(i=>$(i).value='')}catch(e){err(e)}finally{busy(0)}}
 
