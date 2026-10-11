@@ -64,14 +64,28 @@ footer.g .lg{display:flex;gap:12px;align-items:center}footer.g .lg img{width:54p
 
 /* ===== TRANG CHỦ · PHƯỢNG VĨ ===== */
 .p-home{--do:#C8102E;--lua:#FBF7F4;--muc:#2B2A33;--mo:#7A747A}
-.p-home .hero{display:grid;grid-template-columns:1fr 1fr;min-height:600px;overflow:hidden}
-.p-home .hero .l{padding:72px 32px 56px;display:flex;flex-direction:column;justify-content:center}
+.p-home .hero{display:grid;grid-template-columns:1fr 1fr;min-height:640px;overflow:hidden;position:relative;background:linear-gradient(160deg,#FFF9F4 0%,#FDEEE7 55%,#F8DCD2 100%)}
+.p-home .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,190,110,.42),transparent 40%),radial-gradient(circle at 10% 100%,rgba(200,16,46,.08),transparent 45%);pointer-events:none}
+.p-home .hero .l{padding:72px 32px 92px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1}
 .p-home .k{color:var(--do);font-weight:600;font-size:15px;margin-bottom:10px}
 .p-home h1{font-family:'Playfair Display',serif;font-weight:600;font-size:clamp(44px,5.4vw,84px);line-height:1.05;letter-spacing:-.01em;color:var(--muc)}
 .p-home .hero p{max-width:46ch;color:#4C4750;font-size:18px;margin:22px 0 30px}
 .p-home .btn{background:var(--do);color:#fff;border:0;border-radius:999px;padding:13px 26px;font-weight:600}
 .p-home .btn.o{background:none;color:var(--do);border:1.5px solid var(--do);margin-left:10px}
-.p-home .hero .r{position:relative;background:var(--lua)}
+.p-home .hero .r{position:relative;z-index:1}
+.p-home .hero p.goi{font-family:'Charm',cursive;font-size:clamp(22px,2.2vw,28px);color:#8A3B2E;margin:2px 0 10px;line-height:1.3;max-width:none}
+.p-home h1 .w{display:inline-block}
+.p-home .hero.mo h1 .w{opacity:0;transform:translateY(16px);filter:blur(5px);animation:chu 1s ease forwards}
+@keyframes chu{to{opacity:1;transform:none;filter:none}}
+.p-home .hero.mo .hien{opacity:0;animation:chu 1.2s ease forwards}
+.p-home .hero p.xoay{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(19px,1.8vw,23px);line-height:1.4;color:var(--do);min-height:2.9em;margin:20px 0 0;transition:opacity .7s}
+.p-home .hero p.xoay.an{opacity:0}
+.p-home .roi{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2}
+.p-home .roi i{position:absolute;top:-30px;width:13px;height:8px;border-radius:70% 0 70% 0;opacity:.85;animation:roi2 linear infinite}
+@keyframes roi2{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(-36px,48vh) rotate(260deg)}100%{transform:translate(24px,104vh) rotate(560deg)}}
+.p-home .keo{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:3;background:none;border:0;color:#8A6F6A;font-size:13.5px;animation:nhun 2.6s ease-in-out infinite;white-space:nowrap}
+@keyframes nhun{50%{transform:translate(-50%,6px)}}
+@media (prefers-reduced-motion:reduce){.p-home .roi{display:none}.p-home .hero.mo h1 .w,.p-home .hero.mo .hien{animation:none;opacity:1;transform:none;filter:none}.p-home .keo{animation:none}}
 .p-home .hero .r svg{position:absolute;inset:0;width:100%;height:100%}
 .petal{animation:roi 9s linear infinite}
 @keyframes roi{0%{transform:translate(0,-40px) rotate(0)}100%{transform:translate(-60px,700px) rotate(540deg)}}
@@ -359,8 +373,8 @@ footer.g .lg{display:flex;gap:12px;align-items:center}footer.g .lg img{width:54p
  body{padding-bottom:64px}
  .g nav{display:none} nav.bot{display:flex}
  .g .in{padding:10px 16px}
- .p-home .hero{grid-template-columns:1fr;min-height:0}.p-home .hero .r{height:240px}
- .p-home .hero .l{padding:40px 16px 34px}.p-home .sec{padding:56px 16px 0}
+ .p-home .hero{grid-template-columns:1fr;min-height:0}.p-home .hero .r{position:absolute;top:0;right:-22%;width:100%;height:300px;opacity:.28;z-index:0}
+ .p-home .hero .l{padding:44px 16px 70px}.p-home .sec{padding:56px 16px 0}
  .p-home .cls{grid-template-columns:repeat(3,1fr)}.p-home .cls button{padding:16px 12px}.p-home .cls b{font-size:26px}
  .p-home .gal{grid-template-columns:1fr 1fr;grid-template-rows:180px 130px 130px}.p-home .gal .ph:first-child{grid-column:span 2;grid-row:auto}
  .p-home .three{grid-template-columns:1fr}.p-home .quote{margin:56px 16px}.p-home .btn.o{margin:10px 0 0}
@@ -485,6 +499,9 @@ const NHO=[['🥁','Tiếng trống trường','Ba hồi trống tan học, cả
 function countUp(r){if(!r||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches))return;r.querySelectorAll('[data-n]').forEach(el=>{const n=Number(el.dataset.n)||0,t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/1800);el.textContent=Math.round(n*(1-Math.pow(1-k,3))).toLocaleString('vi-VN');if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
 function nhoTg(b){b.classList.toggle('on');b.setAttribute('aria-expanded',b.classList.contains('on'))}
 const epPhuong='<svg viewBox="-30 -30 60 60" aria-hidden="true">'+[0,72,144,216,288].map(r=>`<ellipse rx="15" ry="8" cx="13" cy="0" transform="rotate(${r})" fill="${r===0?'#F4C430':'#C8102E'}" opacity=".85"/>`).join('')+'<circle r="4" fill="#7A1F1F"/></svg>';
+const XOAY=['Có ai còn giữ cuốn lưu bút năm ấy không?','Gốc phượng sân sau vẫn đỏ mỗi tháng Năm, chỉ là thiếu tụi mình.','Tiếng ve vẫn gọi hè. Chỉ là mình không còn ngồi đó để nghe.','Người bạn cùng bàn năm ấy, giờ bạn đang ở đâu?','Có những lời tạm biệt, hơn hai mươi năm rồi vẫn chưa nói xong.','Chỗ ngồi bàn cuối ngày ấy, giờ là của ai?'];let xoayI=0;
+function xoayNho(){const el=$('xoay');if(!el||document.hidden)return;el.classList.add('an');setTimeout(()=>{xoayI=(xoayI+1)%XOAY.length;el.textContent=XOAY[xoayI];el.classList.remove('an')},700)}
+setInterval(xoayNho,5200);
 function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTruong)||2003);
  const ngay=Math.max(0,Math.floor((Date.now()-new Date(Number(c.namRaTruong)||2003,4,31))/864e5)),tongHs=D.lop.reduce((s,l)=>s+l.hs.length,0);
  const lead=D.tinTuc.find(t=>t.noiBat==='1')||D.tinTuc[0],note=D.luuBut[0],ph=D.anh[0],items=[];
@@ -494,9 +511,13 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  else items.push(`<article><b>Kỷ yếu đang chờ lưu bút đầu tiên</b><p>Viết vài dòng cho bạn bè, thầy cô hay chính mình năm 18 tuổi.</p><button onclick="ybT=3;go('yearbook')">Viết lưu bút</button></article>`);
  if(ph)items.push(`<article><b>${ph.lopId?'Album lớp '+esc(lopName(ph.lopId)):'Album chung'} vừa cập nhật</b><p>Ảnh mới trong album “${esc(ph.album)}”. Cả khoá có ${D.anh.length} tấm ảnh.</p><button onclick="gF='${ph.lopId||'_'}';gA='';go('gallery')">Xem ảnh</button></article>`);
  else items.push(`<article><b>Bảng ảnh còn trống</b><p>Admin mỗi lớp có thể tải ảnh tập thể, giao lưu, họp lớp lên.</p><button onclick="go('gallery')">Mở bảng ảnh</button></article>`);
- $('v-home').innerHTML=`<div class="hero"><div class="l"><div class="k"><img src="${$('hLogo').src}" alt="">${esc(c.tenTruong)}, Đà Nẵng</div><h1>${esc(c.cauMoDau)}</h1>
-  <p>Tháng Năm ${esc(c.namRaTruong)}, sân trường ${esc(String(c.diaChi||'').split(',')[0])} đỏ rực hoa phượng. ${n>0?n+' năm sau':'Giờ đây'}, ${D.lop.length} lớp hẹn gặp lại nhau ở đây.</p>
-  <div><button class="btn" onclick="go('classes')">Tìm lớp của bạn</button><button class="btn o" onclick="ybT=3;go('yearbook')">Viết lưu bút</button></div></div><div class="r" aria-hidden="true">${phuongSvg()}</div></div>
+ const mo=!window._heroDaHien;window._heroDaHien=1;const tu=esc(c.cauMoDau).split(' ');
+ $('v-home').innerHTML=`<div class="hero${mo?' mo':''}"><div class="roi" aria-hidden="true">${Array.from({length:16},(_,k)=>`<i style="left:${(k*37+11)%100}%;background:${k%3?'#C8102E':'#E8505B'};animation-duration:${9+k%6}s;animation-delay:-${(k*1.3).toFixed(1)}s;width:${10+(k%4)*2}px;height:${6+(k%3)*2}px"></i>`).join('')}</div>
+  <div class="l"><div class="k"><img src="${$('hLogo').src}" alt="">${esc(c.tenTruong)} · Đà Nẵng</div><p class="goi hien" style="animation-delay:.1s">Gửi những người từng mặc áo trắng dưới gốc phượng ấy,</p><h1>${tu.map((w,i)=>`<span class="w" style="animation-delay:${(.5+i*.14).toFixed(2)}s">${w}</span>`).join(' ')}</h1>
+  <p class="hien" style="animation-delay:${(.8+tu.length*.14).toFixed(2)}s">Tháng Năm ${esc(c.namRaTruong)}, tiếng trống cuối cùng vang lên trên sân trường ${esc(String(c.diaChi||'').split(',')[0])}. Hoa phượng rơi đầy lối, cuốn lưu bút chuyền tay chưa kịp ký hết, có những lời tạm biệt chưa kịp nói. ${n>0?n+' năm sau':'Giờ đây'}, ${D.lop.length} lớp hẹn tìm lại nhau ở đây.</p>
+  <div class="hien" style="animation-delay:${(1.1+tu.length*.14).toFixed(2)}s"><button class="btn" onclick="go('classes')">Tìm lại lớp mình</button><button class="btn o" onclick="ybT=3;go('yearbook')">Viết vài dòng lưu bút</button></div>
+  <p class="xoay hien" id="xoay" aria-live="polite" style="animation-delay:${(1.4+tu.length*.14).toFixed(2)}s">${XOAY[xoayI]}</p></div><div class="r" aria-hidden="true">${phuongSvg()}</div>
+  <button class="keo" onclick="document.querySelector('.p-home .thu,.p-home .dem').scrollIntoView({behavior:'smooth'})">Kéo xuống, ký ức đang chờ ↓</button></div>
  ${c.loiNgo?`<div class="thu"><div><div class="k">Thư gửi những người bạn cũ</div><h2>Gửi bạn, người từng ngồi cùng bàn</h2><p class="sub">Cho những ai từng mặc áo trắng dưới gốc phượng ${esc(String(c.tenTruong||'').replace(/^THPT\s*/i,''))}, từng chép bài hộ nhau, từng giận nhau một buổi rồi lại chia nhau gói xôi.</p></div><div class="giay">${epPhuong}<p>${esc(c.loiNgo)}</p><div class="ky">${esc(c.nguoiKy)}</div></div></div>`:''}
  <div class="dem">${[[n,'năm xa trường'],[ngay,'ngày chưa nghe lại tiếng trống'],[D.lop.length,'lớp mười hai'],[tongHs,'gương mặt áo trắng']].map(([v,t])=>`<div><b data-n="${v}">${Number(v).toLocaleString('vi-VN')}</b><span>${t}</span></div>`).join('')}<p>Đếm từ buổi chia tay tháng Năm năm ${esc(c.namRaTruong)}. Còn bao nhiêu ngày nữa thì mình gặp lại nhau?</p></div>
  <div class="sec"><div class="sh"><div><h2>${D.lop.length} lớp</h2><p class="sub">Chọn lớp để xem danh sách bạn học, ảnh và lưu bút.</p></div><button class="more" onclick="go('classes')">Xem trang các lớp</button></div>
