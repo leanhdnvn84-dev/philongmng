@@ -35,7 +35,7 @@ Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PR
 setClassAdmin, removeClassAdmin, saveStudent, deleteStudent, importStudents, saveEvent, setEventStatus,
 deleteEvent, saveTeacher, deleteTeacher, moderateNote, deleteNote, uploadPhoto, updatePhoto, deletePhoto,
 saveConfig, saveNews, deleteNews, submitRegistration, setRegistrationStatus, deleteRegistration,
-updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents`.
+updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`.
 `getAdminData.hsLac` (super): học sinh có `lopId` không khớp lớp nào → nhóm "⚠ Chưa thuộc lớp nào" trong Quản trị → Học sinh, tick + Chuyển lớp.
 Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
@@ -58,6 +58,11 @@ Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
 Trang lớp → tab Danh sách lớp mặc định hiện **sơ đồ lớp học** (`soDoLop`, biến `cV='so'|'ds'`): bảng đen, bục giảng + bàn giáo viên (GVCN), các dãy bàn đôi theo thứ tự danh sách (tên to, họ đệm nhỏ, chức vụ, nơi ở; SĐT chỉ khi admin), ô "Tìm chỗ ngồi" (`timCho`); nút 📋 Danh sách trở về bảng cũ.
 Chống tràn ngang mobile: `html{overflow-x:hidden}` + `body/main/section.view/footer{overflow-x:clip}` (không dùng `overflow-x:hidden` cho body vì làm hỏng header sticky); chữ to `nowrap` phải co theo `vw` ở ≤760px. Kiểm tra `scrollWidth` ở 320/360/390/430px.
 Ảnh hiển thị qua `https://drive.google.com/thumbnail?id=...&sz=w...`; ảnh tải lên được nén ≤1600px JPEG ở client (`readImg`).
+
+### Tốc độ (mở trong Zalo)
+- `doGet` nhúng sẵn dữ liệu công khai vào trang (`<script id="boot"></script>` → `window.BOOT=…`, thoát `/` và `<`); frontend thấy `BOOT_OK` thì vẽ ngay, bỏ màn chờ và lời gọi `getPublicData`.
+- `pubJson_()` lưu đệm JSON công khai ở CacheService 5 phút (`PUB_TTL`, chia khúc `PUB_CHUNK`); mọi lần ghi qua `append_/update_/remove_…` gọi `pubBust_`. Sửa tay Sheet → chạy `lamMoiDuLieu()` hoặc chờ 5 phút.
+- `tai-ve/Index.html` (bản dán Apps Script) bỏ dữ liệu mẫu trong `const DEMO` (chỉ giữ `cfg`), nhẹ hơn ~75KB.
 
 ### Logo & trang nhúng
 - Logo trường: `assets/logo-nguyen-hien.png` (bản gốc, nền ngoài hình thoi trong suốt). Index.html nhúng bản 128px dạng

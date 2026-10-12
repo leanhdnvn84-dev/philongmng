@@ -69,7 +69,14 @@ const PRIVATE_COLS = { HocSinh: ['sdt'] };
 
 /* ======================= WEB ======================= */
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Index')
+  const out = HtmlService.createHtmlOutputFromFile('Index');
+  /* Gửi sẵn dữ liệu công khai cùng trang: khỏi chờ thêm một lần gọi google.script.run (mở trong Zalo nhanh hơn).
+     Thoát "/" và "<" để Apps Script không cắt "//" và không đóng thẻ script sớm. */
+  try {
+    const j = pubJson_().replace(/</g, '\\u003c').replace(/\//g, '\\/');
+    out.setContent(out.getContent().replace('<script id="boot"></script>', function () { return '<script id="boot">window.BOOT=' + j + ';</script>'; }));
+  } catch (e) { console.log('BOOT: ' + e.message); }
+  return out
     .setTitle('THPT Nguyễn Hiền · Niên khoá 2000–2003')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -182,6 +189,7 @@ function append_(n, o) {
   const sh = sh_(n), r = sh.getLastRow() + 1;
   sh.getRange(r, 1, 1, hdr_(n).length).setNumberFormat('@').setValues([rowOf_(n, o)]);
   delete _cache[n];
+  pubBust_(n);
 }
 function appendMany_(n, list) {
   if (!list.length) return;
@@ -189,10 +197,12 @@ function appendMany_(n, list) {
   sh.getRange(r, 1, list.length, hdr_(n).length).setNumberFormat('@')
     .setValues(list.map(function (o) { return rowOf_(n, o); }));
   delete _cache[n];
+  pubBust_(n);
 }
 function update_(n, o) {
   sh_(n).getRange(o._row, 1, 1, hdr_(n).length).setNumberFormat('@').setValues([rowOf_(n, o)]);
   delete _cache[n];
+  pubBust_(n);
 }
 function find_(n, val) {
   const key = SHEETS[n][0];
@@ -203,6 +213,7 @@ function remove_(n, pred) {
   const sh = sh_(n);
   rows.forEach(function (r) { sh.deleteRow(r); });
   delete _cache[n];
+  pubBust_(n);
   return rows.length;
 }
 function upsert_(n, o) {
@@ -372,7 +383,41 @@ function autoSeed_() {
   });
 }
 
+/* Dữ liệu công khai lưu đệm ở CacheService (chia nhỏ vì mỗi ô tối đa 100KB), xoá ngay khi có ghi dữ liệu. */
+const PUB_KEY = 'PUB_', PUB_TTL = 300, PUB_CHUNK = 30000;
+function pubBust_(n) {
+  if (n === 'NhatKy') return;
+  try { CacheService.getScriptCache().remove(PUB_KEY + 'n'); } catch (e) { }
+}
+function pubJson_() {
+  const c = CacheService.getScriptCache();
+  try {
+    const n = Number(c.get(PUB_KEY + 'n') || 0);
+    if (n) {
+      const ks = [];
+      for (let i = 0; i < n; i++) ks.push(PUB_KEY + i);
+      const got = c.getAll(ks);
+      if (ks.every(function (k) { return got[k] != null; })) return ks.map(function (k) { return got[k]; }).join('');
+    }
+  } catch (e) { }
+  const j = JSON.stringify(taoPublicData_());
+  try {
+    const o = {}, n = Math.ceil(j.length / PUB_CHUNK);
+    for (let i = 0; i < n; i++) o[PUB_KEY + i] = j.slice(i * PUB_CHUNK, (i + 1) * PUB_CHUNK);
+    c.putAll(o, PUB_TTL);
+    c.put(PUB_KEY + 'n', String(n), PUB_TTL);
+  } catch (e) { console.log('PUB cache: ' + e.message); }
+  return j;
+}
 function getPublicData() {
+  return JSON.parse(pubJson_());
+}
+/** Chạy trong trình soạn thảo sau khi sửa tay Sheet, để trang hiện ngay (không chờ 5 phút). */
+function lamMoiDuLieu() {
+  pubBust_('');
+  Logger.log('Đã làm mới, mở lại trang là thấy dữ liệu mới.');
+}
+function taoPublicData_() {
   try { autoSeed_(); } catch (e) { console.log('autoSeed: ' + e.message); }
   const accs = read_('TaiKhoan').filter(function (a) { return a.role === 'class' && a.active !== '0'; });
   const hs = read_('HocSinh');
@@ -1072,6 +1117,7 @@ function xoaDuLieuMau_() {
     if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, w).clearContent();
     if (keep.length) sh.getRange(2, 1, keep.length, w).setNumberFormat('@').setValues(keep.map(function (o) { return rowOf_(s, o); }));
     delete _cache[s];
+    pubBust_(s);
   });
   // Lớp: bỏ lời giới thiệu và tên chủ nhiệm do bản mẫu điền, giữ phần bạn đã tự sửa
   let lop = 0;
