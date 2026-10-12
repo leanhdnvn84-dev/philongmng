@@ -36,7 +36,7 @@ const CONFIG_DEFAULT = {
   loiNgo: 'Ba năm áo trắng trôi qua như một cái chớp mắt. Hơn hai mươi năm sau, chúng ta mỗi người một ngả, nhưng tiếng trống trường, gốc phượng sân sau và những trang lưu bút vẫn còn đó. Trang này là để mình tìm lại nhau.',
   nguoiKy: 'Ban liên lạc khoá 2000 – 2003',
   /** Mỗi dòng một người: Họ tên | Điện thoại hoặc Zalo | Vai trò (tuỳ chọn) */
-  banLienLac: ''
+  banLienLac: 'Lê Trung Hiếu | 0905 394 493\nHoàng Diệu Thúy | 0905 865 867\nNguyễn Thị Tuyết Mai | 0905 516 896'
 };
 
 /** Câu mặc định của các bản trước: nếu Sheet còn giữ nguyên thì tự dùng câu mặc định mới. */

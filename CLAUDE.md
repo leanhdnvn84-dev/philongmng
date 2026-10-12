@@ -40,6 +40,7 @@ Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), 
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
 
 Cấu hình `banLienLac` (Cài đặt): mỗi dòng "Họ tên | Điện thoại/Zalo | Vai trò" → cột Ban liên lạc ở chân trang + đầu danh bạ trang Kết nối.
+Mặc định trong `CONFIG_DEFAULT.banLienLac` (Lê Trung Hiếu, Hoàng Diệu Thúy, Nguyễn Thị Tuyết Mai) – dòng trong Sheet CauHinh (nếu có) sẽ ghi đè.
 
 ### Dữ liệu mẫu
 Mọi dòng mẫu có id bắt đầu `mau_`. Nội dung mẫu viết trong `napDuLieuMau_()` (Code.gs); dòng `const DEMO=` trong Index.html
