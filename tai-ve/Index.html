@@ -391,6 +391,46 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-cls .nhoai button{background:var(--muc);color:#fff;border:0;border-radius:99px;padding:8px 16px;font-weight:600;font-size:14px}
 .p-cls .diemdanh{font-family:'Patrick Hand',cursive;font-size:24px;color:var(--muc);margin-bottom:12px;line-height:1.25}
 .p-cls .diemdanh small{display:block;font-family:'Be Vietnam Pro';font-size:14px;color:var(--mo);margin-top:2px}
+/* ---- Sơ đồ lớp học: bảng đen, bục giảng, bàn đôi ---- */
+.p-cls .xem{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+.p-cls .xem button{background:#fff;border:1.5px solid var(--vien);border-radius:999px;padding:6px 14px;font-size:14px;color:var(--mo)}
+.p-cls .xem button.on{background:var(--muc);border-color:var(--muc);color:#fff;font-weight:600}
+.p-cls .xem input{flex:1;min-width:180px;max-width:320px;margin-left:auto;border:1.5px solid var(--vien);border-radius:999px;padding:7px 14px;background:#fff;font-size:14px}
+.lophoc{background:linear-gradient(180deg,#F7F1E4,#EFE5D0);border:1.5px solid #E2D3B4;border-radius:16px;padding:22px 24px 18px;box-shadow:inset 0 0 0 6px rgba(255,255,255,.45)}
+.lophoc .bang{position:relative;max-width:760px;margin:0 auto;background:radial-gradient(ellipse at 30% 20%,#3E5E4A,#26392D 75%);border:11px solid #8B5A2B;border-radius:6px;box-shadow:0 8px 18px rgba(60,35,10,.25),inset 0 0 30px rgba(0,0,0,.35);color:#F4F1E6;text-align:center;padding:16px 18px 22px;font-family:'Patrick Hand',cursive}
+.lophoc .bang:after{content:"";position:absolute;left:12%;right:12%;bottom:-19px;height:8px;background:#7A4E25;border-radius:0 0 4px 4px}
+.lophoc .bang .ng{display:block;text-align:right;font-size:16px;opacity:.85}
+.lophoc .bang b{display:block;font-weight:400;font-size:46px;line-height:1.05;margin:2px 0 4px;text-shadow:0 0 1px rgba(255,255,255,.6)}
+.lophoc .bang span.ss{font-size:19px;opacity:.9}
+.lophoc .bang .phan{position:absolute;bottom:-17px;right:16%;width:26px;height:6px;background:#fff;border-radius:2px;transform:rotate(-6deg)}
+.lophoc .buc{margin:30px auto 22px;max-width:520px;background:linear-gradient(180deg,#D9C29C,#C9AD80);border-radius:8px;padding:12px 16px 14px;box-shadow:0 6px 0 #A88A5C,0 10px 16px rgba(60,35,10,.18)}
+.lophoc .bgv{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,#9B6538,#7E4E28);border-radius:6px;padding:12px 16px;color:#FFF6E6;box-shadow:inset 0 2px 0 rgba(255,255,255,.18)}
+.lophoc .bgv .do{display:flex;gap:6px;font-size:22px;flex:none}
+.lophoc .bgv .ten{flex:1;min-width:0}
+.lophoc .bgv small{display:block;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+.lophoc .bgv b{display:block;font-family:'Patrick Hand',cursive;font-weight:400;font-size:26px;line-height:1.1}
+.lophoc .bgv .so-db{flex:none;background:#B3261E;color:#fff;font-size:11px;padding:4px 8px;border-radius:3px;transform:rotate(-4deg);box-shadow:0 2px 3px rgba(0,0,0,.25)}
+.lophoc .day{display:grid;grid-template-columns:1fr 1fr 34px 1fr 1fr;column-gap:14px;row-gap:18px}
+.lophoc .day .ban:nth-child(4n+3){grid-column:4}
+.lophoc .ban{position:relative;background:linear-gradient(180deg,#C8935F,#AE7646);border-radius:7px;padding:7px 7px 19px;box-shadow:0 5px 0 #8A5A30,0 9px 12px rgba(60,35,10,.18)}
+.lophoc .ban .mat{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.lophoc .ban .so{position:absolute;left:0;right:0;bottom:1px;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,240,215,.75)}
+.lophoc .cho{position:relative;background:#FFFDF6;border-radius:5px;padding:14px 6px 8px;text-align:center;min-height:74px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:transform .2s,box-shadow .2s,opacity .2s;min-width:0}
+.lophoc .cho:hover{transform:translateY(-2px) rotate(-.6deg);box-shadow:0 6px 12px rgba(0,0,0,.18)}
+.lophoc .cho.trong{background:rgba(255,253,246,.35);box-shadow:none;border:1.5px dashed rgba(255,250,235,.6)}
+.lophoc .cho.trong:after{content:"chỗ trống";font-size:11px;color:rgba(255,250,235,.85)}
+.lophoc .cho i{position:absolute;top:3px;left:6px;font-style:normal;font-size:10.5px;color:#B5A88A}
+.lophoc .cho small{display:block;font-size:11px;line-height:1.25;color:var(--mo);overflow-wrap:anywhere}
+.lophoc .cho b{display:block;font-family:'Patrick Hand',cursive;font-weight:400;font-size:21px;line-height:1.1;color:var(--muc);overflow-wrap:anywhere}
+.lophoc .cho .cv{display:inline-block;max-width:100%;white-space:normal;overflow-wrap:anywhere;margin:4px auto 0;font-size:10.5px;line-height:1.3;background:#FFE7A3;color:#7A5600;border-radius:6px;padding:1px 6px}
+.lophoc .cho.chuc{box-shadow:0 0 0 2px #F2C94C,0 1px 2px rgba(0,0,0,.15)}
+.lophoc .cho em{display:block;font-style:normal;font-size:11px;color:#9A93AE;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lophoc .cho a{display:block;font-size:11.5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lophoc .cho.sang{box-shadow:0 0 0 3px #E8505B,0 8px 16px rgba(232,80,91,.35);transform:translateY(-3px) scale(1.04);z-index:1}
+.lophoc .day.loc .cho:not(.sang){opacity:.35}
+.lophoc .cuoi{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:22px;font-size:13px;color:#8A7A5C}
+.lophoc .cuoi span:first-child{font-family:'Patrick Hand',cursive;font-size:18px}
+@media(max-width:760px){.lophoc{padding:16px 10px 14px;border-radius:12px}.lophoc .bang{border-width:8px;padding:10px 10px 16px}.lophoc .bang b{font-size:34px}.lophoc .bang .ng{font-size:13px}.lophoc .bang span.ss{font-size:16px}.lophoc .buc{padding:9px 10px 11px;margin:26px auto 18px}.lophoc .bgv{padding:10px 12px;gap:10px}.lophoc .bgv b{font-size:21px}.lophoc .bgv .do{font-size:18px}.lophoc .bgv .so-db{display:none}.lophoc .day{grid-template-columns:1fr 18px 1fr;column-gap:8px;row-gap:14px}.lophoc .day .ban:nth-child(4n+3){grid-column:auto}.lophoc .day .ban:nth-child(2n){grid-column:3}.lophoc .ban{padding:5px 5px 17px}.lophoc .ban .mat{gap:4px}.lophoc .cho{padding:13px 3px 6px;min-height:66px}.lophoc .cho b{font-size:18px}.lophoc .cho small{font-size:10px}.lophoc .cho .cv{font-size:9.5px;padding:1px 4px;line-height:1.25}.lophoc .cho em{display:none}.p-cls .xem input{margin-left:0;max-width:none}}
 .p-ev .year .cam{font-style:italic;color:#3D4C61;font-size:15px;margin:-8px 0 18px;border-left:3px solid var(--c);padding-left:10px}
 .p-ev .loi{padding:60px 32px 0;text-align:center;max-width:780px;margin:auto}
 .p-ev .loi p{font-size:clamp(20px,2.3vw,27px);font-weight:700;line-height:1.4;letter-spacing:-.01em}
@@ -642,11 +682,11 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'))}
 
 /* ===================== CÁC LỚP ===================== */
-let clsQ='',curCls=null,cT=0;
+let clsQ='',curCls=null,cT=0,cV='so';
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
  return `<${T} class="nhan" style="--c:${col(i)}" ${st?'':`onclick="openCls('${c.id}')"`}><div class="t">Nhãn vở</div><div class="lop">Lớp ${esc(c.ten)}</div>
  <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>${hit?`<div class="hit">Có: ${hit}</div>`:''}</${T}>`}
-function openCls(id){cT=0;if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
+function openCls(id){cT=0;cV='so';if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
  el.innerHTML=`<h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
  <div class="top-cls"><div class="nhoai"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
@@ -656,8 +696,17 @@ function nhoAi(){const el=$('nhoAi');if(!el)return;const all=[];D.lop.forEach(c=
 function drawLabels(){const q=clsQ.trim().toLowerCase();
  const l=D.lop.map((c,i)=>({c,i})).map(o=>{if(!q)return o;const inName=(o.c.ten+' '+o.c.gvcn).toLowerCase().includes(q);const hs=o.c.hs.filter(s=>s.hoTen.toLowerCase().includes(q)).map(s=>esc(s.hoTen));return inName||hs.length?Object.assign(o,{hit:inName?'':hs.slice(0,3).join(', ')}):null}).filter(Boolean);
  $('clsGrid').innerHTML=l.map(({c,i,hit})=>nhan(c,i,0,hit)).join('')||`<p class="empty">${D.lop.length?'Không thấy lớp hay bạn nào khớp. Thử gõ ngắn hơn, ví dụ chỉ tên gọi.':'Chưa có lớp nào.'}</p>`}
+function tachTen(n){const w=String(n||'').trim().split(/\s+/);return {ho:w.slice(0,-1).join(' '),t:w[w.length-1]||''}}
+function soDoLop(c,sd,coSdt){const hs=c.hs,bans=[];for(let k=0;k<hs.length;k+=2)bans.push([0,1].map(j=>hs[k+j]?{s:hs[k+j],k:k+j}:null));
+ const cho=o=>{if(!o)return '<div class="cho trong"></div>';const s=o.s,n=tachTen(s.hoTen),p=sd[s.id],l=p&&contactLink(p);
+  return `<div class="cho${s.chucVu?' chuc':''}" data-n="${esc(String(s.hoTen).toLowerCase())}" title="${esc(s.hoTen+(s.chucVu?' · '+s.chucVu:'')+(s.hienO?' · đang ở '+s.hienO:''))}"><i>${o.k+1}</i>${n.ho?`<small>${esc(n.ho)}</small>`:''}<b>${esc(n.t)}</b>${s.chucVu?`<span class="cv">${esc(s.chucVu)}</span>`:''}${s.hienO?`<em>${esc(s.hienO)}</em>`:''}${coSdt&&p?(l?`<a href="${esc(l)}" target="_blank" rel="noopener">${esc(p)}</a>`:`<em>${esc(p)}</em>`):''}</div>`};
+ return `<div class="lophoc"><div class="bang"><span class="ng">Buổi học cuối · tháng 5 năm 2003</span><b>Lớp ${esc(c.ten)}</b><span class="ss">Sĩ số: ${hs.length} · Vắng: 0 — đủ mặt cả nhé!</span><i class="phan"></i></div>
+ <div class="buc"><div class="bgv"><span class="do" aria-hidden="true">📚✏️</span><div class="ten"><small>Bàn giáo viên · Chủ nhiệm</small><b>${esc(c.gvcn||'Thầy cô chủ nhiệm')}</b></div><span class="so-db">Sổ đầu bài</span></div></div>
+ <div class="day" id="dayBan">${bans.map((b,x)=>`<div class="ban"><div class="mat">${cho(b[0])}${cho(b[1])}</div><span class="so">Bàn ${x+1}</span></div>`).join('')}</div>
+ <div class="cuoi"><span>Chỗ ngồi xếp theo danh sách lớp, ai ngồi cạnh ai thì chỉ tụi mình nhớ.</span><span>🚪 Cửa lớp · ☀️ Cửa sổ nhìn ra sân trường</span></div></div>`}
+function timCho(q,cuon){const d=$('dayBan');if(!d)return;q=String(q||'').trim().toLowerCase();let f=null;d.querySelectorAll('.cho[data-n]').forEach(e=>{const ok=!!q&&e.dataset.n.includes(q);e.classList.toggle('sang',ok);if(ok&&!f)f=e});d.classList.toggle('loc',!!q);if(cuon&&f)f.scrollIntoView({behavior:'smooth',block:'center'})}
 function drawCls(){const c=D.lop.find(l=>l.id===curCls),i=lopIdx(curCls);const al=A&&A.lop.find(x=>x.id===c.id),sd={};if(al)al.hs.forEach(h=>{if(h.sdt)sd[h.id]=h.sdt});const coSdt=!!al;const ph=D.anh.filter(p=>p.lopId===c.id),nt=D.luuBut.filter(n=>n.lopId===c.id);let b='';
- if(cT===0)b=c.hs.length?`<p class="diemdanh">Điểm danh lại một lần nữa nhé, lớp ${esc(c.ten)}…<small>${c.hs.length} bạn, giờ ở ${new Set(c.hs.map(s=>String(s.hienO||'').trim()).filter(Boolean)).size||'nhiều'} nơi khác nhau. Đọc chậm từng cái tên, biết đâu lại nghe tiếng “Có!” năm nào.</small></p><div class="roster"><table><thead><tr><th>STT</th><th>Họ tên</th><th>Chức vụ</th><th class="hide-m">Giờ đang ở</th>${coSdt?'<th>Điện thoại</th>':''}</tr></thead><tbody>${c.hs.map((s,k)=>`<tr><td>${k+1}</td><td class="n">${esc(s.hoTen)}</td><td>${s.chucVu?`<span class="cv">${esc(s.chucVu)}</span>`:''}</td><td class="hide-m">${esc(s.hienO)}</td>${coSdt?`<td style="white-space:nowrap">${sd[s.id]?(contactLink(sd[s.id])?`<a href="${esc(contactLink(sd[s.id]))}" target="_blank" rel="noopener">${esc(sd[s.id])}</a>`:esc(sd[s.id])):''}</td>`:''}</tr>`).join('')}</tbody></table></div><p class="sub" style="margin-top:10px;font-size:13.5px">${coSdt?'Số điện thoại chỉ hiện với admin lớp và Ban liên lạc đang đăng nhập.':'Số điện thoại các bạn được giữ kín. Cần liên lạc ai, nhắn admin lớp '+esc(c.ten)+' nhé.'}</p>`:'<p class="empty">Lớp chưa cập nhật danh sách.</p>';
+ if(cT===0)b=c.hs.length?`<p class="diemdanh">Điểm danh lại một lần nữa nhé, lớp ${esc(c.ten)}…<small>${c.hs.length} bạn, giờ ở ${new Set(c.hs.map(s=>String(s.hienO||'').trim()).filter(Boolean)).size||'nhiều'} nơi khác nhau. Đọc chậm từng cái tên, biết đâu lại nghe tiếng “Có!” năm nào.</small></p><div class="xem"><button class="${cV==='so'?'on':''}" onclick="cV='so';drawCls()">🪑 Sơ đồ lớp</button><button class="${cV==='ds'?'on':''}" onclick="cV='ds';drawCls()">📋 Danh sách</button>${cV==='so'?'<input placeholder="Tìm chỗ ngồi của một bạn…" oninput="timCho(this.value)" onkeydown="if(event.key===\'Enter\')timCho(this.value,1)" aria-label="Tìm chỗ ngồi">':''}</div>${cV==='so'?soDoLop(c,sd,coSdt):`<div class="roster"><table><thead><tr><th>STT</th><th>Họ tên</th><th>Chức vụ</th><th class="hide-m">Giờ đang ở</th>${coSdt?'<th>Điện thoại</th>':''}</tr></thead><tbody>${c.hs.map((s,k)=>`<tr><td>${k+1}</td><td class="n">${esc(s.hoTen)}</td><td>${s.chucVu?`<span class="cv">${esc(s.chucVu)}</span>`:''}</td><td class="hide-m">${esc(s.hienO)}</td>${coSdt?`<td style="white-space:nowrap">${sd[s.id]?(contactLink(sd[s.id])?`<a href="${esc(contactLink(sd[s.id]))}" target="_blank" rel="noopener">${esc(sd[s.id])}</a>`:esc(sd[s.id])):''}</td>`:''}</tr>`).join('')}</tbody></table></div>`}<p class="sub" style="margin-top:10px;font-size:13.5px">${coSdt?'Số điện thoại chỉ hiện với admin lớp và Ban liên lạc đang đăng nhập.':'Số điện thoại các bạn được giữ kín. Cần liên lạc ai, nhắn admin lớp '+esc(c.ten)+' nhé.'}</p>`:'<p class="empty">Lớp chưa cập nhật danh sách.</p>';
  if(cT===1)b=ph.length?`<div class="mini">${ph.map((p,k)=>`<div class="ph" style="background:${grad(k)}" onclick="openLb(D.anh.filter(a=>a.lopId==='${c.id}'),${k})">${pic(p,500)}</div>`).join('')}</div>`:'<p class="empty">Lớp chưa có ảnh. Admin lớp có thể tải ảnh trong mục Quản trị.</p>';
  if(cT===2)b=(nt.length?nt.map(n=>`<p class="lb-note">“${esc(n.noiDung)}” <small>${esc(n.tacGia)}</small></p>`).join(''):'<p class="empty">Chưa có lưu bút gửi lớp này.</p>')+`<button class="back" onclick="ybT=3;wLop='${c.id}';go('yearbook')">Viết lưu bút cho lớp ${esc(c.ten)}</button>`;
  $('v-classes').innerHTML=`<button class="back" onclick="curCls=null;renderClasses()">← Tất cả các lớp</button><div class="head">${nhan(c,i,1)}<div><h2>Lớp ${esc(c.ten)}</h2>${c.gioiThieu?`<p>${esc(c.gioiThieu)}</p>`:''}<p class="sub" style="margin-top:8px">${c.ban?esc(c.ban)+' · ':''}Admin lớp: <b>${esc(c.admin||'chưa có')}</b></p></div></div>
