@@ -405,9 +405,9 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .thu{position:relative;width:100%;max-width:700px;max-height:90vh;overflow:auto;background:#FFFDF8;background-image:linear-gradient(90deg,transparent 54px,#F3C3C8 54px,#F3C3C8 56px,transparent 56px),repeating-linear-gradient(transparent 0 31px,#F2E9E6 31px 32px);border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.35);padding:34px 40px 0 78px;color:#3A2E2E;animation:moThu .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes moThu{from{opacity:0;transform:translateY(28px) scale(.96) rotate(-.6deg)}to{opacity:1;transform:none}}
 .thu .x{position:absolute;top:8px;right:12px;background:none;border:0;font-size:30px;line-height:1;color:#8A6F6A;z-index:2}
-.thu .tem{float:right;margin:16px 6px 10px 16px;width:86px;height:86px;border:2px dashed #C8102E;border-radius:6px;display:grid;place-items:center;transform:rotate(6deg);background:#fff}
+.thu .tem{float:right;margin:2px 6px 10px 16px;width:86px;height:86px;border:2px dashed #C8102E;border-radius:6px;display:grid;place-items:center;transform:rotate(6deg);background:#fff}
 .thu .tem img{width:66px;height:66px}
-.thu .ey{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:#C8102E;font-weight:700}
+.thu .ey{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:#C8102E;font-weight:700;white-space:nowrap;padding-right:28px}
 .thu h2{font-family:'Playfair Display',serif;font-weight:600;font-size:clamp(26px,3.6vw,34px);line-height:1.15;color:#2B2A33;margin:6px 0 14px}
 .thu h2 .t1{display:block;font-family:'Charm',cursive;font-weight:700;font-size:.82em;color:#C8102E;line-height:1.2}
 .thu h2 .t2{display:block;white-space:nowrap;font-size:.82em}
@@ -433,7 +433,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-home .phong:hover{box-shadow:0 12px 30px rgba(200,16,46,.24)}
 @keyframes rung{0%,88%,100%{transform:none}92%{transform:rotate(-1.5deg)}96%{transform:rotate(1.5deg)}}
 @media (prefers-reduced-motion:reduce){.p-home .phong{animation:none}.thu{animation:none}}
-@media(max-width:760px){.thu{padding:28px 18px 0 22px;background-image:repeating-linear-gradient(transparent 0 31px,#F2E9E6 31px 32px)}.thu h2 .t2{clear:both;font-size:min(24px,5.4vw)}.thu .tem{width:60px;height:60px;margin-top:26px}.thu .tem img{width:46px;height:46px}.thu .ey{font-size:11.5px;letter-spacing:.12em}.thu .hen .dem{margin-left:0}}
+@media(max-width:760px){.thu{padding:28px 18px 0 22px;background-image:repeating-linear-gradient(transparent 0 31px,#F2E9E6 31px 32px)}.thu h2 .t2{clear:both;font-size:min(24px,5.4vw)}.thu .tem{width:60px;height:60px;margin-top:4px}.thu .tem img{width:46px;height:46px}.thu .ey{font-size:min(12px,3vw);letter-spacing:.08em}.thu .hen .dem{margin-left:0}}
 
 /* ===== RESPONSIVE ===== */
 @media(min-width:761px){.modal{align-items:center}.modal .box{border-radius:16px}}
@@ -600,7 +600,7 @@ const THU={ma:'thu_30nam_2026',tieuDe:'Thư ngỏ – Hẹn nhau ngày trở v�
   'Hẹn gặp lại tất cả chúng ta – những cô cậu học trò Nguyễn Hiền của niên khóa 2000–2003 – vào ngày 14/11 nhé! ❤️'],
  ky:'Trân trọng và thương mến!',kyTen:'Ban Tổ chức gặp mặt niên khóa 2000–2003'};
 function moThu(tuDong){if(tuDong&&store.get('nh_an_'+THU.ma))return;const con=Math.ceil((THU.hen-new Date())/864e5);
- $('thuBox').innerHTML=`<button class="x" onclick="dongThu()" aria-label="Đóng thư">×</button><div class="tem"><img src="${$('hLogo').src}" alt=""></div><div class="ey">Kỷ niệm 30 năm <span class="nw">thành lập trường</span></div><h2 id="thuTieuDe"><span class="t1">Thư ngỏ</span><span class="t2">Hẹn nhau <span class="nw">ngày trở về ❤️</span></span></h2><p><b>${esc(THU.mo)}</b></p>
+ $('thuBox').innerHTML=`<button class="x" onclick="dongThu()" aria-label="Đóng thư">×</button><div class="ey">Kỷ niệm 30 năm thành lập trường</div><div class="tem"><img src="${$('hLogo').src}" alt=""></div><h2 id="thuTieuDe"><span class="t1">Thư ngỏ</span><span class="t2">Hẹn nhau <span class="nw">ngày trở về ❤️</span></span></h2><p><b>${esc(THU.mo)}</b></p>
  ${THU.doan.map(d=>d==='@HEN'?`<div class="hen"><div><b>${esc(THU.gio)} · ${esc(THU.ngay)}</b><span>Buổi gặp mặt thân mật cả 12 lớp, niên khóa ${esc(D.cfg.nienKhoa)}</span></div>${con>0?`<div class="dem"><b>${con}</b><span>ngày nữa</span></div>`:''}</div>`:d[0]==='*'?`<p class="dam">${esc(d.slice(1))}</p>`:`<p>${esc(d)}</p>`).join('')}
  <div class="ky">${esc(THU.ky)}<small>${esc(THU.kyTen)}</small></div>
  <div class="nut"><label><input type="checkbox" id="thuAn" ${store.get('nh_an_'+THU.ma)?'checked':''}> Không tự mở thư này nữa</label><div class="bt"><button class="phu" onclick="dongThu()">Để sau</button><button class="chinh" onclick="dongThu();menu('connect');setTimeout(()=>{const r=$('r1');if(r){r.scrollIntoView({behavior:'smooth',block:'center'});r.focus()}},350)">Đăng ký tham dự</button></div></div>`;
