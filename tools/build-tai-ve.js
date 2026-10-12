@@ -61,8 +61,9 @@ function put(s, a, b) {
     if (!re.test(s)) throw new Error('Không tìm thấy khung #' + id);
     s = s.replace(re, (m, open, tag, close) => open + snap[id] + close);
   });
-  s = put(s, "if(window.google&&google.script&&google.script.run)loadPublic().catch(err);\n</script>",
-    "if(window.google&&google.script&&google.script.run)loadPublic().catch(err);\ndocument.documentElement.classList.remove('nojs');\n</script>");
+  // gỡ class "nojs" ở cuối script khởi động: chạy tới đây nghĩa là JavaScript không lỗi
+  s = s.replace(/\n<\/script>\n<\/body>/, () => "\ndocument.documentElement.classList.remove('nojs');\n</script>\n</body>");
+  if (!s.includes("classList.remove('nojs')")) throw new Error('Không chèn được lệnh gỡ nojs');
   fs.writeFileSync(OUT, s);
   fs.writeFileSync(OUT_GAS, s);
   console.log('Đã ghi', path.relative(ROOT, OUT), (s.length / 1024).toFixed(0) + ' KB');

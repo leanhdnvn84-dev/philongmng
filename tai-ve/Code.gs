@@ -12,7 +12,7 @@
 
 const SHEETS = {
   Lop:      ['id', 'ten', 'gvcn', 'ban', 'gioiThieu', 'thuTu'],
-  HocSinh:  ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu'],
+  HocSinh:  ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu', 'sdt'],
   HoatDong: ['id', 'namHoc', 'ngay', 'tieuDe', 'moTa', 'icon', 'anhId', 'trangThai', 'lopDeXuat', 'taoLuc'],
   ThayCo:   ['id', 'hoTen', 'vaiTro', 'anhId', 'thuTu'],
   LuuBut:   ['id', 'lopId', 'tacGia', 'noiDung', 'trangThai', 'taoLuc'],
@@ -51,6 +51,9 @@ const SESSION_TTL = 21600; // 6 giờ
 const PROP = PropertiesService.getScriptProperties();
 let _ss = null;
 let _cache = {};
+let _hdr = {};
+/** Cột chỉ admin xem được, không đưa ra trang công khai */
+const PRIVATE_COLS = { HocSinh: ['sdt'] };
 
 /* ======================= WEB ======================= */
 function doGet() {
@@ -68,14 +71,10 @@ function setup() {
   _ss = ss;
 
   Object.keys(SHEETS).forEach(function (name) {
-    const h = SHEETS[name];
     const sh = ss.getSheetByName(name) || ss.insertSheet(name);
-    const cur = sh.getLastRow() === 0 ? [] : sh.getRange(1, 1, 1, h.length).getValues()[0];
-    if (cur.join('|') !== h.join('|')) {
-      sh.getRange(1, 1, 1, h.length).setValues([h])
-        .setFontWeight('bold').setBackground('#1e4f9c').setFontColor('#ffffff');
-      sh.setFrozenRows(1);
-    }
+    const h = hdr_(name); // giữ nguyên các cột bạn tự thêm, chỉ bổ sung cột còn thiếu ở cuối
+    sh.getRange(1, 1, 1, h.length).setFontWeight('bold').setBackground('#1e4f9c').setFontColor('#ffffff');
+    sh.setFrozenRows(1);
     sh.getRange(1, 1, sh.getMaxRows(), h.length).setNumberFormat('@');
   });
   ['Sheet1', 'Trang tính1'].forEach(function (n) {
@@ -123,16 +122,39 @@ function ss_() {
 }
 function sh_(n) { return ss_().getSheetByName(n); }
 
+/**
+ * Hàng tiêu đề thật của sheet. Dữ liệu đọc/ghi theo TÊN cột, nên trong Sheet có thể chèn,
+ * đổi thứ tự hay thêm cột riêng mà không bị lệch. Cột thiếu được tự thêm vào cuối.
+ */
+function hdr_(n) {
+  if (_hdr[n]) return _hdr[n];
+  const sh = sh_(n), lc = sh.getLastColumn();
+  let h = lc ? sh.getRange(1, 1, 1, lc).getDisplayValues()[0].map(function (x) { return String(x).trim(); }) : [];
+  while (h.length && !h[h.length - 1]) h.pop();
+  const miss = SHEETS[n].filter(function (k) { return h.indexOf(k) < 0; });
+  if (miss.length) {
+    sh.getRange(1, h.length + 1, 1, miss.length).setNumberFormat('@').setValues([miss]);
+    h = h.concat(miss);
+  }
+  return (_hdr[n] = h);
+}
+/** Khoá của cột j: tên cột, hoặc __cJ nếu ô tiêu đề để trống (vẫn giữ dữ liệu khi ghi lại). */
+function colKey_(h, j) { return h[j] || ('__c' + j); }
+/** Bỏ dấu thanh bị gõ lặp (vd "Nguyễ̃n", "Thị̣") và chuẩn hoá Unicode. */
+function clean_(v) {
+  return String(v).normalize('NFC').replace(/([\u00C0-\u1EF9])[\u0300-\u036F]+/g, '$1').trim();
+}
+
 function read_(n) {
   if (_cache[n]) return _cache[n];
-  const sh = sh_(n), h = SHEETS[n], last = sh.getLastRow();
+  const sh = sh_(n), h = hdr_(n), last = sh.getLastRow(), key = SHEETS[n][0];
   if (last < 2) return (_cache[n] = []);
   const v = sh.getRange(2, 1, last - 1, h.length).getDisplayValues();
   const out = [];
   v.forEach(function (r, i) {
-    if (r[0] === '') return;
     const o = { _row: i + 2 };
-    h.forEach(function (k, j) { o[k] = r[j]; });
+    h.forEach(function (k, j) { o[colKey_(h, j)] = clean_(r[j]); });
+    if (o[key] === '') return;
     out.push(o);
   });
   return (_cache[n] = out);
@@ -142,22 +164,22 @@ function safe_(v) {
   const s = v == null ? '' : String(v);
   return /^[=+@]/.test(s) ? "'" + s : s;
 }
-function rowOf_(n, o) { return SHEETS[n].map(function (k) { return safe_(o[k]); }); }
+function rowOf_(n, o) { const h = hdr_(n); return h.map(function (k, j) { return safe_(o[colKey_(h, j)]); }); }
 
 function append_(n, o) {
   const sh = sh_(n), r = sh.getLastRow() + 1;
-  sh.getRange(r, 1, 1, SHEETS[n].length).setNumberFormat('@').setValues([rowOf_(n, o)]);
+  sh.getRange(r, 1, 1, hdr_(n).length).setNumberFormat('@').setValues([rowOf_(n, o)]);
   delete _cache[n];
 }
 function appendMany_(n, list) {
   if (!list.length) return;
   const sh = sh_(n), r = sh.getLastRow() + 1;
-  sh.getRange(r, 1, list.length, SHEETS[n].length).setNumberFormat('@')
+  sh.getRange(r, 1, list.length, hdr_(n).length).setNumberFormat('@')
     .setValues(list.map(function (o) { return rowOf_(n, o); }));
   delete _cache[n];
 }
 function update_(n, o) {
-  sh_(n).getRange(o._row, 1, 1, SHEETS[n].length).setNumberFormat('@').setValues([rowOf_(n, o)]);
+  sh_(n).getRange(o._row, 1, 1, hdr_(n).length).setNumberFormat('@').setValues([rowOf_(n, o)]);
   delete _cache[n];
 }
 function find_(n, val) {
@@ -189,8 +211,17 @@ function pick_(o, keys) {
 }
 function pub_(o) {
   const r = {};
-  Object.keys(o).forEach(function (k) { if (k !== '_row' && k !== 'salt' && k !== 'hash') r[k] = o[k]; });
+  Object.keys(o).forEach(function (k) { if (k !== '_row' && k !== 'salt' && k !== 'hash' && k.indexOf('__c') !== 0) r[k] = o[k]; });
   return r;
+}
+/** Bản công khai: chỉ các cột chuẩn của sheet, bỏ cột riêng tư (vd số điện thoại). */
+function pubOf_(n) {
+  const hide = PRIVATE_COLS[n] || [];
+  return function (o) {
+    const r = {};
+    SHEETS[n].forEach(function (k) { if (hide.indexOf(k) < 0) r[k] = o[k] == null ? '' : o[k]; });
+    return r;
+  };
 }
 function sort_(arr) {
   return arr.slice().sort(function (a, b) {
@@ -313,25 +344,25 @@ function getPublicData() {
   const accs = read_('TaiKhoan').filter(function (a) { return a.role === 'class' && a.active !== '0'; });
   const hs = read_('HocSinh');
   const lop = sort_(read_('Lop')).map(function (l) {
-    const o = pub_(l);
+    const o = pubOf_('Lop')(l);
     const ad = accs.find(function (a) { return a.lopId === l.id; });
     o.admin = ad ? ad.hoTen : '';
     o.adminLienHe = ad ? (ad.lienHe || '') : '';
-    o.hs = sort_(hs.filter(function (h) { return h.lopId === l.id; })).map(pub_);
+    o.hs = sort_(hs.filter(function (h) { return h.lopId === l.id; })).map(pubOf_('HocSinh'));
     return o;
   });
   const dk = read_('DangKy').filter(function (d) { return d.trangThai !== 'huy'; });
   const dkLop = {};
   dk.forEach(function (d) { dkLop[d.lopId] = (dkLop[d.lopId] || 0) + 1; });
   return {
-    tinTuc: sortNews_(read_('TinTuc').filter(function (t) { return t.trangThai === 'published'; })).map(pub_),
+    tinTuc: sortNews_(read_('TinTuc').filter(function (t) { return t.trangThai === 'published'; })).map(pubOf_('TinTuc')),
     dangKy: { tong: dk.length, theoLop: dkLop },
     cfg: cfg_(),
     lop: lop,
-    hoatDong: read_('HoatDong').filter(function (e) { return e.trangThai === 'published'; }).map(pub_),
-    thayCo: sort_(read_('ThayCo')).map(pub_),
-    luuBut: read_('LuuBut').filter(function (x) { return x.trangThai === 'approved'; }).map(pub_).reverse(),
-    anh: read_('Anh').map(pub_).reverse()
+    hoatDong: read_('HoatDong').filter(function (e) { return e.trangThai === 'published'; }).map(pubOf_('HoatDong')),
+    thayCo: sort_(read_('ThayCo')).map(pubOf_('ThayCo')),
+    luuBut: read_('LuuBut').filter(function (x) { return x.trangThai === 'approved'; }).map(pubOf_('LuuBut')).reverse(),
+    anh: read_('Anh').map(pubOf_('Anh')).reverse()
   };
 }
 
@@ -491,7 +522,7 @@ function removeClassAdmin(token, lopId) {
 function saveStudent(token, s) {
   return lock_(function () {
     const u = auth_(token);
-    const o = pick_(s, ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu']);
+    const o = pick_(s, ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu', 'sdt']);
     if (o.id) {
       const ex = find_('HocSinh', o.id);
       if (!ex) throw new Error('Học sinh không tồn tại.');
@@ -518,7 +549,7 @@ function deleteStudent(token, id) {
   });
 }
 
-/** Dán từ Excel: mỗi dòng "Họ tên<TAB>Chức vụ<TAB>Hiện ở" (dấu ; cũng được). */
+/** Dán từ Excel: mỗi dòng "Họ tên<TAB>Chức vụ<TAB>Hiện ở<TAB>Điện thoại" (dấu ; cũng được). */
 function importStudents(token, lopId, text) {
   return lock_(function () {
     const u = auth_(token);
@@ -531,7 +562,7 @@ function importStudents(token, lopId, text) {
       const p = line.split(/\t|;/).map(function (x) { return x.trim(); });
       if (!p[0] || /^(họ\s*tên|ho\s*ten|stt)$/i.test(p[0])) return;
       if (/^\d+$/.test(p[0]) && p[1]) p.shift(); // bỏ cột STT
-      list.push({ id: uid_() + list.length, lopId: lopId, hoTen: p[0].slice(0, 80), chucVu: (p[1] || '').slice(0, 40), hienO: (p[2] || '').slice(0, 80), thuTu: String(++order) });
+      list.push({ id: uid_() + list.length, lopId: lopId, hoTen: p[0].slice(0, 80), chucVu: (p[1] || '').slice(0, 40), hienO: (p[2] || '').slice(0, 80), sdt: (p[3] || '').slice(0, 30), thuTu: String(++order) });
     });
     if (!list.length) throw new Error('Không đọc được dòng nào.');
     appendMany_('HocSinh', list);
@@ -971,7 +1002,7 @@ function xoaDuLieuMau_() {
     const keep = all.filter(function (x) { return String(x.id).indexOf('mau_') !== 0; });
     if (keep.length === all.length) return;
     total += all.length - keep.length;
-    const sh = sh_(s), w = SHEETS[s].length;
+    const sh = sh_(s), w = hdr_(s).length;
     if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, w).clearContent();
     if (keep.length) sh.getRange(2, 1, keep.length, w).setNumberFormat('@').setValues(keep.map(function (o) { return rowOf_(s, o); }));
     delete _cache[s];

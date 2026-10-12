@@ -20,6 +20,7 @@ function makeSheet() {
   const rows = [];
   const sh = {
     getLastRow: () => rows.length,
+    getLastColumn: () => rows.reduce((m, r) => Math.max(m, (r || []).length), 0),
     getMaxRows: () => Math.max(rows.length, 1000),
     getRange: (r, c, nr, nc) => {
       nr = nr || 1; nc = nc || 1;
