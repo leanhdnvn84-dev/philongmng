@@ -398,6 +398,8 @@ function getAdminData(token) {
     return o;
   });
   const mine = function (x, field) { return isS || x[field] === u.lopId; };
+  const lopIds = {};
+  read_('Lop').forEach(function (l) { lopIds[l.id] = 1; });
   const log = read_('NhatKy').filter(function (x) { return isS || x.user === u.user; }).slice(-50).reverse().map(pub_);
   return {
     me: u,
@@ -408,6 +410,7 @@ function getAdminData(token) {
     luuBut: read_('LuuBut').filter(function (x) { return mine(x, 'lopId'); }).map(pub_).reverse(),
     anh: read_('Anh').filter(function (x) { return mine(x, 'lopId'); }).map(pub_).reverse(),
     accounts: isS ? accs.map(pub_) : [],
+    hsLac: isS ? sort_(hs.filter(function (h) { return !lopIds[h.lopId]; })).map(pub_) : [],
     tinTuc: isS ? sortNews_(read_('TinTuc')).map(pub_) : [],
     dangKy: read_('DangKy').filter(function (x) { return mine(x, 'lopId'); }).map(pub_).reverse(),
     log: log
@@ -546,6 +549,23 @@ function deleteStudent(token, id) {
     remove_('HocSinh', function (x) { return x.id === id; });
     log_(u, 'Xoá học sinh ' + ex.hoTen);
     return true;
+  });
+}
+
+/** Chuyển nhiều học sinh sang một lớp (Ban liên lạc) – dùng khi mã lớp bị nhập sai. */
+function moveStudents(token, ids, lopId) {
+  return lock_(function () {
+    const u = auth_(token, true);
+    const l = find_('Lop', lopId);
+    if (!l) throw new Error('Lớp không tồn tại.');
+    const set = {};
+    (ids || []).forEach(function (x) { set[String(x)] = 1; });
+    let n = 0;
+    read_('HocSinh').slice().forEach(function (h) {
+      if (set[h.id] && h.lopId !== l.id) { h.lopId = l.id; update_('HocSinh', h); n++; }
+    });
+    log_(u, 'Chuyển ' + n + ' học sinh sang lớp ' + l.ten);
+    return n;
   });
 }
 

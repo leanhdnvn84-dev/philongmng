@@ -34,7 +34,8 @@ Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PR
 setClassAdmin, removeClassAdmin, saveStudent, deleteStudent, importStudents, saveEvent, setEventStatus,
 deleteEvent, saveTeacher, deleteTeacher, moderateNote, deleteNote, uploadPhoto, updatePhoto, deletePhoto,
 saveConfig, saveNews, deleteNews, submitRegistration, setRegistrationStatus, deleteRegistration,
-updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins`.
+updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents`.
+`getAdminData.hsLac` (super): học sinh có `lopId` không khớp lớp nào → nhóm "⚠ Chưa thuộc lớp nào" trong Quản trị → Học sinh, tick + Chuyển lớp.
 Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
 
