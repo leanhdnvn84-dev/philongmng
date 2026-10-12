@@ -10,6 +10,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Be Vietnam Pro',sans-serif;font-size:16px;line-height:1.6;color:#22213A;background:#fff}
+html{overflow-x:hidden;overscroll-behavior-x:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}body{max-width:100%;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}main,section.view,footer.g{max-width:100%;overflow-x:clip}
+@media(max-width:760px){body .p-ev .yr{font-size:min(52px,13vw)}}
 button,input,select,textarea{font-family:inherit;font-size:15px}
 button{cursor:pointer}
 :focus-visible{outline:3px solid #2f6fd1;outline-offset:2px}
@@ -475,7 +477,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 </style>
 </head>
 <body data-p="home">
-<div id="demoTag" style="display:none;position:fixed;left:12px;bottom:84px;z-index:60;background:#fff8e1;color:#7a5600;border:1px solid #f0d68a;border-radius:999px;padding:5px 12px;font:600 12px 'Be Vietnam Pro',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.08)">Đang hiển thị nội dung mẫu</div>
+<div id="demoTag" style="display:none;position:fixed;left:12px;max-width:calc(100% - 24px);box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;bottom:84px;z-index:60;background:#fff8e1;color:#7a5600;border:1px solid #f0d68a;border-radius:999px;padding:5px 12px;font:600 12px 'Be Vietnam Pro',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.08)">Đang hiển thị nội dung mẫu</div>
 
 <header class="g"><div class="in">
   <button class="brand" onclick="menu('home')" aria-label="Về trang chủ">

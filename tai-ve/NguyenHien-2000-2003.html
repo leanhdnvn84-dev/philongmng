@@ -10,6 +10,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Be Vietnam Pro',sans-serif;font-size:16px;line-height:1.6;color:#22213A;background:#fff}
+html{overflow-x:hidden;overscroll-behavior-x:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}body{max-width:100%;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}main,section.view,footer.g{max-width:100%;overflow-x:clip}
+@media(max-width:760px){body .p-ev .yr{font-size:min(52px,13vw)}}
 button,input,select,textarea{font-family:inherit;font-size:15px}
 button{cursor:pointer}
 :focus-visible{outline:3px solid #2f6fd1;outline-offset:2px}
@@ -487,7 +489,7 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
 </head>
 <body data-p="home">
 <div class="nojs-only">Đang hiển thị bản đọc vì nút bấm chưa chạy được. Nếu mở tệp tải về, hãy mở bằng Safari hoặc Chrome để tìm bạn, xem ảnh lớn và chuyển trang.</div>
-<div id="demoTag" style="display:none;position:fixed;left:12px;bottom:84px;z-index:60;background:#fff8e1;color:#7a5600;border:1px solid #f0d68a;border-radius:999px;padding:5px 12px;font:600 12px 'Be Vietnam Pro',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.08)">Đang hiển thị nội dung mẫu</div>
+<div id="demoTag" style="display:none;position:fixed;left:12px;max-width:calc(100% - 24px);box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;bottom:84px;z-index:60;background:#fff8e1;color:#7a5600;border:1px solid #f0d68a;border-radius:999px;padding:5px 12px;font:600 12px 'Be Vietnam Pro',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.08)">Đang hiển thị nội dung mẫu</div>
 
 <header class="g"><div class="in">
   <button class="brand" onclick="menu('home')" aria-label="Về trang chủ">
@@ -516,7 +518,7 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three"><article><b>Về trường mình, thêm một lần nữa: họp lớp toàn khoá dịp 20/11</b><p>Ban liên lạc đã chốt: buổi sáng cả khoá về thăm trường 61 Phan Đăng Lưu, chụp ảnh dưới gốc phượng, thắp nén hương nhớ thầy cô và bạn bè đã k Đã có 24 bạn đăng ký.</p><button onclick="go('connect')">Xem trang Kết nối</button></article><article><b>Kỷ yếu có 16 lưu bút</b><p>Mới nhất: “Mày nhớ không, bàn cuối dãy cửa sổ, tụi mình khắc tên lên mặt bàn rồi bị thầy giám thị bắt” của Hải.</p><button onclick="ybT=1;go('yearbook')">Đọc lưu bút</button></article><article><b>Album lớp 12/6 vừa cập nhật</b><p>Ảnh mới trong album “Bây giờ”. Cả khoá có 39 tấm ảnh.</p><button onclick="gF='lop6';gA='';go('gallery')">Xem ảnh</button></article></div></div>
  <div class="quote"><p>“Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.”</p><small>Lưu bút của một bạn khoá 2000 – 2003</small></div></section>
   <section class="view p-cls" id="v-classes"><h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
- <div class="top-cls"><div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Võ Hoàng Bình</b>, lớp 12/10?<small>Giờ bạn ấy đang ở Đà Nẵng. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
+ <div class="top-cls"><div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Ngô Ngọc Hiếu</b>, lớp 12/4?<small>Giờ bạn ấy đang ở Đà Nẵng. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"></div><div class="labels" id="clsGrid"><button class="nhan" style="--c:#C8102E" onclick="openCls('lop1')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/1</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Cô Nguyễn Thị Hoa</em></div><div class="ln"><span>Sĩ số</span><em>40 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Nguyễn Thị Hà</em></div></button><button class="nhan" style="--c:#4A2C8F" onclick="openCls('lop2')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/2</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Thầy Trần Văn Lộc</em></div><div class="ln"><span>Sĩ số</span><em>45 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Bùi Minh Dũng</em></div></button><button class="nhan" style="--c:#2E8B57" onclick="openCls('lop3')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/3</div>
