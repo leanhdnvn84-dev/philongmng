@@ -341,6 +341,23 @@ function changePassword(token, oldPw, newPw) {
   });
 }
 
+/**
+ * Quên mật khẩu Ban liên lạc: chọn hàm này trong trình soạn thảo → Run → xem Execution log.
+ * Đặt mật khẩu mới dễ nhớ cho tài khoản "banlienlac" (tạo mới nếu chưa có) và mở khoá đăng nhập.
+ */
+function datLaiMatKhauBanLienLac() {
+  if (!Session.getActiveUser().getEmail()) throw new Error('Chỉ chạy được từ trình soạn thảo Apps Script.');
+  return lock_(function () {
+    const pw = easyPw_(), salt = Utilities.getUuid();
+    const a = find_('TaiKhoan', 'banlienlac');
+    if (a) { a.salt = salt; a.hash = hash_(salt, pw); a.active = '1'; a.role = 'super'; update_('TaiKhoan', a); }
+    else append_('TaiKhoan', { user: 'banlienlac', hoTen: 'Ban liên lạc', role: 'super', lopId: '', salt: salt, hash: hash_(salt, pw), active: '1' });
+    CacheService.getScriptCache().remove('F_banlienlac');
+    Logger.log('>>> TÀI KHOẢN BAN LIÊN LẠC:  banlienlac  /  ' + pw + '   (đăng nhập xong nên đổi mật khẩu)');
+    return 'banlienlac / ' + pw;
+  });
+}
+
 /* ======================= PUBLIC ======================= */
 function autoSeed_() {
   if (PROP.getProperty('DEMO_AUTO') || typeof napDuLieuMau_ !== 'function') return;
