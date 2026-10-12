@@ -16,7 +16,7 @@ const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'apps-script', 'Index.html');
 const OUT = path.join(ROOT, 'tai-ve', 'NguyenHien-2000-2003.html');
-const OUT_GAS = path.join(ROOT, 'tai-ve', 'Index.html'); // bản dán vào Apps Script (file HTML tên Index)
+const OUT_GAS = path.join(ROOT, 'tai-ve', 'Index.html'); // bản dán vào Apps Script (file HTML tên Index), không vẽ sẵn nội dung mẫu
 const IDS = ['v-home', 'v-classes', 'v-events', 'v-yearbook', 'v-gallery', 'v-connect', 'foot', 'navTop', 'navBot', 'albumList'];
 
 const NOJS_CSS = `
@@ -53,6 +53,7 @@ function put(s, a, b) {
       if (/\/\/|\/\*/.test(t)) throw new Error('Có "//" hoặc "/*" trong script (Apps Script sẽ cắt mất): ' + t.trim().slice(0, 100));
     });
   });
+  const src = s; // bản gốc đã qua kiểm tra, dùng cho Apps Script
   s = put(s, '<html lang="vi">', '<html lang="vi" class="nojs">');
   s = put(s, '/* ===== RESPONSIVE ===== */', NOJS_CSS + '\n/* ===== RESPONSIVE ===== */');
   s = put(s, '<body data-p="home">', '<body data-p="home">\n<div class="nojs-only">Đang hiển thị bản đọc vì nút bấm chưa chạy được. Nếu mở tệp tải về, hãy mở bằng Safari hoặc Chrome để tìm bạn, xem ảnh lớn và chuyển trang.</div>');
@@ -65,6 +66,6 @@ function put(s, a, b) {
   s = s.replace(/\n<\/script>\n<\/body>/, () => "\ndocument.documentElement.classList.remove('nojs');\n</script>\n</body>");
   if (!s.includes("classList.remove('nojs')")) throw new Error('Không chèn được lệnh gỡ nojs');
   fs.writeFileSync(OUT, s);
-  fs.writeFileSync(OUT_GAS, s);
+  fs.writeFileSync(OUT_GAS, src);
   console.log('Đã ghi', path.relative(ROOT, OUT), (s.length / 1024).toFixed(0) + ' KB');
 })().catch(e => { console.error(e); process.exit(1); });

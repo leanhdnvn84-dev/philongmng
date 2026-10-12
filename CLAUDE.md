@@ -67,6 +67,8 @@ Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … *
 - `tai-ve/NguyenHien-2000-2003.html` là bản **tạo ra** từ `apps-script/Index.html`, không sửa tay.
   Sau mỗi lần sửa Index.html, chạy lại: `PLAYWRIGHT=/opt/node-tools/node_modules/playwright node tools/build-tai-ve.js`.
   Script vẽ sẵn nội dung các trang vào HTML, vì trình xem tệp trên điện thoại (iPhone…) không chạy JavaScript.
-- Script cũng ghi `tai-ve/Index.html` (cùng nội dung) để **dán vào Apps Script**: nếu JS lỗi (vd. dán thiếu
-  dòng `DEMO` rất dài) trang vẫn hiện bản đọc, và dòng đỏ ở cuối trang báo lỗi + số dòng (bắt lỗi ở `<script>` đầu `<head>`).
+- Script cũng ghi `tai-ve/Index.html` = bản gốc (đã kiểm tra `//`) để **dán vào Apps Script**, KHÔNG vẽ sẵn nội dung mẫu.
+  Nếu JS lỗi, dòng đỏ ở cuối trang báo lỗi + số dòng (bắt lỗi ở `<script>` đầu `<head>`).
+- Trên Apps Script (`LIVE`) trang không bao giờ dùng `DEMO`: hiện màn "Đang mở trang kỷ niệm…" tới khi có dữ liệu Sheet.
+  `DEMO` chỉ dùng cho bản xem thử/tải về. `xoaDuLieuMau_` giữ thầy cô mẫu đã bị sửa tên, dọn giới thiệu/GVCN mẫu của lớp.
 - `tai-ve/Code.gs` + `tai-ve/NguyenHien-AppsScript.zip` (Code.gs + Index.html bản dựng): đóng gói lại sau mỗi lần build.

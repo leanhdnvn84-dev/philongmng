@@ -855,6 +855,26 @@ function updateMyContact(token, lienHe) {
  * để có thể xoá sạch bằng xoaDuLieuMau(). Chạy từ trình soạn thảo,
  * hoặc từ Quản trị → Cài đặt (tài khoản Ban liên lạc).
  */
+/** Nội dung mẫu dùng chung cho nạp và xoá (để nhận ra đâu là dữ liệu mẫu). */
+const MAU_GV = ['Cô Nguyễn Thị Hoa', 'Thầy Trần Văn Lộc', 'Cô Lê Thị Mỹ', 'Thầy Phạm Quốc Hùng', 'Cô Võ Thị Lan', 'Thầy Đỗ Minh Tâm', 'Cô Huỳnh Thu Hà', 'Thầy Bùi Văn Sơn', 'Cô Phan Thị Nga', 'Thầy Ngô Đức Trí', 'Cô Đặng Mỹ Linh', 'Thầy Lê Văn Đức'];
+const MAU_GT = [
+  'Lớp ngồi tầng hai dãy nhà A, cửa sổ nhìn thẳng ra gốc phượng. Giờ ra chơi cả lớp đứng hành lang thả máy bay giấy xuống sân, bị thầy giám thị gọi tên hoài.',
+  'Đội văn nghệ của lớp tập “Áo trắng” dưới mưa suốt một tuần, rồi giành giải nhất đêm 20/11. Cái áo dài ướt sũng hôm đó, có bạn vẫn còn giữ.',
+  'Lớp nhiều “mọt sách” nhất khối, nhưng cũng là lớp trốn tiết ra căng tin bị bắt nhiều nhất. Thầy chủ nhiệm giận mà vẫn mua bánh mì cho cả lớp.',
+  'Đội bóng đá nam vô địch Hội khoẻ Phù Đổng. Trận chung kết cả lớp khản cổ cổ vũ, cô chủ nhiệm cũng hét theo, quên cả giữ dáng.',
+  'Trại của lớp dựng bằng tre và lá dừa, đẹp nhất hội trại 26/3. Đêm đó cả lớp thức trắng kể chuyện ma, sáng ra ai cũng thâm quầng mắt.',
+  'Lớp của những tờ báo tường giải nhất. Bài thơ “Gửi mái trường” của lớp, đến giờ thầy cô vẫn còn nhắc.',
+  'Lớp có nhiều bạn đi xa nhất: Úc, Mỹ, Nhật, Đức. Mỗi lần họp lớp là một lần gọi video vòng quanh thế giới, lệch múi giờ mà vẫn đủ mặt.',
+  'Nổi tiếng với chiếc trống tự chế từ thùng sơn và những buổi sinh hoạt lớp cuối tuần chẳng bao giờ về đúng giờ.',
+  'Đội Rung chuông vàng vào tới chung kết. Câu hỏi cuối cùng, cả sân trường nín thở nhìn lớp trưởng giơ tấm bảng lên.',
+  'Lớp ồn nhất dãy nhà B nhưng thương nhau nhất: có bạn ốm là cả lớp kéo tới nhà, mang theo tập vở chép bài hộ.',
+  'Lớp có ban nhạc “Phượng Hồng”, chơi guitar ở mọi đêm lửa trại. Bài tủ là “Mong ước kỷ niệm xưa”, hát tới đâu khóc tới đó.',
+  'Lớp út của khoá, ngồi cuối dãy, gần căng tin nhất. Lời hứa “mười năm nữa gặp lại” của lớp đã giữ được hai lần rồi.'
+];
+const MAU_TC = ['Thầy Nguyễn Văn Thành', 'Cô Trần Thị Thu', 'Thầy Lê Quang Vinh', 'Cô Hồ Thị Minh', 'Thầy Trương Công Bình'];
+/** Lời giới thiệu lớp do bản mẫu cũ tạo ra: "Lớp 12/1 học dãy nhà A, nhớ nhất …" */
+const MAU_GT_CU = /^Lớp \S+ học dãy nhà [AB], nhớ nhất /;
+
 function napDuLieuMau() {
   if (!Session.getActiveUser().getEmail()) throw new Error('Chỉ chạy được từ trình soạn thảo Apps Script.');
   return lock_(napDuLieuMau_);
@@ -874,22 +894,9 @@ function napDuLieuMau_() {
   let n = 0;
   const id = function (p) { return 'mau_' + p + '_' + (++n); };
 
-  const GV = ['Cô Nguyễn Thị Hoa', 'Thầy Trần Văn Lộc', 'Cô Lê Thị Mỹ', 'Thầy Phạm Quốc Hùng', 'Cô Võ Thị Lan', 'Thầy Đỗ Minh Tâm', 'Cô Huỳnh Thu Hà', 'Thầy Bùi Văn Sơn', 'Cô Phan Thị Nga', 'Thầy Ngô Đức Trí', 'Cô Đặng Mỹ Linh', 'Thầy Lê Văn Đức'];
+  const GV = MAU_GV;
   const BAN = ['Ban A', 'Ban A', 'Ban A', 'Ban B', 'Ban B', 'Ban B', 'Ban C', 'Ban C', 'Ban C', 'Ban D', 'Ban D', 'Ban D'];
-  const GT = [
-    'Lớp ngồi tầng hai dãy nhà A, cửa sổ nhìn thẳng ra gốc phượng. Giờ ra chơi cả lớp đứng hành lang thả máy bay giấy xuống sân, bị thầy giám thị gọi tên hoài.',
-    'Đội văn nghệ của lớp tập “Áo trắng” dưới mưa suốt một tuần, rồi giành giải nhất đêm 20/11. Cái áo dài ướt sũng hôm đó, có bạn vẫn còn giữ.',
-    'Lớp nhiều “mọt sách” nhất khối, nhưng cũng là lớp trốn tiết ra căng tin bị bắt nhiều nhất. Thầy chủ nhiệm giận mà vẫn mua bánh mì cho cả lớp.',
-    'Đội bóng đá nam vô địch Hội khoẻ Phù Đổng. Trận chung kết cả lớp khản cổ cổ vũ, cô chủ nhiệm cũng hét theo, quên cả giữ dáng.',
-    'Trại của lớp dựng bằng tre và lá dừa, đẹp nhất hội trại 26/3. Đêm đó cả lớp thức trắng kể chuyện ma, sáng ra ai cũng thâm quầng mắt.',
-    'Lớp của những tờ báo tường giải nhất. Bài thơ “Gửi mái trường” của lớp, đến giờ thầy cô vẫn còn nhắc.',
-    'Lớp có nhiều bạn đi xa nhất: Úc, Mỹ, Nhật, Đức. Mỗi lần họp lớp là một lần gọi video vòng quanh thế giới, lệch múi giờ mà vẫn đủ mặt.',
-    'Nổi tiếng với chiếc trống tự chế từ thùng sơn và những buổi sinh hoạt lớp cuối tuần chẳng bao giờ về đúng giờ.',
-    'Đội Rung chuông vàng vào tới chung kết. Câu hỏi cuối cùng, cả sân trường nín thở nhìn lớp trưởng giơ tấm bảng lên.',
-    'Lớp ồn nhất dãy nhà B nhưng thương nhau nhất: có bạn ốm là cả lớp kéo tới nhà, mang theo tập vở chép bài hộ.',
-    'Lớp có ban nhạc “Phượng Hồng”, chơi guitar ở mọi đêm lửa trại. Bài tủ là “Mong ước kỷ niệm xưa”, hát tới đâu khóc tới đó.',
-    'Lớp út của khoá, ngồi cuối dãy, gần căng tin nhất. Lời hứa “mười năm nữa gặp lại” của lớp đã giữ được hai lần rồi.'
-  ];
+  const GT = MAU_GT;
   lops.forEach(function (l, i) {
     if (!l.gvcn) l.gvcn = GV[i % GV.length];
     if (!l.ban) l.ban = BAN[i % BAN.length];
@@ -935,7 +942,7 @@ function napDuLieuMau_() {
   ];
   appendMany_('HoatDong', EV.map(function (e) { return { id: id('hd'), namHoc: e[0], ngay: e[1], tieuDe: e[2], moTa: e[3], icon: e[4], anhId: '', trangThai: 'published', lopDeXuat: '', taoLuc: t }; }));
 
-  const TC = [['Thầy Nguyễn Văn Thành', 'Hiệu trưởng'], ['Cô Trần Thị Thu', 'Phó hiệu trưởng'], ['Thầy Lê Quang Vinh', 'Bí thư Đoàn trường'], ['Cô Hồ Thị Minh', 'Tổ trưởng Ngữ văn'], ['Thầy Trương Công Bình', 'Giám thị, người gác cổng trường']];
+  const TC = [[MAU_TC[0], 'Hiệu trưởng'], [MAU_TC[1], 'Phó hiệu trưởng'], [MAU_TC[2], 'Bí thư Đoàn trường'], [MAU_TC[3], 'Tổ trưởng Ngữ văn'], [MAU_TC[4], 'Giám thị, người gác cổng trường']];
   lops.forEach(function (l, i) { TC.push([l.gvcn || GV[i % GV.length], 'Chủ nhiệm ' + l.ten]); });
   const seen = {};
   appendMany_('ThayCo', TC.filter(function (x) { if (seen[x[0]]) return false; seen[x[0]] = 1; return true; })
@@ -996,16 +1003,32 @@ function napDuLieuMau_() {
 }
 
 function xoaDuLieuMau_() {
-  let total = 0;
+  let total = 0, giu = 0;
+  const tenMau = MAU_TC.concat(MAU_GV);
   ['HocSinh', 'HoatDong', 'ThayCo', 'LuuBut', 'TinTuc', 'Anh', 'DangKy'].forEach(function (s) {
     const all = read_(s);
-    const keep = all.filter(function (x) { return String(x.id).indexOf('mau_') !== 0; });
-    if (keep.length === all.length) return;
+    const keep = all.filter(function (x) {
+      if (String(x.id).indexOf('mau_') !== 0) return true;
+      // Thầy cô mẫu mà bạn đã sửa tên → giữ lại thành dữ liệu thật
+      if (s === 'ThayCo' && tenMau.indexOf(x.hoTen) < 0) { x.id = uid_() + (++giu); return true; }
+      return false;
+    });
+    if (keep.length === all.length && !giu) return;
     total += all.length - keep.length;
     const sh = sh_(s), w = hdr_(s).length;
     if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, w).clearContent();
     if (keep.length) sh.getRange(2, 1, keep.length, w).setNumberFormat('@').setValues(keep.map(function (o) { return rowOf_(s, o); }));
     delete _cache[s];
   });
-  return 'Đã xoá ' + total + ' dòng dữ liệu mẫu. Thông tin chủ nhiệm, ban, giới thiệu của các lớp vẫn giữ để bạn sửa lại.';
+  // Lớp: bỏ lời giới thiệu và tên chủ nhiệm do bản mẫu điền, giữ phần bạn đã tự sửa
+  let lop = 0;
+  read_('Lop').forEach(function (l) {
+    let doi = false;
+    if (l.gioiThieu && (MAU_GT.indexOf(l.gioiThieu) >= 0 || MAU_GT_CU.test(l.gioiThieu))) { l.gioiThieu = ''; doi = true; }
+    if (l.gvcn && MAU_GV.indexOf(l.gvcn) >= 0) { l.gvcn = ''; doi = true; }
+    if (doi) { update_('Lop', l); lop++; }
+  });
+  PROP.setProperty('DEMO_AUTO', '1');
+  return 'Đã xoá ' + total + ' dòng dữ liệu mẫu' + (lop ? ', dọn lời giới thiệu mẫu của ' + lop + ' lớp' : '') +
+    (giu ? '. Giữ lại ' + giu + ' dòng thầy cô bạn đã sửa' : '') + '. Dữ liệu bạn tự nhập không bị ảnh hưởng.';
 }
