@@ -49,7 +49,23 @@ footer.g .lg{display:flex;gap:12px;align-items:center}footer.g .lg img{width:54p
 .toast.err{background:#C8102E}
 .loader{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;place-items:center;z-index:180}
 .loader.on{display:grid}
-.loader.dau{background:#FFF9F4}
+.loader .ld-dau,.loader .ld-roi{display:none}
+.loader.dau{background:radial-gradient(circle at 50% 38%,#FFF7EF 0%,#FDEAE1 58%,#F6D3C8 100%)}
+.loader.dau .ld-thuong{display:none}
+.loader.dau .ld-dau{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px;position:relative;z-index:1}
+.loader.dau .ld-roi{display:block;position:fixed;inset:0;overflow:hidden;pointer-events:none}
+.ld-roi i{position:absolute;top:-30px;width:12px;height:8px;border-radius:70% 0 70% 0;opacity:.75;animation:roi2 linear infinite}
+.ld-dau img{width:116px;height:116px;animation:ldTho 2.8s ease-in-out infinite;filter:drop-shadow(0 10px 22px rgba(200,16,46,.18))}
+@keyframes ldTho{50%{transform:scale(1.06)}}
+.ld-ten{margin-top:18px;font-family:'Playfair Display',serif;font-weight:600;font-size:24px;line-height:1.1;color:#2B2A33}
+.ld-kh{margin-top:4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8A6F6A}
+.ld-cau{margin-top:18px;font-family:'Charm',cursive;font-size:24px;line-height:1.3;color:#8A3B2E;min-height:1.4em;transition:opacity .5s}
+.ld-cau.an{opacity:0}
+.ld-vach{margin-top:16px;width:150px;height:3px;border-radius:3px;background:rgba(200,16,46,.14);overflow:hidden}
+.ld-vach i{display:block;height:100%;width:40%;border-radius:3px;background:#C8102E;animation:ldChay 1.6s ease-in-out infinite}
+@keyframes ldChay{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+.loader.tan{opacity:0;transition:opacity .7s ease}
+@media (prefers-reduced-motion:reduce){.ld-roi{display:none!important}.ld-dau img,.ld-vach i{animation:none}}
 .loader div{text-align:center;color:#4A2C8F;font-weight:600;font-size:14px}
 .spin{width:40px;height:40px;border:4px solid #E4DFF7;border-top-color:#4A2C8F;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 10px}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -436,7 +452,7 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three"><article><b>Về trường mình, thêm một lần nữa: họp lớp toàn khoá dịp 20/11</b><p>Ban liên lạc đã chốt: buổi sáng cả khoá về thăm trường 61 Phan Đăng Lưu, chụp ảnh dưới gốc phượng, thắp nén hương nhớ thầy cô và bạn bè đã k Đã có 24 bạn đăng ký.</p><button onclick="go('connect')">Xem trang Kết nối</button></article><article><b>Kỷ yếu có 16 lưu bút</b><p>Mới nhất: “Mày nhớ không, bàn cuối dãy cửa sổ, tụi mình khắc tên lên mặt bàn rồi bị thầy giám thị bắt” của Hải.</p><button onclick="ybT=1;go('yearbook')">Đọc lưu bút</button></article><article><b>Album lớp 12/6 vừa cập nhật</b><p>Ảnh mới trong album “Bây giờ”. Cả khoá có 39 tấm ảnh.</p><button onclick="gF='lop6';gA='';go('gallery')">Xem ảnh</button></article></div></div>
  <div class="quote"><p>“Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.”</p><small>Lưu bút của một bạn khoá 2000 – 2003</small></div></section>
   <section class="view p-cls" id="v-classes"><h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
- <div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Trần Thanh Hạnh</b>, lớp 12/12?<small>Giờ bạn ấy đang ở Huế. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
+ <div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Lê Minh Hiếu</b>, lớp 12/1?<small>Giờ bạn ấy đang ở Canada. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"><div class="labels" id="clsGrid"><button class="nhan" style="--c:#C8102E" onclick="openCls('lop1')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/1</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Cô Nguyễn Thị Hoa</em></div><div class="ln"><span>Sĩ số</span><em>40 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Nguyễn Thị Hà</em></div></button><button class="nhan" style="--c:#4A2C8F" onclick="openCls('lop2')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/2</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Thầy Trần Văn Lộc</em></div><div class="ln"><span>Sĩ số</span><em>45 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Bùi Minh Dũng</em></div></button><button class="nhan" style="--c:#2E8B57" onclick="openCls('lop3')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/3</div>
@@ -487,7 +503,7 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
 
 <div class="lb" id="lb" onclick="if(event.target===this)closeLb()"><button class="x" onclick="closeLb()" aria-label="Đóng">×</button><button class="nv pv" onclick="stepLb(-1)" aria-label="Ảnh trước">‹</button><figure><img id="lbImg" alt=""><div id="lbPh" class="ph" style="display:none;width:min(80vw,720px);aspect-ratio:4/3;font-size:90px"></div><figcaption id="lbCap"></figcaption></figure><button class="nv nx" onclick="stepLb(1)" aria-label="Ảnh sau">›</button></div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeForm()"><div class="box" id="mBody"></div></div>
-<div class="loader" id="loader"><div><div class="spin"></div><span id="loadTxt">Đang tải…</span></div></div>
+<div class="loader" id="loader"><div class="ld-thuong"><div class="spin"></div><span id="loadTxt">Đang tải…</span></div><div class="ld-roi" id="ldRoi" aria-hidden="true"></div><div class="ld-dau" role="status"><img id="ldLogo" alt="Logo Trường THPT Nguyễn Hiền"><p class="ld-ten">THPT Nguyễn Hiền</p><p class="ld-kh">Khoá 2000 – 2003</p><p class="ld-cau" id="ldCau">Đang lật lại trang lưu bút…</p><div class="ld-vach"><i></i></div></div></div>
 <div class="toast" id="toast"></div>
 <datalist id="albumList"><option value="Ảnh tập thể"></option><option value="Giao lưu"></option><option value="Hội trại 26/3"></option><option value="Văn nghệ"></option><option value="Họp lớp"></option><option value="Ngày ấy"></option><option value="Bây giờ"></option><option value="Ngày khai giảng đầu tiên"></option><option value="Đêm văn nghệ 20/11"></option><option value="Hội khoẻ Phù Đổng"></option><option value="Dã ngoại về nguồn"></option><option value="Rung chuông vàng"></option><option value="Trăm ngày trước kỳ thi"></option><option value="Lễ tri ân và chia tay"></option><option value="Họp lớp 10 năm"></option><option value="Họp lớp 20 năm"></option></datalist>
 <datalist id="nhList"><option value="2000–2001"><option value="2001–2002"><option value="2002–2003"><option value="Sau ra trường"></datalist>
@@ -843,7 +859,11 @@ async function changePw(){const o=$('pwO').value,n=$('pwN').value,r=$('pwR').val
 /* ===================== INIT ===================== */
 if(LIVE)window._dangMo=1;
 buildNav();setD(null);renderPublic();go('home');
-if(LIVE){window._dangMo=1;$('loader').classList.add('dau');busy(1,'Đang mở trang kỷ niệm…');loadPublic().catch(err).finally(()=>{busy(0);$('loader').classList.remove('dau')});if(TOK)api('getAdminData',TOK).then(r=>{A=r;if(cur==='classes')renderClasses()}).catch(()=>{})}
+if(LIVE){window._dangMo=1;const L=$('loader'),CAU=['Đang lật lại trang lưu bút…','Đang gọi tên từng lớp…','Đang tìm lại những người bạn cũ…','Đang nhặt lại cánh phượng sân trường…'];let ci=0;
+ $('ldLogo').src=$('hLogo').src;$('ldRoi').innerHTML=Array.from({length:14},(_,k)=>`<i style="left:${(k*41+7)%100}%;background:${k%3?'#C8102E':'#E8505B'};animation-duration:${8+k%5}s;animation-delay:-${(k*1.1).toFixed(1)}s"></i>`).join('');
+ const xoayCau=setInterval(()=>{const el=$('ldCau');el.classList.add('an');setTimeout(()=>{ci=(ci+1)%CAU.length;el.textContent=CAU[ci];el.classList.remove('an')},500)},2000);
+ L.classList.add('dau');busy(1,'Đang mở trang kỷ niệm…');
+ loadPublic().catch(err).finally(()=>{clearInterval(xoayCau);L.classList.add('tan');setTimeout(()=>{busy(0);L.classList.remove('dau','tan');$('ldRoi').innerHTML=''},700)});if(TOK)api('getAdminData',TOK).then(r=>{A=r;if(cur==='classes')renderClasses()}).catch(()=>{})}
 document.documentElement.classList.remove('nojs');
 </script>
 </body>

@@ -49,7 +49,23 @@ footer.g .lg{display:flex;gap:12px;align-items:center}footer.g .lg img{width:54p
 .toast.err{background:#C8102E}
 .loader{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;place-items:center;z-index:180}
 .loader.on{display:grid}
-.loader.dau{background:#FFF9F4}
+.loader .ld-dau,.loader .ld-roi{display:none}
+.loader.dau{background:radial-gradient(circle at 50% 38%,#FFF7EF 0%,#FDEAE1 58%,#F6D3C8 100%)}
+.loader.dau .ld-thuong{display:none}
+.loader.dau .ld-dau{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px;position:relative;z-index:1}
+.loader.dau .ld-roi{display:block;position:fixed;inset:0;overflow:hidden;pointer-events:none}
+.ld-roi i{position:absolute;top:-30px;width:12px;height:8px;border-radius:70% 0 70% 0;opacity:.75;animation:roi2 linear infinite}
+.ld-dau img{width:116px;height:116px;animation:ldTho 2.8s ease-in-out infinite;filter:drop-shadow(0 10px 22px rgba(200,16,46,.18))}
+@keyframes ldTho{50%{transform:scale(1.06)}}
+.ld-ten{margin-top:18px;font-family:'Playfair Display',serif;font-weight:600;font-size:24px;line-height:1.1;color:#2B2A33}
+.ld-kh{margin-top:4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8A6F6A}
+.ld-cau{margin-top:18px;font-family:'Charm',cursive;font-size:24px;line-height:1.3;color:#8A3B2E;min-height:1.4em;transition:opacity .5s}
+.ld-cau.an{opacity:0}
+.ld-vach{margin-top:16px;width:150px;height:3px;border-radius:3px;background:rgba(200,16,46,.14);overflow:hidden}
+.ld-vach i{display:block;height:100%;width:40%;border-radius:3px;background:#C8102E;animation:ldChay 1.6s ease-in-out infinite}
+@keyframes ldChay{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+.loader.tan{opacity:0;transition:opacity .7s ease}
+@media (prefers-reduced-motion:reduce){.ld-roi{display:none!important}.ld-dau img,.ld-vach i{animation:none}}
 .loader div{text-align:center;color:#4A2C8F;font-weight:600;font-size:14px}
 .spin{width:40px;height:40px;border:4px solid #E4DFF7;border-top-color:#4A2C8F;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 10px}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -421,7 +437,7 @@ footer.g .lg{display:flex;gap:12px;align-items:center}footer.g .lg img{width:54p
 
 <div class="lb" id="lb" onclick="if(event.target===this)closeLb()"><button class="x" onclick="closeLb()" aria-label="Đóng">×</button><button class="nv pv" onclick="stepLb(-1)" aria-label="Ảnh trước">‹</button><figure><img id="lbImg" alt=""><div id="lbPh" class="ph" style="display:none;width:min(80vw,720px);aspect-ratio:4/3;font-size:90px"></div><figcaption id="lbCap"></figcaption></figure><button class="nv nx" onclick="stepLb(1)" aria-label="Ảnh sau">›</button></div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeForm()"><div class="box" id="mBody"></div></div>
-<div class="loader" id="loader"><div><div class="spin"></div><span id="loadTxt">Đang tải…</span></div></div>
+<div class="loader" id="loader"><div class="ld-thuong"><div class="spin"></div><span id="loadTxt">Đang tải…</span></div><div class="ld-roi" id="ldRoi" aria-hidden="true"></div><div class="ld-dau" role="status"><img id="ldLogo" alt="Logo Trường THPT Nguyễn Hiền"><p class="ld-ten">THPT Nguyễn Hiền</p><p class="ld-kh">Khoá 2000 – 2003</p><p class="ld-cau" id="ldCau">Đang lật lại trang lưu bút…</p><div class="ld-vach"><i></i></div></div></div>
 <div class="toast" id="toast"></div>
 <datalist id="albumList"></datalist>
 <datalist id="nhList"><option value="2000–2001"><option value="2001–2002"><option value="2002–2003"><option value="Sau ra trường"></datalist>
@@ -777,7 +793,11 @@ async function changePw(){const o=$('pwO').value,n=$('pwN').value,r=$('pwR').val
 /* ===================== INIT ===================== */
 if(LIVE)window._dangMo=1;
 buildNav();setD(null);renderPublic();go('home');
-if(LIVE){window._dangMo=1;$('loader').classList.add('dau');busy(1,'Đang mở trang kỷ niệm…');loadPublic().catch(err).finally(()=>{busy(0);$('loader').classList.remove('dau')});if(TOK)api('getAdminData',TOK).then(r=>{A=r;if(cur==='classes')renderClasses()}).catch(()=>{})}
+if(LIVE){window._dangMo=1;const L=$('loader'),CAU=['Đang lật lại trang lưu bút…','Đang gọi tên từng lớp…','Đang tìm lại những người bạn cũ…','Đang nhặt lại cánh phượng sân trường…'];let ci=0;
+ $('ldLogo').src=$('hLogo').src;$('ldRoi').innerHTML=Array.from({length:14},(_,k)=>`<i style="left:${(k*41+7)%100}%;background:${k%3?'#C8102E':'#E8505B'};animation-duration:${8+k%5}s;animation-delay:-${(k*1.1).toFixed(1)}s"></i>`).join('');
+ const xoayCau=setInterval(()=>{const el=$('ldCau');el.classList.add('an');setTimeout(()=>{ci=(ci+1)%CAU.length;el.textContent=CAU[ci];el.classList.remove('an')},500)},2000);
+ L.classList.add('dau');busy(1,'Đang mở trang kỷ niệm…');
+ loadPublic().catch(err).finally(()=>{clearInterval(xoayCau);L.classList.add('tan');setTimeout(()=>{busy(0);L.classList.remove('dau','tan');$('ldRoi').innerHTML=''},700)});if(TOK)api('getAdminData',TOK).then(r=>{A=r;if(cur==='classes')renderClasses()}).catch(()=>{})}
 </script>
 </body>
 </html>
