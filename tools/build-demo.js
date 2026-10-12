@@ -51,7 +51,7 @@ const ctx = {
   SpreadsheetApp: { openById: () => ss },
   PropertiesService: { getScriptProperties: () => ({ getProperty: k => props[k] || null, setProperty: (k, v) => { props[k] = v; } }) },
   CacheService: { getScriptCache: () => ({ get: k => cache[k] || null, put: (k, v) => { cache[k] = v; }, remove: k => { delete cache[k]; }, getAll: ks => Object.fromEntries(ks.filter(k => k in cache).map(k => [k, cache[k]])), putAll: o => { Object.assign(cache, o); } }) },
-  LockService: { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) },
+  LockService: { getScriptLock: () => ({ waitLock: () => {}, tryLock: () => true, releaseLock: () => {} }) },
   Utilities: {
     formatDate: () => '2026-10-11 09:00:00',
     getUuid: () => require('crypto').randomUUID(),

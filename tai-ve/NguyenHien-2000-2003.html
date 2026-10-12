@@ -340,6 +340,20 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-adm .kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:22px}
 .p-adm .kpi div{border:1.5px solid var(--vien);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--mo)}
 .p-adm .kpi b{display:block;font-family:'Patrick Hand';font-weight:400;font-size:32px;color:var(--muc);line-height:1.1}
+.tk-dau{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.tkc{margin:4px 0 26px}.tkc .dinh{font-size:12px;color:var(--mo);margin-bottom:4px}
+.tkc .cot{display:flex;align-items:flex-end;gap:2px;height:160px;border-bottom:1px solid #E4E1EE;background:linear-gradient(#EFEDF5,#EFEDF5) 0 0/100% 1px no-repeat}
+.tkc .cot span{flex:1;min-width:0;height:100%;display:flex;align-items:flex-end;justify-content:center}
+.tkc .cot i{display:block;width:100%;max-width:24px;background:#6A4CC4;border-radius:4px 4px 0 0}
+.tkc .cot span.hl i{background:#3E2A86}.tkc .cot span:hover i{opacity:.7}
+.tkc .truc{display:flex;gap:2px;font-size:11px;color:var(--mo);margin-top:4px}.tkc .truc span{flex:1;min-width:0;text-align:center;white-space:nowrap}
+.tkn{display:grid;grid-template-columns:minmax(80px,150px) 1fr auto;gap:10px;align-items:center;font-size:14px;margin:7px 0}
+.tkn .ten{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tkn .thanh{height:14px;background:#F1EEF8;border-radius:4px;overflow:hidden}.tkn .thanh i{display:block;height:100%;background:#6A4CC4;border-radius:0 4px 4px 0}
+.tkn b{font-weight:600;color:var(--muc);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tk2{display:grid;grid-template-columns:1fr 1fr;gap:6px 32px;margin-bottom:18px}@media(max-width:760px){.tk2{grid-template-columns:1fr}}
+.tk details{margin:-12px 0 22px;font-size:14px}.tk details summary{cursor:pointer;color:var(--mo)}
+#tkTip{position:fixed;z-index:200;background:#22213A;color:#fff;font-size:12.5px;padding:5px 9px;border-radius:6px;pointer-events:none;display:none;white-space:nowrap}
 .p-adm .drop{display:block;border:2px dashed var(--muc2);border-radius:12px;padding:22px;text-align:center;background:var(--ly2);color:var(--mo);cursor:pointer}
 .p-adm .pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px}
 .p-adm .pg .it{position:relative}
@@ -560,7 +574,7 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three"><article><b>Về trường mình, thêm một lần nữa: họp lớp toàn khoá dịp 20/11</b><p>Ban liên lạc đã chốt: buổi sáng cả khoá về thăm trường 61 Phan Đăng Lưu, chụp ảnh dưới gốc phượng, thắp nén hương nhớ thầy cô và bạn bè đã k Đã có 24 bạn đăng ký.</p><button onclick="go('connect')">Xem trang Kết nối</button></article><article><b>Kỷ yếu có 16 lưu bút</b><p>Mới nhất: “Mày nhớ không, bàn cuối dãy cửa sổ, tụi mình khắc tên lên mặt bàn rồi bị thầy giám thị bắt” của Hải.</p><button onclick="ybT=1;go('yearbook')">Đọc lưu bút</button></article><article><b>Album lớp 12/6 vừa cập nhật</b><p>Ảnh mới trong album “Bây giờ”. Cả khoá có 39 tấm ảnh.</p><button onclick="gF='lop6';gA='';go('gallery')">Xem ảnh</button></article></div></div>
  <div class="quote"><p>“Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.”</p><small>Lưu bút của một bạn khoá 2000 – 2003</small></div></section>
   <section class="view p-cls" id="v-classes"><h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
- <div class="top-cls"><div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Dương Minh Bảo</b>, lớp 12/12?<small>Ngày ấy là lớp trưởng của lớp. Giờ bạn ấy đang ở Canada. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
+ <div class="top-cls"><div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Ngô Hoàng Huy</b>, lớp 12/4?<small>Giờ bạn ấy đang ở Đức. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"></div><div class="labels" id="clsGrid"><button class="nhan" style="--c:#C8102E" onclick="openCls('lop1')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/1</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Cô Nguyễn Thị Hoa</em></div><div class="ln"><span>Sĩ số</span><em>40 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Nguyễn Thị Hà</em></div></button><button class="nhan" style="--c:#4A2C8F" onclick="openCls('lop2')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/2</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Thầy Trần Văn Lộc</em></div><div class="ln"><span>Sĩ số</span><em>45 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Bùi Minh Dũng</em></div></button><button class="nhan" style="--c:#2E8B57" onclick="openCls('lop3')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/3</div>
@@ -661,7 +675,7 @@ function menu(k){if(k==='yearbook'){ybT=0;wLop=''}if(k==='gallery'){gF='';gA=''}
  if(k==='home')renderHome();if(k==='events')renderEvents();if(k==='connect')renderConnect();go(k)}
 function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')">${t}</button>`).join('');
  $('navBot').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>${t}</button>`).join('')}
-function go(k){if(k==='classes'){curCls=null;clsQ=''}cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
+function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
  if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0)}
 
@@ -761,7 +775,7 @@ let clsQ='',curCls=null,cT=0,cV='so';
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
  return `<${T} class="nhan" style="--c:${col(i)}" ${st?'':`onclick="openCls('${c.id}')"`}><div class="t">Nhãn vở</div><div class="lop">Lớp ${esc(c.ten)}</div>
  <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>${hit?`<div class="hit">Có: ${hit}</div>`:''}</${T}>`}
-function openCls(id){cT=0;cV='so';if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
+function openCls(id){cT=0;cV='so';const lc=D.lop.find(l=>l.id===id);if(lc)tk('lop',lc.ten);if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
  el.innerHTML=`<h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
  <div class="top-cls"><div class="nhoai"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
@@ -884,7 +898,7 @@ async function submitForm(){if(!FORM)return;const o={},files={};
 async function act(fn,msg,ok){if(msg&&!confirm(msg))return;try{busy(1);await fn();if(ok)toast(ok);await refresh()}catch(e){err(e)}finally{busy(0)}}
 
 /* ===================== QUẢN TRỊ ===================== */
-const AT_S=['Tổng quan','Lớp và admin lớp','Học sinh','Hoạt động','Thầy cô','Lưu bút','Hình ảnh','Kết nối','Đăng ký họp lớp','Cài đặt','Tài khoản của tôi'];
+const AT_S=['Tổng quan','Thống kê','Lớp và admin lớp','Học sinh','Hoạt động','Thầy cô','Lưu bút','Hình ảnh','Kết nối','Đăng ký họp lớp','Cài đặt','Tài khoản của tôi'];
 const AT_C=['Thông tin lớp','Học sinh','Hình ảnh','Lưu bút','Đăng ký họp lớp','Đề xuất hoạt động','Tài khoản của tôi'];
 let aT=0,adLop='',nbF='pending',dkF='cho',apF='';
 const isS=()=>A&&A.me.role==='super';
@@ -904,9 +918,31 @@ function renderAdmin(){if(!A)return renderLogin();const tabs=isS()?AT_S:AT_C;if(
  $('v-admin').innerHTML=`<div class="top"><div><h2>${isS()?'Quản trị cả khoá':'Quản trị lớp '+esc(my?my.ten:'')}</h2><p class="who">${isS()?'Ban liên lạc, quản lý tất cả các lớp':'Admin lớp: <b>'+esc(A.me.hoTen)+'</b>. Chỉ sửa được dữ liệu của lớp '+esc(my?my.ten:'')}</p></div><button class="btn2 o sm" onclick="doLogout()">Đăng xuất</button></div>
  <div class="adm"><div class="side">${tabs.map((t,i)=>`<button class="${i===aT?'on':''}" onclick="aT=${i};renderAdmin()"><span>${t}</span>${badgeFor(t)}</button>`).join('')}</div><div class="panel" id="panel"></div></div>`;
  if(!isS()&&!my){$('panel').innerHTML='<p class="who">Tài khoản chưa được gán lớp. Liên hệ Ban liên lạc.</p>';return}
- $('panel').innerHTML=(R[tabs[aT]]||(()=>''))()}
+ $('panel').innerHTML=(R[tabs[aT]]||(()=>''))();const pn=$('panel');pn.onmouseover=pn.onclick=tkTip;pn.onmouseleave=()=>tkTip()}
 
+let TKD=null,TKL=0;
+const tkSo=n=>Number(n||0).toLocaleString('vi-VN'),tkPt=(a,b)=>b?Math.round(a*100/b)+'%':'0%';
+function tkCot(vals,nhan,tip,hl){const mx=Math.max(1,...vals),im=vals.indexOf(Math.max(...vals));
+ return `<div class="tkc"><div class="dinh">Cao nhất: <b>${tkSo(vals[im])}</b> (${esc(nhan[im])})</div><div class="cot">${vals.map((v,i)=>`<span class="${i===hl?'hl':''}" data-t="${esc(tip(i))}"><i style="height:${v?Math.max(2,v/mx*100):0}%"></i></span>`).join('')}</div><div class="truc">${nhan.map((t,i)=>`<span>${i%Math.ceil(vals.length/6)===0||i===vals.length-1?esc(t):''}</span>`).join('')}</div></div>`}
+function tkNgang(ds,tong){const mx=Math.max(1,...ds.map(x=>x[1]));return ds.map(([t,v])=>`<div class="tkn"><span class="ten" title="${esc(t)}">${esc(t)}</span><span class="thanh"><i style="width:${v/mx*100}%"></i></span><b>${tkSo(v)}${tong?' · '+tkPt(v,tong):''}</b></div>`).join('')||'<p class="who">Chưa có.</p>'}
+function tkTip(e){let t=$('tkTip');if(!t){t=document.createElement('div');t.id='tkTip';document.body.appendChild(t)}const el=e&&e.target&&e.target.closest?e.target.closest('[data-t]'):null;if(!el){t.style.display='none';return}
+ const r=el.getBoundingClientRect();t.textContent=el.dataset.t;t.style.display='block';const w=t.offsetWidth,h=t.offsetHeight;t.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';t.style.top=(r.top>h+12?r.top-h-8:r.bottom+8)+'px'}
+function tkVe(d){const nut='<button class="btn2 o sm" onclick="TKD=null;renderAdmin()">Cập nhật số liệu</button>';
+ if(d.loi)return `<p class="who">Chưa lấy được số liệu: ${esc(d.loi)}</p>${nut}`;
+ if(!d.tong)return `<p class="who" style="max-width:62ch;margin-bottom:12px">Chưa có lượt xem nào được ghi. Trang bắt đầu đếm từ khi cập nhật bản này lên Apps Script; mỗi lần có người mở trang sẽ được ghi lại (không lưu tên, số điện thoại hay địa chỉ IP).</p>${nut}`;
+ const dd=x=>x.slice(8,10)+'/'+x.slice(5,7),tong=d.tong,tenTrang=Object.fromEntries(NAV);
+ const tb=['iPhone/iPad','Android','Máy tính'].map(k=>[k,d.thietBi[k]||0]),ng=['Zalo','Facebook','Trình duyệt'].map(k=>[k==='Trình duyệt'?'Trình duyệt / khác':k,d.nguon[k]||0]);
+ return `<div class="tk"><div class="tk-dau"><p class="who">Đếm từ ${esc(d.batDau.slice(11,16)+' ngày '+d.batDau.slice(8,10)+'/'+d.batDau.slice(5,7)+'/'+d.batDau.slice(0,4))} · mỗi máy (trình duyệt) tính là một người.</p>${nut}</div>
+ <div class="kpi">${[[tkSo(d.homNay),'lượt xem hôm nay'],[tkSo(d.bayNgay),'lượt xem 7 ngày qua'],[tkSo(tong),'tổng lượt xem'],[tkSo(d.nguoi),'người đã ghé'],[tkSo(d.quayLai),'người quay lại (từ 2 ngày khác nhau)'],[tkSo(d.dangKy),'bạn đăng ký họp mặt']].map(s=>`<div><b>${s[0]}</b>${s[1]}</div>`).join('')}</div>
+ <h3>Lượt xem 30 ngày gần nhất</h3>${tkCot(d.ngay.map(x=>x[1]),d.ngay.map(x=>dd(x[0])),i=>`${dd(d.ngay[i][0])}: ${tkSo(d.ngay[i][1])} lượt xem · ${tkSo(d.ngay[i][2])} người`,29)}
+ <details><summary>Xem bảng số liệu theo ngày</summary><div class="tw"><table><thead><tr><th>Ngày</th><th>Lượt xem</th><th>Người</th></tr></thead><tbody>${d.ngay.slice().reverse().map(x=>`<tr><td>${dd(x[0])}</td><td>${tkSo(x[1])}</td><td>${tkSo(x[2])}</td></tr>`).join('')}</tbody></table></div></details>
+ <h3>Giờ hay vào nhất</h3>${tkCot(d.gio,d.gio.map((_,h)=>h+'h'),h=>`${h}h – ${h+1}h: ${tkSo(d.gio[h])} lượt xem`,-1)}
+ <div class="tk2"><div><h3>Thiết bị</h3>${tkNgang(tb,tong)}</div><div><h3>Mở từ đâu</h3>${tkNgang(ng,tong)}</div></div>
+ <div class="tk2"><div><h3>Trang được xem nhiều</h3>${tkNgang(d.trang.map(([k,v])=>[tenTrang[k]||k,v]),0)}</div><div><h3>Lớp được bấm xem nhiều</h3>${tkNgang(d.lop.map(([k,v])=>['Lớp '+k,v]),0)}</div></div>
+ <h3>Từ xem trang đến đăng ký họp mặt</h3>${tkNgang([['Người đã ghé',d.nguoi],['Đã đăng ký họp mặt',d.dangKy]],d.nguoi)}
+ <p class="who" style="margin-top:6px">Cứ 100 người ghé trang thì có khoảng ${d.nguoi?Math.round(d.dangKy*100/d.nguoi):0} người đăng ký (đăng ký có thể do admin lớp nhập hộ, nên chỉ để tham khảo).</p></div>`}
 const R={
+ 'Thống kê':()=>{if(!TKD){if(!TKL){TKL=1;api('getThongKe',TOK).then(d=>{TKD=d}).catch(e=>{TKD={loi:String(e&&e.message||e).replace(/^SESSION:\s*/,'')};if(/SESSION/.test(String(e&&e.message)))err(e)}).finally(()=>{TKL=0;if(cur==='admin'&&A&&isS()&&AT_S[aT]==='Thống kê')renderAdmin()})}return '<p class="who">Đang tính số liệu lượt xem…</p>'}return tkVe(TKD)},
  'Tổng quan':()=>{const hs=A.lop.reduce((s,l)=>s+l.hs.length,0),ad=A.lop.filter(l=>l.adminUser).length;
   return `<div class="kpi">${[[ad+'/'+A.lop.length,'lớp đã có admin'],[hs,'học sinh'],[A.luuBut.filter(x=>x.trangThai==='pending').length,'lưu bút chờ duyệt'],[A.hoatDong.filter(x=>x.trangThai==='pending').length,'đề xuất chờ duyệt'],[A.dangKy.filter(x=>x.trangThai!=='huy').length,'bạn đăng ký họp lớp'],[A.anh.length,'tấm ảnh']].map(s=>`<div><b>${s[0]}</b>${s[1]}</div>`).join('')}</div>
   <h3>Nhật ký gần đây</h3>${A.log.length?`<div class="tw"><table><tbody>${A.log.slice(0,30).map(x=>`<tr><td class="who" style="white-space:nowrap">${esc(x.time)}</td><td><b>${esc(x.user)}</b></td><td>${esc(x.action)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="who">Chưa có.</p>'}`},
@@ -1015,7 +1051,16 @@ function saveCfg(){const o={};['tenTruong','diaChi','nienKhoa','namRaTruong','ca
 async function changePw(){const o=$('pwO').value,n=$('pwN').value,r=$('pwR').value;if(n!==r)return toast('Mật khẩu nhập lại không khớp',1);if(n.length<6)return toast('Mật khẩu mới phải từ 6 ký tự',1);
  try{busy(1);await api('changePassword',TOK,o,n);toast('Đã đổi mật khẩu');['pwO','pwN','pwR'].forEach(i=>$(i).value='')}catch(e){err(e)}finally{busy(0)}}
 
+/* ===================== ĐẾM LƯỢT XEM ===================== */
+/* Chỉ khi chạy thật: gộp các lượt rồi gửi sau khi trang đã hiện, không làm chậm trang. Không lưu tên, SĐT, IP. */
+const TK=(()=>{let k=store.get('nh_khach'),moi=0;if(!k||!/^[a-z0-9]{8,24}$/.test(k)){k=(Math.random().toString(36).slice(2,10)+Date.now().toString(36)).slice(0,20);store.set('nh_khach',k);moi=1}
+ const ua=navigator.userAgent||'';return {k,moi,q:[],t:null,da:0,tb:/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1)?'iPhone/iPad':/Android/.test(ua)?'Android':'Máy tính',ng:/Zalo/i.test(ua)?'Zalo':/FBAN|FBAV|FB_IAB|FBIOS|Messenger/i.test(ua)?'Facebook':'Trình duyệt'}})();
+function tk(loai,giaTri){if(!LIVE)return;TK.q.push({loai,giaTri:String(giaTri||'')});if(!TK.t)TK.t=setTimeout(tkGui,TK.da?20000:7000)}
+function tkGui(){clearTimeout(TK.t);TK.t=null;TK.da=1;if(!TK.q.length)return;api('ghiLuotXem',TK.k,TK.tb,TK.ng,TK.q.splice(0,30)).catch(()=>{})}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&TK.q.length)tkGui()});
+
 /* ===================== INIT ===================== */
+tk('vao',TK.moi?'1':'');
 /* Trên Apps Script, doGet gửi sẵn dữ liệu (window.BOOT): không phải chờ server, màn khởi động chỉ đọc đủ 4 câu (~6 giây, chạm để bỏ qua). */
 const BOOT_OK=!!(LIVE&&window.BOOT&&window.BOOT.cfg&&window.BOOT.lop);
 window._dangMo=LIVE?1:0;

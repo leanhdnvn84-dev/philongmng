@@ -21,6 +21,7 @@ const SHEETS = {
   TinTuc:   ['id', 'loai', 'tieuDe', 'noiDung', 'ngay', 'noiBat', 'trangThai', 'taoLuc'],
   DangKy:   ['id', 'lopId', 'hoTen', 'lienHe', 'ghiChu', 'trangThai', 'taoLuc'],
   NhatKy:   ['time', 'user', 'action'],
+  LuotXem:  ['id', 'thoiGian', 'khach', 'moi', 'thietBi', 'nguon', 'loai', 'giaTri'],
   CauHinh:  ['key', 'value']
 };
 
@@ -139,7 +140,15 @@ function ss_() {
   if (_ss) return _ss;
   return (_ss = SpreadsheetApp.openById(DATA_SHEET_ID));
 }
-function sh_(n) { return ss_().getSheetByName(n); }
+function sh_(n) { return ss_().getSheetByName(n) || taoSheet_(n); }
+/** Sheet mới thêm ở bản sau (vd. LuotXem) tự tạo khi cần, khỏi phải chạy lại setup(). */
+function taoSheet_(n) {
+  if (!SHEETS[n]) return null;
+  const sh = ss_().insertSheet(n);
+  sh.getRange(1, 1, 1, SHEETS[n].length).setNumberFormat('@').setValues([SHEETS[n]]).setFontWeight('bold');
+  sh.setFrozenRows(1);
+  return sh;
+}
 
 /**
  * Hàng tiêu đề thật của sheet. Dữ liệu đọc/ghi theo TÊN cột, nên trong Sheet có thể chèn,
@@ -386,7 +395,7 @@ function autoSeed_() {
 /* Dữ liệu công khai lưu đệm ở CacheService (chia nhỏ vì mỗi ô tối đa 100KB), xoá ngay khi có ghi dữ liệu. */
 const PUB_KEY = 'PUB_', PUB_TTL = 300, PUB_CHUNK = 30000;
 function pubBust_(n) {
-  if (n === 'NhatKy') return;
+  if (n === 'NhatKy' || n === 'LuotXem') return;
   try { CacheService.getScriptCache().remove(PUB_KEY + 'n'); } catch (e) { }
 }
 function pubJson_() {
@@ -842,6 +851,81 @@ function saveConfig(token, cfg) {
     log_(u, 'Cập nhật cài đặt chung');
     return true;
   });
+}
+
+/* ======================= THỐNG KÊ LƯỢT XEM ======================= */
+const LX_THIET_BI = ['iPhone/iPad', 'Android', 'Máy tính'];
+const LX_NGUON = ['Zalo', 'Facebook', 'Trình duyệt'];
+const LX_LOAI = ['vao', 'trang', 'lop'];
+
+/**
+ * Trang gửi lên sau khi đã hiện xong (gộp nhiều lượt vào một lần gọi).
+ * Không lưu tên, số điện thoại hay IP: "khach" là mã ngẫu nhiên của trình duyệt.
+ */
+function ghiLuotXem(khach, thietBi, nguon, ds) {
+  khach = String(khach || '');
+  if (!/^[a-z0-9]{8,24}$/.test(khach) || !Array.isArray(ds)) return false;
+  const c = CacheService.getScriptCache(), k = 'LX_' + Utilities.formatDate(new Date(), TZ, 'HHmm');
+  const cnt = Number(c.get(k) || 0);
+  if (cnt > 3000) return false;
+  c.put(k, String(cnt + 1), 120);
+  thietBi = LX_THIET_BI.indexOf(thietBi) >= 0 ? thietBi : 'Máy tính';
+  nguon = LX_NGUON.indexOf(nguon) >= 0 ? nguon : 'Trình duyệt';
+  const t = now_().slice(0, 16);
+  const rows = ds.slice(0, 30).filter(function (e) { return e && LX_LOAI.indexOf(e.loai) >= 0; }).map(function (e) {
+    const v = String(e.giaTri || '').slice(0, 40);
+    return { id: uid_(), thoiGian: t, khach: khach, moi: e.loai === 'vao' && v === '1' ? '1' : '', thietBi: thietBi, nguon: nguon, loai: e.loai, giaTri: e.loai === 'vao' ? '' : v };
+  });
+  if (!rows.length) return true;
+  const l = LockService.getScriptLock();
+  if (!l.tryLock(8000)) return false;
+  try { appendMany_('LuotXem', rows); } finally { l.releaseLock(); }
+  return true;
+}
+
+function getThongKe(token) {
+  auth_(token, true);
+  const rows = read_('LuotXem');
+  const vao = rows.filter(function (r) { return r.loai === 'vao'; });
+  const ngay = [], now = new Date();
+  for (let i = 29; i >= 0; i--) ngay.push(Utilities.formatDate(new Date(now.getTime() - i * 86400000), TZ, 'yyyy-MM-dd'));
+  const homNay = ngay[29], tu7 = ngay[23];
+  const theoNgay = {}, nguoiNgay = {};
+  ngay.forEach(function (d) { theoNgay[d] = 0; nguoiNgay[d] = {}; });
+  const gio = [], tb = {}, ng = {}, khach = {}, khach7 = {}, ngayCuaKhach = {};
+  for (let h = 0; h < 24; h++) gio.push(0);
+  vao.forEach(function (r) {
+    const d = r.thoiGian.slice(0, 10), h = Number(r.thoiGian.slice(11, 13));
+    if (theoNgay[d] !== undefined) { theoNgay[d]++; nguoiNgay[d][r.khach] = 1; }
+    if (h >= 0 && h < 24) gio[h]++;
+    tb[r.thietBi] = (tb[r.thietBi] || 0) + 1;
+    ng[r.nguon] = (ng[r.nguon] || 0) + 1;
+    khach[r.khach] = 1;
+    if (d >= tu7) khach7[r.khach] = 1;
+    (ngayCuaKhach[r.khach] = ngayCuaKhach[r.khach] || {})[d] = 1;
+  });
+  const dem = function (loai) {
+    const m = {};
+    rows.forEach(function (r) { if (r.loai === loai && r.giaTri) m[r.giaTri] = (m[r.giaTri] || 0) + 1; });
+    return Object.keys(m).map(function (k) { return [k, m[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+  };
+  const dk = read_('DangKy').filter(function (d) { return d.trangThai !== 'huy'; }).length;
+  return {
+    batDau: vao.reduce(function (m, r) { return !m || r.thoiGian < m ? r.thoiGian : m; }, ''),
+    tong: vao.length,
+    homNay: theoNgay[homNay],
+    bayNgay: ngay.slice(23).reduce(function (s, d) { return s + theoNgay[d]; }, 0),
+    nguoi: Object.keys(khach).length,
+    nguoi7: Object.keys(khach7).length,
+    quayLai: Object.keys(ngayCuaKhach).filter(function (k) { return Object.keys(ngayCuaKhach[k]).length > 1; }).length,
+    ngay: ngay.map(function (d) { return [d, theoNgay[d], Object.keys(nguoiNgay[d]).length]; }),
+    gio: gio,
+    thietBi: tb,
+    nguon: ng,
+    trang: dem('trang'),
+    lop: dem('lop').slice(0, 12),
+    dangKy: dk
+  };
 }
 
 /* ======================= KẾT NỐI: TIN TỨC ======================= */
