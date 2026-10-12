@@ -480,7 +480,7 @@ const SVG={home:'<path d="M3 11l9-7 9 7v9H5z"/><path d="M10 20v-6h4v6"/>',classe
 const NAV=[['home','Trang chủ'],['classes','Các lớp'],['events','Ngoại khoá'],['yearbook','Kỷ yếu'],['gallery','Hình ảnh'],['connect','Kết nối'],['admin','Quản trị']];
 function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="go('${k}')">${t}</button>`).join('');
  $('navBot').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>${t}</button>`).join('')}
-function go(k){cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
+function go(k){if(k==='classes'){curCls=null;clsQ=''}cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
  if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0)}
 
@@ -551,7 +551,7 @@ let clsQ='',curCls=null,cT=0;
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
  return `<${T} class="nhan" style="--c:${col(i)}" ${st?'':`onclick="openCls('${c.id}')"`}><div class="t">Nhãn vở</div><div class="lop">Lớp ${esc(c.ten)}</div>
  <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>${hit?`<div class="hit">Có: ${hit}</div>`:''}</${T}>`}
-function openCls(id){curCls=id;cT=0;if(cur!=='classes')go('classes');else renderClasses();scrollTo(0,0)}
+function openCls(id){cT=0;if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
  el.innerHTML=`<h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
  <div class="nhoai"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>

@@ -452,7 +452,7 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three"><article><b>Về trường mình, thêm một lần nữa: họp lớp toàn khoá dịp 20/11</b><p>Ban liên lạc đã chốt: buổi sáng cả khoá về thăm trường 61 Phan Đăng Lưu, chụp ảnh dưới gốc phượng, thắp nén hương nhớ thầy cô và bạn bè đã k Đã có 24 bạn đăng ký.</p><button onclick="go('connect')">Xem trang Kết nối</button></article><article><b>Kỷ yếu có 16 lưu bút</b><p>Mới nhất: “Mày nhớ không, bàn cuối dãy cửa sổ, tụi mình khắc tên lên mặt bàn rồi bị thầy giám thị bắt” của Hải.</p><button onclick="ybT=1;go('yearbook')">Đọc lưu bút</button></article><article><b>Album lớp 12/6 vừa cập nhật</b><p>Ảnh mới trong album “Bây giờ”. Cả khoá có 39 tấm ảnh.</p><button onclick="gF='lop6';gA='';go('gallery')">Xem ảnh</button></article></div></div>
  <div class="quote"><p>“Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.”</p><small>Lưu bút của một bạn khoá 2000 – 2003</small></div></section>
   <section class="view p-cls" id="v-classes"><h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
- <div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Lê Minh Hiếu</b>, lớp 12/1?<small>Giờ bạn ấy đang ở Canada. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
+ <div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Hoàng Gia Hiếu</b>, lớp 12/7?<small>Giờ bạn ấy đang ở Huế. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"><div class="labels" id="clsGrid"><button class="nhan" style="--c:#C8102E" onclick="openCls('lop1')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/1</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Cô Nguyễn Thị Hoa</em></div><div class="ln"><span>Sĩ số</span><em>40 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Nguyễn Thị Hà</em></div></button><button class="nhan" style="--c:#4A2C8F" onclick="openCls('lop2')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/2</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Thầy Trần Văn Lộc</em></div><div class="ln"><span>Sĩ số</span><em>45 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Bùi Minh Dũng</em></div></button><button class="nhan" style="--c:#2E8B57" onclick="openCls('lop3')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/3</div>
@@ -546,7 +546,7 @@ const SVG={home:'<path d="M3 11l9-7 9 7v9H5z"/><path d="M10 20v-6h4v6"/>',classe
 const NAV=[['home','Trang chủ'],['classes','Các lớp'],['events','Ngoại khoá'],['yearbook','Kỷ yếu'],['gallery','Hình ảnh'],['connect','Kết nối'],['admin','Quản trị']];
 function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="go('${k}')">${t}</button>`).join('');
  $('navBot').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>${t}</button>`).join('')}
-function go(k){cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
+function go(k){if(k==='classes'){curCls=null;clsQ=''}cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
  if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0)}
 
@@ -617,7 +617,7 @@ let clsQ='',curCls=null,cT=0;
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
  return `<${T} class="nhan" style="--c:${col(i)}" ${st?'':`onclick="openCls('${c.id}')"`}><div class="t">Nhãn vở</div><div class="lop">Lớp ${esc(c.ten)}</div>
  <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>${hit?`<div class="hit">Có: ${hit}</div>`:''}</${T}>`}
-function openCls(id){curCls=id;cT=0;if(cur!=='classes')go('classes');else renderClasses();scrollTo(0,0)}
+function openCls(id){cT=0;if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
  el.innerHTML=`<h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
  <div class="nhoai"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
