@@ -399,6 +399,39 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-kn .ghe .btn{background:var(--vang);color:var(--den);margin-top:18px}
 .p-kn .facts .dd b{color:var(--do)}
 
+/* ===== THƯ NGỎ ===== */
+.thu-nen{position:fixed;inset:0;z-index:175;background:rgba(43,18,18,.55);display:none;align-items:center;justify-content:center;padding:20px}
+.thu-nen.on{display:flex;animation:hien .35s ease both}
+.thu{position:relative;width:100%;max-width:700px;max-height:90vh;overflow:auto;background:#FFFDF8;background-image:linear-gradient(90deg,transparent 54px,#F3C3C8 54px,#F3C3C8 56px,transparent 56px),repeating-linear-gradient(transparent 0 31px,#F2E9E6 31px 32px);border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.35);padding:34px 40px 0 78px;color:#3A2E2E;animation:moThu .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes moThu{from{opacity:0;transform:translateY(28px) scale(.96) rotate(-.6deg)}to{opacity:1;transform:none}}
+.thu .x{position:absolute;top:8px;right:12px;background:none;border:0;font-size:30px;line-height:1;color:#8A6F6A;z-index:2}
+.thu .tem{float:right;margin:0 0 10px 16px;width:86px;height:86px;border:2px dashed #C8102E;border-radius:6px;display:grid;place-items:center;transform:rotate(6deg);background:#fff}
+.thu .tem img{width:66px;height:66px}
+.thu .ey{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:#C8102E;font-weight:700}
+.thu h2{font-family:'Playfair Display',serif;font-weight:600;font-size:clamp(24px,3.4vw,32px);line-height:1.15;color:#2B2A33;margin:6px 0 12px;text-wrap:balance}
+.thu p{margin:0 0 12px;line-height:1.75;font-size:16px}
+.thu p.dam{font-family:'Charm',cursive;font-size:22px;line-height:1.45;color:#8A3B2E}
+.thu .hen{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:#C8102E;color:#fff;border-radius:12px;padding:14px 18px;margin:16px 0 18px;box-shadow:0 10px 24px rgba(200,16,46,.25)}
+.thu .hen b{display:block;font-family:'Playfair Display',serif;font-size:26px;font-weight:600;line-height:1.1}
+.thu .hen span{font-size:14px;opacity:.92}
+.thu .hen .dem{margin-left:auto;text-align:center;background:rgba(255,255,255,.16);border-radius:10px;padding:6px 12px}
+.thu .hen .dem b{font-size:28px}
+.thu .ky{font-family:'Charm',cursive;font-size:24px;line-height:1.35;color:#8A3B2E;text-align:right;margin:8px 0 6px}
+.thu .ky small{display:block;font-family:'Be Vietnam Pro';font-size:13.5px;color:#7A747A}
+.thu .nut{position:sticky;bottom:0;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;background:linear-gradient(transparent,#FFFDF8 30%);padding:18px 0 18px;margin-top:6px}
+.thu .nut label{font-size:13.5px;color:#7A747A;display:flex;gap:6px;align-items:center}
+.thu .nut .bt{display:flex;gap:8px;flex-wrap:wrap}
+.thu .nut button{border-radius:99px;padding:10px 20px;font-weight:600;border:1.5px solid #C8102E}
+.thu .nut .chinh{background:#C8102E;color:#fff}.thu .nut .phu{background:#fff;color:#C8102E}
+.p-home .phong{align-self:flex-start;margin-top:18px;display:inline-flex;align-items:center;gap:14px;background:#fff;border:1.5px dashed var(--do);border-radius:14px;padding:10px 18px 10px 10px;color:var(--muc);text-align:left;box-shadow:0 10px 24px rgba(200,16,46,.13);animation:rung 4s ease-in-out infinite;max-width:100%}
+.p-home .phong .sap{flex:none;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E8505B,#A50E26);color:#fff;display:grid;place-items:center;font-size:20px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.p-home .phong b{display:block;font-family:'Playfair Display',serif;font-weight:600;font-size:17px;line-height:1.2}
+.p-home .phong small{display:block;color:var(--mo);font-size:13px;margin-top:2px}
+.p-home .phong:hover{box-shadow:0 12px 30px rgba(200,16,46,.24)}
+@keyframes rung{0%,88%,100%{transform:none}92%{transform:rotate(-1.5deg)}96%{transform:rotate(1.5deg)}}
+@media (prefers-reduced-motion:reduce){.p-home .phong{animation:none}.thu{animation:none}}
+@media(max-width:760px){.thu{padding:28px 18px 0 22px;background-image:repeating-linear-gradient(transparent 0 31px,#F2E9E6 31px 32px)}.thu .tem{width:64px;height:64px}.thu .tem img{width:48px;height:48px}.thu .hen .dem{margin-left:0}}
+
 /* ===== RESPONSIVE ===== */
 @media(min-width:761px){.modal{align-items:center}.modal .box{border-radius:16px}}
 @media(max-width:1000px){
@@ -458,6 +491,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 <footer class="g" id="foot"></footer>
 
 <div class="lb" id="lb" onclick="if(event.target===this)closeLb()"><button class="x" onclick="closeLb()" aria-label="Đóng">×</button><button class="nv pv" onclick="stepLb(-1)" aria-label="Ảnh trước">‹</button><figure><img id="lbImg" alt=""><div id="lbPh" class="ph" style="display:none;width:min(80vw,720px);aspect-ratio:4/3;font-size:90px"></div><figcaption id="lbCap"></figcaption></figure><button class="nv nx" onclick="stepLb(1)" aria-label="Ảnh sau">›</button></div>
+<div class="thu-nen" id="thuNen" onclick="if(event.target===this)dongThu()"><article class="thu" id="thuBox" role="dialog" aria-modal="true" aria-labelledby="thuTieuDe"></article></div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeForm()"><div class="box" id="mBody"></div></div>
 <div class="loader" id="loader"><div class="ld-thuong"><div class="spin"></div><span id="loadTxt">Đang tải…</span></div><div class="ld-roi" id="ldRoi" aria-hidden="true"></div><div class="ld-dau" role="status"><img id="ldLogo" alt="Logo Trường THPT Nguyễn Hiền"><p class="ld-ten">THPT Nguyễn Hiền</p><p class="ld-kh">Khoá 2000 – 2003</p><p class="ld-cau" id="ldCau">Đang lật lại trang lưu bút…</p><div class="ld-vach"><i></i></div></div></div>
 <div class="toast" id="toast"></div>
@@ -548,6 +582,28 @@ const epPhuong='<svg viewBox="-30 -30 60 60" aria-hidden="true">'+[0,72,144,216,
 const XOAY=['Có ai còn giữ cuốn lưu bút năm ấy không?','Gốc phượng sân sau vẫn đỏ mỗi tháng Năm, chỉ là thiếu tụi mình.','Tiếng ve vẫn gọi hè. Chỉ là mình không còn ngồi đó để nghe.','Người bạn cùng bàn năm ấy, giờ bạn đang ở đâu?','Có những lời tạm biệt, hơn hai mươi năm rồi vẫn chưa nói xong.','Chỗ ngồi bàn cuối ngày ấy, giờ là của ai?'];let xoayI=0;
 function xoayNho(){const el=$('xoay');if(!el||document.hidden)return;el.classList.add('an');setTimeout(()=>{xoayI=(xoayI+1)%XOAY.length;el.textContent=XOAY[xoayI];el.classList.remove('an')},700)}
 setInterval(xoayNho,5200);
+/* ===================== THƯ NGỎ ===================== */
+const THU={ma:'thu_30nam_2026',tieuDe:'Thư ngỏ – Hẹn nhau ngày trở về',gio:'17h30',ngay:'Thứ Bảy, 14/11/2026',hen:new Date(2026,10,14,17,30),
+ mo:'Các bạn thân mến,',
+ doan:['Tháng 11 này, Trường PTTH Nguyễn Hiền sẽ kỷ niệm 30 năm ngày thành lập trường – một dấu mốc thật đặc biệt, để những người từng học dưới mái trường thân yêu ấy có dịp trở về, gặp lại thầy cô, bạn bè và cùng nhau nhớ về một quãng đời đẹp đẽ đã đi qua.',
+  'Với niên khóa 2000–2003, chúng ta cũng đã có hơn 20 năm kể từ ngày rời mái trường. Mỗi người giờ đây đã có một cuộc sống, một gia đình, một hành trình riêng… nhưng chắc hẳn trong ký ức của mỗi chúng ta vẫn còn đó hình ảnh của lớp học năm nào, những người bạn thân quen, những buổi học, những tiếng cười và cả những người thầy, người cô đã đồng hành cùng chúng ta trong những năm tháng tuổi học trò.',
+  'Nhân dịp này, Ban Tổ chức xin được mời các bạn của cả 12 lớp niên khóa 2000–2003 cùng trở về và tham dự buổi gặp mặt thân mật vào lúc 17h30 ngày 14/11/2026.',
+  '@HEN',
+  'Đây không chỉ là một buổi tiệc, mà là một cuộc hẹn của những người từng chung một mái trường, chung một thời tuổi trẻ. ❤️',
+  'Để buổi gặp mặt được chu đáo, Ban Tổ chức dự kiến sẽ chuẩn bị áo đồng phục, tiệc giao lưu và một phần quà nhỏ tri ân các thầy cô chủ nhiệm của 12 lớp.',
+  'Rất mong các bạn thu xếp thời gian tham dự và cùng góp một phần nhỏ để chúng ta có một buổi gặp mặt thật vui, thật ấm áp và đáng nhớ. Sự có mặt của mỗi người chính là món quà quý giá nhất dành cho cuộc hội ngộ này.',
+  'Các khoản đóng góp cụ thể, Ban Tổ chức sẽ thông báo sau khi tổng hợp được số lượng tham dự và thống nhất các nội dung tổ chức. Việc thu – chi sẽ được thực hiện công khai, minh bạch và trên tinh thần tự nguyện, chung tay vì một cuộc gặp mặt thật ý nghĩa.',
+  '*Hơn 20 năm rồi… Có những người bạn tưởng như đã rất xa, nhưng chỉ cần một ngày trở về, chúng ta lại có thể tìm thấy nhau trong những nụ cười của tuổi 18.',
+  'Hẹn gặp lại tất cả chúng ta – những cô cậu học trò Nguyễn Hiền của niên khóa 2000–2003 – vào ngày 14/11 nhé! ❤️'],
+ ky:'Trân trọng và thương mến!',kyTen:'Ban Tổ chức gặp mặt niên khóa 2000–2003'};
+function moThu(tuDong){if(tuDong&&store.get('nh_an_'+THU.ma))return;const con=Math.ceil((THU.hen-new Date())/864e5);
+ $('thuBox').innerHTML=`<button class="x" onclick="dongThu()" aria-label="Đóng thư">×</button><div class="tem"><img src="${$('hLogo').src}" alt=""></div><div class="ey">Kỷ niệm 30 năm thành lập trường</div><h2 id="thuTieuDe">${esc(THU.tieuDe)} ❤️</h2><p><b>${esc(THU.mo)}</b></p>
+ ${THU.doan.map(d=>d==='@HEN'?`<div class="hen"><div><b>${esc(THU.gio)} · ${esc(THU.ngay)}</b><span>Buổi gặp mặt thân mật cả 12 lớp, niên khóa ${esc(D.cfg.nienKhoa)}</span></div>${con>0?`<div class="dem"><b>${con}</b><span>ngày nữa</span></div>`:''}</div>`:d[0]==='*'?`<p class="dam">${esc(d.slice(1))}</p>`:`<p>${esc(d)}</p>`).join('')}
+ <div class="ky">${esc(THU.ky)}<small>${esc(THU.kyTen)}</small></div>
+ <div class="nut"><label><input type="checkbox" id="thuAn" ${store.get('nh_an_'+THU.ma)?'checked':''}> Không tự mở thư này nữa</label><div class="bt"><button class="phu" onclick="dongThu()">Để sau</button><button class="chinh" onclick="dongThu();menu('connect');setTimeout(()=>{const r=$('r1');if(r){r.scrollIntoView({behavior:'smooth',block:'center'});r.focus()}},350)">Đăng ký tham dự</button></div></div>`;
+ $('thuNen').classList.add('on');$('thuBox').scrollTop=0;document.body.style.overflow='hidden';setTimeout(()=>{const x=$('thuBox').querySelector('.x');if(x)x.focus()},50)}
+function dongThu(){const c=$('thuAn');if(c)store.set('nh_an_'+THU.ma,c.checked?'1':null);$('thuNen').classList.remove('on');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('thuNen').classList.contains('on'))dongThu()});
 function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTruong)||2003);
  const ngay=Math.max(0,Math.floor((Date.now()-new Date(Number(c.namRaTruong)||2003,4,31))/864e5)),tongHs=D.lop.reduce((s,l)=>s+l.hs.length,0);
  const lead=D.tinTuc.find(t=>t.noiBat==='1')||D.tinTuc[0],note=D.luuBut[0],ph=D.anh[0],items=[];
@@ -562,6 +618,7 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
   <div class="l"><p class="goi hien" style="animation-delay:.1s">Gửi những người từng mặc áo trắng dưới gốc phượng ấy,</p><h1>${tu.map((w,i)=>`<span class="w" style="animation-delay:${(.5+i*.14).toFixed(2)}s">${w}</span>`).join(' ')}</h1>
   <p class="hien" style="animation-delay:${(.8+tu.length*.14).toFixed(2)}s">Tháng Năm ${esc(c.namRaTruong)}, ba hồi trống cuối cùng vang lên trên sân trường ${esc(String(c.diaChi||'').split(',')[0])}. Phượng rơi đỏ lối về. Cuốn lưu bút chưa kịp chuyền hết một vòng lớp. Có những lời tạm biệt mình hẹn để mai nói, rồi để tới tận bây giờ. ${n>0?n+' năm':'Giờ đây'}, mỗi đứa một phương trời. Nơi này là để ${D.lop.length} lớp mình gọi tên nhau thêm một lần nữa.</p>
   <div class="hien" style="animation-delay:${(1.1+tu.length*.14).toFixed(2)}s"><button class="btn" onclick="go('classes')">Tìm lại lớp mình</button><button class="btn o" onclick="ybT=3;go('yearbook')">Viết vài dòng lưu bút</button></div>
+  <button class="phong hien" style="animation-delay:${(1.25+tu.length*.14).toFixed(2)}s" onclick="moThu()" aria-label="Mở thư ngỏ"><span class="sap" aria-hidden="true">💌</span><span><b>${esc(THU.tieuDe)}</b><small>${esc(THU.gio)} · ${esc(THU.ngay)} · bấm để mở thư</small></span></button>
   <p class="xoay hien" id="xoay" aria-live="polite" style="animation-delay:${(1.4+tu.length*.14).toFixed(2)}s">${XOAY[xoayI]}</p></div><div class="r" aria-hidden="true">${phuongSvg()}</div>
   <button class="keo" onclick="document.querySelector('.p-home .thu,.p-home .dem').scrollIntoView({behavior:'smooth'})">Kéo xuống, ký ức đang chờ ↓</button></div>
  ${c.loiNgo?`<div class="thu"><div><div class="k">Thư gửi những người bạn cũ</div><h2>Gửi bạn, người từng ngồi cùng bàn</h2><p class="sub">Cho những ai từng mặc áo trắng dưới gốc phượng ${esc(String(c.tenTruong||'').replace(/^THPT\s*/i,''))}, từng chép bài hộ nhau, từng giận nhau một buổi rồi lại chia nhau gói xôi.</p></div><div class="giay">${epPhuong}<p>${esc(c.loiNgo)}</p><div class="ky">${esc(c.nguoiKy)}</div></div></div>`:''}
@@ -824,12 +881,12 @@ async function changePw(){const o=$('pwO').value,n=$('pwN').value,r=$('pwR').val
 
 /* ===================== INIT ===================== */
 if(LIVE)window._dangMo=1;
-buildNav();setD(null);renderPublic();go('home');
+buildNav();setD(null);renderPublic();go('home');if(!LIVE)setTimeout(()=>moThu(1),1600);
 if(LIVE){window._dangMo=1;const L=$('loader'),CAU=['Đang lật lại trang lưu bút…','Đang gọi tên từng lớp…','Đang tìm lại những người bạn cũ…','Đang nhặt lại cánh phượng sân trường…'];let ci=0;
  $('ldLogo').src=$('hLogo').src;$('ldRoi').innerHTML=Array.from({length:14},(_,k)=>`<i style="left:${(k*41+7)%100}%;background:${k%3?'#C8102E':'#E8505B'};animation-duration:${8+k%5}s;animation-delay:-${(k*1.1).toFixed(1)}s"></i>`).join('');
  const xoayCau=setInterval(()=>{const el=$('ldCau');el.classList.add('an');setTimeout(()=>{ci=(ci+1)%CAU.length;el.textContent=CAU[ci];el.classList.remove('an')},500)},2000);
  L.classList.add('dau');busy(1,'Đang mở trang kỷ niệm…');
- loadPublic().catch(err).finally(()=>{clearInterval(xoayCau);L.classList.add('tan');setTimeout(()=>{busy(0);L.classList.remove('dau','tan');$('ldRoi').innerHTML=''},700)});if(TOK)api('getAdminData',TOK).then(r=>{A=r;if(cur==='classes')renderClasses()}).catch(()=>{})}
+ loadPublic().catch(err).finally(()=>{clearInterval(xoayCau);L.classList.add('tan');setTimeout(()=>{busy(0);L.classList.remove('dau','tan');$('ldRoi').innerHTML='';setTimeout(()=>moThu(1),900)},700)});if(TOK)api('getAdminData',TOK).then(r=>{A=r;if(cur==='classes')renderClasses()}).catch(()=>{})}
 </script>
 </body>
 </html>
