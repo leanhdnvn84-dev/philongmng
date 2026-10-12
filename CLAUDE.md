@@ -40,6 +40,7 @@ updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents`.
 Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
 
+Cấu hình `doanMoDau` (Cài đặt → "Đoạn giới thiệu dưới câu mở đầu", hoặc dòng key `doanMoDau` ở Sheet CauHinh): đoạn văn ở hero trang chủ, có chỗ thay `{namRaTruong} {tenTruong} {diaChi} {soNam} {soLop}` (`doanMoDau()` trong Index.html); để trống → mặc định.
 Cấu hình `banLienLac` (Cài đặt): mỗi dòng "Họ tên | Điện thoại/Zalo | Vai trò" → cột Ban liên lạc ở chân trang + đầu danh bạ trang Kết nối.
 Mặc định trong `CONFIG_DEFAULT.banLienLac` (Lê Trung Hiếu, Hoàng Diệu Thúy, Nguyễn Thị Tuyết Mai) – dòng trong Sheet CauHinh (nếu có) sẽ ghi đè.
 

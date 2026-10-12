@@ -24,13 +24,15 @@ const SHEETS = {
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
   namRaTruong: '2003',
   diaChi: '61 Phan Đăng Lưu, Hòa Cường Nam, Hải Châu, Đà Nẵng',
   cauMoDau: 'Mùa hè nào rồi cũng qua, chỉ mùa hè năm ấy là ở lại mãi.',
+  /** Đoạn dưới câu mở đầu trang chủ. Chữ trong ngoặc nhọn tự thay: {namRaTruong} {tenTruong} {diaChi} (phần trước dấu phẩy đầu) {soNam} {soLop} */
+  doanMoDau: 'Tháng Năm {namRaTruong}, ba hồi trống cuối cùng vang lên trên sân trường {tenTruong}, {diaChi}. Những cánh phượng rơi đỏ lối. Cuốn lưu bút chưa kịp chuyền hết một vòng lớp. Có những lời tạm biệt mình hẹn để mai nói, rồi để tới tận bây giờ. {soNam} năm, mỗi đứa một phương trời. Nơi này là để {soLop} lớp mình gọi tên nhau thêm một lần nữa.',
   trichDan: 'Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.',
   trichDanTacGia: 'Lưu bút của một bạn khoá 2000 – 2003',
   loiNgo: 'Ba năm áo trắng trôi qua như một cái chớp mắt. Hơn hai mươi năm sau, chúng ta mỗi người một ngả, nhưng tiếng trống trường, gốc phượng sân sau và những trang lưu bút vẫn còn đó. Trang này là để mình tìm lại nhau.',
@@ -45,7 +47,7 @@ const CONFIG_CU = {
 };
 
 /** Mục để trống trong Sheet thì dùng giá trị mặc định (vd. lỡ bấm Lưu khi ô còn trống). */
-const CONFIG_TRONG_DUNG_MAC_DINH = ['banLienLac'];
+const CONFIG_TRONG_DUNG_MAC_DINH = ['banLienLac', 'doanMoDau'];
 
 /** Thư mục Drive gốc – mọi dữ liệu (Sheet + ảnh) đều lưu ở đây */
 const ROOT_FOLDER_ID = '1xUV4WDLHiE9YlyG35Fy3v7ELSxlWWV_a';
