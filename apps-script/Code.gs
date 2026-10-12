@@ -37,6 +37,11 @@ const CONFIG_DEFAULT = {
   nguoiKy: 'Ban liên lạc khoá 2000 – 2003'
 };
 
+/** Câu mặc định của các bản trước: nếu Sheet còn giữ nguyên thì tự dùng câu mặc định mới. */
+const CONFIG_CU = {
+  cauMoDau: ['Mùa phượng năm ấy, mình rời trường.', 'Có một mùa hè, tụi mình để quên tuổi mười tám ở sân trường.']
+};
+
 /** Thư mục Drive gốc – mọi dữ liệu (Sheet + ảnh) đều lưu ở đây */
 const ROOT_FOLDER_ID = '1xUV4WDLHiE9YlyG35Fy3v7ELSxlWWV_a';
 
@@ -240,7 +245,9 @@ function log_(u, action) {
 function cfg_() {
   const r = {};
   Object.keys(CONFIG_DEFAULT).forEach(function (k) { r[k] = CONFIG_DEFAULT[k]; });
-  read_('CauHinh').forEach(function (c) { r[c.key] = c.value; });
+  read_('CauHinh').forEach(function (c) {
+    r[c.key] = (CONFIG_CU[c.key] || []).indexOf(c.value) >= 0 ? CONFIG_DEFAULT[c.key] : c.value;
+  });
   return r;
 }
 function req_(v, label, max) {
