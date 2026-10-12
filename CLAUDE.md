@@ -60,7 +60,7 @@ Chống tràn ngang mobile: `html{overflow-x:hidden}` + `body/main/section.view/
 Ảnh hiển thị qua `https://drive.google.com/thumbnail?id=...&sz=w...`; ảnh tải lên được nén ≤1600px JPEG ở client (`readImg`).
 
 ### Tốc độ (mở trong Zalo)
-- `doGet` nhúng sẵn dữ liệu công khai vào trang (`<script id="boot"></script>` → `window.BOOT=…`, thoát `/` và `<`); frontend thấy `BOOT_OK` thì vẽ ngay, bỏ màn chờ và lời gọi `getPublicData`.
+- `doGet` nhúng sẵn dữ liệu công khai vào trang (`<script id="boot"></script>` → `window.BOOT=…`, thoát `/` và `<`); frontend thấy `BOOT_OK` thì bỏ lời gọi `getPublicData`; màn khởi động vẫn đọc đủ 4 câu `CAU` (1,5 giây/câu, ~6 giây, chạm để bỏ qua) rồi mở thư ngỏ.
 - `pubJson_()` lưu đệm JSON công khai ở CacheService 5 phút (`PUB_TTL`, chia khúc `PUB_CHUNK`); mọi lần ghi qua `append_/update_/remove_…` gọi `pubBust_`. Sửa tay Sheet → chạy `lamMoiDuLieu()` hoặc chờ 5 phút.
 - `tai-ve/Index.html` (bản dán Apps Script) bỏ dữ liệu mẫu trong `const DEMO` (chỉ giữ `cfg`), nhẹ hơn ~75KB.
 
@@ -84,6 +84,6 @@ Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … *
   Script vẽ sẵn nội dung các trang vào HTML, vì trình xem tệp trên điện thoại (iPhone…) không chạy JavaScript.
 - Script cũng ghi `tai-ve/Index.html` = bản gốc (đã kiểm tra `//`) để **dán vào Apps Script**, KHÔNG vẽ sẵn nội dung mẫu.
   Nếu JS lỗi, dòng đỏ ở cuối trang báo lỗi + số dòng (bắt lỗi ở `<script>` đầu `<head>`).
-- Trên Apps Script (`LIVE`) trang không bao giờ dùng `DEMO`: hiện màn "Đang mở trang kỷ niệm…" tới khi có dữ liệu Sheet.
+- Trên Apps Script (`LIVE`) trang không bao giờ dùng `DEMO`: luôn hiện màn khởi động (logo + 4 câu) tới khi có dữ liệu Sheet.
   `DEMO` chỉ dùng cho bản xem thử/tải về. `xoaDuLieuMau_` giữ thầy cô mẫu đã bị sửa tên, dọn giới thiệu/GVCN mẫu của lớp.
 - `tai-ve/Code.gs` + `tai-ve/NguyenHien-AppsScript.zip` (Code.gs + Index.html bản dựng): đóng gói lại sau mỗi lần build.
