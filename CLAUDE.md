@@ -31,7 +31,8 @@ Cột đầu tiên là khoá chính. Mọi ô ghi dạng text (`@`), giá trị 
 setClassAdmin, removeClassAdmin, saveStudent, deleteStudent, importStudents, saveEvent, setEventStatus,
 deleteEvent, saveTeacher, deleteTeacher, moderateNote, deleteNote, uploadPhoto, updatePhoto, deletePhoto,
 saveConfig, saveNews, deleteNews, submitRegistration, setRegistrationStatus, deleteRegistration,
-updateMyContact, seedDemo, clearDemo`.
+updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins`.
+Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
 
 ### Dữ liệu mẫu

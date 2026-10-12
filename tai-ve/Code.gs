@@ -107,7 +107,7 @@ function setup() {
   if (newLop.length) { appendMany_('Lop', newLop); Logger.log('>>> Đã tạo ' + newLop.length + ' lớp (12/1 → 12/' + SO_LOP + ')'); }
 
   if (!read_('TaiKhoan').some(function (a) { return a.role === 'super'; })) {
-    const pw = Math.random().toString(36).slice(2, 10);
+    const pw = easyPw_();
     const salt = Utilities.getUuid();
     append_('TaiKhoan', { user: 'banlienlac', hoTen: 'Ban liên lạc', role: 'super', lopId: '', salt: salt, hash: hash_(salt, pw), active: '1' });
     Logger.log('>>> TÀI KHOẢN BAN LIÊN LẠC:  banlienlac  /  ' + pw + '   (hãy đổi mật khẩu sau khi đăng nhập)');
@@ -442,6 +442,39 @@ function setClassAdmin(token, lopId, user, hoTen, pw) {
     }
     log_(u, 'Gán admin lớp ' + l.ten + ': ' + user);
     return true;
+  });
+}
+
+/* ---- Tài khoản dễ nhớ ---- */
+const PW_WORDS = ['phuongvi', 'aotrang', 'luubut', 'tiengve', 'bangden', 'phantrang', 'trongtruong', 'hoctro', 'santruong', 'muctim', 'hanhlang', 'gheda'];
+/** Mật khẩu dễ nhớ dạng "luubut-4827" (chữ không dấu + 4 số). */
+function easyPw_() {
+  return PW_WORDS[Math.floor(Math.random() * PW_WORDS.length)] + '-' + String(1000 + Math.floor(Math.random() * 9000));
+}
+/** Tên đăng nhập theo tên lớp: 12/1 → lop12_1 */
+function lopUser_(ten) {
+  return 'lop' + String(ten || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+/** Tạo sẵn tài khoản admin cho mọi lớp chưa có admin. Trả về danh sách {lop, user, pw} – mật khẩu chỉ hiện lần này. */
+function autoCreateClassAdmins(token) {
+  return lock_(function () {
+    const u = auth_(token, true);
+    const accs = read_('TaiKhoan');
+    const rows = [], out = [];
+    const taken = function (x) { return accs.some(function (a) { return a.user === x; }) || rows.some(function (r) { return r.user === x; }); };
+    sort_(read_('Lop')).forEach(function (l) {
+      if (accs.some(function (a) { return a.role === 'class' && a.lopId === l.id; })) return;
+      const base = lopUser_(l.ten);
+      let user = base, k = 1;
+      while (taken(user)) user = base + '_' + (++k);
+      const pw = easyPw_(), salt = Utilities.getUuid();
+      rows.push({ user: user, hoTen: 'Admin lớp ' + l.ten, role: 'class', lopId: l.id, salt: salt, hash: hash_(salt, pw), active: '1', lienHe: '' });
+      out.push({ lop: l.ten, user: user, pw: pw });
+    });
+    appendMany_('TaiKhoan', rows);
+    if (rows.length) log_(u, 'Tạo tự động ' + rows.length + ' tài khoản admin lớp');
+    return out;
   });
 }
 

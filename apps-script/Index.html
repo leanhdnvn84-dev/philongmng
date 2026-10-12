@@ -670,7 +670,7 @@ const R={
   return `<div class="kpi">${[[ad+'/'+A.lop.length,'lớp đã có admin'],[hs,'học sinh'],[A.luuBut.filter(x=>x.trangThai==='pending').length,'lưu bút chờ duyệt'],[A.hoatDong.filter(x=>x.trangThai==='pending').length,'đề xuất chờ duyệt'],[A.dangKy.filter(x=>x.trangThai!=='huy').length,'bạn đăng ký họp lớp'],[A.anh.length,'tấm ảnh']].map(s=>`<div><b>${s[0]}</b>${s[1]}</div>`).join('')}</div>
   <h3>Nhật ký gần đây</h3>${A.log.length?`<div class="tw"><table><tbody>${A.log.slice(0,30).map(x=>`<tr><td class="who" style="white-space:nowrap">${esc(x.time)}</td><td><b>${esc(x.user)}</b></td><td>${esc(x.action)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="who">Chưa có.</p>'}`},
 
- 'Lớp và admin lớp':()=>ph3('Các lớp, mỗi lớp một admin',`<button class="btn2 sm" onclick="fClass()">Thêm lớp</button>`)+
+ 'Lớp và admin lớp':()=>ph3('Các lớp, mỗi lớp một admin',`<button class="btn2 o sm" onclick="autoAdmins()">Tạo admin cho lớp chưa có</button><button class="btn2 sm" onclick="fClass()">Thêm lớp</button>`)+
   `<div class="tw"><table><thead><tr><th>Lớp</th><th class="hide-m">Chủ nhiệm</th><th>Admin lớp</th><th></th></tr></thead><tbody>${A.lop.map(l=>`<tr><td><b>${esc(l.ten)}</b><div class="who">${l.hs.length} học sinh</div></td><td class="hide-m">${esc(l.gvcn)}</td><td>${l.adminUser?`${esc(l.admin)}<div class="who">${esc(l.adminUser)}</div>`:'<span class="pill off">Chưa có</span>'}</td>
   <td class="r"><button class="btn2 o sm" onclick="fAdmin('${l.id}')">${l.adminUser?'Đổi admin hoặc mật khẩu':'Gán admin'}</button> <button class="btn2 o sm" onclick="fClass('${l.id}')">Sửa</button> ${l.adminUser?`<button class="btn2 red sm" onclick="act(()=>api('removeClassAdmin',TOK,'${l.id}'),'Gỡ admin lớp này? Tài khoản sẽ không đăng nhập được nữa.','Đã gỡ admin')">Gỡ admin</button> `:''}<button class="btn2 red sm" onclick="act(()=>api('deleteClass',TOK,'${l.id}'),'Xoá lớp này? Chỉ xoá được khi lớp không còn học sinh và ảnh.','Đã xoá lớp')">Xoá</button></td></tr>`).join('')}</tbody></table></div>`,
 
@@ -728,9 +728,19 @@ const R={
 function fClass(id){const l=id?A.lop.find(x=>x.id===id):{thuTu:String(A.lop.length+1)};
  form(id?'Sửa lớp '+l.ten:'Thêm lớp',[{k:'ten',l:'Tên lớp',req:1,ph:'Ví dụ: 12/1'},{k:'gvcn',l:'Chủ nhiệm',ph:'Ví dụ: Cô Nguyễn Thị Hoa'},{k:'ban',l:'Ban',ph:'Ví dụ: Ban A'},{k:'thuTu',l:'Thứ tự hiển thị',t:'number'},{k:'gioiThieu',l:'Giới thiệu lớp',t:'textarea',rows:3}],l,
  async o=>{o.id=id||'';await api('saveClass',TOK,o);toast('Đã lưu lớp')})}
+const PW_WORDS=['phuongvi','aotrang','luubut','tiengve','bangden','phantrang','trongtruong','hoctro','santruong','muctim','hanhlang','gheda'];
+const easyPw=()=>PW_WORDS[Math.floor(Math.random()*PW_WORDS.length)]+'-'+(1000+Math.floor(Math.random()*9000));
+const lopUser=t=>'lop'+String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+async function autoAdmins(){if(!confirm('Tạo tài khoản admin cho tất cả các lớp chưa có admin?\nTên đăng nhập theo lớp (ví dụ lop12_1), mật khẩu dễ nhớ. Mật khẩu chỉ hiện một lần.'))return;
+ try{busy(1,'Đang tạo tài khoản…');const r=await api('autoCreateClassAdmins',TOK);await refresh();if(!r.length)return toast('Lớp nào cũng đã có admin');
+  window._adTxt='Tài khoản admin lớp – khoá '+D.cfg.nienKhoa+'\n'+r.map(x=>'Lớp '+x.lop+': tên đăng nhập '+x.user+' · mật khẩu '+x.pw).join('\n');
+  const td='style="padding:7px 8px;border-bottom:1px solid #eee"';
+  $('mBody').innerHTML=`<h3>Đã tạo ${r.length} tài khoản</h3><p class="who" style="margin-bottom:10px">Mật khẩu chỉ hiện lần này. Sao chép gửi cho từng admin lớp, nhắc họ đổi mật khẩu sau khi đăng nhập.</p><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:15px"><tr><th ${td}>Lớp</th><th ${td}>Tên đăng nhập</th><th ${td}>Mật khẩu</th></tr>${r.map(x=>`<tr><td ${td}><b>${esc(x.lop)}</b></td><td ${td}><code>${esc(x.user)}</code></td><td ${td}><code>${esc(x.pw)}</code></td></tr>`).join('')}</table></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px"><button class="btn2 o" onclick="copyAd()">Sao chép tất cả</button><button class="btn2" onclick="closeForm()">Xong</button></div>`;
+  $('modal').classList.add('on')}catch(e){err(e)}finally{busy(0)}}
+function copyAd(){const t=window._adTxt||'';const fb=()=>prompt('Sao chép danh sách tài khoản:',t);try{navigator.clipboard.writeText(t).then(()=>toast('Đã sao chép danh sách'),fb)}catch(e){fb()}}
 function fAdmin(lopId){const l=A.lop.find(x=>x.id===lopId),has=!!l.adminUser;
- form('Admin lớp '+l.ten,[{k:'hoTen',l:'Họ tên admin',req:1,ph:'Ví dụ: Nguyễn Văn An'},{k:'user',l:'Tên đăng nhập',req:1,hint:'Chữ thường không dấu, số, dấu _ hoặc .'},{k:'pw',l:has?'Mật khẩu mới (để trống nếu giữ nguyên)':'Mật khẩu',req:!has,hint:'Từ 6 ký tự. Gửi cho admin lớp và nhắc họ đổi lại.'}],
- {hoTen:l.admin,user:l.adminUser||('admin_'+l.ten.toLowerCase().replace(/[/]/g,'_').replace(/[^a-z0-9_]/g,''))},
+ form('Admin lớp '+l.ten,[{k:'hoTen',l:'Họ tên admin',req:1,ph:'Ví dụ: Nguyễn Văn An'},{k:'user',l:'Tên đăng nhập',req:1,hint:'Chữ thường không dấu, số, dấu _ hoặc .'},{k:'pw',l:has?'Mật khẩu mới (để trống nếu giữ nguyên)':'Mật khẩu',req:!has,hint:has?'Từ 6 ký tự. Gửi cho admin lớp và nhắc họ đổi lại.':'Mật khẩu gợi ý dễ nhớ, có thể sửa. Gửi cho admin lớp và nhắc họ đổi lại.'}],
+ {hoTen:l.admin||('Admin lớp '+l.ten),user:l.adminUser||lopUser(l.ten),pw:has?'':easyPw()},
  async o=>{await api('setClassAdmin',TOK,lopId,o.user,o.hoTen,o.pw);toast('Đã gán admin lớp '+l.ten)})}
 function fStudent(id){const l=curAdLop(),s=id?l.hs.find(x=>x.id===id):{thuTu:String(l.hs.length+1)};
  form(id?'Sửa học sinh':'Thêm học sinh lớp '+l.ten,[{k:'hoTen',l:'Họ tên',req:1},{k:'chucVu',l:'Chức vụ',ph:'Ví dụ: Lớp trưởng, Bí thư'},{k:'hienO',l:'Hiện ở',ph:'Ví dụ: Đà Nẵng, TP.HCM, Úc'},{k:'thuTu',l:'STT',t:'number'}],s,
