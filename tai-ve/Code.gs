@@ -44,6 +44,9 @@ const CONFIG_CU = {
   cauMoDau: ['Mùa phượng năm ấy, mình rời trường.', 'Có một mùa hè, tụi mình để quên tuổi mười tám ở sân trường.']
 };
 
+/** Mục để trống trong Sheet thì dùng giá trị mặc định (vd. lỡ bấm Lưu khi ô còn trống). */
+const CONFIG_TRONG_DUNG_MAC_DINH = ['banLienLac'];
+
 /** Thư mục Drive gốc – mọi dữ liệu (Sheet + ảnh) đều lưu ở đây */
 const ROOT_FOLDER_ID = '1xUV4WDLHiE9YlyG35Fy3v7ELSxlWWV_a';
 
@@ -248,7 +251,9 @@ function cfg_() {
   const r = {};
   Object.keys(CONFIG_DEFAULT).forEach(function (k) { r[k] = CONFIG_DEFAULT[k]; });
   read_('CauHinh').forEach(function (c) {
-    r[c.key] = (CONFIG_CU[c.key] || []).indexOf(c.value) >= 0 ? CONFIG_DEFAULT[c.key] : c.value;
+    const cu = (CONFIG_CU[c.key] || []).indexOf(c.value) >= 0;
+    const trong = c.value === '' && CONFIG_TRONG_DUNG_MAC_DINH.indexOf(c.key) >= 0;
+    r[c.key] = cu || trong ? CONFIG_DEFAULT[c.key] : c.value;
   });
   return r;
 }
