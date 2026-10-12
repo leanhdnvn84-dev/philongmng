@@ -9,3 +9,6 @@ build
 .env.*.local
 .vercel
 dist
+
+# Dữ liệu thật của các lớp (tên, số điện thoại) – không đưa lên GitHub
+du-lieu/
