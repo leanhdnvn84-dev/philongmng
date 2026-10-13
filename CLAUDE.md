@@ -37,7 +37,7 @@ Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PR
 setClassAdmin, removeClassAdmin, saveStudent, deleteStudent, importStudents, saveEvent, setEventStatus,
 deleteEvent, saveTeacher, deleteTeacher, moderateNote, deleteNote, uploadPhoto, updatePhoto, deletePhoto,
 saveConfig, saveNews, deleteNews, submitRegistration, setRegistrationStatus, deleteRegistration,
-updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents, ghiLuotXem, getThongKe, dongBoAnhDrive, getLuuBut`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`, `dongBoAnh`, `batDongBoAnhTuDong`, `xepLaiAnh`, `moQuyenAnh`.
+updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents, ghiLuotXem, getThongKe, dongBoAnhDrive, getLuuBut`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`, `dongBoAnh`, `batDongBoAnhTuDong`, `xepLaiAnh`, `moQuyenAnh`, `batGiuAm`.
 `getAdminData.hsLac` (super): học sinh có `lopId` không khớp lớp nào → nhóm "⚠ Chưa thuộc lớp nào" trong Quản trị → Học sinh, tick + Chuyển lớp.
 Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
@@ -73,7 +73,7 @@ Trình chiếu **Kỷ yếu** (`tcMoKy`, nút ở tab Thầy cô/Lưu bút; dùn
 
 ### Tốc độ (mở trong Zalo)
 - `doGet` nhúng sẵn dữ liệu công khai vào trang (`<script id="boot"></script>` → `window.BOOT=…`, thoát `/` và `<`); frontend thấy `BOOT_OK` thì bỏ lời gọi `getPublicData`; màn khởi động vẫn đọc đủ 4 câu `CAU` (1,5 giây/câu, ~6 giây, chạm để bỏ qua) rồi mở thư ngỏ.
-- `pubJson_()` lưu đệm JSON công khai ở CacheService 5 phút (`PUB_TTL`, chia khúc `PUB_CHUNK`); mọi lần ghi qua `append_/update_/remove_…` gọi `pubBust_`. Sửa tay Sheet → chạy `lamMoiDuLieu()` hoặc chờ 5 phút.
+- `pubJson_()` lưu đệm JSON công khai ở CacheService 7 phút (`PUB_TTL`=420, chia khúc `PUB_CHUNK`); mọi lần ghi qua `append_/update_/remove_…` gọi `pubBust_`. Sửa tay Sheet → chạy `lamMoiDuLieu()` hoặc chờ. **Giữ ấm**: chạy `batGiuAm()` một lần → trigger `giuAm` 5 phút/lần dựng sẵn bộ đệm (doGet không phải đọc Sheet, bớt màn trắng; sửa tay Sheet tự hiện sau ≤5 phút).
 - `tai-ve/Index.html` (bản dán Apps Script) bỏ dữ liệu mẫu trong `const DEMO` (chỉ giữ `cfg`), nhẹ hơn ~75KB.
 
 ### Thống kê lượt xem
@@ -88,7 +88,7 @@ Trình chiếu **Kỷ yếu** (`tcMoKy`, nút ở tab Thầy cô/Lưu bút; dùn
 - `tai-ve/NguyenHien-iframe.html`: trang khung toàn màn hình nhúng web app (link `/exec`), có favicon logo, màn chờ.
   Đặt lên hosting/Google Sites để có link gọn, không hiện dải "Ứng dụng này do một người dùng Google Apps Script tạo".
 - `cloudflare/worker.js` + `cloudflare/index.html` tạo từ trang khung bằng `node tools/build-cloudflare.js` (Worker
-  `nguyenhien.leanhdnvn84.workers.dev` trả trang khung cho mọi đường dẫn). Trang khung **không còn màn chờ riêng** (đã bỏ `.cho` + link "Trang mở chậm?"): chỉ có iframe, màn khởi động là của web app (logo + 4 câu).
+  `nguyenhien.leanhdnvn84.workers.dev` trả trang khung cho mọi đường dẫn). Trang khung có màn chờ `.cho` nằm **DƯỚI** iframe (z-index 0, iframe z-index 1 nền trong suốt): hiện logo trong lúc Apps Script chạy doGet, web app vẽ xong tự che – KHÔNG đặt màn chờ đè lên iframe (từng bị kẹt vì sự kiện `load` không tới trong Zalo iOS); đã bỏ link "Trang mở chậm?". Script nhỏ gán `src` iframe = `/exec` + `location.search`.
 
 ### Lưu ý Apps Script (quan trọng)
 Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … */` trong `<script>` **kể cả khi nằm trong chuỗi/template/regex**

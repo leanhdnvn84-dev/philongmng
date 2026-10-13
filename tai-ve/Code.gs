@@ -593,7 +593,7 @@ function autoSeed_() {
 }
 
 /* Dữ liệu công khai lưu đệm ở CacheService (chia nhỏ vì mỗi ô tối đa 100KB), xoá ngay khi có ghi dữ liệu. */
-const PUB_KEY = 'PUB_', PUB_TTL = 300, PUB_CHUNK = 30000;
+const PUB_KEY = 'PUB_', PUB_TTL = 420, PUB_CHUNK = 30000;
 function pubBust_(n) {
   if (n === 'NhatKy' || n === 'LuotXem') return;
   try { CacheService.getScriptCache().removeAll(n === 'LuuBut' ? [PUB_KEY + 'n', 'LB_MOI'] : [PUB_KEY + 'n']); } catch (e) { }
@@ -625,6 +625,19 @@ function getPublicData() {
 function lamMoiDuLieu() {
   pubBust_('');
   Logger.log('Đã làm mới, mở lại trang là thấy dữ liệu mới.');
+}
+/* Giữ ấm: trigger 5 phút/lần dựng sẵn dữ liệu công khai vào bộ đệm, để doGet không phải đọc Sheet khi có người mở trang
+   (bớt màn trắng lúc mở). Sửa tay Sheet cũng tự hiện sau tối đa 5 phút. */
+function giuAm() {
+  pubBust_('');
+  pubJson_();
+}
+/** Chạy MỘT LẦN trong trình soạn thảo để bật giữ ấm (cần cấp quyền). */
+function batGiuAm() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'giuAm') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('giuAm').timeBased().everyMinutes(5).create();
+  giuAm();
+  Logger.log('Đã bật giữ ấm: dữ liệu công khai được dựng sẵn mỗi 5 phút.');
 }
 function taoPublicData_() {
   try { autoSeed_(); } catch (e) { console.log('autoSeed: ' + e.message); }
