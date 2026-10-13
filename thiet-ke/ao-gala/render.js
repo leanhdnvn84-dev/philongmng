@@ -1,0 +1,12 @@
+const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
+(async()=>{const D=process.argv[2];const b=await chromium.launch();
+const p=await b.newPage({viewport:{width:1500,height:900},deviceScaleFactor:2});
+await p.goto('file://'+D+'/ao.html');await p.evaluate(()=>document.fonts.ready);await p.waitForTimeout(1500);
+await (await p.$('#mock')).screenshot({path:D+'/mau-ao-polo-trang-mo-phong.png'});
+const q=await b.newPage({viewport:{width:1100,height:1300},deviceScaleFactor:3.31});
+await q.goto('file://'+D+'/ao.html');await q.evaluate(()=>document.fonts.ready);await q.waitForTimeout(1500);
+await q.evaluate(()=>document.body.style.background='transparent');await (await q.$('#sau')).screenshot({path:D+'/in-mat-sau-28x35cm-300dpi.png',omitBackground:true});
+const r=await b.newPage({viewport:{width:600,height:600},deviceScaleFactor:3});
+await r.goto('file://'+D+'/ao.html');await r.evaluate(()=>document.fonts.ready);await r.waitForTimeout(1500);
+await r.evaluate(()=>document.body.style.background='transparent');await (await r.$('#truoc')).screenshot({path:D+'/in-mat-truoc-10x10cm-300dpi.png',omitBackground:true});
+await b.close();console.log('ok')})();
