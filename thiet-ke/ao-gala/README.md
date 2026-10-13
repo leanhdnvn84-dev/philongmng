@@ -6,4 +6,4 @@
 - `ao.html`: bản vẽ gốc (SVG + font Google). Sửa chữ/màu trong file rồi dựng lại ảnh:
   `PLAYWRIGHT=/opt/node-tools/node_modules/playwright node thiet-ke/ao-gala/render.js thiet-ke/ao-gala`
 
-Màu: đỏ #B3261E · vàng #C9A24A · nâu đen #2B1D18 · xanh lá #2F5D3A. Cổ và viền tay áo: sọc đỏ + chỉ vàng.
+Màu: chữ xanh dương #1D4F91 · xanh đậm #14315C · hoa phượng đỏ #B3261E · vàng #C9A24A · lá xanh #2F5D3A. Cổ và viền tay áo: sọc xanh + chỉ vàng.
