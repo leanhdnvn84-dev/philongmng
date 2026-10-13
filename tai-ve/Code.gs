@@ -294,12 +294,12 @@ function folder_() {
   if (!id) throw new Error('Chưa có thư mục ảnh. Hãy chạy setup().');
   return DriveApp.getFolderById(id);
 }
-function saveImage_(dataUrl, name) {
+function saveImage_(dataUrl, name, thuMuc) {
   const m = String(dataUrl || '').match(/^data:(image\/[\w+.\-]+);base64,(.+)$/);
   if (!m) throw new Error('Tệp ảnh không hợp lệ.');
   if (m[2].length > 15 * 1024 * 1024) throw new Error('Ảnh quá lớn.');
   const blob = Utilities.newBlob(Utilities.base64Decode(m[2]), m[1], name || ('anh_' + uid_() + '.jpg'));
-  const f = folder_().createFile(blob);
+  const f = (thuMuc || folder_()).createFile(blob);
   try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) { }
   return f.getId();
 }
@@ -330,16 +330,29 @@ function moAnh_(ids, epBuoc) {
   return ketQua;
 }
 /* ---------- Ảnh lấy thẳng từ thư mục Drive ----------
- * Trong thư mục ANH: mỗi lớp 2 thư mục "Lớp 12-4 – Ngày ấy", "Lớp 12-4 – Bây giờ" (tự tạo khi đồng bộ),
- * và thư mục GVCN: ảnh đặt tên có số lớp (vd "12-4.jpg", "GVCN 12.4.jpg") hoặc tên thầy cô.
+ * Trong thư mục ANH: mỗi lớp 1 thư mục tên là lớp ("12-4"), thư mục "Chung" cho ảnh không thuộc lớp nào,
+ * thư mục "GVCN" cho ảnh thầy cô (tên tệp có số lớp, vd "12-4.jpg", hoặc tên thầy cô).
  * Bỏ ảnh vào thư mục → bấm "Đồng bộ ảnh từ Drive" (Quản trị → Hình ảnh) hoặc chờ đồng bộ tự động.
+ * Ảnh tải lên qua trang cũng được lưu thẳng vào thư mục của lớp.
  */
-const ALBUM_LOP = ['Ngày ấy', 'Bây giờ'];
+const THU_MUC_CHUNG = 'Chung';
 const NGUON_DRIVE = 'Thư mục Drive';
-function tenThuMucLop_(ten, album) { return 'Lớp ' + String(ten).replace(/\//g, '-') + ' – ' + album; }
-function thuMucCon_(cha, ten) {
-  const it = cha.getFoldersByName(ten);
-  return it.hasNext() ? it.next() : cha.createFolder(ten);
+function tenThuMucLop_(ten) { return String(ten).replace(/\//g, '-'); }
+function thuMucCon_(cha, ten, khacTen) {
+  const ds = [ten].concat(khacTen || []);
+  for (let i = 0; i < ds.length; i++) {
+    const it = cha.getFoldersByName(ds[i]);
+    if (it.hasNext()) return it.next();
+  }
+  return cha.createFolder(ten);
+}
+/** Thư mục ảnh của một lớp (lopId rỗng → thư mục Chung). Chấp nhận cả tên "Lớp 12-4", "12.4", "12_4". */
+function thuMucAnh_(lopId, goc) {
+  goc = goc || folder_();
+  const l = lopId ? find_('Lop', lopId) : null;
+  if (!l) return thuMucCon_(goc, THU_MUC_CHUNG, ['Ảnh chung', 'Chung cả khoá']);
+  const t = tenThuMucLop_(l.ten);
+  return thuMucCon_(goc, t, ['Lớp ' + t, String(l.ten).replace(/\//g, '.'), String(l.ten).replace(/\//g, '_')]);
 }
 function anhTrong_(folder) {
   const out = [], it = folder.getFiles();
@@ -350,37 +363,70 @@ function anhTrong_(folder) {
   }
   return out;
 }
-function boDau_(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); }
+function boDau_(v) { return String(v || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); }
+function albumTuTen_(ten, lopId) {
+  const n = boDau_(ten);
+  if (/ngay\s*ay/.test(n)) return 'Ngày ấy';
+  if (/bay\s*gio/.test(n)) return 'Bây giờ';
+  return lopId ? 'Ảnh lớp' : 'Ảnh chung';
+}
+
+/**
+ * Xếp ảnh đã có vào đúng thư mục (chạy một lần khi chuyển sang cách mới, gọi lại cũng không sao):
+ * ảnh trong tab Anh → thư mục lớp/Chung; ảnh rời ở thư mục ANH: ảnh thầy cô → GVCN, còn lại → Chung.
+ * Chỉ CHUYỂN tệp (giữ nguyên mã ảnh), không tạo bản sao.
+ */
+function xepAnhVaoThuMuc_() {
+  const goc = folder_(), gocId = goc.getId(), kq = { chuyen: 0 }, tm = {};
+  const thuMuc = function (lopId) { return tm[lopId] || (tm[lopId] = thuMucAnh_(lopId, goc)); };
+  const trong = function (f, folder) { const it = f.getParents(); while (it.hasNext()) if (it.next().getId() === folder.getId()) return true; return false; };
+  read_('Anh').forEach(function (a) {
+    if (!a.fileId) return;
+    try {
+      const f = DriveApp.getFileById(idAnh_(a.fileId)), dich = thuMuc(a.lopId);
+      if (!trong(f, dich)) { f.moveTo(dich); kq.chuyen++; }
+    } catch (e) { }
+  });
+  const anhGv = {}, anhHd = {};
+  read_('ThayCo').forEach(function (t) { if (t.anhId) anhGv[idAnh_(t.anhId)] = 1; });
+  read_('HoatDong').forEach(function (h) { if (h.anhId) anhHd[idAnh_(h.anhId)] = 1; });
+  const gv = thuMucCon_(goc, 'GVCN');
+  anhTrong_(goc).forEach(function (f) {
+    if (anhHd[f.getId()]) return;
+    f.moveTo(anhGv[f.getId()] ? gv : thuMuc(''));
+    kq.chuyen++;
+  });
+  return kq;
+}
 
 function dongBoAnh_() {
-  const goc = folder_(), kq = { them: 0, xoa: 0, gv: 0, chuaGan: [] };
-  const anh = read_('Anh'), moi = [], moQuyen = [];
-  sort_(read_('Lop')).forEach(function (l) {
-    ALBUM_LOP.forEach(function (album) {
-      const files = anhTrong_(thuMucCon_(goc, tenThuMucLop_(l.ten, album)));
-      const co = {};
-      files.forEach(function (f) { co[f.getId()] = f; });
-      const cu = anh.filter(function (a) { return a.nguoiDang === NGUON_DRIVE && a.lopId === l.id && a.album === album; });
-      const daCo = {};
-      cu.forEach(function (a) { daCo[a.fileId] = 1; });
-      files.forEach(function (f) {
-        if (daCo[f.getId()]) return;
-        moi.push({ id: uid_() + moi.length, album: album, lopId: l.id, chuThich: f.getDescription() || '', fileId: f.getId(), nguoiDang: NGUON_DRIVE, taoLuc: now_() });
-        moQuyen.push(f.getId());
-      });
-      const bo = cu.filter(function (a) { return !co[a.fileId]; }).map(function (a) { return a.id; });
-      if (bo.length) kq.xoa += remove_('Anh', function (a) { return bo.indexOf(a.id) >= 0; });
+  const goc = folder_(), kq = { them: 0, doi: 0, xoa: 0, gv: 0, chuaGan: [] };
+  if (!PROP.getProperty('DA_XEP_ANH')) { kq.chuyen = xepAnhVaoThuMuc_().chuyen; PROP.setProperty('DA_XEP_ANH', '1'); }
+  const anh = read_('Anh'), theoFile = {}, thay = [], moi = [], moQuyen = [], co = {};
+  anh.forEach(function (a) { if (a.fileId) theoFile[idAnh_(a.fileId)] = a; });
+  const ds = sort_(read_('Lop')).map(function (l) { return l.id; }).concat(['']);
+  ds.forEach(function (lopId) {
+    anhTrong_(thuMucAnh_(lopId, goc)).forEach(function (f) {
+      const id = f.getId(), a = theoFile[id];
+      co[id] = 1;
+      if (a) { if (a.lopId !== lopId) { a.lopId = lopId; thay.push(a); } return; }
+      moi.push({ id: uid_() + moi.length, album: albumTuTen_(f.getName(), lopId), lopId: lopId, chuThich: f.getDescription() || '', fileId: id, nguoiDang: NGUON_DRIVE, taoLuc: now_() });
+      moQuyen.push(id);
     });
   });
+  thay.forEach(function (a) { update_('Anh', a); });
+  kq.doi = thay.length;
   if (moi.length) { appendMany_('Anh', moi); kq.them = moi.length; }
+  kq.xoa = remove_('Anh', function (a) { return a.nguoiDang === NGUON_DRIVE && !co[idAnh_(a.fileId)]; });
   /* GVCN */
-  const tc = read_('ThayCo');
+  const tc = read_('ThayCo'), daGan = {};
+  tc.forEach(function (t) { if (t.anhId) daGan[idAnh_(t.anhId)] = 1; });
   anhTrong_(thuMucCon_(goc, 'GVCN')).forEach(function (f) {
     const ten = f.getName().replace(/\.[^.]+$/, ''), m = ten.match(/12\s*[-_.\/ ]\s*(\d{1,2})(?!\d)/);
     let t = null;
     if (m) t = tc.find(function (x) { return new RegExp('12\\s*/\\s*' + Number(m[1]) + '(?!\\d)').test(x.vaiTro); });
     if (!t) t = tc.find(function (x) { const h = boDau_(x.hoTen).replace(/^(co|thay)\s+/, ''); return h.split(' ').length > 1 && boDau_(ten).indexOf(h) >= 0; });
-    if (!t) { kq.chuaGan.push(f.getName()); return; }
+    if (!t) { if (!daGan[f.getId()]) kq.chuaGan.push(f.getName()); else moQuyen.push(f.getId()); return; }
     moQuyen.push(f.getId());
     if (idAnh_(t.anhId) !== f.getId()) { t.anhId = f.getId(); update_('ThayCo', t); kq.gv++; }
   });
@@ -388,7 +434,8 @@ function dongBoAnh_() {
   return kq;
 }
 function moTaDongBo_(kq) {
-  return 'Thêm ' + kq.them + ' ảnh, bỏ ' + kq.xoa + ' ảnh đã xoá khỏi thư mục, gán ' + kq.gv + ' ảnh GVCN.' +
+  return (kq.chuyen ? 'Đã xếp ' + kq.chuyen + ' ảnh cũ vào thư mục lớp/Chung. ' : '') +
+    'Thêm ' + kq.them + ' ảnh, chuyển lớp ' + kq.doi + ' ảnh, gỡ ' + kq.xoa + ' ảnh đã xoá khỏi thư mục, gán ' + kq.gv + ' ảnh GVCN.' +
     (kq.chuaGan.length ? ' Chưa gán được (đặt tên có số lớp, vd 12-4.jpg): ' + kq.chuaGan.join(', ') : '');
 }
 /** Quản trị → Hình ảnh → "Đồng bộ ảnh từ Drive" (Ban liên lạc). */
@@ -405,6 +452,16 @@ function dongBoAnh() {
   const l = LockService.getScriptLock();
   if (!l.tryLock(30000)) return;
   try { Logger.log(moTaDongBo_(dongBoAnh_())); } finally { l.releaseLock(); }
+}
+/** Chạy trong trình soạn thảo: xếp lại toàn bộ ảnh đã có vào đúng thư mục lớp/Chung/GVCN rồi đồng bộ. */
+function xepLaiAnh() {
+  const l = LockService.getScriptLock();
+  l.waitLock(30000);
+  try {
+    const n = xepAnhVaoThuMuc_().chuyen;
+    PROP.setProperty('DA_XEP_ANH', '1');
+    Logger.log('Đã chuyển ' + n + ' ảnh. ' + moTaDongBo_(dongBoAnh_()));
+  } finally { l.releaseLock(); }
 }
 /** Chạy một lần trong trình soạn thảo: tạo thư mục cho từng lớp + bật đồng bộ ảnh tự động 30 phút/lần. */
 function batDongBoAnhTuDong() {
@@ -881,7 +938,9 @@ function saveTeacher(token, t, dataUrl) {
     const ex = o.id ? find_('ThayCo', o.id) : null;
     if (dataUrl) {
       if (ex && ex.anhId) trashImage_(ex.anhId);
-      o.anhId = saveImage_(dataUrl, 'thayco_' + uid_() + '.jpg');
+      let gv = null;
+      try { gv = thuMucCon_(folder_(), 'GVCN'); } catch (e) { }
+      o.anhId = saveImage_(dataUrl, 'thayco_' + uid_() + '.jpg', gv);
     }
     const id = upsert_('ThayCo', o);
     log_(u, (ex ? 'Sửa' : 'Thêm') + ' thầy cô ' + o.hoTen);
@@ -940,7 +999,9 @@ function uploadPhoto(token, p) {
   if (u.role !== 'super') lopId = u.lopId;
   if (lopId && !find_('Lop', lopId)) throw new Error('Lớp không tồn tại.');
   const album = req_(p.album, 'tên album', 60);
-  const fileId = saveImage_(p.dataUrl, p.name);
+  let tm = null;
+  try { tm = thuMucAnh_(lopId); } catch (e) { }
+  const fileId = saveImage_(p.dataUrl, p.name, tm);
   return lock_(function () {
     const id = uid_();
     append_('Anh', { id: id, album: album, lopId: lopId, chuThich: String(p.chuThich || '').slice(0, 200), fileId: fileId, nguoiDang: u.hoTen, taoLuc: now_() });
