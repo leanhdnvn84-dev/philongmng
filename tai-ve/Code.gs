@@ -25,7 +25,7 @@ const SHEETS = {
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
@@ -39,6 +39,8 @@ const CONFIG_DEFAULT = {
   loiNgo: 'Ba năm áo trắng trôi qua như một cái chớp mắt. Hơn hai mươi năm sau, chúng ta mỗi người một ngả, nhưng tiếng trống trường, gốc phượng sân sau và những trang lưu bút vẫn còn đó. Trang này là để mình tìm lại nhau.',
   nguoiKy: 'Ban liên lạc khoá 2000 – 2003',
   /** Mỗi dòng một người: Họ tên | Điện thoại hoặc Zalo | Vai trò (tuỳ chọn) */
+  /** Nội dung popup Thư ngỏ / Giấy mời (JSON) và Kế hoạch (văn bản có ký hiệu) – để trống dùng mặc định trong Index.html */
+  thuNgo: '', giayMoi: '', keHoach: '',
   banLienLac: 'Lê Trung Hiếu | 0905 394 493\nHoàng Diệu Thúy | 0905 865 867\nNguyễn Thị Tuyết Mai | 0905 516 896'
 };
 
@@ -1043,7 +1045,7 @@ function saveConfig(token, cfg) {
     const rows = read_('CauHinh');
     CONFIG_KEYS.forEach(function (k) {
       if (!cfg || cfg[k] === undefined) return;
-      const v = String(cfg[k]).trim().slice(0, 3000);
+      const v = String(cfg[k]).trim().slice(0, /^(thuNgo|giayMoi|keHoach)$/.test(k) ? 30000 : 3000);
       const ex = rows.find(function (r) { return r.key === k; });
       if (ex) { ex.value = v; update_('CauHinh', ex); } else append_('CauHinh', { key: k, value: v });
     });
