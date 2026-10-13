@@ -52,6 +52,8 @@ const CONFIG_TRONG_DUNG_MAC_DINH = ['banLienLac', 'doanMoDau'];
 
 /** Thư mục Drive gốc – mọi dữ liệu (Sheet + ảnh) đều lưu ở đây */
 const ROOT_FOLDER_ID = '1xUV4WDLHiE9YlyG35Fy3v7ELSxlWWV_a';
+/** Thư mục ảnh thầy cô (dán mã ảnh vào cột anhId của tab ThayCo) */
+const THAYCO_FOLDER_ID = '19LbsB4ivxftPNtybx8A3Xcb-vnSXxK4K';
 
 /** Google Sheet dữ liệu gốc: NGUYENHIEN_DATA */
 const DATA_SHEET_ID = '1EyH5_IAwYVhNPuZFbwMpauCW0K1Y0S4yxOQ93Nla7LE';
@@ -301,6 +303,137 @@ function saveImage_(dataUrl, name) {
   try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) { }
   return f.getId();
 }
+/** Nhận mã ảnh Drive hoặc nguyên đường link (…/file/d/MÃ/view, …?id=MÃ) → trả về mã. */
+function idAnh_(v) {
+  v = String(v || '').trim();
+  const m = v.match(/\/d\/([\w-]{20,})/) || v.match(/[?&]id=([\w-]{20,})/);
+  return m ? m[1] : v;
+}
+/**
+ * Ảnh dán tay vào Sheet (thầy cô, hoạt động, album) thường đang để riêng tư → trang không hiện được.
+ * Tự mở quyền "Bất kỳ ai có đường liên kết đều xem được", mỗi ảnh một lần (nhớ trong Script Property ANH_DA_MO).
+ */
+function moAnh_(ids, epBuoc) {
+  let memo = [];
+  try { memo = JSON.parse(PROP.getProperty('ANH_DA_MO') || '[]'); } catch (e) { }
+  const ketQua = [];
+  let doi = false;
+  ids.forEach(function (id) {
+    if (!id || (!epBuoc && memo.indexOf(id) >= 0)) return;
+    try {
+      DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      ketQua.push([id, 'đã mở']);
+    } catch (e) { ketQua.push([id, 'lỗi: ' + e.message]); }
+    if (memo.indexOf(id) < 0) { memo.push(id); doi = true; }
+  });
+  if (doi) { try { PROP.setProperty('ANH_DA_MO', JSON.stringify(memo.slice(-300))); } catch (e) { } }
+  return ketQua;
+}
+/* ---------- Ảnh lấy thẳng từ thư mục Drive ----------
+ * Trong thư mục ANH: mỗi lớp 2 thư mục "Lớp 12-4 – Ngày ấy", "Lớp 12-4 – Bây giờ" (tự tạo khi đồng bộ),
+ * và thư mục GVCN: ảnh đặt tên có số lớp (vd "12-4.jpg", "GVCN 12.4.jpg") hoặc tên thầy cô.
+ * Bỏ ảnh vào thư mục → bấm "Đồng bộ ảnh từ Drive" (Quản trị → Hình ảnh) hoặc chờ đồng bộ tự động.
+ */
+const ALBUM_LOP = ['Ngày ấy', 'Bây giờ'];
+const NGUON_DRIVE = 'Thư mục Drive';
+function tenThuMucLop_(ten, album) { return 'Lớp ' + String(ten).replace(/\//g, '-') + ' – ' + album; }
+function thuMucCon_(cha, ten) {
+  const it = cha.getFoldersByName(ten);
+  return it.hasNext() ? it.next() : cha.createFolder(ten);
+}
+function anhTrong_(folder) {
+  const out = [], it = folder.getFiles();
+  while (it.hasNext()) {
+    const f = it.next();
+    if (f.isTrashed() || !/^image\//.test(f.getMimeType())) continue;
+    out.push(f);
+  }
+  return out;
+}
+function boDau_(v) { return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); }
+
+function dongBoAnh_() {
+  const goc = folder_(), kq = { them: 0, xoa: 0, gv: 0, chuaGan: [] };
+  const anh = read_('Anh'), moi = [], moQuyen = [];
+  sort_(read_('Lop')).forEach(function (l) {
+    ALBUM_LOP.forEach(function (album) {
+      const files = anhTrong_(thuMucCon_(goc, tenThuMucLop_(l.ten, album)));
+      const co = {};
+      files.forEach(function (f) { co[f.getId()] = f; });
+      const cu = anh.filter(function (a) { return a.nguoiDang === NGUON_DRIVE && a.lopId === l.id && a.album === album; });
+      const daCo = {};
+      cu.forEach(function (a) { daCo[a.fileId] = 1; });
+      files.forEach(function (f) {
+        if (daCo[f.getId()]) return;
+        moi.push({ id: uid_() + moi.length, album: album, lopId: l.id, chuThich: f.getDescription() || '', fileId: f.getId(), nguoiDang: NGUON_DRIVE, taoLuc: now_() });
+        moQuyen.push(f.getId());
+      });
+      const bo = cu.filter(function (a) { return !co[a.fileId]; }).map(function (a) { return a.id; });
+      if (bo.length) kq.xoa += remove_('Anh', function (a) { return bo.indexOf(a.id) >= 0; });
+    });
+  });
+  if (moi.length) { appendMany_('Anh', moi); kq.them = moi.length; }
+  /* GVCN */
+  const tc = read_('ThayCo');
+  anhTrong_(thuMucCon_(goc, 'GVCN')).forEach(function (f) {
+    const ten = f.getName().replace(/\.[^.]+$/, ''), m = ten.match(/12\s*[-_.\/ ]\s*(\d{1,2})(?!\d)/);
+    let t = null;
+    if (m) t = tc.find(function (x) { return new RegExp('12\\s*/\\s*' + Number(m[1]) + '(?!\\d)').test(x.vaiTro); });
+    if (!t) t = tc.find(function (x) { const h = boDau_(x.hoTen).replace(/^(co|thay)\s+/, ''); return h.split(' ').length > 1 && boDau_(ten).indexOf(h) >= 0; });
+    if (!t) { kq.chuaGan.push(f.getName()); return; }
+    moQuyen.push(f.getId());
+    if (idAnh_(t.anhId) !== f.getId()) { t.anhId = f.getId(); update_('ThayCo', t); kq.gv++; }
+  });
+  moAnh_(moQuyen, false);
+  return kq;
+}
+function moTaDongBo_(kq) {
+  return 'Thêm ' + kq.them + ' ảnh, bỏ ' + kq.xoa + ' ảnh đã xoá khỏi thư mục, gán ' + kq.gv + ' ảnh GVCN.' +
+    (kq.chuaGan.length ? ' Chưa gán được (đặt tên có số lớp, vd 12-4.jpg): ' + kq.chuaGan.join(', ') : '');
+}
+/** Quản trị → Hình ảnh → "Đồng bộ ảnh từ Drive" (Ban liên lạc). */
+function dongBoAnhDrive(token) {
+  return lock_(function () {
+    const u = auth_(token, true);
+    const msg = moTaDongBo_(dongBoAnh_());
+    log_(u, 'Đồng bộ ảnh từ Drive: ' + msg);
+    return msg;
+  });
+}
+/** Chạy trong trình soạn thảo (và bởi trình kích hoạt tự động). */
+function dongBoAnh() {
+  const l = LockService.getScriptLock();
+  if (!l.tryLock(30000)) return;
+  try { Logger.log(moTaDongBo_(dongBoAnh_())); } finally { l.releaseLock(); }
+}
+/** Chạy một lần trong trình soạn thảo: tạo thư mục cho từng lớp + bật đồng bộ ảnh tự động 30 phút/lần. */
+function batDongBoAnhTuDong() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'dongBoAnh') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('dongBoAnh').timeBased().everyMinutes(30).create();
+  dongBoAnh();
+  Logger.log('Đã bật đồng bộ ảnh tự động mỗi 30 phút. Thư mục ảnh: ' + folder_().getUrl());
+}
+
+/** Chạy trong trình soạn thảo: mở quyền xem cho mọi ảnh thầy cô / hoạt động / album và in mã các ảnh trong thư mục thầy cô. */
+function moQuyenAnh() {
+  const ids = [];
+  read_('ThayCo').forEach(function (t) { if (t.anhId) ids.push(idAnh_(t.anhId)); });
+  read_('HoatDong').forEach(function (h) { if (h.anhId) ids.push(idAnh_(h.anhId)); });
+  read_('Anh').forEach(function (a) { if (a.fileId) ids.push(idAnh_(a.fileId)); });
+  try {
+    const it = DriveApp.getFolderById(THAYCO_FOLDER_ID).getFiles();
+    Logger.log('Ảnh trong thư mục thầy cô (copy mã dán vào cột anhId của tab ThayCo):');
+    while (it.hasNext()) {
+      const f = it.next();
+      if (!/^image\//.test(f.getMimeType())) continue;
+      ids.push(f.getId());
+      Logger.log('  ' + f.getName() + '  →  ' + f.getId());
+    }
+  } catch (e) { Logger.log('Không mở được thư mục thầy cô: ' + e.message); }
+  moAnh_(ids, true).forEach(function (r) { if (r[1] !== 'đã mở') Logger.log(r[0] + ': ' + r[1]); });
+  pubBust_('');
+  Logger.log('Xong: đã mở quyền xem cho ' + ids.length + ' ảnh. Mở lại trang là thấy.');
+}
 function trashImage_(id) {
   if (!id) return;
   try { DriveApp.getFileById(id).setTrashed(true); } catch (e) { }
@@ -441,16 +574,21 @@ function taoPublicData_() {
   const dk = read_('DangKy').filter(function (d) { return d.trangThai !== 'huy'; });
   const dkLop = {};
   dk.forEach(function (d) { dkLop[d.lopId] = (dkLop[d.lopId] || 0) + 1; });
-  return {
+  const r = {
     tinTuc: sortNews_(read_('TinTuc').filter(function (t) { return t.trangThai === 'published'; })).map(pubOf_('TinTuc')),
     dangKy: { tong: dk.length, theoLop: dkLop },
     cfg: cfg_(),
     lop: lop,
-    hoatDong: read_('HoatDong').filter(function (e) { return e.trangThai === 'published'; }).map(pubOf_('HoatDong')),
-    thayCo: sort_(read_('ThayCo')).map(pubOf_('ThayCo')),
+    hoatDong: read_('HoatDong').filter(function (e) { return e.trangThai === 'published'; }).map(pubOf_('HoatDong')).map(function (h) { h.anhId = idAnh_(h.anhId); return h; }),
+    thayCo: sort_(read_('ThayCo')).map(pubOf_('ThayCo')).map(function (t) { t.anhId = idAnh_(t.anhId); return t; }),
     luuBut: read_('LuuBut').filter(function (x) { return x.trangThai === 'approved'; }).map(pubOf_('LuuBut')).reverse(),
-    anh: read_('Anh').map(pubOf_('Anh')).reverse()
+    anh: read_('Anh').map(pubOf_('Anh')).map(function (a) { a.fileId = idAnh_(a.fileId); return a; }).reverse()
   };
+  /* ảnh dán tay vào Sheet: tự mở quyền xem (mỗi ảnh một lần) */
+  try {
+    moAnh_([].concat(r.thayCo.map(function (t) { return t.anhId; }), r.hoatDong.map(function (h) { return h.anhId; }), r.anh.map(function (a) { return a.fileId; })).filter(String), false);
+  } catch (e) { console.log('moAnh: ' + e.message); }
+  return r;
 }
 
 function submitNote(tacGia, lopId, noiDung) {

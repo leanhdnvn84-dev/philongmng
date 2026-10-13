@@ -36,7 +36,7 @@ Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PR
 setClassAdmin, removeClassAdmin, saveStudent, deleteStudent, importStudents, saveEvent, setEventStatus,
 deleteEvent, saveTeacher, deleteTeacher, moderateNote, deleteNote, uploadPhoto, updatePhoto, deletePhoto,
 saveConfig, saveNews, deleteNews, submitRegistration, setRegistrationStatus, deleteRegistration,
-updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents, ghiLuotXem, getThongKe`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`.
+updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents, ghiLuotXem, getThongKe, dongBoAnhDrive`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`, `dongBoAnh`, `batDongBoAnhTuDong`, `moQuyenAnh`.
 `getAdminData.hsLac` (super): học sinh có `lopId` không khớp lớp nào → nhóm "⚠ Chưa thuộc lớp nào" trong Quản trị → Học sinh, tick + Chuyển lớp.
 Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
@@ -59,6 +59,8 @@ Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
 Trang chủ: khung thư dùng class `goc-thu` (KHÔNG dùng `.thu` – tên đó là popup Thư ngỏ, dùng chung sẽ thành ô cuộn tràn ngang). Dưới thư là `dong-lb`: dải **vuốt ngang** (`#luoiLb`, scroll-snap, nút ‹ › `truotLb` trên máy tính) 12 lưu bút mới nhất, mỗi bài khung giấy cao tối đa ~7 dòng, bài dài cuộn dọc trong khung (`danhDauLbDai` thêm class `dai` + gợi ý "Kéo trong khung").
 Trang lớp → tab Danh sách lớp mặc định hiện **sơ đồ lớp học** (`soDoLop`, biến `cV='so'|'ds'`): bảng đen, bục giảng + bàn giáo viên (GVCN), các dãy bàn đôi theo thứ tự danh sách (tên to, họ đệm nhỏ, chức vụ, nơi ở; SĐT chỉ khi admin), ô "Tìm chỗ ngồi" (`timCho`); nút 📋 Danh sách trở về bảng cũ.
 Chống tràn ngang mobile: `html{overflow-x:hidden}` + `body/main/section.view/footer{overflow-x:clip}` (không dùng `overflow-x:hidden` cho body vì làm hỏng header sticky); chữ to `nowrap` phải co theo `vw` ở ≤760px. Kiểm tra `scrollWidth` ở 320/360/390/430px.
+Ảnh Drive chỉ hiện khi tệp để "Bất kỳ ai có đường liên kết": `taoPublicData_` gọi `moAnh_` tự mở quyền cho ảnh dán tay (ThayCo.anhId, HoatDong.anhId, Anh.fileId; nhớ trong Property `ANH_DA_MO`); `idAnh_`/`idAnh` nhận cả link Drive; `img()` lỗi thì ẩn, thầy cô hiện chữ cái đầu.
+Ảnh từ thư mục Drive (`dongBoAnh_`): trong thư mục ANH (`folder_()`), mỗi lớp 2 thư mục `Lớp 12-4 – Ngày ấy` / `Lớp 12-4 – Bây giờ` (`tenThuMucLop_`, tự tạo) → dòng Anh `nguoiDang='Thư mục Drive'` (tự thêm/gỡ); thư mục `GVCN`: tên tệp có số lớp (`12-4.jpg`) hoặc tên thầy cô → ThayCo.anhId. Nút Quản trị → Hình ảnh → "Đồng bộ ảnh từ Drive" (`dongBoAnhDrive`), hoặc `batDongBoAnhTuDong()` bật trigger 30 phút.
 Ảnh hiển thị qua `https://drive.google.com/thumbnail?id=...&sz=w...`; ảnh tải lên được nén ≤1600px JPEG ở client (`readImg`).
 
 ### Tốc độ (mở trong Zalo)
