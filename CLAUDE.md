@@ -45,7 +45,7 @@ Cấu hình `doanMoDau` (Cài đặt → "Đoạn giới thiệu dưới câu m�
 Cấu hình `banLienLac` (Cài đặt): mỗi dòng "Họ tên | Điện thoại/Zalo | Vai trò" → cột Ban liên lạc ở chân trang + đầu danh bạ trang Kết nối.
 Mặc định trong `CONFIG_DEFAULT.banLienLac` (Lê Trung Hiếu, Hoàng Diệu Thúy, Nguyễn Thị Tuyết Mai) – dòng trong Sheet CauHinh (nếu có) sẽ ghi đè.
 
-Thư ngỏ (họp mặt 30 năm, 17h30 14/11/2026): hằng `THU` trong Index.html; tự mở sau màn chờ (trừ khi người xem tick "Không tự mở" – localStorage `nh_an_`+`THU.ma`), mở lại bằng phong thư ở trang chủ (`moThu()`). Đổi thư mới → đổi `THU.ma` để mọi người lại thấy.
+Thư ngỏ (họp mặt 30 năm, 17h30 14/11/2026): hằng `THU` trong Index.html; tự mở sau màn chờ (trừ khi người xem tick "Không tự mở" – localStorage `nh_an_`+`THU.ma`), mở lại bằng phong thư ở trang chủ (`moThu()`). Đổi thư mới → đổi `THU.ma` để mọi người lại thấy. Nút "💌 Giấy mời" (`moGiayMoi`) lật thư thành tấm giấy mời (`.thu.gm-on .gm`): ghi tên người nhận (localStorage `nh_ten_moi`), thời gian/địa điểm từ `THU.gio/ngay/diaDiem/sang`, "Sao chép lời mời" (`chepLoiMoi`) để dán Zalo, "Đăng ký tham dự" (`diDangKy`).
 
 ### Dữ liệu mẫu
 Mọi dòng mẫu có id bắt đầu `mau_`. Nội dung mẫu viết trong `napDuLieuMau_()` (Code.gs); dòng `const DEMO=` trong Index.html
