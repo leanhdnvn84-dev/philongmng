@@ -341,6 +341,13 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-adm .kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:22px}
 .p-adm .kpi div{border:1.5px solid var(--vien);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--mo)}
 .p-adm .kpi b{display:block;font-family:'Patrick Hand';font-weight:400;font-size:32px;color:var(--muc);line-height:1.1}
+.p-adm .dk-lop{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin:0 0 14px}
+.p-adm .dk-lop button{position:relative;text-align:left;border:1.5px solid var(--vien);background:#fff;border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:1px}
+.p-adm .dk-lop button b{font-size:14px;color:var(--muc)}.p-adm .dk-lop button span{font-size:12px;color:var(--mo)}
+.p-adm .dk-lop button i{font-style:normal;font-size:11px;font-weight:700;background:#C8102E;color:#fff;border-radius:99px;padding:0 6px;white-space:nowrap}
+.p-adm .dk-lop button.on{border-color:var(--muc);background:#F1ECFB;box-shadow:0 0 0 1px var(--muc)}
+.p-adm .dk-nhom{margin:18px 0 6px;font-size:15px;color:var(--muc)}.p-adm .dk-nhom span{font-weight:400;font-size:13px;color:var(--mo)}
+.p-adm .dk-tt{font-size:12px;font-weight:600;border-radius:99px;padding:2px 9px;white-space:nowrap}.p-adm .dk-tt.cho{background:#FDE8EA;color:#B3261E}.p-adm .dk-tt.xacnhan{background:#E3F4E8;color:#1F6B3A}.p-adm .dk-tt.huy{background:#EEE;color:#777}
 .p-adm .dbo{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between;border:1.5px dashed var(--vien);border-radius:12px;padding:14px 16px;margin-bottom:24px}.p-adm .dbo>div{flex:1;min-width:240px}
 .tk-dau{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .tkc{margin:4px 0 26px}.tkc .dinh{font-size:12px;color:var(--mo);margin-bottom:4px}
@@ -697,7 +704,7 @@ const lopIdx=id=>Math.max(0,D.lop.findIndex(l=>l.id===id));
 const SVG={home:'<path d="M3 11l9-7 9 7v9H5z"/><path d="M10 20v-6h4v6"/>',classes:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',events:'<path d="M12 2l6 7-6 8-6-8z"/><path d="M12 17c-2 2 2 3 0 5"/>',yearbook:'<path d="M4 4h7a2 2 0 012 2v14a2 2 0 00-2-2H4zM20 4h-7a2 2 0 00-2 2v14a2 2 0 012-2h7z"/>',gallery:'<rect x="3" y="5" width="18" height="15" rx="1"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-8 8"/>',connect:'<circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c.6-3 2.6-5 5-5s4.4 2 5 5M12 20c.6-3 2.6-5 5-5s4.4 2 5 5"/>',admin:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'};
 const NAV=[['home','Trang chủ'],['classes','Các lớp'],['events','Ngoại khoá'],['yearbook','Kỷ yếu'],['gallery','Hình ảnh'],['connect','Kết nối'],['admin','Quản trị']];
 /* Bấm menu: trang về trạng thái ban đầu, đủ nội dung (bỏ bộ lọc, thẻ, ô tìm của lần trước) */
-function menu(k){if(k==='yearbook'){ybT=0;wLop=''}if(k==='gallery'){gF='';gA=''}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF=''}
+function menu(k){if(k==='yearbook'){ybT=0;wLop=''}if(k==='gallery'){gF='';gA=''}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF='';dkL=''}
  if(k==='home')renderHome();if(k==='events')renderEvents();if(k==='connect')renderConnect();go(k)}
 function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')">${t}</button>`).join('');
  $('navBot').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>${t}</button>`).join('')}
@@ -1027,7 +1034,7 @@ async function act(fn,msg,ok){if(msg&&!confirm(msg))return;try{busy(1);await fn(
 /* ===================== QUẢN TRỊ ===================== */
 const AT_S=['Tổng quan','Thống kê','Lớp và admin lớp','Học sinh','Hoạt động','Thầy cô','Lưu bút','Hình ảnh','Kết nối','Đăng ký họp lớp','Thư ngỏ & Gala','Cài đặt','Tài khoản của tôi'];
 const AT_C=['Thông tin lớp','Học sinh','Hình ảnh','Lưu bút','Đăng ký họp lớp','Đề xuất hoạt động','Tài khoản của tôi'];
-let aT=0,adLop='',nbF='pending',dkF='cho',apF='';
+let aT=0,adLop='',nbF='pending',dkF='cho',apF='',dkL='';
 const isS=()=>A&&A.me.role==='super';
 async function openAdmin(){if(A)return renderAdmin();if(!TOK)return renderLogin();try{busy(1,'Đang tải…');A=await api('getAdminData',TOK);fillAlbums();renderAdmin()}catch(e){err(e);renderLogin()}finally{busy(0)}}
 function renderLogin(){$('v-admin').innerHTML=`<div class="login"><h2>Đăng nhập quản trị</h2><p class="who" style="margin:6px 0 18px">Dành cho Ban liên lạc và admin của từng lớp. Cảm ơn bạn đã giữ lửa cho khoá mình.</p><input id="lgU" placeholder="Tên đăng nhập" autocomplete="username" aria-label="Tên đăng nhập"><input id="lgP" type="password" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu" onkeydown="if(event.key==='Enter')doLogin()"><button class="btn2" style="width:100%" onclick="doLogin()">Đăng nhập</button></div>`}
@@ -1112,9 +1119,17 @@ const R={
  'Kết nối':()=>ph3('Tin trên trang Kết nối',`<button class="btn2 sm" onclick="fNews()">Đăng tin mới</button>`)+`<p class="who" style="margin-bottom:12px">Tin nổi bật hiện to nhất ở đầu trang Kết nối (thường là tin họp lớp). Các tin khác hiện thành mẩu báo bên dưới.</p>`+
   (A.tinTuc.length?`<div class="tw"><table><tbody>${A.tinTuc.map(t=>`<tr><td><b>${esc(t.tieuDe)}</b><div class="who">${esc(t.loai)}${t.ngay?' · '+esc(t.ngay):''}</div></td><td>${t.noiBat==='1'?'<span class="pill blue">Nổi bật</span> ':''}${st(t.trangThai)}</td><td class="r"><button class="btn2 o sm" onclick="fNews('${t.id}')">Sửa</button> <button class="btn2 red sm" onclick="act(()=>api('deleteNews',TOK,'${t.id}'),'Xoá tin này?','Đã xoá')">Xoá</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="who">Chưa có tin nào.</p>'),
 
- 'Đăng ký họp lớp':()=>{const c=s=>A.dangKy.filter(x=>x.trangThai===s).length,l=A.dangKy.filter(x=>x.trangThai===dkF);
-  return `<h3>Đăng ký họp lớp${isS()?'':' của lớp '+esc(lopName(A.me.lopId))}</h3><div class="chips">${[['cho','Mới đăng ký'],['xacnhan','Đã xác nhận'],['huy','Đã huỷ']].map(([k,t])=>`<button class="${dkF===k?'on':''}" onclick="dkF='${k}';renderAdmin()">${t} (${c(k)})</button>`).join('')}</div>`+
-  (l.length?`<div class="tw"><table><thead><tr><th>Họ tên</th>${isS()?'<th>Lớp</th>':''}<th>Liên hệ</th><th class="hide-m">Ghi chú</th><th></th></tr></thead><tbody>${l.map(d=>`<tr><td>${esc(d.hoTen)}<div class="who">${esc(d.taoLuc)}</div></td>${isS()?`<td>${esc(lopName(d.lopId))}</td>`:''}<td>${esc(d.lienHe)}</td><td class="hide-m who">${esc(d.ghiChu)}</td><td class="r">${d.trangThai!=='xacnhan'?`<button class="btn2 sm" onclick="act(()=>api('setRegistrationStatus',TOK,'${d.id}','xacnhan'),'','Đã xác nhận')">Xác nhận</button> `:''}${d.trangThai!=='huy'?`<button class="btn2 o sm" onclick="act(()=>api('setRegistrationStatus',TOK,'${d.id}','huy'),'','Đã huỷ')">Huỷ</button> `:''}<button class="btn2 red sm" onclick="act(()=>api('deleteRegistration',TOK,'${d.id}'),'Xoá đăng ký này?','Đã xoá')">Xoá</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="who">Không có đăng ký nào.</p>')},
+ 'Đăng ký họp lớp':()=>{const S=isS(),lopX=S?dkL:A.me.lopId,ds=A.dangKy.filter(x=>!lopX||x.lopId===lopX),c=s=>ds.filter(x=>x.trangThai===s).length;
+  const dem=(id,st)=>A.dangKy.filter(x=>x.lopId===id&&(!st||x.trangThai===st)).length,l=ds.filter(x=>dkF==='all'||x.trangThai===dkF);
+  const tong=S?`<div class="dk-lop">${[{id:'',ten:'Tất cả'}].concat(A.lop).map(L=>{const moi=L.id?dem(L.id,'cho'):A.dangKy.filter(x=>x.trangThai==='cho').length,xn=L.id?dem(L.id,'xacnhan'):A.dangKy.filter(x=>x.trangThai==='xacnhan').length;
+   return `<button class="${dkL===L.id?'on':''}" onclick="dkL='${L.id}';renderAdmin()"><b>${L.id?'Lớp '+esc(L.ten):'Tất cả'}</b><span>${xn} xác nhận${moi?` · <i>${moi} mới</i>`:''}</span></button>`}).join('')}</div>`:'';
+  const dong=d=>`<tr><td>${esc(d.hoTen)}<div class="who">${esc(d.taoLuc)}</div></td><td>${esc(d.lienHe)}</td><td class="hide-m who">${esc(d.ghiChu)}</td><td><span class="dk-tt ${d.trangThai}">${{cho:'Mới',xacnhan:'Đã xác nhận',huy:'Đã huỷ'}[d.trangThai]||esc(d.trangThai)}</span></td><td class="r">${d.trangThai!=='xacnhan'?`<button class="btn2 sm" onclick="act(()=>api('setRegistrationStatus',TOK,'${d.id}','xacnhan'),'','Đã xác nhận')">Xác nhận</button> `:''}${d.trangThai!=='huy'?`<button class="btn2 o sm" onclick="act(()=>api('setRegistrationStatus',TOK,'${d.id}','huy'),'','Đã huỷ')">Huỷ</button> `:''}<button class="btn2 red sm" onclick="act(()=>api('deleteRegistration',TOK,'${d.id}'),'Xoá đăng ký này?','Đã xoá')">Xoá</button></td></tr>`;
+  const bang=rows=>`<div class="tw"><table><thead><tr><th>Họ tên</th><th>Liên hệ</th><th class="hide-m">Ghi chú</th><th>Trạng thái</th><th></th></tr></thead><tbody>${rows.map(dong).join('')}</tbody></table></div>`;
+  const nhom=S&&!dkL&&l.length?A.lop.map(L=>{const r=l.filter(x=>x.lopId===L.id);return r.length?`<h4 class="dk-nhom">Lớp ${esc(L.ten)} <span>${r.length} bạn</span></h4>${bang(r)}`:''}).join('')+(()=>{const r=l.filter(x=>!A.lop.some(L=>L.id===x.lopId));return r.length?`<h4 class="dk-nhom">Chưa rõ lớp <span>${r.length}</span></h4>${bang(r)}`:''})():'';
+  return `<h3>Đăng ký họp lớp${S?(dkL?' · Lớp '+esc(lopName(dkL)):' · cả khoá'):' của lớp '+esc(lopName(A.me.lopId))}</h3>
+  <p class="who" style="margin:-4px 0 12px">${S?'Mỗi bạn đăng ký tự vào đúng lớp đã chọn. Bấm vào một lớp để xem riêng lớp đó; admin lớp chỉ thấy lớp của mình.':'Các bạn chọn lớp '+esc(lopName(A.me.lopId))+' khi đăng ký sẽ hiện ở đây. Xác nhận sau khi đã liên lạc được với bạn.'}</p>${tong}
+  <div class="chips">${[['cho','Mới đăng ký'],['xacnhan','Đã xác nhận'],['huy','Đã huỷ'],['all','Tất cả']].map(([k,t])=>`<button class="${dkF===k?'on':''}" onclick="dkF='${k}';renderAdmin()">${t} (${k==='all'?ds.length:c(k)})</button>`).join('')}${l.length?`<button onclick="chepDk()" title="Chép để dán vào Excel hoặc Zalo">Sao chép danh sách</button>`:''}</div>`+
+  (l.length?(nhom||bang(l)):'<p class="who">Không có đăng ký nào'+(lopX?' của lớp này':'')+'.</p>')},
 
  'Thư ngỏ & Gala':()=>{apDungPopup();const T=THU,G=GM,hen=new Date(T.hen.getTime()-T.hen.getTimezoneOffset()*6e4).toISOString().slice(0,16);
   const o=(id,l,v,ph)=>`<label>${l}<input id="${id}" value="${esc(v||'')}" placeholder="${esc(ph||'')}"></label>`,ta=(id,l,v,r,h)=>`<label>${l}<textarea id="${id}" rows="${r}">${esc(v||'')}</textarea>${h?`<small class="who">${h}</small>`:''}</label>`;
@@ -1208,6 +1223,8 @@ function luuPopup(k){const o={};o[k]=docPopup(k);act(()=>api('saveConfig',TOK,o)
 function macDinhPopup(k){if(!confirm('Đưa phần này về nội dung mặc định?'))return;const o={};o[k]='';act(()=>api('saveConfig',TOK,o),'','Đã đưa về mặc định')}
 function xemPopup(w){const giu=D.cfg;D.cfg=Object.assign({},giu,{thuNgo:docPopup('thuNgo'),giayMoi:docPopup('giayMoi'),keHoach:docPopup('keHoach')});
  try{if(w==='thu')moThu();else if(w==='gm')moGiayMoi();else moKeHoach()}finally{D.cfg=giu}}
+function chepDk(){const S=isS(),lopX=S?dkL:A.me.lopId,l=A.dangKy.filter(x=>(!lopX||x.lopId===lopX)&&(dkF==='all'||x.trangThai===dkF));
+ const tt={cho:'Mới',xacnhan:'Đã xác nhận',huy:'Đã huỷ'};chep(['STT\tHọ tên\tLớp\tLiên hệ\tGhi chú\tTrạng thái'].concat(l.map((d,i)=>[i+1,d.hoTen,lopName(d.lopId),d.lienHe,d.ghiChu,tt[d.trangThai]||d.trangThai].join('\t'))).join('\n'),'Đã sao chép '+l.length+' bạn, dán vào Excel hoặc Zalo')}
 function saveCfg(){const o={};['tenTruong','diaChi','nienKhoa','namRaTruong','cauMoDau','trichDan','trichDanTacGia','loiNgo','nguoiKy','banLienLac','doanMoDau'].forEach(k=>o[k]=$('cf_'+k).value);act(()=>api('saveConfig',TOK,o),'','Đã lưu cài đặt')}
 async function changePw(){const o=$('pwO').value,n=$('pwN').value,r=$('pwR').value;if(n!==r)return toast('Mật khẩu nhập lại không khớp',1);if(n.length<6)return toast('Mật khẩu mới phải từ 6 ký tự',1);
  try{busy(1);await api('changePassword',TOK,o,n);toast('Đã đổi mật khẩu');['pwO','pwN','pwR'].forEach(i=>$(i).value='')}catch(e){err(e)}finally{busy(0)}}

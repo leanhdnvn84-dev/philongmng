@@ -30,6 +30,7 @@ Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PR
 - Lỗi phiên có tiền tố `SESSION:` → frontend tự đăng xuất.
 - Hoạt động do admin lớp đề xuất có `trangThai='pending'`, Ban liên lạc duyệt.
 - Lưu bút công khai gửi vào `pending`; đăng ký họp lớp trạng thái `cho | xacnhan | huy`.
+- Quản trị → **Đăng ký họp lớp**: super thấy ô 12 lớp (số xác nhận + số mới, `dkL` lọc lớp, "Tất cả" chia nhóm theo lớp); admin lớp chỉ thấy lớp mình (server lọc `mine` trong `getAdminData`). Lọc trạng thái `dkF` (cho/xacnhan/huy/all), "Sao chép danh sách" (`chepDk`, tab để dán Excel/Zalo).
 
 ### Hàm public gọi từ frontend
 `login, logout, changePassword, getPublicData, submitNote, getAdminData, saveClass, deleteClass,
