@@ -18,6 +18,10 @@ iframe{position:fixed;inset:0;width:1px;min-width:100%;max-width:100%;height:100
 </style>
 </head>
 <body>
-<iframe id="app" src="https://script.google.com/macros/s/AKfycbxr0NGkWtb0skqVrAr5N301LgXtS4OC87h0gs0Zlxk8EhSjWUlMjoD0I1dtlK3lQ7kupw/exec" title="THPT Nguyễn Hiền · Khoá 2000 – 2003" allow="clipboard-write; fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<iframe id="app" title="THPT Nguyễn Hiền · Khoá 2000 – 2003" allow="clipboard-write; fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<script>
+/* Chuyển tiếp tham số trên link gọn (vd. ?viet=1 từ mã QR Gala) vào web app */
+document.getElementById('app').src='https://script.google.com/macros/s/AKfycbxr0NGkWtb0skqVrAr5N301LgXtS4OC87h0gs0Zlxk8EhSjWUlMjoD0I1dtlK3lQ7kupw/exec'+(location.search||'');
+</script>
 </body>
 </html>

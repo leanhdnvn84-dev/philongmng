@@ -25,7 +25,7 @@ const SHEETS = {
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
@@ -33,6 +33,7 @@ const CONFIG_DEFAULT = {
   diaChi: '61 Phan Đăng Lưu, Hòa Cường Nam, Hải Châu, Đà Nẵng',
   cauMoDau: 'Mùa hè nào rồi cũng qua, chỉ mùa hè năm ấy là ở lại mãi.',
   /** Đoạn dưới câu mở đầu trang chủ. Chữ trong ngoặc nhọn tự thay: {namRaTruong} {tenTruong} {diaChi} (phần trước dấu phẩy đầu) {soNam} {soLop} */
+  tuDuyetLb: '',
   doanMoDau: 'Tháng Năm {namRaTruong}, ba hồi trống cuối cùng vang lên trên sân trường {tenTruong}, {diaChi}. Những cánh phượng rơi đỏ lối. Cuốn lưu bút chưa kịp chuyền hết một vòng lớp. Có những lời tạm biệt mình hẹn để mai nói, rồi để tới tận bây giờ. {soNam} năm, mỗi đứa một phương trời. Nơi này là để {soLop} lớp mình gọi tên nhau thêm một lần nữa.',
   trichDan: 'Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.',
   trichDanTacGia: 'Lưu bút của một bạn khoá 2000 – 2003',
@@ -73,14 +74,21 @@ let _hdr = {};
 const PRIVATE_COLS = { HocSinh: ['sdt'] };
 
 /* ======================= WEB ======================= */
-function doGet() {
+function doGet(e) {
   const out = HtmlService.createHtmlOutputFromFile('Index');
+  /* Tham số trên link (vd. ?viet=1 từ mã QR ở buổi Gala → mở thẳng ô Viết lưu bút). Chỉ nhận vài khoá, giá trị chữ/số ngắn. */
+  const p = (e && e.parameter) || {}, tham = {};
+  ['viet', 'trang'].forEach(function (k) { if (p[k] && /^[\w-]{1,20}$/.test(p[k])) tham[k] = p[k]; });
+  const th = 'window.THAM=' + JSON.stringify(tham) + ';';
   /* Gửi sẵn dữ liệu công khai cùng trang: khỏi chờ thêm một lần gọi google.script.run (mở trong Zalo nhanh hơn).
      Thoát "/" và "<" để Apps Script không cắt "//" và không đóng thẻ script sớm. */
   try {
     const j = pubJson_().replace(/</g, '\\u003c').replace(/\//g, '\\/');
-    out.setContent(out.getContent().replace('<script id="boot"></script>', function () { return '<script id="boot">window.BOOT=' + j + ';</script>'; }));
-  } catch (e) { console.log('BOOT: ' + e.message); }
+    out.setContent(out.getContent().replace('<script id="boot"></script>', function () { return '<script id="boot">' + th + 'window.BOOT=' + j + ';</script>'; }));
+  } catch (err) {
+    console.log('BOOT: ' + err.message);
+    out.setContent(out.getContent().replace('<script id="boot"></script>', function () { return '<script id="boot">' + th + '</script>'; }));
+  }
   return out
     .setTitle('THPT Nguyễn Hiền · Niên khoá 2000–2003')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
@@ -588,7 +596,7 @@ function autoSeed_() {
 const PUB_KEY = 'PUB_', PUB_TTL = 300, PUB_CHUNK = 30000;
 function pubBust_(n) {
   if (n === 'NhatKy' || n === 'LuotXem') return;
-  try { CacheService.getScriptCache().remove(PUB_KEY + 'n'); } catch (e) { }
+  try { CacheService.getScriptCache().removeAll(n === 'LuuBut' ? [PUB_KEY + 'n', 'LB_MOI'] : [PUB_KEY + 'n']); } catch (e) { }
 }
 function pubJson_() {
   const c = CacheService.getScriptCache();
@@ -660,9 +668,21 @@ function submitNote(tacGia, lopId, noiDung) {
   lopId = String(lopId || '');
   if (lopId && !find_('Lop', lopId)) throw new Error('Lớp không tồn tại.');
   return lock_(function () {
-    append_('LuuBut', { id: uid_(), lopId: lopId, tacGia: tacGia, noiDung: noiDung, trangThai: 'pending', taoLuc: now_() });
-    return true;
+    /* Bật "Tự duyệt lưu bút" (Cài đặt) trong buổi Gala → hiện ngay trên trình chiếu, khỏi chờ admin duyệt. */
+    const tt = cfg_().tuDuyetLb === '1' ? 'approved' : 'pending';
+    append_('LuuBut', { id: uid_(), lopId: lopId, tacGia: tacGia, noiDung: noiDung, trangThai: tt, taoLuc: now_() });
+    return tt;
   });
+}
+
+/* Trình chiếu kỷ yếu hỏi lưu bút mới (khoảng 45 giây/lần): chỉ đọc sheet LuuBut, đệm 20 giây cho nhiều máy chiếu cùng lúc. */
+function getLuuBut() {
+  const cache = CacheService.getScriptCache();
+  const c = cache.get('LB_MOI');
+  if (c) return JSON.parse(c);
+  const r = read_('LuuBut').filter(function (x) { return x.trangThai === 'approved'; }).map(pubOf_('LuuBut')).reverse();
+  try { cache.put('LB_MOI', JSON.stringify(r), 20); } catch (e) {}
+  return r;
 }
 
 /* ======================= ADMIN: ĐỌC DỮ LIỆU ======================= */
