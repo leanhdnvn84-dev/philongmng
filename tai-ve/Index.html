@@ -8,7 +8,7 @@
 <script>window.addEventListener('error',function(e){try{var d=document.createElement('div');d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:999;background:#C8102E;color:#fff;padding:10px 16px;font:14px/1.4 sans-serif';d.textContent='Trang gặp lỗi: '+(e.message||'không rõ')+(e.lineno?' (dòng '+e.lineno+')':'')+'. Hãy chụp màn hình này gửi người quản trị trang.';(document.body||document.documentElement).appendChild(d)}catch(x){}});</script>
 <script id="boot"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Patrick+Hand&family=Pangolin&family=Charm:wght@400;700&family=Anton&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Patrick+Hand&family=Pangolin&family=Charm:wght@400;700&family=Dancing+Script:wght@600;700&family=Anton&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Be Vietnam Pro',sans-serif;font-size:16px;line-height:1.6;color:#22213A;background:#fff}
@@ -484,30 +484,42 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .thu-nen{position:fixed;inset:0;z-index:175;background:rgba(43,18,18,.55);display:none;align-items:center;justify-content:center;padding:20px}
 .thu-nen.on{display:flex;animation:hien .35s ease both}
 .thu{position:relative;width:100%;max-width:700px;max-height:90vh;overflow:auto;background:#FFFDF8;background-image:linear-gradient(90deg,transparent 54px,#F3C3C8 54px,#F3C3C8 56px,transparent 56px),repeating-linear-gradient(transparent 0 31px,#F2E9E6 31px 32px);border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.35);padding:34px 40px 0 78px;color:#3A2E2E;animation:moThu .6s cubic-bezier(.2,.8,.2,1) both}
-.thu.gm-on{background:#8E1B26;background-image:radial-gradient(circle at 20% 10%,#B3263A,transparent 55%),radial-gradient(circle at 90% 90%,#6E1220,transparent 50%);padding:18px 18px 0}
-.thu.gm-on .x{color:#FFE3C2}
-.gm{position:relative;background:#FFFBF2;border:2px solid #C9A24A;outline:1px solid #C9A24A;outline-offset:-8px;border-radius:4px;padding:30px 28px 20px;text-align:center;color:#4A2A22;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-.gm .goc{position:absolute;width:26px;height:26px;border:2px solid #C8102E;opacity:.75}.gm .g1{top:12px;left:12px;border-right:0;border-bottom:0}.gm .g2{top:12px;right:12px;border-left:0;border-bottom:0}.gm .g3{bottom:12px;left:12px;border-right:0;border-top:0}.gm .g4{bottom:12px;right:12px;border-left:0;border-top:0}
-.gm .lg{width:58px;height:58px;display:block;margin:0 auto 6px}
-.gm .tr{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8A6A3A;font-weight:600}
-.thu .gm h2{padding:0;font-family:'Charm',cursive;font-weight:700;font-size:clamp(46px,9vw,62px);line-height:1.05;color:#C8102E;margin:8px 0 2px}
-.gm .dip{font-size:13.5px;color:#8A6A3A;margin-bottom:16px}
-.gm .km{font-family:'Playfair Display',serif;font-style:italic;font-size:18px;margin:0 0 6px}
-.gm .ten-moi{display:flex;align-items:baseline;gap:10px;max-width:420px;margin:0 auto 10px}.gm .ten-moi span{font-family:'Playfair Display',serif;font-size:17px}
-.gm .ten-moi b{flex:1;font-family:'Charm',cursive;font-size:28px;font-weight:700;color:#8A3B2E;border-bottom:1.5px dotted #B8925A;line-height:1.3;min-height:1.3em;overflow-wrap:anywhere}
-.gm .den{font-size:15px;line-height:1.6;margin:0 0 14px}
-.gm .tg{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;text-align:left;margin:0 auto 12px;max-width:520px}
-.gm .tg>div{background:#FFF3E6;border:1px solid #EBCB9A;border-radius:10px;padding:10px 14px}
-.gm .tg small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#B07A3A;font-weight:700}
-.gm .tg b{display:block;font-family:'Playfair Display',serif;font-size:28px;line-height:1.1;color:#C8102E}
-.gm .tg span{display:block;font-size:14.5px;font-weight:600}.gm .tg em{display:block;font-style:normal;font-size:12.5px;color:#8A6A3A;margin-top:4px}
-.gm .con{display:inline-block;background:#C8102E;color:#fff;border-radius:99px;padding:5px 16px;font-size:14px;margin-bottom:12px}.gm .con b{font-size:18px}
-.gm .loi{font-family:'Charm',cursive;font-size:21px;color:#8A3B2E;margin:0 0 4px}
-.gm .kyg{font-size:13px;color:#7A6A5A;font-style:italic;margin-bottom:14px}
-.gm .nhap{display:block;text-align:left;font-size:12.5px;color:#8A6A3A;border-top:1px dashed #E2C99A;padding-top:12px;max-width:420px;margin:0 auto}
-.gm .nhap input{display:block;width:100%;margin-top:4px;border:1.5px solid #E2C99A;border-radius:8px;padding:8px 10px;font-size:15px;background:#fff}
-.thu.gm-on .gm-nut{background:linear-gradient(transparent,#8E1B26 30%)}.thu.gm-on .gm-nut .phu{background:#FFFBF2}
-@media(max-width:760px){.thu .nut{flex-direction:column-reverse;align-items:stretch;gap:8px;padding:12px 0 14px}.thu .nut .bt{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px}.thu .nut .bt button{padding:10px 8px;font-size:13.5px;white-space:nowrap}.thu .nut label{justify-content:center}.thu.gm-on .gm-nut>.phu{align-self:center;background:none;border:0;color:#FFE3C2;padding:4px 10px;font-size:13.5px}.thu.gm-on{padding:12px 10px 0}.gm .den{max-width:30ch;margin-left:auto;margin-right:auto}.gm{padding:26px 16px 16px}.gm .tg{grid-template-columns:1fr}.gm .tr{font-size:10.5px;letter-spacing:.08em}.gm .ten-moi b{font-size:24px}}
+.thu.gm-on{background:#5B1A16;background-image:radial-gradient(circle at 20% 0%,#7E2620,transparent 60%);padding:16px 18px 0;max-width:620px}
+.thu.gm-on .x{color:#F6E2C8;top:6px;right:8px}
+.gm-chon{display:flex;gap:6px;justify-content:center;margin:2px 0 12px}
+.gm-chon button{border:1.5px solid #E9C98F;background:transparent;color:#F6E2C8;border-radius:99px;padding:6px 16px;font-size:13.5px;font-weight:600}
+.gm-chon button.on{background:#F6E2C8;color:#5B1A16}
+.gm{position:relative;overflow:hidden;background:#FBF6EC;color:#2B1D18;font-family:'Be Vietnam Pro',sans-serif;box-shadow:0 14px 34px rgba(0,0,0,.35);max-width:559px;margin:0 auto}
+.gm .canh{position:absolute;top:-18px;right:-24px}
+.gm .v1,.gm .v2{position:absolute;pointer-events:none;border:1px solid #B58B3E;inset:18px}.gm .v2{inset:24px;border-width:2px}
+.gm-in{position:relative;padding:48px 52px 46px;display:flex;flex-direction:column;gap:26px}
+.gm .dau{display:flex;flex-direction:column;gap:4px}.gm .dau .tr{padding-right:110px}
+.gm .tr{font-size:12px;font-weight:700;letter-spacing:2.4px;color:#6B5A4E}
+.thu .gm h2{font-family:'Dancing Script',cursive;font-weight:700;font-size:58px;line-height:1.05;color:#B3261E;margin:18px 0 0;padding:0}.thu .gm h2.ban{font-size:52px;margin-top:16px}
+.gm .gala{font-family:'Playfair Display',serif;font-weight:800;font-size:23px;line-height:1.25;letter-spacing:.5px}
+.gm .phu-de{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;font-size:16px;color:#6B5A4E}
+.gm .moi{display:flex;flex-direction:column;gap:12px}
+.gm .dong{display:flex;align-items:flex-end;gap:10px;font-size:15px}.gm .dong b{white-space:nowrap}
+.gm .cham{flex:1;min-width:40px;border-bottom:1.5px dotted #6B5A4E;min-height:20px;font-family:'Dancing Script',cursive;font-weight:700;font-size:22px;line-height:1.1;color:#8A2A1F;text-align:center;overflow-wrap:anywhere}.gm .cham.ngan{flex:0 0 44px;min-width:44px}
+.thu .gm p{margin:0;font-size:13.5px;line-height:1.65}
+.gm .tg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;border-top:1px solid #D9C6A0;border-bottom:1px solid #D9C6A0;padding:15px 0}
+.gm .tg>div{display:flex;flex-direction:column;gap:4px}
+.gm .tg small,.gm .dg small{font-size:12px;font-weight:700;letter-spacing:1.6px;color:#B3261E}
+.gm .tg b{font-family:'Playfair Display',serif;font-weight:800;font-size:26px;line-height:1.1}
+.gm .tg span{font-size:14px;font-weight:500}.gm .tg strong{font-size:15px;font-weight:700;line-height:1.35}.gm .tg em{font-style:normal;font-size:13px;line-height:1.45;color:#4A3A31}
+.gm .dg{display:flex;gap:14px;background:#F3E6CF;border-radius:6px;padding:14px 16px}
+.gm .dg .so{display:flex;flex-direction:column;justify-content:center;gap:2px;padding-right:14px;border-right:1px solid #D9C6A0}.gm .dg .so small{color:#6B5A4E;letter-spacing:1.2px}
+.gm .dg .so b{font-family:'Playfair Display',serif;font-weight:800;font-size:22px;color:#B3261E;white-space:nowrap}.gm .dg .so span{font-size:12px;color:#4A3A31}
+.gm .dg .ct{display:flex;flex-direction:column;gap:4px;font-size:12.5px;line-height:1.5}.gm .dg .web{font-weight:700;color:#B3261E}
+.gm .cau{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;line-height:1.5;text-align:center;color:#4A3A31}
+.gm .chan{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.gm .bll{display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.45;color:#4A3A31}.gm .bll .t{font-weight:700;color:#2B1D18}
+.gm .kyb{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}.gm .kyb span{font-size:12px;color:#4A3A31}.gm .kyb b{font-family:'Dancing Script',cursive;font-weight:700;font-size:26px;color:#B3261E;white-space:nowrap}
+.gm-nhap{display:flex;gap:10px;max-width:559px;margin:12px auto 0}.gm-nhap label{flex:1;font-size:12.5px;color:#F6E2C8}.gm-nhap label.l2{flex:0 0 96px}
+.gm-nhap input{display:block;width:100%;margin-top:4px;border:0;border-radius:8px;padding:9px 10px;font-size:15px;background:#FBF6EC;color:#2B1D18}
+.thu.gm-on .gm-nut{background:linear-gradient(transparent,#5B1A16 30%)}.thu.gm-on .gm-nut .phu{background:#FBF6EC}
+@media(max-width:600px){.thu.gm-on{padding:12px 8px 0}.gm-in{padding:38px 30px 34px;gap:18px}.gm .v1{inset:10px}.gm .v2{inset:15px}.gm .canh{width:150px;height:130px;top:-12px;right:-18px}.gm .dau .tr{padding-right:70px}.gm .tr{font-size:10px;letter-spacing:1.4px}.thu .gm h2{font-size:44px;margin-top:10px}.thu .gm h2.ban{font-size:40px;margin-top:10px}.gm .gala{font-size:18px}.gm .phu-de{font-size:14px}.gm .dong{font-size:14px;gap:6px}.gm .tg b{font-size:22px}.gm .dg{flex-direction:column;gap:8px}.gm .dg .so{flex-direction:row;align-items:baseline;gap:8px;padding:0 0 8px;border-right:0;border-bottom:1px solid #D9C6A0}.gm .chan{flex-direction:column;align-items:stretch;gap:10px}.gm .dong{flex-wrap:wrap;row-gap:8px}.gm .dong .cham{flex:1 1 150px}.gm .gala{font-size:clamp(13px,4.2vw,18px);letter-spacing:0}}@media(max-width:360px){.gm .tg{grid-template-columns:1fr;gap:10px}.gm-in{padding:34px 24px 30px}}
+@media(max-width:760px){.thu .nut{flex-direction:column-reverse;align-items:stretch;gap:8px;padding:12px 0 14px}.thu .nut .bt{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px}.thu .nut .bt button{padding:10px 8px;font-size:13.5px;white-space:nowrap}.thu .nut label{justify-content:center}.thu.gm-on .gm-nut>.phu{align-self:center;background:none;border:0;color:#FFE3C2;padding:4px 10px;font-size:13.5px}}
 @keyframes moThu{from{opacity:0;transform:translateY(28px) scale(.96) rotate(-.6deg)}to{opacity:1;transform:none}}
 .thu .x{position:absolute;top:8px;right:12px;background:none;border:0;font-size:30px;line-height:1;color:#8A6F6A;z-index:2}
 .thu .tem{float:right;margin:2px 6px 10px 16px;width:86px;height:86px;border:2px dashed #C8102E;border-radius:6px;display:grid;place-items:center;transform:rotate(6deg);background:#fff}
@@ -706,6 +718,9 @@ const THU={ma:'thu_30nam_2026',tieuDe:'Thư ngỏ – Hẹn nhau ngày trở v�
   'Hẹn gặp lại tất cả chúng ta – những cô cậu học trò Nguyễn Hiền của niên khóa 2000–2003 – vào ngày 14/11 nhé! ❤️'],
  ky:'Trân trọng và thương mến!',kyTen:'Ban Tổ chức gặp mặt niên khóa 2000–2003',
  diaDiem:'Ban Tổ chức sẽ thông báo địa điểm cụ thể',sang:'Buổi sáng: cả khoá về thăm trường, 61 Phan Đăng Lưu'};
+/* Giấy mời (theo mẫu thiết kế A5 "Mời các bạn" / "Mời Thầy Cô") – sửa thông tin ở đây */
+const GM={gio:'17h00',ngay:'Thứ Bảy, 14/11/2026',nhaHang:'Nhà hàng [TÊN NHÀ HÀNG]',diaChi:'[Địa chỉ nhà hàng]',dongGop:'700.000đ',gom:'Gồm áo kỷ niệm, suất tiệc, hoa và quà tri ân thầy cô.',han:'25/10/2026',web:'nguyenhien.philong.cloud'};
+let gmLoai='ban';
 function moThu(tuDong){if(tuDong&&store.get('nh_an_'+THU.ma))return;$('thuBox').classList.remove('gm-on');const con=Math.ceil((THU.hen-new Date())/864e5);
  $('thuBox').innerHTML=`<button class="x" onclick="dongThu()" aria-label="Đóng thư">×</button><div class="ey">Kỷ niệm 30 năm thành lập trường</div><div class="tem"><img src="${$('hLogo').src}" alt=""></div><h2 id="thuTieuDe"><span class="t1">Thư ngỏ</span><span class="t2">Hẹn nhau <span class="nw">ngày trở về ❤️</span></span></h2><p><b>${esc(THU.mo)}</b></p>
  ${THU.doan.map(d=>d==='@HEN'?`<div class="hen"><div><b>${esc(THU.gio)} · ${esc(THU.ngay)}</b><span>Buổi gặp mặt thân mật cả 12 lớp, niên khóa ${esc(D.cfg.nienKhoa)}</span></div>${con>0?`<div class="dem"><b>${con}</b><span>ngày nữa</span></div>`:''}</div>`:d[0]==='*'?`<p class="dam">${esc(d.slice(1))}</p>`:`<p>${esc(d)}</p>`).join('')}
@@ -713,20 +728,28 @@ function moThu(tuDong){if(tuDong&&store.get('nh_an_'+THU.ma))return;$('thuBox').
  <div class="nut"><label><input type="checkbox" id="thuAn" ${store.get('nh_an_'+THU.ma)?'checked':''}> Không tự mở thư này nữa</label><div class="bt"><button class="phu" onclick="dongThu()">Để sau</button><button class="phu" onclick="moGiayMoi()">💌 Giấy mời</button><button class="chinh" onclick="dongThu();menu('connect');setTimeout(()=>{const r=$('r1');if(r){r.scrollIntoView({behavior:'smooth',block:'center'});r.focus()}},350)">Đăng ký tham dự</button></div></div>`;
  $('thuNen').classList.add('on');$('thuBox').scrollTop=0;document.body.style.overflow='hidden';setTimeout(()=>{const x=$('thuBox').querySelector('.x');if(x)x.focus()},50)}
 function diDangKy(){dongThu();menu('connect');setTimeout(()=>{const r=$('r1');if(r){r.scrollIntoView({behavior:'smooth',block:'center'});r.focus()}},350)}
-function moGiayMoi(){const b=$('thuBox'),con=Math.ceil((THU.hen-new Date())/864e5),ten=store.get('nh_ten_moi')||'';b.classList.add('gm-on');
- b.innerHTML=`<button class="x" onclick="dongThu()" aria-label="Đóng">×</button><div class="gm"><span class="goc g1"></span><span class="goc g2"></span><span class="goc g3"></span><span class="goc g4"></span>
- <img class="lg" src="${$('hLogo').src}" alt=""><div class="tr"><span class="nw">Trường ${esc(D.cfg.tenTruong)}</span> · <span class="nw">Niên khoá ${esc(D.cfg.nienKhoa)}</span></div>
- <h2 id="thuTieuDe">Giấy mời</h2><div class="dip">Kỷ niệm 30 năm thành lập trường · Gặp mặt 12 lớp</div>
- <p class="km">Trân trọng kính mời</p><div class="ten-moi"><span>Bạn</span><b id="gmTen">${ten?esc(ten):'&nbsp;'}</b></div>
- <p class="den">về dự buổi gặp mặt thân mật của những người bạn cùng mái trường, niên khoá ${esc(D.cfg.nienKhoa)}</p>
- <div class="tg"><div><small>Thời gian</small><b>${esc(THU.gio)}</b><span>${esc(THU.ngay)}</span></div><div><small>Địa điểm</small><span>${esc(THU.diaDiem)}</span><em>${esc(THU.sang)}</em></div></div>
- ${con>0?`<div class="con">Còn <b>${con}</b> ngày nữa là gặp lại nhau</div>`:''}
- <p class="loi">Sự có mặt của bạn là món quà quý nhất cho cuộc hội ngộ này. ❤️</p><div class="kyg">${esc(THU.kyTen)}</div>
- <label class="nhap">Ghi tên người nhận lên giấy mời<input id="gmNhap" maxlength="60" value="${esc(ten)}" placeholder="Ví dụ: Nguyễn Văn An, lớp 12/4" oninput="$('gmTen').innerHTML=esc(this.value)||'&nbsp;';store.set('nh_ten_moi',this.value||null)"></label></div>
- <div class="nut gm-nut"><button class="phu" onclick="moThu()">← Thư ngỏ</button><div class="bt"><button class="phu" onclick="chepLoiMoi()">Sao chép lời mời</button><button class="chinh" onclick="diDangKy()">Đăng ký tham dự</button></div></div>`;
+const gmCanh='<svg class="canh" aria-hidden="true" width="230" height="200" viewBox="0 0 230 200"><g fill="#C8372D">'+[[150,70,1],[190,120,.8],[108,40,.65]].map(([x,y,k])=>`<g transform="translate(${x} ${y}) scale(${k})">`+[0,72,144,216,288].map(r=>`<ellipse cx="0" cy="-13" rx="8" ry="13" transform="rotate(${r})"></ellipse>`).join('')+'</g>').join('')+'</g><g fill="#E8B04A"><circle cx="150" cy="70" r="4"></circle><circle cx="190" cy="120" r="3.2"></circle><circle cx="108" cy="40" r="2.6"></circle></g><g fill="#E0574B"><ellipse cx="78" cy="96" rx="5" ry="8" transform="rotate(-30 78 96)"></ellipse><ellipse cx="120" cy="150" rx="4" ry="7" transform="rotate(40 120 150)"></ellipse><ellipse cx="205" cy="175" rx="4" ry="6" transform="rotate(10 205 175)"></ellipse></g><path d="M60 20 C110 60 170 40 230 90" stroke="#5E7A3A" stroke-width="2" fill="none"></path></svg>';
+function moGiayMoi(loai){if(loai)gmLoai=loai;const b=$('thuBox'),ban=gmLoai==='ban',ten=store.get(ban?'nh_ten_moi':'nh_ten_thay')||'',lop=store.get('nh_lop_moi')||'';b.classList.add('gm-on');
+ const lh=bll().map(x=>`<div>${esc(x[0])}${x[1]?' · '+esc(x[1]):''}</div>`).join('');
+ b.innerHTML=`<button class="x" onclick="dongThu()" aria-label="Đóng">×</button>
+ <div class="gm-chon" role="tablist"><button role="tab" aria-selected="${ban}" class="${ban?'on':''}" onclick="moGiayMoi('ban')">Mời các bạn</button><button role="tab" aria-selected="${!ban}" class="${ban?'':'on'}" onclick="moGiayMoi('thay')">Mời Thầy/Cô</button></div>
+ <div class="gm">${gmCanh}<span class="v1"></span><span class="v2"></span><div class="gm-in">
+ <div class="dau"><div class="tr">${ban?'<span class="nw">NGUYỄN HIỀN ·</span> <span class="nw">NIÊN KHOÁ '+esc(D.cfg.nienKhoa)+'</span>':'<span class="nw">TRƯỜNG THPT NGUYỄN HIỀN ·</span> <span class="nw">ĐÀ NẴNG</span>'}</div>
+ <h2 id="thuTieuDe" class="${ban?'ban':''}">${ban?'Về đi bạn ơi!':'Thư mời'}</h2><div class="gala">GALA GẶP MẶT CỰU HỌC SINH</div>
+ <div class="phu-de">${ban?'Hai mươi ba năm – Một mái trường – Một đại gia đình':'Niên khoá '+esc(D.cfg.nienKhoa)+' · Kết nối yêu thương, trọn vẹn nghĩa tình'}</div></div>
+ <div class="moi"><div class="dong"><b>${ban?'Thân mời bạn:':'Kính mời Thầy/Cô:'}</b><span class="cham" id="gmTen">${esc(ten)}</span>${ban?`<b>Lớp 12/</b><span class="cham ngan" id="gmLop">${esc(lop)}</span>`:''}</div>
+ <p>${ban?'Mười hai lớp, một mái trường. Cùng về gặp lại thầy cô chủ nhiệm, tìm lại bạn bè và viết tiếp kỷ niệm của khoá mình nhé!':'Hai mươi ba năm đã qua kể từ ngày chúng em rời mái trường Nguyễn Hiền. Ban liên lạc niên khoá '+esc(D.cfg.nienKhoa)+' trân trọng kính mời Thầy/Cô về dự đêm Gala gặp mặt, để học trò được gặp lại, tri ân và ôn lại những kỷ niệm dưới mái trường xưa.'}</p></div>
+ <div class="tg"><div><small>THỜI GIAN</small><b>${esc(GM.gio)}</b><span>${esc(GM.ngay)}</span></div><div><small>ĐỊA ĐIỂM</small><strong>${esc(GM.nhaHang)}</strong><em>${esc(GM.diaChi)}</em></div></div>
+ ${ban?`<div class="dg"><div class="so"><small>ĐÓNG GÓP</small><b>${esc(GM.dongGop)}</b><span>/ người</span></div><div class="ct"><div>${esc(GM.gom)}</div><div><b>Xác nhận và đóng góp trước ${esc(GM.han)}</b> qua admin lớp hoặc <span class="web">${esc(GM.web)}</span></div></div></div>`:`<div class="cau">“Hai mươi ba năm – Một mái trường –<br>Mười hai tập thể – Một đại gia đình”</div>`}
+ <div class="chan"><div class="bll"><div class="t">${ban?'Ban liên lạc':'Liên hệ Ban liên lạc'}</div>${lh}</div><div class="kyb"><span>${ban?'Hẹn gặp cả khoá!':'Thay mặt Ban liên lạc'}</span><b>Khoá ${esc(D.cfg.nienKhoa)}</b></div></div>
+ </div></div>
+ <div class="gm-nhap"><label>${ban?'Tên bạn được mời':'Tên Thầy/Cô'}<input id="gmNhap" maxlength="50" value="${esc(ten)}" placeholder="${ban?'Ví dụ: Nguyễn Văn An':'Ví dụ: Cô Nguyễn Thị Thủy'}" oninput="$('gmTen').textContent=this.value;store.set('${ban?'nh_ten_moi':'nh_ten_thay'}',this.value||null)"></label>${ban?`<label class="l2">Lớp 12/<input id="gmLopNhap" maxlength="2" inputmode="numeric" value="${esc(lop)}" oninput="$('gmLop').textContent=this.value;store.set('nh_lop_moi',this.value||null)"></label>`:''}</div>
+ <div class="nut gm-nut"><button class="phu" onclick="moThu()">← Thư ngỏ</button><div class="bt"><button class="phu" onclick="chepLoiMoi()">Sao chép lời mời</button>${ban?'<button class="chinh" onclick="diDangKy()">Đăng ký tham dự</button>':''}</div></div>`;
  b.scrollTop=0}
-function chepLoiMoi(){const ten=($('gmNhap')&&$('gmNhap').value.trim())||'bạn';const t=`💌 GIẤY MỜI · Kỷ niệm 30 năm thành lập Trường ${D.cfg.tenTruong}\nTrân trọng kính mời ${ten} về dự buổi gặp mặt thân mật niên khoá ${D.cfg.nienKhoa}.\n🕠 ${THU.gio} · ${THU.ngay}\n📍 ${THU.diaDiem}. ${THU.sang}.\nĐăng ký tham dự và xem thư ngỏ tại trang kỷ niệm của khoá.\n${THU.kyTen}`;
- const ok=()=>toast('Đã sao chép lời mời, dán vào Zalo để gửi bạn bè');
+function chepLoiMoi(){const ban=gmLoai==='ban',ten=($('gmNhap')&&$('gmNhap').value.trim())||'',lop=ban&&$('gmLopNhap')?$('gmLopNhap').value.trim():'';
+ const t=ban?`💌 VỀ ĐI BẠN ƠI! · GALA GẶP MẶT CỰU HỌC SINH ${D.cfg.tenTruong} · Niên khoá ${D.cfg.nienKhoa}\nThân mời bạn ${ten||''}${lop?' (lớp 12/'+lop+')':''} về dự đêm Gala gặp mặt.\n🕔 ${GM.gio} · ${GM.ngay}\n📍 ${GM.nhaHang}, ${GM.diaChi}\n💰 Đóng góp ${GM.dongGop}/người (${GM.gom.replace(/^Gồm /,'gồm ').replace(/\.$/,'')}). Xác nhận và đóng góp trước ${GM.han} qua admin lớp hoặc ${GM.web}\nHai mươi ba năm – Một mái trường – Một đại gia đình ❤️`
+  :`THƯ MỜI · GALA GẶP MẶT CỰU HỌC SINH ${D.cfg.tenTruong} · Niên khoá ${D.cfg.nienKhoa}\nKính mời Thầy/Cô ${ten} về dự đêm Gala gặp mặt, để học trò được gặp lại, tri ân và ôn lại những kỷ niệm dưới mái trường xưa.\n🕔 ${GM.gio} · ${GM.ngay}\n📍 ${GM.nhaHang}, ${GM.diaChi}\nThay mặt Ban liên lạc khoá ${D.cfg.nienKhoa}`;
+ const ok=()=>toast('Đã sao chép lời mời, dán vào Zalo để gửi');
  const cu=()=>{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();let r=false;try{r=document.execCommand('copy')}catch(e){}a.remove();r?ok():toast('Máy chưa cho sao chép, hãy chụp màn hình giấy mời để gửi',1)};
  try{navigator.clipboard.writeText(t).then(ok,cu)}catch(e){cu()}}
 function dongThu(){const c=$('thuAn');if(c)store.set('nh_an_'+THU.ma,c.checked?'1':null);$('thuNen').classList.remove('on');document.body.style.overflow=''}
