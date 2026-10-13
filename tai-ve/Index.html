@@ -382,8 +382,19 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .view.on{animation:hien .6s ease both}
 @keyframes hien{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.view.on{animation:none}}
-.p-home .thu{margin:80px 32px 0;display:grid;grid-template-columns:1fr 1.5fr;gap:48px;align-items:center}
-.p-home .thu h2{margin-bottom:10px}
+.p-home .goc-thu{margin:80px 32px 0;display:grid;grid-template-columns:1fr 1.5fr;gap:48px;align-items:center}
+.p-home .goc-thu h2{margin-bottom:10px}
+.p-home .dong-lb{margin:72px 32px 0}.p-home .dong-lb h2{margin-bottom:6px}.p-home .dong-lb .sub{margin-bottom:22px}
+.p-home .dong-lb .luoi{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px 22px}
+.p-home .dlb{position:relative;min-width:0;background:#FFFDF8;border-radius:4px;box-shadow:0 10px 24px rgba(91,58,46,.13);padding:20px 16px 14px 20px;transform:rotate(var(--r,0deg))}
+.p-home .dlb:before{content:"";position:absolute;top:-9px;left:50%;width:74px;height:20px;margin-left:-37px;background:rgba(232,80,91,.28);transform:rotate(-3deg)}
+.p-home .dlb .nd{font-family:'Charm',cursive;font-size:21px;line-height:32px;color:#3A2E5C;white-space:pre-line;overflow-wrap:anywhere;max-height:224px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-right:8px;background-image:repeating-linear-gradient(transparent 0 31px,#EEE6F3 31px 32px);background-attachment:local}
+.p-home .dlb .nd:focus{outline:2px solid #F3B7BE;outline-offset:4px}
+.p-home .dlb .goi{display:none;font-size:12px;color:#B0707C;margin-top:6px}.p-home .dlb.dai .goi{display:block}
+.p-home .dlb.dai .nd{box-shadow:inset 0 -14px 12px -12px rgba(91,58,46,.25)}
+.p-home .dlb small{display:block;margin-top:10px;font-size:13px;color:var(--mo)}
+.p-home .dong-lb .nut-lb{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+@media(max-width:760px){.p-home .dong-lb{margin:48px 16px 0}.p-home .dong-lb .luoi{grid-template-columns:1fr;gap:22px}.p-home .dlb .nd{font-size:20px;max-height:192px}}
 .p-home .giay{position:relative;background:#FFFDF8;background-image:linear-gradient(90deg,transparent 46px,#F3B7BE 46px,#F3B7BE 48px,transparent 48px),repeating-linear-gradient(transparent 0 35px,#E9E1F2 35px 36px);padding:28px 32px 26px 70px;box-shadow:0 14px 34px rgba(91,58,46,.14);transform:rotate(-.6deg);font-family:'Charm',cursive;font-size:23px;line-height:36px;color:#3A2E5C}
 .p-home .giay p{white-space:pre-line}
 .p-home .giay .ky{text-align:right;margin-top:12px;color:var(--do)}
@@ -524,7 +535,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
  .p-kn .mast{padding:18px 16px}.p-kn .mast h1{padding-right:70px}.p-kn .mast:after{width:64px;height:64px;margin-top:-32px;right:12px}.p-kn .mast .top{max-width:calc(100% - 70px);flex-direction:column;gap:0}
  .p-kn .board{padding:24px 16px 0}.p-kn .news{grid-template-columns:1fr}.p-kn .dir .g{grid-template-columns:repeat(2,1fr)}
  .p-adm .adm{grid-template-columns:1fr}.p-adm .side{display:flex;overflow-x:auto}.p-adm .side button{white-space:nowrap;width:auto}
- .p-home .thu{grid-template-columns:1fr;margin:56px 16px 0;gap:22px}.p-home .giay{padding:24px 18px 22px 58px;font-size:21px}.p-home .giay{background-image:linear-gradient(90deg,transparent 40px,#F3B7BE 40px,#F3B7BE 42px,transparent 42px),repeating-linear-gradient(transparent 0 35px,#E9E1F2 35px 36px)}
+ .p-home .goc-thu{grid-template-columns:1fr;margin:56px 16px 0;gap:22px}.p-home .giay{padding:24px 18px 22px 58px;font-size:21px}.p-home .giay{background-image:linear-gradient(90deg,transparent 40px,#F3B7BE 40px,#F3B7BE 42px,transparent 42px),repeating-linear-gradient(transparent 0 35px,#E9E1F2 35px 36px)}
  .p-home .dem{grid-template-columns:1fr 1fr;margin:56px 16px 0;padding:30px 16px}.p-home .nho{grid-template-columns:1fr}
  .p-ev .loi{padding:44px 16px 0}
  .hide-m{display:none}
@@ -686,8 +697,9 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
   <div class="hien" style="animation-delay:${(1.1+tu.length*.14).toFixed(2)}s"><button class="btn" onclick="go('classes')">Tìm lại lớp mình</button><button class="btn o" onclick="ybT=3;go('yearbook')">Viết vài dòng lưu bút</button></div>
   <button class="phong hien" style="animation-delay:${(1.25+tu.length*.14).toFixed(2)}s" onclick="moThu()" aria-label="Mở thư ngỏ"><span class="sap" aria-hidden="true">💌</span><span><b>${esc(THU.tieuDe)}</b><small>${esc(THU.gio)} · ${esc(THU.ngay)} · bấm để mở thư</small></span></button>
   <p class="xoay hien" id="xoay" aria-live="polite" style="animation-delay:${(1.4+tu.length*.14).toFixed(2)}s">${XOAY[xoayI]}</p></div><div class="r" aria-hidden="true">${phuongSvg()}</div>
-  <button class="keo" onclick="document.querySelector('.p-home .thu,.p-home .dem').scrollIntoView({behavior:'smooth'})">Kéo xuống, ký ức đang chờ ↓</button></div>
- ${c.loiNgo?`<div class="thu"><div><div class="k">Thư gửi những người bạn cũ</div><h2>Gửi bạn, người từng ngồi cùng bàn</h2><p class="sub">Cho những ai từng mặc áo trắng dưới gốc phượng ${esc(String(c.tenTruong||'').replace(/^THPT\s*/i,''))}, từng chép bài hộ nhau, từng giận nhau một buổi rồi lại chia nhau gói xôi.</p></div><div class="giay">${epPhuong}<p>${esc(c.loiNgo)}</p><div class="ky">${esc(c.nguoiKy)}</div></div></div>`:''}
+  <button class="keo" onclick="document.querySelector('.p-home .goc-thu,.p-home .dem').scrollIntoView({behavior:'smooth'})">Kéo xuống, ký ức đang chờ ↓</button></div>
+ ${c.loiNgo?`<div class="goc-thu"><div><div class="k">Thư gửi những người bạn cũ</div><h2>Gửi bạn, người từng ngồi cùng bàn</h2><p class="sub">Cho những ai từng mặc áo trắng dưới gốc phượng ${esc(String(c.tenTruong||'').replace(/^THPT\s*/i,''))}, từng chép bài hộ nhau, từng giận nhau một buổi rồi lại chia nhau gói xôi.</p></div><div class="giay">${epPhuong}<p>${esc(c.loiNgo)}</p><div class="ky">${esc(c.nguoiKy)}</div></div></div>`:''}
+ ${D.luuBut.length?`<div class="dong-lb"><div class="k">Những dòng lưu bút</div><h2>Ai đó vừa viết cho cả khoá</h2><p class="sub">Bài nào dài, kéo ngay trong khung giấy để đọc tiếp.</p><div class="luoi">${D.luuBut.slice(0,6).map((n,i)=>`<div class="dlb" style="--r:${[-1.2,.8,-.5,1,-.9,.6][i]}deg"><div class="nd" tabindex="0">${esc(n.noiDung)}</div><span class="goi">↕ Kéo trong khung để đọc hết</span><small>${esc(n.tacGia)}${n.lopId?', lớp '+esc(lopName(n.lopId)):', gửi cả khoá'}</small></div>`).join('')}</div><div class="nut-lb"><button class="btn2 o" onclick="ybT=1;go('yearbook')">Đọc tất cả ${D.luuBut.length} lưu bút</button><button class="btn2" onclick="ybT=3;go('yearbook')">Viết lưu bút</button></div></div>`:''}
  <div class="dem">${[[n,'năm xa trường'],[ngay,'ngày chưa nghe lại tiếng trống'],[D.lop.length,'lớp mười hai'],[tongHs,'gương mặt áo trắng']].map(([v,t])=>`<div><b data-n="${v}">${Number(v).toLocaleString('vi-VN')}</b><span>${t}</span></div>`).join('')}<p>Đếm từ buổi chia tay tháng Năm năm ${esc(c.namRaTruong)}. Còn bao nhiêu ngày nữa thì mình gặp lại nhau?</p></div>
  <div class="sec"><div class="sh"><div><h2>${D.lop.length} lớp</h2><p class="sub">Chọn lớp để xem danh sách bạn học, ảnh và lưu bút.</p></div><button class="more" onclick="go('classes')">Xem trang các lớp</button></div>
   <div class="cls">${D.lop.map(l=>`<button onclick="openCls('${l.id}')"><b>${esc(l.ten)}</b><span>${esc(l.gvcn||'Chưa có GVCN')}<br>${l.hs.length} bạn</span></button>`).join('')}</div></div>
@@ -695,7 +707,8 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  <div class="sec"><div class="sh"><div><h2>Ảnh giao lưu</h2><p class="sub">Ảnh mới nhất các lớp vừa tải lên.</p></div><button class="more" onclick="go('gallery')">Mở bảng ảnh</button></div>
   ${D.anh.length?`<div class="gal">${D.anh.slice(0,5).map((p,i)=>`<div class="ph" style="background:${grad(i)}" onclick="openLb(D.anh,${i})">${pic(p,i?500:900)}<span>${esc(p.chuThich||p.album)}</span></div>`).join('')}</div>`:'<p class="empty">Chưa có ảnh nào.</p>'}</div>
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three">${items.join('')}</div></div>
- ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'))}
+ ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'));danhDauLbDai()}
+function danhDauLbDai(){const f=()=>document.querySelectorAll('#v-home .dlb').forEach(e=>{const n=e.querySelector('.nd');e.classList.toggle('dai',n.scrollHeight>n.clientHeight+2)});f();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f)}
 
 function doanMoDau(c,n){const m={namRaTruong:c.namRaTruong,tenTruong:c.tenTruong,diaChi:String(c.diaChi||'').split(',')[0].trim(),soNam:n>0?n:'Bao nhiêu',soLop:D.lop.length};
  const t=c.doanMoDau||'Tháng Năm {namRaTruong}, ba hồi trống cuối cùng vang lên trên sân trường {tenTruong}, {diaChi}. Những cánh phượng rơi đỏ lối. Cuốn lưu bút chưa kịp chuyền hết một vòng lớp. Có những lời tạm biệt mình hẹn để mai nói, rồi để tới tận bây giờ. {soNam} năm, mỗi đứa một phương trời. Nơi này là để {soLop} lớp mình gọi tên nhau thêm một lần nữa.';
