@@ -742,6 +742,17 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
  .hide-m{display:none}
  footer.g{padding:22px 16px}
 }
+/* Chữ dễ đọc: nâng các chữ phụ quá nhỏ (người xem 40+ tuổi, mở trên điện thoại) */
+body .lophoc .cho small{font-size:12.5px}body .lophoc .cho .cv{font-size:11.5px}body .lophoc .ban .so{font-size:11.5px}body .lophoc .cho i{font-size:12px}body .lophoc .bgv small{font-size:13px}
+body .nhan .t{font-size:12.5px}body .nhan .ln,body .nhan .hit{font-size:14px}
+body .p-ev .nk small{font-size:14px}body .p-ev .band .n small{font-size:14px}
+body .p-yb .tc small{font-size:14px}body .p-yb .ticket small{font-size:14.5px}
+body .p-gal figcaption small{font-size:14px}
+body .p-kn label{font-size:14.5px}body .p-kn .dir .c span{font-size:14px}body .p-kn .news small{font-size:14px}
+body .p-home .dlb small,body .p-home .nho small,body .p-home .phong small{font-size:14px}
+body .p-cls .lb-note small,body .p-cls .nhoai p small{font-size:14px}
+body .p-adm .bq{font-size:13.5px}body .p-adm .login .lh{font-size:14.5px}
+@media(max-width:760px){body .lophoc .cho small{font-size:12px}body .lophoc .cho .cv{font-size:11px;padding:1px 4px}body .lophoc .ban .so{font-size:11px}}
 </style>
 </head>
 <body data-p="home">
@@ -776,7 +787,7 @@ html.nojs .p-home .nho small,html.nojs .p-cls .nhoai button,html.nojs .p-cls .se
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three"><article><b>Về trường mình, thêm một lần nữa: họp lớp toàn khoá dịp 20/11</b><p>Ban liên lạc đã chốt: buổi sáng cả khoá về thăm trường 61 Phan Đăng Lưu, chụp ảnh dưới gốc phượng, thắp nén hương nhớ thầy cô và bạn bè đã k Đã có 24 bạn đăng ký.</p><button onclick="go('connect')">Xem trang Kết nối</button></article><article><b>Kỷ yếu có 16 lưu bút</b><p>Mới nhất: “Mày nhớ không, bàn cuối dãy cửa sổ, tụi mình khắc tên lên mặt bàn rồi bị thầy giám thị bắt” của Hải.</p><button onclick="ybT=1;go('yearbook')">Đọc lưu bút</button></article><article><b>Album lớp 12/6 vừa cập nhật</b><p>Ảnh mới trong album “Bây giờ”. Cả khoá có 39 tấm ảnh.</p><button onclick="gF='lop6';gA='';go('gallery')">Xem ảnh</button></article></div></div>
  <div class="quote"><p>“Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.”</p><small>Lưu bút của một bạn khoá 2000 – 2003</small></div></section>
   <section class="view p-cls" id="v-classes"><h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
- <div class="top-cls"><div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Lê Thu Hạnh</b>, lớp 12/7?<small>Ngày ấy là lớp phó lao động của lớp. Giờ bạn ấy đang ở Đà Nẵng. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
+ <div class="top-cls"><div class="nhoai"><p id="nhoAi">Hôm nay, bạn có nhớ <b>Lê Minh Lộc</b>, lớp 12/5?<small>Giờ bạn ấy đang ở TP.HCM. Có khi chỉ một tin nhắn là tìm lại được nhau.</small></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"></div><div class="labels" id="clsGrid"><button class="nhan" style="--c:#C8102E" onclick="openCls('lop1')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/1</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Cô Nguyễn Thị Hoa</em></div><div class="ln"><span>Sĩ số</span><em>40 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Nguyễn Thị Hà</em></div></button><button class="nhan" style="--c:#4A2C8F" onclick="openCls('lop2')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/2</div>
  <div class="ln"><span>Chủ nhiệm</span><em>Thầy Trần Văn Lộc</em></div><div class="ln"><span>Sĩ số</span><em>45 bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>Bùi Minh Dũng</em></div></button><button class="nhan" style="--c:#2E8B57" onclick="openCls('lop3')"><div class="t">Nhãn vở</div><div class="lop">Lớp 12/3</div>
