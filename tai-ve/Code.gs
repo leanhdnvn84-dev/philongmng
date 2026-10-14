@@ -25,7 +25,7 @@ const SHEETS = {
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
@@ -34,6 +34,7 @@ const CONFIG_DEFAULT = {
   cauMoDau: 'Mùa hè nào rồi cũng qua, chỉ mùa hè năm ấy là ở lại mãi.',
   /** Đoạn dưới câu mở đầu trang chủ. Chữ trong ngoặc nhọn tự thay: {namRaTruong} {tenTruong} {diaChi} (phần trước dấu phẩy đầu) {soNam} {soLop} */
   tuDuyetLb: '',
+  taiTro: '',
   doanMoDau: 'Tháng Năm {namRaTruong}, ba hồi trống cuối cùng vang lên trên sân trường {tenTruong}, {diaChi}. Những cánh phượng rơi đỏ lối. Cuốn lưu bút chưa kịp chuyền hết một vòng lớp. Có những lời tạm biệt mình hẹn để mai nói, rồi để tới tận bây giờ. {soNam} năm, mỗi đứa một phương trời. Nơi này là để {soLop} lớp mình gọi tên nhau thêm một lần nữa.',
   trichDan: 'Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.',
   trichDanTacGia: 'Lưu bút của một bạn khoá 2000 – 2003',
@@ -1088,7 +1089,7 @@ function saveConfig(token, cfg) {
     const rows = read_('CauHinh');
     CONFIG_KEYS.forEach(function (k) {
       if (!cfg || cfg[k] === undefined) return;
-      const v = String(cfg[k]).trim().slice(0, /^(thuNgo|giayMoi|keHoach)$/.test(k) ? 30000 : 3000);
+      const v = String(cfg[k]).trim().slice(0, /^(thuNgo|giayMoi|keHoach|taiTro)$/.test(k) ? 30000 : 3000);
       const ex = rows.find(function (r) { return r.key === k; });
       if (ex) { ex.value = v; update_('CauHinh', ex); } else append_('CauHinh', { key: k, value: v });
     });
