@@ -88,7 +88,7 @@ Trình chiếu **Kỷ yếu** (`tcMoKy`, nút ở tab Thầy cô/Lưu bút; dùn
 - `tai-ve/NguyenHien-iframe.html`: trang khung toàn màn hình nhúng web app (link `/exec`), có favicon logo, màn chờ.
   Đặt lên hosting/Google Sites để có link gọn, không hiện dải "Ứng dụng này do một người dùng Google Apps Script tạo".
 - `cloudflare/worker.js` + `cloudflare/index.html` tạo từ trang khung bằng `node tools/build-cloudflare.js` (Worker
-  `nguyenhien.leanhdnvn84.workers.dev` trả trang khung cho mọi đường dẫn). Trang khung có màn chờ `.cho` nằm **DƯỚI** iframe (z-index 0, iframe z-index 1 nền trong suốt): hiện logo trong lúc Apps Script chạy doGet, web app vẽ xong tự che – KHÔNG đặt màn chờ đè lên iframe (từng bị kẹt vì sự kiện `load` không tới trong Zalo iOS); đã bỏ link "Trang mở chậm?". Script nhỏ gán `src` iframe = `/exec` + `location.search`.
+  `nguyenhien.leanhdnvn84.workers.dev` trả trang khung cho mọi đường dẫn). Trang khung có màn chờ `.cho` nằm **DƯỚI** iframe (z-index 0, iframe z-index 1 nền trong suốt): hiện logo trong lúc Apps Script chạy doGet, web app vẽ xong tự che – KHÔNG đặt màn chờ đè lên iframe (từng bị kẹt vì sự kiện `load` không tới trong Zalo iOS); đã bỏ link "Trang mở chậm?". Script nhỏ gán `src` iframe = `/exec` + `location.search`. Chữ "THPT Nguyễn Hiền" ở màn chờ dùng phông `PFNH` = Playfair Display 600 nhúng base64 (cắt chỉ còn các chữ cần, ~4KB, từ @fontsource, 2 khối unicode-range latin + vietnamese) – KHÔNG dùng Georgia (iPhone thiếu dấu tiếng Việt, chữ vỡ).
 
 ### Lưu ý Apps Script (quan trọng)
 Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … */` trong `<script>` **kể cả khi nằm trong chuỗi/template/regex**
