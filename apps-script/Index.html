@@ -320,7 +320,17 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .corner{position:absolute;width:26px;height:26px;background:var(--nau);clip-path:polygon(0 0,100% 0,0 100%);z-index:2}
 .corner.tl{left:-5px;top:-5px}.corner.br{right:-5px;bottom:-5px;transform:rotate(180deg)}
 .tape{position:absolute;top:-12px;left:50%;width:84px;height:24px;margin-left:-42px;background:rgba(250,246,238,.85);transform:rotate(-4deg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.p-yb .notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:26px}
+.p-yb .notes{columns:300px;column-gap:26px}
+.p-yb .notes .ticket{break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box;margin:0 0 26px;padding:30px 22px 16px 22px}
+.p-yb .notes .ticket:before{content:'“';position:absolute;left:12px;top:-6px;font:700 64px/1 'Playfair Display',serif;color:#C9A24A;opacity:.55}
+.p-yb .notes .ticket .nd{max-height:calc(1.35em * 11);overflow:hidden;position:relative;transition:max-height .4s ease}
+.p-yb .notes .ticket.dai:not(.mo) .nd:after{content:'';position:absolute;left:0;right:0;bottom:0;height:3.2em;background:linear-gradient(rgba(255,255,255,0),#fff)}
+.p-yb .notes .ticket.mo .nd{max-height:none}
+.p-yb .notes .ticket .nd p{margin:0}.p-yb .notes .ticket .nd p+p{margin-top:.55em}
+.p-yb .notes .ticket .xem{display:none;margin-top:6px;background:none;border:0;padding:4px 0;font:700 13.5px 'Be Vietnam Pro';color:#8A3B2E;cursor:pointer}
+.p-yb .notes .ticket.dai .xem{display:inline-block}
+.p-yb .notes .ticket small{text-align:right;border-top:1px dashed #E2CDB3;padding-top:8px;margin-top:10px}
+.p-yb .notes .ticket small b{font-weight:700;color:#5B4636}
 .p-yb .ticket{border:1.5px dashed #B98F64;background:#fff;padding:18px 20px;font-family:'Patrick Hand';font-size:22px;line-height:1.35;position:relative;white-space:pre-line;word-break:break-word}
 .p-yb .ticket small{display:block;font-family:'Be Vietnam Pro';font-size:13px;color:var(--mo);margin-top:8px;white-space:normal}
 .p-yb .pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:34px}
@@ -1146,10 +1156,13 @@ function renderEvents(){const Y=[['Lớp 10','Năm học 2000 – 2001','#FF8A3D
 let ybT=0,wLop='';
 function goiY(){return ['Nhớ nhất là…','Cảm ơn…','Xin lỗi vì ngày ấy…','Nếu được quay lại năm '+(D.cfg.namRaTruong||'2003')+'…','Gửi tôi năm 18 tuổi…','Hẹn gặp lại ở…']}
 function themGoiY(k){const t=$('w3');t.value=(t.value.trim()?t.value.trim()+'\n':'')+goiY()[k].replace('…',' ');t.focus();pv()}
+/* Kỷ yếu → Lưu bút: xếp kiểu gạch (cột), bài dài thu gọn ~11 dòng + nút Đọc tiếp */
+function gonLb(){document.querySelectorAll('.p-yb .notes .ticket').forEach(t=>{const n=t.querySelector('.nd');t.classList.toggle('dai',n.scrollHeight>n.clientHeight+4)})}
+function moLb(b){const t=b.closest('.ticket'),mo=t.classList.toggle('mo');b.textContent=mo?'Thu gọn ▴':'Đọc tiếp ▾';if(!mo)t.scrollIntoView({block:'nearest',behavior:'smooth'})}
 function renderYb(){const T=['Thầy cô','Lưu bút','Ngày ấy, bây giờ','Viết lưu bút'];let h='';const ny=new Date().getFullYear()-(Number(D.cfg.namRaTruong)||2003);
  const INTRO=['Những người đưa đò năm ấy. Có thầy cô giờ tóc đã bạc, có thầy cô đã đi xa. Một lời cảm ơn, muộn mấy cũng không thừa.','Ngày xưa viết vào sổ rồi chuyền tay, chưa kịp đi hết lớp thì đã ra trường. Giờ viết ở đây, để mấy chục năm nữa vẫn còn đọc lại được.','Cùng một lớp, cách nhau '+(ny>0?ny+' năm':'nhiều năm')+'. Tóc có thể khác, dáng có thể khác, nụ cười thì vẫn vậy.','Viết cho bạn bè, cho thầy cô, hay cho chính mình năm mười tám tuổi. Không cần hay, chỉ cần thật.'];
  if(ybT===0)h=D.thayCo.length?`<div class="teachers">${D.thayCo.map((t,i)=>`<figure class="tc" style="--r:${[-2,1.5,-1,2,-1.5,1][i%6]}deg"><span class="corner tl"></span><span class="corner br"></span><div class="ph" style="background:${grad(i)}">${esc(ini(t.hoTen))}${t.anhId?img(t.anhId,400):''}</div><b>${esc(t.hoTen)}</b><small>${esc(t.vaiTro)}</small></figure>`).join('')}</div>`:'<p class="empty">Ban liên lạc chưa cập nhật danh sách thầy cô.</p>';
- if(ybT===1)h=D.luuBut.length?`<div class="notes">${D.luuBut.map(n=>`<div class="ticket"><span class="tape"></span>“${esc(n.noiDung)}”<small>${esc(n.tacGia)}${n.lopId?', lớp '+esc(lopName(n.lopId)):', gửi cả khoá'}</small></div>`).join('')}</div>`:'<p class="empty">Chưa có lưu bút nào. Hãy là người viết đầu tiên.</p>';
+ if(ybT===1)h=D.luuBut.length?`<div class="notes">${D.luuBut.map(n=>`<div class="ticket"><span class="tape"></span><div class="nd">${String(n.noiDung||'').trim().split(/\n\s*\n+/).map(d=>`<p>${esc(d.trim())}</p>`).join('')}</div><button class="xem" onclick="moLb(this)">Đọc tiếp ▾</button><small>— <b>${esc(n.tacGia)}</b>${n.lopId?', lớp '+esc(lopName(n.lopId)):', gửi cả khoá'}</small></div>`).join('')}</div>`:'<p class="empty">Chưa có lưu bút nào. Hãy là người viết đầu tiên.</p>';
  if(ybT===2){const rows=D.lop.map((c,i)=>{const t=D.anh.find(a=>a.lopId===c.id&&a.album==='Ngày ấy'),b=D.anh.find(a=>a.lopId===c.id&&a.album==='Bây giờ');if(!t&&!b)return '';
    const f=(p,ic,cap,k)=>`<figure ${p?`onclick="openLb([D.anh.find(a=>a.id==='${p.id}')],0)"`:''}><div class="ph" style="background:${grad(i+k)}">${p&&p.fileId?img(p.fileId,500):ic}</div><figcaption>${cap}</figcaption></figure>`;
    return `<div class="pair"><h4>Lớp ${esc(c.ten)}</h4><div class="two">${f(t,'🎓','Ngày ấy, '+esc(D.cfg.namRaTruong||''),0)}${f(b,'🥂','Bây giờ',3)}</div></div>`}).join('');
@@ -1158,7 +1171,7 @@ function renderYb(){const T=['Thầy cô','Lưu bút','Ngày ấy, bây giờ','
   <button class="btn" onclick="sendNote()">Gửi lưu bút</button><p style="font-size:13px;color:#7B6455;margin-top:8px">Lưu bút gửi lớp do admin lớp duyệt, gửi cả khoá do Ban liên lạc duyệt.</p></div>
   <div><p style="font-size:13px;color:#7B6455;margin-bottom:10px">Xem trước trang lưu bút</p><div class="ticket pv" id="pvN"></div></div></div>`;
  $('v-yearbook').innerHTML=`<div class="book"><h2 class="tyb"><span class="t1">Kỷ yếu</span> <span class="t2">khoá ${esc(D.cfg.nienKhoa)}</span></h2><p class="sub">Cuốn album chung của cả khoá: thầy cô, lưu bút, ảnh ngày ấy và bây giờ.</p>
-  <div class="tabs">${T.map((t,i)=>`<button class="${i===ybT?'on':''}" onclick="ybT=${i};renderYb()">${t}</button>`).join('')}</div><p class="intro">${INTRO[ybT]}</p>${ybT===3&&VIET?'<p class="viet-gala">📱 Bạn đang viết lưu bút cho buổi Gala. Gửi xong, lời của bạn sẽ hiện trên màn hình lớn.</p>':''}${ybT<2&&(D.luuBut.length||D.thayCo.length)?`<button class="tcBtn" onclick="tcMoi(()=>tcMoKy())">▶ Trình chiếu kỷ yếu: lưu bút & thầy cô</button>`:''}${h}</div>`;if(ybT===3)pv()}
+  <div class="tabs">${T.map((t,i)=>`<button class="${i===ybT?'on':''}" onclick="ybT=${i};renderYb()">${t}</button>`).join('')}</div><p class="intro">${INTRO[ybT]}</p>${ybT===3&&VIET?'<p class="viet-gala">📱 Bạn đang viết lưu bút cho buổi Gala. Gửi xong, lời của bạn sẽ hiện trên màn hình lớn.</p>':''}${ybT<2&&(D.luuBut.length||D.thayCo.length)?`<button class="tcBtn" onclick="tcMoi(()=>tcMoKy())">▶ Trình chiếu kỷ yếu: lưu bút & thầy cô</button>`:''}${h}</div>`;if(ybT===3)pv();if(ybT===1)gonLb()}
 function pv(){const s=$('w2');$('pvN').innerHTML=`<span class="tape"></span>${esc($('w3').value.trim()||'Viết gì đó đi, trang album đang chờ…')}<small>${esc($('w1').value.trim()||'Tên bạn')}, gửi ${esc(s.options[s.selectedIndex].text.toLowerCase())}</small>`}
 async function sendNote(){const t=$('w1').value.trim(),l=$('w2').value,n=$('w3').value.trim();if(!t||!n)return toast('Vui lòng nhập tên và lời lưu bút',1);
  try{busy(1,'Đang gửi…');const tt=await api('submitNote',t,l,n);$('w3').value='';pv();toast(tt==='approved'?'Đã gửi! Lời lưu bút của bạn sẽ hiện trên màn hình lớn trong ít phút.':'Cảm ơn bạn đã viết tiếp trang lưu bút. Lời bạn sẽ hiện sau khi được duyệt.')}catch(e){err(e)}finally{busy(0)}}
