@@ -626,6 +626,16 @@ function lamMoiDuLieu() {
   pubBust_('');
   Logger.log('Đã làm mới, mở lại trang là thấy dữ liệu mới.');
 }
+/* Trình chiếu ở hội nghị: đọc lại Sheet ngay (bỏ qua bộ đệm) để chiếu đúng dữ liệu mới nhất, kể cả dòng sửa tay.
+   Nhiều máy cùng gọi trong 20 giây thì dùng chung một lần đọc. */
+function getDuLieuMoi() {
+  const c = CacheService.getScriptCache();
+  if (!c.get('PUB_MOI_T')) {
+    pubBust_('');
+    c.put('PUB_MOI_T', '1', 20);
+  }
+  return JSON.parse(pubJson_());
+}
 /* Giữ ấm: trigger 5 phút/lần dựng sẵn dữ liệu công khai vào bộ đệm, để doGet không phải đọc Sheet khi có người mở trang
    (bớt màn trắng lúc mở). Sửa tay Sheet cũng tự hiện sau tối đa 5 phút. */
 function giuAm() {
