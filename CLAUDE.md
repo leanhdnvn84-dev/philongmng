@@ -74,6 +74,7 @@ Trình chiếu **Kỷ yếu** (`tcMoKy`, nút ở tab Thầy cô/Lưu bút; dùn
 ### Tốc độ (mở trong Zalo)
 - `doGet` nhúng sẵn dữ liệu công khai vào trang (`<script id="boot"></script>` → `window.BOOT=…`, thoát `/` và `<`); frontend thấy `BOOT_OK` thì bỏ lời gọi `getPublicData`; màn khởi động vẫn đọc đủ 4 câu `CAU` (1,5 giây/câu, ~6 giây, chạm để bỏ qua) rồi mở thư ngỏ.
 - `pubJson_()` lưu đệm JSON công khai ở CacheService 7 phút (`PUB_TTL`=420, chia khúc `PUB_CHUNK`); mọi lần ghi qua `append_/update_/remove_…` gọi `pubBust_`. Sửa tay Sheet → chạy `lamMoiDuLieu()` hoặc chờ. **Giữ ấm**: chạy `batGiuAm()` một lần → trigger `giuAm` 5 phút/lần dựng sẵn bộ đệm (doGet không phải đọc Sheet, bớt màn trắng; sửa tay Sheet tự hiện sau ≤5 phút).
+- **Tải mới khi bấm menu** (`taiMoi`, gọi cuối `go()` trừ Quản trị, và khi quay lại ứng dụng `visibilitychange`): chỉ khi `LIVE`, cách nhau ≥15 giây (`TM_T`), gọi `getPublicData` ở nền, so chuỗi JSON với lần trước (`TM_J`, khởi đầu từ BOOT) → chỉ khi khác mới `setD` + vẽ lại trang đang xem (`veLaiTrang_`, giữ vị trí cuộn, toast "Đã cập nhật nội dung mới"); trang đang gõ dở (`dangGo_`: ô nhập đang chọn hoặc có chữ) thì hoãn (`TM_CHO`) tới lần bấm sau.
 - `tai-ve/Index.html` (bản dán Apps Script) bỏ dữ liệu mẫu trong `const DEMO` (chỉ giữ `cfg`), nhẹ hơn ~75KB.
 
 ### Thống kê lượt xem

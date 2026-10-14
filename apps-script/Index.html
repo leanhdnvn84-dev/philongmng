@@ -781,9 +781,18 @@ function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}
  $('navBot').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>${t}</button>`).join('')}
 function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
- if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0)}
+ if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0);if(k!=='admin')taiMoi()}
 
-async function loadPublic(){try{setD(await api('getPublicData'))}catch(e){if(!LIVE)setD(null);throw e}finally{window._dangMo=0;renderPublic()}}
+/* Mỗi lần bấm menu (và khi quay lại ứng dụng): lấy dữ liệu mới ở nền, chỉ vẽ lại khi có thay đổi; cách nhau ≥15 giây; đang gõ dở thì hoãn tới lần bấm sau */
+let TM_J='',TM_T=0,TM_DANG=0,TM_CHO=null;
+function dangGo_(){const v=$('v-'+cur);if(!v)return false;const a=document.activeElement;if(a&&v.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return true;return [...v.querySelectorAll('input:not([type=checkbox]):not([type=radio]),textarea')].some(x=>x.value&&x.value.trim())}
+function veLaiTrang_(){renderPublic();if(cur==='classes')renderClasses();else if(cur==='yearbook')renderYb();else if(cur==='gallery')renderGal()}
+function apDung_(r,j){TM_J=j;setD(r);if(cur==='admin'||dangGo_()){TM_CHO=1;return}TM_CHO=null;const y=scrollY;veLaiTrang_();scrollTo(0,y);toast('Đã cập nhật nội dung mới')}
+function taiMoi(ep){if(!LIVE||TM_DANG||window._dangMo)return;if(TM_CHO&&!dangGo_()){TM_CHO=null;const y=scrollY;veLaiTrang_();scrollTo(0,y)}
+ if(!ep&&Date.now()-TM_T<15000)return;TM_DANG=1;TM_T=Date.now();
+ api('getPublicData').then(r=>{if(!r||!r.cfg||!r.lop)return;const j=JSON.stringify(r);if(j!==TM_J)apDung_(r,j)}).catch(()=>{}).finally(()=>{TM_DANG=0})}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)taiMoi()});
+async function loadPublic(){try{const r=await api('getPublicData');TM_J=JSON.stringify(r);TM_T=Date.now();setD(r)}catch(e){if(!LIVE)setD(null);throw e}finally{window._dangMo=0;renderPublic()}}
 /* Ban liên lạc: mỗi dòng "Họ tên | Điện thoại/Zalo | Vai trò" (Cài đặt) */
 function bll(){return String(D.cfg.banLienLac||'').split(/\n/).map(x=>x.split('|').map(y=>y.trim())).filter(x=>x[0])}
 function bllLien(v){const lk=contactLink(v);return v?(lk?`<a href="${esc(lk)}" target="_blank" rel="noopener">${esc(v)}</a>`:esc(v)):''}
@@ -1374,7 +1383,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 /* ===================== INIT ===================== */
 tk('vao',TK.moi?'1':'');
 /* Trên Apps Script, doGet gửi sẵn dữ liệu (window.BOOT): không phải chờ server, màn khởi động chỉ đọc đủ 4 câu (~6 giây, chạm để bỏ qua). */
-const BOOT_OK=!!(LIVE&&window.BOOT&&window.BOOT.cfg&&window.BOOT.lop);
+const BOOT_OK=!!(LIVE&&window.BOOT&&window.BOOT.cfg&&window.BOOT.lop);if(BOOT_OK){TM_J=JSON.stringify(window.BOOT);TM_T=Date.now()}
 const VIET=!!((window.THAM&&window.THAM.viet)||/[?&]viet=1/.test(location.search));
 function moViet(){ybT=3;go('yearbook');setTimeout(()=>{const w=$('w1');if(w)w.focus()},400)}
 window._dangMo=LIVE?1:0;
