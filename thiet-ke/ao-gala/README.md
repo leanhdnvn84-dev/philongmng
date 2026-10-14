@@ -7,3 +7,7 @@
   `PLAYWRIGHT=/opt/node-tools/node_modules/playwright node thiet-ke/ao-gala/render.js thiet-ke/ao-gala`
 
 Phông: Playfair Display 900 (tên trường, số 23) · Be Vietnam Pro 800–900 (năm, chữ phụ). Màu: chữ xanh dương #1D4F91 · xanh đậm #14315C · hoa phượng đỏ #B3261E · vàng #C9A24A · lá xanh #2F5D3A. Cổ và viền tay áo: sọc xanh + chỉ vàng.
+
+## Bản áo vàng (trên ảnh mẫu của xưởng)
+- `mau-ao-polo-vang.jpg`: ảnh mẫu Keyball đổi vải trắng → vàng #F6C531 (giữ cổ/viền tay xanh, logo ngực, huy hiệu tay, bảng size).
+- `doi-mau-vang.py`: cách làm – tách áo bằng rembg (isnet-general-use) từng nửa ảnh, chỉ đổi điểm ảnh vải (sáng, không màu), nhân màu vàng theo độ sáng để giữ nếp gấp; chừa nền trắng của logo (hình thoi) và huy hiệu (elip theo vòng vàng).
