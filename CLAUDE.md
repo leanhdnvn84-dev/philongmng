@@ -58,9 +58,9 @@ là bản chụp của nó, **tạo lại** bằng `node tools/build-demo.js` (c
 `seedDemo/clearDemo` (Quản trị → Cài đặt) hoặc `napDuLieuMau/xoaDuLieuMau` (trình soạn thảo).
 
 ### Giao diện (Index.html)
-7 trang, mỗi trang một chủ đề màu riêng qua `body[data-p=...]`:
+8 trang, mỗi trang một chủ đề màu riêng qua `body[data-p=...]`:
 Trang chủ (phượng vĩ) · Các lớp (vở ô ly) · Ngoại khoá (sông Hàn) · Kỷ yếu (album kraft) ·
-Hình ảnh (bảng đen) · Kết nối (báo tường) · Quản trị.
+Hình ảnh (bảng đen) · Kết nối (báo tường) · 🎂 Sinh nhật (hồng/tím, `p-sn`, `v-birthday`) · Quản trị.
 Trang chủ: khung thư dùng class `goc-thu` (KHÔNG dùng `.thu` – tên đó là popup Thư ngỏ, dùng chung sẽ thành ô cuộn tràn ngang). Dưới thư là `dong-lb`: dải **vuốt ngang** (`#luoiLb`, scroll-snap, nút ‹ › `truotLb` trên máy tính) 12 lưu bút mới nhất, mỗi bài khung giấy cao tối đa ~7 dòng, bài dài cuộn dọc trong khung (`danhDauLbDai` thêm class `dai` + gợi ý "Kéo trong khung").
 Kỷ yếu mở mặc định tab **Lưu bút** (`ybT=1`, cả khi bấm menu), thứ tự tab hiển thị Lưu bút · Thầy cô · Ngày ấy, bây giờ · Viết lưu bút (chỉ số `ybT` giữ nguyên: 0 thầy cô, 1 lưu bút, 2 ngày ấy, 3 viết).
 Kỷ yếu → tab Lưu bút: `.notes` xếp kiểu gạch bằng CSS `columns:300px` (KHÔNG dùng grid – grid kéo ô ngắn cao bằng ô dài), mỗi `.ticket` cao theo nội dung, dấu “ lớn trang trí, đoạn cách dòng trống → `<p>`; bài dài > ~11 dòng thu gọn (`.nd` max-height, mờ dần) + nút "Đọc tiếp ▾ / Thu gọn ▴" (`gonLb()` đánh dấu `dai` sau khi vẽ, `moLb`); tên người viết in đậm, căn phải dưới vạch nét đứt.
@@ -120,3 +120,5 @@ Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … *
 - Cấu hình liên hệ cuối popup nhà tài trợ: `anhien` (1 hiện/0 ẩn), `ttLoiMoi`, `ttNguoiLienHe`, `ttSoLienHe`.
 - Hoa phượng trang chủ: ảnh nền webp nhúng trong CSS `.canh-moi` (bỏ `phuongSvg`).
 - Bản nhận về là bản dán Apps Script (`DEMO` chỉ có `cfg`); cần chạy lại `node tools/build-demo.js` + `build-tai-ve.js` để có dữ liệu mẫu và bản `tai-ve/`.
+- **Sinh nhật** (đọc `HocSinh.ngaySinh`, `snNgay_` nhận dd/mm/yyyy, dd/mm, yyyy-mm-dd; 29/2 năm không nhuận tính 28/2): `snDs(lopId)` → {s,c,n,ngay,con (ngày tới sinh nhật, 0 = hôm nay),tuoi}; `snKhoi(ds,coLop,lai)` vẽ 3 khối Hôm nay · Sắp tới (30 ngày) · Theo tháng (12 nút `.sn-thang`, biến chung `snThang`, mặc định tháng hiện tại). Trang lớp: tab thứ 4 `cT=3` "🎂 Sinh nhật" (có 🎉 khi hôm nay có người). Trang `birthday` (`renderSn`/`veSn`, chọn lớp `snLop`, tìm tên `snQ` bằng `khopTim`). Bấm tên → thiệp `#snNen`/`#snThiep` (`moSn(id)`, `dongSn`, lời chúc `SN_LOI` đổi bằng "Lời chúc khác", sao chép, viết lưu bút lớp). Trang chủ: nút `.sn-hom` (`snHom()`) dưới phong thư khi hôm nay có sinh nhật. Class `thiep` (KHÔNG trùng `.thu`/`.the`).
+- **Menu dưới điện thoại**: chỉ 5 nút `NAV_BOT` (Trang chủ · Các lớp · Sinh nhật · Kỷ yếu · Hình ảnh) + nút "Thêm" (`#nbThem`, `moThem`/`dongThem`) mở bảng `#navThem` gồm `NAV_THEM` (Ngoại khoá · Kết nối · Quản trị); nút Thêm sáng khi đang ở các trang đó. Menu trên máy tính đủ 8 nút (co padding ≤1180px/≤900px).

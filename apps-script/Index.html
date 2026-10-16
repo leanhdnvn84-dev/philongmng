@@ -771,6 +771,69 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 /* Trình chiếu: khoá cuộn cả html lẫn body, ẩn thanh cuộn */
 html.tc-mo,html.tc-mo body{overflow:hidden!important;scrollbar-width:none;-ms-overflow-style:none}html.tc-mo::-webkit-scrollbar,html.tc-mo body::-webkit-scrollbar{display:none;width:0;height:0}
 .tchieu::-webkit-scrollbar{display:none}
+/* ===== SINH NHẬT ===== */
+body[data-p=birthday]{--hbg:#FFF4F7;--hfg:#3A1F3D;--hac:#D63A6E;--hline:#F4BFD1}
+.p-sn{--hong:#D63A6E;--hong2:#FFE3EC;--tim:#5B2A86;--vang:#F7B731;--mo:#7A6478;background:#FFF9FB radial-gradient(circle at 12% 8%,#FFE3EC 0,transparent 32%),radial-gradient(circle at 88% 18%,#EDE3FF 0,transparent 30%);padding:34px 32px 70px;color:#3A1F3D}
+.p-sn .w{max-width:1100px;margin:auto}
+.p-sn h2{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,44px);line-height:1.15}
+.p-sn .sub{color:var(--mo);margin:6px 0 18px;max-width:720px}
+.sn-loc{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#fff;border:1.5px solid #F4BFD1;border-radius:16px;padding:12px;margin-bottom:22px;box-shadow:0 4px 14px rgba(214,58,110,.08)}
+.sn-loc select,.sn-loc input{border:1.5px solid #E9C6D4;border-radius:999px;padding:9px 15px;background:#fff;font-size:15px;min-height:44px}
+.sn-loc select{flex:0 1 200px}.sn-loc input{flex:1 1 220px;min-width:0}
+.sn-khoi{margin:0 0 26px}
+.sn-khoi>h3{font-family:'Playfair Display',serif;font-size:22px;margin:0 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sn-khoi>h3 small{font:500 14px 'Be Vietnam Pro',sans-serif;color:var(--mo,#7A6478)}
+.sn-nay{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.sn-nay button{position:relative;overflow:hidden;text-align:left;border:0;border-radius:18px;padding:18px 18px 16px;color:#fff;background:linear-gradient(135deg,#D63A6E,#8E3FB8);box-shadow:0 8px 22px rgba(142,63,184,.28)}
+.sn-nay button:before{content:'🎉';position:absolute;right:12px;top:8px;font-size:34px;opacity:.9}
+.sn-nay b{display:block;font-family:'Dancing Script',cursive;font-size:30px;line-height:1.1;padding-right:40px}
+.sn-nay span{display:block;font-size:14px;opacity:.92;margin-top:4px}
+.sn-nay em{display:inline-block;margin-top:10px;background:rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;font-style:normal;font-weight:600;font-size:14px}
+.sn-ds{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+.sn-ten{display:flex;align-items:center;gap:12px;text-align:left;width:100%;background:#fff;border:1.5px solid #F1D3DF;border-radius:14px;padding:10px 12px;min-height:56px;color:inherit}
+.sn-ten:hover{border-color:#D63A6E;box-shadow:0 3px 10px rgba(214,58,110,.14)}
+.sn-ten .ng{flex:none;width:48px;height:48px;border-radius:12px;background:#FFE3EC;color:#B02A5A;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.sn-ten .ng b{font-size:19px}.sn-ten .ng small{font-size:13px;margin-top:2px}
+.sn-ten .tt{flex:1;min-width:0}.sn-ten .tt b{display:block;font-size:15.5px;line-height:1.3;overflow-wrap:anywhere}.sn-ten .tt span{display:block;font-size:13.5px;color:#7A6478}
+.sn-ten .con{flex:none;font-size:13px;font-weight:600;color:#5B2A86;background:#EFE6FA;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.sn-ten.hn{background:#FFF0F5;border-color:#D63A6E}.sn-ten.hn .con{background:#D63A6E;color:#fff}.sn-ten.qua{opacity:.72}
+.sn-thang{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin:0 0 12px}
+.sn-thang button{border:1.5px solid #E9C6D4;background:#fff;border-radius:12px;padding:7px 2px 6px;min-height:48px;color:#5B2A86;display:flex;flex-direction:column;align-items:center;line-height:1.15;font-weight:600;font-size:14px}
+.sn-thang button small{font-size:13px;font-weight:500;color:#9A7F95}
+.sn-thang button.on{background:#D63A6E;border-color:#D63A6E;color:#fff}.sn-thang button.on small{color:#FFE3EC}
+.sn-thang button.nay:not(.on){border-color:#D63A6E}
+.sn-trong{color:#7A6478;background:#fff;border:1.5px dashed #E9C6D4;border-radius:14px;padding:14px 16px;font-size:14.5px}
+.p-cls .sn-khoi>h3{font-size:20px}
+.sn-hom{display:inline-flex;align-items:center;gap:10px;margin-top:12px;border:0;border-radius:999px;padding:9px 18px 9px 12px;background:linear-gradient(135deg,#D63A6E,#8E3FB8);color:#fff;font-size:14.5px;text-align:left;box-shadow:0 6px 16px rgba(142,63,184,.3);max-width:100%}
+.sn-hom span{font-size:22px}.sn-hom b{font-weight:700}
+.snNen{position:fixed;inset:0;z-index:158;background:rgba(40,16,40,.66);display:none;padding:16px;overflow-y:auto;overflow-x:hidden}.snNen.on{display:flex}
+.thiep{position:relative;margin:auto;width:min(440px,100%);background:#FFFDF9;border-radius:22px;padding:30px 24px 22px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden;animation:snVao .45s ease}
+@keyframes snVao{from{transform:scale(.86) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
+.thiep .x{position:absolute;right:10px;top:8px;width:40px;height:40px;border:0;background:none;font-size:28px;color:#7A6478;z-index:2}
+.thiep .ph-n{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.thiep .ph-n i{position:absolute;top:-14px;width:8px;height:14px;border-radius:2px;animation:snRoi linear infinite;opacity:.85}
+@keyframes snRoi{to{transform:translateY(560px) rotate(540deg)}}
+.thiep .banh{font-size:58px;line-height:1;position:relative}
+.thiep .ey{font:600 13px 'Be Vietnam Pro',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#B02A5A;margin-top:10px;position:relative}
+.thiep h3{font-family:'Dancing Script',cursive;font-size:clamp(34px,9vw,46px);line-height:1.1;color:#5B2A86;margin:6px 0 4px;position:relative;word-break:break-word}
+.thiep .lp{color:#7A6478;font-size:14.5px;position:relative}
+.thiep .tuoi{display:inline-block;margin:10px 0 0;background:#FFE3EC;color:#B02A5A;border-radius:999px;padding:4px 14px;font-weight:700;font-size:14px;position:relative}
+.thiep .loi{position:relative;margin:16px 0 14px;padding:16px 16px;background:repeating-linear-gradient(#FFFDF9 0 29px,#F1D3DF 29px 30px);border-radius:10px;font-family:'Charm',cursive;font-size:20px;line-height:30px;color:#3A1F3D;text-align:left;min-height:122px}
+.thiep .nut{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;position:relative}
+.thiep .nut button{flex:1 1 130px;min-height:44px;border-radius:999px;border:1.5px solid #D63A6E;background:#fff;color:#B02A5A;font-weight:600;font-size:14px;padding:8px 12px}
+.thiep .nut button.chinh{background:#D63A6E;color:#fff}
+nav.bot button.them-nut{position:relative}
+.navThem{position:fixed;inset:0;z-index:45;background:rgba(20,16,30,.45);display:none;align-items:flex-end}.navThem.on{display:flex}
+.navThem .hop{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:14px 16px calc(78px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,1fr);gap:10px;animation:snLen .22s ease}
+@keyframes snLen{from{transform:translateY(40px);opacity:0}}
+.navThem .hop b{grid-column:1/-1;font-size:14px;color:#6E6A85;font-weight:600}
+.navThem .hop button{border:1.5px solid #E5E0F0;background:#FAF9FD;border-radius:14px;min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600;color:#22213A}
+.navThem .hop button.on{border-color:var(--hac);color:var(--hac)}
+.navThem .hop svg{width:24px;height:24px}
+@media(max-width:1180px){.g nav button{padding:8px 9px;font-size:14px}}
+@media(max-width:900px){.g nav button{padding:8px 6px;font-size:13.5px}}
+@media(max-width:760px){.p-cls .tabs{flex-wrap:wrap;overflow-x:visible;gap:2px 0}.p-cls .tabs button{padding:8px 10px}.p-sn{padding:24px 16px 60px}.sn-thang{grid-template-columns:repeat(6,1fr)}.sn-loc select{flex:1 1 100%}.sn-ds{grid-template-columns:1fr}nav.bot button{font-size:11.5px;padding:7px 0 9px;min-height:56px}nav.bot svg{width:23px;height:23px}}
+@media(max-width:360px){nav.bot button{font-size:10.5px}}
 </style>
 </head>
 <body data-p="home">
@@ -792,6 +855,7 @@ html.tc-mo,html.tc-mo body{overflow:hidden!important;scrollbar-width:none;-ms-ov
   <section class="view p-yb" id="v-yearbook"></section>
   <section class="view p-gal" id="v-gallery"></section>
   <section class="view p-kn" id="v-connect"></section>
+  <section class="view p-sn" id="v-birthday"></section>
   <section class="view p-adm" id="v-admin"></section>
 </main>
 
@@ -807,6 +871,8 @@ html.tc-mo,html.tc-mo body{overflow:hidden!important;scrollbar-width:none;-ms-ov
 <div class="modal" id="modal" onclick="if(event.target===this)closeForm()"><div class="box" id="mBody"></div></div>
 <div class="loader" id="loader"><div class="ld-thuong"><div class="spin"></div><span id="loadTxt">Đang tải…</span></div><div class="ld-roi" id="ldRoi" aria-hidden="true"></div><div class="ld-dau" role="status"><img id="ldLogo" alt="Logo Trường THPT Nguyễn Hiền"><p class="ld-ten">THPT Nguyễn Hiền</p><p class="ld-kh">Khoá 2000 – 2003</p><p class="ld-cau" id="ldCau">Đang lật lại trang lưu bút…</p><div class="ld-vach"><i></i></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="snNen" id="snNen" onclick="if(event.target===this)dongSn()"><div class="thiep" role="dialog" aria-label="Thiệp sinh nhật" id="snThiep"></div></div>
+<div class="navThem" id="navThem" onclick="if(event.target===this)dongThem()"><div class="hop" id="navThemHop"></div></div>
 <datalist id="albumList"></datalist>
 <datalist id="nhList"><option value="2000–2001"><option value="2001–2002"><option value="2002–2003"><option value="Sau ra trường"></datalist>
 
@@ -845,21 +911,28 @@ const lopName=id=>{const l=lopById(id);return l?l.ten:''};
 const lopIdx=id=>Math.max(0,D.lop.findIndex(l=>l.id===id));
 
 /* ===================== NAV ===================== */
-const SVG={home:'<path d="M3 11l9-7 9 7v9H5z"/><path d="M10 20v-6h4v6"/>',classes:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',events:'<path d="M12 2l6 7-6 8-6-8z"/><path d="M12 17c-2 2 2 3 0 5"/>',yearbook:'<path d="M4 4h7a2 2 0 012 2v14a2 2 0 00-2-2H4zM20 4h-7a2 2 0 00-2 2v14a2 2 0 012-2h7z"/>',gallery:'<rect x="3" y="5" width="18" height="15" rx="1"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-8 8"/>',connect:'<circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c.6-3 2.6-5 5-5s4.4 2 5 5M12 20c.6-3 2.6-5 5-5s4.4 2 5 5"/>',admin:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>'};
-const NAV=[['home','Trang chủ'],['classes','Các lớp'],['events','Ngoại khoá'],['yearbook','Kỷ yếu'],['gallery','Hình ảnh'],['connect','Kết nối'],['admin','Quản trị']];
+const SVG={home:'<path d="M3 11l9-7 9 7v9H5z"/><path d="M10 20v-6h4v6"/>',classes:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',events:'<path d="M12 2l6 7-6 8-6-8z"/><path d="M12 17c-2 2 2 3 0 5"/>',yearbook:'<path d="M4 4h7a2 2 0 012 2v14a2 2 0 00-2-2H4zM20 4h-7a2 2 0 00-2 2v14a2 2 0 012-2h7z"/>',gallery:'<rect x="3" y="5" width="18" height="15" rx="1"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-8 8"/>',connect:'<circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c.6-3 2.6-5 5-5s4.4 2 5 5M12 20c.6-3 2.6-5 5-5s4.4 2 5 5"/>',admin:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',birthday:'<path d="M4 21h16v-8a1 1 0 00-1-1H5a1 1 0 00-1 1z"/><path d="M4 16.5c2.7 1.6 5.3 1.6 8 0s5.3-1.6 8 0"/><path d="M12 12V8.5"/><path d="M12 3.5c1.2 1.3 1.2 2.6 0 3.6-1.2-1-1.2-2.3 0-3.6z"/>',them:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'};
+const NAV=[['home','Trang chủ'],['classes','Các lớp'],['events','Ngoại khoá'],['yearbook','Kỷ yếu'],['gallery','Hình ảnh'],['connect','Kết nối'],['birthday','🎂 Sinh nhật'],['admin','Quản trị']];
+/* Menu dưới (điện thoại): 5 nút hay dùng + nút Thêm mở bảng các trang còn lại, để nút đủ to dễ bấm */
+const NAV_BOT=['home','classes','birthday','yearbook','gallery'],NAV_THEM=['events','connect','admin'];
+const navTen=k=>(NAV.find(x=>x[0]===k)||[k,k])[1].replace(/^\S+\s(?=Sinh)/,'');
+const navSvg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>`;
 /* Bấm menu: trang về trạng thái ban đầu, đủ nội dung (bỏ bộ lọc, thẻ, ô tìm của lần trước) */
-function menu(k){if(k==='yearbook'){ybT=1;wLop=''}if(k==='gallery'){gF='';gA=''}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF='';dkL=''}
+function menu(k){if(k==='yearbook'){ybT=1;wLop=''}if(k==='gallery'){gF='';gA=''}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF='';dkL=''}if(k==='birthday'){snLop='';snQ='';snThang=new Date().getMonth()+1}dongThem();
  if(k==='home')renderHome();if(k==='events')renderEvents();if(k==='connect')renderConnect();go(k)}
 function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')">${t}</button>`).join('');
- $('navBot').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>${t}</button>`).join('')}
+ $('navBot').innerHTML=NAV_BOT.map(k=>`<button data-k="${k}" onclick="menu('${k}')">${navSvg(k)}${navTen(k)}</button>`).join('')+`<button class="them-nut" id="nbThem" onclick="moThem()" aria-haspopup="true" aria-label="Các trang khác: ${NAV_THEM.map(navTen).join(', ')}">${navSvg('them')}Thêm</button>`;
+ $('navThemHop').innerHTML='<b>Các trang khác</b>'+NAV_THEM.map(k=>`<button data-k="${k}" onclick="menu('${k}')">${navSvg(k)}${navTen(k)}</button>`).join('')}
+function moThem(){$('navThem').classList.add('on')}
+function dongThem(){const e=$('navThem');if(e)e.classList.remove('on')}
 function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
- document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
- if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0);if(k!=='admin')taiMoi()}
+ document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});if($('nbThem'))$('nbThem').classList.toggle('on',NAV_THEM.indexOf(k)>=0);
+ if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='birthday')renderSn();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0);if(k!=='admin')taiMoi()}
 
 /* Mỗi lần bấm menu (và khi quay lại ứng dụng): lấy dữ liệu mới ở nền, chỉ vẽ lại khi có thay đổi; cách nhau ≥15 giây; đang gõ dở thì hoãn tới lần bấm sau */
 let TM_J='',TM_T=0,TM_DANG=0,TM_CHO=null,TM_CAN=0;
 function dangGo_(){const v=$('v-'+cur);if(!v)return false;const a=document.activeElement;if(a&&v.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return true;return [...v.querySelectorAll('input:not([type=checkbox]):not([type=radio]),textarea')].some(x=>x.value&&x.value.trim())}
-function veLaiTrang_(){renderPublic();if(cur==='classes')renderClasses();else if(cur==='yearbook')renderYb();else if(cur==='gallery')renderGal()}
+function veLaiTrang_(){renderPublic();if(cur==='classes')renderClasses();else if(cur==='yearbook')renderYb();else if(cur==='gallery')renderGal();else if(cur==='birthday')renderSn()}
 function apDung_(r,j){TM_J=j;setD(r);if(cur==='admin'||dangGo_()){TM_CHO=1;return}TM_CHO=null;const y=scrollY;veLaiTrang_();scrollTo(0,y);toast('Đã cập nhật nội dung mới')}
 function taiMoi(ep){if(!LIVE||window._dangMo)return;if(TM_DANG){if(ep)TM_CAN=1;return}if(TM_CHO&&!dangGo_()){TM_CHO=null;const y=scrollY;veLaiTrang_();scrollTo(0,y)}
  if(!ep&&Date.now()-TM_T<15000)return;TM_DANG=1;TM_T=Date.now();
@@ -872,7 +945,7 @@ function bllLien(v){const lk=contactLink(v);return v?(lk?`<a href="${esc(lk)}" t
 function renderPublic(){const c=D.cfg;$('hTen').textContent=c.tenTruong||'THPT Nguyễn Hiền';$('hSub').textContent='Đà Nẵng, khoá '+(c.nienKhoa||'');
  document.title=(c.tenTruong||'')+' · Khoá '+(c.nienKhoa||'');
  $('foot').innerHTML=`<div class="lg"><img src="${$('hLogo').src}" alt=""><div><b>Trường ${esc(c.tenTruong)}</b><br>${esc(c.diaChi)}<br><span style="opacity:.7">Thành lập ngày 18/7/1996</span></div></div>${bll().length?`<div class="ft-b"><b>Ban liên lạc khoá</b><br>${bll().map(x=>`${esc(x[0])}${x[2]?' ('+esc(x[2])+')':''}${x[1]?' · '+bllLien(x[1]):''}`).join('<br>')}</div>`:''}<div class="ft-r"><b>Trang kỷ niệm khoá ${esc(c.nienKhoa)}</b><br>Ban liên lạc khoá gìn giữ, để ${D.lop.length||12} lớp mình luôn tìm được nhau.<br><a href="#" onclick="moTT();return false">🤝 Nhà tài trợ</a> · <a href="#" onclick="menu('connect');return false">Thấy thiếu tên hay sai thông tin? Nhắn admin lớp</a> · <a href="https:\/\/thpt-nguyenhien-danang.edu.vn/" target="_blank" rel="noopener">Website trường ↗</a></div>`;
- renderHome();renderClasses();renderEvents();renderYb();renderGal();renderConnect();fillAlbums()}
+ renderHome();renderClasses();renderEvents();renderYb();renderGal();renderConnect();renderSn();fillAlbums()}
 function fillAlbums(){const s=new Set(ALBUMS);D.hoatDong.forEach(e=>s.add(e.tieuDe));D.anh.forEach(a=>s.add(a.album));if(A)A.anh.forEach(a=>s.add(a.album));$('albumList').innerHTML=[...s].map(a=>`<option value="${esc(a)}">`).join('')}
 
 /* ===================== LIGHTBOX ===================== */
@@ -1147,7 +1220,7 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
   <div class="l"><p class="goi hien" style="animation-delay:.1s">Gửi những người từng mặc áo trắng dưới gốc phượng ấy,</p><h1>${tieuDe}</h1>
   <p class="intro hien" style="animation-delay:${(.8+tu.length*.14).toFixed(2)}s">${doanMoDau(c,n)}</p>
   <div class="hero-actions hien" style="animation-delay:${(1.1+tu.length*.14).toFixed(2)}s"><button class="btn" onclick="go('classes')">Tìm lại lớp mình</button><button class="btn o" onclick="ybT=3;go('yearbook')">Viết vài dòng lưu bút</button>${(D.anh||[]).some(a=>a.fileId)||D.luuBut.length||D.thayCo.length?'<button class="btn o" onclick="tcMenu()">▶ Trình chiếu</button>':''}<button class="btn o" onclick="moTT()">🤝 Nhà tài trợ</button></div>
-  <button class="phong hien" style="animation-delay:${(1.25+tu.length*.14).toFixed(2)}s" onclick="moThu()" aria-label="Mở thư ngỏ"><span class="sap" aria-hidden="true">💌</span><span><b>${esc(THU.tieuDe)}</b><small>${esc(THU.gio)} · ${esc(THU.ngay)} · bấm để mở thư</small></span></button>
+  <button class="phong hien" style="animation-delay:${(1.25+tu.length*.14).toFixed(2)}s" onclick="moThu()" aria-label="Mở thư ngỏ"><span class="sap" aria-hidden="true">💌</span><span><b>${esc(THU.tieuDe)}</b><small>${esc(THU.gio)} · ${esc(THU.ngay)} · bấm để mở thư</small></span></button>${snHom()}
   <p class="xoay hien" id="xoay" aria-live="polite" style="animation-delay:${(1.4+tu.length*.14).toFixed(2)}s">${XOAY[xoayI]}</p></div><div class="r" aria-hidden="true"><div class="canh-moi"></div></div>
   <button class="keo" onclick="document.querySelector('.p-home .goc-thu,.p-home .dem').scrollIntoView({behavior:'smooth'})">Kéo xuống, ký ức đang chờ ↓</button></div>
  ${c.loiNgo?`<div class="goc-thu"><div><div class="k">Thư gửi những người bạn cũ</div><h2>Gửi bạn, người từng ngồi cùng bàn</h2><p class="sub">Cho những ai từng mặc áo trắng dưới gốc phượng ${esc(String(c.tenTruong||'').replace(/^THPT\s*/i,''))}, từng chép bài hộ nhau, từng giận nhau một buổi rồi lại chia nhau gói xôi.</p></div><div class="giay">${epPhuong}<p>${esc(c.loiNgo)}</p><div class="ky">${esc(c.nguoiKy)}</div></div></div>`:''}
@@ -1166,6 +1239,51 @@ function danhDauLbDai(){const f=()=>document.querySelectorAll('#v-home .dlb').fo
 function doanMoDau(c,n){const m={namRaTruong:c.namRaTruong,tenTruong:c.tenTruong,diaChi:String(c.diaChi||'').split(',')[0].trim(),soNam:n>0?n:'Bao nhiêu',soLop:D.lop.length};
  const t=c.doanMoDau||'Tháng Năm {namRaTruong}, ba hồi trống cuối cùng vang lên trên sân trường {tenTruong}, {diaChi}. Những cánh phượng rơi đỏ lối. Cuốn lưu bút chưa kịp chuyền hết một vòng lớp. Có những lời tạm biệt mình hẹn để mai nói, rồi để tới tận bây giờ. {soNam} năm, mỗi đứa một phương trời. Nơi này là để {soLop} lớp mình gọi tên nhau thêm một lần nữa.';
  return esc(t).replace(/\{(\w+)\}/g,(x,k)=>k in m?esc(String(m[k])):x)}
+
+/* ===================== SINH NHẬT ===================== */
+let snLop='',snQ='',snThang=new Date().getMonth()+1,SN_I=0,SN_ID='';
+const SN_LOI=['Chúc {ten} tuổi mới thật nhiều sức khoẻ, bình an, và lúc nào cũng giữ được nụ cười như hồi ngồi chung lớp {lop} năm ấy.','Sinh nhật vui vẻ nhé {ten}! Mong những điều tốt đẹp nhất sẽ đến với bạn và gia đình. Hẹn gặp lại ở buổi họp lớp nha.','Thêm một tuổi mới, chúc {ten} công việc hanh thông, gia đình hạnh phúc, và bên cạnh luôn có bạn bè cũ để hỏi han nhau.','Gửi {ten}: bao nhiêu năm trôi qua thì với tụi mình, bạn vẫn là cô cậu học trò lớp {lop} ngày nào. Chúc mừng sinh nhật!','Chúc {ten} một tuổi mới rực rỡ như mùa phượng năm {nam}: ít lo âu, nhiều niềm vui và thật nhiều yêu thương.'];
+/* Đọc ngày sinh: dd/mm/yyyy, dd/mm (không năm) hoặc yyyy-mm-dd */
+function snNgay_(v){const s=String(v||'').trim();let m=s.match(/^(\d{1,2})[/.-](\d{1,2})(?:[/.-](\d{4}))?$/),o=null;if(m)o={d:+m[1],m:+m[2],y:m[3]?+m[3]:0};else{m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)o={d:+m[3],m:+m[2],y:+m[1]}}return o&&o.m>=1&&o.m<=12&&o.d>=1&&o.d<=31?o:null}
+/* Danh sách bạn có ngày sinh (một lớp hoặc cả khoá): con = số ngày tới sinh nhật kế tiếp, 0 = hôm nay */
+function snDs(lopId){const t=new Date(),t0=new Date(t.getFullYear(),t.getMonth(),t.getDate()),r=[];
+ D.lop.forEach(c=>{if(lopId&&c.id!==lopId)return;c.hs.forEach(s=>{const n=snNgay_(s.ngaySinh);if(!n)return;
+  const ngay=y=>{const nhuan=(y%4===0&&y%100!==0)||y%400===0;return new Date(y,n.m-1,n.m===2&&n.d===29&&!nhuan?28:n.d)};
+  let k=ngay(t0.getFullYear());if(k<t0)k=ngay(t0.getFullYear()+1);
+  r.push({s,c,n,ngay:k,con:Math.round((k-t0)/864e5),tuoi:n.y?k.getFullYear()-n.y:0})})});
+ return r.sort((a,b)=>a.con-b.con||String(a.s.hoTen).localeCompare(String(b.s.hoTen),'vi'))}
+const snDd=n=>String(n.d).padStart(2,'0')+'/'+String(n.m).padStart(2,'0');
+function snNut(x,coLop){const hn=x.con===0,qua=x.n.m===new Date().getMonth()+1&&x.con>31;
+ return `<button class="sn-ten${hn?' hn':''}${qua?' qua':''}" onclick="moSn('${esc(x.s.id)}')"><span class="ng"><b>${x.n.d}</b><small>th${x.n.m}</small></span><span class="tt"><b>${esc(x.s.hoTen)}</b><span>${coLop?'Lớp '+esc(x.c.ten)+' · ':''}${x.ngay.toLocaleDateString('vi-VN',{weekday:'long'})}${x.tuoi?' · '+x.tuoi+' tuổi':''}</span></span><span class="con">${hn?'🎉 Hôm nay':qua?'Đã qua':x.con===1?'Ngày mai':'Còn '+x.con+' ngày'}</span></button>`}
+/* Khối sinh nhật dùng chung cho tab lớp và trang toàn khoá: hôm nay · 30 ngày tới · chọn tháng 1–12 */
+function snKhoi(ds,coLop,lai){if(!ds.length)return `<p class="sn-trong">Chưa có ngày sinh của bạn nào${coLop?'':' trong lớp này'}. Admin lớp thêm cột “Ngày tháng năm sinh” ở Quản trị → Học sinh (hoặc dán từ Excel) là thiệp sinh nhật tự hiện.</p>`;
+ const nay=ds.filter(x=>x.con===0),sap=ds.filter(x=>x.con>0&&x.con<=30),thNay=new Date().getMonth()+1,dem=Array(13).fill(0);ds.forEach(x=>dem[x.n.m]++);
+ const thang=ds.filter(x=>x.n.m===snThang).sort((a,b)=>a.n.d-b.n.d||String(a.s.hoTen).localeCompare(String(b.s.hoTen),'vi'));
+ return `<div class="sn-khoi"><h3>🎉 Sinh nhật hôm nay <small>${new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit'})}</small></h3>${nay.length?`<div class="sn-nay">${nay.map(x=>`<button onclick="moSn('${esc(x.s.id)}')"><b>${esc(x.s.hoTen)}</b><span>${coLop?'Lớp '+esc(x.c.ten)+' · ':''}${x.tuoi?'Tròn '+x.tuoi+' tuổi':snDd(x.n)}</span><em>💌 Mở thiệp chúc mừng</em></button>`).join('')}</div>`:'<p class="sn-trong">Hôm nay chưa có bạn nào thổi nến. Xem ai sắp tới ở dưới nhé.</p>'}</div>
+ <div class="sn-khoi"><h3>⏳ Sắp tới <small>30 ngày nữa${sap.length?' · '+sap.length+' bạn':''}</small></h3>${sap.length?`<div class="sn-ds">${sap.slice(0,coLop?24:60).map(x=>snNut(x,coLop)).join('')}</div>`:'<p class="sn-trong">Không có sinh nhật nào trong 30 ngày tới.</p>'}</div>
+ <div class="sn-khoi"><h3>📅 Theo tháng <small>bấm chọn tháng</small></h3><div class="sn-thang" role="tablist">${Array.from({length:12},(_,k)=>k+1).map(m=>`<button role="tab" aria-selected="${m===snThang}" class="${m===snThang?'on':''}${m===thNay?' nay':''}" onclick="snThang=${m};${lai}">Th ${m}<small>${dem[m]} bạn</small></button>`).join('')}</div>
+ ${thang.length?`<div class="sn-ds">${thang.map(x=>snNut(x,coLop)).join('')}</div>`:`<p class="sn-trong">Tháng ${snThang} chưa có bạn nào sinh nhật.</p>`}</div>`}
+function renderSn(){const el=$('v-birthday');if(!el)return;const tong=D.lop.reduce((a,l)=>a+l.hs.length,0),co=snDs('').length;
+ el.innerHTML=`<div class="w"><h2>🎂 Sinh nhật cả khoá</h2><p class="sub">${co?`${co}/${tong} bạn đã có ngày sinh.`:''} Chọn lớp hoặc gõ tên bạn mình, bấm vào tên để mở thiệp và gửi một lời chúc. Một tin nhắn đúng ngày đôi khi làm người ta vui cả tuần.</p>
+ <div class="sn-loc"><select id="snLop" onchange="snLop=this.value;veSn()" aria-label="Chọn lớp"><option value="">Cả khoá (${D.lop.length} lớp)</option>${D.lop.map(l=>`<option value="${esc(l.id)}"${l.id===snLop?' selected':''}>Lớp ${esc(l.ten)}</option>`).join('')}</select><input id="snQ" type="search" placeholder="Tìm tên bạn, ví dụ: Hiếu, Mai…" value="${esc(snQ)}" oninput="snQ=this.value;veSn()" aria-label="Tìm tên bạn"></div><div id="snKq"></div></div>`;veSn()}
+function veSn(){const el=$('snKq');if(!el)return;const ds=snDs(snLop),q=snQ.trim();
+ if(q){const hs=[];D.lop.forEach(c=>{if(!snLop||c.id===snLop)c.hs.forEach(s=>{if(khopTim(q,s.hoTen+' lop '+c.ten))hs.push({s,c})})});
+  el.innerHTML=`<div class="sn-khoi"><h3>🔎 Kết quả <small>${hs.length} bạn</small></h3>${hs.length?`<div class="sn-ds">${hs.slice(0,80).map(o=>{const x=ds.find(y=>y.s===o.s);return x?snNut(x,1):`<button class="sn-ten qua" data-m="${esc('Bạn '+o.s.hoTen+' chưa có ngày sinh. Nhắn admin lớp '+o.c.ten+' bổ sung nhé.')}" onclick="toast(this.dataset.m)"><span class="ng"><b>?</b></span><span class="tt"><b>${esc(o.s.hoTen)}</b><span>Lớp ${esc(o.c.ten)} · chưa có ngày sinh</span></span></button>`}).join('')}</div>`:'<p class="sn-trong">Không thấy bạn nào khớp. Thử gõ ngắn hơn, chỉ tên gọi thôi.</p>'}</div>`;return}
+ el.innerHTML=snKhoi(ds,!snLop,'veSn()')}
+function snHom(){const nay=snDs('').filter(x=>x.con===0);if(!nay.length)return '';
+ return `<button class="sn-hom hien" onclick="${nay.length===1?`moSn('${esc(nay[0].s.id)}')`:"menu('birthday')"}"><span aria-hidden="true">🎂</span><span>Hôm nay sinh nhật <b>${nay.slice(0,3).map(x=>esc(x.s.hoTen)).join(', ')}</b>${nay.length>3?' và '+(nay.length-3)+' bạn':''} · gửi lời chúc</span></button>`}
+function snLoi_(x){return SN_LOI[SN_I%SN_LOI.length].replace(/\{ten\}/g,tachTen(x.s.hoTen).t||x.s.hoTen).replace(/\{lop\}/g,x.c.ten).replace(/\{nam\}/g,D.cfg.namRaTruong||'2003')}
+function moSn(id,doi){const x=snDs('').find(y=>String(y.s.id)===String(id));if(!x)return;if(!doi){SN_ID=id;SN_I=Math.floor(Math.random()*SN_LOI.length)}
+ const mau=['#D63A6E','#F7B731','#8E3FB8','#2BB3A3','#FF7A45'],hn=x.con===0;
+ $('snThiep').innerHTML=`<div class="ph-n" aria-hidden="true">${Array.from({length:18},(_,k)=>`<i style="left:${(k*53+7)%100}%;background:${mau[k%5]};animation-duration:${3.5+k%5*.7}s;animation-delay:-${(k*.43).toFixed(1)}s"></i>`).join('')}</div>
+ <button class="x" onclick="dongSn()" aria-label="Đóng">×</button><div class="banh" aria-hidden="true">🎂</div><div class="ey">${hn?'Chúc mừng sinh nhật':'Sinh nhật '+snDd(x.n)}</div><h3>${esc(x.s.hoTen)}</h3>
+ <div class="lp">Lớp ${esc(x.c.ten)} · ${esc(D.cfg.tenTruong||'')} · Khoá ${esc(D.cfg.nienKhoa||'')}</div>
+ <div class="tuoi">${hn?'🎉 Hôm nay':x.con===1?'Ngày mai':'Còn '+x.con+' ngày'}${x.tuoi?' · tròn '+x.tuoi+' tuổi':''}</div>
+ <div class="loi" id="snLoi">${esc(snLoi_(x))}</div>
+ <div class="nut"><button onclick="SN_I++;moSn(SN_ID,1)">🔁 Lời chúc khác</button><button class="chinh" onclick="chep($('snLoi').textContent,'Đã sao chép lời chúc, dán vào Zalo gửi bạn nhé')">📋 Sao chép lời chúc</button><button onclick="dongSn();ybT=3;wLop='${esc(x.c.id)}';go('yearbook')">✍️ Viết lưu bút lớp ${esc(x.c.ten)}</button></div>`;
+ $('snNen').classList.add('on')}
+function dongSn(){$('snNen').classList.remove('on')}
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('snNen').classList.contains('on'))dongSn();dongThem()});
 /* ===================== CÁC LỚP ===================== */
 let clsQ='',curCls=null,cT=0,cV='so';
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
@@ -1197,9 +1315,10 @@ function dsHocSinh_(c,sd,coSdt){const gt=s=>`<span class="gt ${hsLaNu_(s.nu)?'nu
 function drawCls(){const c=D.lop.find(l=>l.id===curCls),i=lopIdx(curCls);const al=A&&A.lop.find(x=>x.id===c.id),sd={};if(al)al.hs.forEach(h=>{if(h.sdt)sd[h.id]=h.sdt});const coSdt=!!al;const ph=D.anh.filter(p=>p.lopId===c.id),nt=D.luuBut.filter(n=>n.lopId===c.id);let b='';
  if(cT===0)b=c.hs.length?`<p class="diemdanh">Điểm danh lại một lần nữa nhé, lớp ${esc(c.ten)}…<small>${c.hs.length} bạn, giờ ở ${new Set(c.hs.map(s=>String(s.hienO||'').trim()).filter(Boolean)).size||'nhiều'} nơi khác nhau. Đọc chậm từng cái tên, biết đâu lại nghe tiếng “Có!” năm nào.</small></p><div class="xem"><button class="${cV==='so'?'on':''}" onclick="cV='so';drawCls()">🪑 Sơ đồ lớp</button><button class="${cV==='ds'?'on':''}" onclick="cV='ds';drawCls()">📋 Danh sách học sinh</button>${cV==='so'?'<input placeholder="Tìm chỗ ngồi của một bạn…" oninput="timCho(this.value)" onkeydown="if(event.key===\'Enter\')timCho(this.value,1)" aria-label="Tìm chỗ ngồi">':''}</div>${cV==='so'?soDoLop(c,sd,coSdt):dsHocSinh_(c,sd,coSdt)}<p class="sub" style="margin-top:10px;font-size:13.5px">${coSdt?'Số điện thoại chỉ hiện với admin lớp và Ban liên lạc đang đăng nhập.':'Số điện thoại các bạn được giữ kín. Cần liên lạc ai, nhắn admin lớp '+esc(c.ten)+' nhé.'}</p>`:'<p class="empty">Lớp chưa cập nhật danh sách.</p>';
  if(cT===1)b=ph.length?`<div class="mini">${ph.map((p,k)=>`<div class="ph" style="background:${grad(k)}" onclick="openLb(D.anh.filter(a=>a.lopId==='${c.id}'),${k})">${pic(p,500)}</div>`).join('')}</div>`:'<p class="empty">Lớp chưa có ảnh. Admin lớp có thể tải ảnh trong mục Quản trị.</p>';
+ if(cT===3)b=snKhoi(snDs(c.id),0,'drawCls()');
  if(cT===2)b=(nt.length?nt.map(n=>`<p class="lb-note">“${esc(n.noiDung)}” <small>${esc(n.tacGia)}</small></p>`).join(''):'<p class="empty">Chưa có lưu bút gửi lớp này.</p>')+`<button class="back" onclick="ybT=3;wLop='${c.id}';go('yearbook')">Viết lưu bút cho lớp ${esc(c.ten)}</button>`;
  $('v-classes').innerHTML=`<button class="back" onclick="curCls=null;renderClasses()">← Tất cả các lớp</button><div class="head">${nhan(c,i,1)}<div><h2>Lớp ${esc(c.ten)}</h2>${c.gioiThieu?`<p>${esc(c.gioiThieu)}</p>`:''}<p class="sub" style="margin-top:8px">${c.ban?esc(c.ban)+' · ':''}Admin lớp: <b>${esc(c.admin||'chưa có')}</b></p></div></div>
- <div class="tabs">${['Danh sách lớp','Ảnh của lớp ('+ph.length+')','Lưu bút lớp ('+nt.length+')'].map((t,k)=>`<button class="${k===cT?'on':''}" onclick="cT=${k};drawCls()">${t}</button>`).join('')}</div>${b}`}
+ <div class="tabs">${['Danh sách lớp','Ảnh của lớp ('+ph.length+')','Lưu bút lớp ('+nt.length+')','🎂 Sinh nhật'+(snDs(c.id).some(x=>x.con===0)?' 🎉':'')].map((t,k)=>`<button class="${k===cT?'on':''}" onclick="cT=${k};drawCls()">${t}</button>`).join('')}</div>${b}`}
 
 /* ===================== NGOẠI KHOÁ ===================== */
 function yearOf(nh){const s=String(nh||'');if(/2000/.test(s)&&/2001/.test(s))return 0;if(/2001/.test(s)&&/2002/.test(s))return 1;if(/2002/.test(s)&&/2003/.test(s))return 2;return -1}

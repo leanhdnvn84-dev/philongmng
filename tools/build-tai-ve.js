@@ -19,7 +19,7 @@ const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'apps-script', 'Index.html');
 const OUT = path.join(ROOT, 'tai-ve', 'NguyenHien-2000-2003.html');
 const OUT_GAS = path.join(ROOT, 'tai-ve', 'Index.html'); // bản dán vào Apps Script (file HTML tên Index), không vẽ sẵn nội dung mẫu
-const IDS = ['v-home', 'v-classes', 'v-events', 'v-yearbook', 'v-gallery', 'v-connect', 'foot', 'navTop', 'navBot', 'albumList'];
+const IDS = ['v-home', 'v-classes', 'v-events', 'v-yearbook', 'v-gallery', 'v-connect', 'v-birthday', 'foot', 'navTop', 'navBot', 'albumList'];
 
 const NOJS_CSS = `
 /* ===== BẢN TĨNH (khi trình xem không chạy JavaScript) ===== */
