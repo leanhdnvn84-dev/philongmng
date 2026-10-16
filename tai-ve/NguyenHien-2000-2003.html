@@ -923,6 +923,20 @@ nav.bot button.them-nut{position:relative}
 @media(hover:none){.nhan.song .vao{opacity:.85;transform:none}}
 @media(max-width:760px){.p-cls .cls-so{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;width:100%}.p-cls .cls-so>div{min-width:0;padding:5px 3px}.p-cls .cls-so b{font-size:24px}.p-cls .cls-so span{font-size:13px;line-height:1.2;display:block}}
 @media (prefers-reduced-motion:reduce){.nhan.song,.nhan.song .cmsn,.p-cls .cls-dau .but{animation:none}}
+/* Tổng quan Quản trị gọn 1 trang */
+.p-adm .kpi.tq{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.kpi.tq button{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;border:1.5px solid var(--vien);border-radius:12px;padding:10px 12px;background:#fff;font-size:13.5px;color:var(--mo);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.kpi.tq button:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(74,44,143,.12)}
+.kpi.tq i{grid-row:1/3;font-style:normal;font-size:26px}.kpi.tq b{font-size:30px}.kpi.tq span{line-height:1.25}
+.kpi.tq .can{border-color:#E8A33D;background:#FFF8EC}.kpi.tq .can b{color:#B86B00}
+.nk-dau{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}.nk-dau h3{margin:0}
+.nk{border:1.5px solid var(--vien);border-radius:12px;overflow-y:auto;background:#fff}
+.nk .d{display:grid;grid-template-columns:62px 28px 1fr auto;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #F0EDF7;font-size:14.5px}.nk .d:last-child{border-bottom:0}.nk .d:nth-child(2n){background:#FBFAFE}
+.nk .g{display:flex;flex-direction:column;line-height:1.15}.nk .g b{font-weight:700;color:#22213A}.nk .g small{font-size:13px;color:var(--mo)}
+.nk .i{font-size:17px;text-align:center}.nk .v{min-width:0}.nk .u{font-size:13.5px;color:var(--mo);background:#F4F2FB;border-radius:999px;padding:2px 10px;white-space:nowrap}
+@media(min-width:761px) and (max-height:860px){.p-adm{padding-top:16px;padding-bottom:14px;min-height:0}.p-adm .side button{padding:5px 12px;line-height:1.35}.p-adm .top h2{font-size:28px}}
+@media(max-width:1100px){.p-adm .kpi.tq{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.p-adm .kpi.tq{grid-template-columns:repeat(2,minmax(0,1fr))}.nk .d{grid-template-columns:52px 24px 1fr}.nk .u{grid-column:3;justify-self:start}}
 </style>
 </head>
 <body data-p="home">
@@ -1422,7 +1436,7 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'));danhDauLbDai();vuaHero_()}
 /* Trang chủ máy tính: khung đầu luôn vừa 1 màn hình – nội dung dài (thêm nút sinh nhật, đoạn mở đầu dài, màn thấp) thì thu nhỏ đều cả khối chữ cho vừa */
 function vuaHero_(){const l=document.querySelector('#v-home .hero .l');if(!l)return;const hr=l.parentElement,hd=document.querySelector('header.g');l.style.zoom='';hr.style.height=hr.style.minHeight='';if(innerWidth<=760)return;if(hd)hr.style.height=hr.style.minHeight=Math.max(420,innerHeight-hd.offsetHeight)+'px';const cao=()=>Math.max(...[...l.children].map(e=>e.getBoundingClientRect().bottom))-hr.getBoundingClientRect().top,toi=hr.clientHeight-40;if(cao()<=toi)return;let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;l.style.zoom=m;if(cao()<=toi)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){l.style.zoom=m;if(cao()<=toi)a=m}l.style.zoom=a.toFixed(3)}
-addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(()=>{vuaHero_();vuaLop_()},150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{vuaHero_();vuaLop_()});
+addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(()=>{vuaHero_();vuaLop_();vuaTq_()},150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{vuaHero_();vuaLop_()});
 function truotLb(h){const l=$('luoiLb');if(l)l.scrollBy({left:h*Math.max(260,l.clientWidth*.8),behavior:'smooth'})}
 function danhDauLbDai(){const f=()=>document.querySelectorAll('#v-home .dlb').forEach(e=>{const n=e.querySelector('.nd');e.classList.toggle('dai',n.scrollHeight>n.clientHeight+2)});f();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f)}
 
@@ -1672,8 +1686,10 @@ function renderAdmin(){if(!A)return renderLogin();const tabs=isS()?AT_S:AT_C;if(
  $('v-admin').innerHTML=`<div class="top"><div><h2>${isS()?'Quản trị cả khoá':'Quản trị lớp '+esc(my?my.ten:'')}</h2><p class="who">${isS()?'Ban liên lạc, quản lý tất cả các lớp':'Admin lớp: <b>'+esc(A.me.hoTen)+'</b>. Chỉ sửa được dữ liệu của lớp '+esc(my?my.ten:'')}</p></div><button class="btn2 o sm" onclick="doLogout()">Đăng xuất</button></div>
  <div class="adm"><div class="side">${tabs.map((t,i)=>`<button class="${i===aT?'on':''}" onclick="aT=${i};renderAdmin()"><span>${t}</span>${badgeFor(t)}</button>`).join('')}</div><div class="panel" id="panel"></div></div>`;
  if(!isS()&&!my){$('panel').innerHTML='<p class="who">Tài khoản chưa được gán lớp. Liên hệ Ban liên lạc.</p>';return}
- $('panel').innerHTML=(R[tabs[aT]]||(()=>''))();const pn=$('panel');pn.onmouseover=pn.onclick=tkTip;pn.onmouseleave=()=>tkTip()}
+ $('panel').innerHTML=(R[tabs[aT]]||(()=>''))();vuaTq_();const pn=$('panel');pn.onmouseover=pn.onclick=tkTip;pn.onmouseleave=()=>tkTip()}
 
+/* Quản trị → Tổng quan: khung nhật ký tự co cao để cả trang vừa 1 màn hình (cuộn trong khung) */
+function vuaTq_(){const n=$('nkKhung');if(!n)return;n.style.maxHeight='';if(innerWidth<=760)return;const du=document.documentElement.scrollHeight-innerHeight,sd=document.querySelector('.p-adm .side'),theoMenu=sd?sd.getBoundingClientRect().bottom-n.getBoundingClientRect().top-24:0;if(du>0)n.style.maxHeight=Math.max(220,n.offsetHeight-du-2,theoMenu)+'px'}
 let TKD=null,TKL=0;
 const tkSo=n=>Number(n||0).toLocaleString('vi-VN'),tkPt=(a,b)=>b?Math.round(a*100/b)+'%':'0%';
 function tkCot(vals,nhan,tip,hl){const mx=Math.max(1,...vals),im=vals.indexOf(Math.max(...vals));
@@ -1698,8 +1714,12 @@ function tkVe(d){const nut='<button class="btn2 o sm" onclick="TKD=null;renderAd
 const R={
  'Thống kê':()=>{if(!TKD){if(!TKL){TKL=1;api('getThongKe',TOK).then(d=>{TKD=d}).catch(e=>{TKD={loi:String(e&&e.message||e).replace(/^SESSION:\s*/,'')};if(/SESSION/.test(String(e&&e.message)))err(e)}).finally(()=>{TKL=0;if(cur==='admin'&&A&&isS()&&AT_S[aT]==='Thống kê')renderAdmin()})}return '<p class="who">Đang tính số liệu lượt xem…</p>'}return tkVe(TKD)},
  'Tổng quan':()=>{const hs=A.lop.reduce((s,l)=>s+l.hs.length,0),ad=A.lop.filter(l=>l.adminUser).length;
-  return `<div class="kpi">${[[ad+'/'+A.lop.length,'lớp đã có admin'],[hs,'học sinh'],[A.luuBut.filter(x=>x.trangThai==='pending').length,'lưu bút chờ duyệt'],[A.hoatDong.filter(x=>x.trangThai==='pending').length,'đề xuất chờ duyệt'],[A.dangKy.filter(x=>x.trangThai!=='huy').length,'bạn đăng ký họp lớp'],[A.anh.length,'tấm ảnh']].map(s=>`<div><b>${s[0]}</b>${s[1]}</div>`).join('')}</div>
-  <h3>Nhật ký gần đây</h3>${A.log.length?`<div class="tw"><table><tbody>${A.log.slice(0,30).map(x=>`<tr><td class="who" style="white-space:nowrap">${esc(x.time)}</td><td><b>${esc(x.user)}</b></td><td>${esc(x.action)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="who">Chưa có.</p>'}`},
+  const tab=t=>{const k=AT_S.indexOf(t);return k<0?'':`onclick="aT=${k};renderAdmin()"`};
+  const k=[['🏫',ad+'/'+A.lop.length,'lớp đã có admin','Lớp và admin lớp'],['🎓',hs,'học sinh','Học sinh'],['✍️',A.luuBut.filter(x=>x.trangThai==='pending').length,'lưu bút chờ duyệt','Lưu bút',1],['📝',A.hoatDong.filter(x=>x.trangThai==='pending').length,'đề xuất chờ duyệt','Hoạt động',1],['🎉',A.dangKy.filter(x=>x.trangThai!=='huy').length,'bạn đăng ký họp lớp','Đăng ký họp lớp'],['📷',A.anh.length,'tấm ảnh','Hình ảnh']];
+  const ic=a=>/đăng nhập/i.test(a)?'🔑':/xo[áa]/i.test(a)?'🗑️':/ảnh/i.test(a)?'📷':/lưu bút/i.test(a)?'✍️':/cài đặt|cấu hình/i.test(a)?'⚙️':/học sinh/i.test(a)?'🎓':/duyệt/i.test(a)?'✅':/đăng ký/i.test(a)?'🎉':'•';
+  const tg=t=>{const m=String(t||'').match(/^(\d{4})-(\d\d)-(\d\d)[ T](\d\d:\d\d)/);return m?`<b>${m[4]}</b><small>${m[3]}/${m[2]}</small>`:esc(t)};
+  return `<div class="kpi tq">${k.map(s=>`<button ${isS()?tab(s[3]):''} class="${s[4]&&s[1]>0?'can':''}"><i aria-hidden="true">${s[0]}</i><b>${s[1]}</b><span>${s[2]}</span></button>`).join('')}</div>
+  <div class="nk-dau"><h3>Nhật ký gần đây</h3><span class="who">${A.log.length?Math.min(A.log.length,60)+' việc mới nhất · cuộn trong khung':''}</span></div>${A.log.length?`<div class="nk" id="nkKhung">${A.log.slice(0,60).map(x=>`<div class="d"><span class="g">${tg(x.time)}</span><span class="i" aria-hidden="true">${ic(x.action)}</span><span class="v">${esc(x.action)}</span><span class="u">${esc(x.user)}</span></div>`).join('')}</div>`:'<p class="who">Chưa có.</p>'}`},
 
  'Lớp và admin lớp':()=>ph3('Các lớp, mỗi lớp một admin',`<button class="btn2 o sm" onclick="autoAdmins()">Tạo admin cho lớp chưa có</button><button class="btn2 sm" onclick="fClass()">Thêm lớp</button>`)+
   `<div class="tw"><table><thead><tr><th>Lớp</th><th class="hide-m">Chủ nhiệm</th><th>Admin lớp</th><th></th></tr></thead><tbody>${A.lop.map(l=>`<tr><td><b>${esc(l.ten)}</b><div class="who">${l.hs.length} học sinh</div></td><td class="hide-m">${esc(l.gvcn)}</td><td>${l.adminUser?`${esc(l.admin)}<div class="who">${esc(l.adminUser)}</div>`:'<span class="pill off">Chưa có</span>'}</td>

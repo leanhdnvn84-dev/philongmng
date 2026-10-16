@@ -38,6 +38,7 @@ setClassAdmin, removeClassAdmin, saveStudent, deleteStudent, importStudents, sav
 deleteEvent, saveTeacher, deleteTeacher, moderateNote, deleteNote, uploadPhoto, updatePhoto, deletePhoto,
 saveConfig, saveNews, deleteNews, submitRegistration, setRegistrationStatus, deleteRegistration,
 updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents, ghiLuotXem, getThongKe, dongBoAnhDrive, getLuuBut, getDuLieuMoi`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`, `dongBoAnh`, `batDongBoAnhTuDong`, `xepLaiAnh`, `moQuyenAnh`, `batGiuAm`.
+Quản trị → **Tổng quan** gọn 1 màn hình máy tính: 6 ô số `.kpi.tq` một hàng (biểu tượng, bấm chuyển tab; ô chờ duyệt > 0 tô cam `.can`), nhật ký `#nkKhung` `.nk` (60 việc, giờ + ngày, biểu tượng theo loại việc, tên người dạng chip) cuộn trong khung – `vuaTq_()` (gọi cuối `renderAdmin`, resize) đặt max-height để trang không cuộn, tối thiểu bằng đáy menu trái; màn thấp (≤860px cao) thu padding `.p-adm`, bỏ min-height, menu trái dày ít hơn.
 `getAdminData.hsLac` (super): học sinh có `lopId` không khớp lớp nào → nhóm "⚠ Chưa thuộc lớp nào" trong Quản trị → Học sinh, tick + Chuyển lớp.
 Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.
