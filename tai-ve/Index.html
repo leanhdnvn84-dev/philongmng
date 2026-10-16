@@ -863,6 +863,15 @@ html.in-sn #snIn{display:block}}
 .snXem .nut button{min-height:44px;border-radius:999px;border:0;padding:8px 18px;font-weight:600;font-size:14.5px;background:#fff;color:#5B2A86}
 .snXem .nut a.tai{display:inline-flex;align-items:center;min-height:44px;border-radius:999px;padding:8px 18px;font-weight:600;font-size:14.5px;background:#8E3FB8;color:#fff;text-decoration:none}.snXem .nut button.chinh{background:#D63A6E;color:#fff}
 #upA[hidden]{display:none}
+.hoiNen{position:fixed;inset:0;z-index:210;background:rgba(20,16,34,.55);display:flex;align-items:center;justify-content:center;padding:16px;animation:hoiVao .16s ease}.hoiNen.di{opacity:0;transition:opacity .15s}
+@keyframes hoiVao{from{opacity:0}}
+.hoi{width:min(420px,100%);background:#fff;border-radius:18px;padding:22px 20px 16px;box-shadow:0 24px 60px rgba(0,0,0,.35);text-align:center;font-family:'Be Vietnam Pro',sans-serif;color:#22213A;animation:hoiNay .2s ease}.hoi.rong{width:min(560px,100%)}
+@keyframes hoiNay{from{transform:scale(.92)}}
+.hoi .ic{font-size:34px;line-height:1}.hoi p{margin:10px 0 18px;font-size:16px;line-height:1.55;white-space:pre-line}
+.hoi textarea{width:100%;box-sizing:border-box;font:14px/1.5 ui-monospace,monospace;border:1.5px solid #E2DDF0;border-radius:10px;padding:10px;margin:-6px 0 14px;resize:vertical}
+.hoi .nut{display:flex;gap:10px;justify-content:center}.hoi .nut button{flex:1 1 0;min-height:46px;border-radius:999px;font-weight:700;font-size:15px;padding:8px 16px;border:1.5px solid #CFC8E3;background:#fff;color:#4A4560}
+.hoi .nut .ok{background:#4A2C8F;border-color:#4A2C8F;color:#fff}.hoi .nut .ok.nguy{background:#C8102E;border-color:#C8102E}
+
 .snXem>p{flex:none;color:#F3E6F0;font-size:13.5px;margin:8px 0 0;text-align:center;max-width:420px}
 @media print{html.in-sn .snXem{display:none!important}}
 nav.bot button.them-nut{position:relative}
@@ -940,6 +949,18 @@ function api(fn,...a){return new Promise((res,rej)=>{if(!(window.google&&google.
 let busyN=0;
 function busy(on,txt){busyN+=on?1:-1;if(busyN<0)busyN=0;$('loader').classList.toggle('on',busyN>0);if(on)$('loadTxt').textContent=txt||'Đang xử lý…'}
 function toast(m,isErr){const t=$('toast');t.textContent=m;t.className='toast'+(isErr?' err':'');t.style.display='block';clearTimeout(window._t);window._t=setTimeout(()=>t.style.display='none',isErr?4200:2400)}
+/* Hộp hỏi / thông báo của trang (thay confirm/prompt/alert của trình duyệt – trong Zalo, iframe Apps Script hộp trình duyệt hiện tên miền lạ hoặc bị chặn) */
+function hoi_(msg,o){o=o||{};return new Promise(xong=>{const cu=document.activeElement,w=document.createElement('div');w.className='hoiNen';
+ w.innerHTML=`<div class="hoi" role="alertdialog" aria-modal="true" aria-labelledby="hoiT"><div class="ic" aria-hidden="true">${o.nguy?'🗑️':'💬'}</div><p id="hoiT"></p><div class="nut">${o.chiOk?'':`<button class="huy">${esc(o.huy||'Huỷ')}</button>`}<button class="ok${o.nguy?' nguy':''}">${esc(o.ok||'Đồng ý')}</button></div></div>`;
+ w.querySelector('#hoiT').textContent=msg;
+ const dong=v=>{removeEventListener('keydown',ph,true);w.classList.add('di');setTimeout(()=>w.remove(),160);try{cu&&cu.focus&&cu.focus()}catch(e){}xong(v)},ph=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();dong(!!o.chiOk)}else if(e.key==='Enter'&&!/TEXTAREA/.test((e.target||{}).tagName||'')){e.preventDefault();dong(true)}};
+ w.querySelector('.ok').onclick=()=>dong(true);const h=w.querySelector('.huy');if(h)h.onclick=()=>dong(false);w.onclick=e=>{if(e.target===w)dong(!!o.chiOk)};
+ addEventListener('keydown',ph,true);document.body.appendChild(w);setTimeout(()=>w.querySelector('.ok').focus(),30)})}
+function baoTin_(msg,ok){return hoi_(msg,{chiOk:1,ok:ok||'Đã hiểu'})}
+function hopChep_(t,tieu){const w=document.createElement('div');w.className='hoiNen';w.innerHTML=`<div class="hoi rong" role="dialog" aria-modal="true"><div class="ic" aria-hidden="true">📋</div><p></p><textarea readonly rows="8"></textarea><div class="nut"><button class="huy">Đóng</button><button class="ok">Sao chép</button></div></div>`;
+ w.querySelector('p').textContent=tieu||'Sao chép nội dung';const ta=w.querySelector('textarea');ta.value=t;const ph=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();dong()}},dong=()=>{removeEventListener('keydown',ph,true);w.remove()};addEventListener('keydown',ph,true);
+ w.querySelector('.huy').onclick=dong;w.onclick=e=>{if(e.target===w)dong()};w.querySelector('.ok').onclick=()=>{ta.focus();ta.select();try{document.execCommand('copy');toast('Đã sao chép')}catch(e){toast('Bấm giữ vào ô chữ để sao chép')}};
+ document.body.appendChild(w);setTimeout(()=>{ta.focus();ta.select()},30)}
 function err(e){let m=(e&&e.message)||String(e);if(m.indexOf('SESSION:')>=0){m=m.split('SESSION:').pop().trim();localLogout()}m=m.replace(/^(Error|Exception):\s*/,'');toast(m,1)}
 function readImg(file,max){max=max||1600;return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.85))};im.onerror=()=>rej(new Error('Không đọc được ảnh '+file.name));im.src=fr.result};fr.onerror=()=>rej(new Error('Không đọc được tệp'));fr.readAsDataURL(file)})}
 
@@ -1526,7 +1547,7 @@ function closeForm(){$('modal').classList.remove('on');FORM=null}
 async function submitForm(){if(!FORM)return;const o={},files={};
  for(const f of FORM.fields){const el=$('f_'+f.k);if(f.t==='file'){files[f.k]=[...el.files];continue}o[f.k]=el.value.trim();if(f.req&&!o[f.k])return toast('Vui lòng nhập: '+f.l,1)}
  try{busy(1);await FORM.onSave(o,files);closeForm();await refresh()}catch(e){err(e)}finally{busy(0)}}
-async function act(fn,msg,ok){if(msg&&!confirm(msg))return;try{busy(1);await fn();if(ok)toast(ok);await refresh()}catch(e){err(e)}finally{busy(0)}}
+async function act(fn,msg,ok){if(msg){const ng=/xo[áa]/i.test(msg);if(!(await hoi_(msg,{nguy:ng,ok:ng?'Xoá':'Đồng ý'})))return}try{busy(1);await fn();if(ok)toast(ok);await refresh()}catch(e){err(e)}finally{busy(0)}}
 
 /* ===================== QUẢN TRỊ ===================== */
 const AT_S=['Tổng quan','Thống kê','Lớp và admin lớp','Học sinh','Hoạt động','Thầy cô','Lưu bút','Hình ảnh','Kết nối','Đăng ký họp lớp','Thư ngỏ & Gala','Nhà tài trợ','Cài đặt','Tài khoản của tôi'];
@@ -1682,13 +1703,13 @@ function fClass(id){const l=id?A.lop.find(x=>x.id===id):{thuTu:String(A.lop.leng
 const PW_WORDS=['phuongvi','aotrang','luubut','tiengve','bangden','phantrang','trongtruong','hoctro','santruong','muctim','hanhlang','gheda'];
 const easyPw=()=>PW_WORDS[Math.floor(Math.random()*PW_WORDS.length)]+'-'+(1000+Math.floor(Math.random()*9000));
 const lopUser=t=>'lop'+String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
-async function autoAdmins(){if(!confirm('Tạo tài khoản admin cho tất cả các lớp chưa có admin?\nTên đăng nhập theo lớp (ví dụ lop12_1), mật khẩu dễ nhớ. Mật khẩu chỉ hiện một lần.'))return;
+async function autoAdmins(){if(!(await hoi_('Tạo tài khoản admin cho tất cả các lớp chưa có admin?\nTên đăng nhập theo lớp (ví dụ lop12_1), mật khẩu dễ nhớ. Mật khẩu chỉ hiện một lần.',{ok:'Tạo tài khoản'})))return;
  try{busy(1,'Đang tạo tài khoản…');const r=await api('autoCreateClassAdmins',TOK);await refresh();if(!r.length)return toast('Lớp nào cũng đã có admin');
   window._adTxt='Tài khoản admin lớp – khoá '+D.cfg.nienKhoa+'\n'+r.map(x=>'Lớp '+x.lop+': tên đăng nhập '+x.user+' · mật khẩu '+x.pw).join('\n');
   const td='style="padding:7px 8px;border-bottom:1px solid #eee"';
   $('mBody').innerHTML=`<h3>Đã tạo ${r.length} tài khoản</h3><p class="who" style="margin-bottom:10px">Mật khẩu chỉ hiện lần này. Sao chép gửi cho từng admin lớp, nhắc họ đổi mật khẩu sau khi đăng nhập.</p><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:15px"><tr><th ${td}>Lớp</th><th ${td}>Tên đăng nhập</th><th ${td}>Mật khẩu</th></tr>${r.map(x=>`<tr><td ${td}><b>${esc(x.lop)}</b></td><td ${td}><code>${esc(x.user)}</code></td><td ${td}><code>${esc(x.pw)}</code></td></tr>`).join('')}</table></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px"><button class="btn2 o" onclick="copyAd()">Sao chép tất cả</button><button class="btn2" onclick="closeForm()">Xong</button></div>`;
   $('modal').classList.add('on')}catch(e){err(e)}finally{busy(0)}}
-function copyAd(){const t=window._adTxt||'';const fb=()=>prompt('Sao chép danh sách tài khoản:',t);try{navigator.clipboard.writeText(t).then(()=>toast('Đã sao chép danh sách'),fb)}catch(e){fb()}}
+function copyAd(){const t=window._adTxt||'';const fb=()=>hopChep_(t,'Sao chép danh sách tài khoản');try{navigator.clipboard.writeText(t).then(()=>toast('Đã sao chép danh sách'),fb)}catch(e){fb()}}
 function fAdmin(lopId){const l=A.lop.find(x=>x.id===lopId),has=!!l.adminUser;
  form('Admin lớp '+l.ten,[{k:'hoTen',l:'Họ tên admin',req:1,ph:'Ví dụ: Nguyễn Văn An'},{k:'user',l:'Tên đăng nhập',req:1,hint:'Chữ thường không dấu, số, dấu _ hoặc .'},{k:'lienHe',l:'Số điện thoại (tuỳ chọn)',t:'tel',ph:'Ví dụ: 0905 123 456',hint:'Để trống nếu chưa có. Số này hiện trong danh bạ admin trang Kết nối.'},{k:'pw',l:has?'Mật khẩu mới (để trống nếu giữ nguyên)':'Mật khẩu',req:!has,hint:has?'Từ 6 ký tự. Gửi cho admin lớp và nhắc họ đổi lại.':'Mật khẩu gợi ý dễ nhớ, có thể sửa. Gửi cho admin lớp và nhắc họ đổi lại.'}],
  {hoTen:l.admin||('Admin lớp '+l.ten),user:l.adminUser||lopUser(l.ten),lienHe:l.adminLienHe||'',pw:has?'':easyPw()},
@@ -1717,7 +1738,7 @@ async function upPhotos(){const files=[...$('upF').files];if(!files.length)retur
  const worker=async()=>{while(next<files.length)await send(next++)};
  try{busy(1,'Đang tải ảnh…');while(next<files.length&&!ok)await send(next++);await Promise.all(Array.from({length:Math.min(2,files.length-next)},worker));if(ok)await refresh();if(failed.length)toast(`Đã tải ${ok}/${files.length} ảnh. Lỗi: ${failed[0].name} (${(failed[0].error&&failed[0].error.message)||'không rõ'})`,1);else toast('Đã tải lên '+ok+' ảnh')}
  catch(e){err(e)}finally{busy(0)}}
-async function demoData(fn){if(fn==='clearDemo'&&!confirm('Xoá toàn bộ dữ liệu mẫu?'))return;try{busy(1,fn==='seedDemo'?'Đang nạp dữ liệu mẫu…':'Đang xoá dữ liệu mẫu…');const m=await api(fn,TOK);await refresh();toast(m)}catch(e){err(e)}finally{busy(0)}}
+async function demoData(fn){if(fn==='clearDemo'&&!(await hoi_('Xoá toàn bộ dữ liệu mẫu?',{nguy:1,ok:'Xoá'})))return;try{busy(1,fn==='seedDemo'?'Đang nạp dữ liệu mẫu…':'Đang xoá dữ liệu mẫu…');const m=await api(fn,TOK);await refresh();toast(m)}catch(e){err(e)}finally{busy(0)}}
 async function dongBoAnh(){try{busy(1,'Đang đọc các thư mục ảnh trên Drive…');const m=await api('dongBoAnhDrive',TOK);await refresh();toast(m)}catch(e){err(e)}finally{busy(0)}}
 function docPopup(k){const v=id=>$(id)?$(id).value.trim():'';
  if(k==='thuNgo'){const o={ey:v('pt_ey'),t1:v('pt_t1'),t2:v('pt_t2'),mo:v('pt_mo'),doan:v('pt_doan'),hen:v('pt_hen'),gio:v('pt_gio'),ngay:v('pt_ngay'),ky:v('pt_ky'),kyTen:v('pt_kyTen')};
@@ -1730,15 +1751,16 @@ function ttForm_(){const hg=i=>`<select onchange="TTE[${i}].hang=+this.value">${
  const o=(i,k,ph)=>`<input value="${esc(TTE[i][k]||'')}" placeholder="${ph}" oninput="TTE[${i}].${k}=this.value">`;
  return `<div class="ttHd"><b>Cách cập nhật</b><ol><li>Bấm <b>+ Thêm nhà tài trợ</b>, chọn <b>hạng</b> (Kim cương, Vàng, Bạc, Đồng, Đồng hành), gõ <b>tên</b> và <b>lời cảm ơn / phần đóng góp</b>.</li><li><b>Logo</b> (không bắt buộc): tải ảnh logo lên Google Drive, bấm Chia sẻ → “Bất kỳ ai có đường liên kết”, rồi dán link vào ô Logo. Không có logo thì trang tự hiện chữ viết tắt.</li><li><b>Liên hệ</b> (không bắt buộc): số điện thoại/Zalo hoặc địa chỉ website.</li><li>Dùng ↑ ↓ để xếp thứ tự trong cùng hạng, ✕ để xoá. Bấm <b>Xem thử</b> để xem popup, rồi <b>Lưu</b>. Mọi người thấy ngay khi bấm sang trang khác hoặc mở lại trang.</li></ol><small>Hạng Đồng hành chỉ hiện tên (hợp với lớp, gia đình, cá nhân góp sức). Chưa có ai thì nút “Nhà tài trợ” vẫn hiện, popup ghi “đang cập nhật”.</small></div>
  <div class="ttBang">${TTE.length?TTE.map((x,i)=>`<div class="ttDong"><span class="so">${i+1}</span>${hg(i)}${o(i,'ten','Tên nhà tài trợ *')}${o(i,'loi','Lời cảm ơn / đóng góp')}${o(i,'logo','Link logo trên Drive')}${o(i,'lh','Điện thoại hoặc website')}<span class="nut"><button title="Lên" onclick="ttDoi(${i},-1)">↑</button><button title="Xuống" onclick="ttDoi(${i},1)">↓</button><button title="Xoá" class="xoa" onclick="ttXoa(${i})">✕</button></span></div>`).join(''):'<p class="who">Chưa có nhà tài trợ nào. Bấm “+ Thêm nhà tài trợ” hoặc “Điền mẫu”.</p>'}</div>
- <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn2 o" onclick="ttThem()">+ Thêm nhà tài trợ</button><button class="btn2 o" onclick="xemTT()">Xem thử</button><button class="btn2 o" onclick="if(!TTE.length||confirm('Thay danh sách hiện tại bằng danh sách mẫu?')){TTE=ttDs(TT_MAU);renderAdmin()}">Điền mẫu</button><button class="btn2" onclick="luuTT()">Lưu nhà tài trợ</button></div>`}
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn2 o" onclick="ttThem()">+ Thêm nhà tài trợ</button><button class="btn2 o" onclick="xemTT()">Xem thử</button><button class="btn2 o" onclick="ttMau()">Điền mẫu</button><button class="btn2" onclick="luuTT()">Lưu nhà tài trợ</button></div>`}
 function ttVan_(){return TTE.filter(x=>String(x.ten||'').trim()).map(x=>[TT_HANG[x.hang]?TT_HANG[x.hang][0]:'Đồng hành',x.ten,x.loi,x.logo,x.lh].map(v=>String(v||'').replace(/[|\n]+/g,' ').trim()).join(' | ')).join('\n')}
 function ttThem(){TTE.push({hang:1,ten:'',loi:'',logo:'',lh:''});renderAdmin();setTimeout(()=>{const a=document.querySelectorAll('.ttDong input');if(a.length)a[a.length-4].focus()},50)}
-function ttXoa(i){if(confirm('Xoá “'+(TTE[i].ten||'dòng này')+'”?')){TTE.splice(i,1);renderAdmin()}}
+async function ttMau(){if(!TTE.length||await hoi_('Thay danh sách hiện tại bằng danh sách mẫu?',{ok:'Thay bằng mẫu'})){TTE=ttDs(TT_MAU);renderAdmin()}}
+async function ttXoa(i){if(await hoi_('Xoá “'+(TTE[i].ten||'dòng này')+'”?',{nguy:1,ok:'Xoá'})){TTE.splice(i,1);renderAdmin()}}
 function ttDoi(i,d){const j=i+d;if(j<0||j>=TTE.length)return;[TTE[i],TTE[j]]=[TTE[j],TTE[i]];renderAdmin()}
 function luuTT(){const v=ttVan_();act(()=>api('saveConfig',TOK,{taiTro:v}).then(r=>{D.cfg.taiTro=v;renderPublic();return r}),'','Đã lưu danh sách nhà tài trợ')}
 function xemTT(){const g=D.cfg.taiTro;D.cfg.taiTro=ttVan_()||' ';try{moTT()}finally{D.cfg.taiTro=g}}
 function luuPopup(k){const o={};o[k]=docPopup(k);act(()=>api('saveConfig',TOK,o),'','Đã lưu. Mở lại trang là mọi người thấy nội dung mới')}
-function macDinhPopup(k){if(!confirm('Đưa phần này về nội dung mặc định?'))return;const o={};o[k]='';act(()=>api('saveConfig',TOK,o),'','Đã đưa về mặc định')}
+async function macDinhPopup(k){if(!(await hoi_('Đưa phần này về nội dung mặc định?',{ok:'Về mặc định'})))return;const o={};o[k]='';act(()=>api('saveConfig',TOK,o),'','Đã đưa về mặc định')}
 function xemPopup(w){const giu=D.cfg;D.cfg=Object.assign({},giu,{thuNgo:docPopup('thuNgo'),giayMoi:docPopup('giayMoi'),keHoach:docPopup('keHoach')});
  try{if(w==='thu')moThu();else if(w==='gm')moGiayMoi();else moKeHoach()}finally{D.cfg=giu}}
 function chepDk(){const S=isS(),lopX=S?dkL:A.me.lopId,l=A.dangKy.filter(x=>(!lopX||x.lopId===lopX)&&(dkF==='all'||x.trangThai===dkF));
