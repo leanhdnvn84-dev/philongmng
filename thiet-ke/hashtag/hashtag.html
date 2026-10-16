@@ -1,0 +1,44 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Hashtag Gala Nguyễn Hiền 2000–2003</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&family=Dancing+Script:wght@700&family=Pangolin&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{background:#FBF6EC;font-family:'Be Vietnam Pro',sans-serif;color:#2B1D18}
+.to{width:210mm;min-height:297mm;padding:12mm 11mm;position:relative;overflow:hidden;background:radial-gradient(90mm 70mm at 0 0,#FFE1E6,transparent 70%),radial-gradient(90mm 80mm at 100% 100%,#EFE2FA,transparent 70%),#FBF6EC}
+.dau{text-align:center;margin-bottom:7mm}
+.dau small{font-weight:700;letter-spacing:.3em;font-size:3mm;color:#7A5A2A;text-transform:uppercase}
+.dau h1{font:700 15mm/1 'Dancing Script',cursive;color:#B3261E;margin-top:2mm}
+.dau p{font-size:3.6mm;color:#6B5A4E;margin-top:2mm}
+.luoi{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}
+.tag{position:relative;border-radius:5mm;padding:6mm 4mm 5mm;min-height:44mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;box-shadow:0 1.2mm 0 rgba(0,0,0,.18);transform:rotate(var(--r));overflow:hidden}
+.tag:before{content:'';position:absolute;top:-3mm;left:50%;width:18mm;height:6mm;background:rgba(255,255,255,.55);transform:translateX(-50%) rotate(-3deg)}
+.tag .e{font-size:10mm;line-height:1}
+.tag b{display:block;white-space:nowrap;font:900 5.3mm/1.12 'Be Vietnam Pro',sans-serif;margin-top:2.5mm;word-break:break-word;letter-spacing:-.01em}
+.tag b i{font-style:normal;opacity:.75}
+.tag span{display:block;font:400 3.7mm/1.25 'Pangolin',cursive;margin-top:2mm;opacity:.95}
+.chan{text-align:center;margin-top:7mm;font-size:3.2mm;color:#7A6478}
+.chan b{color:#B3261E}
+</style></head><body><div class="to" id="to">
+<div class="dau"><small>Gala gặp mặt · THPT Nguyễn Hiền · Khoá 2000 – 2003 · 14/11/2026</small><h1>15 hashtag ngộ ngộ</h1><p>Đăng ảnh nhớ gắn hashtag nha cả nhà – cắt ra làm bảng cầm chụp hình cũng được!</p></div>
+<div class="luoi" id="luoi"></div>
+<div class="chan">Hashtag chính: <b>#VeDiBanOi</b> · <b>#NguyenHien0003</b> — xem lại ảnh tại nguyenhien.philong.cloud</div>
+</div>
+<script>
+const T=[
+['💌','VeDiBanOi','Lời gọi chính thức, không nhận lý do vắng','#C8102E'],
+['🏫','NguyenHien|0003','Hashtag “gia phả” của cả khoá','#4A2C8F'],
+['🎒','23NamVanLa|Lop12','Tóc có bạc, tâm hồn vẫn lớp 12','#D63A6E'],
+['🍻','BiaRuou|DaMoi','Đội năng nổ đăng ký ở đây','#C77D12'],
+['📋','DiemDanh|KhongVang','Ai trốn sẽ bị réo tên lên bảng','#2E7D5B'],
+['🌺','GocPhuong|NamAy','Nơi hẹn hò, nơi chép bài, nơi trốn tiết','#E8412C'],
+['🪑','ChoNgoiCu|BanCu','Ngồi lại đúng bàn năm xưa nha','#3B6FB6'],
+['🤰','BungTo|TinhVanDay','Vòng bụng tăng, tình bạn tăng hơn','#8E3FB8'],
+['🧓','BanCuChua|BaoGioCu','Chỉ có tóc là cũ thôi','#B5651D'],
+['🔁','TroLaiTuoi17','Tối nay không ai quá 17 tuổi','#0F8B8D'],
+['✏️','LuuButChua|KhoMuc','Viết tiếp trang còn dang dở','#5B2A86'],
+['🙈','KhongAiBiGoi|LenBang','Bài cũ khỏi kiểm tra, chỉ kiểm tra tửu lượng','#D35400'],
+['📸','ChupGiNho|GanTag','Ảnh không hashtag coi như chưa đi','#1F7A8C'],
+['🧑‍🏫','ThayCoOi|TroVeRoi','Học trò cũ xin trình diện','#A61E4D'],
+['🗓️','Hen14Thang11','Nhớ khoanh lịch đỏ chót','#B3261E']];
+const rot=[-2,1.5,-1,2,-1.5,1,-2.5,1.5,-1,2,-1.5,1,-2,1.5,-1];
+document.getElementById('luoi').innerHTML=T.map((t,i)=>`<div class="tag" style="background:${t[3]};--r:${rot[i]}deg"><div class="e">${t[0]}</div><b><i>#</i>${t[1].replace('|','<br>')}</b><span>${t[2]}</span></div>`).join('');
+</script></body></html>
