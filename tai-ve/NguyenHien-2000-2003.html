@@ -897,6 +897,34 @@ nav.bot button.them-nut{position:relative}
 @media(max-width:900px){.g nav button{padding:8px 6px;font-size:13.5px}}
 @media(max-width:760px){.p-cls .tabs{flex-wrap:wrap;overflow-x:visible;gap:2px 0}.p-cls .tabs button{padding:8px 10px}.p-sn{padding:24px 16px 60px}.sn-thang{grid-template-columns:repeat(6,1fr)}.sn-loc select{flex:1 1 100%}.sn-ds{grid-template-columns:1fr}nav.bot button{font-size:11.5px;padding:7px 0 9px;min-height:56px}nav.bot svg{width:23px;height:23px}}
 @media(max-width:360px){nav.bot button{font-size:10.5px}}
+/* Các lớp sinh động: nhãn vở dán băng dính, nghiêng nhẹ, gương mặt chữ cái, thanh nam/nữ, chip số liệu */
+.p-cls .cls-dau{display:flex;justify-content:space-between;align-items:flex-end;gap:6px 16px;flex-wrap:wrap}
+.p-cls .cls-dau .but{display:inline-block;font-size:24px;animation:but 3s ease-in-out infinite;transform-origin:20% 80%}
+@keyframes but{0%,100%{transform:rotate(0)}50%{transform:rotate(-14deg) translateX(-3px)}}
+.p-cls .cls-so{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.p-cls .cls-so>div{background:#fff;border:2px dashed var(--vien);border-radius:14px;padding:6px 14px;text-align:center;min-width:78px;transform:rotate(-1deg)}.p-cls .cls-so>div:nth-child(2n){transform:rotate(1.2deg)}
+.p-cls .cls-so b{display:block;font:400 28px/1.05 'Patrick Hand',cursive;color:var(--muc)}.p-cls .cls-so span{font-size:13.5px;color:var(--mo)}
+.p-cls .cls-so .dk{border-color:#2E9E6B;background:#EFFAF3}.p-cls .cls-so .dk b{color:#1F7A4F}
+.p-cls .labels{gap:24px 18px;padding-top:8px}
+.nhan.song{position:relative;transform:rotate(var(--r));animation:nhanVao .5s ease both;animation-delay:var(--d);transition:transform .2s,box-shadow .2s;padding-bottom:30px}
+@keyframes nhanVao{from{opacity:0;transform:translateY(14px) rotate(var(--r))}}
+.nhan.song:hover,.nhan.song:focus-visible{transform:translateY(-5px) rotate(0) scale(1.02);box-shadow:0 0 0 5px #fff,0 0 0 7px var(--c),0 14px 26px rgba(40,30,90,.18)}
+.nhan.song .bang{position:absolute;top:-12px;left:50%;width:64px;height:20px;transform:translateX(-50%) rotate(-3deg);background:var(--c);opacity:.35;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.nhan.song .mat{display:flex;justify-content:center;margin:2px 0 6px}
+.nhan.song .mat b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 14px/1 'Be Vietnam Pro',sans-serif;color:#fff;border:2px solid #fff;margin-left:-7px;background:#5B7FD6}.nhan.song .mat b:first-child{margin-left:0}
+.nhan.song .mat b.nu{background:#E0628E}.nhan.song .mat b.them{background:#EDEAF6;color:var(--muc);font-size:13px;width:auto;min-width:28px;padding:0 6px;border-radius:14px}
+.nhan.song .ln em small{font-family:'Be Vietnam Pro',sans-serif;font-size:13px;color:var(--mo)}
+.nhan.song .gtb{height:6px;border-radius:3px;background:#E0628E;margin:7px 0 2px;overflow:hidden}.nhan.song .gtb i{display:block;height:100%;background:#5B7FD6}
+.nhan.song .chip{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.nhan.song .chip span{font-size:13px;background:#F4F2FB;color:#4A4560;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.nhan.song .chip .dk{background:#E6F6EC;color:#1F7A4F;font-weight:700}
+.nhan.song .cmsn{position:absolute;top:-13px;right:-8px;z-index:1;background:linear-gradient(135deg,#D63A6E,#8E3FB8);color:#fff;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;box-shadow:0 3px 8px rgba(142,63,184,.35);animation:cmsn 1.6s ease-in-out infinite}
+@keyframes cmsn{50%{transform:scale(1.08) rotate(4deg)}}
+.nhan.song .vao{position:absolute;right:12px;bottom:7px;font-size:13.5px;font-weight:700;color:var(--c);opacity:0;transform:translateX(-6px);transition:.2s}
+.nhan.song:hover .vao,.nhan.song:focus-visible .vao{opacity:1;transform:none}
+@media(hover:none){.nhan.song .vao{opacity:.85;transform:none}}
+@media(max-width:760px){.p-cls .cls-so{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;width:100%}.p-cls .cls-so>div{min-width:0;padding:5px 3px}.p-cls .cls-so b{font-size:24px}.p-cls .cls-so span{font-size:13px;line-height:1.2;display:block}}
+@media (prefers-reduced-motion:reduce){.nhan.song,.nhan.song .cmsn,.p-cls .cls-dau .but{animation:none}}
 </style>
 </head>
 <body data-p="home">
@@ -930,7 +958,8 @@ nav.bot button.them-nut{position:relative}
   <p class="empty">Chưa có ảnh nào.</p></div>
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three"><article><b>Kết nối cả khoá</b><p>Tìm bạn cũ theo tên, xem bạn bè đang ở đâu và liên hệ admin từng lớp.</p><button onclick="go('connect')">Mở trang Kết nối</button></article><article><b>Kỷ yếu đang chờ lưu bút đầu tiên</b><p>Viết vài dòng cho bạn bè, thầy cô hay chính mình năm 18 tuổi.</p><button onclick="ybT=3;go('yearbook')">Viết lưu bút</button></article><article><b>Bảng ảnh còn trống</b><p>Admin mỗi lớp có thể tải ảnh tập thể, giao lưu, họp lớp lên.</p><button onclick="go('gallery')">Mở bảng ảnh</button></article></div></div>
  <div class="quote"><p>“Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.”</p><small>Lưu bút của một bạn khoá 2000 – 2003</small></div></section>
-  <section class="view p-cls" id="v-classes"><h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
+  <section class="view p-cls" id="v-classes"><div class="cls-dau"><div><h2>Danh sách các lớp <span class="but" aria-hidden="true">✏️</span></h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p></div>
+ <div class="cls-so"><div><b>0</b><span>lớp</span></div><div><b>0</b><span>gương mặt</span></div><div><b>0</b><span>thầy cô</span></div></div></div>
  <div class="top-cls"><div class="nhoai" style="display: none;"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"></div><div class="labels" id="clsGrid"><p class="empty">Chưa có lớp nào.</p></div></section>
   <section class="view p-ev" id="v-events"><div class="hero"><div class="w"><div><div class="ey">Ngoại khoá · Khoá 2000 – 2003</div><div class="yr">2000–2003</div><h1>Ba năm, một dòng sông, và những buổi chiều không muốn về</h1><p>Đêm văn nghệ đầu tiên run tay cầm micro. Hội trại 26/3 thức trắng bên đống lửa. Trận bóng Phù Đổng khản cổ cổ vũ. Rồi một chiều tháng Năm, cả khoá đứng hát “Mong ước kỷ niệm xưa” mà chẳng ai hát tròn câu.</p>
@@ -1477,11 +1506,23 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('snNen')
 /* ===================== CÁC LỚP ===================== */
 let clsQ='',curCls=null,cT=0,cV='so';
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
- return `<${T} class="nhan" style="--c:${col(i)}" ${st?'':`onclick="openCls('${c.id}')"`}><div class="t">Nhãn vở</div><div class="lop">Lớp ${esc(c.ten)}</div>
- <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>${hit?`<div class="hit">Có: ${hit}</div>`:''}</${T}>`}
+ if(st)return `<${T} class="nhan" style="--c:${col(i)}"><div class="t">Nhãn vở</div><div class="lop">Lớp ${esc(c.ten)}</div>
+ <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div></${T}>`;
+ const nu=c.hs.filter(x=>hsLaNu_(x.nu)).length,coGt=c.hs.some(x=>String(x.nu||'').trim()!==''),anh=(D.anh||[]).filter(a=>a.lopId===c.id).length,lb=(D.luuBut||[]).filter(n=>n.lopId===c.id).length,dk=((D.dangKy||{}).theoLop||{})[c.id]||0;
+ const sn=snDs(c.id),snNay=sn.filter(x=>x.con===0),th=new Date().getMonth()+1,snThangNay=sn.filter(x=>x.n.m===th).length;
+ const mat=c.hs.slice(0,5);
+ return `<${T} class="nhan song" style="--c:${col(i)};--r:${((i*37)%5-2)*.45}deg;--d:${(i*.05).toFixed(2)}s" onclick="openCls('${c.id}')">${snNay.length?`<span class="cmsn" title="Hôm nay sinh nhật">🎂 ${snNay.length>1?snNay.length+' bạn':'Sinh nhật'}</span>`:''}<i class="bang" aria-hidden="true"></i>
+ <div class="lop">Lớp ${esc(c.ten)}</div>
+ ${mat.length?`<div class="mat" aria-hidden="true">${mat.map(x=>`<b class="${hsLaNu_(x.nu)?'nu':'nam'}">${esc((tachTen(x.hoTen).t||'?').charAt(0))}</b>`).join('')}${c.hs.length>5?`<b class="them">+${c.hs.length-5}</b>`:''}</div>`:''}
+ <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn${coGt?` <small>· ${c.hs.length-nu} nam · ${nu} nữ</small>`:''}</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>
+ ${coGt&&c.hs.length?`<div class="gtb" aria-hidden="true"><i style="width:${Math.round((c.hs.length-nu)/c.hs.length*100)}%"></i></div>`:''}
+ <div class="chip">${dk?`<span class="dk">✅ ${dk} đi Gala</span>`:''}<span>📷 ${anh} ảnh</span><span>✍️ ${lb} lưu bút</span>${snThangNay?`<span>🎂 ${snThangNay} SN tháng ${th}</span>`:''}</div>
+ ${hit?`<div class="hit">Có: ${hit}</div>`:''}<span class="vao">Vào lớp →</span></${T}>`}
 function openCls(id){cT=0;cV='so';const lc=D.lop.find(l=>l.id===id);if(lc)tk('lop',lc.ten);if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
- el.innerHTML=`<h2>Danh sách các lớp</h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p>
+ const tHs=D.lop.reduce((a,l)=>a+l.hs.length,0),tDk=(D.dangKy||{}).tong||0;
+ el.innerHTML=`<div class="cls-dau"><div><h2>Danh sách các lớp <span class="but" aria-hidden="true">✏️</span></h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p></div>
+ <div class="cls-so"><div><b>${D.lop.length}</b><span>lớp</span></div><div><b>${tHs}</b><span>gương mặt</span></div><div><b>${(D.thayCo||[]).length}</b><span>thầy cô</span></div>${tDk?`<div class="dk"><b>${tDk}</b><span>đã đăng ký Gala</span></div>`:''}</div></div>
  <div class="top-cls"><div class="nhoai"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="${esc(clsQ)}" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"></div><div class="labels" id="clsGrid"></div>`;drawLabels();nhoAi()}
 function nhoAi(){const el=$('nhoAi');if(!el)return;const all=[];D.lop.forEach(c=>c.hs.forEach(s=>all.push({s,c})));if(!all.length){el.parentNode.style.display='none';return}
