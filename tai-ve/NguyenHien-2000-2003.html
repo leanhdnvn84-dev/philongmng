@@ -264,7 +264,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-cls .top-cls{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
 .p-cls .top-cls .nhoai{flex:1 1 520px;margin:0}.p-cls .top-cls .search{flex:0 1 400px;margin:0}
 .p-cls .labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
-@media(min-width:1100px){.p-cls .labels{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}}
+@media(min-width:900px){.p-cls .labels{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}}
 .nhan{background:#fff;border:2px solid var(--muc);border-radius:18px;padding:10px 14px 8px;cursor:pointer;text-align:left;width:100%;color:inherit;box-shadow:0 0 0 5px #fff,0 0 0 7px var(--c);transition:transform .15s}
 .nhan:hover{transform:rotate(-1deg)}
 .p-cls .labels .nhan .t{display:none}
@@ -904,7 +904,6 @@ nav.bot button.them-nut{position:relative}
 .p-cls .cls-so{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .p-cls .cls-so>div{background:#fff;border:2px dashed var(--vien);border-radius:14px;padding:6px 14px;text-align:center;min-width:78px;transform:rotate(-1deg)}.p-cls .cls-so>div:nth-child(2n){transform:rotate(1.2deg)}
 .p-cls .cls-so b{display:block;font:400 28px/1.05 'Patrick Hand',cursive;color:var(--muc)}.p-cls .cls-so span{font-size:13.5px;color:var(--mo)}
-.p-cls .cls-so .dk{border-color:#2E9E6B;background:#EFFAF3}.p-cls .cls-so .dk b{color:#1F7A4F}
 .p-cls .labels{gap:24px 18px;padding-top:8px}
 .nhan.song{position:relative;transform:rotate(var(--r));animation:nhanVao .5s ease both;animation-delay:var(--d);transition:transform .2s,box-shadow .2s;padding-bottom:30px}
 @keyframes nhanVao{from{opacity:0;transform:translateY(14px) rotate(var(--r))}}
@@ -917,7 +916,6 @@ nav.bot button.them-nut{position:relative}
 .nhan.song .gtb{height:6px;border-radius:3px;background:#E0628E;margin:7px 0 2px;overflow:hidden}.nhan.song .gtb i{display:block;height:100%;background:#5B7FD6}
 .nhan.song .chip{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .nhan.song .chip span{font-size:13px;background:#F4F2FB;color:#4A4560;border-radius:999px;padding:2px 8px;white-space:nowrap}
-.nhan.song .chip .dk{background:#E6F6EC;color:#1F7A4F;font-weight:700}
 .nhan.song .cmsn{position:absolute;top:-13px;right:-8px;z-index:1;background:linear-gradient(135deg,#D63A6E,#8E3FB8);color:#fff;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;box-shadow:0 3px 8px rgba(142,63,184,.35);animation:cmsn 1.6s ease-in-out infinite}
 @keyframes cmsn{50%{transform:scale(1.08) rotate(4deg)}}
 .nhan.song .vao{position:absolute;right:12px;bottom:7px;font-size:13.5px;font-weight:700;color:var(--c);opacity:0;transform:translateX(-6px);transition:.2s}
@@ -1079,7 +1077,7 @@ function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}
  $('navThemHop').innerHTML='<b>Các trang khác</b>'+NAV_THEM.map(k=>`<button data-k="${k}" onclick="menu('${k}')">${navSvg(k)}${navTen(k)}</button>`).join('')}
 function moThem(){$('navThem').classList.add('on')}
 function dongThem(){const e=$('navThem');if(e)e.classList.remove('on')}
-function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));if(k==='home')vuaHero_();
+function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));if(k==='home')vuaHero_();if(k==='classes')vuaLop_();
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});if($('nbThem'))$('nbThem').classList.toggle('on',NAV_THEM.indexOf(k)>=0);
  if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='birthday')renderSn();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0);if(k!=='admin')taiMoi()}
 
@@ -1424,7 +1422,7 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'));danhDauLbDai();vuaHero_()}
 /* Trang chủ máy tính: khung đầu luôn vừa 1 màn hình – nội dung dài (thêm nút sinh nhật, đoạn mở đầu dài, màn thấp) thì thu nhỏ đều cả khối chữ cho vừa */
 function vuaHero_(){const l=document.querySelector('#v-home .hero .l');if(!l)return;const hr=l.parentElement,hd=document.querySelector('header.g');l.style.zoom='';hr.style.height=hr.style.minHeight='';if(innerWidth<=760)return;if(hd)hr.style.height=hr.style.minHeight=Math.max(420,innerHeight-hd.offsetHeight)+'px';const cao=()=>Math.max(...[...l.children].map(e=>e.getBoundingClientRect().bottom))-hr.getBoundingClientRect().top,toi=hr.clientHeight-40;if(cao()<=toi)return;let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;l.style.zoom=m;if(cao()<=toi)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){l.style.zoom=m;if(cao()<=toi)a=m}l.style.zoom=a.toFixed(3)}
-addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(vuaHero_,150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>vuaHero_());
+addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(()=>{vuaHero_();vuaLop_()},150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{vuaHero_();vuaLop_()});
 function truotLb(h){const l=$('luoiLb');if(l)l.scrollBy({left:h*Math.max(260,l.clientWidth*.8),behavior:'smooth'})}
 function danhDauLbDai(){const f=()=>document.querySelectorAll('#v-home .dlb').forEach(e=>{const n=e.querySelector('.nd');e.classList.toggle('dai',n.scrollHeight>n.clientHeight+2)});f();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f)}
 
@@ -1508,7 +1506,7 @@ let clsQ='',curCls=null,cT=0,cV='so';
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
  if(st)return `<${T} class="nhan" style="--c:${col(i)}"><div class="t">Nhãn vở</div><div class="lop">Lớp ${esc(c.ten)}</div>
  <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div></${T}>`;
- const nu=c.hs.filter(x=>hsLaNu_(x.nu)).length,coGt=c.hs.some(x=>String(x.nu||'').trim()!==''),anh=(D.anh||[]).filter(a=>a.lopId===c.id).length,lb=(D.luuBut||[]).filter(n=>n.lopId===c.id).length,dk=((D.dangKy||{}).theoLop||{})[c.id]||0;
+ const nu=c.hs.filter(x=>hsLaNu_(x.nu)).length,coGt=c.hs.some(x=>String(x.nu||'').trim()!==''),anh=(D.anh||[]).filter(a=>a.lopId===c.id).length,lb=(D.luuBut||[]).filter(n=>n.lopId===c.id).length;
  const sn=snDs(c.id),snNay=sn.filter(x=>x.con===0),th=new Date().getMonth()+1,snThangNay=sn.filter(x=>x.n.m===th).length;
  const mat=c.hs.slice(0,5);
  return `<${T} class="nhan song" style="--c:${col(i)};--r:${((i*37)%5-2)*.45}deg;--d:${(i*.05).toFixed(2)}s" onclick="openCls('${c.id}')">${snNay.length?`<span class="cmsn" title="Hôm nay sinh nhật">🎂 ${snNay.length>1?snNay.length+' bạn':'Sinh nhật'}</span>`:''}<i class="bang" aria-hidden="true"></i>
@@ -1516,20 +1514,22 @@ function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp
  ${mat.length?`<div class="mat" aria-hidden="true">${mat.map(x=>`<b class="${hsLaNu_(x.nu)?'nu':'nam'}">${esc((tachTen(x.hoTen).t||'?').charAt(0))}</b>`).join('')}${c.hs.length>5?`<b class="them">+${c.hs.length-5}</b>`:''}</div>`:''}
  <div class="ln"><span>Chủ nhiệm</span><em>${esc(c.gvcn||'…')}</em></div><div class="ln"><span>Sĩ số</span><em>${c.hs.length} bạn${coGt?` <small>· ${c.hs.length-nu} nam · ${nu} nữ</small>`:''}</em></div><div class="ln"><span>Lớp trưởng</span><em>${esc(lt?lt.hoTen:'…')}</em></div>
  ${coGt&&c.hs.length?`<div class="gtb" aria-hidden="true"><i style="width:${Math.round((c.hs.length-nu)/c.hs.length*100)}%"></i></div>`:''}
- <div class="chip">${dk?`<span class="dk">✅ ${dk} đi Gala</span>`:''}<span>📷 ${anh} ảnh</span><span>✍️ ${lb} lưu bút</span>${snThangNay?`<span>🎂 ${snThangNay} SN tháng ${th}</span>`:''}</div>
+ <div class="chip"><span>📷 ${anh} ảnh</span><span>✍️ ${lb} lưu bút</span>${snThangNay?`<span>🎂 ${snThangNay} SN tháng ${th}</span>`:''}</div>
  ${hit?`<div class="hit">Có: ${hit}</div>`:''}<span class="vao">Vào lớp →</span></${T}>`}
-function openCls(id){cT=0;cV='so';const lc=D.lop.find(l=>l.id===id);if(lc)tk('lop',lc.ten);if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
+function openCls(id){const vc=$('v-classes');if(vc)vc.style.zoom='';cT=0;cV='so';const lc=D.lop.find(l=>l.id===id);if(lc)tk('lop',lc.ten);if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
- const tHs=D.lop.reduce((a,l)=>a+l.hs.length,0),tDk=(D.dangKy||{}).tong||0;
+ const tHs=D.lop.reduce((a,l)=>a+l.hs.length,0);
  el.innerHTML=`<div class="cls-dau"><div><h2>Danh sách các lớp <span class="but" aria-hidden="true">✏️</span></h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p></div>
- <div class="cls-so"><div><b>${D.lop.length}</b><span>lớp</span></div><div><b>${tHs}</b><span>gương mặt</span></div><div><b>${(D.thayCo||[]).length}</b><span>thầy cô</span></div>${tDk?`<div class="dk"><b>${tDk}</b><span>đã đăng ký Gala</span></div>`:''}</div></div>
+ <div class="cls-so"><div><b>${D.lop.length}</b><span>lớp</span></div><div><b>${tHs}</b><span>gương mặt</span></div><div><b>${(D.thayCo||[]).length}</b><span>thầy cô</span></div></div></div>
  <div class="top-cls"><div class="nhoai"><p id="nhoAi"></p><button onclick="nhoAi()">Nhớ thêm một bạn</button></div>
  <input class="search" id="clsQ" placeholder="Tìm tên lớp, thầy cô chủ nhiệm hoặc tên một bạn" value="${esc(clsQ)}" oninput="clsQ=this.value;drawLabels()" aria-label="Tìm lớp"></div><div class="labels" id="clsGrid"></div>`;drawLabels();nhoAi()}
 function nhoAi(){const el=$('nhoAi');if(!el)return;const all=[];D.lop.forEach(c=>c.hs.forEach(s=>all.push({s,c})));if(!all.length){el.parentNode.style.display='none';return}
  const {s,c}=all[Math.floor(Math.random()*all.length)];el.innerHTML=`Hôm nay, bạn có nhớ <b>${esc(s.hoTen)}</b>, lớp ${esc(c.ten)}?<small>${s.chucVu?'Ngày ấy là '+esc(s.chucVu.toLowerCase())+' của lớp. ':''}${s.hienO?'Giờ bạn ấy đang ở '+esc(s.hienO)+'. ':''}Có khi chỉ một tin nhắn là tìm lại được nhau.</small>`}
 function drawLabels(){const q=clsQ.trim().toLowerCase();
  const l=D.lop.map((c,i)=>({c,i})).map(o=>{if(!q)return o;const inName=khopTim(q,'lop '+o.c.ten+' '+o.c.gvcn);const hs=o.c.hs.filter(s=>khopTim(q,chuHs(s))).map(s=>esc(s.hoTen));return inName||hs.length?Object.assign(o,{hit:inName?'':hs.slice(0,3).join(', ')}):null}).filter(Boolean);
- $('clsGrid').innerHTML=l.map(({c,i,hit})=>nhan(c,i,0,hit)).join('')||`<p class="empty">${D.lop.length?'Không thấy lớp hay bạn nào khớp. Thử gõ ngắn hơn, ví dụ chỉ tên gọi.':'Chưa có lớp nào.'}</p>`}
+ $('clsGrid').innerHTML=l.map(({c,i,hit})=>nhan(c,i,0,hit)).join('')||`<p class="empty">${D.lop.length?'Không thấy lớp hay bạn nào khớp. Thử gõ ngắn hơn, ví dụ chỉ tên gọi.':'Chưa có lớp nào.'}</p>`;vuaLop_();clearTimeout(window.VL_T);window.VL_T=setTimeout(vuaLop_,900)}
+/* Trang Các lớp (danh sách) trên máy tính: cả trang kể cả chân trang vừa 1 màn hình, không cuộn – dài hơn thì zoom cả khối #v-classes cho vừa */
+function vuaLop_(){const el=$('v-classes');if(!el)return;el.style.zoom='';if(innerWidth<=760||curCls||cur!=='classes'||!$('clsGrid'))return;const H=document.documentElement,du=()=>H.scrollHeight-innerHeight;if(du()<=1)return;let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;el.style.zoom=m;if(du()<=1)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){el.style.zoom=m;if(du()<=1)a=m}el.style.zoom=a.toFixed(3)}
 function tachTen(n){const w=String(n||'').trim().split(/\s+/);return {ho:w.slice(0,-1).join(' '),t:w[w.length-1]||''}}
 function soDoLop(c,sd,coSdt){const hs=c.hs,bans=[];for(let k=0;k<hs.length;k+=2)bans.push([0,1].map(j=>hs[k+j]?{s:hs[k+j],k:k+j}:null));
  const cho=o=>{if(!o)return '<div class="cho trong"></div>';const s=o.s,n=tachTen(s.hoTen),p=sd[s.id],l=p&&contactLink(p);
