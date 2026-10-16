@@ -112,3 +112,11 @@ Khi phục vụ trang, Apps Script cắt `//…` tới hết dòng và `/* … *
 - Trên Apps Script (`LIVE`) trang không bao giờ dùng `DEMO`: luôn hiện màn khởi động (logo + 4 câu) tới khi có dữ liệu Sheet.
   `DEMO` chỉ dùng cho bản xem thử/tải về. `xoaDuLieuMau_` giữ thầy cô mẫu đã bị sửa tên, dọn giới thiệu/GVCN mẫu của lớp.
 - `tai-ve/Code.gs` + `tai-ve/NguyenHien-AppsScript.zip` (Code.gs + Index.html bản dựng): đóng gói lại sau mỗi lần build.
+
+### Bản chuẩn 16/10/2026 (nhận từ người dùng)
+- HocSinh thêm cột `ngaySinh` (dd/mm/yyyy, nhận cả tên cột `namsinh`/"Ngày sinh"/"Ngày tháng năm sinh") và `nu` (checkbox TRUE/FALSE); `importStudents` thêm 2 cột tuỳ chọn Ngày sinh, Nữ; frontend `hsLaNu_`, `hsNgay_`, `dsHocSinh_`.
+- Trình chiếu đọc dữ liệu qua `getSlideData(force)` (`taoTrinhChieuData_`, đệm `TC_DATA` 12 giây) + `getSlideRevision()` (`TC_REV`, đổi trong `pubBust_`); frontend `tcHopData_`, `tcLayMoi_`, `tcApDungSlide_`, `tcChuKy_`. `PUB_KEY='PUB_STUDENT_V3_'`.
+- `login` trả kèm `adminData`; `setClassAdmin(..., lienHe)`, lớp có `adminLienHe`.
+- Cấu hình liên hệ cuối popup nhà tài trợ: `anhien` (1 hiện/0 ẩn), `ttLoiMoi`, `ttNguoiLienHe`, `ttSoLienHe`.
+- Hoa phượng trang chủ: ảnh nền webp nhúng trong CSS `.canh-moi` (bỏ `phuongSvg`).
+- Bản nhận về là bản dán Apps Script (`DEMO` chỉ có `cfg`); cần chạy lại `node tools/build-demo.js` + `build-tai-ve.js` để có dữ liệu mẫu và bản `tai-ve/`.
