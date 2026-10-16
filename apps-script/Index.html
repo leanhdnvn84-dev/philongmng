@@ -203,7 +203,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 
 /* ===== TRANG CHỦ · PHƯỢNG VĨ ===== */
 .p-home{--do:#C8102E;--lua:#FBF7F4;--muc:#2B2A33;--mo:#7A747A}
-.p-home .hero{display:grid;grid-template-columns:minmax(0,57%) minmax(0,43%);min-height:calc(100svh - 68px);overflow:hidden;position:relative;background:linear-gradient(160deg,#FFF9F4 0%,#FDEEE7 55%,#F8DCD2 100%)}
+.p-home .hero{display:grid;grid-template-columns:minmax(0,57%) minmax(0,43%);min-height:calc(100svh - 68px);height:calc(100svh - 68px);overflow:hidden;position:relative;background:linear-gradient(160deg,#FFF9F4 0%,#FDEEE7 55%,#F8DCD2 100%)}
 .p-home .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,190,110,.42),transparent 40%),radial-gradient(circle at 10% 100%,rgba(200,16,46,.08),transparent 45%);pointer-events:none}
 .p-home .hero .l{padding:44px clamp(32px,4vw,76px) 84px;display:flex;flex-direction:column;justify-content:flex-start;position:relative;z-index:1;min-width:0}
 .p-home .k{color:var(--do);font-weight:600;font-size:15px;margin-bottom:10px}
@@ -969,7 +969,7 @@ function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}
  $('navThemHop').innerHTML='<b>Các trang khác</b>'+NAV_THEM.map(k=>`<button data-k="${k}" onclick="menu('${k}')">${navSvg(k)}${navTen(k)}</button>`).join('')}
 function moThem(){$('navThem').classList.add('on')}
 function dongThem(){const e=$('navThem');if(e)e.classList.remove('on')}
-function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));
+function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));if(k==='home')vuaHero_();
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});if($('nbThem'))$('nbThem').classList.toggle('on',NAV_THEM.indexOf(k)>=0);
  if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='birthday')renderSn();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0);if(k!=='admin')taiMoi()}
 
@@ -1304,7 +1304,10 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  <div class="sec"><div class="sh"><div><h2>Ảnh giao lưu</h2><p class="sub">Ảnh mới nhất các lớp vừa tải lên.</p></div><button class="more" onclick="go('gallery')">Mở bảng ảnh</button></div>
   ${D.anh.length?`<div class="gal">${D.anh.slice(0,5).map((p,i)=>`<div class="ph" style="background:${grad(i)}" onclick="openLb(D.anh,${i})">${pic(p,i?500:900)}<span>${esc(p.chuThich||p.album)}</span></div>`).join('')}</div>`:'<p class="empty">Chưa có ảnh nào.</p>'}</div>
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three">${items.join('')}</div></div>
- ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'));danhDauLbDai()}
+ ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'));danhDauLbDai();vuaHero_()}
+/* Trang chủ máy tính: khung đầu luôn vừa 1 màn hình – nội dung dài (thêm nút sinh nhật, đoạn mở đầu dài, màn thấp) thì thu nhỏ đều cả khối chữ cho vừa */
+function vuaHero_(){const l=document.querySelector('#v-home .hero .l');if(!l)return;const hr=l.parentElement,hd=document.querySelector('header.g');l.style.zoom='';hr.style.height=hr.style.minHeight='';if(innerWidth<=760)return;if(hd)hr.style.height=hr.style.minHeight=Math.max(420,innerHeight-hd.offsetHeight)+'px';const cao=()=>Math.max(...[...l.children].map(e=>e.getBoundingClientRect().bottom))-hr.getBoundingClientRect().top,toi=hr.clientHeight-40;if(cao()<=toi)return;let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;l.style.zoom=m;if(cao()<=toi)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){l.style.zoom=m;if(cao()<=toi)a=m}l.style.zoom=a.toFixed(3)}
+addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(vuaHero_,150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>vuaHero_());
 function truotLb(h){const l=$('luoiLb');if(l)l.scrollBy({left:h*Math.max(260,l.clientWidth*.8),behavior:'smooth'})}
 function danhDauLbDai(){const f=()=>document.querySelectorAll('#v-home .dlb').forEach(e=>{const n=e.querySelector('.nd');e.classList.toggle('dai',n.scrollHeight>n.clientHeight+2)});f();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f)}
 
