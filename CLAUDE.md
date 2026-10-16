@@ -17,12 +17,12 @@ cấu trúc, cách đặt tên và phong cách code (ES5-style `function`, helpe
 - Quên mật khẩu `banlienlac`: chạy `datLaiMatKhauBanLienLac()` trong trình soạn thảo → mật khẩu mới dễ nhớ in ra Execution log (mở khoá luôn).
 
 ### Sheet (`SHEETS`)
-`Lop`, `HocSinh`, `HoatDong`, `ThayCo`, `LuuBut`, `Anh`, `TaiKhoan`, `TinTuc`, `DangKy`, `NhatKy`, `CauHinh`, `LuotXem`.
+`Lop`, `HocSinh`, `HoatDong`, `ThayCo`, `LuuBut`, `Anh`, `TaiKhoan`, `TinTuc`, `DangKy`, `TimBan`, `NhatKy`, `CauHinh`, `LuotXem`. Sheet `TimBan` nhận cả sheet người dùng tự đặt tên "Tìm bạn"/"Tìm bạn cũ" (`shTen_` so tên bỏ dấu).
 Sheet thiếu (vd. `LuotXem` thêm ở bản sau) được `sh_` tự tạo (`taoSheet_`), không cần chạy lại `setup()`.
 Cột đầu tiên là khoá chính. Mọi ô ghi dạng text (`@`), giá trị bắt đầu bằng `= + @` được thêm `'` (`safe_`).
 Đọc/ghi theo **tên cột** ở hàng tiêu đề (`hdr_`), không theo vị trí: người dùng có thể chèn/đổi thứ tự/thêm cột riêng
 trong Sheet; cột chuẩn còn thiếu được tự thêm ở cuối; `setup()` không ghi đè hàng tiêu đề. `clean_` bỏ dấu gõ lặp.
-Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PRIVATE_COLS` (HocSinh.`sdt` – chỉ admin xem).
+Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PRIVATE_COLS` (HocSinh.`sdt`, TimBan.`lienHe/phanHoi/ghiChu` – chỉ admin xem).
 
 ### Vai trò & phân quyền
 - `super` (Ban liên lạc): toàn quyền. `class` (admin lớp): mỗi lớp đúng 1 admin, chỉ quản lý lớp mình (`canLop_`).
@@ -37,8 +37,9 @@ Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PR
 setClassAdmin, removeClassAdmin, saveStudent, deleteStudent, importStudents, saveEvent, setEventStatus,
 deleteEvent, saveTeacher, deleteTeacher, moderateNote, deleteNote, uploadPhoto, updatePhoto, deletePhoto,
 saveConfig, saveNews, deleteNews, submitRegistration, setRegistrationStatus, deleteRegistration,
-updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents, ghiLuotXem, getThongKe, dongBoAnhDrive, getLuuBut, getDuLieuMoi`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`, `dongBoAnh`, `batDongBoAnhTuDong`, `xepLaiAnh`, `moQuyenAnh`, `batGiuAm`.
+updateMyContact, seedDemo, clearDemo, autoCreateClassAdmins, moveStudents, ghiLuotXem, getThongKe, dongBoAnhDrive, getLuuBut, getDuLieuMoi, submitTimBan, phanHoiTimBan, setTimBanStatus, deleteTimBan`. Chạy tay trong trình soạn thảo: `setup`, `datLaiMatKhauBanLienLac`, `lamMoiDuLieu`, `napDuLieuMau`, `xoaDuLieuMau`, `dongBoAnh`, `batDongBoAnhTuDong`, `xepLaiAnh`, `moQuyenAnh`, `batGiuAm`.
 Quản trị → **Tổng quan** gọn 1 màn hình máy tính: 6 ô số `.kpi.tq` một hàng (biểu tượng, bấm chuyển tab; ô chờ duyệt > 0 tô cam `.can`), nhật ký `#nkKhung` `.nk` (60 việc, giờ + ngày, biểu tượng theo loại việc, tên người dạng chip) cuộn trong khung – `vuaTq_()` (gọi cuối `renderAdmin`, resize) đặt max-height để trang không cuộn, tối thiểu bằng đáy menu trái; màn thấp (≤860px cao) thu padding `.p-adm`, bỏ min-height, menu trái dày ít hơn.
+**Tìm bạn cũ**: nút nhấp nháy `#tbNut` (điện thoại tròn góc phải trên menu dưới, máy tính viên thuốc góc trái; 2 vòng sóng `tbSong`; ẩn ở Quản trị/trình chiếu/khi mở popup) → popup `#tbNen` (`moTB`/`dongTB`/`veTB`, tab `TB_T` 'bang'|'gui'): Bảng tìm bạn (`D.timBan` = TimBan trạng thái `dangtim`/`datim`, lọc `TB_Q` bằng `khopTim`, đã tìm thấy xếp cuối) + nút "💬 Tôi biết bạn này" (`tbBiet`/`guiBiet` → `phanHoiTimBan` nối vào cột `phanHoi`); tab Nhờ tìm bạn (`guiTB` → `submitTimBan`, đăng ngay `dangtim`; gõ tên → `tbGoiY` gợi ý học sinh có sẵn trong danh sách lớp + liên hệ admin lớp). Quản trị tab "Tìm bạn cũ" (`tbAdmin_`, super + admin lớp liên quan `lopCanTim`/`lopNguoiTim`, lọc `tbF`, xem SĐT + phản hồi, Đã tìm thấy/Ẩn/Hiện lại/Xoá; badge = đang tìm có phản hồi).
 `getAdminData.hsLac` (super): học sinh có `lopId` không khớp lớp nào → nhóm "⚠ Chưa thuộc lớp nào" trong Quản trị → Học sinh, tick + Chuyển lớp.
 Tài khoản dễ nhớ: tên đăng nhập admin lớp `lop12_1` (`lopUser_`), mật khẩu dạng `luubut-4827` (`easyPw_`, cũng dùng cho `banlienlac` ở setup).
 Khi thêm/sửa hàm server, kiểm tra lại các lời gọi `api('...')` trong `Index.html` cho khớp.

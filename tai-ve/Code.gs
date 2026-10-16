@@ -20,6 +20,7 @@ const SHEETS = {
   TaiKhoan: ['user', 'hoTen', 'role', 'lopId', 'salt', 'hash', 'active', 'lienHe'],
   TinTuc:   ['id', 'loai', 'tieuDe', 'noiDung', 'ngay', 'noiBat', 'trangThai', 'taoLuc'],
   DangKy:   ['id', 'lopId', 'hoTen', 'lienHe', 'ghiChu', 'trangThai', 'taoLuc'],
+  TimBan:   ['id', 'nguoiTim', 'lopNguoiTim', 'lienHe', 'timAi', 'lopCanTim', 'manhMoi', 'trangThai', 'phanHoi', 'taoLuc', 'ghiChu'],
   NhatKy:   ['time', 'user', 'action'],
   LuotXem:  ['id', 'thoiGian', 'khach', 'moi', 'thietBi', 'nguon', 'loai', 'giaTri'],
   CauHinh:  ['key', 'value']
@@ -76,7 +77,7 @@ let _ss = null;
 let _cache = {};
 let _hdr = {};
 /** Cột chỉ admin xem được, không đưa ra trang công khai */
-const PRIVATE_COLS = { HocSinh: ['sdt'] };
+const PRIVATE_COLS = { HocSinh: ['sdt'], TimBan: ['lienHe', 'phanHoi', 'ghiChu'] };
 
 /* ======================= WEB ======================= */
 function doGet(e) {
@@ -157,7 +158,14 @@ function ss_() {
   if (_ss) return _ss;
   return (_ss = SpreadsheetApp.openById(DATA_SHEET_ID));
 }
-function sh_(n) { return ss_().getSheetByName(n) || taoSheet_(n); }
+function sh_(n) { return ss_().getSheetByName(n) || shTen_(n) || taoSheet_(n); }
+/** Sheet người dùng tự tạo với tên có dấu/cách (vd. "Tìm bạn", "Tìm bạn cũ") vẫn nhận là TimBan. */
+function shTen_(n) {
+  if (n !== 'TimBan') return null;
+  const k = function (t) { return String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').replace(/[^a-z]/gi, '').toLowerCase(); };
+  const ds = ss_().getSheets().filter(function (x) { return /^timban(cu)?$/.test(k(x.getName())); });
+  return ds[0] || null;
+}
 /** Sheet mới thêm ở bản sau (vd. LuotXem) tự tạo khi cần, khỏi phải chạy lại setup(). */
 function taoSheet_(n) {
   if (!SHEETS[n]) return null;
@@ -716,6 +724,7 @@ function taoPublicData_() {
   const r = {
     tinTuc: sortNews_(read_('TinTuc').filter(function (t) { return t.trangThai === 'published'; })).map(pubOf_('TinTuc')),
     dangKy: { tong: dk.length, theoLop: dkLop },
+    timBan: read_('TimBan').filter(function (x) { return x.trangThai === 'dangtim' || x.trangThai === 'datim'; }).map(pubOf_('TimBan')).reverse(),
     cfg: cfg_(),
     lop: lop,
     hoatDong: read_('HoatDong').filter(function (e) { return e.trangThai === 'published'; }).map(pubOf_('HoatDong')).map(function (h) { h.anhId = idAnh_(h.anhId); return h; }),
@@ -790,6 +799,7 @@ function getAdminData(token) {
     hsLac: isS ? sort_(hs.filter(function (h) { return !lopIds[h.lopId]; })).map(pub_) : [],
     tinTuc: isS ? sortNews_(read_('TinTuc')).map(pub_) : [],
     dangKy: read_('DangKy').filter(function (x) { return mine(x, 'lopId'); }).map(pub_).reverse(),
+    timBan: read_('TimBan').filter(function (x) { return isS || x.lopCanTim === u.lopId || x.lopNguoiTim === u.lopId; }).map(pub_).reverse(),
     log: log
   };
 }
@@ -1318,6 +1328,79 @@ function deleteRegistration(token, id) {
     canLop_(u, d.lopId);
     remove_('DangKy', function (x) { return x.id === id; });
     log_(u, 'Xoá đăng ký của ' + d.hoTen);
+    return true;
+  });
+}
+
+/* ======================= TÌM BẠN CŨ ======================= */
+/* Ai cũng gửi được lời nhờ tìm bạn (nút nhấp nháy ở góc màn hình). Hiện ngay trên "Bảng tìm bạn";
+   liên hệ người gửi + phản hồi "Tôi biết bạn này" chỉ Ban liên lạc / admin lớp liên quan thấy. */
+function submitTimBan(nguoiTim, lopNguoiTim, lienHe, timAi, lopCanTim, manhMoi) {
+  const cache = CacheService.getScriptCache();
+  const cnt = Number(cache.get('TB_RATE') || 0);
+  if (cnt > 20) throw new Error('Hệ thống đang bận, vui lòng thử lại sau ít phút.');
+  cache.put('TB_RATE', String(cnt + 1), 60);
+  nguoiTim = req_(nguoiTim, 'tên của bạn', 60);
+  lienHe = req_(lienHe, 'số điện thoại hoặc Zalo của bạn', 60);
+  timAi = req_(timAi, 'tên người bạn muốn tìm', 80);
+  manhMoi = String(manhMoi || '').trim().slice(0, 600);
+  lopNguoiTim = String(lopNguoiTim || ''); lopCanTim = String(lopCanTim || '');
+  if (lopNguoiTim && !find_('Lop', lopNguoiTim)) throw new Error('Lớp không tồn tại.');
+  if (lopCanTim && !find_('Lop', lopCanTim)) throw new Error('Lớp không tồn tại.');
+  return lock_(function () {
+    const dup = read_('TimBan').find(function (x) { return x.trangThai === 'dangtim' && x.timAi.toLowerCase() === timAi.toLowerCase() && x.nguoiTim.toLowerCase() === nguoiTim.toLowerCase(); });
+    if (dup) throw new Error('Bạn đã gửi lời tìm ' + dup.timAi + ' rồi, Ban liên lạc đang hỗ trợ.');
+    const o = { id: uid_(), nguoiTim: nguoiTim, lopNguoiTim: lopNguoiTim, lienHe: lienHe, timAi: timAi, lopCanTim: lopCanTim, manhMoi: manhMoi, trangThai: 'dangtim', phanHoi: '', taoLuc: now_(), ghiChu: '' };
+    append_('TimBan', o);
+    return pubOf_('TimBan')(o);
+  });
+}
+
+/** "Tôi biết bạn này": ghi nối vào cột phanHoi (chỉ admin xem) để Ban liên lạc nối hai người. */
+function phanHoiTimBan(id, ten, lienHe, loi) {
+  const cache = CacheService.getScriptCache();
+  const cnt = Number(cache.get('TB_RATE') || 0);
+  if (cnt > 20) throw new Error('Hệ thống đang bận, vui lòng thử lại sau ít phút.');
+  cache.put('TB_RATE', String(cnt + 1), 60);
+  ten = req_(ten, 'tên của bạn', 60);
+  lienHe = String(lienHe || '').trim().slice(0, 60);
+  loi = req_(loi, 'điều bạn biết', 400);
+  return lock_(function () {
+    const x = find_('TimBan', id);
+    if (!x || (x.trangThai !== 'dangtim' && x.trangThai !== 'datim')) throw new Error('Lời tìm bạn không còn.');
+    const dong = '[' + now_() + '] ' + ten + (lienHe ? ' (' + lienHe + ')' : '') + ': ' + loi.replace(/\s+/g, ' ');
+    x.phanHoi = (x.phanHoi ? x.phanHoi + '\n' : '') + dong;
+    if (x.phanHoi.length > 4000) x.phanHoi = x.phanHoi.slice(-4000);
+    update_('TimBan', x);
+    return true;
+  });
+}
+
+function canTimBan_(u, x) {
+  if (u.role !== 'super' && x.lopCanTim !== u.lopId && x.lopNguoiTim !== u.lopId) throw new Error('Bạn chỉ được quản lý lời tìm bạn liên quan đến lớp mình.');
+}
+function setTimBanStatus(token, id, status, ghiChu) {
+  return lock_(function () {
+    const u = auth_(token);
+    if (['dangtim', 'datim', 'an'].indexOf(status) < 0) throw new Error('Trạng thái không hợp lệ.');
+    const x = find_('TimBan', id);
+    if (!x) throw new Error('Lời tìm bạn không tồn tại.');
+    canTimBan_(u, x);
+    x.trangThai = status;
+    if (ghiChu !== undefined) x.ghiChu = String(ghiChu || '').slice(0, 500);
+    update_('TimBan', x);
+    log_(u, (status === 'datim' ? 'Đã tìm thấy: ' : status === 'an' ? 'Ẩn lời tìm ' : 'Hiện lại lời tìm ') + x.timAi);
+    return true;
+  });
+}
+function deleteTimBan(token, id) {
+  return lock_(function () {
+    const u = auth_(token);
+    const x = find_('TimBan', id);
+    if (!x) throw new Error('Lời tìm bạn không tồn tại.');
+    canTimBan_(u, x);
+    remove_('TimBan', function (r) { return r.id === id; });
+    log_(u, 'Xoá lời tìm ' + x.timAi);
     return true;
   });
 }

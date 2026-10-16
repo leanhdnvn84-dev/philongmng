@@ -937,6 +937,33 @@ nav.bot button.them-nut{position:relative}
 @media(min-width:761px) and (max-height:860px){.p-adm{padding-top:16px;padding-bottom:14px;min-height:0}.p-adm .side button{padding:5px 12px;line-height:1.35}.p-adm .top h2{font-size:28px}}
 @media(max-width:1100px){.p-adm .kpi.tq{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:560px){.p-adm .kpi.tq{grid-template-columns:repeat(2,minmax(0,1fr))}.nk .d{grid-template-columns:52px 24px 1fr}.nk .u{grid-column:3;justify-self:start}}
+/* Tìm bạn cũ: nút nhấp nháy + popup */
+.tbNut{position:fixed;z-index:40;left:18px;bottom:18px;display:flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 18px 10px 12px;background:linear-gradient(135deg,#0F8B8D,#3B6FB6);color:#fff;font-size:15px;box-shadow:0 8px 20px rgba(15,80,120,.35);cursor:pointer}
+.tbNut span{font-size:20px;line-height:1}.tbNut b{font-weight:700}
+.tbNut:before,.tbNut:after{content:'';position:absolute;inset:0;border-radius:inherit;border:2px solid #2BB3A3;animation:tbSong 2.2s ease-out infinite;pointer-events:none}.tbNut:after{animation-delay:1.1s}
+@keyframes tbSong{from{transform:scale(1);opacity:.85}to{transform:scale(1.35,1.6);opacity:0}}
+.tbNut:hover{filter:brightness(1.08)}
+body[data-p=admin] .tbNut,html.tc-mo .tbNut,html.tb-mo .tbNut{display:none}
+@media(max-width:760px){.tbNut{left:auto;right:14px;bottom:calc(84px + env(safe-area-inset-bottom));width:52px;height:52px;padding:0;justify-content:center}.tbNut b{display:none}.tbNut span{font-size:24px}@keyframes tbSong{from{transform:scale(1);opacity:.85}to{transform:scale(1.6);opacity:0}}}
+@media (prefers-reduced-motion:reduce){.tbNut:before,.tbNut:after{animation:none;opacity:0}}
+.tbNen{position:fixed;inset:0;z-index:165;background:rgba(10,30,45,.55);display:none;padding:16px;overflow-y:auto}.tbNen.on{display:flex}
+.tbHop{position:relative;margin:auto;width:min(620px,100%);background:#fff;border-radius:20px;padding:22px 22px 18px;box-shadow:0 24px 60px rgba(0,0,0,.35);font-family:'Be Vietnam Pro',sans-serif;color:#22213A;animation:snVao .3s ease}
+.tbHop .x{position:absolute;right:10px;top:8px;width:40px;height:40px;border:0;background:none;font-size:28px;color:#6E6A85}
+.tbHop .dau{display:flex;gap:12px;align-items:flex-start;padding-right:30px}.tbHop .dau .ic{width:50px;height:50px;flex:none;border-radius:14px;background:linear-gradient(135deg,#0F8B8D,#3B6FB6);display:grid;place-items:center;font-size:26px}
+.tbHop h3{margin:0;font-family:'Playfair Display',serif;font-size:26px;color:#0E4C6B}.tbHop .dau p{margin:4px 0 0;font-size:14.5px;color:#5A5470;line-height:1.5}
+.tbHop .tab{display:flex;gap:6px;margin:14px 0 12px;border-bottom:2px solid #E6EEF3}.tbHop .tab button{border:0;background:none;padding:9px 12px;font-weight:700;font-size:15px;color:#6E6A85;border-bottom:3px solid transparent;margin-bottom:-2px}.tbHop .tab button.on{color:#0E6E86;border-color:#0F8B8D}.tbHop .tab button{white-space:nowrap}.tbHop .tab small{background:#E2F3F2;color:#0E6E86;border-radius:999px;padding:1px 8px;font-size:13px}
+.tbHop .tim{width:100%;box-sizing:border-box;border:1.5px solid #CFE0E8;border-radius:10px;padding:10px 12px;font-size:15px;margin-bottom:10px}
+.tb-the{border:1.5px solid #DCE9EF;border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#FAFDFE}.tb-the.xong{background:#F2FBF5;border-color:#BFE6CC}
+.tb-the .h{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}.tb-the .ai{font:700 20px/1.2 'Dancing Script',cursive;color:#0E4C6B;font-size:23px}.tb-the .lp{font-size:13px;background:#E2F3F2;color:#0E6E86;border-radius:999px;padding:2px 9px;font-weight:600}.tb-the .ok{font-size:13px;background:#DDF5E5;color:#1F7A4F;border-radius:999px;padding:2px 9px;font-weight:700}
+.tb-the p{margin:6px 0;font-size:14.5px;color:#3C3850;font-style:italic;line-height:1.5}.tb-the .ai-tim{font-size:14px;color:#5A5470}.tb-the .ai-tim a{color:#0E6E86;font-weight:700}
+.tb-the .biet{margin-top:8px}.tb-the .biet>button{border:1.5px solid #0F8B8D;background:#fff;color:#0E6E86;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
+.tb-rep{display:grid;gap:6px}.tb-rep input,.tb-rep textarea{border:1.5px solid #CFE0E8;border-radius:8px;padding:8px 10px;font:inherit;font-size:14.5px}.tb-rep small{font-size:13px;color:#6E6A85}
+.tb-trong{text-align:center;color:#5A5470;padding:22px 10px;font-size:15px;line-height:2}
+.tbHop .btn{border:0;border-radius:999px;padding:11px 20px;font-weight:700;font-size:15px;background:linear-gradient(135deg,#0F8B8D,#3B6FB6);color:#fff;cursor:pointer}.tbHop .btn.o{background:#fff;color:#0E6E86;border:1.5px solid #0F8B8D}.tbHop .btn.sm{padding:7px 14px;font-size:14px}
+.tb-form{display:grid;gap:10px 12px;grid-template-columns:1fr 1fr;max-width:none}.tb-form label{display:grid;gap:4px;font-size:14px;font-weight:600;color:#3C3850}.tb-form input,.tb-form select,.tb-form textarea{border:1.5px solid #CFE0E8;border-radius:10px;padding:10px 12px;font:inherit;font-size:15px;font-weight:400;background:#fff;width:100%;box-sizing:border-box}.tb-form .ca{grid-column:1/-1}.tb-form label small{font-weight:400;color:#6E6A85;font-size:13px}.tb-form .nut{text-align:right}
+.goiy{background:#FFF8E8;border:1.5px dashed #E8C26A;border-radius:12px;padding:10px 12px;display:grid;gap:6px;font-size:14px}.goiy>b{color:#8A5A00}.goiy button{text-align:left;border:1px solid #F0DDA8;background:#fff;border-radius:10px;padding:6px 10px;display:flex;flex-direction:column}.goiy button span{font-weight:700;color:#22213A}.goiy small{color:#7A6A50;font-size:13px}
+@media(max-width:560px){.tb-form{grid-template-columns:1fr}.tbHop{padding:18px 16px 14px}}
+.tb-ad .tbph{margin-top:8px;background:#FFF8E8;border-radius:10px;padding:8px 10px;font-size:14px;color:#3C3850;text-align:left}.tb-ad .tb-the .nut{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 </style>
 </head>
 <body data-p="home">
@@ -1024,6 +1051,8 @@ nav.bot button.them-nut{position:relative}
 <div class="modal" id="modal" onclick="if(event.target===this)closeForm()"><div class="box" id="mBody"></div></div>
 <div class="loader" id="loader"><div class="ld-thuong"><div class="spin"></div><span id="loadTxt">Đang tải…</span></div><div class="ld-roi" id="ldRoi" aria-hidden="true"></div><div class="ld-dau" role="status"><img id="ldLogo" alt="Logo Trường THPT Nguyễn Hiền"><p class="ld-ten">THPT Nguyễn Hiền</p><p class="ld-kh">Khoá 2000 – 2003</p><p class="ld-cau" id="ldCau">Đang lật lại trang lưu bút…</p><div class="ld-vach"><i></i></div></div></div>
 <div class="toast" id="toast"></div>
+<button class="tbNut" id="tbNut" onclick="moTB()" aria-label="Tìm bạn cũ"><span aria-hidden="true">🔎</span><b>Tìm bạn cũ</b></button>
+<div class="tbNen" id="tbNen" onclick="if(event.target===this)dongTB()"><div class="tbHop" id="tbHop" role="dialog" aria-modal="true" aria-label="Tìm bạn cũ"></div></div>
 <div class="snIn" id="snIn" aria-hidden="true"></div>
 <div class="snNen" id="snNen" onclick="if(event.target===this)dongSn()"><div class="thiep" role="dialog" aria-label="Thiệp sinh nhật" id="snThiep"></div></div>
 <div class="navThem" id="navThem" onclick="if(event.target===this)dongThem()"><div class="hop" id="navThemHop"></div></div>
@@ -1514,7 +1543,7 @@ function inSn(){const h=document.documentElement;h.classList.add('in-sn');const 
  const chay=()=>{try{print()}catch(e){toast('Trình duyệt này không in được. Mở trang bằng Chrome/Safari rồi thử lại nhé.')}setTimeout(xong,1500)};
  (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(chay,120))}
 
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('snNen').classList.contains('on'))dongSn();dongThem()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('snNen').classList.contains('on'))dongSn();if($('tbNen').classList.contains('on'))dongTB();dongThem()});
 /* ===================== CÁC LỚP ===================== */
 let clsQ='',curCls=null,cT=0,cV='so';
 function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp trưởng/i.test(s.chucVu));
@@ -1665,8 +1694,8 @@ async function submitForm(){if(!FORM)return;const o={},files={};
 async function act(fn,msg,ok){if(msg){const ng=/xo[áa]/i.test(msg);if(!(await hoi_(msg,{nguy:ng,ok:ng?'Xoá':'Đồng ý'})))return}try{busy(1);await fn();if(ok)toast(ok);await refresh()}catch(e){err(e)}finally{busy(0)}}
 
 /* ===================== QUẢN TRỊ ===================== */
-const AT_S=['Tổng quan','Thống kê','Lớp và admin lớp','Học sinh','Hoạt động','Thầy cô','Lưu bút','Hình ảnh','Kết nối','Đăng ký họp lớp','Thư ngỏ & Gala','Nhà tài trợ','Cài đặt','Tài khoản của tôi'];
-const AT_C=['Thông tin lớp','Học sinh','Hình ảnh','Lưu bút','Đăng ký họp lớp','Đề xuất hoạt động','Tài khoản của tôi'];
+const AT_S=['Tổng quan','Thống kê','Lớp và admin lớp','Học sinh','Hoạt động','Thầy cô','Lưu bút','Hình ảnh','Kết nối','Đăng ký họp lớp','Tìm bạn cũ','Thư ngỏ & Gala','Nhà tài trợ','Cài đặt','Tài khoản của tôi'];
+const AT_C=['Thông tin lớp','Học sinh','Hình ảnh','Lưu bút','Đăng ký họp lớp','Tìm bạn cũ','Đề xuất hoạt động','Tài khoản của tôi'];
 let aT=0,adLop='',nbF='pending',dkF='cho',apF='',dkL='';
 const isS=()=>A&&A.me.role==='super';
 async function openAdmin(){if(A)return renderAdmin();if(!TOK)return renderLogin();try{busy(1,'Đang tải…');A=await api('getAdminData',TOK);fillAlbums();renderAdmin()}catch(e){err(e);renderLogin()}finally{busy(0)}}
@@ -1679,7 +1708,7 @@ async function doLogout(){try{await api('logout',TOK)}catch(e){}localLogout()}
 async function refresh(){if(!TOK){const r=await api('getPublicData');TM_J=JSON.stringify(r);setD(r);renderPublic();return}A=await api('getAdminData',TOK);if(cur==='admin')renderAdmin();TM_T=0;taiMoi(true)}
 function curAdLop(){if(!isS())return A.lop.find(l=>l.id===A.me.lopId);if(adLop==='_lac'&&(A.hsLac||[]).length)return {id:'_lac',ten:'chưa thuộc lớp nào',hs:A.hsLac,lac:1};if(!A.lop.find(l=>l.id===adLop))adLop=A.lop[0]?A.lop[0].id:'';return A.lop.find(l=>l.id===adLop)}
 function lopSelect(){return isS()&&A.lop.length>1?`<select style="max-width:240px;margin-bottom:14px" onchange="adLop=this.value;renderAdmin()" aria-label="Chọn lớp">${A.lop.map(l=>`<option value="${l.id}" ${l.id===adLop?'selected':''}>Lớp ${esc(l.ten)} (${l.hs.length})</option>`).join('')}${(A.hsLac||[]).length?`<option value="_lac" ${adLop==='_lac'?'selected':''}>⚠ Chưa thuộc lớp nào (${A.hsLac.length})</option>`:''}</select>`:''}
-function badgeFor(t){const n=t==='Lưu bút'?A.luuBut.filter(x=>x.trangThai==='pending').length:t==='Hoạt động'?A.hoatDong.filter(x=>x.trangThai==='pending').length:t==='Đăng ký họp lớp'?A.dangKy.filter(x=>x.trangThai==='cho').length:0;return n?`<span class="badge">${n}</span>`:''}
+function badgeFor(t){const n=t==='Lưu bút'?A.luuBut.filter(x=>x.trangThai==='pending').length:t==='Hoạt động'?A.hoatDong.filter(x=>x.trangThai==='pending').length:t==='Đăng ký họp lớp'?A.dangKy.filter(x=>x.trangThai==='cho').length:t==='Tìm bạn cũ'?(A.timBan||[]).filter(x=>x.trangThai==='dangtim'&&x.phanHoi).length:0;return n?`<span class="badge">${n}</span>`:''}
 const ph3=(t,b)=>`<div class="ph3"><h3>${t}</h3><div style="display:flex;gap:8px;flex-wrap:wrap">${b||''}</div></div>`;
 const st=s=>s==='approved'||s==='published'?'<span class="pill ok">Đã đăng</span>':s==='xacnhan'?'<span class="pill ok">Đã xác nhận</span>':s==='hidden'?'<span class="pill off">Đã ẩn</span>':s==='huy'?'<span class="pill off">Đã huỷ</span>':'<span class="pill cho">Chờ duyệt</span>';
 function renderAdmin(){if(!A)return renderLogin();const tabs=isS()?AT_S:AT_C;if(aT>=tabs.length)aT=0;const my=A.lop.find(l=>l.id===A.me.lopId);
@@ -1690,6 +1719,45 @@ function renderAdmin(){if(!A)return renderLogin();const tabs=isS()?AT_S:AT_C;if(
 
 /* Quản trị → Tổng quan: khung nhật ký tự co cao để cả trang vừa 1 màn hình (cuộn trong khung) */
 function vuaTq_(){const n=$('nkKhung');if(!n)return;n.style.maxHeight='';if(innerWidth<=760)return;const du=document.documentElement.scrollHeight-innerHeight,sd=document.querySelector('.p-adm .side'),theoMenu=sd?sd.getBoundingClientRect().bottom-n.getBoundingClientRect().top-24:0;if(du>0)n.style.maxHeight=Math.max(220,n.offsetHeight-du-2,theoMenu)+'px'}
+/* ===== TÌM BẠN CŨ: nút nhấp nháy (điện thoại góc phải, máy tính góc trái) → popup Bảng tìm bạn / Nhờ tìm một bạn ===== */
+let TB_T='bang',TB_Q='',tbF='dangtim';
+const tbLop_=id=>{const l=D.lop.find(x=>x.id===id);return l?'12/'+String(l.ten).replace(/^12[/]/,''):''};
+const tbNgay_=t=>{const m=String(t||'').match(/^\d{4}-(\d\d)-(\d\d)/);return m?m[2]+'/'+m[1]:''};
+function moTB(t){if(t)TB_T=t;else TB_T=(D.timBan||[]).length?'bang':'gui';veTB();$('tbNen').classList.add('on');document.documentElement.classList.add('tb-mo')}
+function dongTB(){$('tbNen').classList.remove('on');document.documentElement.classList.remove('tb-mo')}
+function veTB(){const ds=D.timBan||[],lopOpt=(r)=>D.lop.map(l=>`<option value="${l.id}">Lớp ${esc(l.ten)}</option>`).join('');
+ $('tbHop').innerHTML=`<button class="x" onclick="dongTB()" aria-label="Đóng">×</button><div class="dau"><div class="ic" aria-hidden="true">🔎</div><div><h3>Tìm bạn cũ</h3><p>Nhờ cả khoá tìm giúp một người bạn đã lạc liên lạc. Ai biết tin, Ban liên lạc sẽ nối hai bạn với nhau.</p></div></div>
+ <div class="tab"><button class="${TB_T==='bang'?'on':''}" onclick="TB_T='bang';veTB()">📋 Bảng tìm bạn <small>${ds.filter(x=>x.trangThai==='dangtim').length}</small></button><button class="${TB_T==='gui'?'on':''}" onclick="TB_T='gui';veTB()">✍️ Nhờ tìm bạn</button></div>
+ <div class="than">${TB_T==='bang'?`${ds.length?`<input class="tim" id="tbQ" placeholder="Gõ tên để xem có ai đang tìm bạn không…" value="${esc(TB_Q)}" oninput="TB_Q=this.value;veTbDs()" aria-label="Lọc bảng tìm bạn">`:''}<div id="tbDs"></div>`:
+ `<div class="form tb-form"><label>Bạn là ai<input id="tbTen" maxlength="60" placeholder="Họ tên của bạn" value="${esc(store.get('nh_tb_ten')||'')}"></label><label>Lớp của bạn<select id="tbLop"><option value="">— Chọn lớp —</option>${lopOpt()}</select></label>
+ <label class="ca">Điện thoại / Zalo của bạn <small>(chỉ Ban liên lạc thấy, để báo tin cho bạn)</small><input id="tbLh" maxlength="60" inputmode="tel" placeholder="Ví dụ: 0905 123 456" value="${esc(store.get('nh_tb_lh')||'')}"></label>
+ <label class="ca">Bạn muốn tìm ai?<input id="tbAi" maxlength="80" placeholder="Họ tên hoặc tên gọi ngày ấy" oninput="tbGoiY()"></label><div id="tbGoiY" class="ca"></div>
+ <label>Bạn ấy học lớp<select id="tbLopAi"><option value="">Không nhớ lớp</option>${lopOpt()}</select></label>
+ <label class="ca">Manh mối giúp mọi người nhận ra <small>(biệt danh, quê, nơi ở, kỷ niệm…)</small><textarea id="tbMm" rows="3" maxlength="600" placeholder="Ví dụ: hay gọi là Hùng còi, nhà gần chợ Cồn, ngồi bàn cuối dãy cửa sổ"></textarea></label>
+ <div class="ca nut"><button class="btn" onclick="guiTB()">📮 Gửi lời nhờ tìm</button></div></div>`}</div>`;
+ if(TB_T==='bang')veTbDs()}
+function veTbDs(){const el=$('tbDs');if(!el)return;const q=TB_Q.trim();let ds=(D.timBan||[]).slice();if(q)ds=ds.filter(x=>khopTim(q,[x.timAi,x.manhMoi,x.nguoiTim,tbLop_(x.lopCanTim),tbLop_(x.lopNguoiTim)].join(' ')));
+ ds.sort((a,b)=>(a.trangThai==='datim')-(b.trangThai==='datim'));
+ el.innerHTML=ds.length?ds.map(x=>`<div class="tb-the${x.trangThai==='datim'?' xong':''}"><div class="h"><span class="ai">${esc(x.timAi)}</span>${x.lopCanTim?`<span class="lp">Lớp ${tbLop_(x.lopCanTim)}</span>`:''}${x.trangThai==='datim'?'<span class="ok">🎉 Đã tìm thấy</span>':''}</div>
+ ${x.manhMoi?`<p>“${esc(x.manhMoi)}”</p>`:''}<div class="ai-tim">🙋 <b>${esc(x.nguoiTim)}</b>${x.lopNguoiTim?' · lớp '+tbLop_(x.lopNguoiTim):''} đang tìm${tbNgay_(x.taoLuc)?' · '+tbNgay_(x.taoLuc):''}</div>
+ ${x.trangThai==='dangtim'?`<div class="biet" id="tbr-${esc(x.id)}"><button onclick="tbBiet('${esc(x.id)}')">💬 Tôi biết bạn này</button></div>`:''}</div>`).join(''):
+ `<div class="tb-trong">${q?'Chưa ai tìm người có tên như vậy.':'Chưa có lời nhờ tìm nào.'}<br><button class="btn o" onclick="TB_T='gui';veTB()">✍️ Nhờ cả khoá tìm một bạn</button></div>`}
+function tbBiet(id){const el=$('tbr-'+id);if(!el)return;el.innerHTML=`<div class="tb-rep"><input id="tbrTen" maxlength="60" placeholder="Tên của bạn" value="${esc(store.get('nh_tb_ten')||'')}"><input id="tbrLh" maxlength="60" inputmode="tel" placeholder="SĐT / Zalo (không bắt buộc)" value="${esc(store.get('nh_tb_lh')||'')}"><textarea id="tbrLoi" rows="2" maxlength="400" placeholder="Bạn biết gì? Ví dụ: Hùng giờ ở Sài Gòn, Zalo 09xx…"></textarea><div><button class="btn sm" onclick="guiBiet('${id}')">Gửi cho Ban liên lạc</button> <button class="btn o sm" onclick="veTbDs()">Huỷ</button></div><small>Chỉ Ban liên lạc đọc được, sẽ báo cho người đang tìm.</small></div>`;$('tbrLoi').focus()}
+async function guiBiet(id){const t=$('tbrTen').value.trim(),lh=$('tbrLh').value.trim(),l=$('tbrLoi').value.trim();if(!t)return toast('Nhập tên của bạn',1);if(!l)return toast('Nhập điều bạn biết',1);
+ try{busy(1,'Đang gửi…');await api('phanHoiTimBan',id,t,lh,l);store.set('nh_tb_ten',t);if(lh)store.set('nh_tb_lh',lh);veTbDs();toast('Cảm ơn bạn! Ban liên lạc sẽ nối hai bạn với nhau.')}catch(e){err(e)}finally{busy(0)}}
+function tbGoiY(){const el=$('tbGoiY'),q=($('tbAi').value||'').trim();if(!el)return;if(q.length<2){el.innerHTML='';return}
+ const r=[];D.lop.forEach(c=>c.hs.forEach(s=>{if(khopTim(q,chuHs(s,c)))r.push({s,c})}));
+ el.innerHTML=r.length?`<div class="goiy"><b>Có phải bạn này? Bạn ấy đã có trong danh sách lớp:</b>${r.slice(0,4).map(({s,c})=>`<button onclick="dongTB();openCls('${c.id}')"><span>${esc(s.hoTen)}</span><small>Lớp ${esc(c.ten)}${s.hienO?' · đang ở '+esc(s.hienO):''}${c.adminLienHe?' · hỏi admin lớp: '+esc(c.adminLienHe):''}</small></button>`).join('')}${r.length>4?`<small>… và ${r.length-4} bạn nữa</small>`:''}<small>Vẫn có thể gửi lời nhờ tìm để Ban liên lạc kết nối giúp.</small></div>`:''}
+async function guiTB(){const g=k=>($(k).value||'').trim(),o=[g('tbTen'),g('tbLop'),g('tbLh'),g('tbAi'),g('tbLopAi'),g('tbMm')];
+ if(!o[0])return toast('Nhập tên của bạn',1);if(!o[2])return toast('Nhập số điện thoại hoặc Zalo để Ban liên lạc báo tin',1);if(!o[3])return toast('Nhập tên người bạn muốn tìm',1);
+ try{busy(1,'Đang gửi…');const r=await api('submitTimBan',...o);store.set('nh_tb_ten',o[0]);store.set('nh_tb_lh',o[2]);D.timBan=[r].concat(D.timBan||[]);TB_T='bang';TB_Q='';veTB();toast('Đã gửi! Lời nhờ tìm của bạn đã lên Bảng tìm bạn.')}catch(e){err(e)}finally{busy(0)}}
+function tbAdmin_(){const ds=(A.timBan||[]).filter(x=>tbF==='all'||x.trangThai===tbF),dem=s=>(A.timBan||[]).filter(x=>x.trangThai===s).length;
+ return `<h3>Tìm bạn cũ</h3><p class="who" style="margin-bottom:10px">Mọi người gửi qua nút 🔎 ở góc màn hình. Lời nhờ lên Bảng tìm bạn ngay; số điện thoại người tìm và phản hồi “Tôi biết bạn này” chỉ hiện ở đây. Dữ liệu ở Sheet <b>TimBan</b> (hoặc sheet tên “Tìm bạn”).</p>
+ <div class="chips">${[['dangtim','Đang tìm'],['datim','Đã tìm thấy'],['an','Đã ẩn'],['all','Tất cả']].map(([k,t])=>`<button class="${tbF===k?'on':''}" onclick="tbF='${k}';renderAdmin()">${t}${k!=='all'?' ('+dem(k)+')':''}</button>`).join('')}</div>
+ ${ds.length?`<div class="tb-ad">${ds.map(x=>{const lh=contactLink(x.lienHe);return `<div class="tb-the"><div class="h"><span class="ai">${esc(x.timAi)}</span>${x.lopCanTim?`<span class="lp">Lớp ${esc(lopName(x.lopCanTim))}</span>`:''}<span class="who">${esc(x.taoLuc)}</span></div>
+ ${x.manhMoi?`<p>“${esc(x.manhMoi)}”</p>`:''}<div class="ai-tim">🙋 <b>${esc(x.nguoiTim)}</b>${x.lopNguoiTim?' · lớp '+esc(lopName(x.lopNguoiTim)):''} · ${lh?`<a href="${esc(lh)}" target="_blank" rel="noopener">${esc(x.lienHe)}</a>`:esc(x.lienHe)}</div>
+ ${x.phanHoi?`<div class="tbph"><b>💬 Phản hồi:</b>${String(x.phanHoi).split('\n').map(d=>`<div>${esc(d)}</div>`).join('')}</div>`:''}
+ <div class="nut">${x.trangThai!=='datim'?`<button class="btn2 sm" onclick="act(()=>api('setTimBanStatus',TOK,'${x.id}','datim'),'','Đã đánh dấu tìm thấy')">🎉 Đã tìm thấy</button>`:''}${x.trangThai!=='dangtim'?`<button class="btn2 o sm" onclick="act(()=>api('setTimBanStatus',TOK,'${x.id}','dangtim'),'','Đã hiện lại')">Hiện lại</button>`:''}${x.trangThai!=='an'?`<button class="btn2 o sm" onclick="act(()=>api('setTimBanStatus',TOK,'${x.id}','an'),'','Đã ẩn khỏi bảng')">Ẩn</button>`:''}<button class="btn2 red sm" onclick="act(()=>api('deleteTimBan',TOK,'${x.id}'),'Xoá lời tìm bạn này?','Đã xoá')">Xoá</button></div></div>`}).join('')}</div>`:'<p class="who">Chưa có.</p>'}`}
 let TKD=null,TKL=0;
 const tkSo=n=>Number(n||0).toLocaleString('vi-VN'),tkPt=(a,b)=>b?Math.round(a*100/b)+'%':'0%';
 function tkCot(vals,nhan,tip,hl){const mx=Math.max(1,...vals),im=vals.indexOf(Math.max(...vals));
@@ -1758,6 +1826,7 @@ const R={
  'Kết nối':()=>ph3('Tin trên trang Kết nối',`<button class="btn2 sm" onclick="fNews()">Đăng tin mới</button>`)+`<p class="who" style="margin-bottom:12px">Tin nổi bật hiện to nhất ở đầu trang Kết nối (thường là tin họp lớp). Các tin khác hiện thành mẩu báo bên dưới.</p>`+
   (A.tinTuc.length?`<div class="tw"><table><tbody>${A.tinTuc.map(t=>`<tr><td><b>${esc(t.tieuDe)}</b><div class="who">${esc(t.loai)}${t.ngay?' · '+esc(t.ngay):''}</div></td><td>${t.noiBat==='1'?'<span class="pill blue">Nổi bật</span> ':''}${st(t.trangThai)}</td><td class="r"><button class="btn2 o sm" onclick="fNews('${t.id}')">Sửa</button> <button class="btn2 red sm" onclick="act(()=>api('deleteNews',TOK,'${t.id}'),'Xoá tin này?','Đã xoá')">Xoá</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="who">Chưa có tin nào.</p>'),
 
+ 'Tìm bạn cũ':()=>tbAdmin_(),
  'Đăng ký họp lớp':()=>{const S=isS(),lopX=S?dkL:A.me.lopId,ds=A.dangKy.filter(x=>!lopX||x.lopId===lopX),c=s=>ds.filter(x=>x.trangThai===s).length;
   const dem=(id,st)=>A.dangKy.filter(x=>x.lopId===id&&(!st||x.trangThai===st)).length,l=ds.filter(x=>dkF==='all'||x.trangThai===dkF);
   const tong=S?`<div class="dk-lop">${[{id:'',ten:'Tất cả'}].concat(A.lop).map(L=>{const moi=L.id?dem(L.id,'cho'):A.dangKy.filter(x=>x.trangThai==='cho').length,xn=L.id?dem(L.id,'xacnhan'):A.dangKy.filter(x=>x.trangThai==='xacnhan').length;
