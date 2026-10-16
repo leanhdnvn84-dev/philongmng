@@ -203,7 +203,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 
 /* ===== TRANG CHỦ · PHƯỢNG VĨ ===== */
 .p-home{--do:#C8102E;--lua:#FBF7F4;--muc:#2B2A33;--mo:#7A747A}
-.p-home .hero{display:grid;grid-template-columns:minmax(0,57%) minmax(0,43%);min-height:calc(100svh - 68px);height:calc(100svh - 68px);overflow:hidden;position:relative;background:linear-gradient(160deg,#FFF9F4 0%,#FDEEE7 55%,#F8DCD2 100%)}
+.p-home .hero{display:grid;grid-template-columns:minmax(0,57%) minmax(0,43%);min-height:calc(100svh - 68px);overflow:hidden;position:relative;background:linear-gradient(160deg,#FFF9F4 0%,#FDEEE7 55%,#F8DCD2 100%)}
 .p-home .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,190,110,.42),transparent 40%),radial-gradient(circle at 10% 100%,rgba(200,16,46,.08),transparent 45%);pointer-events:none}
 .p-home .hero .l{padding:44px clamp(32px,4vw,76px) 84px;display:flex;flex-direction:column;justify-content:flex-start;position:relative;z-index:1;min-width:0}
 .p-home .k{color:var(--do);font-weight:600;font-size:15px;margin-bottom:10px}
@@ -804,8 +804,9 @@ body[data-p=birthday]{--hbg:#FFF4F7;--hfg:#3A1F3D;--hac:#D63A6E;--hline:#F4BFD1}
 .sn-thang button.nay:not(.on){border-color:#D63A6E}
 .sn-trong{color:#7A6478;background:#fff;border:1.5px dashed #E9C6D4;border-radius:14px;padding:14px 16px;font-size:14.5px}
 .p-cls .sn-khoi>h3{font-size:20px}
-.sn-hom{display:inline-flex;align-items:center;gap:10px;margin-top:12px;border:0;border-radius:999px;padding:9px 18px 9px 12px;background:linear-gradient(135deg,#D63A6E,#8E3FB8);color:#fff;font-size:14.5px;text-align:left;box-shadow:0 6px 16px rgba(142,63,184,.3);max-width:100%}
-.sn-hom span{font-size:22px}.sn-hom b{font-weight:700}
+.sn-hom{display:inline-flex;align-items:center;gap:10px;margin-top:12px;border:0;border-radius:14px;padding:10px 18px 10px 10px;background:linear-gradient(135deg,#D63A6E,#8E3FB8);color:#fff;font-size:14.5px;text-align:left;box-shadow:0 6px 16px rgba(142,63,184,.3);max-width:100%}
+.p-home .hang-thu{display:flex;flex-wrap:wrap;align-items:center;gap:0 14px}.p-home .hang-thu .sn-hom{margin-top:18px;max-width:min(100%,440px)}
+.sn-hom .bh{flex:none;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:24px}.sn-hom .cn{display:flex;flex-direction:column;min-width:0}.sn-hom .cn small{font-size:13px;opacity:.9}.sn-hom .cn b{font-weight:700;font-size:15.5px;line-height:1.3}
 .snNen{position:fixed;inset:0;z-index:158;background:rgba(40,16,40,.66);display:none;padding:16px;overflow-y:auto;overflow-x:hidden}.snNen.on{display:flex}
 .thiep{position:relative;margin:auto;width:min(440px,100%);background:#FFFDF9;border-radius:22px;padding:30px 24px 22px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden;animation:snVao .45s ease}
 @keyframes snVao{from{transform:scale(.86) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
@@ -1258,7 +1259,7 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
   <div class="l"><p class="goi hien" style="animation-delay:.1s">Gửi những người từng mặc áo trắng dưới gốc phượng ấy,</p><h1>${tieuDe}</h1>
   <p class="intro hien" style="animation-delay:${(.8+tu.length*.14).toFixed(2)}s">${doanMoDau(c,n)}</p>
   <div class="hero-actions hien" style="animation-delay:${(1.1+tu.length*.14).toFixed(2)}s"><button class="btn" onclick="go('classes')">Tìm lại lớp mình</button><button class="btn o" onclick="ybT=3;go('yearbook')">Viết vài dòng lưu bút</button>${(D.anh||[]).some(a=>a.fileId)||D.luuBut.length||D.thayCo.length?'<button class="btn o" onclick="tcMenu()">▶ Trình chiếu</button>':''}<button class="btn o" onclick="moTT()">🤝 Nhà tài trợ</button></div>
-  <button class="phong hien" style="animation-delay:${(1.25+tu.length*.14).toFixed(2)}s" onclick="moThu()" aria-label="Mở thư ngỏ"><span class="sap" aria-hidden="true">💌</span><span><b>${esc(THU.tieuDe)}</b><small>${esc(THU.gio)} · ${esc(THU.ngay)} · bấm để mở thư</small></span></button>${snHom()}
+  <div class="hang-thu"><button class="phong hien" style="animation-delay:${(1.25+tu.length*.14).toFixed(2)}s" onclick="moThu()" aria-label="Mở thư ngỏ"><span class="sap" aria-hidden="true">💌</span><span><b>${esc(THU.tieuDe)}</b><small>${esc(THU.gio)} · ${esc(THU.ngay)} · bấm để mở thư</small></span></button>${snHom()}</div>
   <p class="xoay hien" id="xoay" aria-live="polite" style="animation-delay:${(1.4+tu.length*.14).toFixed(2)}s">${XOAY[xoayI]}</p></div><div class="r" aria-hidden="true"><div class="canh-moi"></div></div>
   <button class="keo" onclick="document.querySelector('.p-home .goc-thu,.p-home .dem').scrollIntoView({behavior:'smooth'})">Kéo xuống, ký ức đang chờ ↓</button></div>
  ${c.loiNgo?`<div class="goc-thu"><div><div class="k">Thư gửi những người bạn cũ</div><h2>Gửi bạn, người từng ngồi cùng bàn</h2><p class="sub">Cho những ai từng mặc áo trắng dưới gốc phượng ${esc(String(c.tenTruong||'').replace(/^THPT\s*/i,''))}, từng chép bài hộ nhau, từng giận nhau một buổi rồi lại chia nhau gói xôi.</p></div><div class="giay">${epPhuong}<p>${esc(c.loiNgo)}</p><div class="ky">${esc(c.nguoiKy)}</div></div></div>`:''}
@@ -1309,7 +1310,7 @@ function veSn(){const el=$('snKq');if(!el)return;const ds=snDs(snLop),q=snQ.trim
   el.innerHTML=`<div class="sn-khoi"><h3>🔎 Kết quả <small>${hs.length} bạn</small></h3>${hs.length?`<div class="sn-ds">${hs.slice(0,80).map(o=>{const x=ds.find(y=>y.s===o.s);return x?snNut(x,1):`<button class="sn-ten qua" data-m="${esc('Bạn '+o.s.hoTen+' chưa có ngày sinh. Nhắn admin lớp '+o.c.ten+' bổ sung nhé.')}" onclick="toast(this.dataset.m)"><span class="ng"><b>?</b></span><span class="tt"><b>${esc(o.s.hoTen)}</b><span>Lớp ${esc(o.c.ten)} · chưa có ngày sinh</span></span></button>`}).join('')}</div>`:'<p class="sn-trong">Không thấy bạn nào khớp. Thử gõ ngắn hơn, chỉ tên gọi thôi.</p>'}</div>`;return}
  el.innerHTML=snKhoi(ds,!snLop,'veSn()')}
 function snHom(){const nay=snDs('').filter(x=>x.con===0);if(!nay.length)return '';
- return `<button class="sn-hom hien" onclick="${nay.length===1?`moSn('${esc(nay[0].s.id)}')`:"menu('birthday')"}"><span aria-hidden="true">🎂</span><span>Hôm nay sinh nhật <b>${nay.slice(0,3).map(x=>esc(x.s.hoTen)).join(', ')}</b>${nay.length>3?' và '+(nay.length-3)+' bạn':''} · gửi lời chúc</span></button>`}
+ return `<button class="sn-hom hien" onclick="${nay.length===1?`moSn('${esc(nay[0].s.id)}')`:"menu('birthday')"}"><span class="bh" aria-hidden="true">🎂</span><span class="cn"><small>Hôm nay sinh nhật · bấm gửi lời chúc</small><b>${nay.slice(0,2).map(x=>esc(x.s.hoTen)).join(', ')}${nay.length>2?' và '+(nay.length-2)+' bạn':''}</b></span></button>`}
 function snLoi_(x){return SN_LOI[SN_I%SN_LOI.length].replace(/\{ten\}/g,tachTen(x.s.hoTen).t||x.s.hoTen).replace(/\{lop\}/g,x.c.ten).replace(/\{nam\}/g,D.cfg.namRaTruong||'2003')}
 function moSn(id,doi){const x=snDs('').find(y=>String(y.s.id)===String(id));if(!x)return;if(!doi){SN_ID=id;SN_I=Math.floor(Math.random()*SN_LOI.length)}
  const mau=['#D63A6E','#F7B731','#8E3FB8','#2BB3A3','#FF7A45'],hn=x.con===0;
