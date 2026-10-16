@@ -822,6 +822,43 @@ body[data-p=birthday]{--hbg:#FFF4F7;--hfg:#3A1F3D;--hac:#D63A6E;--hline:#F4BFD1}
 .thiep .nut{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;position:relative}
 .thiep .nut button{flex:1 1 130px;min-height:44px;border-radius:999px;border:1.5px solid #D63A6E;background:#fff;color:#B02A5A;font-weight:600;font-size:14px;padding:8px 12px}
 .thiep .nut button.chinh{background:#D63A6E;color:#fff}
+.thiep .nut button.inb{flex-basis:100%;border-style:dashed}
+.snIn{display:none}
+@media print{@page{size:A5 portrait;margin:0}
+html.in-sn,html.in-sn body{background:#fff!important;overflow:visible!important;height:auto!important}
+html.in-sn body>*:not(#snIn){display:none!important}
+html.in-sn #snIn{display:block}}
+.snThe,.snThe *{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+.snThe .tr{position:relative;isolation:isolate;width:148mm;height:209mm;overflow:hidden;background:radial-gradient(70mm 60mm at 0 0,#FFE1E6,transparent 70%),radial-gradient(80mm 70mm at 100% 100%,#EFE2FA,transparent 70%),radial-gradient(60mm 50mm at 100% 0,#FFF1D6,transparent 70%),#FFFBF5;color:#3A1F3D;font-family:'Be Vietnam Pro',sans-serif;text-align:center}
+.snThe .vien{position:absolute;inset:6mm;border:1.2mm solid #C9A24A;border-radius:6mm}
+.snThe .vien2{position:absolute;inset:8.6mm;border:.35mm dashed #B88CCF;border-radius:4.5mm}
+.snThe svg.tr-svg{position:absolute;inset:0;width:100%;height:100%}
+.snThe .nd{position:absolute;inset:14mm 15mm 13mm;display:flex;flex-direction:column;align-items:center}
+.snThe .tr-dau{display:flex;align-items:center;gap:2.2mm;font:600 3mm/1.2 'Be Vietnam Pro',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#7A5A2A}
+.snThe .tr-dau img{width:9mm;height:9mm;object-fit:contain}
+.snThe .hb{font:700 14mm/1 'Dancing Script',cursive;color:#D63A6E;margin-top:9mm;text-shadow:.5mm .5mm 0 #FFD6E2}
+.snThe .cm{font:700 3.6mm/1 'Be Vietnam Pro',sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#8E3FB8;margin-top:2.6mm}
+.snThe .ten{font:700 14mm/1.08 'Dancing Script',cursive;color:#5B2A86;margin-top:5mm;max-width:118mm;word-break:break-word}
+.snThe .bang{display:inline-block;position:relative;margin-top:3.5mm;background:#D63A6E;color:#fff;font:600 3.6mm/1 'Be Vietnam Pro',sans-serif;padding:2.4mm 9mm;letter-spacing:.04em}
+.snThe .bang:before,.snThe .bang:after{content:'';position:absolute;top:1.6mm;border:3mm solid #A82A57;border-left-color:transparent;z-index:-1}
+.snThe .bang:before{left:-4.5mm;border-left-color:transparent}.snThe .bang:after{right:-4.5mm;border-right-color:transparent;border-left-color:#A82A57}
+.snThe .tuoi{position:absolute;right:-9mm;top:-12mm;width:21mm;height:21mm;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE9A8,#E2B248 60%,#B8862A);box-shadow:0 0 0 1mm #fff,0 0 0 1.5mm #C9A24A;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(10deg);color:#5A3A0A}
+.snThe .tuoi b{font:700 7.4mm/1 'Playfair Display',serif;margin:.6mm 0 .4mm}.snThe .tuoi span{font:600 2.8mm/1.1 'Be Vietnam Pro',sans-serif;text-transform:uppercase;letter-spacing:.1em}
+.snThe .loi{position:relative;margin-top:9mm;width:104mm;padding:5mm 7mm 6mm;background:#fff;border-radius:3mm;box-shadow:0 .8mm 3mm rgba(91,42,134,.16);border-top:1.4mm solid #F2B33D}
+.snThe .loi p{margin:0;background:repeating-linear-gradient(transparent 0 8.6mm,#EBC3D3 8.6mm 8.9mm);font:400 5.4mm/8.9mm 'Charm',cursive;color:#3A1F3D;text-align:left;min-height:53.4mm}
+.snThe .loi p:first-letter{font:700 9mm/1 'Dancing Script',cursive;color:#D63A6E}
+.snThe .ky{margin-top:auto;align-self:flex-start;text-align:left;padding-left:2mm}
+.snThe .ky small{display:block;font:500 3.2mm/1.3 'Be Vietnam Pro',sans-serif;color:#7A6478}
+.snThe .ky b{display:block;font:700 7mm/1.2 'Dancing Script',cursive;color:#8E3FB8}
+.snThe .chan{position:absolute;left:0;right:0;bottom:3mm;font:500 2.6mm/1 'Be Vietnam Pro',sans-serif;color:#9A8498;letter-spacing:.08em}
+.snXem{position:fixed;inset:0;z-index:170;background:rgba(30,12,30,.8);display:flex;flex-direction:column;align-items:center;padding:14px;overflow:auto}
+.snXem .bao{flex:none;width:calc(148mm * var(--k));height:calc(209mm * var(--k));margin:auto;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.snXem .bao .tr{transform:scale(var(--k));transform-origin:0 0}
+.snXem .nut{flex:none;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.snXem .nut button{min-height:44px;border-radius:999px;border:0;padding:8px 18px;font-weight:600;font-size:14.5px;background:#fff;color:#5B2A86}
+.snXem .nut button.chinh{background:#D63A6E;color:#fff}
+.snXem p{flex:none;color:#F3E6F0;font-size:13.5px;margin:8px 0 0;text-align:center;max-width:420px}
+@media print{html.in-sn .snXem{display:none!important}}
 nav.bot button.them-nut{position:relative}
 .navThem{position:fixed;inset:0;z-index:45;background:rgba(20,16,30,.45);display:none;align-items:flex-end}.navThem.on{display:flex}
 .navThem .hop{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:14px 16px calc(78px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,1fr);gap:10px;animation:snLen .22s ease}
@@ -871,6 +908,7 @@ nav.bot button.them-nut{position:relative}
 <div class="modal" id="modal" onclick="if(event.target===this)closeForm()"><div class="box" id="mBody"></div></div>
 <div class="loader" id="loader"><div class="ld-thuong"><div class="spin"></div><span id="loadTxt">Đang tải…</span></div><div class="ld-roi" id="ldRoi" aria-hidden="true"></div><div class="ld-dau" role="status"><img id="ldLogo" alt="Logo Trường THPT Nguyễn Hiền"><p class="ld-ten">THPT Nguyễn Hiền</p><p class="ld-kh">Khoá 2000 – 2003</p><p class="ld-cau" id="ldCau">Đang lật lại trang lưu bút…</p><div class="ld-vach"><i></i></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="snIn" id="snIn" aria-hidden="true"></div>
 <div class="snNen" id="snNen" onclick="if(event.target===this)dongSn()"><div class="thiep" role="dialog" aria-label="Thiệp sinh nhật" id="snThiep"></div></div>
 <div class="navThem" id="navThem" onclick="if(event.target===this)dongThem()"><div class="hop" id="navThemHop"></div></div>
 <datalist id="albumList"></datalist>
@@ -1280,9 +1318,35 @@ function moSn(id,doi){const x=snDs('').find(y=>String(y.s.id)===String(id));if(!
  <div class="lp">Lớp ${esc(x.c.ten)} · ${esc(D.cfg.tenTruong||'')} · Khoá ${esc(D.cfg.nienKhoa||'')}</div>
  <div class="tuoi">${hn?'🎉 Hôm nay':x.con===1?'Ngày mai':'Còn '+x.con+' ngày'}${x.tuoi?' · tròn '+x.tuoi+' tuổi':''}</div>
  <div class="loi" id="snLoi">${esc(snLoi_(x))}</div>
- <div class="nut"><button onclick="SN_I++;moSn(SN_ID,1)">🔁 Lời chúc khác</button><button class="chinh" onclick="chep($('snLoi').textContent,'Đã sao chép lời chúc, dán vào Zalo gửi bạn nhé')">📋 Sao chép lời chúc</button><button onclick="dongSn();ybT=3;wLop='${esc(x.c.id)}';go('yearbook')">✍️ Viết lưu bút lớp ${esc(x.c.ten)}</button></div>`;
+ <div class="nut"><button onclick="SN_I++;moSn(SN_ID,1)">🔁 Lời chúc khác</button><button class="chinh" onclick="chep($('snLoi').textContent,'Đã sao chép lời chúc, dán vào Zalo gửi bạn nhé')">📋 Sao chép lời chúc</button><button onclick="dongSn();ybT=3;wLop='${esc(x.c.id)}';go('yearbook')">✍️ Viết lưu bút lớp ${esc(x.c.ten)}</button><button class="inb" onclick="xemInSn()">🖨️ In thiệp sinh nhật</button></div>`;
  $('snNen').classList.add('on')}
 function dongSn(){$('snNen').classList.remove('on')}
+/* In thiệp sinh nhật: thiệp A5 dọc, xem trước rồi in (hoặc lưu PDF) */
+function snHoa_(x,y,k,r){let g=`<g transform="translate(${x} ${y}) rotate(${r}) scale(${k})">`;for(let i=0;i<5;i++)g+=`<path d="M0 0C-7-4-9-15-3-20C0-22 3-22 5-19C9-13 6-4 0 0Z" fill="${i===0?'#F2B33D':'#E8412C'}" transform="rotate(${i*72})"/>`;g+=`<path d="M0 0C-6-4-8-14-3-19" stroke="#B8231A" stroke-width=".8" fill="none" transform="rotate(144)"/>`;for(let i=0;i<7;i++){const a=(i*51+20)*Math.PI/180;g+=`<line x1="0" y1="0" x2="${(Math.cos(a)*15).toFixed(1)}" y2="${(Math.sin(a)*15).toFixed(1)}" stroke="#9C1D14" stroke-width=".7"/><circle cx="${(Math.cos(a)*15).toFixed(1)}" cy="${(Math.sin(a)*15).toFixed(1)}" r="1.3" fill="#F7C948"/>`}return g+'<circle r="3" fill="#FCE38A"/></g>'}
+function snLa_(x,y,dai,r){let g=`<g transform="translate(${x} ${y}) rotate(${r})"><path d="M0 0L${dai} 0" stroke="#4F8A3A" stroke-width="1.2"/>`;for(let t=8;t<dai;t+=6.5){const k=1-t/dai*.55;g+=`<ellipse cx="${t}" cy="-4" rx="${(3*k).toFixed(1)}" ry="${(1.6*k).toFixed(1)}" fill="#5E9E44" transform="rotate(-35 ${t} -4)"/><ellipse cx="${t}" cy="4" rx="${(3*k).toFixed(1)}" ry="${(1.6*k).toFixed(1)}" fill="#6FB050" transform="rotate(35 ${t} 4)"/>`}return g+'</g>'}
+function snBong_(x,y,mau,r){return `<g transform="translate(${x} ${y}) rotate(${r})"><path d="M0 22C-3 34 4 44 0 58" stroke="#9A8498" stroke-width=".7" fill="none"/><ellipse cx="0" cy="0" rx="13" ry="16" fill="${mau}"/><ellipse cx="-5" cy="-6" rx="3" ry="5" fill="#fff" opacity=".45"/><path d="M-2 15L2 15L3 19L-3 19Z" fill="${mau}"/></g>`}
+function snTrangIn_(x){const lop=esc(x.c.ten),mau=['#D63A6E','#F7B731','#8E3FB8','#2BB3A3','#FF7A45'];
+ let v='';for(let k=0;k<26;k++){const px=(k*37+11)%148,py=(k*53+17)%209;if(px>22&&px<126&&py>30&&py<185)continue;v+=`<rect x="${px}" y="${py}" width="2.4" height="1.2" rx=".4" fill="${mau[k%5]}" transform="rotate(${k*41%180} ${px} ${py})" opacity=".8"/>`}
+ const cum=`${snLa_(4,22,34,-14)}${snLa_(12,5,30,60)}${snLa_(5,38,22,-50)}${snHoa_(13,13,.46,10)}${snHoa_(26,8,.33,40)}${snHoa_(8,27,.31,-20)}${snHoa_(23,21,.25,70)}`;
+ const svg=`<svg class="tr-svg" viewBox="0 0 148 209" preserveAspectRatio="none" aria-hidden="true">${v}<g>${cum}</g><g transform="rotate(180 74 104.5)">${cum}</g><g transform="translate(106 6) scale(.5)">${snBong_(40,30,'#D63A6E',-8)}${snBong_(62,42,'#F7B731',12)}${snBong_(20,46,'#8E3FB8',-18)}</g></svg>`;
+ const lg=$('hLogo')?$('hLogo').src:'';
+ return `<div class="snThe"><div class="tr">${svg}<div class="vien"></div><div class="vien2"></div>
+ <div class="nd"><div class="tr-dau">${lg?`<img src="${lg}" alt="">`:''}<span>${esc(D.cfg.tenTruong||'THPT Nguyễn Hiền')}<br>Khoá ${esc(D.cfg.nienKhoa||'2000 – 2003')}</span></div>
+ <div class="hb">Happy Birthday</div><div class="cm">Chúc mừng sinh nhật</div>
+ <div class="ten">${esc(x.s.hoTen)}</div>
+ <div class="bang">Lớp ${lop} · Ngày ${x.n.d} tháng ${x.n.m}</div>
+ <div class="loi"><p>${esc($('snLoi')?$('snLoi').textContent:snLoi_(x))}</p>${x.tuoi?`<div class="tuoi"><span>Tròn</span><b>${x.tuoi}</b><span>tuổi</span></div>`:''}</div>
+ <div class="ky"><small>Thân thương,</small><b>Các bạn lớp ${lop}</b><small>Ban liên lạc khoá ${esc(D.cfg.nienKhoa||'2000 – 2003')}</small></div></div>
+ <div class="chan">✿ ${esc(D.cfg.tenTruong||'THPT Nguyễn Hiền')} · ${new Date().getFullYear()} ✿</div></div></div>`}
+function xemInSn(){const x=snDs('').find(y=>String(y.s.id)===String(SN_ID));if(!x)return;const t=snTrangIn_(x);$('snIn').innerHTML=t;
+ const k=Math.min((innerWidth-28)/(148*3.7795),(innerHeight-150)/(209*3.7795),1.4).toFixed(3);
+ const w=document.createElement('div');w.className='snXem';w.id='snXem';w.onclick=e=>{if(e.target===w)w.remove()};
+ w.innerHTML=`<div class="bao" style="--k:${k}">${t}</div><div class="nut"><button onclick="$('snXem').remove()">← Quay lại</button><button class="chinh" onclick="inSn()">🖨️ In thiệp (A5)</button></div><p>Khổ A5 dọc (nửa tờ A4). Chọn máy in, hoặc "Lưu dưới dạng PDF" để gửi Zalo / mang ra tiệm in. Bật "In nền/Đồ hoạ nền" nếu màu bị mất.</p>`;
+ document.body.appendChild(w)}
+function inSn(){const h=document.documentElement;h.classList.add('in-sn');const xong=()=>{h.classList.remove('in-sn');removeEventListener('afterprint',xong)};addEventListener('afterprint',xong);
+ const chay=()=>{try{print()}catch(e){toast('Trình duyệt này không in được. Mở trang bằng Chrome/Safari rồi thử lại nhé.')}setTimeout(xong,1500)};
+ (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(chay,120))}
+
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('snNen').classList.contains('on'))dongSn();dongThem()});
 /* ===================== CÁC LỚP ===================== */
 let clsQ='',curCls=null,cT=0,cV='so';

@@ -12,7 +12,7 @@
 
 const SHEETS = {
   Lop:      ['id', 'ten', 'gvcn', 'ban', 'gioiThieu', 'thuTu'],
-  HocSinh:  ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu', 'sdt'],
+  HocSinh:  ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu', 'sdt', 'ngaySinh', 'nu'],
   HoatDong: ['id', 'namHoc', 'ngay', 'tieuDe', 'moTa', 'icon', 'anhId', 'trangThai', 'lopDeXuat', 'taoLuc'],
   ThayCo:   ['id', 'hoTen', 'vaiTro', 'anhId', 'thuTu'],
   LuuBut:   ['id', 'lopId', 'tacGia', 'noiDung', 'trangThai', 'taoLuc'],
@@ -25,7 +25,7 @@ const SHEETS = {
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
@@ -35,6 +35,10 @@ const CONFIG_DEFAULT = {
   /** Đoạn dưới câu mở đầu trang chủ. Chữ trong ngoặc nhọn tự thay: {namRaTruong} {tenTruong} {diaChi} (phần trước dấu phẩy đầu) {soNam} {soLop} */
   tuDuyetLb: '',
   taiTro: '',
+  anhien: '1', // Dòng liên hệ cuối popup nhà tài trợ: 1 hiện, 0 ẩn.
+  ttLoiMoi: 'Muốn đồng hành cùng buổi Gala? Liên hệ',
+  ttNguoiLienHe: '', // Để trống thì lấy người đầu tiên trong Ban liên lạc.
+  ttSoLienHe: '',
   doanMoDau: 'Tháng Năm {namRaTruong}, ba hồi trống cuối cùng vang lên trên sân trường {tenTruong}, {diaChi}. Những cánh phượng rơi đỏ lối. Cuốn lưu bút chưa kịp chuyền hết một vòng lớp. Có những lời tạm biệt mình hẹn để mai nói, rồi để tới tận bây giờ. {soNam} năm, mỗi đứa một phương trời. Nơi này là để {soLop} lớp mình gọi tên nhau thêm một lần nữa.',
   trichDan: 'Gốc phượng sân sau giờ còn không ta? Ai về trường chụp giùm một tấm nha.',
   trichDanTacGia: 'Lưu bút của một bạn khoá 2000 – 2003',
@@ -172,9 +176,14 @@ function hdr_(n) {
   const sh = sh_(n), lc = sh.getLastColumn();
   let h = lc ? sh.getRange(1, 1, 1, lc).getDisplayValues()[0].map(function (x) { return String(x).trim(); }) : [];
   while (h.length && !h[h.length - 1]) h.pop();
-  const miss = SHEETS[n].filter(function (k) { return h.indexOf(k) < 0; });
+  const miss = SHEETS[n].filter(function (k) {
+    if (n === 'HocSinh' && k === 'nu') return !h.some(function (x) { return x.toLowerCase() === 'nu'; });
+    if (n === 'HocSinh' && k === 'ngaySinh') return !h.some(function (x) { return /^(ngaysinh|namsinh|ngay sinh|ngày sinh|ngày tháng năm sinh)$/i.test(x); });
+    return h.indexOf(k) < 0;
+  });
   if (miss.length) {
     sh.getRange(1, h.length + 1, 1, miss.length).setNumberFormat('@').setValues([miss]);
+    if (n === 'HocSinh' && miss.indexOf('nu') >= 0) sh.getRange(2, h.length + miss.indexOf('nu') + 1, Math.max(1, sh.getMaxRows() - 1), 1).insertCheckboxes();
     h = h.concat(miss);
   }
   return (_hdr[n] = h);
@@ -195,6 +204,10 @@ function read_(n) {
   v.forEach(function (r, i) {
     const o = { _row: i + 2 };
     h.forEach(function (k, j) { o[colKey_(h, j)] = clean_(r[j]); });
+    if (n === 'HocSinh') {
+      o.ngaySinh = o.namsinh || o.ngaysinh || o['ngay sinh'] || o['Ngày sinh'] || o['Ngày tháng năm sinh'] || o.ngaySinh || '';
+      if (Object.prototype.hasOwnProperty.call(o, 'Nu')) o.nu = o.Nu;
+    }
     if (o[key] === '') return;
     out.push(o);
   });
@@ -205,7 +218,11 @@ function safe_(v) {
   const s = v == null ? '' : String(v);
   return /^[=+@]/.test(s) ? "'" + s : s;
 }
-function rowOf_(n, o) { const h = hdr_(n); return h.map(function (k, j) { return safe_(o[colKey_(h, j)]); }); }
+function rowOf_(n, o) { const h = hdr_(n); return h.map(function (k, j) {
+  if (n === 'HocSinh' && k.toLowerCase() === 'nu') return /^(true|1|yes|x|✓|co|có)$/i.test(String(o.nu || '').trim());
+  if (n === 'HocSinh' && /^(ngaysinh|namsinh|ngay sinh|ngày sinh|ngày tháng năm sinh)$/i.test(k)) return safe_(o.ngaySinh);
+  return safe_(o[colKey_(h, j)]);
+}); }
 
 function append_(n, o) {
   const sh = sh_(n), r = sh.getLastRow() + 1;
@@ -529,7 +546,7 @@ function login(user, pw) {
   const token = Utilities.getUuid();
   cache.put('S_' + token, JSON.stringify({ user: a.user }), SESSION_TTL);
   log_(a, 'Đăng nhập');
-  return { token: token, user: a.user, hoTen: a.hoTen, role: a.role, lopId: a.lopId };
+  return { token: token, user: a.user, hoTen: a.hoTen, role: a.role, lopId: a.lopId, adminData: getAdminData(token) };
 }
 
 function logout(token) {
@@ -594,10 +611,15 @@ function autoSeed_() {
 }
 
 /* Dữ liệu công khai lưu đệm ở CacheService (chia nhỏ vì mỗi ô tối đa 100KB), xoá ngay khi có ghi dữ liệu. */
-const PUB_KEY = 'PUB_', PUB_TTL = 420, PUB_CHUNK = 30000;
+const PUB_KEY = 'PUB_STUDENT_V3_', PUB_TTL = 420, PUB_CHUNK = 30000;
 function pubBust_(n) {
   if (n === 'NhatKy' || n === 'LuotXem') return;
-  try { CacheService.getScriptCache().removeAll(n === 'LuuBut' ? [PUB_KEY + 'n', 'LB_MOI'] : [PUB_KEY + 'n']); } catch (e) { }
+  try {
+    const c = CacheService.getScriptCache();
+    const slide = ['Lop', 'Anh', 'LuuBut', 'ThayCo', 'TinTuc', 'CauHinh', 'TaiKhoan'].indexOf(n) >= 0;
+    c.removeAll((n === 'LuuBut' ? [PUB_KEY + 'n', 'LB_MOI'] : [PUB_KEY + 'n']).concat(slide ? ['TC_DATA'] : []));
+    if (slide) c.put('TC_REV', uid_(), SESSION_TTL);
+  } catch (e) { }
 }
 function pubJson_() {
   const c = CacheService.getScriptCache();
@@ -636,6 +658,32 @@ function getDuLieuMoi() {
     c.put('PUB_MOI_T', '1', 20);
   }
   return JSON.parse(pubJson_());
+}
+/** Trình chiếu chỉ cần tên lớp, ảnh, lưu bút, thầy cô, tin và cấu hình. */
+function taoTrinhChieuData_() {
+  const r = {
+    cfg: cfg_(),
+    lop: sort_(read_('Lop')).map(function (l) { return { id: l.id, ten: l.ten }; }),
+    anh: read_('Anh').map(pubOf_('Anh')).map(function (a) { a.fileId = idAnh_(a.fileId); return a; }).reverse(),
+    luuBut: read_('LuuBut').filter(function (x) { return x.trangThai === 'approved'; }).map(pubOf_('LuuBut')).reverse(),
+    thayCo: sort_(read_('ThayCo')).map(pubOf_('ThayCo')).map(function (t) { t.anhId = idAnh_(t.anhId); return t; }),
+    tinTuc: sortNews_(read_('TinTuc').filter(function (t) { return t.trangThai === 'published'; })).map(pubOf_('TinTuc'))
+  };
+  try { moAnh_(r.anh.map(function (a) { return a.fileId; }).concat(r.thayCo.map(function (t) { return t.anhId; })).filter(String), false); } catch (e) { console.log('moAnh trình chiếu: ' + e.message); }
+  return r;
+}
+function getSlideRevision() {
+  return CacheService.getScriptCache().get('TC_REV') || '0';
+}
+/** force=true đọc Sheet trực tiếp để thấy cả thay đổi gõ tay, dùng định kỳ trong lúc chiếu. */
+function getSlideData(force) {
+  const c = CacheService.getScriptCache(), rev = c.get('TC_REV') || '0';
+  if (!force) {
+    try { const raw = c.get('TC_DATA'); if (raw) return JSON.parse(raw); } catch (e) { }
+  }
+  const result = { rev: rev, data: taoTrinhChieuData_() };
+  try { c.put('TC_DATA', JSON.stringify(result), 12); } catch (e) { }
+  return result;
 }
 /* Giữ ấm: trigger 5 phút/lần dựng sẵn dữ liệu công khai vào bộ đệm, để doGet không phải đọc Sheet khi có người mở trang
    (bớt màn trắng lúc mở). Sửa tay Sheet cũng tự hiện sau tối đa 5 phút. */
@@ -722,6 +770,7 @@ function getAdminData(token) {
     const ad = accs.find(function (a) { return a.role === 'class' && a.lopId === l.id; });
     o.adminUser = ad ? ad.user : '';
     o.admin = ad ? ad.hoTen : '';
+    o.adminLienHe = ad ? (ad.lienHe || '') : '';
     o.hs = sort_(hs.filter(function (h) { return h.lopId === l.id; })).map(pub_);
     return o;
   });
@@ -780,7 +829,7 @@ function deleteClass(token, id) {
 }
 
 /** Gán / đổi admin của 1 lớp – mỗi lớp chỉ có đúng 1 admin. */
-function setClassAdmin(token, lopId, user, hoTen, pw) {
+function setClassAdmin(token, lopId, user, hoTen, pw, lienHe) {
   return lock_(function () {
     const u = auth_(token, true);
     const l = find_('Lop', lopId);
@@ -788,6 +837,7 @@ function setClassAdmin(token, lopId, user, hoTen, pw) {
     user = normUser_(user);
     if (!/^[a-z0-9_.]{3,30}$/.test(user)) throw new Error('Tên đăng nhập chỉ gồm chữ thường không dấu, số, dấu _ hoặc . (3–30 ký tự).');
     hoTen = req_(hoTen, 'họ tên admin', 60);
+    lienHe = String(lienHe || '').trim().slice(0, 60);
     const ex = find_('TaiKhoan', user);
     if (ex && !(ex.role === 'class' && ex.lopId === lopId)) throw new Error('Tên đăng nhập "' + user + '" đã được dùng cho tài khoản khác.');
     if (!ex && String(pw || '').length < 6) throw new Error('Mật khẩu phải từ 6 ký tự.');
@@ -795,12 +845,12 @@ function setClassAdmin(token, lopId, user, hoTen, pw) {
     remove_('TaiKhoan', function (a) { return a.role === 'class' && a.lopId === lopId && a.user !== user; });
     if (ex) {
       const a = find_('TaiKhoan', user);
-      a.hoTen = hoTen; a.active = '1';
+      a.hoTen = hoTen; a.active = '1'; a.lienHe = lienHe;
       if (pw) { a.salt = Utilities.getUuid(); a.hash = hash_(a.salt, String(pw)); }
       update_('TaiKhoan', a);
     } else {
       const salt = Utilities.getUuid();
-      append_('TaiKhoan', { user: user, hoTen: hoTen, role: 'class', lopId: lopId, salt: salt, hash: hash_(salt, String(pw)), active: '1' });
+      append_('TaiKhoan', { user: user, hoTen: hoTen, role: 'class', lopId: lopId, salt: salt, hash: hash_(salt, String(pw)), active: '1', lienHe: lienHe });
     }
     log_(u, 'Gán admin lớp ' + l.ten + ': ' + user);
     return true;
@@ -853,7 +903,7 @@ function removeClassAdmin(token, lopId) {
 function saveStudent(token, s) {
   return lock_(function () {
     const u = auth_(token);
-    const o = pick_(s, ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu', 'sdt']);
+    const o = pick_(s, ['id', 'lopId', 'hoTen', 'chucVu', 'hienO', 'thuTu', 'sdt', 'ngaySinh', 'nu']);
     if (o.id) {
       const ex = find_('HocSinh', o.id);
       if (!ex) throw new Error('Học sinh không tồn tại.');
@@ -862,6 +912,13 @@ function saveStudent(token, s) {
     if (!find_('Lop', o.lopId)) throw new Error('Lớp không tồn tại.');
     canLop_(u, o.lopId);
     o.hoTen = req_(o.hoTen, 'họ tên', 80);
+    if (o.ngaySinh && !/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(o.ngaySinh)) throw new Error('Ngày sinh cần có dạng ngày/tháng/năm, ví dụ 12/04/1985.');
+    if (o.ngaySinh) {
+      const p = o.ngaySinh.split('/').map(Number), d = new Date(p[2], p[1] - 1, p[0]);
+      if (d.getFullYear() !== p[2] || d.getMonth() !== p[1] - 1 || d.getDate() !== p[0]) throw new Error('Ngày sinh không hợp lệ.');
+      o.ngaySinh = p[0].toString().padStart(2, '0') + '/' + p[1].toString().padStart(2, '0') + '/' + p[2];
+    }
+    o.nu = /^(true|1|yes|x|✓|co|có)$/i.test(String(o.nu || '').trim()) ? 'TRUE' : 'FALSE';
     const id = upsert_('HocSinh', o);
     log_(u, (s.id ? 'Sửa' : 'Thêm') + ' học sinh ' + o.hoTen);
     return id;
@@ -897,7 +954,7 @@ function moveStudents(token, ids, lopId) {
   });
 }
 
-/** Dán từ Excel: mỗi dòng "Họ tên<TAB>Chức vụ<TAB>Hiện ở<TAB>Điện thoại" (dấu ; cũng được). */
+/** Dán từ Excel: Họ tên, Chức vụ, Hiện ở, Điện thoại, Ngày sinh, Nữ (hai cột cuối tuỳ chọn). */
 function importStudents(token, lopId, text) {
   return lock_(function () {
     const u = auth_(token);
@@ -910,7 +967,13 @@ function importStudents(token, lopId, text) {
       const p = line.split(/\t|;/).map(function (x) { return x.trim(); });
       if (!p[0] || /^(họ\s*tên|ho\s*ten|stt)$/i.test(p[0])) return;
       if (/^\d+$/.test(p[0]) && p[1]) p.shift(); // bỏ cột STT
-      list.push({ id: uid_() + list.length, lopId: lopId, hoTen: p[0].slice(0, 80), chucVu: (p[1] || '').slice(0, 40), hienO: (p[2] || '').slice(0, 80), sdt: (p[3] || '').slice(0, 30), thuTu: String(++order) });
+      const ngaySinh = p[4] || '';
+      if (ngaySinh && !/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(ngaySinh)) throw new Error('Ngày sinh không đúng dạng ngày/tháng/năm: ' + p[0]);
+      if (ngaySinh) {
+        const a = ngaySinh.split('/').map(Number), d = new Date(a[2], a[1] - 1, a[0]);
+        if (d.getFullYear() !== a[2] || d.getMonth() !== a[1] - 1 || d.getDate() !== a[0]) throw new Error('Ngày sinh không hợp lệ: ' + p[0]);
+      }
+      list.push({ id: uid_() + list.length, lopId: lopId, hoTen: p[0].slice(0, 80), chucVu: (p[1] || '').slice(0, 40), hienO: (p[2] || '').slice(0, 80), sdt: (p[3] || '').slice(0, 30), ngaySinh: ngaySinh, nu: /^(true|1|yes|x|✓|co|có|nữ|nu)$/i.test(p[5] || '') ? 'TRUE' : 'FALSE', thuTu: String(++order) });
     });
     if (!list.length) throw new Error('Không đọc được dòng nào.');
     appendMany_('HocSinh', list);
@@ -1090,6 +1153,7 @@ function saveConfig(token, cfg) {
     CONFIG_KEYS.forEach(function (k) {
       if (!cfg || cfg[k] === undefined) return;
       const v = String(cfg[k]).trim().slice(0, /^(thuNgo|giayMoi|keHoach|taiTro)$/.test(k) ? 30000 : 3000);
+      if (k === 'anhien' && v !== '0' && v !== '1') throw new Error('anhien chỉ nhận 0 (ẩn) hoặc 1 (hiện).');
       const ex = rows.find(function (r) { return r.key === k; });
       if (ex) { ex.value = v; update_('CauHinh', ex); } else append_('CauHinh', { key: k, value: v });
     });
