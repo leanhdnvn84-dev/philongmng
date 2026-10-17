@@ -60,6 +60,8 @@ Thư ngỏ có 4 nút: Để sau · 📋 Kế hoạch (`moKeHoach`, `.thu.kh-on 
 
 **Thiệp mời in** (`thiet-ke/thiep-moi-gala/`): `thiep-moi.html` A5 dọc 2 trang (mời bạn · mời Thầy/Cô), phong cách sang trọng (giấy ngà, khung vàng art-deco, dải xanh lục bảo, 2 nhành phượng trên, chữ Cormorant Garamond + Playfair số lining), nội dung lấy theo `GM` (giờ, ngày, đóng góp, lời mời) + Ban liên lạc mặc định; tên/lớp/địa điểm để dòng chấm ghi tay (`NHA_HANG`, `DIA_CHI` trống); `render.js 1` xem trước, `render.js 3.125` → PNG 300 dpi + `thiep-moi-A5-2-trang.pdf`; `thiep-moi-gala-in.zip` gửi tiệm in.
 
+**Thiệp mời "Ngày trở về"** (`thiet-ke/thiep-moi-mau-nuoc/`, mẫu người dùng gửi): nền tranh màu nước `nen-goc.jpg` (1054×1492, đã có chữ trường/"Ngày trở về"/GALA/"Về bên nhau · Về miền ký ức") → `nen-2x.jpg`; `thiep-moi.html` đặt khối thông tin `.kh` vào vùng giấy trống (left 52mm, top 107mm: Thân mời bạn/Trân trọng kính mời, dòng tên, Lớp 12/, lời, 17h00 · Thứ Bảy, 14.11.2026, Tại …, đóng góp, chữ ký) + ô Ban liên lạc `.lh` góc dưới trái; chữ đỏ #A3281F như tranh; `render.js` giống thiep-moi-gala; zip `thiep-moi-ngay-tro-ve-in.zip`.
+
 ### Dữ liệu mẫu
 Mọi dòng mẫu có id bắt đầu `mau_`. Nội dung mẫu viết trong `napDuLieuMau_()` (Code.gs); dòng `const DEMO=` trong Index.html
 là bản chụp của nó, **tạo lại** bằng `node tools/build-demo.js` (chạy Code.gs trên Sheet giả lập) rồi build tai-ve. `autoSeed_()` tự nạp khi Sheet trống (một lần, cờ `DEMO_AUTO`).

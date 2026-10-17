@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<title>Thiệp mời Ngày trở về – Gala Nguyễn Hiền 2000 – 2003</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Dancing+Script:wght@700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Thiệp A5 dọc trên nền tranh màu nước "Ngày trở về" (người dùng gửi); thông tin đặt vào vùng giấy trống bên phải. 2 trang: mời bạn · mời Thầy/Cô */
+@page{size:148mm 210mm;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#d8d2c6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px}
+@media print{body{padding:0;gap:0;background:none}}
+:root{--do:#A3281F;--do2:#C0392B;--chu:#3B3330;--xam:#6D625C;--vang:#B9893B}
+.tr{position:relative;width:148mm;height:210mm;overflow:hidden;background:#FAF3E7 url(nen-2x.jpg) center/100% 100% no-repeat;color:var(--chu);font-family:'Cormorant Garamond',serif;font-variant-numeric:lining-nums;break-after:page}
+.tr:last-child{break-after:auto}
+/* khối thông tin: vùng giấy trống từ giữa xuống, lệch phải */
+.kh{position:absolute;left:52mm;right:9mm;top:107mm;text-align:center;display:flex;flex-direction:column;align-items:center}
+.nho{font-family:'Playfair Display',serif;font-weight:600;font-size:2.7mm;letter-spacing:.9mm;color:var(--chu)}
+.ten{margin-top:1mm;width:92%;height:7mm;border-bottom:.3mm dotted var(--xam)}
+.lop{margin-top:2mm;font-size:3.6mm;font-weight:600;color:var(--chu)}
+.lop span{display:inline-block;width:13mm;border-bottom:.3mm dotted var(--xam);height:4mm;vertical-align:bottom}
+.loi{margin-top:2.2mm;font-style:italic;font-weight:500;font-size:3.4mm;line-height:1.4;color:var(--chu)}
+.hoa{display:flex;align-items:center;gap:2mm;margin-top:2.4mm;width:40mm}
+.hoa i{flex:1;height:.25mm;background:var(--do2);opacity:.7}
+.hoa b{color:var(--do2);font-size:3mm;line-height:1}
+.gio{margin-top:2.4mm;font-family:'Playfair Display',serif;font-weight:600;font-size:3.2mm;letter-spacing:.6mm;color:var(--chu)}
+.ngay{font-family:'Playfair Display',serif;font-weight:700;font-size:8mm;line-height:1.1;color:var(--do);letter-spacing:.4mm}
+.dd{margin-top:1.4mm;font-size:3.4mm;font-weight:600;color:var(--xam);letter-spacing:.3mm}
+.dd .o{display:inline-block;vertical-align:bottom;margin-left:1mm;width:46mm;max-width:100%;border-bottom:.3mm dotted var(--xam);height:4.6mm}
+.dg{margin-top:2mm;font-size:3.35mm;line-height:1.45;color:var(--chu)}
+.dg b{font-family:'Playfair Display',serif;color:var(--do);font-size:3.9mm}
+.ky{margin-top:1.8mm;font-family:'Dancing Script',cursive;font-size:5.4mm;color:var(--do);line-height:1}
+/* liên hệ: dải nhỏ cuối thiệp, trên nền sân trường */
+.lh{position:absolute;left:7mm;width:60mm;bottom:6mm;text-align:left;font-size:2.9mm;line-height:1.4;color:var(--chu);
+ background:rgba(250,243,231,.82);border-radius:2mm;padding:1.6mm 2.6mm}
+.lh small{display:block;font-family:'Playfair Display',serif;font-weight:600;font-size:2.1mm;letter-spacing:.6mm;color:var(--do)}
+.lh b{font-weight:700}
+</style></head>
+<body>
+<section class="tr" id="ban"></section>
+<section class="tr" id="thay"></section>
+<script>
+const GM={gio:'17h00',thu:'Thứ Bảy',ngay:'14 . 11 . 2026',dongGop:'700.000đ',han:'25/10/2026',
+ loiBan:'Cùng về gặp lại thầy cô, tìm lại bạn bè<br>và viết tiếp kỷ niệm của khoá mình.',
+ loiThay:'Hai mươi ba năm xa mái trường, học trò khoá 2000 – 2003<br>kính mời Thầy/Cô về dự đêm Gala, để được gặp lại và tri ân.'};
+const BLL=[['Lê Trung Hiếu','0905 394 493'],['Hoàng Diệu Thúy','0905 865 867'],['Nguyễn Thị Tuyết Mai','0905 516 896']];
+/* Nhà hàng chưa chốt → dòng chấm ghi tay; có tên thì điền NHA_HANG rồi xuất lại */
+const NHA_HANG='';
+function trang(ban){return `<div class="kh">
+ <div class="nho">${ban?'THÂN MỜI BẠN':'TRÂN TRỌNG KÍNH MỜI'}</div>
+ <div class="ten"></div>${ban?'<div class="lop">Lớp 12/<span></span></div>':''}
+ <p class="loi">${ban?GM.loiBan:GM.loiThay}</p>
+ <div class="hoa"><i></i><b>✿</b><i></i></div>
+ <div class="gio">${GM.gio} · ${GM.thu.toUpperCase()}</div>
+ <div class="ngay">${GM.ngay}</div>
+ <div class="dd">Tại ${NHA_HANG?`<b>${NHA_HANG}</b>`:'<span class="o"></span>'}</div>
+ ${ban?`<div class="dg">Đóng góp <b>${GM.dongGop}</b> / người · trước ${GM.han.slice(0,5)}</div><div class="ky">Hẹn gặp cả khoá!</div>`:`<div class="ky">Thay mặt Ban liên lạc</div>`}
+</div>
+<div class="lh"><small>${ban?'BAN LIÊN LẠC':'LIÊN HỆ BAN LIÊN LẠC'}</small>${BLL.map(x=>`<div><b>${x[0]}</b> · ${x[1]}</div>`).join('')}</div>`}
+document.getElementById('ban').innerHTML=trang(true);document.getElementById('thay').innerHTML=trang(false);
+</script>
+</body></html>
