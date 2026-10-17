@@ -680,13 +680,17 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .gm .dong{margin-top:4px;font-size:10.6px;display:flex;justify-content:center;align-items:flex-end;gap:4px}
 .gm .cham{display:inline-block;min-width:140px;max-width:190px;border-bottom:1px dotted #3B3330;min-height:14px;font-family:'Dancing Script',cursive;font-weight:700;font-size:15px;line-height:1;color:#8A2A1F;overflow-wrap:anywhere}
 .gm .cham.ngan{min-width:30px;max-width:40px}
-.thu .gm p,.gmIn .gm p{margin:6px 0 0;font-size:10.2px;line-height:1.36;white-space:pre-line;color:#3B3330}
+.thu .gm p,.gmIn .gm p{display:inline-block;margin:6px 0 0;text-align:left;font-size:10.2px;line-height:1.36;white-space:pre-line;color:#3B3330}
 .gm .ke{height:1px;background:#C0392B;opacity:.85;margin:7px 0 0}
 .gm .gio{margin-top:6px;font-weight:700;font-size:14.6px;color:#A3281F;letter-spacing:.2px}
 .gm .dd{margin-top:4px;font-size:10.6px;line-height:1.35}.gm .dd b{font-weight:700}.gm .dd small{display:block;font-size:9.4px;color:#5A4E48}
 .gm .vd{margin-top:6px;font-style:italic;font-size:10.2px;line-height:1.5}
-.gm .dg{margin-top:5px;font-size:9.7px;line-height:1.5}.gm .dg b{font-weight:700;font-size:11.2px}.gm .dg em{display:block}
-.gm .bll{margin-top:6px;font-size:9.3px;line-height:1.62;text-shadow:0 0 3px #FAF3E7,0 0 3px #FAF3E7,0 0 2px #FAF3E7}.gm .bll b{display:block;font-weight:700;font-size:9.3px;letter-spacing:.3px}
+/* dải chân: đóng góp + Ban liên lạc trên nền giấy mờ cho dễ đọc */
+.gm .gmc{position:absolute;left:22px;right:22px;bottom:18px;display:grid;grid-template-columns:1.2fr 1fr;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;background:linear-gradient(180deg,rgba(252,247,238,.86),rgba(250,243,231,.94));box-shadow:0 2px 14px rgba(120,60,40,.18);border-top:1.5px solid rgba(192,57,43,.55);text-align:center}.gm .gmc.mot{grid-template-columns:1fr;left:120px;right:120px}
+.gm .gmc,.gm .gmc *{font-family:'Noto Serif',Georgia,serif}
+.gm .dg{font-size:9.2px;line-height:1.5;color:#3B3330}.gm .dg b{display:block;font-weight:700;font-size:12px;color:#A3281F}.gm .dg em{display:block;margin-top:1px}
+.gm .gmc:not(.mot) .dg{border-right:1px solid rgba(192,57,43,.35);padding-right:12px}
+.gm .bll{font-size:9.6px;line-height:1.55;color:#3B3330}.gm .bll b{display:block;font-weight:700;font-size:9.6px;letter-spacing:.3px;color:#A3281F}
 .gm-nhap{display:flex;gap:10px;max-width:559px;margin:12px auto 0}.gm-nhap label{flex:1;font-size:12.5px;color:#F6E2C8}.gm-nhap label.l2{flex:0 0 96px}
 .gm-nhap input{display:block;width:100%;margin-top:4px;border:0;border-radius:8px;padding:9px 10px;font-size:15px;background:#FBF6EC;color:#2B1D18}
 .thu.gm-on .gm-nut{background:linear-gradient(transparent,#5B1A16 30%)}.thu.gm-on .gm-nut .phu{background:#FBF6EC}
@@ -1290,10 +1294,9 @@ function moGiayMoi(loai){apDungPopup();if(loai)gmLoai=loai;const b=$('thuBox'),b
  <div class="ke"></div>
  <div class="gio">${esc(gmGio_())}</div>
  <div class="dd">Địa điểm: ${/\[/.test(GM.nhaHang)?'<span class="cham"></span>':`<b>${esc(GM.nhaHang)}</b>${GM.diaChi&&!/\[/.test(GM.diaChi)?`<small>${esc(GM.diaChi)}</small>`:''}`}</div>
- ${ban?`<div class="dg"><b>Đóng góp: ${esc(GM.dongGop)}/người</b><br>(${esc(String(GM.gom).replace(/[.]$/,''))})<em>Xác nhận trước ngày ${esc(GM.han)}</em></div>`:'<div class="vd">Sự hiện diện của Thầy/Cô là niềm vinh dự<br>và món quà quý giá đối với chúng em.</div>'}
- <div class="ke"></div>
- <div class="bll"><b>BAN LIÊN LẠC NIÊN KHÓA ${esc(D.cfg.nienKhoa)}</b>${bll().map(x=>esc(x[0])+(x[1]?': '+esc(x[1]):'')).join('<br>')}</div>
- </div></div></div>
+ ${ban?'':'<div class="vd">Sự hiện diện của Thầy/Cô là niềm vinh dự<br>và món quà quý giá đối với chúng em.</div>'}
+ </div><div class="gmc${ban?'':' mot'}">${ban?`<div class="dg"><b>Đóng góp: ${esc(GM.dongGop)}/người</b>(${esc(String(GM.gom).replace(/[.]$/,''))})<em>Xác nhận trước ngày ${esc(GM.han)}</em></div>`:''}
+ <div class="bll"><b>BAN LIÊN LẠC NIÊN KHÓA ${esc(D.cfg.nienKhoa)}</b>${bll().map(x=>esc(x[0])+(x[1]?': '+esc(x[1]):'')).join('<br>')}</div> </div></div></div>
  <div class="gm-nhap"><label>${ban?'Tên bạn được mời':'Kính mời (ghi Thầy hoặc Cô + họ tên)'}<input id="gmNhap" maxlength="50" value="${esc(ten)}" placeholder="${ban?'Ví dụ: Nguyễn Văn An':'Ví dụ: Cô Nguyễn Thị Thủy / Thầy Trần Văn Minh'}" oninput="$('gmTen').textContent=this.value;store.set('${ban?'nh_ten_moi':'nh_ten_thay'}',this.value||null)"></label>${ban?`<label class="l2">Lớp 12/<input id="gmLopNhap" maxlength="2" inputmode="numeric" value="${esc(lop)}" oninput="$('gmLop').textContent=this.value;store.set('nh_lop_moi',this.value||null)"></label>`:''}</div>
  <div class="nut gm-nut"><button class="phu" onclick="moThu()">← Thư ngỏ</button><div class="bt${ban?' ba':''}"><button class="phu" onclick="xemInGm()">🖨️ In / Lưu thư mời</button><button class="phu" onclick="chepLoiMoi()">Sao chép lời mời</button>${ban?'<button class="chinh" onclick="diDangKy()">Đăng ký tham dự</button>':''}</div></div>`;
  b.scrollTop=0;gmVua_()}
