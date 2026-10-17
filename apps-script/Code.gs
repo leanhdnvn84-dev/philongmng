@@ -26,7 +26,7 @@ const SHEETS = {
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe', 'banQuyen'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
