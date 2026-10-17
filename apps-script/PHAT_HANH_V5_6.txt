@@ -1,3 +1,25 @@
+QL_TC_2026 – v5.9.9 (17/10/2026) · NHẮC HẠN TRẢ GỐC QUA ĐIỆN THOẠI (Email · Telegram · Google Calendar)
+1. Phân hệ mới "Nhắc hạn trả gốc" (menu Nguồn vốn & vay, sau Lịch trả nợ). Sheet NHAC_HAN_TRA_GOC tự tạo khi mở lần đầu.
+   Mỗi dòng = 1 kỳ gốc đến hạn của 1 khoản vay; nhân viên nhập tay: Khoản vay, Ngày gốc đến hạn, Gốc phải trả, Nhắc trước (ngày) – vd 15,10,5,3,1,0
+   (mỗi khoản một kiểu, bỏ trống = mốc mặc định), Người phụ trách, Email nhận, Telegram chat ID; có thể gắn Mã kỳ trả.
+   Cột tự tính: Còn lại (còn N ngày / hôm nay / quá N ngày), Cảnh báo (Quá hạn · Khẩn ≤ 5 ngày · Sắp đến ≤ 15 ngày · Còn xa), Nhắc kế tiếp.
+   Chi tiết có dải "Lịch nhắc qua điện thoại" từng mốc + ngày, mốc đã gửi có ✓. Chân bảng: Đang theo dõi · Quá hạn · Khẩn · Sắp đến · Gốc đang theo dõi.
+2. Gửi tự động mỗi sáng (mặc định 07:00): tới mốc nào gửi mốc đó, 1 bản tin gộp cho mỗi người nhận (email và/hoặc Telegram), ghi "Đã nhắc" để không gửi lặp;
+   lỡ mốc (vd tạo muộn) → gửi 1 lần rồi bỏ qua các mốc đã qua; quá hạn → nhắc 1 lần "QUÁ HẠN". Đổi ngày đến hạn / mốc nhắc → nhắc lại từ đầu.
+   Kỳ trả gắn kèm đã thanh toán đủ hoặc khoản vay đã tất toán → tự chuyển "Đã xử lý", dừng nhắc.
+   Người nhận: Email/Telegram ghi ở dòng → nếu trống dùng mặc định trong Cài đặt → nếu vẫn trống gửi email cho người tạo dòng.
+3. Google Calendar (của chủ phần mềm): mỗi kỳ 1 sự kiện 08:00 ngày đến hạn, nhắc popup đúng các mốc (tối đa 5 mốc, ≤ 28 ngày) → điện thoại báo như lịch hẹn.
+   Sự kiện tự cập nhật khi đổi ngày/mốc/số tiền, tự gỡ khi Đã xử lý / Hủy.
+4. Nút trên phân hệ: "Tạo từ lịch trả nợ" (chọn các kỳ có gốc > 0 trong 30–365 ngày tới, chưa có nhắc), "Gửi nhắc hôm nay", "Cài đặt thông báo" (quản trị).
+   Từng dòng: Gửi nhắc ngay · Đã xử lý (dừng nhắc, ghi chú) · Mở khoản vay · Mở kỳ trả nợ · Hủy. Lịch trả nợ & Khoản vay có nút "⏰ Đặt nhắc hạn gốc" (điền sẵn).
+5. Cài đặt thông báo (quản trị): email mặc định, Telegram bot token (lưu trong Script Properties, không nằm trên sheet) + nút "Tìm chat ID",
+   chat ID mặc định, mốc mặc định, giờ gửi, bật/tắt Google Calendar, cài lịch chạy hằng ngày, "Gửi thử".
+CÀI ĐẶT LẦN ĐẦU (chủ phần mềm, 1 lần):
+   a) Chép đè Code.gs, index.html VÀ appsscript.json (thêm quyền Gmail gửi thư, kết nối ngoài cho Telegram, Lịch, trigger).
+   b) Trình soạn Apps Script → chọn hàm caiDatNhacHan → Chạy → Cho phép quyền. Hàm tạo sheet, bật Google Calendar, cài trigger nhacHanTraGocHangNgay 07:00.
+   c) Triển khai → Quản lý triển khai → Sửa → Phiên bản mới. Telegram (tuỳ chọn): @BotFather → /newbot → dán token trong Cài đặt thông báo → nhắn cho bot → Tìm chat ID → Lưu → Gửi thử.
+Kiểm thử: 11 bộ tests/*.cjs đều đạt (thêm tests/v599-nhac-han.cjs); chạy giao diện máy tính + điện thoại trên bản sao dữ liệu thật không lỗi. Khóa cache BOOT_V599_.
+
 QL_TC_2026 – v5.9.8 (07/10/2026) · NGUỒN DƯ · THU/CHI TÁCH CỘT · KẾ HOẠCH THU CHI TỰ ĐỘNG · TÁCH CÔNG NỢ PHẢI TRẢ
 1. Nguồn vốn: cột "Tổng nguồn dư" = Có thể giải ngân − Dư nợ phải trả (tự tính, không lưu sheet; âm hiện đỏ). Chân bảng thêm "Tổng nguồn dư" kèm nhãn Đủ / Đang hụt.
    Trên dữ liệu thật: tổng 344.539.846.799 đ; NV-T9-002 (10 căn XD C25) âm 12.412.938.738 đ.
