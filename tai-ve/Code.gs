@@ -90,7 +90,8 @@ function doGet(e) {
      Thoát "/" và "<" để Apps Script không cắt "//" và không đóng thẻ script sớm. */
   try {
     const j = pubJson_().replace(/</g, '\\u003c').replace(/\//g, '\\/');
-    out.setContent(out.getContent().replace('<script id="boot"></script>', function () { return '<script id="boot">' + th + 'window.BOOT=' + j + ';</script>'; }));
+    const rv = 'window.BOOT_REV=' + JSON.stringify(CacheService.getScriptCache().get('PUB_REV') || '') + ';';
+    out.setContent(out.getContent().replace('<script id="boot"></script>', function () { return '<script id="boot">' + th + rv + 'window.BOOT=' + j + ';</script>'; }));
   } catch (err) {
     console.log('BOOT: ' + err.message);
     out.setContent(out.getContent().replace('<script id="boot"></script>', function () { return '<script id="boot">' + th + '</script>'; }));
@@ -640,7 +641,24 @@ function pubJson_() {
       if (ks.every(function (k) { return got[k] != null; })) return ks.map(function (k) { return got[k]; }).join('');
     }
   } catch (e) { }
-  const j = JSON.stringify(taoPublicData_());
+  /* Chống "dồn": bộ đệm vừa xoá mà nhiều máy cùng hỏi thì chỉ MỘT lượt đọc Sheet, các lượt khác chờ bộ đệm (tối đa ~12 giây). */
+  try {
+    if (c.get('PUB_DANG')) {
+      for (let t = 0; t < 40; t++) {
+        Utilities.sleep(300);
+        const n2 = Number(c.get(PUB_KEY + 'n') || 0);
+        if (n2) {
+          const ks2 = []; for (let i = 0; i < n2; i++) ks2.push(PUB_KEY + i);
+          const g2 = c.getAll(ks2);
+          if (ks2.every(function (k) { return g2[k] != null; })) return ks2.map(function (k) { return g2[k]; }).join('');
+        }
+        if (!c.get('PUB_DANG')) break;
+      }
+    }
+    c.put('PUB_DANG', '1', 30);
+  } catch (e) { }
+  let j;
+  try { j = JSON.stringify(taoPublicData_()); } finally { try { c.remove('PUB_DANG'); } catch (e) { } }
   try {
     const o = {}, n = Math.ceil(j.length / PUB_CHUNK);
     for (let i = 0; i < n; i++) o[PUB_KEY + i] = j.slice(i * PUB_CHUNK, (i + 1) * PUB_CHUNK);
@@ -659,7 +677,8 @@ function bam_(t) {
 /** Trang hỏi định kỳ (~90 giây): chỉ đọc 1 ô bộ đệm; bộ đệm vừa bị xoá thì dựng lại một lần. Dấu đổi → trang tải dữ liệu mới. */
 function getPubRev() {
   const c = CacheService.getScriptCache();
-  if (!c.get(PUB_KEY + 'n') || !c.get('PUB_REV')) pubJson_();
+  /* Đang có máy khác dựng lại thì trả dấu cũ ngay (không chờ), lượt hỏi sau sẽ thấy dấu mới. */
+  if ((!c.get(PUB_KEY + 'n') || !c.get('PUB_REV')) && !c.get('PUB_DANG')) pubJson_();
   return c.get('PUB_REV') || '0';
 }
 /** Trigger "Khi sửa"/"Khi thay đổi" của Sheet (bật bằng batTuCapNhat): gõ tay trong Sheet → xoá bộ đệm ngay, mọi máy thấy sau ≤ 90 giây. */
