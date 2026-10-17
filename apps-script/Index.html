@@ -1072,6 +1072,11 @@ function taiMoi(ep){if(!LIVE||window._dangMo)return;if(TM_DANG){if(ep)TM_CAN=1;r
  if(!ep&&Date.now()-TM_T<15000)return;TM_DANG=1;TM_T=Date.now();
  api('getPublicData').then(r=>{if(!r||!r.cfg||!r.lop)return;const j=JSON.stringify(r);if(j!==TM_J)apDung_(r,j)}).catch(()=>{}).finally(()=>{TM_DANG=0;if(TM_CAN){TM_CAN=0;taiMoi(true)}})}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)taiMoi()});
+/* Tự cập nhật: cứ ~90 giây (khi trang đang mở, không ở Quản trị/trình chiếu) hỏi server dấu dữ liệu `getPubRev` – rất nhẹ; dấu đổi (ai đó gửi lưu bút, admin sửa, sửa tay Sheet) → taiMoi(true) tải + vẽ lại trang đang xem, giữ vị trí cuộn. */
+let PR_REV='';
+function hoiMoi_(){if(!LIVE||document.hidden||cur==='admin'||($('tc')&&$('tc').classList.contains('on')))return;api('getPubRev').then(v=>{if(!v)return;if(PR_REV&&v!==PR_REV)taiMoi(true);PR_REV=v}).catch(()=>{})}
+setTimeout(function lap(){hoiMoi_();setTimeout(lap,85000+Math.random()*10000)},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&PR_REV)hoiMoi_()});
 async function loadPublic(){try{const r=await api('getPublicData');TM_J=JSON.stringify(r);TM_T=Date.now();setD(r)}catch(e){if(!LIVE)setD(null);throw e}finally{window._dangMo=0;renderPublic()}}
 /* Ban liên lạc: mỗi dòng "Họ tên | Điện thoại/Zalo | Vai trò" (Cài đặt) */
 function bll(){return String(D.cfg.banLienLac||'').split(/\n/).map(x=>x.split('|').map(y=>y.trim())).filter(x=>x[0])}

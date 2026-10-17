@@ -646,8 +646,29 @@ function pubJson_() {
     for (let i = 0; i < n; i++) o[PUB_KEY + i] = j.slice(i * PUB_CHUNK, (i + 1) * PUB_CHUNK);
     c.putAll(o, PUB_TTL);
     c.put(PUB_KEY + 'n', String(n), PUB_TTL);
+    c.put('PUB_REV', bam_(j), 21600);
   } catch (e) { console.log('PUB cache: ' + e.message); }
   return j;
+}
+/** Dấu nội dung (băm nhanh): chỉ đổi khi dữ liệu công khai thật sự khác. */
+function bam_(t) {
+  let h = 5381, g = 0;
+  for (let i = 0; i < t.length; i++) { h = ((h << 5) + h + t.charCodeAt(i)) | 0; g = (g * 31 + t.charCodeAt(i)) | 0; }
+  return (h >>> 0).toString(36) + (g >>> 0).toString(36) + t.length.toString(36);
+}
+/** Trang hỏi định kỳ (~90 giây): chỉ đọc 1 ô bộ đệm; bộ đệm vừa bị xoá thì dựng lại một lần. Dấu đổi → trang tải dữ liệu mới. */
+function getPubRev() {
+  const c = CacheService.getScriptCache();
+  if (!c.get(PUB_KEY + 'n') || !c.get('PUB_REV')) pubJson_();
+  return c.get('PUB_REV') || '0';
+}
+/** Trigger "Khi sửa"/"Khi thay đổi" của Sheet (bật bằng batTuCapNhat): gõ tay trong Sheet → xoá bộ đệm ngay, mọi máy thấy sau ≤ 90 giây. */
+function khiSuaSheet(e) {
+  let ten = '';
+  try { ten = (e && e.range ? e.range.getSheet() : ss_().getActiveSheet()).getName(); } catch (x) { }
+  if (ten === 'NhatKy' || ten === 'LuotXem') return;
+  const k = Object.keys(SHEETS).filter(function (n) { return n === ten; })[0] || (shTen_('TimBan') && shTen_('TimBan').getName() === ten ? 'TimBan' : '');
+  pubBust_(k || 'CauHinh');
 }
 function getPublicData() {
   return JSON.parse(pubJson_());
@@ -700,6 +721,14 @@ function giuAm() {
   pubJson_();
 }
 /** Chạy MỘT LẦN trong trình soạn thảo để bật giữ ấm (cần cấp quyền). */
+/** Chạy MỘT LẦN trong trình soạn thảo: bật giữ ấm 5 phút + tự cập nhật khi sửa tay Sheet (cần cấp quyền). */
+function batTuCapNhat() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'khiSuaSheet') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('khiSuaSheet').forSpreadsheet(DATA_SHEET_ID).onEdit().create();
+  ScriptApp.newTrigger('khiSuaSheet').forSpreadsheet(DATA_SHEET_ID).onChange().create();
+  batGiuAm();
+  Logger.log('Đã bật tự cập nhật: sửa tay Sheet là trang tự hiện dữ liệu mới (≤ 90 giây), giữ ấm 5 phút/lần.');
+}
 function batGiuAm() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'giuAm') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('giuAm').timeBased().everyMinutes(5).create();
