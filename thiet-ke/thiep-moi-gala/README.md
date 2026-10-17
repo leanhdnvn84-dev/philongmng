@@ -1,6 +1,6 @@
 # Thiệp mời Gala – Nguyễn Hiền 2000 – 2003 (bản in)
 
-Khổ **A5 dọc 148 × 210 mm**, cùng tông xanh nhà trường với backdrop sân khấu.
+Khổ **A5 dọc 148 × 210 mm**, phong cách sang trọng: giấy ngà, khung vàng art-deco, xanh lục bảo của trường, nhành phượng.
 
 | File | Dùng khi |
 |---|---|

@@ -58,7 +58,7 @@ Thư ngỏ có 4 nút: Để sau · 📋 Kế hoạch (`moKeHoach`, `.thu.kh-on 
 
 **Backdrop sân khấu Gala** (`thiet-ke/backdrop-gala/`, để nhà hàng in): `backdrop.html` tỉ lệ 2:1 (mọi kích thước theo `vw`), nền xanh lợt đúng màu tường + biển cổng trường (#6DCF9C → #53BD8B → #3AB37E), chữ nhỏ xanh đậm #0A4A35, tiêu đề kem + GALA vàng, hoa phượng đỏ, hoa phượng SVG vector, "Về đi bạn ơi!", GALA GẶP MẶT CỰU HỌC SINH, Niên khoá, câu "Hai mươi ba năm…", 14.11.2026, 12 vòng lớp; `render.js 1` → xem trước, `render.js 6` → PDF vector 300×150 cm + ảnh 12000×6000 (đổi sang JPG); `backdrop-gala-in.zip` gửi tiệm in. Không ghi tên nhà hàng (còn đang chờ).
 
-**Thiệp mời in** (`thiet-ke/thiep-moi-gala/`): `thiep-moi.html` A5 dọc 2 trang (mời bạn · mời Thầy/Cô), tông xanh trường như backdrop, nội dung lấy theo `GM` (giờ, ngày, đóng góp, lời mời) + Ban liên lạc mặc định; tên/lớp/địa điểm để dòng chấm ghi tay (`NHA_HANG`, `DIA_CHI` trống); `render.js 1` xem trước, `render.js 3.125` → PNG 300 dpi + `thiep-moi-A5-2-trang.pdf`; `thiep-moi-gala-in.zip` gửi tiệm in.
+**Thiệp mời in** (`thiet-ke/thiep-moi-gala/`): `thiep-moi.html` A5 dọc 2 trang (mời bạn · mời Thầy/Cô), phong cách sang trọng (giấy ngà, khung vàng art-deco, dải xanh lục bảo, 2 nhành phượng trên, chữ Cormorant Garamond + Playfair số lining), nội dung lấy theo `GM` (giờ, ngày, đóng góp, lời mời) + Ban liên lạc mặc định; tên/lớp/địa điểm để dòng chấm ghi tay (`NHA_HANG`, `DIA_CHI` trống); `render.js 1` xem trước, `render.js 3.125` → PNG 300 dpi + `thiep-moi-A5-2-trang.pdf`; `thiep-moi-gala-in.zip` gửi tiệm in.
 
 ### Dữ liệu mẫu
 Mọi dòng mẫu có id bắt đầu `mau_`. Nội dung mẫu viết trong `napDuLieuMau_()` (Code.gs); dòng `const DEMO=` trong Index.html
