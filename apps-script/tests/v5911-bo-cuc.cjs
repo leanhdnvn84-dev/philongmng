@@ -6,7 +6,7 @@ const ctx={console,Utilities:{formatDate(){return''},getUuid(){return'A'}}};vm.c
 assert.ok(!J('APP_MODULES.NGUON_VON.columns').includes('NGAY_DU_KIEN'));assert.ok(!J('APP_MODULES.KHOAN_VAY.columns').includes('NGAY_CHOT_DU_NO_DAU_KY'));
 assert.ok(J('APP_MODULES.NGUON_VON.columns').includes('GHI_CHU')&&J('APP_MODULES.KHOAN_VAY.columns').includes('DU_NO_GOC_DAU_KY'));
 // Kỳ + Loại nguồn thành dòng nhỏ dưới Nội dung phương án
-assert.match(html,/const STACK_COLS=\{NGUON_VON:\{NOI_DUNG_PHUONG_AN:\['KY_DU_KIEN','LOAI_NGUON'\]\}\}/);assert.match(html,/class=\\"cell-stack\\"/);
+assert.match(html,/const STACK_COLS=\{NGUON_VON:\{NOI_DUNG_PHUONG_AN:\['KY_DU_KIEN','LOAI_NGUON'\]\}\}/);assert.match(html,/class="cell-stack"/);
 // ngăn trượt chi tiết
 assert.match(html,/function fitTable_\(w\)\{/);assert.match(html,/t\.scrollWidth>lp\.clientWidth\+2\)\{mb\.classList\.add\('drawer'\)/);assert.match(html,/w\.innerHTML=h;fitTable_\(w\);/);
 assert.match(html,/\.module-body\.drawer \.detail-pane \{ position: absolute;/);assert.match(html,/e\.key==='Escape'/);assert.match(html,/data-drawer-close/);
