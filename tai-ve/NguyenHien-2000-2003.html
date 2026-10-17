@@ -1171,7 +1171,7 @@ function banQuyen(){const c=D.cfg,m={nam:new Date().getFullYear(),nienKhoa:c.nie
 const PM={ten:'Mr. Anh',sdt:'0935 452 565',zalo:'0935452565',phienBan:'2026.10.17'};
 function vePM(){const c=D.cfg,w=document.createElement('div');w.className='hoiNen';
  w.innerHTML=`<div class="hoi rong pm" role="dialog" aria-modal="true" aria-label="Về phần mềm"><div class="ic" aria-hidden="true">💻</div><h3>Trang kỷ niệm ${esc(c.tenTruong||'')}<span style="white-space:nowrap"> · Khoá ${esc(c.nienKhoa||'')}</span></h3><p class="pb">Phiên bản ${PM.phienBan}</p>
- <ul><li>📚 Dữ liệu của Ban liên lạc khoá; Ban liên lạc và admin các lớp cập nhật.</li><li>${esc(banQuyen())}</li></ul>
+ <ul><li>${esc(banQuyen())}</li></ul>
  <div class="lh"><b>Thiết kế, phát triển & hỗ trợ kỹ thuật</b><span>${PM.ten} · ${PM.sdt}</span><div class="nut"><a class="ok" href="tel:${PM.zalo}">📞 Gọi</a><a class="ok" href="https:\/\/zalo.me/${PM.zalo}" target="_blank" rel="noopener">💬 Zalo</a></div></div>
  <div class="nut"><button class="huy">Đóng</button><button class="ok" id="pmLoi">🐞 Sao chép thông tin báo lỗi</button></div></div>`;
  const dong=()=>w.remove();w.onclick=e=>{if(e.target===w)dong()};w.querySelector('.huy').onclick=dong;
