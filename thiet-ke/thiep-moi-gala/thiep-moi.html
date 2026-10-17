@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<title>Thiệp mời Gala Nguyễn Hiền 2000 – 2003</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+/* Thiệp A5 dọc (148 × 210 mm), 2 trang: mời bạn · mời Thầy/Cô. Cùng tông xanh nhà trường với backdrop. */
+@page{size:148mm 210mm;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#d9e6df;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px}
+@media print{body{padding:0;gap:0;background:none}}
+.tr{position:relative;width:148mm;height:210mm;overflow:hidden;background:#FBF8EE;color:#183A2C;font-family:'Be Vietnam Pro',sans-serif;break-after:page}
+.tr:last-child{break-after:auto}
+.tr .nen{position:absolute;inset:0;background:radial-gradient(ellipse 80% 45% at 50% 0%,#6DCF9C 0%,#53BD8B 55%,#3AB37E 100%);height:85mm}
+.tr .nen::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:16mm;background:#FBF8EE;border-radius:50% 50% 0 0/100% 100% 0 0}
+.tr .vien{position:absolute;inset:4.5mm;border:.6mm solid #D9A441;border-radius:3mm;pointer-events:none}
+.tr .vien2{position:absolute;inset:6mm;border:.25mm solid rgba(217,164,65,.7);border-radius:2mm;pointer-events:none}
+.tr svg.hoa{position:absolute;left:0;top:0;width:148mm;height:210mm;overflow:visible}
+.nd{position:absolute;inset:0;padding:11mm 13mm 10mm;display:flex;flex-direction:column;align-items:center;text-align:center}
+.logo{width:17mm;height:17mm;border-radius:50%;background:#fff;padding:1.2mm;box-shadow:0 0 0 .6mm #D9A441,0 1.5mm 3mm rgba(0,0,0,.2)}
+.logo img{width:100%;height:100%;display:block}
+.truong{margin-top:2.4mm;font-weight:800;font-size:2.9mm;letter-spacing:.7mm;color:#0A4A35}
+h1{font-family:'Dancing Script',cursive;font-weight:700;font-size:15mm;line-height:1;margin-top:1.5mm;color:#FFF8E6;text-shadow:0 .7mm 0 #0A4A35,0 1.2mm 2.5mm rgba(0,0,0,.25)}
+.gala{font-family:'Playfair Display',serif;font-weight:900;font-size:5.8mm;letter-spacing:.35mm;margin-top:3mm;color:#FFF8E6;text-shadow:0 .5mm 0 #0A4A35}
+.nk{margin-top:2.2mm;font-weight:800;font-size:3.3mm;letter-spacing:.6mm;color:#0A4A35;background:linear-gradient(180deg,#FFE7A8,#E8B04A);padding:1mm 5mm;border-radius:5mm}
+.phu{margin-top:7.5mm;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:3.4mm;color:#B94C32}
+.moi{margin-top:5mm;width:100%;text-align:left}
+.dong{display:flex;align-items:flex-end;gap:2mm;font-size:3.6mm;font-weight:700;color:#0A4A35}
+.dong .cham{flex:1;border-bottom:.35mm dotted #6C8C7E;height:6mm}
+.dong .cham.ngan{flex:0 0 16mm}
+.loi{margin-top:3.5mm;font-size:3.55mm;line-height:1.65;color:#2E4A3E;text-align:justify}
+.tg{margin-top:5.5mm;width:100%;display:grid;grid-template-columns:1fr 1.35fr;border:.35mm solid #BFD9CB;border-radius:2.5mm;overflow:hidden;background:#fff}
+.tg>div{padding:3.2mm 3.5mm;text-align:left}
+.tg>div+div{border-left:.35mm solid #BFD9CB}
+.tg small{display:block;font-size:2.4mm;font-weight:800;letter-spacing:.5mm;color:#3AB37E}
+.tg b{display:block;font-size:7mm;font-weight:800;color:#0A4A35;line-height:1.15;margin-top:.6mm}
+.tg span{display:block;font-size:3.4mm;font-weight:600;color:#2E4A3E}
+.tg .o{display:block;border-bottom:.35mm dotted #6C8C7E;height:7mm}
+.tg .o.nho{height:6mm}
+.tg .o i{font-style:normal;font-size:3.1mm;font-weight:700;color:#0A4A35;position:relative;top:1.2mm}
+.dg{margin-top:4.5mm;width:100%;display:flex;gap:3mm;align-items:center;background:#EAF6EF;border-radius:2.5mm;padding:2.4mm 3mm;text-align:left}
+.dg .so{flex:0 0 auto;text-align:center;border-right:.35mm dashed #9CC9B1;padding-right:3mm}
+.dg .so small{display:block;font-size:2.3mm;font-weight:800;letter-spacing:.4mm;color:#3AB37E}
+.dg .so b{display:block;font-size:5.6mm;font-weight:800;color:#B94C32;line-height:1.1}
+.dg .so span{font-size:2.6mm;color:#2E4A3E}
+.dg .ct{font-size:3.1mm;line-height:1.5;color:#2E4A3E}
+.dg .ct b{color:#0A4A35}
+.cau{margin-top:7mm;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:4.2mm;line-height:1.5;color:#B94C32}
+.chan{margin-top:auto;width:100%;display:flex;justify-content:space-between;align-items:flex-end;gap:3mm;text-align:left}
+.bll .t{font-size:2.5mm;font-weight:800;letter-spacing:.5mm;color:#3AB37E;margin-bottom:.8mm}
+.bll div{font-size:3mm;line-height:1.55;color:#2E4A3E}
+.bll b{color:#0A4A35}
+.kyb{text-align:right}
+.kyb span{display:block;font-family:'Dancing Script',cursive;font-size:5.6mm;color:#B94C32;line-height:1}
+.kyb b{display:block;margin-top:1mm;font-size:2.8mm;font-weight:800;letter-spacing:.4mm;color:#0A4A35}
+.web{margin-top:2.4mm;font-size:2.6mm;color:#6C8C7E;letter-spacing:.2mm}
+</style></head>
+<body>
+<section class="tr" id="ban"></section>
+<section class="tr" id="thay"></section>
+<script>
+const GM={gio:'17h00',ngay:'Thứ Bảy, 14/11/2026',dongGop:'700.000đ',gom:'Gồm áo kỷ niệm, suất tiệc, hoa và quà tri ân thầy cô.',han:'25/10/2026',web:'nguyenhien.philong.cloud',
+ loiBan:'Mười hai lớp, một mái trường. Cùng về gặp lại thầy cô chủ nhiệm, tìm lại bạn bè và viết tiếp kỷ niệm của khoá mình nhé!',
+ loiThay:'Hai mươi ba năm đã qua kể từ ngày chúng em rời mái trường Nguyễn Hiền. Ban liên lạc niên khoá 2000 – 2003 trân trọng kính mời Thầy/Cô về dự đêm Gala gặp mặt, để học trò được gặp lại, tri ân và ôn lại những kỷ niệm dưới mái trường xưa.'};
+const BLL=[['Lê Trung Hiếu','0905 394 493'],['Hoàng Diệu Thúy','0905 865 867'],['Nguyễn Thị Tuyết Mai','0905 516 896']];
+/* Nhà hàng chưa chốt → để dòng chấm cho ghi tay; có tên thì điền vào NHA_HANG / DIA_CHI rồi xuất lại */
+const NHA_HANG='',DIA_CHI='';
+let s=7;const rd=()=>{s=(s*16807)%2147483647;return s/2147483647};
+function hoa(x,y,k,r,mau){return `<g transform="translate(${x} ${y}) rotate(${r}) scale(${k})">`+[0,72,144,216,288].map(a=>`<ellipse cx="0" cy="-15" rx="9" ry="15" fill="${a===0?'#F2C86B':mau}" transform="rotate(${a})"/>`).join('')+`<circle r="4.5" fill="#FFE29A"/>`+[0,40,80,120,160,200,240,280,320].map(a=>`<line x1="0" y1="0" x2="0" y2="-11" stroke="#FFD27A" stroke-width="1" transform="rotate(${a})"/>`).join('')+'</g>'}
+function la(x,y,r,k){return `<g transform="translate(${x} ${y}) rotate(${r}) scale(${k})"><path d="M0 0 Q 40 -6 90 0" stroke="#2F7D4A" stroke-width="2.5" fill="none"/>`+Array.from({length:9},(_,i)=>`<ellipse cx="${10+i*9}" cy="-5" rx="3.6" ry="7" fill="#3E9A5C" transform="rotate(-25 ${10+i*9} -5)"/><ellipse cx="${10+i*9}" cy="5" rx="3.6" ry="7" fill="#58B271" transform="rotate(25 ${10+i*9} 5)"/>`).join('')+'</g>'}
+function chum(cx,cy,n,goc,k){let g=`<g transform="translate(${cx} ${cy}) scale(${k}) translate(${-cx} ${-cy})">`;for(let i=0;i<5;i++)g+=la(cx,cy,goc+i*28-55,1+rd()*.4);for(let i=0;i<n;i++){const a=rd()*Math.PI*2,d=rd()*55;g+=hoa(cx+Math.cos(a)*d,cy+Math.sin(a)*d*.8,.7+rd()*.5,rd()*360,['#E0412F','#D63A2A','#F0562F','#C8372D'][i%4])}return g+'</g>'}
+function canh(){let g='';for(let i=0;i<10;i++){const x=rd()>.5?8+rd()*40:511+rd()*40,y=260+rd()*420;g+=`<ellipse cx="${x}" cy="${y}" rx="${2.5+rd()*2}" ry="${5+rd()*3}" fill="${rd()>.3?'#E0412F':'#F2C86B'}" opacity=".45" transform="rotate(${rd()*360} ${x} ${y})"/>`}return g}
+const svg=()=>`<svg class="hoa" viewBox="0 0 559 794" preserveAspectRatio="none">${canh()}${chum(14,14,12,20,.78)}${chum(545,14,12,160,.78)}${chum(10,785,9,-40,.5)}${chum(549,785,9,220,.5)}</svg>`;
+const bll=()=>BLL.map(x=>`<div><b>${x[0]}</b> · ${x[1]}</div>`).join('');
+const dd=(v,nho)=>`<span class="o${nho?' nho':''}">${v?`<i>${v}</i>`:''}</span>`;
+function trang(ban){return `<div class="nen"></div>${svg()}<div class="vien"></div><div class="vien2"></div><div class="nd">
+ <div class="logo"><img src="logo-1600.png" alt=""></div>
+ <div class="truong">${ban?'NGUYỄN HIỀN · NIÊN KHOÁ 2000 – 2003':'TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG'}</div>
+ <h1>${ban?'Về đi bạn ơi!':'Thư mời'}</h1>
+ <div class="gala">GALA GẶP MẶT CỰU HỌC SINH</div>
+ <div class="nk">NIÊN KHOÁ 2000 – 2003</div>
+ <div class="phu">${ban?'Hai mươi ba năm – Một mái trường – Một đại gia đình':'Kết nối yêu thương · Trọn vẹn nghĩa tình'}</div>
+ <div class="moi"><div class="dong">${ban?'Thân mời bạn:':'Kính mời:'}<span class="cham"></span>${ban?'Lớp 12/<span class="cham ngan"></span>':''}</div>
+ <p class="loi">${ban?GM.loiBan:GM.loiThay}</p></div>
+ <div class="tg"><div><small>THỜI GIAN</small><b>${GM.gio}</b><span>${GM.ngay}</span></div><div><small>ĐỊA ĐIỂM</small>${dd(NHA_HANG)}${dd(DIA_CHI,1)}</div></div>
+ ${ban?`<div class="dg"><div class="so"><small>ĐÓNG GÓP</small><b>${GM.dongGop}</b><span>/ người</span></div><div class="ct">${GM.gom}<br><b>Xác nhận và đóng góp trước ${GM.han}</b> qua admin lớp hoặc trang web của khoá.</div></div>`
+ :`<div class="cau">“Hai mươi ba năm – Một mái trường –<br>Mười hai tập thể – Một đại gia đình”</div>`}
+ <div class="chan"><div class="bll"><div class="t">${ban?'BAN LIÊN LẠC':'LIÊN HỆ BAN LIÊN LẠC'}</div>${bll()}</div><div class="kyb"><span>${ban?'Hẹn gặp cả khoá!':'Thay mặt Ban liên lạc'}</span><b>KHOÁ 2000 – 2003</b></div></div>
+ <div class="web">${GM.web}</div></div>`}
+document.getElementById('ban').innerHTML=trang(true);document.getElementById('thay').innerHTML=trang(false);
+</script>
+</body></html>
