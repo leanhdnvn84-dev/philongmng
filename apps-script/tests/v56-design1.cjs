@@ -30,19 +30,19 @@ assert.equal(g[0]._NH_MA_TAI_KHOAN_NGUON,'BIDV');assert.equal(g[0]._TEN_MA_TAI_K
 ctx.__k=[{MA_KHOAN_VAY:'KV1',MA_NGAN_HANG:'VCB'}];
 assert.equal(run(`enrichBankRefs_({},'KHOAN_VAY',APP_MODULES.KHOAN_VAY,__k)[0]._NH_MA_KHOAN_VAY`),undefined,'không tự tham chiếu khóa chính');
 // 5. Cache bootstrap đổi khóa để nhận cấu hình mới ngay
-assert.ok(code.includes("'BOOT_V599_'")&&code.includes("version:'5.9.9'"));
+assert.ok(code.includes("'BOOT_V5910_'")&&code.includes("version:'5.9.10'"));
 // 6. Nguồn vốn: cột Dư nợ phải trả (tiền, hiển thị trong bảng, tự tạo cột trên sheet, có chỉ số tổng)
 assert.equal(run("APP_MODULES.NGUON_VON.amounts.includes('DU_NO_PHAI_TRA')&&APP_MODULES.NGUON_VON.columns.includes('DU_NO_PHAI_TRA')&&APP_MODULES.NGUON_VON.autoColumns.includes('DU_NO_PHAI_TRA')"),true);
-assert.equal(run("UI_MODULES.NGUON_VON.metrics.map(m=>m.l).join('|')"),'Tổng dự kiến|Đã duyệt|Đã giải ngân|Có thể giải ngân|Không thể giải ngân|Tổng nguồn dư');
+assert.equal(run("UI_MODULES.NGUON_VON.metrics.map(m=>m.l).join('|')"),'Tổng dự kiến|Đã duyệt|Đã giải ngân|Có thể giải ngân|Không thể giải ngân|Tổng CP khác & thuế|Tổng trả nợ|Tổng nguồn dư');
 assert.equal(run("['CO_THE_GIAI_NGAN','KHONG_THE_GIAI_NGAN','GHI_CHU'].every(k=>APP_MODULES.NGUON_VON.columns.includes(k)&&APP_MODULES.NGUON_VON.autoColumns.includes(k))"),true);
 // mô phỏng sheet 3 cột, lưới chỉ có 3 cột → phải chèn thêm cột rồi ghi tiêu đề
 run(`var __log=[],__hdr=['MA_NGUON_VON','KY_DU_KIEN','LOAI_NGUON'],__max=3;__sh={getLastColumn:()=>__hdr.length,getMaxColumns:()=>__max,getMaxRows:()=>10,getLastRow:()=>5,insertColumnsAfter:(a,n)=>{__max+=n;__log.push('insert'+n)},getRange:(r,c,nr,nc)=>({getDisplayValues:()=>[__hdr.slice()],copyFormatToRange:()=>__log.push('fmtHeader'),setValues:v=>{__hdr=__hdr.concat(v[0]);__log.push('set@'+c)},setNumberFormat:f=>__log.push('num@'+c+':'+f)})}`);
-assert.equal(JSON.stringify(run("ensureAutoColumns_(__sh,APP_MODULES.NGUON_VON)")),'["CO_THE_GIAI_NGAN","KHONG_THE_GIAI_NGAN","DU_NO_PHAI_TRA","GHI_CHU"]');
-assert.equal(run("__log.join(',')"),'insert4,fmtHeader,set@4');
+assert.equal(JSON.stringify(run("ensureAutoColumns_(__sh,APP_MODULES.NGUON_VON)")),'["CO_THE_GIAI_NGAN","KHONG_THE_GIAI_NGAN","DU_NO_PHAI_TRA","CHI_PHI_KHAC_THUE","GHI_CHU"]');
+assert.equal(run("__log.join(',')"),'insert5,fmtHeader,set@4');
 assert.equal(JSON.stringify(run("ensureAutoColumns_(__sh,APP_MODULES.NGUON_VON)")),'[]','chạy lại không thêm trùng');
 // hàm chạy 1 lần cập nhật dữ liệu gốc
 run(`__log=[];openFinanceSpreadsheet_=()=>({});requireSheet_=()=>__sh;LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};invalidateModuleCache_=k=>__log.push('cache:'+k);writeAudit_=(ss,k,id,a)=>__log.push('audit:'+a)`);
 const msg=run('capNhatDataGoc_NguonVon()');
-assert.match(msg,/không cần thêm cột · vị trí CO_THE_GIAI_NGAN@4, KHONG_THE_GIAI_NGAN@5, DU_NO_PHAI_TRA@6, GHI_CHU@7/);
-assert.equal(run("__log.join(',')"),'num@4:#,##0,num@5:#,##0,num@6:#,##0,cache:NGUON_VON,audit:CAP_NHAT_CAU_TRUC');
+assert.match(msg,/không cần thêm cột · vị trí CO_THE_GIAI_NGAN@4, KHONG_THE_GIAI_NGAN@5, DU_NO_PHAI_TRA@6, CHI_PHI_KHAC_THUE@7, GHI_CHU@8/);
+assert.equal(run("__log.join(',')"),'num@4:#,##0,num@5:#,##0,num@6:#,##0,num@7:#,##0,cache:NGUON_VON,audit:CAP_NHAT_CAU_TRUC');
 console.log('PASS V5.6: card/metrics config for 17 modules, metric engine, bank enrichment, bootstrap cache key, NGUON_VON.DU_NO_PHAI_TRA.');

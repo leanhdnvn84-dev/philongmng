@@ -1,3 +1,13 @@
+QL_TC_2026 – v5.9.10 (17/10/2026) · NGUỒN VỐN: TỔNG CP KHÁC & THUẾ · TỔNG TRẢ NỢ · ĐỔI CÔNG THỨC NGUỒN DƯ
+5. Nguồn vốn thêm 2 cột (sau "Dư nợ phải trả"):
+   - "Tổng CP khác & thuế" (CHI_PHI_KHAC_THUE): nhập tay trong form, nhóm "Duyệt và giải ngân"; sheet NGUON_VON tự thêm cột ở lần mở đầu tiên (hoặc chạy capNhatDataGoc_NguonVon).
+   - "Tổng trả nợ" = Dư nợ phải trả + Tổng CP khác & thuế (tự tính, không lưu sheet, không sửa tay).
+6. Đổi công thức: Tổng nguồn dư = Có thể giải ngân − Tổng trả nợ (trước: − Dư nợ phải trả). Âm hiện đỏ, chân bảng có nhãn Đủ / Đang hụt.
+   Chân bảng Nguồn vốn thêm "Tổng CP khác & thuế", "Tổng trả nợ" (bỏ dòng Không thực hiện); 8 chỉ số tự xuống dòng trên máy tính.
+   Dữ liệu thật hiện chưa có CP khác & thuế → Tổng trả nợ 472.860.856.892 đ, Tổng nguồn dư giữ 344.539.846.799 đ cho tới khi nhập CP.
+Kiểm thử: 12 bộ tests/*.cjs đều đạt (thêm tests/v5910-tong-tra-no.cjs). Khóa cache BOOT_V5910_.
+Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
 QL_TC_2026 – v5.9.9 (17/10/2026) · NHẮC HẠN TRẢ GỐC QUA ĐIỆN THOẠI (Email · Telegram · Google Calendar)
 1. Phân hệ mới "Nhắc hạn trả gốc" (menu Nguồn vốn & vay, sau Lịch trả nợ). Sheet NHAC_HAN_TRA_GOC tự tạo khi mở lần đầu.
    Mỗi dòng = 1 kỳ gốc đến hạn của 1 khoản vay; nhân viên nhập tay: Khoản vay, Ngày gốc đến hạn, Gốc phải trả, Nhắc trước (ngày) – vd 15,10,5,3,1,0
