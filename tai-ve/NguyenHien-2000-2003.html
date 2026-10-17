@@ -906,7 +906,7 @@ nav.bot button.them-nut{position:relative}
 .p-cls .cls-so b{display:block;font:400 28px/1.05 'Patrick Hand',cursive;color:var(--muc)}.p-cls .cls-so span{font-size:13.5px;color:var(--mo)}
 .p-cls .labels{gap:24px 18px;padding-top:8px}
 .nhan.song{position:relative;transform:rotate(var(--r));animation:nhanVao .5s ease both;animation-delay:var(--d);transition:transform .2s,box-shadow .2s;padding-bottom:30px}
-@keyframes nhanVao{from{opacity:0;transform:translateY(14px) rotate(var(--r))}}
+@keyframes nhanVao{from{opacity:0}}
 .nhan.song:hover,.nhan.song:focus-visible{transform:translateY(-5px) rotate(0) scale(1.02);box-shadow:0 0 0 5px #fff,0 0 0 7px var(--c),0 14px 26px rgba(40,30,90,.18)}
 .nhan.song .bang{position:absolute;top:-12px;left:50%;width:64px;height:20px;transform:translateX(-50%) rotate(-3deg);background:var(--c);opacity:.35;box-shadow:0 1px 2px rgba(0,0,0,.1)}
 .nhan.song .mat{display:flex;justify-content:center;margin:2px 0 6px}
@@ -964,6 +964,16 @@ body[data-p=admin] .tbNut,html.tc-mo .tbNut,html.tb-mo .tbNut{display:none}
 .goiy{background:#FFF8E8;border:1.5px dashed #E8C26A;border-radius:12px;padding:10px 12px;display:grid;gap:6px;font-size:14px}.goiy>b{color:#8A5A00}.goiy button{text-align:left;border:1px solid #F0DDA8;background:#fff;border-radius:10px;padding:6px 10px;display:flex;flex-direction:column}.goiy button span{font-weight:700;color:#22213A}.goiy small{color:#7A6A50;font-size:13px}
 @media(max-width:560px){.tb-form{grid-template-columns:1fr}.tbHop{padding:18px 16px 14px}}
 .tb-ad .tbph{margin-top:8px;background:#FFF8E8;border-radius:10px;padding:8px 10px;font-size:14px;color:#3C3850;text-align:left}.tb-ad .tb-the .nut{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+/* Gọn 1 trang (máy tính): html.mot-tr khoá thanh cuộn trang – Các lớp (khi zoom vừa) + Quản trị (khung nội dung tự cuộn bên trong) */
+html.mot-tr,html.mot-tr body{overflow-y:hidden}
+@media(min-width:761px){
+ html.ad-app body[data-p=admin] footer{display:none}
+ html.ad-app .p-adm{box-sizing:border-box;height:calc(100vh - var(--hd,68px));height:calc(100dvh - var(--hd,68px));min-height:0;padding-top:18px;padding-bottom:16px;display:flex;flex-direction:column}
+ html.ad-app .p-adm>.top{flex:none}
+ html.ad-app .p-adm .adm{flex:1;min-height:0;margin-top:14px;grid-template-rows:minmax(0,1fr)}
+ html.ad-app .p-adm .side{max-height:100%;overflow-y:auto;box-sizing:border-box}
+ html.ad-app .p-adm .panel{overflow-y:auto;min-height:0;box-sizing:border-box}
+}
 </style>
 </head>
 <body data-p="home">
@@ -1120,7 +1130,7 @@ function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}
  $('navThemHop').innerHTML='<b>Các trang khác</b>'+NAV_THEM.map(k=>`<button data-k="${k}" onclick="menu('${k}')">${navSvg(k)}${navTen(k)}</button>`).join('')}
 function moThem(){$('navThem').classList.add('on')}
 function dongThem(){const e=$('navThem');if(e)e.classList.remove('on')}
-function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));if(k==='home')vuaHero_();if(k==='classes')vuaLop_();
+function go(k){if(k==='classes'){curCls=null;clsQ=''}if(k!==cur||!go.da)tk('trang',k);go.da=1;cur=k;document.body.dataset.p=k;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+k));if(k==='home')vuaHero_();if(k==='classes')vuaLop_();if(k!=='admin'&&k!=='classes')motTrang_('');else if(k==='admin'&&A)motTrang_('admin');
  document.querySelectorAll('nav button').forEach(b=>{const on=b.dataset.k===k;b.classList.toggle('on',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});if($('nbThem'))$('nbThem').classList.toggle('on',NAV_THEM.indexOf(k)>=0);
  if(k==='classes')renderClasses();if(k==='yearbook')renderYb();if(k==='gallery')renderGal();if(k==='birthday')renderSn();if(k==='admin')openAdmin();if(k==='home')countUp($('v-home'));scrollTo(0,0);if(k!=='admin')taiMoi()}
 
@@ -1472,7 +1482,7 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
 function vuaHero_(){const l=document.querySelector('#v-home .hero .l');if(!l)return;const hr=l.parentElement,hd=document.querySelector('header.g');l.style.zoom='';hr.style.height=hr.style.minHeight='';hr.scrollTop=0;if(hd)document.documentElement.style.setProperty('--hd',hd.offsetHeight+'px');if(innerWidth<=760||!hr.offsetHeight)return;const cao=()=>Math.max(...[...l.children].map(e=>e.getBoundingClientRect().bottom))-hr.getBoundingClientRect().top,toi=hr.clientHeight-40;if(cao()<=toi)return;let a=.55,b=1;for(let k=0;k<8;k++){const m=(a+b)/2;l.style.zoom=m;if(cao()<=toi)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){l.style.zoom=m;if(cao()<=toi)a=m}l.style.zoom=a.toFixed(3);hr.scrollTop=0}
 /* Chạy lại khi khung trang chủ đổi cỡ (đổi màn hình, kéo cửa sổ, thanh trình duyệt ẩn/hiện, phóng to/thu nhỏ), sau khi chữ/hiệu ứng vào xong */
 let VH_RO=null;function vuaHeroTheoDoi_(){const hr=document.querySelector('#v-home .hero');if(!hr||!window.ResizeObserver)return;if(VH_RO)VH_RO.disconnect();VH_RO=new ResizeObserver(()=>{clearTimeout(window.VH_T2);window.VH_T2=setTimeout(vuaHero_,80)});VH_RO.observe(hr);const hd=document.querySelector('header.g');if(hd)VH_RO.observe(hd)}
-addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(()=>{vuaHero_();vuaLop_();vuaTq_()},150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{vuaHero_();vuaLop_()});
+addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(()=>{vuaHero_();vuaLop_();vuaTq_();if(cur==='admin'&&A)motTrang_('admin')},150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{vuaHero_();vuaLop_()});
 function truotLb(h){const l=$('luoiLb');if(l)l.scrollBy({left:h*Math.max(260,l.clientWidth*.8),behavior:'smooth'})}
 function danhDauLbDai(){const f=()=>document.querySelectorAll('#v-home .dlb').forEach(e=>{const n=e.querySelector('.nd');e.classList.toggle('dai',n.scrollHeight>n.clientHeight+2)});f();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f)}
 
@@ -1566,7 +1576,7 @@ function nhan(c,i,st,hit){const T=st?'div':'button';const lt=c.hs.find(s=>/lớp
  ${coGt&&c.hs.length?`<div class="gtb" aria-hidden="true"><i style="width:${Math.round((c.hs.length-nu)/c.hs.length*100)}%"></i></div>`:''}
  <div class="chip"><span>📷 ${anh} ảnh</span><span>✍️ ${lb} lưu bút</span>${snThangNay?`<span>🎂 ${snThangNay} SN tháng ${th}</span>`:''}</div>
  ${hit?`<div class="hit">Có: ${hit}</div>`:''}<span class="vao">Vào lớp →</span></${T}>`}
-function openCls(id){const vc=$('v-classes');if(vc)vc.style.zoom='';cT=0;cV='so';const lc=D.lop.find(l=>l.id===id);if(lc)tk('lop',lc.ten);if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
+function openCls(id){const vc=$('v-classes');if(vc)vc.style.zoom='';document.documentElement.classList.remove('mot-tr');cT=0;cV='so';const lc=D.lop.find(l=>l.id===id);if(lc)tk('lop',lc.ten);if(cur!=='classes')go('classes');curCls=id;renderClasses();scrollTo(0,0)}
 function renderClasses(){const el=$('v-classes');if(curCls&&D.lop.find(l=>l.id===curCls))return drawCls();curCls=null;
  const tHs=D.lop.reduce((a,l)=>a+l.hs.length,0);
  el.innerHTML=`<div class="cls-dau"><div><h2>Danh sách các lớp <span class="but" aria-hidden="true">✏️</span></h2><p class="sub">Mỗi nhãn vở là một lớp học, một chỗ ngồi quen, một tiếng “Có!” khi cô điểm danh. Bấm vào để gặp lại cả lớp.</p></div>
@@ -1578,8 +1588,10 @@ function nhoAi(){const el=$('nhoAi');if(!el)return;const all=[];D.lop.forEach(c=
 function drawLabels(){const q=clsQ.trim().toLowerCase();
  const l=D.lop.map((c,i)=>({c,i})).map(o=>{if(!q)return o;const inName=khopTim(q,'lop '+o.c.ten+' '+o.c.gvcn);const hs=o.c.hs.filter(s=>khopTim(q,chuHs(s))).map(s=>esc(s.hoTen));return inName||hs.length?Object.assign(o,{hit:inName?'':hs.slice(0,3).join(', ')}):null}).filter(Boolean);
  $('clsGrid').innerHTML=l.map(({c,i,hit})=>nhan(c,i,0,hit)).join('')||`<p class="empty">${D.lop.length?'Không thấy lớp hay bạn nào khớp. Thử gõ ngắn hơn, ví dụ chỉ tên gọi.':'Chưa có lớp nào.'}</p>`;vuaLop_();clearTimeout(window.VL_T);window.VL_T=setTimeout(vuaLop_,900)}
+/* Chế độ gọn 1 trang trên máy tính: 'admin' = Quản trị dạng ứng dụng (trang không cuộn, khung nội dung cuộn trong); 'lop' = Các lớp đã zoom vừa màn hình; '' = cuộn bình thường */
+function motTrang_(k){const h=document.documentElement,dt=innerWidth>760;h.classList.toggle('ad-app',dt&&k==='admin'&&cur==='admin');h.classList.toggle('mot-tr',dt&&((k==='admin'&&cur==='admin')||(k==='lop'&&cur==='classes'&&!curCls)))}
 /* Trang Các lớp (danh sách) trên máy tính: cả trang kể cả chân trang vừa 1 màn hình, không cuộn – dài hơn thì zoom cả khối #v-classes cho vừa */
-function vuaLop_(){const el=$('v-classes');if(!el)return;el.style.zoom='';if(innerWidth<=760||curCls||cur!=='classes'||!$('clsGrid'))return;const H=document.documentElement,du=()=>H.scrollHeight-innerHeight;if(du()<=1)return;let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;el.style.zoom=m;if(du()<=1)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){el.style.zoom=m;if(du()<=1)a=m}el.style.zoom=a.toFixed(3)}
+function vuaLop_(){const el=$('v-classes');if(!el)return;el.style.zoom='';if(innerWidth<=760||curCls||cur!=='classes'||!$('clsGrid'))return motTrang_('');const H=document.documentElement,du=()=>H.scrollHeight-innerHeight;if(du()<=1)return motTrang_('lop');let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;el.style.zoom=m;if(du()<=1)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){el.style.zoom=m;if(du()<=1)a=m}el.style.zoom=a.toFixed(3);motTrang_(du()<=1?'lop':'')}
 function tachTen(n){const w=String(n||'').trim().split(/\s+/);return {ho:w.slice(0,-1).join(' '),t:w[w.length-1]||''}}
 function soDoLop(c,sd,coSdt){const hs=c.hs,bans=[];for(let k=0;k<hs.length;k+=2)bans.push([0,1].map(j=>hs[k+j]?{s:hs[k+j],k:k+j}:null));
  const cho=o=>{if(!o)return '<div class="cho trong"></div>';const s=o.s,n=tachTen(s.hoTen),p=sd[s.id],l=p&&contactLink(p);
@@ -1706,7 +1718,7 @@ const AT_C=['Thông tin lớp','Học sinh','Hình ảnh','Lưu bút','Đăng k�
 let aT=0,adLop='',nbF='pending',dkF='cho',apF='',dkL='';
 const isS=()=>A&&A.me.role==='super';
 async function openAdmin(){if(A)return renderAdmin();if(!TOK)return renderLogin();try{busy(1,'Đang tải…');A=await api('getAdminData',TOK);fillAlbums();renderAdmin()}catch(e){err(e);renderLogin()}finally{busy(0)}}
-function renderLogin(){$('v-admin').innerHTML=`<div class="login"><h2>Đăng nhập quản trị</h2><p class="who" style="margin:6px 0 18px">Dành cho Ban liên lạc và admin của từng lớp. Cảm ơn bạn đã giữ lửa cho khoá mình.</p><input id="lgU" placeholder="Tên đăng nhập" autocomplete="username" aria-label="Tên đăng nhập"><input id="lgP" type="password" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu" onkeydown="if(event.key==='Enter')doLogin()"><button class="btn2" style="width:100%" onclick="doLogin()">Đăng nhập</button><div class="lh"><b>Quên mật khẩu, cần cấp tài khoản?</b><span>Liên hệ quản trị:</span>${[['Mr. Anh','0935 452 565']].map(x=>{const lk=contactLink(x[1]);return `<div class="ng"><em>${esc(x[0])}</em>${lk?`<a href="${esc(lk)}" target="_blank" rel="noopener">📞 ${esc(x[1])}</a>`:`<span>${esc(x[1])}</span>`}</div>`}).join('')}</div></div>
+function renderLogin(){motTrang_('');$('v-admin').innerHTML=`<div class="login"><h2>Đăng nhập quản trị</h2><p class="who" style="margin:6px 0 18px">Dành cho Ban liên lạc và admin của từng lớp. Cảm ơn bạn đã giữ lửa cho khoá mình.</p><input id="lgU" placeholder="Tên đăng nhập" autocomplete="username" aria-label="Tên đăng nhập"><input id="lgP" type="password" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu" onkeydown="if(event.key==='Enter')doLogin()"><button class="btn2" style="width:100%" onclick="doLogin()">Đăng nhập</button><div class="lh"><b>Quên mật khẩu, cần cấp tài khoản?</b><span>Liên hệ quản trị:</span>${[['Mr. Anh','0935 452 565']].map(x=>{const lk=contactLink(x[1]);return `<div class="ng"><em>${esc(x[0])}</em>${lk?`<a href="${esc(lk)}" target="_blank" rel="noopener">📞 ${esc(x[1])}</a>`:`<span>${esc(x[1])}</span>`}</div>`}).join('')}</div></div>
  <p class="bq">© ${new Date().getFullYear()} Ban liên lạc khoá ${esc(D.cfg.nienKhoa||'')} · ${esc(D.cfg.tenTruong||'THPT Nguyễn Hiền')}, Đà Nẵng.<br>Bảo lưu mọi quyền. Dữ liệu chỉ dùng cho hoạt động của khoá, không chia sẻ ra ngoài.</p>`}
 async function doLogin(){const u=$('lgU').value.trim(),p=$('lgP').value;if(!u||!p)return toast('Nhập tên đăng nhập và mật khẩu',1);
  try{busy(1,'Đang đăng nhập…');const r=await api('login',u,p);TOK=r.token;store.set('nh_tok',TOK);A=r.adminData||await api('getAdminData',TOK);aT=0;fillAlbums();renderAdmin();toast('Xin chào '+r.hoTen)}catch(e){err(e)}finally{busy(0)}}
@@ -1718,14 +1730,14 @@ function lopSelect(){return isS()&&A.lop.length>1?`<select style="max-width:240p
 function badgeFor(t){const n=t==='Lưu bút'?A.luuBut.filter(x=>x.trangThai==='pending').length:t==='Hoạt động'?A.hoatDong.filter(x=>x.trangThai==='pending').length:t==='Đăng ký họp lớp'?A.dangKy.filter(x=>x.trangThai==='cho').length:t==='Tìm bạn cũ'?(A.timBan||[]).filter(x=>x.trangThai==='dangtim'&&x.phanHoi).length:0;return n?`<span class="badge">${n}</span>`:''}
 const ph3=(t,b)=>`<div class="ph3"><h3>${t}</h3><div style="display:flex;gap:8px;flex-wrap:wrap">${b||''}</div></div>`;
 const st=s=>s==='approved'||s==='published'?'<span class="pill ok">Đã đăng</span>':s==='xacnhan'?'<span class="pill ok">Đã xác nhận</span>':s==='hidden'?'<span class="pill off">Đã ẩn</span>':s==='huy'?'<span class="pill off">Đã huỷ</span>':'<span class="pill cho">Chờ duyệt</span>';
-function renderAdmin(){if(!A)return renderLogin();const tabs=isS()?AT_S:AT_C;if(aT>=tabs.length)aT=0;const my=A.lop.find(l=>l.id===A.me.lopId);
+function renderAdmin(){if(!A)return renderLogin();motTrang_('admin');const pc=$('panel'),giuCuon=pc&&renderAdmin.tab===aT?pc.scrollTop:0;renderAdmin.tab=aT;const tabs=isS()?AT_S:AT_C;if(aT>=tabs.length)aT=0;const my=A.lop.find(l=>l.id===A.me.lopId);
  $('v-admin').innerHTML=`<div class="top"><div><h2>${isS()?'Quản trị cả khoá':'Quản trị lớp '+esc(my?my.ten:'')}</h2><p class="who">${isS()?'Ban liên lạc, quản lý tất cả các lớp':'Admin lớp: <b>'+esc(A.me.hoTen)+'</b>. Chỉ sửa được dữ liệu của lớp '+esc(my?my.ten:'')}</p></div><button class="btn2 o sm" onclick="doLogout()">Đăng xuất</button></div>
  <div class="adm"><div class="side">${tabs.map((t,i)=>`<button class="${i===aT?'on':''}" onclick="aT=${i};renderAdmin()"><span>${t}</span>${badgeFor(t)}</button>`).join('')}</div><div class="panel" id="panel"></div></div>`;
  if(!isS()&&!my){$('panel').innerHTML='<p class="who">Tài khoản chưa được gán lớp. Liên hệ Ban liên lạc.</p>';return}
- $('panel').innerHTML=(R[tabs[aT]]||(()=>''))();vuaTq_();const pn=$('panel');pn.onmouseover=pn.onclick=tkTip;pn.onmouseleave=()=>tkTip()}
+ $('panel').innerHTML=(R[tabs[aT]]||(()=>''))();vuaTq_();if(giuCuon)$('panel').scrollTop=giuCuon;const pn=$('panel');pn.onmouseover=pn.onclick=tkTip;pn.onmouseleave=()=>tkTip()}
 
 /* Quản trị → Tổng quan: khung nhật ký tự co cao để cả trang vừa 1 màn hình (cuộn trong khung) */
-function vuaTq_(){const n=$('nkKhung');if(!n)return;n.style.maxHeight='';if(innerWidth<=760)return;const du=document.documentElement.scrollHeight-innerHeight,sd=document.querySelector('.p-adm .side'),theoMenu=sd?sd.getBoundingClientRect().bottom-n.getBoundingClientRect().top-24:0;if(du>0)n.style.maxHeight=Math.max(220,n.offsetHeight-du-2,theoMenu)+'px'}
+function vuaTq_(){const n=$('nkKhung');if(!n)return;n.style.maxHeight='';if(innerWidth<=760)return;const pn=$('panel');if(!pn)return;const con=pn.getBoundingClientRect().bottom-n.getBoundingClientRect().top-24;n.style.maxHeight=Math.max(220,con)+'px'}
 /* ===== TÌM BẠN CŨ: nút nhấp nháy (điện thoại góc phải, máy tính góc trái) → popup Bảng tìm bạn / Nhờ tìm một bạn ===== */
 let TB_T='bang',TB_Q='',tbF='dangtim';
 const tbLop_=id=>{const l=D.lop.find(x=>x.id===id);return l?'12/'+String(l.ten).replace(/^12[/]/,''):''};
