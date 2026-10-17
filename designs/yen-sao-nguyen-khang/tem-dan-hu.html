@@ -12,6 +12,9 @@
   .script { font-family: 'Dancing Script', cursive; }
   .cond { font-family: 'Oswald', sans-serif; }
   .sans { font-family: 'Be Vietnam Pro', sans-serif; }
+  /* chữ trên nền xanh: viền xanh đậm + bóng đổ cho rõ nét */
+  .lit { paint-order: stroke; stroke: #0a2a80; stroke-width: 2.5px; stroke-linejoin: round; filter: url(#shadow); }
+  .lit-thin { paint-order: stroke; stroke: #0a2a80; stroke-width: 1.2px; stroke-linejoin: round; filter: url(#shadow); }
 </style>
 </head>
 <body>
@@ -30,6 +33,14 @@
       <stop offset=".45" stop-color="#ffd76a"/>
       <stop offset="1" stop-color="#f0b43c"/>
     </linearGradient>
+    <linearGradient id="goldText" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbe0"/>
+      <stop offset=".5" stop-color="#ffe27a"/>
+      <stop offset="1" stop-color="#ffc928"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="150%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="#04154a" flood-opacity=".65"/>
+    </filter>
     <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#f7c948"/>
       <stop offset=".3" stop-color="#fff3b0"/>
@@ -55,19 +66,19 @@
   <path d="M 222,520 H 378 V 1076 A 34 34 0 0 1 344,1110 H 256 A 34 34 0 0 1 222,1076 Z" fill="url(#bgTail)"/>
   <path d="M 230,520 H 370 V 1072 A 28 28 0 0 1 342,1100 H 258 A 28 28 0 0 1 230,1072 Z" fill="none" stroke="url(#goldV)" stroke-width="1.5"/>
 
-  <g text-anchor="middle" fill="url(#goldV)">
-    <text class="script" x="300" y="640" font-size="30">Bảo quản</text>
-    <text class="script" x="300" y="680" font-size="30">ngăn mát</text>
-    <text class="script" x="300" y="720" font-size="30">tủ lạnh từ</text>
-    <text class="script" x="300" y="760" font-size="30">5 – 7 ngày.</text>
+  <g text-anchor="middle" fill="url(#goldText)">
+    <text class="script lit-thin" x="300" y="636" font-size="34">Bảo quản</text>
+    <text class="script lit-thin" x="300" y="678" font-size="34">ngăn mát</text>
+    <text class="script lit-thin" x="300" y="720" font-size="34">tủ lạnh từ</text>
+    <text class="script lit-thin" x="300" y="762" font-size="31">5 – 7 ngày.</text>
     <path d="M 255,792 H 345" stroke="url(#goldV)" stroke-width="1.5"/>
     <text x="300" y="799" font-size="14" fill="#ffd76a">✦</text>
-    <text class="sans" x="300" y="840" font-size="14" font-weight="600" fill="#fff1b8">NSX: ...............</text>
-    <text class="sans" x="300" y="876" font-size="14" font-weight="600" fill="#fff1b8">HSD: ...............</text>
-    <text class="serif" x="300" y="975" font-size="54" font-weight="900">100%</text>
+    <text class="sans lit-thin" x="300" y="840" font-size="17" font-weight="800" fill="#ffffff">NSX: ............</text>
+    <text class="sans lit-thin" x="300" y="878" font-size="17" font-weight="800" fill="#ffffff">HSD: ............</text>
+    <text class="serif lit" x="300" y="975" font-size="56" font-weight="900">100%</text>
   </g>
   <path d="M 230,1000 H 370 V 1072 A 28 28 0 0 1 342,1100 H 258 A 28 28 0 0 1 230,1072 Z" fill="url(#band)"/>
-  <text class="sans" x="300" y="1047" font-size="15" font-weight="800" text-anchor="middle" fill="#0d2f8f" letter-spacing=".5">NGUYÊN CHẤT</text>
+  <text class="sans" x="300" y="1047" font-size="17" font-weight="800" text-anchor="middle" fill="#0a2a80" letter-spacing=".5">NGUYÊN CHẤT</text>
 
   <!-- PHẦN TRÒN -->
   <circle cx="300" cy="300" r="292" fill="url(#gold)"/>
@@ -77,12 +88,12 @@
   <circle cx="300" cy="300" r="240" fill="none" stroke="url(#goldV)" stroke-width="2"/>
 
   <!-- Chữ cong -->
-  <text class="serif" font-size="27" font-weight="700" fill="url(#goldV)" letter-spacing="3">
+  <text class="serif lit" font-size="29" font-weight="900" fill="#ffffff" letter-spacing="3">
     <textPath href="#arcTop" startOffset="50%" text-anchor="middle">TỔ YẾN CHƯNG SẴN</textPath>
   </text>
 
   <!-- Logo NK -->
-  <g id="logo" transform="translate(300,232)">
+  <g id="logo" transform="translate(300,232)" filter="url(#shadow)">
     <path d="M 38,-78 A 82 82 0 1 0 38,78 A 70 74 0 1 1 38,-78 Z" fill="url(#gold)" transform="translate(-20,0)"/>
     <text class="serif" x="-12" y="34" font-size="98" font-weight="700" text-anchor="middle" fill="url(#goldV)">N</text>
     <!-- chim yến -->
@@ -95,8 +106,8 @@
   </g>
 
   <!-- Tên thương hiệu -->
-  <text class="script" x="300" y="360" font-size="40" text-anchor="middle" fill="url(#goldV)">Yến sào</text>
-  <text class="serif" x="300" y="410" font-size="44" font-weight="900" text-anchor="middle" fill="url(#goldV)" letter-spacing="1">NGUYÊN KHANG</text>
+  <text class="script lit" x="300" y="360" font-size="44" text-anchor="middle" fill="#ffffff">Yến sào</text>
+  <text class="serif lit" x="300" y="412" font-size="47" font-weight="900" text-anchor="middle" fill="url(#goldText)" letter-spacing=".5">NGUYÊN KHANG</text>
 
   <!-- Ngôi sao 2 bên -->
   <g fill="url(#goldV)" font-size="18" text-anchor="middle">
@@ -114,8 +125,8 @@
     <rect x="0" y="0" width="34" height="34" rx="9"/>
     <path d="M10,7 c2-1 4,0 5,2 l2,4 c1,2 0,3-1,4 l-2,1 c1,3 3,5 6,6 l1-2 c1-1 2-2 4-1 l4,2 c2,1 3,3 2,5 c-1,3-4,4-7,3 c-8-2-14-8-16-16 c-1-3 0-6 2-8z" fill="#f6dc8c"/>
   </g>
-  <text class="cond" x="322" y="486" font-size="40" font-weight="600" text-anchor="middle" fill="#0d2f8f" letter-spacing="1">0935 961 481</text>
-  <text class="sans" x="300" y="510" font-size="15" font-weight="800" text-anchor="middle" fill="#1546c4" letter-spacing="3">TINH HOA YẾN VIỆT</text>
+  <text class="cond" x="322" y="486" font-size="44" font-weight="600" text-anchor="middle" fill="#0a2a80" letter-spacing="1">0935 961 481</text>
+  <text class="sans" x="300" y="510" font-size="15" font-weight="800" text-anchor="middle" fill="#0a2a80" letter-spacing="3">TINH HOA YẾN VIỆT</text>
 </svg>
 <script>
   // Viền hoa văn chữ Vạn (Greek key) chạy quanh vòng tròn
