@@ -1,3 +1,18 @@
+QL_TC_2026 – v5.9.11 (17/10/2026) · BỐ CỤC CHỐNG TRÀN DỮ LIỆU · CỠ CHỮ
+Đo trên 17 phân hệ ở màn 1366 × 768, 1920 × 1000 và điện thoại 390 px (bản sao dữ liệu thật). Trước khi sửa:
+   Nguồn vốn che 712 px (≈ 6 cột phải cuộn ngang) ở 1366, 291 px ở 1920; Khoản vay che 494 px; Lịch trả nợ che 163 px;
+   tiêu đề cột 10,5 px (nhỏ); khung chi tiết tràn 8 px mỗi dòng; thẻ điện thoại cắt mất tên công ty (cùng tiền tố "CÔNG TY TNHH KDL…").
+Sau khi sửa: 0 px bị che ở mọi phân hệ, cả 1366 và 1920; điện thoại không tràn ngang.
+1. Bảng rộng hơn khung → khung chi tiết bên phải tự chuyển thành NGĂN TRƯỢT: bảng dùng hết bề ngang; bấm 1 dòng mới mở chi tiết,
+   đóng bằng nút × hoặc phím Esc. Bảng vừa khung (Tài khoản, Danh mục, Nhắc hạn…) giữ nguyên khung chi tiết cố định. Tự tính lại khi đổi cỡ cửa sổ.
+   Ở chế độ này ô hẹp lề hơn, số tiền 12,5 px, cột ghi chú tối đa 170 px (di chuột xem đủ nội dung).
+2. Nguồn vốn: "Kỳ dự kiến · Loại nguồn" thành dòng nhỏ dưới "Nội dung phương án" (bớt 2 cột); bỏ cột Ngày dự kiến khỏi bảng (vẫn ở chi tiết/form).
+   Khoản vay: bỏ cột Ngày chốt dư nợ khỏi bảng (mọi khoản cùng 1 ngày chốt; vẫn ở chi tiết).
+3. Cỡ chữ: tiêu đề cột 10,5 → 11,5 px; nội dung 13 px; ô chữ dài tối đa 260 px có "…" và tooltip.
+4. Khung chi tiết hết tràn 8 px; thẻ điện thoại hiện tên 2 dòng; chân bảng > 7 chỉ số tự xuống dòng.
+Kiểm thử: 13 bộ tests/*.cjs đều đạt (thêm tests/v5911-bo-cuc.cjs). Khóa cache BOOT_V5911_.
+Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới.
+
 QL_TC_2026 – v5.9.10 (17/10/2026) · NGUỒN VỐN: TỔNG CP KHÁC & THUẾ · TỔNG TRẢ NỢ · ĐỔI CÔNG THỨC NGUỒN DƯ
 5. Nguồn vốn thêm 2 cột (sau "Dư nợ phải trả"):
    - "Tổng CP khác & thuế" (CHI_PHI_KHAC_THUE): nhập tay trong form, nhóm "Duyệt và giải ngân"; sheet NGUON_VON tự thêm cột ở lần mở đầu tiên (hoặc chạy capNhatDataGoc_NguonVon).
