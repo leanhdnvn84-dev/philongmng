@@ -102,6 +102,11 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+/** Ảnh nền lớn (hoa phượng trang chủ + tranh giấy mời) để riêng ở tệp AnhNen.html, trang tải sau cho nhẹ. Thiếu tệp → trả rỗng. */
+function getAnhNen() {
+  try { return HtmlService.createHtmlOutputFromFile('AnhNen').getContent(); } catch (e) { return ''; }
+}
+
 /* ======================= SETUP ======================= */
 function setup() {
   const root = DriveApp.getFolderById(ROOT_FOLDER_ID);

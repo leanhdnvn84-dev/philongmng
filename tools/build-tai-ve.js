@@ -63,6 +63,9 @@ function put(s, a, b) {
   const src = s.replace(m[0], () => 'const DEMO=' + JSON.stringify(nhe) + ';');
   s = put(s, '<html lang="vi">', '<html lang="vi" class="nojs">');
   s = put(s, '/* ===== RESPONSIVE ===== */', NOJS_CSS + '\n/* ===== RESPONSIVE ===== */');
+  // Bản tải về: ảnh nền lớn (AnhNen.html – trên Apps Script tải sau qua getAnhNen) nhúng thẳng vào CSS để mở tệp là có ngay
+  const nen = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps-script', 'AnhNen.html'), 'utf8'));
+  s = put(s, '/* ===== RESPONSIVE ===== */', ':root{--nenCanh:url("' + nen.canh + '");--nenGm:url("' + nen.gm + '")}\n/* ===== RESPONSIVE ===== */');
   s = put(s, '<body data-p="home">', '<body data-p="home">\n<div class="nojs-only">Đang hiển thị bản đọc vì nút bấm chưa chạy được. Nếu mở tệp tải về, hãy mở bằng Safari hoặc Chrome để tìm bạn, xem ảnh lớn và chuyển trang.</div>');
   IDS.forEach(id => {
     const re = new RegExp('(<(section|footer|nav|datalist)\\b[^>]*\\bid="' + id + '"[^>]*>)(</\\2>)');
