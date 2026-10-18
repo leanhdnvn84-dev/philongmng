@@ -15,16 +15,9 @@ fs.writeFileSync(path.join(ROOT, 'cloudflare', 'worker.js'), `/**
  * Mọi đường dẫn đều trả về trang khung nhúng web app Apps Script (link /exec).
  */
 const HTML = ${JSON.stringify(html)};
-/* Ảnh nền lớn của web app (hoa phượng trang chủ, tranh giấy mời) – web app tải từ /anh/… để trang Apps Script nhẹ */
-const ANH = ${JSON.stringify({ 'canh.webp': fs.readFileSync(path.join(ROOT, 'assets', 'canh-phuong.webp')).toString('base64'), 'gm.webp': fs.readFileSync(path.join(ROOT, 'assets', 'giay-moi-nen.webp')).toString('base64') })};
 
 export default {
   async fetch(request) {
-    const p = new URL(request.url).pathname, ten = p.indexOf('/anh/') === 0 ? p.slice(5) : '';
-    if (ten && ANH[ten]) {
-      const bin = Uint8Array.from(atob(ANH[ten]), c => c.charCodeAt(0));
-      return new Response(bin, { headers: { 'content-type': 'image/webp', 'cache-control': 'public, max-age=2592000, immutable', 'access-control-allow-origin': '*' } });
-    }
     return new Response(HTML, {
       headers: {
         'content-type': 'text/html; charset=utf-8',
