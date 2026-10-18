@@ -203,7 +203,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 
 /* ===== TRANG CHỦ · PHƯỢNG VĨ ===== */
 .p-home{--do:#C8102E;--lua:#FBF7F4;--muc:#2B2A33;--mo:#7A747A}
-.p-home .hero{display:grid;grid-template-columns:minmax(0,57%) minmax(0,43%);min-height:420px;height:calc(100vh - var(--hd,68px));height:calc(100dvh - var(--hd,68px));overflow:hidden;overflow:clip;position:relative;background:linear-gradient(160deg,#FFF9F4 0%,#FDEEE7 55%,#F8DCD2 100%)}
+.p-home .hero{display:grid;grid-template-columns:minmax(0,57%) minmax(0,43%);min-height:420px;position:relative;background:linear-gradient(160deg,#FFF9F4 0%,#FDEEE7 55%,#F8DCD2 100%)}
 .p-home .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 82% 16%,rgba(255,190,110,.42),transparent 40%),radial-gradient(circle at 10% 100%,rgba(200,16,46,.08),transparent 45%);pointer-events:none}
 .p-home .hero .l{padding:44px clamp(32px,4vw,76px) 84px;display:flex;flex-direction:column;justify-content:flex-start;position:relative;z-index:1;min-width:0}
 .p-home .k{color:var(--do);font-weight:600;font-size:15px;margin-bottom:10px}
@@ -967,6 +967,18 @@ html.mot-tr,html.mot-tr body{overflow-y:hidden}
 .p-adm .side .pm-lk b{display:block;font-weight:700;color:var(--muc,#4A2C8F);margin-bottom:2px}.p-adm .side .pm-lk span{display:block;line-height:1.45}.p-adm .side .pm-lk:hover b{text-decoration:underline}
 @media(max-width:760px){.p-adm .side .pm-lk{display:none!important}}
 .p-adm .pm-cuoi{display:none}@media(max-width:760px){.p-adm .pm-cuoi{display:block;margin:14px 4px 0;padding:12px 14px;border:1px dashed var(--vien);border-radius:12px;text-align:center;font-size:13.5px;line-height:1.55;color:var(--mo);text-decoration:none}.p-adm .pm-cuoi b{color:var(--muc,#4A2C8F)}}
+
+/* Tự cân đối theo hình dạng màn hình (mhDoi_): mh-ngang = rộng >760 + ngang + cao ≥600 (máy tính, iPad ngang) → các trang "gọn 1 màn hình"; mh-doc = iPad dọc → cuộn bình thường, không thu nhỏ chữ; mh-thap = điện thoại nằm ngang (cao <600) → đầu trang gọn 1 dòng, nút nổi nhỏ */
+html.mh-ngang .p-home .hero{height:calc(100vh - var(--hd,68px));height:calc(100dvh - var(--hd,68px));overflow:hidden;overflow:clip}
+html.mh-doc .p-home .hero{min-height:0;padding-bottom:28px}
+html.mh-thap .g .in{padding-top:3px;padding-bottom:3px;gap:10px}
+html.mh-thap .brand img{width:32px;height:32px}html.mh-thap .brand b{font-size:15px;white-space:nowrap}html.mh-thap #hSub{display:none}
+html.mh-thap .g nav button{padding:6px 7px;font-size:12.5px;white-space:nowrap}
+html.mh-thap .tbNut{padding:9px;bottom:12px;left:12px}html.mh-thap .tbNut b{display:none}
+html.mh-thap #demoTag{bottom:12px!important;left:64px!important;max-width:40%!important}
+html.mh-thap .thu{max-height:94vh;max-height:94dvh}html.mh-thap .thu.gm-on .gm-chon{padding-top:6px;padding-bottom:6px}
+html.mh-thap .p-home .hero{min-height:0}
+html.mh-doc .brand b{white-space:nowrap;font-size:17px}html.mh-doc #hSub{display:none}html.mh-doc .brand img{width:38px;height:38px}html.mh-doc .g .in{padding-left:16px;padding-right:12px;gap:8px}html.mh-doc .g nav button{padding:8px 5px;font-size:12.5px;white-space:nowrap}html.mh-doc .g nav{gap:0}
 </style>
 </head>
 <body data-p="home">
@@ -1305,7 +1317,7 @@ function moGiayMoi(loai){apDungPopup();if(loai)gmLoai=loai;const b=$('thuBox'),b
 /* Giờ + ngày trên giấy mời: "17h00" + "Thứ Bảy, 14/11/2026" → "17:00 · THỨ BẢY · 14.11.2026" */
 function gmGio_(){const g=String(GM.gio||'').replace(/^(\d{1,2})h(\d{0,2})$/i,(a,h,m)=>h+':'+(m||'00')),n=String(GM.ngay||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>x.replace(/[/]/g,'.'));return [g].concat(n).filter(Boolean).join(' · ').toUpperCase()}
 /* Giấy mời 559×793px → zoom cho vừa trọn khung thư (cả rộng lẫn cao, trừ thanh chọn trên + nút dưới) để mở ra thấy đủ thiệp */
-function gmVua_(){const z=$('gmZ'),b=$('thuBox');if(!z||!b)return;const g=z.firstChild,cs=getComputedStyle(b),w=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),c=b.querySelector('.gm-chon'),n=b.querySelector('.gm-nut'),h=b.clientHeight-(c?c.offsetHeight+10:0)-(n?n.offsetHeight:0)-8,k=Math.max(.3,Math.min(1,w/559,h/793));g.style.zoom=k<1?k.toFixed(3):'';z.style.width=k<1?Math.floor(559*k)+'px':''}
+function gmVua_(){const z=$('gmZ'),b=$('thuBox');if(!z||!b)return;const g=z.firstChild,cs=getComputedStyle(b),w=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),c=b.querySelector('.gm-chon'),n=b.querySelector('.gm-nut'),p=b.querySelector('.gm-nhap'),h=b.clientHeight-(c?c.offsetHeight+10:0)-(n?n.offsetHeight:0)-8,kw=Math.min(1,w/559);let k=Math.min(kw,h/793);const k2=p?Math.min(kw,(h-p.offsetHeight-12)/793):k;if(k2>=.62)k=k2;k=Math.max(k,Math.min(kw,.5));g.style.zoom=k<1?k.toFixed(3):'';z.style.width=k<1?Math.floor(559*k)+'px':''}
 window.addEventListener('resize',()=>{if($('gmZ'))gmVua_()});
 /* In / lưu thư mời: bản giấy mời đang xem → A5 (PDF qua hộp thoại in) hoặc ảnh JPG (html2canvas tải khi cần) */
 function gmBan_(){const g=document.querySelector('.thu .gm');if(!g)return null;const c=g.cloneNode(true);c.removeAttribute('id');c.style.zoom='';c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));return '<div class="gmIn">'+c.outerHTML+'</div>'}
@@ -1439,10 +1451,10 @@ function renderHome(){const c=D.cfg,n=new Date().getFullYear()-(Number(c.namRaTr
  <div class="sec"><h2>Đang diễn ra</h2><p class="sub">Tin mới từ các trang khác.</p><div class="three">${items.join('')}</div></div>
  ${c.trichDan?`<div class="quote"><p>“${esc(c.trichDan)}”</p><small>${esc(c.trichDanTacGia)}</small></div>`:'<div style="height:72px"></div>'}`;countUp($('v-home'));danhDauLbDai();vuaHero_();vuaHeroTheoDoi_();[500,1600,3500].forEach(t=>setTimeout(vuaHero_,t))}
 /* Trang chủ máy tính: khung đầu luôn vừa 1 màn hình – nội dung dài (thêm nút sinh nhật, đoạn mở đầu dài, màn thấp) thì thu nhỏ đều cả khối chữ cho vừa */
-function vuaHero_(){const l=document.querySelector('#v-home .hero .l');if(!l)return;const hr=l.parentElement,hd=document.querySelector('header.g');l.style.zoom='';hr.style.height=hr.style.minHeight='';hr.scrollTop=0;if(hd)document.documentElement.style.setProperty('--hd',hd.offsetHeight+'px');if(innerWidth<=760||!hr.offsetHeight)return;const cao=()=>Math.max(...[...l.children].map(e=>e.getBoundingClientRect().bottom))-hr.getBoundingClientRect().top,toi=hr.clientHeight-40;if(cao()<=toi)return;let a=.55,b=1;for(let k=0;k<8;k++){const m=(a+b)/2;l.style.zoom=m;if(cao()<=toi)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){l.style.zoom=m;if(cao()<=toi)a=m}l.style.zoom=a.toFixed(3);hr.scrollTop=0}
+function vuaHero_(){const l=document.querySelector('#v-home .hero .l');if(!l)return;const hr=l.parentElement,hd=document.querySelector('header.g');l.style.zoom='';hr.style.height=hr.style.minHeight='';hr.scrollTop=0;if(hd)document.documentElement.style.setProperty('--hd',hd.offsetHeight+'px');if(!mhNgang_()||!hr.offsetHeight)return;const cao=()=>Math.max(...[...l.children].map(e=>e.getBoundingClientRect().bottom))-hr.getBoundingClientRect().top,toi=hr.clientHeight-40;if(cao()<=toi)return;let a=.55,b=1;for(let k=0;k<8;k++){const m=(a+b)/2;l.style.zoom=m;if(cao()<=toi)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){l.style.zoom=m;if(cao()<=toi)a=m}l.style.zoom=a.toFixed(3);hr.scrollTop=0}
 /* Chạy lại khi khung trang chủ đổi cỡ (đổi màn hình, kéo cửa sổ, thanh trình duyệt ẩn/hiện, phóng to/thu nhỏ), sau khi chữ/hiệu ứng vào xong */
 let VH_RO=null;function vuaHeroTheoDoi_(){const hr=document.querySelector('#v-home .hero');if(!hr||!window.ResizeObserver)return;if(VH_RO)VH_RO.disconnect();VH_RO=new ResizeObserver(()=>{clearTimeout(window.VH_T2);window.VH_T2=setTimeout(vuaHero_,80)});VH_RO.observe(hr);const hd=document.querySelector('header.g');if(hd)VH_RO.observe(hd)}
-addEventListener('resize',()=>{clearTimeout(window.VH_T);window.VH_T=setTimeout(()=>{vuaHero_();vuaLop_();vuaTq_();if(cur==='admin'&&A)motTrang_('admin')},150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{vuaHero_();vuaLop_()});
+addEventListener('resize',()=>{mhDoi_();clearTimeout(window.VH_T);window.VH_T=setTimeout(()=>{vuaHero_();vuaLop_();vuaTq_();if(cur==='admin'&&A)motTrang_('admin')},150)});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{vuaHero_();vuaLop_()});
 function truotLb(h){const l=$('luoiLb');if(l)l.scrollBy({left:h*Math.max(260,l.clientWidth*.8),behavior:'smooth'})}
 function danhDauLbDai(){const f=()=>document.querySelectorAll('#v-home .dlb').forEach(e=>{const n=e.querySelector('.nd');e.classList.toggle('dai',n.scrollHeight>n.clientHeight+2)});f();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(f)}
 
@@ -1549,9 +1561,12 @@ function drawLabels(){const q=clsQ.trim().toLowerCase();
  const l=D.lop.map((c,i)=>({c,i})).map(o=>{if(!q)return o;const inName=khopTim(q,'lop '+o.c.ten+' '+o.c.gvcn);const hs=o.c.hs.filter(s=>khopTim(q,chuHs(s))).map(s=>esc(s.hoTen));return inName||hs.length?Object.assign(o,{hit:inName?'':hs.slice(0,3).join(', ')}):null}).filter(Boolean);
  $('clsGrid').innerHTML=l.map(({c,i,hit})=>nhan(c,i,0,hit)).join('')||`<p class="empty">${D.lop.length?'Không thấy lớp hay bạn nào khớp. Thử gõ ngắn hơn, ví dụ chỉ tên gọi.':'Chưa có lớp nào.'}</p>`;vuaLop_();clearTimeout(window.VL_T);window.VL_T=setTimeout(vuaLop_,900)}
 /* Chế độ gọn 1 trang trên máy tính: 'admin' = Quản trị dạng ứng dụng (trang không cuộn, khung nội dung cuộn trong); 'lop' = Các lớp đã zoom vừa màn hình; '' = cuộn bình thường */
-function motTrang_(k){const h=document.documentElement,dt=innerWidth>760;h.classList.toggle('ad-app',dt&&k==='admin'&&cur==='admin');h.classList.toggle('mot-tr',dt&&((k==='admin'&&cur==='admin')||(k==='lop'&&cur==='classes'&&!curCls)))}
+function mhNgang_(){return innerWidth>760&&innerHeight>=600&&innerWidth>=innerHeight}
+function mhDoi_(){const h=document.documentElement,r=innerWidth>760;h.classList.toggle('mh-ngang',mhNgang_());h.classList.toggle('mh-doc',r&&innerWidth<innerHeight);h.classList.toggle('mh-thap',r&&innerHeight<600)}
+mhDoi_();
+function motTrang_(k){mhDoi_();const h=document.documentElement,dt=mhNgang_();h.classList.toggle('ad-app',dt&&k==='admin'&&cur==='admin');h.classList.toggle('mot-tr',dt&&((k==='admin'&&cur==='admin')||(k==='lop'&&cur==='classes'&&!curCls)))}
 /* Trang Các lớp (danh sách) trên máy tính: cả trang kể cả chân trang vừa 1 màn hình, không cuộn – dài hơn thì zoom cả khối #v-classes cho vừa */
-function vuaLop_(){const el=$('v-classes');if(!el)return;el.style.zoom='';if(innerWidth<=760||curCls||cur!=='classes'||!$('clsGrid'))return motTrang_('');const H=document.documentElement,du=()=>H.scrollHeight-innerHeight;if(du()<=1)return motTrang_('lop');let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;el.style.zoom=m;if(du()<=1)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){el.style.zoom=m;if(du()<=1)a=m}el.style.zoom=a.toFixed(3);motTrang_(du()<=1?'lop':'')}
+function vuaLop_(){const el=$('v-classes');if(!el)return;el.style.zoom='';if(!mhNgang_()||curCls||cur!=='classes'||!$('clsGrid'))return motTrang_('');const H=document.documentElement,du=()=>H.scrollHeight-innerHeight;if(du()<=1)return motTrang_('lop');let a=.62,b=1;for(let k=0;k<7;k++){const m=(a+b)/2;el.style.zoom=m;if(du()<=1)a=m;else b=m}for(let m=a+.01;m<1;m+=.01){el.style.zoom=m;if(du()<=1)a=m}el.style.zoom=a.toFixed(3);motTrang_(du()<=1?'lop':'')}
 function tachTen(n){const w=String(n||'').trim().split(/\s+/);return {ho:w.slice(0,-1).join(' '),t:w[w.length-1]||''}}
 function soDoLop(c,sd,coSdt){const hs=c.hs,bans=[];for(let k=0;k<hs.length;k+=2)bans.push([0,1].map(j=>hs[k+j]?{s:hs[k+j],k:k+j}:null));
  const cho=o=>{if(!o)return '<div class="cho trong"></div>';const s=o.s,n=tachTen(s.hoTen),p=sd[s.id],l=p&&contactLink(p);
@@ -1697,7 +1712,7 @@ function renderAdmin(){if(!A)return renderLogin();motTrang_('admin');const pc=$(
  $('panel').innerHTML=(R[tabs[aT]]||(()=>''))();vuaTq_();if(giuCuon)$('panel').scrollTop=giuCuon;const pn=$('panel');pn.onmouseover=pn.onclick=tkTip;pn.onmouseleave=()=>tkTip()}
 
 /* Quản trị → Tổng quan: khung nhật ký tự co cao để cả trang vừa 1 màn hình (cuộn trong khung) */
-function vuaTq_(){const n=$('nkKhung');if(!n)return;n.style.maxHeight='';if(innerWidth<=760)return;const pn=$('panel');if(!pn)return;const con=pn.getBoundingClientRect().bottom-n.getBoundingClientRect().top-24;n.style.maxHeight=Math.max(220,con)+'px'}
+function vuaTq_(){const n=$('nkKhung');if(!n)return;n.style.maxHeight='';if(!mhNgang_())return;const pn=$('panel');if(!pn)return;const con=pn.getBoundingClientRect().bottom-n.getBoundingClientRect().top-24;n.style.maxHeight=Math.max(220,con)+'px'}
 /* ===== TÌM BẠN CŨ: nút nhấp nháy (điện thoại góc phải, máy tính góc trái) → popup Bảng tìm bạn / Nhờ tìm một bạn ===== */
 let TB_T='bang',TB_Q='',tbF='dangtim';
 const tbLop_=id=>{const l=D.lop.find(x=>x.id===id);return l?'12/'+String(l.ten).replace(/^12[/]/,''):''};
