@@ -1965,14 +1965,14 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 /* ===================== INIT ===================== */
 tk('vao',TK.moi?'1':'');
 /* Trên Apps Script, doGet gửi sẵn dữ liệu (window.BOOT): không phải chờ server, màn khởi động chỉ đọc đủ 4 câu (~6 giây, chạm để bỏ qua). */
-/* Ảnh nền lớn (hoa phượng trang chủ, tranh giấy mời ~850KB) KHÔNG nhúng trong trang để mở nhanh: tải sau từ tệp AnhNen.html qua getAnhNen (bản tải về có sẵn window.ANH_NEN_SAN) */
-function apAnhNen_(o){if(!o)return;const h=document.documentElement.style;if(o.canh)h.setProperty('--nenCanh','url("'+o.canh+'")');if(o.gm)h.setProperty('--nenGm','url("'+o.gm+'")')}
-function napAnhNen_(){if(window.ANH_NEN_SAN)return apAnhNen_(window.ANH_NEN_SAN);if(!LIVE)return;api('getAnhNen').then(t=>{try{apAnhNen_(typeof t==='string'?JSON.parse(t):t)}catch(e){}}).catch(()=>{})}
+/* Ảnh nền lớn (hoa phượng trang chủ, tranh giấy mời ~650KB) KHÔNG nhúng trong trang để mở nhanh: trình duyệt tải thẳng từ Worker Cloudflare (ANH_NEN, có lưu đệm + CORS cho html2canvas); bản tải về đã nhúng sẵn trong CSS */
+const ANH_NEN='https:\/\/nguyenhien.philong.cloud/anh/';
+function napAnhNen_(){if(!LIVE)return;const h=document.documentElement.style;h.setProperty('--nenCanh','url("'+ANH_NEN+'canh.webp")');h.setProperty('--nenGm','url("'+ANH_NEN+'gm.webp")')}
 const BOOT_OK=!!(LIVE&&window.BOOT&&window.BOOT.cfg&&window.BOOT.lop);if(BOOT_OK){TM_J=JSON.stringify(window.BOOT);TM_T=Date.now()}
 const VIET=!!((window.THAM&&window.THAM.viet)||/[?&]viet=1/.test(location.search));
 function moViet(){ybT=3;go('yearbook');setTimeout(()=>{const w=$('w1');if(w)w.focus()},400)}
 window._dangMo=LIVE?1:0;
-buildNav();setD(BOOT_OK?window.BOOT:null);renderPublic();go('home');setTimeout(napAnhNen_,LIVE?60:0);try{if(window.top!==window)window.top.postMessage('nh-san-sang','*')}catch(e){}if(!LIVE)setTimeout(()=>VIET?moViet():moThu(1),VIET?300:1600);
+buildNav();setD(BOOT_OK?window.BOOT:null);renderPublic();go('home');napAnhNen_();try{if(window.top!==window)window.top.postMessage('nh-san-sang','*')}catch(e){}if(!LIVE)setTimeout(()=>VIET?moViet():moThu(1),VIET?300:1600);
 if(BOOT_OK&&TOK)api('getAdminData',TOK).then(r=>{A=r;if(cur==='classes')renderClasses()}).catch(()=>{});
 if(LIVE){window._dangMo=1;const L=$('loader'),CAU=['Đang lật lại trang lưu bút…','Đang gọi tên từng lớp…','Đang tìm lại những người bạn cũ…','Đang nhặt lại cánh phượng sân trường…'];let ci=0;
  $('ldLogo').src=$('hLogo').src;$('ldRoi').innerHTML=Array.from({length:14},(_,k)=>`<i style="left:${(k*41+7)%100}%;background:${k%3?'#C8102E':'#E8505B'};animation-duration:${8+k%5}s;animation-delay:-${(k*1.1).toFixed(1)}s"></i>`).join('');
