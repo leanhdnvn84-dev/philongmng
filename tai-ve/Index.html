@@ -28,7 +28,7 @@ main{flex:1 0 auto;display:flex;flex-direction:column}
 body[data-p=classes]{--hbg:#FBFBFE;--hfg:#22213A;--hac:#D62839;--hline:#4A2C8F}
 body[data-p=events]{--hbg:#FFF8EF;--hfg:#2B2420;--hac:#C8102E;--hline:#F0DCC8}
 body[data-p=yearbook]{--hbg:#4A3426;--hfg:#FAF6EE;--hac:#E8C9A0;--hline:#4A3426}
-body[data-p=gallery]{--hbg:#1F3A2E;--hfg:#F2F1E8;--hac:#F6D86B;--hline:#8B5E3C}
+body[data-p=gallery]{--hbg:#FAF7F2;--hfg:#1F1B18;--hac:#C8102E;--hline:#E8DFD3}
 body[data-p=connect]{--hbg:#FFF8EF;--hfg:#2B2420;--hac:#C8102E;--hline:#F0DCC8}
 body[data-p=admin]{--hbg:#fff;--hfg:#22213A;--hac:#4A2C8F;--hline:#E4DFF7}
 header.g{position:sticky;top:0;z-index:40;background:var(--hbg);color:var(--hfg);border-bottom:3px solid var(--hline);transition:background .25s}
@@ -418,22 +418,57 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-yb .pv{transform:rotate(1deg);min-height:220px}
 
 /* ===== HÌNH ẢNH · BẢNG ĐEN ===== */
-.p-gal{--bang:#1F3A2E;--phan:#F2F1E8;--vang:#F6D86B;
- background:var(--bang);color:var(--phan);font-family:'Pangolin',cursive;padding:22px 32px 52px;min-height:80vh;
- background-image:radial-gradient(ellipse at 20% 10%,rgba(255,255,255,.06),transparent 50%),radial-gradient(ellipse at 80% 60%,rgba(255,255,255,.05),transparent 45%)}
-.p-gal h2{font-weight:400;font-size:clamp(40px,5vw,64px);line-height:1}
-.p-gal .sub{font-family:'Be Vietnam Pro';opacity:.8;margin:5px 0 14px;max-width:60ch}
-.p-gal .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
-.p-gal .chips button{background:none;border:2px solid rgba(242,241,232,.5);color:var(--phan);border-radius:10px 14px 9px 13px;padding:5px 14px;font-family:'Pangolin';font-size:18px}
-.p-gal .chips button.on{border-color:var(--vang);color:var(--vang)}
-.p-gal .chips.al button{font-size:16px;padding:3px 12px;border-style:dashed}
-.p-gal .count{font-family:'Be Vietnam Pro';font-size:14px;opacity:.75;margin:6px 0 16px}
-.p-gal .grid{columns:240px;column-gap:26px}
-.p-gal figure{break-inside:avoid;margin-bottom:28px;background:var(--phan);padding:8px 8px 10px;transform:rotate(var(--r));box-shadow:0 8px 20px rgba(0,0,0,.35);cursor:pointer;position:relative}
-.p-gal figure:hover{transform:rotate(0) scale(1.02)}
-.p-gal figcaption{color:var(--bang);font-size:18px;text-align:center;margin-top:4px;line-height:1.2}
-.p-gal figcaption small{display:block;font-family:'Be Vietnam Pro';font-size:14px;opacity:.7}
-.p-gal .magnet{position:absolute;top:-9px;left:50%;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--m);box-shadow:0 2px 3px rgba(0,0,0,.4);z-index:2}
+.p-gal{--chu:#1F1B18;--phu:#6F655C;--do:#C8102E;--vien:#DDD3C7;background:#FAF7F2;color:var(--chu);font-family:'Be Vietnam Pro',sans-serif;padding:26px clamp(16px,4vw,56px) 56px;min-height:80vh}
+.p-gal .gd{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);gap:clamp(20px,3vw,44px);align-items:center;max-width:1280px;margin:0 auto}
+.p-gal .ey{font-size:13px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;color:var(--do)}
+.p-gal h2{font:700 clamp(40px,5vw,64px)/1.04 'Playfair Display',serif;letter-spacing:-.01em;margin-top:6px}.p-gal h2 i{color:var(--do)}
+.p-gal .sub{font-size:17px;line-height:1.55;color:var(--phu);margin-top:10px;max-width:46ch}
+.p-gal .hang{display:flex;align-items:center;gap:10px 22px;flex-wrap:wrap;margin-top:18px}
+.p-gal .so{display:flex;gap:18px}.p-gal .so b{font:700 26px/1 'Playfair Display',serif;display:block}.p-gal .so small{font-size:13.5px;color:var(--phu)}
+.p-gal .hang button{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:26px;font:700 15.5px 'Be Vietnam Pro';cursor:pointer;border:0;background:var(--do);color:#fff;box-shadow:0 6px 16px rgba(200,16,46,.25)}
+.p-gal .noi{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/9;max-height:360px;width:100%;box-shadow:0 24px 50px rgba(40,20,10,.22);background:#E9E1D6}
+.p-gal .noi .k{position:absolute;inset:0;opacity:0;transition:opacity 1s;cursor:pointer;display:grid;place-items:center;font-size:64px;color:rgba(255,255,255,.9)}
+.p-gal .noi .k.on{opacity:1}.p-gal .noi .k img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.p-gal .noi .k div{position:absolute;left:0;right:0;bottom:0;padding:50px 22px 16px;background:linear-gradient(transparent,rgba(0,0,0,.68));color:#fff;text-align:left}
+.p-gal .noi .k b{display:block;font:700 22px/1.2 'Playfair Display',serif}.p-gal .noi .k small{font-size:14px;opacity:.88}
+.p-gal .cham{display:flex;gap:7px;justify-content:center;margin-top:12px}.p-gal .cham button{width:8px;height:8px;border-radius:4px;border:0;background:#DDD3C7;padding:0;cursor:pointer;transition:width .3s}.p-gal .cham button.on{width:24px;background:var(--do)}
+.p-gal .w{max-width:1280px;margin:0 auto}
+.p-gal .td{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap;margin:44px 0 16px}
+.p-gal .td h3{font:700 clamp(26px,2.8vw,36px) 'Playfair Display',serif}.p-gal .td p{color:var(--phu);font-size:15.5px}
+.p-gal .bst{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;scrollbar-width:thin}
+.p-gal .bst .ab{flex:none;width:210px;scroll-snap-align:start}
+.p-gal .ab{cursor:pointer;background:none;border:0;padding:0;text-align:left;font:inherit;color:inherit}
+.p-gal .ab .bia{position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;display:grid;place-items:center;font-size:44px;color:rgba(255,255,255,.92);transition:transform .3s}
+.p-gal .ab:hover .bia{transform:translateY(-3px)}.p-gal .ab.on .bia{outline:3px solid var(--do);outline-offset:3px}
+.p-gal .ab .bia img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.p-gal .ab .bia i{position:absolute;right:10px;top:10px;font-style:normal;background:rgba(255,255,255,.94);color:var(--chu);font-weight:800;font-size:13px;padding:4px 10px;border-radius:12px}
+.p-gal .ab b{display:block;margin-top:10px;font-size:18px;font-weight:700}.p-gal .ab small{font-size:14px;color:var(--phu)}
+.p-gal .loc{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:thin}
+.p-gal .loc button{flex:none;padding:8px 16px;border-radius:10px;font:700 18px 'Be Vietnam Pro';border:1.5px solid var(--vien);background:#fff;color:var(--chu);cursor:pointer;white-space:nowrap}
+.p-gal .loc button.on{background:var(--do);border-color:var(--do);color:#fff}
+.p-gal .loc button.al{font-size:16px;border-style:dashed;border-color:var(--do);color:var(--do)}
+.p-gal .count{font-size:15px;color:var(--phu);margin:6px 0 18px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.p-gal .count button{border:0;background:none;color:var(--do);font:700 15px 'Be Vietnam Pro';cursor:pointer;padding:0}
+.p-gal .grid{columns:4 230px;column-gap:20px}
+.p-gal figure{break-inside:avoid;margin:0 0 22px;cursor:pointer}
+.p-gal figure .ph{border-radius:12px;transition:transform .4s}.p-gal figure:hover .ph{transform:scale(1.02)}
+.p-gal figcaption{padding-top:8px}.p-gal figcaption b{display:block;font-size:15.5px;font-weight:700;line-height:1.3}.p-gal figcaption small{font-size:14px;color:var(--phu)}
+.p-gal .them{display:block;margin:6px auto 0;padding:12px 28px;border-radius:26px;font:700 16px 'Be Vietnam Pro';border:1.5px solid var(--vien);background:#fff;color:var(--chu);cursor:pointer}
+.p-gal .ss{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:30px;align-items:center;margin-top:20px}
+.p-gal .ss .kh{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:14px;box-shadow:0 14px 30px rgba(0,0,0,.2);background:#E9E1D6;touch-action:pan-y}
+.p-gal .ss .kh img,.p-gal .ss .kh .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.p-gal .ss .kh .tren{clip-path:inset(0 0 0 var(--x,50%))}
+.p-gal .ss .kh .vach{position:absolute;top:0;bottom:0;left:var(--x,50%);width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.4);pointer-events:none}
+.p-gal .ss .kh .vach::after{content:'⇆';position:absolute;top:50%;left:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:#fff;color:#333;display:grid;place-items:center;font-size:20px;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.p-gal .ss .kh input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.p-gal .ss .kh em{position:absolute;bottom:12px;font-style:normal;font-weight:800;font-size:13px;letter-spacing:.1em;background:rgba(0,0,0,.55);color:#fff;padding:5px 10px;border-radius:6px;pointer-events:none}.p-gal .ss .kh em.a{left:12px}.p-gal .ss .kh em.b{right:12px}
+.p-gal .ss h3{font:700 clamp(26px,2.8vw,36px) 'Playfair Display',serif}.p-gal .ss p{color:var(--phu);margin-top:10px;font-size:16.5px;line-height:1.6}
+.p-gal .ss .lop2{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.p-gal .ss .lop2 button{padding:6px 14px;border-radius:16px;border:1px solid var(--vien);background:#fff;font:600 15px 'Be Vietnam Pro';cursor:pointer}.p-gal .ss .lop2 button.on{background:var(--do);color:#fff;border-color:var(--do)}
+.p-gal .gui{margin-top:56px;padding:30px clamp(18px,4vw,44px);display:flex;gap:22px;align-items:center;flex-wrap:wrap;background:#1F1B18;color:#fff;border-radius:20px}
+.p-gal .gui .ic{font-size:50px}.p-gal .gui div{flex:1;min-width:240px}.p-gal .gui h3{font:700 clamp(22px,2.4vw,30px) 'Playfair Display',serif}.p-gal .gui p{color:#C9BFB4;margin-top:6px;font-size:16px}
+.p-gal .gui button{padding:12px 22px;border-radius:26px;background:var(--do);color:#fff;font:800 15px 'Be Vietnam Pro';border:0;cursor:pointer}
+@media(max-width:900px){.p-gal .gd,.p-gal .ss{grid-template-columns:minmax(0,1fr)}.p-gal .noi{max-height:none}}
+@media(max-width:760px){.p-gal{padding-top:18px}.p-gal .grid{columns:2;column-gap:12px}.p-gal figure{margin-bottom:14px}.p-gal .bst{gap:14px}.p-gal .bst .ab{width:160px}.p-gal .ab b{font-size:16px}.p-gal .sub{font-size:16px}.p-gal .td{margin-top:34px}}
 
 /* ===== KẾT NỐI · BÁO TƯỜNG ===== */
 .p-kn{--do:#C8102E;--do2:#E8412F;--vang:#F6C343;--la:#2E9468;--la2:#3AB37E;--chu:#2B2420;--phu:#6B5B53;background:#FFF8EF;color:var(--chu);font-family:'Be Vietnam Pro',sans-serif}
@@ -699,8 +734,6 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-yb .intro{font-family:'Charm',cursive;font-size:24px;color:var(--do);margin:-6px 0 24px;max-width:62ch;line-height:1.4}
 .p-yb .goiy{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .p-yb .goiy button{background:#fff;border:1.5px dashed #B98F64;color:var(--nau);border-radius:99px;padding:4px 12px;font-size:13px}
-.p-gal .phan{text-align:center;font-size:clamp(22px,2.6vw,30px);margin-top:24px;opacity:.92}
-.p-gal .phan small{display:block;font-family:'Be Vietnam Pro';font-size:14px;opacity:.7;margin-top:6px}
 
 /* ===== THƯ NGỎ ===== */
 .thu-nen{position:fixed;inset:0;z-index:175;background:rgba(43,18,18,.55);display:none;align-items:center;justify-content:center;padding:20px}
@@ -825,7 +858,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
  .p-home .cls{grid-template-columns:repeat(3,1fr)}.p-home .cls button{padding:16px 12px}.p-home .cls b{font-size:26px}
  .p-home .gal{grid-template-columns:1fr 1fr;grid-template-rows:180px 130px 130px}.p-home .gal .ph:first-child{grid-column:span 2;grid-row:auto}
   .p-home .three{grid-template-columns:1fr}.p-home .quote{margin:56px 16px}
- .p-cls,.p-yb,.p-gal,.p-adm{padding-left:16px;padding-right:16px}
+ .p-cls,.p-yb,.p-adm{padding-left:16px;padding-right:16px}
  .p-cls .head{grid-template-columns:1fr}
  .p-ev .hero .l{padding:192px 16px 18px}.p-ev .ev-canh{width:300px;height:200px;right:-40px;top:-20px}.p-ev .hero .r{height:240px;margin-right:-16px}.p-ev .ev-tin{margin:0 16px}
  .p-ev .tg{padding-top:44px}.p-ev .tg::before{left:39px}.p-ev .year{padding-left:60px}.p-ev .year .moc{width:46px;height:46px;font-size:16px}
@@ -1775,15 +1808,31 @@ async function sendNote(){const t=$('w1').value.trim(),l=$('w2').value,n=$('w3')
 
 /* ===================== HÌNH ẢNH ===================== */
 let gF='',gA='';
+let GAL_N=16,GAL_K='',GAL_HEN=0,GAL_I=0,SS_L='';
+const GAL_TL=['4/3','3/4','1/1','4/3','16/10','4/5','4/3','3/2'];
+function galNoi_(k){const el=$('galNoi');if(!el){clearInterval(GAL_HEN);GAL_HEN=0;return}const ks=el.querySelectorAll('.k'),ds=document.querySelectorAll('#galCham button');if(!ks.length)return;GAL_I=(k==null?GAL_I+1:k)%ks.length;ks.forEach((x,n)=>x.classList.toggle('on',n===GAL_I));ds.forEach((x,n)=>x.classList.toggle('on',n===GAL_I))}
+function galChon(f,a){gF=f;gA=a;renderGal();const g=$('galLuoi');if(g)g.scrollIntoView({behavior:'smooth',block:'start'})}
+function galSs(v){const k=$('galSs');if(k)k.style.setProperty('--x',v+'%')}
 function renderGal(){const lops=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id)),hasChung=D.anh.some(a=>!a.lopId);
  const byL=D.anh.filter(a=>!gF||(gF==='_'?!a.lopId:a.lopId===gF));const albs=[...new Set(byL.map(a=>a.album))];if(gA&&!albs.includes(gA))gA='';
- const list=byL.filter(a=>!gA||a.album===gA);window.GAL=list;window.ALBS=albs;
- $('v-gallery').innerHTML=`<h2>Ảnh dán đầy bảng</h2><p class="sub">Mỗi tấm ảnh là một buổi chiều không quay lại được: hội trại, văn nghệ, giao lưu, họp lớp. Bấm vào ảnh để xem lớn, rồi thử tìm mình trong đó.</p>
- <div class="chips"><button class="${!gF?'on':''}" onclick="gF='';gA='';renderGal()">Cả khoá</button>${hasChung?`<button class="${gF==='_'?'on':''}" onclick="gF='_';gA='';renderGal()">Ảnh chung</button>`:''}${lops.map(l=>`<button class="${gF===l.id?'on':''}" onclick="gF='${l.id}';gA='';renderGal()">${esc(l.ten)}</button>`).join('')}</div>
- ${albs.length>1?`<div class="chips al"><button class="${!gA?'on':''}" onclick="gA='';renderGal()">Mọi album</button>${albs.map((a,k)=>`<button class="${gA===a?'on':''}" onclick="gA=ALBS[${k}];renderGal()">${esc(a)}</button>`).join('')}</div>`:''}
- <div class="count">${list.length} tấm ảnh${gF&&gF!=='_'?' của lớp '+esc(lopName(gF)):''}${gA?', album '+esc(gA):''}</div>${list.some(p=>p.fileId)?`<button class="tcBtn" onclick="tcMoi(()=>{renderGal();tcMo(GAL,0)})">▶ Trình chiếu ${gF||gA?'các ảnh này':'cả khoá'}</button>`:''}
- ${list.length?`<div class="grid">${list.map((p,i)=>`<figure style="--r:${[-1.5,1,-.6,1.4,-.2,-1][i%6]}deg" onclick="openLb(GAL,${i})"><span class="magnet" style="--m:${['#F6D86B','#F2A7B0','#9ED7E8'][i%3]}"></span><div class="ph${p.fileId?' auto':''}" style="aspect-ratio:4/3;background:${grad(i)}">${pic(p,600)}</div><figcaption>${esc(p.chuThich||p.album)}<small>${p.lopId?'Lớp '+esc(lopName(p.lopId)):'Ảnh chung'}, album ${esc(p.album)}</small></figcaption></figure>`).join('')}</div>`:'<p class="empty" style="font-family:\'Be Vietnam Pro\'">Chưa có ảnh nào. Admin mỗi lớp có thể tải ảnh lên trong mục Quản trị.</p>'}
- <p class="phan">Còn tấm ảnh cũ nào nằm trong hộc tủ?<small>Chụp lại gửi admin lớp, để bảng này có thêm một gương mặt thân quen.</small></p>`}
+ const list=byL.filter(a=>!gA||a.album===gA);window.GAL=list;window.ALBS=albs;if(GAL_K!==gF+'|'+gA){GAL_K=gF+'|'+gA;GAL_N=16}
+ const moi=D.anh.slice().sort((x,y)=>String(y.taoLuc||'').localeCompare(String(x.taoLuc||''))),noi=(moi.some(p=>p.fileId)?moi.filter(p=>p.fileId):moi).slice(0,6);window.GAL_NOI=noi;
+ const nAl=new Set(D.anh.map(a=>a.album)).size,coAnh=list.some(p=>p.fileId),cap=p=>`${p.lopId?'Lớp '+esc(lopName(p.lopId)):'Ảnh chung'} · ${esc(p.album)}`;
+ const laNgay=a=>/ngày ấy/i.test(a.album),laBay=a=>/bây giờ/i.test(a.album),cap2=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id&&laNgay(a))&&D.anh.some(a=>a.lopId===l.id&&laBay(a)));if(!cap2.some(l=>l.id===SS_L))SS_L=cap2.length?cap2[0].id:'';
+ const ssA=SS_L&&D.anh.find(a=>a.lopId===SS_L&&laNgay(a)),ssB=SS_L&&D.anh.find(a=>a.lopId===SS_L&&laBay(a));
+ $('v-gallery').innerHTML=`<div class="gd"><div><div class="ey">Hình ảnh · khoá ${esc(D.cfg.nienKhoa)}</div><h2>Khoảnh khắc <i>không quay lại</i></h2><p class="sub">Hội trại, văn nghệ, giao lưu, họp lớp – bấm ảnh để xem lớn, rồi thử tìm mình trong đó.</p>
+   <div class="hang"><div class="so"><div><b>${D.anh.length}</b><small>tấm ảnh</small></div><div><b>${nAl}</b><small>album</small></div><div><b>${lops.length}</b><small>lớp góp ảnh</small></div></div>${D.anh.some(p=>p.fileId)?`<button onclick="tcMoi(()=>{gF='';gA='';renderGal();tcMo(GAL,0)})">▶ Trình chiếu cả khoá</button>`:''}</div></div>
+  ${noi.length?`<div><div class="noi" id="galNoi">${noi.map((p,k)=>`<div class="k${k?'':' on'}" style="background:${grad(k)}" onclick="openLb(GAL_NOI,${k})">${pic(p,1200)}<div><b>${esc(p.chuThich||p.album)}</b><small>${cap(p)}</small></div></div>`).join('')}</div>${noi.length>1?`<div class="cham" id="galCham">${noi.map((p,k)=>`<button class="${k?'':'on'}" onclick="galNoi_(${k})" aria-label="Ảnh ${k+1}"></button>`).join('')}</div>`:''}</div>`:''}</div>
+ <div class="w">
+ ${albs.length>1?`<div class="td"><h3>Bộ sưu tập</h3><p>${gF?(gF==='_'?'Ảnh chung':'Lớp '+esc(lopName(gF)))+' · ':''}${albs.length} album${albs.length>5?' · vuốt ngang để xem thêm':''}</p></div><div class="bst">${albs.map((a,k)=>{const ds=byL.filter(x=>x.album===a),b=ds.find(x=>x.fileId)||ds[0];return `<button class="ab${gA===a?' on':''}" onclick="galChon(gF,ALBS[${k}])"><div class="bia" style="background:${grad(k+3)}">${pic(b,600)}<i>${ds.length} ảnh</i></div><b>${esc(a)}</b><small>${ds.length} ảnh</small></button>`}).join('')}</div>`:''}
+ <div class="td" id="galLuoi"><h3>Tất cả hình ảnh</h3></div>
+ <div class="loc"><button class="${!gF?'on':''}" onclick="galChon('','')">Cả khoá</button>${hasChung?`<button class="${gF==='_'?'on':''}" onclick="galChon('_','')">Ảnh chung</button>`:''}${lops.map(l=>`<button class="${gF===l.id?'on':''}" onclick="galChon('${l.id}','')">${esc(l.ten)}</button>`).join('')}</div>
+ <div class="count"><span>${list.length} tấm ảnh${gF&&gF!=='_'?' của lớp '+esc(lopName(gF)):gF==='_'?' chung':''}${gA?' · album '+esc(gA):''}</span>${gA?`<button onclick="galChon(gF,'')">✕ Bỏ lọc album</button>`:''}${coAnh&&(gF||gA)?`<button onclick="tcMoi(()=>{renderGal();tcMo(GAL,0)})">▶ Trình chiếu các ảnh này</button>`:''}</div>
+ ${list.length?`<div class="grid">${list.slice(0,GAL_N).map((p,i)=>`<figure onclick="openLb(GAL,${i})"><div class="ph${p.fileId?' auto':''}" style="aspect-ratio:${GAL_TL[i%GAL_TL.length]};background:${grad(i)}">${pic(p,700)}</div><figcaption><b>${esc(p.chuThich||p.album)}</b><small>${cap(p)}</small></figcaption></figure>`).join('')}</div>${list.length>GAL_N?`<button class="them" onclick="GAL_N+=16;renderGal()">Xem thêm ${Math.min(16,list.length-GAL_N)} / ${list.length-GAL_N} tấm ▾</button>`:''}`:'<p class="empty">Chưa có ảnh nào. Admin mỗi lớp có thể tải ảnh lên trong mục Quản trị.</p>'}
+ ${ssA&&ssB?`<div class="td"></div><div class="ss"><div class="kh" id="galSs"><div class="ph" style="background:${grad(1)}">${pic(ssA,900)}</div><div class="ph tren" style="background:${grad(5)}">${pic(ssB,900)}</div><span class="vach"></span><em class="a">Ngày ấy</em><em class="b">Bây giờ</em><input type="range" min="0" max="100" value="50" oninput="galSs(this.value)" aria-label="Kéo để so sánh"></div><div><div class="ey">Ngày ấy – Bây giờ</div><h3>Vẫn là lớp mình</h3><p>Kéo thanh giữa để so ảnh năm cuối cấp với ảnh bây giờ. Ai đổi khác nhiều nhất?</p>${cap2.length>1?`<div class="lop2">${cap2.map(l=>`<button class="${SS_L===l.id?'on':''}" onclick="SS_L='${l.id}';renderGal()">${esc(l.ten)}</button>`).join('')}</div>`:''}</div></div>`:''}
+ <div class="gui"><span class="ic" aria-hidden="true">📮</span><div><h3>Còn tấm ảnh cũ nào trong hộc tủ?</h3><p>Chụp lại bằng điện thoại, gửi admin lớp – bảng ảnh sẽ có thêm một gương mặt thân quen.</p></div><button onclick="go('connect')">Liên hệ admin lớp</button></div>
+ </div>`;
+ clearInterval(GAL_HEN);GAL_I=0;if(noi.length>1)GAL_HEN=setInterval(()=>galNoi_(),5000)}
 
 /* ===================== KẾT NỐI ===================== */
 function contactLink(v){v=String(v||'').trim();if(!v)return '';if(/@/.test(v))return 'mailto:'+v;if(/^https?:[/][/]/i.test(v))return v;const d=v.replace(/[^\d+]/g,'');if(d.length>=9)return 'https:\/\/zalo.me/'+d.replace(/^\+84/,'0');return ''}
