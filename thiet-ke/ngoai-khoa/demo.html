@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo Ngoại khoá – phượng vĩ, sân trường</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,500&family=Patrick+Hand&family=Charm:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+/* Demo thiết kế lại trang Ngoại khoá – 2 mẫu: ?m=1 Sân trường nắng hạ · ?m=2 Chiều tan trường */
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden}
+body{font-family:'Be Vietnam Pro',sans-serif;color:var(--chu);background:var(--nen);overflow-x:clip}
+:root{--do:#C8102E;--do2:#E8412F;--vang:#F6C343;--la:#3E9B5B;--chu:#2B2420;--phu:#6B5B53;--nen:#FFF8EF;--the:#fff;--gach:#F4E3CF}
+body.m2{--nen:#FFF3E6;--chu:#2A1A1F;--phu:#6E5258;--gach:#F7DCC8}
+header.g{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px clamp(16px,3vw,40px);background:rgba(255,248,239,.92);backdrop-filter:blur(8px);border-bottom:1px solid #F0DCC8}
+body.m2 header.g{background:rgba(42,20,30,.9);border-color:#4A2A33;color:#FFE9D6}
+header.g .lg{width:38px;height:38px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:20px;box-shadow:0 0 0 2px var(--do)}
+header.g b{font:700 19px 'Playfair Display',serif}header.g nav{margin-left:auto;display:flex;gap:18px;font-size:14.5px;font-weight:500}
+header.g nav span.on{color:var(--do);border-bottom:3px solid var(--do);padding-bottom:4px}body.m2 header.g nav span.on{color:var(--vang);border-color:var(--vang)}
+@media(max-width:760px){header.g nav{display:none}}
+
+/* ===== HERO: sân trường ===== */
+.hero{position:relative;overflow:hidden;min-height:620px;display:grid;grid-template-columns:minmax(0,52%) minmax(0,48%);
+ background:linear-gradient(180deg,#BFE6F5 0%,#E4F4F2 38%,#FFF1DC 72%,#F8E2C6 100%)}
+body.m2 .hero{background:linear-gradient(180deg,#5B2A55 0%,#B8445A 34%,#F0754C 62%,#FFB96B 82%,#FFD9A0 100%)}
+.hero .l{position:relative;z-index:3;padding:56px clamp(16px,4vw,64px) 150px}
+.ey{font:800 13px 'Be Vietnam Pro';letter-spacing:4px;text-transform:uppercase;color:var(--do)}
+body.m2 .ey{color:#FFE29A}
+.nam{white-space:nowrap;font:900 clamp(48px,6.3vw,98px)/.95 'Be Vietnam Pro';letter-spacing:-2px;margin-top:10px;
+ background:linear-gradient(180deg,#E8412F,#C8102E 60%,#8E0B22);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 4px 0 rgba(255,255,255,.7))}
+body.m2 .nam{background:linear-gradient(180deg,#FFF1C9,#FFC94D 55%,#F08A2B);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 4px 12px rgba(80,10,30,.45))}
+.hero h1{font:700 clamp(28px,3.4vw,46px)/1.15 'Playfair Display',serif;margin-top:16px;max-width:560px}
+body.m2 .hero h1{color:#FFF4E6;text-shadow:0 2px 14px rgba(60,0,20,.4)}
+.hero h1 i{font-style:italic;color:var(--do)}body.m2 .hero h1 i{color:#FFD36B}
+.hero p.mo{font-size:18px;line-height:1.65;color:var(--phu);margin-top:16px;max-width:560px}
+body.m2 .hero p.mo{color:#FFE7D6}
+.chip{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.chip a{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:30px;background:#fff;color:var(--chu);font:700 15px 'Be Vietnam Pro';text-decoration:none;box-shadow:0 4px 14px rgba(160,60,40,.15);border:1.5px solid #F2C9B8}
+.chip a b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px}
+.chip a:nth-child(1) b{background:#F08A2B}.chip a:nth-child(2) b{background:#2F8F5B}.chip a:nth-child(3) b{background:#C8102E}
+body.m2 .chip a{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.35);backdrop-filter:blur(6px)}
+
+/* tranh sân trường */
+.canh{position:absolute;top:-24px;right:-30px;width:min(560px,42vw);height:380px;background:url(canh.webp) right top/contain no-repeat;z-index:2;opacity:.95;pointer-events:none;animation:lac 7s ease-in-out infinite;transform-origin:100% 0}
+@keyframes lac{0%,100%{transform:rotate(0)}50%{transform:rotate(-1.4deg)}}
+.hero .r{position:relative;z-index:1}
+.hero svg.san{position:absolute;right:0;bottom:0;width:100%;height:auto;max-height:100%}
+.gach{position:absolute;left:0;right:0;bottom:0;height:120px;z-index:1;
+ background:linear-gradient(180deg,transparent,rgba(0,0,0,.02)),repeating-linear-gradient(90deg,#E9C9A6 0 1px,transparent 1px 60px),repeating-linear-gradient(0deg,#E9C9A6 0 1px,#F3DCC0 1px 30px)}
+body.m2 .gach{background:repeating-linear-gradient(90deg,#C98A6E 0 1px,transparent 1px 60px),repeating-linear-gradient(0deg,#C98A6E 0 1px,#E9A985 1px 30px)}
+.gach::before{content:'';position:absolute;inset:-26px 0 auto;height:26px;background:linear-gradient(180deg,transparent,rgba(160,90,50,.18))}
+.roi{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4}
+.roi i{position:absolute;top:-20px;width:12px;height:16px;border-radius:60% 60% 60% 0;background:var(--do2);opacity:.85;z-index:4;animation:roi linear infinite}
+.roi i.v{background:#F6C343}
+@keyframes roi{to{transform:translate(var(--x),110vh) rotate(720deg)}}
+
+/* bảng tin nhật ký */
+.tin{position:absolute;left:53%;top:56px;z-index:3;width:min(300px,24%);background:#2F4F3A;border:9px solid #A0703F;border-radius:6px;box-shadow:0 18px 40px rgba(60,30,10,.35),inset 0 0 40px rgba(0,0,0,.35);padding:14px 16px 10px;color:#F4F1E4;font-family:'Patrick Hand',cursive}
+.tin::before{content:'';position:absolute;left:50%;top:-34px;width:3px;height:26px;background:#7A5230;box-shadow:-60px 0 0 #7A5230,60px 0 0 #7A5230;transform:translateX(-50%)}
+.tin h3{font:700 26px 'Dancing Script',cursive;color:#FFE08A;text-align:center}
+.tin ol{list-style:none;margin-top:6px}.tin li{display:flex;gap:10px;align-items:baseline;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.18);font-size:17px}
+.tin li:last-child{border:0}.tin li span{flex:none;width:62px;color:#FFD0A8;font-size:15px}
+body.m2 .tin{background:#2A1E1A}
+
+/* ===== DÒNG THỜI GIAN ===== */
+.tg{position:relative;padding:60px clamp(16px,4vw,64px) 30px;max-width:1280px;margin:0 auto}
+.tg::before{content:'';position:absolute;left:clamp(30px,5.2vw,82px);top:60px;bottom:40px;width:4px;border-radius:4px;background:repeating-linear-gradient(180deg,#E8B9A0 0 14px,transparent 14px 26px)}
+.nam-hoc{position:relative;padding-left:clamp(44px,5vw,70px);margin-bottom:56px}
+.nam-hoc .moc{position:absolute;left:clamp(-2px,1.2vw,18px);top:6px;width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 5px var(--c),0 8px 20px rgba(0,0,0,.12);font:900 20px 'Be Vietnam Pro';color:var(--c)}
+.bien{display:inline-flex;align-items:center;gap:14px;position:relative;background:var(--c);color:#fff;padding:10px 26px 10px 20px;border-radius:10px;box-shadow:0 6px 0 rgba(0,0,0,.15)}
+.bien::before,.bien::after{content:'';position:absolute;top:-18px;width:2px;height:18px;background:#9C8576}.bien::before{left:22%}.bien::after{right:22%}
+.bien b{font:900 clamp(28px,3.4vw,40px) 'Be Vietnam Pro';letter-spacing:-.5px}.bien small{font:600 14px 'Be Vietnam Pro';opacity:.9;border-left:1px solid rgba(255,255,255,.5);padding-left:14px}
+.gt{font:400 clamp(20px,2vw,24px)/1.45 'Charm',cursive;color:var(--phu);margin:16px 0 22px;max-width:760px}
+.luoi{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:22px}
+.hd{background:var(--the);border-radius:16px;overflow:hidden;box-shadow:0 10px 28px rgba(120,60,30,.12);display:flex;flex-direction:column;transition:transform .3s}
+.hd:hover{transform:translateY(-4px) rotate(-.4deg)}
+.hd .anh{position:relative;aspect-ratio:2/1;display:grid;place-items:center;font-size:44px;overflow:hidden;background:var(--g)}
+.hd .anh::before{content:'';position:absolute;right:-30px;top:-24px;width:150px;height:100px;background:url(canh.webp) right top/contain no-repeat;opacity:.9}
+.hd .anh::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,255,255,.35),transparent 60%)}
+.hd .anh em{position:relative;z-index:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+.hd .ngay{position:absolute;left:12px;top:12px;z-index:2;background:#fff;color:var(--chu);font:700 13px 'Be Vietnam Pro';padding:5px 10px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.15);transform:rotate(-3deg)}
+.hd .nd{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.hd h4{font:800 18px 'Be Vietnam Pro'}
+.hd p{font-size:15px;line-height:1.6;color:var(--phu);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hd a{margin-top:auto;font:700 14px 'Be Vietnam Pro';color:var(--do);text-decoration:none}
+
+/* ===== BẢNG ĐEN TRÍCH ===== */
+.bd{max-width:980px;margin:10px auto 70px;padding:0 16px}
+.bd div{position:relative;background:#2E4A3B;border:14px solid #8B5E34;border-radius:8px;padding:44px clamp(20px,5vw,64px) 36px;text-align:center;color:#F4F1E4;box-shadow:0 20px 50px rgba(60,30,10,.25),inset 0 0 60px rgba(0,0,0,.4)}
+.bd q{display:block;font:400 clamp(24px,3vw,34px)/1.45 'Patrick Hand',cursive;quotes:'“' '”'}
+.bd small{display:block;margin-top:14px;font:400 18px 'Patrick Hand';color:#FFD9A8}
+.bd .phan{position:absolute;right:26px;bottom:-14px;width:60px;height:10px;border-radius:3px;background:#fff;box-shadow:-74px 0 0 #F6C343}
+
+/* ===== SAU RA TRƯỜNG: cổng trường ===== */
+.cong{position:relative;margin:0 clamp(16px,4vw,64px) 60px;border-radius:24px;overflow:hidden;background:linear-gradient(180deg,#E9F6EE,#FFF6E8);padding:40px clamp(18px,4vw,56px) 44px}
+body.m2 .cong{background:linear-gradient(180deg,#FFE3CF,#FFF3E6)}
+.cong .dau{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.cong svg{width:200px;flex:none}
+.cong h2{font:700 clamp(30px,3.6vw,46px) 'Playfair Display',serif}.cong h2+p{color:var(--phu);margin-top:6px;font-size:17px}
+.cong .ds{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:26px}
+.cong .o{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 8px 22px rgba(60,90,60,.12);border-top:5px solid var(--la);display:flex;flex-direction:column;gap:6px}
+.cong .o.moi{border-color:var(--do);background:linear-gradient(135deg,#fff,#FFF0EC)}
+.cong .o small{font:700 13px 'Be Vietnam Pro';color:var(--la);letter-spacing:1px}.cong .o.moi small{color:var(--do)}
+.cong .o b{font-size:18px}.cong .o p{font-size:15px;line-height:1.55;color:var(--phu)}
+.cong .o button{margin-top:6px;align-self:flex-start;border:0;border-radius:20px;padding:8px 18px;font:700 14px 'Be Vietnam Pro';background:var(--vang);color:#3A2A10}
+.cong .o.moi button{background:var(--do);color:#fff}
+
+footer{padding:26px 16px 90px;text-align:center;color:var(--phu);font-size:14px;border-top:1px solid #EED9C4}
+
+/* ===== Điện thoại ===== */
+@media(max-width:760px){
+ .hero{grid-template-columns:minmax(0,1fr);min-height:0;padding-bottom:70px}
+ .hero .l{padding:170px 16px 18px}
+ .canh{width:330px;height:220px;right:-50px;animation:none}
+ .nam{font-size:clamp(46px,14vw,64px)}
+ .hero .r{height:240px;margin:0 -16px 0 0}
+ .tin{position:relative;left:auto;right:auto;top:auto;width:auto;margin:0 16px 0;border-width:7px}
+ .tin::before{display:none}
+ .tin ol{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+ .tin li{flex:none;flex-direction:column;gap:0;width:150px;border:1px dashed rgba(255,255,255,.25);border-radius:8px;padding:6px 10px;scroll-snap-align:start}
+ .tin li span{width:auto}
+ .tin h3{text-align:left;font-size:22px}
+ .nam{letter-spacing:-1px}
+ .tg::before{left:26px}
+ .nam-hoc{padding-left:44px}.nam-hoc .moc{left:2px;width:46px;height:46px;font-size:16px}
+ .bien{padding:8px 16px 8px 14px}.bien small{font-size:13px}
+ .luoi{grid-template-columns:1fr;gap:16px}
+ .cong .dau svg{width:140px}
+}
+</style></head>
+<body>
+<header class="g"><span class="lg">🏫</span><b>THPT Nguyễn Hiền</b><nav><span>Trang chủ</span><span>Các lớp</span><span class="on">Ngoại khoá</span><span>Kỷ yếu</span><span>Hình ảnh</span><span>Kết nối</span><span>🎂 Sinh nhật</span><span>Quản trị</span></nav></header>
+
+<section class="hero">
+ <div class="canh"></div>
+ <div class="roi" id="roi"></div>
+ <div class="l">
+  <div class="ey">Ngoại khoá · khoá 2000 – 2003</div>
+  <div class="nam">2000–2003</div>
+  <h1>Ba mùa phượng, một sân trường và <i>những buổi chiều không muốn về</i></h1>
+  <p class="mo">Đêm văn nghệ đầu tiên run tay cầm micro. Hội trại 26/3 thức trắng bên đống lửa. Trận bóng Phù Đổng khản cổ cổ vũ. Rồi một chiều tháng Năm, cả khoá đứng hát “Mong ước kỷ niệm xưa” mà chẳng ai hát tròn câu.</p>
+  <div class="chip"><a href="#l10"><b>10</b>Mùa phượng đầu</a><a href="#l11"><b>11</b>Mùa nắng sân trường</a><a href="#l12"><b>12</b>Mùa chia tay</a></div>
+ </div>
+ <div class="r"><svg class="san" id="san" viewBox="0 0 700 460" preserveAspectRatio="xMaxYMax meet"></svg></div>
+ <aside class="tin"><h3>Bảng tin ngoại khoá</h3><ol id="tin"></ol></aside>
+ <div class="gach"></div>
+</section>
+
+<section class="tg" id="tg"></section>
+
+<section class="bd"><div><q>Hồi đó cứ nghĩ ngày mai còn dài lắm. Đâu biết có những đêm lửa trại, những buổi tập văn nghệ dưới mưa, cả đời chỉ đến một lần.</q><small>10 hoạt động · ba mùa phượng · một thời áo trắng</small><span class="phan"></span></div></section>
+
+<section class="cong">
+ <div class="dau"><svg id="cong" viewBox="0 0 200 130"></svg><div><h2>Sau ra trường</h2><p>Cổng trường vẫn mở, mỗi lần họp lớp lại có thêm người trở về.</p></div></div>
+ <div class="ds">
+  <div class="o"><small>08/2013</small><b>Họp lớp 10 năm</b><p>Cả khoá về thăm trường, gặp lại thầy cô chủ nhiệm. Có bạn đã bế con theo, đứng cạnh gốc phượng cũ chụp hình.</p></div>
+  <div class="o"><small>07/2023</small><b>Họp lớp 20 năm</b><p>Họp mặt ở biển Mỹ Khê, hơn 300 bạn về dự. Có một phút lặng để nhớ những người bạn đã đi xa.</p><button>Xem ảnh</button></div>
+  <div class="o moi"><small>14/11/2026 · SẮP TỚI</small><b>Gala “Ngày trở về”</b><p>Về trường mình, thêm một lần nữa: gặp mặt toàn khoá, tri ân thầy cô.</p><button>Đăng ký tham dự</button></div>
+ </div>
+</section>
+<footer>Trang kỷ niệm khoá 2000 – 2003 · Ban liên lạc khoá</footer>
+
+<script>
+const M=new URLSearchParams(location.search).get('m')||'1';document.body.classList.add('m'+M);
+const DL=[
+ {k:'10',c:'#F08A2B',ten:'Lớp 10',nh:'2000 – 2001',gt:'Năm của những lần đầu: áo trắng còn thơm mùi vải mới, bạn bàn bên còn lạ, đêm văn nghệ đầu tiên run tay cầm micro.',hd:[
+  ['05/09/2000','Ngày khai giảng đầu tiên','🎒','Lần đầu bước qua cổng trường Nguyễn Hiền trong tà áo trắng còn thơm mùi vải mới. Ai cũng lạ, ai cũng rụt rè, chẳng ai ngờ ba năm sau lại khóc vì phải rời nơi này.','#F7B267,#F4845F'],
+  ['20/11/2000','Đêm văn nghệ 20/11','🎤','Lần đầu khối 10 lên sân khấu trường. Tiết mục múa “Áo trắng” giành giải nhất, cả hội trường vỗ tay mãi không dứt.','#F6C1C7,#E56B6F'],
+  ['26/03/2001','Hội trại 26/3','⛺','Hai ngày một đêm dựng trại bằng tre, lá dừa. Đêm lửa trại, cả khối nắm tay thành vòng tròn, hát tới khản giọng.','#A8D5A2,#3E9B5B']]},
+ {k:'11',c:'#2F8F5B',ten:'Lớp 11',nh:'2001 – 2002',gt:'Năm của tuổi mười bảy: nắng sân trường, trận bóng chiều, và những rung động chưa dám gọi tên.',hd:[
+  ['12/2001','Hội khoẻ Phù Đổng','⚽','Bóng đá nam, bóng chuyền nữ, kéo co giữa các lớp khối 11. Thắng thua giờ chẳng ai nhớ, chỉ nhớ những chai nước chuyền tay giữa sân nắng.','#B5E3C8,#2F8F5B'],
+  ['04/2002','Dã ngoại về nguồn','🚌','Chuyến xe sớm về Mỹ Sơn, cả lớp hát suốt dọc đường. Lần đầu tiên tụi mình đi xa cùng nhau.','#FFE29A,#F6A93B']]},
+ {k:'12',c:'#C8102E',ten:'Lớp 12',nh:'2002 – 2003',gt:'Năm của những lần cuối: buổi học cuối, tiếng trống cuối, cái ôm cuối dưới gốc phượng.',hd:[
+  ['09/01/2003','Rung chuông vàng','🔔','Ngày Học sinh – Sinh viên, mười hai lớp thi báo tường và rung chuông vàng. Cả sân trường hồi hộp theo từng câu hỏi.','#FFD27A,#E8862B'],
+  ['03/2003','Trăm ngày trước kỳ thi','🕯️','Lễ thắp nến “100 ngày” dưới sân trường. Ai cũng ước một điều, nhiều người ước được ở lại thêm một chút.','#C9B6E4,#7B5EA7'],
+  ['05/2003','Lễ tri ân và chia tay','🌺','Đêm cuối dưới mái trường. Cả khoá hát “Mong ước kỷ niệm xưa”, trao nhau lưu bút, ôm thầy cô thật lâu.','#F79A8E,#C8102E']]}];
+document.getElementById('tg').innerHTML=DL.map(n=>`<div class="nam-hoc" id="l${n.k}" style="--c:${n.c}"><span class="moc">${n.k}</span>
+ <div class="bien"><b>${n.ten}</b><small>Năm học ${n.nh}</small></div><p class="gt">${n.gt}</p>
+ <div class="luoi">${n.hd.map(h=>`<article class="hd"><div class="anh" style="--g:linear-gradient(135deg,${h[4]})"><span class="ngay">${h[0]}</span><em>${h[2]}</em></div><div class="nd"><h4>${h[1]}</h4><p>${h[3]}</p><a href="#">Xem ảnh hoạt động →</a></div></article>`).join('')}</div></div>`).join('');
+document.getElementById('tin').innerHTML=DL.flatMap(n=>n.hd).map(h=>`<li><span>${h[0].length>7?h[0].slice(0,5):h[0]}</span>${h[2]} ${h[1]}</li>`).join('');
+
+/* tranh sân trường: dãy lớp học 2 tầng, cột cờ, cây phượng */
+let s=7;const rd=()=>{s=(s*16807)%2147483647;return s/2147483647};
+const dem=M==='2';
+const tuong=dem?'#E9B38A':'#F6D88E',vien=dem?'#B8654E':'#E2B85C',cua=dem?'#5A3A4A':'#3E9B5B',mai=dem?'#8E3B3B':'#C0533A',kinh=dem?'#FFD27A':'#CFEAF0';
+let g='';
+/* dãy nhà */
+g+=`<rect x="170" y="150" width="520" height="210" fill="${tuong}"/><polygon points="155,150 705,150 680,118 180,118" fill="${mai}"/>`;
+g+=`<rect x="170" y="248" width="520" height="10" fill="${vien}"/><rect x="170" y="350" width="520" height="10" fill="${vien}"/>`;
+for(let t=0;t<2;t++)for(let i=0;i<8;i++){const x=190+i*62,y=t?272:170;g+=`<rect x="${x}" y="${y}" width="40" height="${t?72:66}" rx="3" fill="${cua}"/><rect x="${x+5}" y="${y+5}" width="13" height="${t?30:26}" fill="${kinh}" opacity=".85"/><rect x="${x+22}" y="${y+5}" width="13" height="${t?30:26}" fill="${kinh}" opacity=".85"/>`}
+for(let i=0;i<9;i++)g+=`<rect x="${176+i*62}" y="150" width="8" height="210" fill="${vien}" opacity=".55"/>`;
+g+=`<rect x="330" y="124" width="200" height="22" rx="4" fill="#fff" opacity=".92"/><text x="430" y="140" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="800" font-size="13" fill="${dem?'#8E3B3B':'#C8102E'}">TRƯỜNG THPT NGUYỄN HIỀN</text>`;
+/* cột cờ */
+g+=`<rect x="128" y="96" width="5" height="270" fill="#8A8A8A"/><path d="M133 100 h56 l-8 16 8 16 h-56z" fill="#DA251D"/><path d="M155 108 l3 7 7 0 -6 4 2 7 -6-4 -6 4 2-7 -6-4 7 0z" fill="#FFDA3A"/>`;
+/* ghế đá */
+g+=`<rect x="470" y="392" width="90" height="10" rx="3" fill="#B9B2A8"/><rect x="478" y="400" width="8" height="18" fill="#9D968C"/><rect x="544" y="400" width="8" height="18" fill="#9D968C"/>`;
+/* cây phượng */
+const than=dem?'#4A2A2A':'#6B4A33';g+=`<path d="M70 460 C80 380 60 330 90 270 C110 230 70 210 60 190 M90 270 C130 240 170 230 200 200 M86 300 C50 280 30 260 10 250" stroke="${than}" stroke-width="16" fill="none" stroke-linecap="round"/>`;
+const tan=[[90,170,80],[170,185,70],[45,215,60],[130,125,65],[215,160,52]];
+tan.forEach(([cx,cy,r])=>{for(let i=0;i<110;i++){const a=rd()*6.28,d=Math.sqrt(rd())*r;const x=cx+Math.cos(a)*d,y=cy+Math.sin(a)*d*.7;g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(4+rd()*6).toFixed(1)}" fill="${rd()<.32?(dem?'#3C5A3A':'#5FAE5A'):['#E8412F','#D2342A','#F05A3A','#C8102E'][i%4]}" opacity="${(.85+rd()*.15).toFixed(2)}"/>`}});
+document.getElementById('san').innerHTML=g;
+/* cổng trường nhỏ */
+document.getElementById('cong').innerHTML=`<rect x="10" y="40" width="22" height="88" fill="#3AB37E"/><rect x="168" y="40" width="22" height="88" fill="#3AB37E"/><path d="M4 44 Q100 -6 196 44 L196 58 Q100 8 4 58z" fill="#2E9468"/><rect x="58" y="20" width="84" height="20" rx="4" fill="#fff"/><text x="100" y="34" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="800" font-size="9.5" fill="#0A4A35">NGUYỄN HIỀN</text><path d="M34 128 V70 h132 v58" stroke="#5A6B63" stroke-width="2" fill="none" stroke-dasharray="3 5"/>`+[30,52,150,172].map(x=>`<circle cx="${x}" cy="${36}" r="7" fill="#E8412F"/>`).join('');
+/* cánh phượng rơi */
+document.getElementById('roi').innerHTML=Array.from({length:16},(_,i)=>`<i class="${i%5==0?'v':''}" style="left:${(rd()*100).toFixed(1)}%;--x:${(rd()*160-80).toFixed(0)}px;animation-duration:${(9+rd()*9).toFixed(1)}s;animation-delay:-${(rd()*14).toFixed(1)}s"></i>`).join('');
+</script>
+</body></html>
