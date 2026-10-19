@@ -1,3 +1,11 @@
+QL_TC_2026 – v5.9.15 (19/10/2026) · NHẬP EXCEL: BÁO TRẠNG THÁI RÕ, CHỌN LẠI CÙNG FILE VẪN CHẠY
+1. Hộp thoại "⇪ Nhập Excel" hiện trạng thái ngay dưới ô chọn file: "Đang đọc file…" → "Đã đọc n dòng – máy chủ đang kiểm tra…" → bước 2;
+   lỗi hiện khung đỏ (không chỉ thông báo 3 giây): không tải được thư viện Excel (cdnjs bị chặn → dùng .csv), file đang mở / bị khóa,
+   không thấy tiêu đề cột, máy chủ chưa có hàm previewPlanImport (Code.gs chưa cập nhật / chưa tạo Phiên bản mới).
+2. Chọn lại đúng file vừa chọn vẫn chạy (trước đây trình duyệt không báo thay đổi nên không có phản ứng). Áp dụng cả Nhập lịch trả nợ.
+3. Chân hộp thoại ghi "Phiên bản 5.9.15" để kiểm tra đã triển khai bản mới.
+Kiểm thử: 14 bộ tests/*.cjs đều đạt; chạy thử 3 tình huống lỗi + chọn lại cùng file. Khóa cache BOOT_V5915_.
+
 QL_TC_2026 – v5.9.14 (19/10/2026) · NHẬP KẾ HOẠCH THU CHI DỄ TÍNH HƠN (file người dùng tự sửa vẫn nhập được)
 Nguyên nhân file MAU_NHAP_KE_HOACH_THU_CHI_1.xlsx không nhập được: dòng 4 (mã cột NGAY_DU_KIEN, NOI_DUNG, THU, CHI…) bị dán dữ liệu đè → không nhận ra mẫu.
 Sửa:

@@ -46,7 +46,7 @@ const UI_MODULES=Object.freeze({
 });
 
 /* V5.9.2: khóa cache khởi động; cache 30 phút (trước 6 giờ) để đổi vai trò trong sheet được nhận sớm */
-const BOOT_KEY_='BOOT_V5914_';
+const BOOT_KEY_='BOOT_V5915_';
 /** V5.9.7: bố cục form theo nhóm nghiệp vụ. Trường có trên sheet nhưng không liệt kê → nhóm "Thông tin khác". */
 const FORM_LAYOUT_=Object.freeze({
  KHOAN_VAY:[['Hợp đồng',['MA_CONG_TY_VAY','MA_DU_AN','MA_NGAN_HANG','TEN_KHOAN_VAY','SO_HOP_DONG','MA_TIEN_TE']],['Số tiền',['HAN_MUC_VAY','TONG_GOC_GIAI_NGAN','DU_NO_GOC_BAN_DAU','NGAY_GOC_BAN_DAU','DU_NO_GOC_DAU_KY','NGAY_CHOT_DU_NO_DAU_KY']],['Lãi suất',['LOAI_LAI_SUAT','LAI_SUAT_NAM']],['Thời hạn',['NGAY_KY','NGAY_GIAI_NGAN_DAU','KY_HAN_THANG','NGAY_DAO_HAN']],['Trạng thái và ghi chú',['TRANG_THAI','GHI_CHU']]],
@@ -61,7 +61,7 @@ const FORM_LAYOUT_=Object.freeze({
 function getBootstrapData(){
  const user=getCurrentUser_(),cache=CacheService.getScriptCache(),key=BOOT_KEY_+String(user.email||user.role),hit=cacheGetJson_(cache,key);if(hit)return hit;
  const modules={};Object.keys(APP_MODULES).forEach(function(k){const c=APP_MODULES[k];if(c.adminOnly&&user.role!=='ADMIN')return;modules[k]=moduleConfigMeta_(c);});
- const out={version:'5.9.14',title:APP_CONFIG.title,user:user,permissions:ROLE_RULES[user.role]||ROLE_RULES.VIEWER,modules:modules,uiModules:UI_MODULES,forms:FORM_LAYOUT_,lookups:{}};cachePutJson_(cache,key,out,1800);return out;
+ const out={version:'5.9.15',title:APP_CONFIG.title,user:user,permissions:ROLE_RULES[user.role]||ROLE_RULES.VIEWER,modules:modules,uiModules:UI_MODULES,forms:FORM_LAYOUT_,lookups:{}};cachePutJson_(cache,key,out,1800);return out;
 }
 function moduleConfigMeta_(c){const hidden=['NGUOI_TAO','TAO_LUC','CAP_NHAT_LUC'].concat(c.calculated||[]),headers=[],add=function(a){(a||[]).forEach(function(x){if(x&&headers.indexOf(x)<0)headers.push(x);});};add([c.idField]);add(c.columns);add(c.required);add(c.dates);add(c.amounts);add(c.percents);add(Object.keys(c.enums||{}));return{title:c.title,group:c.group,idField:c.idField,headers:headers,fields:headers.filter(function(f){return f!==c.idField&&hidden.indexOf(f)<0;}),required:c.required||[],hidden:hidden,enums:c.enums||{},dates:c.dates||[],amounts:c.amounts||[],percents:c.percents||[],columns:c.columns||headers.slice(0,8),readOnly:!!c.readOnly,manualId:!!c.manualId,lockedFields:c.lockedFields||[],count:0,rows:[]};}
 function readModuleMeta_(ss,key,c){const sh=requireSheet_(ss,key),physical=getHeaders_(sh),h=physical.concat((c.virtual||[]).filter(function(f){return physical.indexOf(f)<0;})),hidden=['NGUOI_TAO','TAO_LUC','CAP_NHAT_LUC'].concat(c.calculated||[]);ensureRequiredHeaders_(key,physical);return{title:c.title,group:c.group,idField:c.idField,headers:h,fields:h.filter(function(f){return f!==c.idField&&hidden.indexOf(f)<0;}),required:c.required||[],hidden:hidden,enums:c.enums||{},dates:c.dates||[],amounts:c.amounts||[],percents:c.percents||[],columns:(c.columns||h.slice(0,8)).filter(function(f){return h.indexOf(f)>=0;}),readOnly:!!c.readOnly,manualId:!!c.manualId,lockedFields:c.lockedFields||[],count:Math.max(0,sh.getLastRow()-1)};}
