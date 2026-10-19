@@ -46,7 +46,7 @@ const UI_MODULES=Object.freeze({
 });
 
 /* V5.9.2: khóa cache khởi động; cache 30 phút (trước 6 giờ) để đổi vai trò trong sheet được nhận sớm */
-const BOOT_KEY_='BOOT_V5913_';
+const BOOT_KEY_='BOOT_V5914_';
 /** V5.9.7: bố cục form theo nhóm nghiệp vụ. Trường có trên sheet nhưng không liệt kê → nhóm "Thông tin khác". */
 const FORM_LAYOUT_=Object.freeze({
  KHOAN_VAY:[['Hợp đồng',['MA_CONG_TY_VAY','MA_DU_AN','MA_NGAN_HANG','TEN_KHOAN_VAY','SO_HOP_DONG','MA_TIEN_TE']],['Số tiền',['HAN_MUC_VAY','TONG_GOC_GIAI_NGAN','DU_NO_GOC_BAN_DAU','NGAY_GOC_BAN_DAU','DU_NO_GOC_DAU_KY','NGAY_CHOT_DU_NO_DAU_KY']],['Lãi suất',['LOAI_LAI_SUAT','LAI_SUAT_NAM']],['Thời hạn',['NGAY_KY','NGAY_GIAI_NGAN_DAU','KY_HAN_THANG','NGAY_DAO_HAN']],['Trạng thái và ghi chú',['TRANG_THAI','GHI_CHU']]],
@@ -61,7 +61,7 @@ const FORM_LAYOUT_=Object.freeze({
 function getBootstrapData(){
  const user=getCurrentUser_(),cache=CacheService.getScriptCache(),key=BOOT_KEY_+String(user.email||user.role),hit=cacheGetJson_(cache,key);if(hit)return hit;
  const modules={};Object.keys(APP_MODULES).forEach(function(k){const c=APP_MODULES[k];if(c.adminOnly&&user.role!=='ADMIN')return;modules[k]=moduleConfigMeta_(c);});
- const out={version:'5.9.13',title:APP_CONFIG.title,user:user,permissions:ROLE_RULES[user.role]||ROLE_RULES.VIEWER,modules:modules,uiModules:UI_MODULES,forms:FORM_LAYOUT_,lookups:{}};cachePutJson_(cache,key,out,1800);return out;
+ const out={version:'5.9.14',title:APP_CONFIG.title,user:user,permissions:ROLE_RULES[user.role]||ROLE_RULES.VIEWER,modules:modules,uiModules:UI_MODULES,forms:FORM_LAYOUT_,lookups:{}};cachePutJson_(cache,key,out,1800);return out;
 }
 function moduleConfigMeta_(c){const hidden=['NGUOI_TAO','TAO_LUC','CAP_NHAT_LUC'].concat(c.calculated||[]),headers=[],add=function(a){(a||[]).forEach(function(x){if(x&&headers.indexOf(x)<0)headers.push(x);});};add([c.idField]);add(c.columns);add(c.required);add(c.dates);add(c.amounts);add(c.percents);add(Object.keys(c.enums||{}));return{title:c.title,group:c.group,idField:c.idField,headers:headers,fields:headers.filter(function(f){return f!==c.idField&&hidden.indexOf(f)<0;}),required:c.required||[],hidden:hidden,enums:c.enums||{},dates:c.dates||[],amounts:c.amounts||[],percents:c.percents||[],columns:c.columns||headers.slice(0,8),readOnly:!!c.readOnly,manualId:!!c.manualId,lockedFields:c.lockedFields||[],count:0,rows:[]};}
 function readModuleMeta_(ss,key,c){const sh=requireSheet_(ss,key),physical=getHeaders_(sh),h=physical.concat((c.virtual||[]).filter(function(f){return physical.indexOf(f)<0;})),hidden=['NGUOI_TAO','TAO_LUC','CAP_NHAT_LUC'].concat(c.calculated||[]);ensureRequiredHeaders_(key,physical);return{title:c.title,group:c.group,idField:c.idField,headers:h,fields:h.filter(function(f){return f!==c.idField&&hidden.indexOf(f)<0;}),required:c.required||[],hidden:hidden,enums:c.enums||{},dates:c.dates||[],amounts:c.amounts||[],percents:c.percents||[],columns:(c.columns||h.slice(0,8)).filter(function(f){return h.indexOf(f)>=0;}),readOnly:!!c.readOnly,manualId:!!c.manualId,lockedFields:c.lockedFields||[],count:Math.max(0,sh.getLastRow()-1)};}
@@ -527,10 +527,13 @@ const PLAN_STATUS_VI_={'NHÁP':'NHAP','CHỜ DUYỆT':'CHO_DUYET','ĐÃ DUYỆT'
 function planNorm_(v){return String(v==null?'':v).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9]+/g,' ').trim();}
 function planImportPeriod_(v){if(v instanceof Date&&!isNaN(v))return Utilities.formatDate(v,APP_CONFIG.timeZone,'yyyy-MM');let s=String(v==null?'':v).trim(),m;if(!s)return'';if((m=s.match(/^(\d{4})-(\d{1,2})(-\d{1,2})?/)))return m[1]+'-'+String(+m[2]).padStart(2,'0');if((m=s.match(/^(?:th[áa]ng\s*)?(\d{1,2})[\/.\-](\d{4})$/i)))return m[2]+'-'+String(+m[1]).padStart(2,'0');return null;}
 function planImportCheck_(ss,rows){const c=APP_MODULES.KE_HOACH_THU_CHI,list=Array.isArray(rows)?rows:[];if(list.length>1000)throw new Error('Mỗi lần nhập tối đa 1.000 dòng.');
- const ids={},keys={},seen={},debtKy={},st=c.enums.TRANG_THAI,key=function(d){return[d.KY_BAO_CAO,d.LOAI_THU_CHI,planNorm_(d.NOI_DUNG),d.NGAY_DU_KIEN].join('|');};
- readSheet_(ss,'KE_HOACH_THU_CHI',c).rows.forEach(function(r){ids[String(r.MA_KE_HOACH)]=r;if(String(r.TRANG_THAI)!=='HUY')keys[[String(r.KY_BAO_CAO).slice(0,7),r.LOAI_THU_CHI,planNorm_(r.NOI_DUNG),String(r.NGAY_DU_KIEN).slice(0,10)].join('|')]=String(r.MA_KE_HOACH);});
+ const ids={},keys={},seen={},debtKy={},st=c.enums.TRANG_THAI,key=function(d){return[d.KY_BAO_CAO,d.LOAI_THU_CHI,planNorm_(d.NOI_DUNG),d.NGAY_DU_KIEN,Math.round(Number(d.SO_TIEN_DU_KIEN)||0),planNorm_(d.MA_NHOM_THU_CHI),planNorm_(d.MA_DU_AN)].join('|');};/* V5.9.14: khóa trùng gồm số tiền + nhóm + dự án (Bảo hiểm KS Royal ≠ Bảo hiểm KS Wyndham) */
+ readSheet_(ss,'KE_HOACH_THU_CHI',c).rows.forEach(function(r){ids[String(r.MA_KE_HOACH)]=r;if(String(r.TRANG_THAI)!=='HUY')keys[[String(r.KY_BAO_CAO).slice(0,7),r.LOAI_THU_CHI,planNorm_(r.NOI_DUNG),String(r.NGAY_DU_KIEN).slice(0,10),Math.round(Number(r.SO_TIEN_DU_KIEN)||0),planNorm_(r.MA_NHOM_THU_CHI),planNorm_(r.MA_DU_AN)].join('|')]=String(r.MA_KE_HOACH);});
  try{readSheetCached_(ss,'LICH_TRA_NO',APP_MODULES.LICH_TRA_NO).rows.forEach(function(r){if(String(r.TRANG_THAI)!=='HUY'){const p=periodKey_(r.NGAY_DEN_HAN);if(p)debtKy[p]=true;}});}catch(e){}
  return list.map(function(src,i){const d={},e=[],w=[],line=Number(src&&src._line)||i+1;src=planSplitCols_(src||{},e);PLAN_IMPORT_FIELDS_.forEach(function(f){d[f]=src&&src[f]!=null?String(src[f]).trim():'';});
+  if(src._TONG)return{line:line,action:'total',errors:[],warnings:['Dòng tổng / nhóm (công thức cộng các dòng khác) – không nhập'],data:d,dupWith:''};
+  if(!d.MA_KE_HOACH&&d.SO_TIEN_DU_KIEN===''&&!e.length)return{line:line,action:'blank',errors:[],warnings:['Không có số tiền – bỏ qua'],data:d,dupWith:''};
+  if(src._NHOM_TU)w.push('Nhóm lấy theo dòng tổng "'+d.MA_NHOM_THU_CHI+'"');if(src._TACH)w.push('Dòng có cả Thu và Chi → tách thành 2 dòng');
   const lt=planNorm_(d.LOAI_THU_CHI).toUpperCase();d.LOAI_THU_CHI=lt==='THU'?'THU':lt==='CHI'?'CHI':d.LOAI_THU_CHI;if(!d.LOAI_THU_CHI)e.push('Thiếu loại (THU/CHI)');else if(['THU','CHI'].indexOf(d.LOAI_THU_CHI)<0)e.push('Loại phải là THU hoặc CHI');
   const date=parseImportDate_(src&&src.NGAY_DU_KIEN);if(!date)e.push(date===''?'Thiếu ngày dự kiến':'Ngày dự kiến không hợp lệ');else d.NGAY_DU_KIEN=date;
   const ky=planImportPeriod_(src&&src.KY_BAO_CAO);if(ky===null)e.push('Kỳ phải dạng YYYY-MM hoặc MM/YYYY');else d.KY_BAO_CAO=ky||(date?date.slice(0,7):'');if(!d.KY_BAO_CAO&&!e.length)e.push('Thiếu kỳ báo cáo');if(date&&d.KY_BAO_CAO&&date.slice(0,7)!==d.KY_BAO_CAO)w.push('Ngày không thuộc kỳ '+d.KY_BAO_CAO);
@@ -556,7 +559,7 @@ function importPlans(rows,options){const opts=options||{},lock=LockService.getSc
  const v=sh.getDataRange().getValues(),ii=h.indexOf(c.idField),ki=h.indexOf('KY_BAO_CAO'),rowOf={};for(let r=1;r<v.length;r++)rowOf[String(v[r][ii]||'').trim()]=r;
  const now=new Date(),out=[],res={add:0,update:0,skip:0,auto:0,error:0,errors:[],periods:{},thu:0,chi:0};
  checked.forEach(function(x){if(x.action==='error'){res.error++;res.errors.push({line:x.line,data:x.data,msg:x.errors.join('; ')});return;}
-  if(x.action==='dupfile'||(x.action==='dup'&&opts.dup!=='add')){res.skip++;return;}if(x.action==='auto'&&opts.auto!=='add'){res.auto++;return;}
+  if(x.action==='total'||x.action==='blank'||x.action==='dupfile'||(x.action==='dup'&&opts.dup!=='add')){res.skip++;return;}if(x.action==='auto'&&opts.auto!=='add'){res.auto++;return;}
   const d=x.data,put=function(row){PLAN_IMPORT_FIELDS_.forEach(function(f){if(f===c.idField||d[f]==='')return;setIfHeader_(row,h,f,f==='NGAY_DU_KIEN'?normalizeInput_(d[f],f,c):d[f]);});setIfHeader_(row,h,'CAP_NHAT_LUC',now);protectFormulaText_(row,h,c);return row;};
   if(x.action==='update'){const r=rowOf[d.MA_KE_HOACH];if(ki>=0)sh.getRange(r+1,ki+1).setNumberFormat('@');sh.getRange(r+1,1,1,h.length).setValues([put(v[r].slice())]);res.update++;}
   else{const row=put(new Array(h.length).fill(''));row[ii]=makeId_('KE_HOACH_THU_CHI');setIfHeader_(row,h,'MA_TIEN_TE',d.MA_TIEN_TE||'VND');if(!d.TRANG_THAI)setIfHeader_(row,h,'TRANG_THAI','NHAP');setIfHeader_(row,h,'NGUOI_TAO',u.email);setIfHeader_(row,h,'TAO_LUC',now);out.push(row);res.add++;}

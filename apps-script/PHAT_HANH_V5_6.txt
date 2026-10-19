@@ -1,3 +1,14 @@
+QL_TC_2026 – v5.9.14 (19/10/2026) · NHẬP KẾ HOẠCH THU CHI DỄ TÍNH HƠN (file người dùng tự sửa vẫn nhập được)
+Nguyên nhân file MAU_NHAP_KE_HOACH_THU_CHI_1.xlsx không nhập được: dòng 4 (mã cột NGAY_DU_KIEN, NOI_DUNG, THU, CHI…) bị dán dữ liệu đè → không nhận ra mẫu.
+Sửa:
+1. Mất dòng mã cột → nhận cột theo tên tiêu đề (Ngày · Nội dung · Thu · Chi · Nhóm · Dự án · Ghi chú · Mã KH; cả Loại / Số tiền / Kỳ của mẫu cũ).
+2. Dòng có công thức cộng các dòng khác trong file (=SUM(D26:D35), =D25+D36…) → "Dòng tổng – bỏ qua"; các dòng con tự lấy tên dòng tổng làm Nhóm (KS Royal, KS Wyndham…).
+3. Dòng không có số tiền (Tiền quay về, Thuế VAT, Accor…) → "Không có số tiền" (bỏ qua, không còn báo lỗi). Dòng chỉ có ngày → bỏ hẳn.
+4. Dòng ghi cả Thu và Chi → tách 2 dòng (cảnh báo). Khóa trùng thêm Số tiền + Nhóm + Dự án → "Bảo hiểm" của KS Royal và KS Wyndham không còn bị coi là trùng.
+Với file trên: nhận 30 dòng cần nhập, bỏ 5 dòng tổng + 15 dòng trống số tiền + 6 dòng gốc lãi đã có tự động; còn 1 lỗi: dòng 14 không có nội dung,
+ ô Chi là liên kết sang file khác ('[1]Lai goc T10'!G21) ra chữ "Cuối tháng 30/10". Kèm bản đã sửa MAU_NHAP_KE_HOACH_THU_CHI_1_DA_SUA.xlsx (sheet DA_SUA ghi từng chỗ sửa).
+Kiểm thử: 14 bộ tests/*.cjs đều đạt (thêm kiểm tra bộ đọc file với dòng tổng / mất mã cột); chạy thử nhập đúng file người dùng gửi. Khóa cache BOOT_V5914_.
+
 QL_TC_2026 – v5.9.13 (19/10/2026) · MẪU NHẬP KẾ HOẠCH THU CHI GỌN – 2 CỘT THU / CHI RIÊNG
 1. File mẫu còn 8 cột: Ngày * · Nội dung * · Thu (đ) · Chi (đ) · Nhóm · Dự án · Ghi chú · Mã KH (trống = mới). Bỏ cột Kỳ, Loại, Số tiền, Công ty, Đối tượng, Trạng thái:
    kỳ lấy theo tháng của ngày, loại theo cột có số (Thu hoặc Chi), trạng thái mặc định Nháp. Ghi số ở cả 2 cột → báo lỗi "Chỉ ghi 1 trong 2 cột Thu / Chi".

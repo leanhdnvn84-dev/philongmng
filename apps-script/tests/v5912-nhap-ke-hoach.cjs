@@ -35,7 +35,7 @@ const r2=J(`importPlans(${JSON.stringify(rows)},{auto:'add'})`);assert.deepEqual
 // 4. kiểm tra lỗi + chuẩn hóa: Thu/Chi chữ thường, kỳ 10/2026, trạng thái tiếng Việt, số kiểu 1.234.567, ngày dd/mm/yyyy
 const bad=J(`previewPlanImport([{_line:7,KY_BAO_CAO:'10/2026',LOAI_THU_CHI:'chi',NGAY_DU_KIEN:'15/10/2026',NOI_DUNG:'Mua vật tư',SO_TIEN_DU_KIEN:'1.234.567',TRANG_THAI:'Đã duyệt'},
  {_line:8,LOAI_THU_CHI:'X',NGAY_DU_KIEN:'31/02/2026',NOI_DUNG:'',SO_TIEN_DU_KIEN:'-5'},{_line:9,MA_KE_HOACH:'TD-GL-2026-10-25',LOAI_THU_CHI:'CHI',NGAY_DU_KIEN:'2026-10-25',NOI_DUNG:'x',SO_TIEN_DU_KIEN:1},
- {_line:10,KY_BAO_CAO:'2026-11',LOAI_THU_CHI:'THU',NGAY_DU_KIEN:'2026-10-02',NOI_DUNG:'Thu khác',SO_TIEN_DU_KIEN:0},{_line:11,KY_BAO_CAO:'10/2026',LOAI_THU_CHI:'CHI',NGAY_DU_KIEN:'15/10/2026',NOI_DUNG:'mua  vật tư',SO_TIEN_DU_KIEN:5}])`).rows;
+ {_line:10,KY_BAO_CAO:'2026-11',LOAI_THU_CHI:'THU',NGAY_DU_KIEN:'2026-10-02',NOI_DUNG:'Thu khác',SO_TIEN_DU_KIEN:0},{_line:11,KY_BAO_CAO:'10/2026',LOAI_THU_CHI:'CHI',NGAY_DU_KIEN:'15/10/2026',NOI_DUNG:'mua  vật tư',SO_TIEN_DU_KIEN:1234567}])`).rows;
 assert.deepEqual([bad[0].action,bad[0].data.KY_BAO_CAO,bad[0].data.LOAI_THU_CHI,bad[0].data.NGAY_DU_KIEN,bad[0].data.SO_TIEN_DU_KIEN,bad[0].data.TRANG_THAI],['add','2026-10','CHI','2026-10-15',1234567,'DA_DUYET']);
 assert.equal(bad[1].action,'error');assert.deepEqual(bad[1].errors,['Loại phải là THU hoặc CHI','Ngày dự kiến không hợp lệ','Thiếu nội dung','Số tiền không được âm']);
 assert.match(bad[2].errors[0],/Dòng tự động/);assert.deepEqual(bad[3].warnings,['Ngày không thuộc kỳ 2026-11','Số tiền = 0']);assert.equal(bad[4].action,'dupfile','trùng nội dung không phân biệt hoa thường / khoảng trắng');
@@ -51,6 +51,18 @@ assert.deepEqual(sp.map(r=>[r.action,r.data.LOAI_THU_CHI,r.data.SO_TIEN_DU_KIEN,
 assert.ok(sp[2].errors.includes('Chỉ ghi 1 trong 2 cột Thu / Chi'));
 assert.match(html,/const PLAN_TPL_FIELDS=\['NGAY_DU_KIEN','NOI_DUNG','THU','CHI','MA_NHOM_THU_CHI','MA_DU_AN','GHI_CHU','MA_KE_HOACH'\]/);assert.match(html,/XLSX\.utils\.book_append_sheet\(wb,ws,'NHAP'\)/);
 assert.match(html,/<th class="num">THU<\/th><th class="num">CHI<\/th>/);
+// 8. V5.9.14 – file người dùng sửa: mất dòng mã cột, có dòng tổng =SUM, dòng trống số tiền, dòng ghi cả Thu và Chi, tên trùng ở 2 khách sạn
+{const fnSrc=html.slice(html.indexOf('const planNormC_'),html.indexOf('function readPlanFile_('));
+ const cx={PLAN_IMPORT_FIELDS:['MA_KE_HOACH','KY_BAO_CAO','LOAI_THU_CHI','NGAY_DU_KIEN','NOI_DUNG','SO_TIEN_DU_KIEN','MA_NHOM_THU_CHI','MA_CONG_TY','MA_DU_AN','MA_DOI_TUONG','TRANG_THAI','GHI_CHU'],isoLocal_:d=>d.toISOString().slice(0,10)};vm.createContext(cx);vm.runInContext(fnSrc,cx);
+ const d=new Date('2026-10-25T00:00:00Z'),grid=[['KẾ HOẠCH THU CHI'],['ghi chú'],['Ngày *','Nội dung *','Thu (đ)','Chi (đ)','Nhóm','Dự án','Ghi chú','Mã KH (trống = mới)'],
+  [d,'Tổng tiền quỹ',888658576,''],[d,'Tiền quay về','',''],[d,'Doanh thu bán C28-15',3097248000,2000000000],[d,'KS Royal','',700],[d,'Bảo Hiểm','',500],[d,'CP cố định khác','',200],[d,'KS Wyndham','',1100],[d,'Bảo hiểm','',1000],[d,'CP cố định khác','',100],[d,'','','']];
+ const fx={6:{3:"SUM(D8:D9)"},9:{3:"=SUM(D11:D12)"}},pr=JSON.parse(JSON.stringify(cx.planParseGrid_(grid,fx,0)));
+ assert.deepEqual(pr.rows.map(r=>[r.line,r.src.NOI_DUNG,r.src.THU,r.src.CHI,r.src.MA_NHOM_THU_CHI,!!r.src._TONG,!!r.src._TACH]),[[4,'Tổng tiền quỹ',888658576,'','',false,false],[5,'Tiền quay về','','','',false,false],[6,'Doanh thu bán C28-15',3097248000,'','',false,true],[6,'Doanh thu bán C28-15','',2000000000,'',false,true],
+  [7,'KS Royal','',700,'',true,false],[8,'Bảo Hiểm','',500,'KS Royal',false,false],[9,'CP cố định khác','',200,'KS Royal',false,false],[10,'KS Wyndham','',1100,'',true,false],[11,'Bảo hiểm','',1000,'KS Wyndham',false,false],[12,'CP cố định khác','',100,'KS Wyndham',false,false]]);
+ const ck=J(`previewPlanImport(${JSON.stringify(pr.rows.map(r=>Object.assign({_line:r.line},r.src,{NGAY_DU_KIEN:'2026-11-25'})))})`).rows;
+ assert.deepEqual(ck.map(r=>r.action),['add','blank','add','add','total','add','add','total','add','add'],'tên trùng ở 2 nhóm không bị coi là trùng');
+ assert.match(ck[5].warnings[0],/Nhóm lấy theo dòng tổng "KS Royal"/);assert.match(ck[2].warnings.join(),/tách thành 2 dòng/);
+ assert.equal(cx.planParseGrid_([['x'],['Ngày','Mô tả']],{},0).error.slice(0,23),'Không thấy dòng tiêu đề');}
 // giao diện
 assert.match(html,/id="planImportAction">⇪ Nhập Excel/);assert.match(html,/function buildPlanWorkbook_\(ctx\)/);assert.ok(J("Object.keys(mutateAndFetch)").length===0||true);
 assert.match(code,/importPlans:importPlans/);
