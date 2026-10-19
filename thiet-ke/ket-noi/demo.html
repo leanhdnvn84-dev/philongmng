@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo Kết nối – Ngày trở về</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,500&family=Patrick+Hand&family=Charm:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+/* Demo thiết kế lại trang Kết nối – ?m=1 Cổng trường ngày trở về · ?m=2 Đêm hội ngộ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden}
+body{font-family:'Be Vietnam Pro',sans-serif;color:var(--chu);background:var(--nen);overflow-x:clip}
+:root{--do:#C8102E;--do2:#E8412F;--vang:#F6C343;--la:#2E9468;--la2:#3AB37E;--chu:#2B2420;--phu:#6B5B53;--nen:#FFF8EF;--the:#fff;--go:#A0703F}
+body.m2{--nen:#FBF3EA;--la:#B88A2E;--la2:#E2B24C}
+header.g{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px clamp(16px,3vw,40px);background:rgba(255,248,239,.94);backdrop-filter:blur(8px);border-bottom:1px solid #F0DCC8}
+body.m2 header.g{background:rgba(26,18,40,.94);border-color:#3A2C52;color:#FBEBD0}
+header.g .lg{width:38px;height:38px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:20px;box-shadow:0 0 0 2px var(--do)}
+header.g b{font:700 19px 'Playfair Display',serif}header.g nav{margin-left:auto;display:flex;gap:18px;font-size:14.5px;font-weight:500}
+header.g nav span.on{color:var(--do);border-bottom:3px solid var(--do);padding-bottom:4px}body.m2 header.g nav span.on{color:var(--vang);border-color:var(--vang)}
+@media(max-width:760px){header.g nav{display:none}}
+
+/* ===== HERO ===== */
+.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,54%) minmax(0,46%);min-height:600px;
+ background:linear-gradient(180deg,#CDEBF6 0%,#EAF6F1 45%,#FFF1DC 80%,#F7E3C9 100%)}
+body.m2 .hero{background:radial-gradient(ellipse at 70% 110%,#6B2E5A 0%,transparent 60%),linear-gradient(180deg,#14102A 0%,#2A1E4A 50%,#4A2650 85%,#6B3352 100%)}
+.hero .l{position:relative;z-index:3;padding:52px clamp(16px,4vw,64px) 60px}
+.ey{font:800 13px 'Be Vietnam Pro';letter-spacing:4px;text-transform:uppercase;color:var(--la)}
+body.m2 .ey{color:#F4C96B}
+.hero h1{font:700 clamp(58px,8vw,112px)/1 'Dancing Script',cursive;color:var(--do);margin-top:6px;text-shadow:0 4px 0 rgba(255,255,255,.8)}
+body.m2 .hero h1{color:#FFD46B;text-shadow:0 0 28px rgba(255,190,80,.45)}
+.hero .sub{font:700 clamp(20px,2.2vw,28px) 'Playfair Display',serif;margin-top:6px}
+body.m2 .hero .sub{color:#FBEBD0}
+.tt{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:18px;font-size:17px;color:var(--phu)}
+.tt b{color:var(--chu)}body.m2 .tt{color:#E6D3C2}body.m2 .tt b{color:#fff}
+.dem{display:flex;gap:12px;margin-top:22px}
+.dem div{min-width:84px;padding:12px 10px 10px;border-radius:14px;background:#fff;text-align:center;box-shadow:0 6px 18px rgba(46,148,104,.18);border-bottom:4px solid var(--la)}
+.dem b{display:block;font:900 clamp(30px,3.4vw,44px)/1 'Be Vietnam Pro';color:var(--do)}
+.dem small{font-size:13px;font-weight:700;color:var(--phu);text-transform:uppercase;letter-spacing:1px}
+body.m2 .dem div{background:rgba(255,255,255,.08);border:1px solid rgba(255,212,107,.35);border-bottom:4px solid #F4C96B;backdrop-filter:blur(6px)}
+body.m2 .dem b{color:#FFD46B}body.m2 .dem small{color:#E6D3C2}
+.nut{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.nut a{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:30px;font:700 15.5px 'Be Vietnam Pro';text-decoration:none;background:var(--do);color:#fff;box-shadow:0 6px 16px rgba(200,16,46,.28)}
+.nut a.phu{background:#fff;color:var(--chu);border:1.5px solid #E9CBB8;box-shadow:none}
+body.m2 .nut a{background:linear-gradient(180deg,#FFD46B,#E6A23A);color:#2A1530}
+body.m2 .nut a.phu{background:transparent;color:#FBEBD0;border-color:rgba(255,255,255,.35)}
+.hero .r{position:relative;z-index:1}
+.hero svg.cong{position:absolute;right:0;bottom:0;width:100%;height:auto;max-height:100%}
+.canh{position:absolute;top:-30px;right:-40px;width:min(400px,30vw);height:250px;background:url(../ngoai-khoa/canh.webp) right top/contain no-repeat;z-index:2;pointer-events:none;animation:lac 7s ease-in-out infinite;transform-origin:100% 0}
+@keyframes lac{0%,100%{transform:rotate(0)}50%{transform:rotate(-1.4deg)}}
+body.m2 .canh{filter:brightness(.8) saturate(1.1)}
+.roi{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4}
+.roi i{position:absolute;top:-20px;width:12px;height:16px;border-radius:60% 60% 60% 0;background:var(--do2);opacity:.85;animation:roi linear infinite}
+@keyframes roi{to{transform:translate(var(--x),110vh) rotate(720deg)}}
+.sao{position:absolute;inset:0;pointer-events:none;display:none}
+body.m2 .sao{display:block}
+.sao i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;animation:nhay 3s ease-in-out infinite}
+@keyframes nhay{50%{opacity:.2}}
+.den{position:absolute;left:46%;right:0;top:120px;height:60px;z-index:2;display:none;pointer-events:none}
+body.m2 .den{display:block}
+
+/* ===== HÀNG 1: vé + sổ điểm danh ===== */
+.w{max-width:1280px;margin:0 auto;padding:0 clamp(16px,4vw,64px)}
+.h1{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;margin-top:-40px;position:relative;z-index:5}
+.ve{position:relative;background:var(--the);border-radius:18px;box-shadow:0 18px 40px rgba(120,60,30,.16);overflow:hidden}
+.ve .dau{background:linear-gradient(135deg,var(--do),#9E0B24);color:#fff;padding:18px 22px 22px;position:relative}
+body.m2 .ve .dau{background:linear-gradient(135deg,#3A2462,#6B2E5A)}
+.ve .dau small{font-size:13px;letter-spacing:3px;text-transform:uppercase;opacity:.85;font-weight:700}
+.ve .dau h2{font:700 28px 'Playfair Display',serif;margin-top:2px}
+.ve .dau p{font-size:14.5px;opacity:.9;margin-top:4px}
+.ve .dau::after{content:'';position:absolute;left:0;right:0;bottom:-9px;height:18px;background:radial-gradient(circle at 9px 9px,var(--the) 8px,transparent 8.5px) 0 0/22px 18px repeat-x}
+.ve form{padding:24px 22px 22px;display:grid;gap:12px}
+.ve label{font-size:14px;font-weight:700;color:var(--phu)}
+.ve input,.ve select{width:100%;margin-top:4px;padding:11px 12px;border:1.5px solid #E7D6C6;border-radius:10px;font:500 15.5px 'Be Vietnam Pro';background:#FFFCF8}
+.ve .hai{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ve button{margin-top:4px;padding:13px;border:0;border-radius:12px;background:var(--do);color:#fff;font:800 16px 'Be Vietnam Pro'}
+body.m2 .ve button{background:linear-gradient(180deg,#FFD46B,#E6A23A);color:#2A1530}
+.ve .so{display:flex;align-items:center;gap:14px;padding:0 22px 20px}
+.ve .so b{font:900 34px 'Be Vietnam Pro';color:var(--do)}body.m2 .ve .so b{color:#8E3B8A}
+.ve .so span{font-size:14.5px;color:var(--phu);line-height:1.4}
+.ve .lop12{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;padding:0 22px 22px;align-items:end;height:84px}
+.ve .lop12 i{display:block;background:var(--la2);border-radius:4px 4px 0 0;position:relative;min-height:4px}
+.ve .lop12 i::after{content:attr(data-l);position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);font:600 11px 'Be Vietnam Pro';color:var(--phu);font-style:normal}
+
+.so-dd{background:#FFFDF6;border-radius:18px;box-shadow:0 18px 40px rgba(120,60,30,.14);padding:22px 24px 20px;position:relative;
+ background-image:linear-gradient(90deg,transparent 46px,#F3B7BE 46px,#F3B7BE 48px,transparent 48px),repeating-linear-gradient(transparent 0 33px,#DCE6F2 33px 34px)}
+.so-dd h2{font:700 28px 'Playfair Display',serif;padding-left:40px}
+.so-dd .mo{font-size:15px;color:var(--phu);padding-left:40px;margin-top:2px}
+.so-dd .tim{display:flex;gap:8px;margin:14px 0 10px 40px}
+.so-dd .tim input{flex:1;padding:12px 14px;border:1.5px solid #E2D2C2;border-radius:12px;font:500 16px 'Be Vietnam Pro';background:#fff}
+.so-dd .tab{display:flex;gap:8px;margin-left:40px}
+.so-dd .tab span{padding:7px 14px;border-radius:20px;font:700 14px 'Be Vietnam Pro';background:#F2E8DD;color:var(--phu)}
+.so-dd .tab span.on{background:var(--la);color:#fff}
+.so-dd ul{list-style:none;margin:12px 0 0 40px;display:grid;gap:8px}
+.so-dd li{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EFE3D6;border-radius:12px;padding:10px 12px}
+.so-dd li .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex:none}
+.so-dd li div{flex:1;min-width:0}.so-dd li b{display:block;font-size:16px}.so-dd li small{font-size:14px;color:var(--phu)}
+.so-dd li em{font-style:normal;font-size:13px;font-weight:700;padding:4px 10px;border-radius:12px;background:#FFF0D6;color:#9A5B00;white-space:nowrap}
+.so-dd li em.tim{background:#FDE3E3;color:var(--do)}
+.so-dd .cuoi{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 0 0 40px;flex-wrap:wrap}
+.so-dd .cuoi span{font:400 18px 'Patrick Hand',cursive;color:var(--phu)}
+.so-dd .cuoi a{padding:10px 18px;border-radius:24px;background:var(--chu);color:#fff;font:700 14.5px 'Be Vietnam Pro';text-decoration:none}
+
+/* ===== tiêu đề khối ===== */
+.td{display:flex;align-items:baseline;gap:14px;margin:64px 0 20px;flex-wrap:wrap}
+.td h2{font:700 clamp(28px,3vw,40px) 'Playfair Display',serif}
+.td p{font:400 20px 'Charm',cursive;color:var(--phu)}
+
+/* ===== Bạn bè ở đâu: bảng gỗ + bưu thiếp ===== */
+.go{background:#B98A55;background-image:repeating-linear-gradient(95deg,rgba(0,0,0,.05) 0 2px,transparent 2px 18px),linear-gradient(180deg,#C99A62,#A87A45);border:12px solid #7A5230;border-radius:12px;padding:28px 22px;box-shadow:inset 0 0 40px rgba(0,0,0,.25),0 14px 30px rgba(80,40,10,.2);
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+body.m2 .go{background:#2A2140;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:14px 14px;border-color:#5A4470}
+.bt{position:relative;background:#FFFDF7;padding:14px 14px 12px;border-radius:4px;box-shadow:0 6px 14px rgba(0,0,0,.25);transform:rotate(var(--r));text-align:left}
+.bt::before{content:'';position:absolute;top:-7px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FF7A6B,#C8102E);box-shadow:0 2px 3px rgba(0,0,0,.35)}
+.bt .tem{position:absolute;right:10px;top:10px;width:34px;height:40px;border:2px dashed #E3B6A8;display:grid;place-items:center;font-size:20px}
+.bt small{font:700 12.5px 'Be Vietnam Pro';letter-spacing:2px;color:var(--phu);text-transform:uppercase}
+.bt b{display:block;font:700 22px 'Playfair Display',serif;margin-top:2px;padding-right:38px}
+.bt span{display:block;font:900 30px 'Be Vietnam Pro';color:var(--do);margin-top:6px}
+.bt span em{font:500 14px 'Be Vietnam Pro';color:var(--phu);font-style:normal}
+
+/* ===== Ban liên lạc + 12 cửa lớp ===== */
+.bll{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.dt{background:var(--the);border-radius:16px;padding:18px 20px;box-shadow:0 10px 26px rgba(120,60,30,.12);display:flex;gap:14px;align-items:center;border-left:6px solid var(--do)}
+.dt .av{width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 24px 'Playfair Display',serif;color:#fff;background:linear-gradient(135deg,var(--do2),var(--do))}
+body.m2 .dt{border-color:#B88A2E}body.m2 .dt .av{background:linear-gradient(135deg,#6B2E5A,#3A2462)}
+.dt div{flex:1;min-width:0}.dt b{display:block;font-size:18px}.dt small{font-size:14px;color:var(--phu)}
+.dt .go2{display:flex;gap:6px;margin-top:8px}
+.dt .go2 a{padding:6px 12px;border-radius:16px;font:700 13.5px 'Be Vietnam Pro';text-decoration:none;background:#E8F6EE;color:#1F7A4F}
+.dt .go2 a.z{background:#E6F0FF;color:#1559C7}
+.cua{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:22px}
+.cua div{position:relative;background:#fff;border-radius:14px 14px 6px 6px;padding:14px 12px 12px;box-shadow:0 6px 16px rgba(120,60,30,.1);border-top:6px solid var(--la2);min-height:116px;display:flex;flex-direction:column;gap:3px}
+.cua div b{font:900 24px 'Be Vietnam Pro';color:var(--la)}
+.cua div small{font-size:13px;color:var(--phu);line-height:1.35}
+.cua div .ad{font-size:14.5px;font-weight:700;color:var(--chu)}
+.cua div a{margin-top:auto;align-self:flex-start;font:700 13px 'Be Vietnam Pro';color:#1F7A4F;text-decoration:none;background:#E8F6EE;padding:4px 10px;border-radius:12px}
+.cua div.chua{background:#FBF6F0;border-top-color:#E2D4C4;box-shadow:none}
+.cua div.chua b{color:#B9A897}.cua div.chua .ad{color:#B9A897;font-weight:500}
+
+/* ===== Tin tức: giấy ghim ===== */
+.tin{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px}
+.tin article{position:relative;background:#FFFDF7;padding:24px 20px 20px;border-radius:4px;box-shadow:0 10px 24px rgba(120,60,30,.14);transform:rotate(var(--r))}
+.tin article::before{content:'';position:absolute;top:-10px;left:50%;width:80px;height:22px;margin-left:-40px;background:rgba(246,195,67,.75);transform:rotate(-3deg)}
+.tin small{font:800 12.5px 'Be Vietnam Pro';letter-spacing:2px;text-transform:uppercase;color:var(--do)}
+.tin h3{font:700 21px/1.25 'Playfair Display',serif;margin:6px 0 8px}
+.tin p{font-size:15px;line-height:1.6;color:var(--phu);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+
+.ket{text-align:center;margin:70px 0 0;padding:56px 16px 90px;position:relative;background:linear-gradient(180deg,transparent,#F8E2C6)}
+body.m2 .ket{background:linear-gradient(180deg,transparent,#E9D2E2)}
+.ket p{font:700 clamp(28px,3.6vw,46px) 'Dancing Script',cursive;color:var(--do)}
+.ket small{display:block;margin-top:8px;font-size:16px;color:var(--phu)}
+body.m2 .ket p{color:#6B2E5A}
+
+/* ===== Điện thoại / iPad dọc ===== */
+@media(max-width:1000px){
+ .hero{grid-template-columns:minmax(0,1fr);min-height:0}
+ .hero .l{padding:150px 16px 20px}.canh{width:300px;height:200px;right:-40px;animation:none}
+ .hero .r{height:clamp(230px,44vw,360px)}
+ .h1{grid-template-columns:minmax(0,1fr);margin-top:-20px}
+ .bll{grid-template-columns:1fr}
+ .cua{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:760px){
+ .dem div{min-width:0;flex:1;padding:10px 4px 8px}
+ .so-dd{padding:20px 14px 16px;background-image:linear-gradient(90deg,transparent 22px,#F3B7BE 22px,#F3B7BE 24px,transparent 24px),repeating-linear-gradient(transparent 0 33px,#DCE6F2 33px 34px)}
+ .so-dd h2,.so-dd .mo{padding-left:18px}.so-dd .tim,.so-dd .tab,.so-dd ul,.so-dd .cuoi{margin-left:18px}
+ .cua{grid-template-columns:repeat(3,1fr);gap:10px}.cua div{min-height:100px;padding:12px 10px 10px}.cua div b{font-size:21px}
+ .go{grid-template-columns:repeat(2,1fr);padding:22px 14px;gap:16px}
+ .td{margin-top:48px}
+}
+</style></head>
+<body>
+<header class="g"><span class="lg">🏫</span><b>THPT Nguyễn Hiền</b><nav><span>Trang chủ</span><span>Các lớp</span><span>Ngoại khoá</span><span>Kỷ yếu</span><span>Hình ảnh</span><span class="on">Kết nối</span><span>🎂 Sinh nhật</span><span>Quản trị</span></nav></header>
+
+<section class="hero">
+ <div class="sao" id="sao"></div><svg class="den" id="den" viewBox="0 0 1400 60" preserveAspectRatio="none"></svg>
+ <div class="canh"></div><div class="roi" id="roi"></div>
+ <div class="l">
+  <div class="ey">Kết nối · khoá 2000 – 2003 · 23 năm ra trường</div>
+  <h1>Về đi bạn ơi!</h1>
+  <div class="sub">Gala “Ngày trở về” – gặp mặt toàn khoá</div>
+  <div class="tt"><span>🕔 <b>17:00 · Thứ Bảy, 14.11.2026</b></span><span>📍 <b>Nhà hàng</b> đang cập nhật</span><span>💝 Đóng góp <b>700.000đ</b></span></div>
+  <div class="dem" id="dem"></div>
+  <div class="nut"><a href="#ve">✍️ Đăng ký tham dự</a><a class="phu" href="#">💌 Giấy mời</a><a class="phu" href="#">📋 Kế hoạch</a></div>
+ </div>
+ <div class="r"><svg class="cong" id="cong" viewBox="0 0 640 440" preserveAspectRatio="xMaxYMax meet"></svg></div>
+</section>
+
+<div class="w">
+ <div class="h1">
+  <div class="ve" id="ve">
+   <div class="dau"><small>Vé về trường · hạn 25/10/2026</small><h2>Đăng ký tham dự</h2><p>Ban liên lạc và admin lớp sẽ gọi xác nhận.</p></div>
+   <form onsubmit="return false"><label>Họ tên<input placeholder="Ví dụ: Trần Thị Bình"></label>
+    <div class="hai"><label>Lớp<select><option>12/…</option></select></label><label>Đi cùng<select><option>1 mình</option><option>+ gia đình</option></select></label></div>
+    <label>Điện thoại / Zalo<input placeholder="Chỉ Ban liên lạc xem được"></label>
+    <button>🎟️ Giữ chỗ cho mình</button></form>
+   <div class="so"><b>24</b><span>bạn đã đăng ký<br>12/12 lớp đã có người về</span></div>
+   <div class="lop12" id="lop12"></div>
+  </div>
+  <div class="so-dd">
+   <h2>Sổ điểm danh</h2><p class="mo">Tìm bạn cũ trong danh sách 12 lớp, hoặc xem ai đang được nhờ tìm.</p>
+   <div class="tim"><input placeholder="🔎 Gõ tên, nơi ở, lớp… ví dụ: Hằng"></div>
+   <div class="tab"><span class="on">Trong danh sách lớp</span><span>Đang tìm bạn · 3</span></div>
+   <ul id="dd"></ul>
+   <div class="cuoi"><span>Không thấy bạn mình? Nhờ cả khoá tìm giúp.</span><a href="#">💬 Nhờ tìm bạn</a></div>
+  </div>
+ </div>
+
+ <div class="td"><h2>Bạn bè đang ở đâu</h2><p>Mỗi người một phương, chung một sân trường.</p></div>
+ <div class="go" id="go"></div>
+
+ <div class="td"><h2>Ban liên lạc khoá</h2><p>Cần gì cứ gọi, có người nghe máy.</p></div>
+ <div class="bll" id="bll"></div>
+ <div class="td" style="margin-top:40px"><h2 style="font-size:clamp(24px,2.4vw,30px)">12 cửa lớp</h2><p>Admin mỗi lớp giữ danh sách, xác nhận đăng ký.</p></div>
+ <div class="cua" id="cua"></div>
+
+ <div class="td"><h2>Bảng tin</h2><p>Ghim lên đây những điều cả khoá cần biết.</p></div>
+ <div class="tin" id="tin"></div>
+</div>
+<div class="ket"><p>Hẹn gặp lại dưới gốc phượng</p><small>17:00 · Thứ Bảy, 14.11.2026 · Ban liên lạc khoá 2000 – 2003</small></div>
+
+<script>
+const M=new URLSearchParams(location.search).get('m')||'1';document.body.classList.add('m'+M);const dem=M==='2';
+let s=5;const rd=()=>{s=(s*16807)%2147483647;return s/2147483647};
+/* đếm ngược (cố định cho ảnh demo) */
+document.getElementById('dem').innerHTML=[['26','ngày'],['09','giờ'],['42','phút'],['18','giây']].map(x=>`<div><b>${x[0]}</b><small>${x[1]}</small></div>`).join('');
+/* cổng trường */
+const tru=dem?'#3A2C52':'#3AB37E',tru2=dem?'#2A2040':'#2E9468',bien=dem?'#FFE7A8':'#fff',chuB=dem?'#6B2E5A':'#0A4A35';
+let g='';
+g+=`<rect x="60" y="330" width="560" height="110" fill="${dem?'#3B2A3E':'#E9CFAE'}"/>`;
+g+=`<path d="M200 440 L260 330 L420 330 L480 440z" fill="${dem?'#4A3550':'#F3DCC0'}"/>`;
+/* tường rào */
+for(let i=0;i<14;i++){const x=40+i*42;if(x>200&&x<470)continue;g+=`<rect x="${x}" y="270" width="6" height="70" fill="${dem?'#5A4470':'#5A6B63'}"/>`}
+g+=`<rect x="30" y="266" width="170" height="8" fill="${tru2}"/><rect x="470" y="266" width="170" height="8" fill="${tru2}"/>`;
+/* trụ + vòm cổng */
+g+=`<rect x="196" y="150" width="44" height="190" fill="${tru}"/><rect x="430" y="150" width="44" height="190" fill="${tru}"/>`;
+g+=`<path d="M180 160 Q335 40 490 160 L490 186 Q335 70 180 186z" fill="${tru2}"/>`;
+g+=`<rect x="250" y="88" width="170" height="40" rx="6" fill="${bien}"/><text x="335" y="115" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="900" font-size="19" fill="${chuB}">NGUYỄN HIỀN</text>`;
+g+=`<text x="335" y="148" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="700" font-size="12" fill="${dem?'#FFD46B':'#0A4A35'}">TRƯỜNG THPT</text>`;
+/* cánh cổng mở */
+for(let k=0;k<2;k++){const x0=k?378:240;for(let i=0;i<6;i++)g+=`<rect x="${x0+i*9}" y="210" width="3" height="128" fill="${dem?'#8C7AA8':'#4B5A55'}"/>`;g+=`<rect x="${x0}" y="210" width="54" height="4" fill="${dem?'#8C7AA8':'#4B5A55'}"/><rect x="${x0}" y="300" width="54" height="4" fill="${dem?'#8C7AA8':'#4B5A55'}"/>`}
+/* hoa trên vòm */
+[[190,165],[230,120],[290,92],[380,92],[440,120],[480,165]].forEach(([x,y],i)=>{for(let j=0;j<14;j++){const a=rd()*6.28,d=rd()*16;g+=`<circle cx="${(x+Math.cos(a)*d).toFixed(1)}" cy="${(y+Math.sin(a)*d*.7).toFixed(1)}" r="${(3+rd()*4).toFixed(1)}" fill="${rd()<.3?'#5FAE5A':['#E8412F','#C8102E','#F05A3A'][j%3]}"/>`}});
+/* cây phượng bên trái */
+g+=`<path d="M90 440 C96 380 80 340 104 290 M104 290 C130 266 150 250 170 230 M100 320 C70 300 50 290 30 280" stroke="${dem?'#2A1A2A':'#6B4A33'}" stroke-width="14" fill="none" stroke-linecap="round"/>`;
+[[100,240,70],[160,220,50],[40,260,48]].forEach(([cx,cy,r])=>{for(let i=0;i<90;i++){const a=rd()*6.28,d=Math.sqrt(rd())*r;g+=`<circle cx="${(cx+Math.cos(a)*d).toFixed(1)}" cy="${(cy+Math.sin(a)*d*.7).toFixed(1)}" r="${(3.5+rd()*5).toFixed(1)}" fill="${rd()<.3?(dem?'#3C5A3A':'#5FAE5A'):['#E8412F','#D2342A','#F05A3A','#C8102E'][i%4]}" opacity="${dem?.8:.95}"/>`}});
+/* đèn lồng (mẫu 2) */
+if(dem){[[218,190],[452,190]].forEach(([x,y])=>{g+=`<line x1="${x}" y1="${y-20}" x2="${x}" y2="${y}" stroke="#FFD46B"/><ellipse cx="${x}" cy="${y+16}" rx="14" ry="18" fill="#E8412F"/><ellipse cx="${x}" cy="${y+16}" rx="22" ry="26" fill="#FFB347" opacity=".18"/>`})}
+document.getElementById('cong').innerHTML=g;
+/* dây đèn + sao (mẫu 2) */
+if(dem){let d='<path d="M0 10 Q350 60 700 14 T1400 12" stroke="#5A4470" stroke-width="2" fill="none"/>';for(let i=0;i<40;i++){const x=i*36+10,y=10+Math.sin(i/40*Math.PI*2)*18+22*Math.sin(i/20*Math.PI);d+=`<circle cx="${x}" cy="${Math.abs(y)}" r="4" fill="${['#FFD46B','#FF8A65','#FFF1C9'][i%3]}" opacity=".95"/>`}document.getElementById('den').innerHTML=d;
+ document.getElementById('sao').innerHTML=Array.from({length:60},()=>`<i style="left:${(rd()*100).toFixed(1)}%;top:${(rd()*60).toFixed(1)}%;animation-delay:-${(rd()*3).toFixed(1)}s;opacity:${(.3+rd()*.7).toFixed(2)}"></i>`).join('')}
+document.getElementById('roi').innerHTML=Array.from({length:14},(_,i)=>`<i style="left:${(rd()*100).toFixed(1)}%;--x:${(rd()*160-80).toFixed(0)}px;animation-duration:${(9+rd()*9).toFixed(1)}s;animation-delay:-${(rd()*14).toFixed(1)}s;${i%5==0?'background:#F6C343':''}"></i>`).join('');
+/* thanh 12 lớp */
+const DK=[3,2,1,2,4,1,2,3,1,2,1,2];document.getElementById('lop12').innerHTML=DK.map((n,i)=>`<i data-l="${i+1}" style="height:${(n/4*100).toFixed(0)}%"></i>`).join('');
+/* sổ điểm danh */
+const DD=[['H','#E56B6F','Nguyễn Thị Hằng','12/3 · Đà Nẵng · giáo viên',''],['H','#3E9B5B','Trần Minh Hằng','12/7 · TP.HCM · kế toán',''],['P','#7B5EA7','Lê Văn Phúc','12/9 · mất liên lạc từ 2004','tim'],['T','#F08A2B','Phạm Thu Hà','12/1 · Canada','']];
+document.getElementById('dd').innerHTML=DD.map(x=>`<li><span class="av" style="background:${x[1]}">${x[0]}</span><div><b>${x[2]}</b><small>${x[3]}</small></div>${x[4]?'<em class="tim">Đang tìm</em>':'<em>Lớp '+x[3].slice(0,4)+'</em>'}</li>`).join('');
+/* bạn bè ở đâu */
+const NO=[['Đà Nẵng',117,'🌉'],['TP.HCM',57,'🏙️'],['Canada',30,'🍁'],['Mỹ',30,'🗽'],['Hà Nội',30,'🏯'],['Hội An',29,'🏮'],['Hàn Quốc',29,'🇰🇷'],['Huế',29,'🌸']];
+document.getElementById('go').innerHTML=NO.map((x,i)=>`<div class="bt" style="--r:${((i%3)-1)*1.6}deg"><span class="tem">${x[2]}</span><small>Gửi từ</small><b>${x[0]}</b><span>${x[1]} <em>bạn</em></span></div>`).join('');
+/* ban liên lạc */
+const BLL=[['Lê Trung Hiếu','0905 394 493'],['Hoàng Diệu Thúy','0905 865 867'],['Nguyễn Thị Tuyết Mai','0905 516 896']];
+document.getElementById('bll').innerHTML=BLL.map(x=>`<div class="dt"><span class="av">${x[0].split(' ').pop()[0]}</span><div><b>${x[0]}</b><small>Ban liên lạc · ${x[1]}</small><div class="go2"><a href="#">📞 Gọi</a><a class="z" href="#">💬 Zalo</a></div></div></div>`).join('');
+/* 12 cửa lớp */
+const GV=['Cô Nguyễn Thị Hoa','Thầy Trần Văn Lộc','Cô Lê Thị Mỹ','Thầy Phạm Quốc Hùng','Cô Võ Thị Lan','Thầy Đỗ Minh Tâm','Cô Huỳnh Thu Hà','Thầy Bùi Văn Sơn','Cô Phan Thị Nga','Thầy Ngô Đức Trí','Cô Đặng Mỹ Linh','Thầy Lê Văn Đức'];
+const AD={0:'Minh Thư',2:'Quốc Bảo',4:'Thu Trang',7:'Hoàng Nam',9:'Bích Ngọc'};
+document.getElementById('cua').innerHTML=GV.map((g,i)=>AD[i]?`<div><b>12/${i+1}</b><span class="ad">${AD[i]}</span><small>CN: ${g}</small><a href="#">📞 Gọi admin</a></div>`:`<div class="chua"><b>12/${i+1}</b><span class="ad">Chưa có admin</span><small>CN: ${g}</small></div>`).join('');
+/* bảng tin */
+const TIN=[['Tri ân','Cùng đi thăm thầy cô đã nghỉ hưu','Nhiều thầy cô của khoá mình đã nghỉ hưu, có thầy cô sức khoẻ đã yếu. Ban liên lạc lập danh sách để các lớp chia nhau đến thăm trước ngày Gala.'],['Tìm người','Lớp 12/9 tìm bạn Phúc','Phúc ngồi bàn ba dãy giữa, chuyển vào Sài Gòn năm 2004 rồi mất liên lạc. Ai còn số điện thoại hay Facebook của Phúc, báo admin lớp 12/9 giúp.'],['Thông báo','Gửi ảnh cũ để làm kỷ yếu 23 năm','Ai còn ảnh lớp, ảnh hội trại, trang lưu bút… chụp lại gửi admin lớp. Ban liên lạc sẽ in thành cuốn kỷ yếu tặng mỗi bạn.'],['Thông báo','Cập nhật “Giờ đang ở”','Nhờ mọi người báo nơi đang sống để vẽ bản đồ bạn bè khắp nơi. Biết đâu bạn cũ đang ở ngay thành phố của mình.']];
+document.getElementById('tin').innerHTML=TIN.map((t,i)=>`<article style="--r:${[-1,1,-.5,.8][i]}deg"><small>${t[0]}</small><h3>${t[1]}</h3><p>${t[2]}</p></article>`).join('');
+</script>
+</body></html>
