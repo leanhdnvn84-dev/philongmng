@@ -46,7 +46,7 @@ const UI_MODULES=Object.freeze({
 });
 
 /* V5.9.2: khóa cache khởi động; cache 30 phút (trước 6 giờ) để đổi vai trò trong sheet được nhận sớm */
-const BOOT_KEY_='BOOT_V5912_';
+const BOOT_KEY_='BOOT_V5913_';
 /** V5.9.7: bố cục form theo nhóm nghiệp vụ. Trường có trên sheet nhưng không liệt kê → nhóm "Thông tin khác". */
 const FORM_LAYOUT_=Object.freeze({
  KHOAN_VAY:[['Hợp đồng',['MA_CONG_TY_VAY','MA_DU_AN','MA_NGAN_HANG','TEN_KHOAN_VAY','SO_HOP_DONG','MA_TIEN_TE']],['Số tiền',['HAN_MUC_VAY','TONG_GOC_GIAI_NGAN','DU_NO_GOC_BAN_DAU','NGAY_GOC_BAN_DAU','DU_NO_GOC_DAU_KY','NGAY_CHOT_DU_NO_DAU_KY']],['Lãi suất',['LOAI_LAI_SUAT','LAI_SUAT_NAM']],['Thời hạn',['NGAY_KY','NGAY_GIAI_NGAN_DAU','KY_HAN_THANG','NGAY_DAO_HAN']],['Trạng thái và ghi chú',['TRANG_THAI','GHI_CHU']]],
@@ -61,7 +61,7 @@ const FORM_LAYOUT_=Object.freeze({
 function getBootstrapData(){
  const user=getCurrentUser_(),cache=CacheService.getScriptCache(),key=BOOT_KEY_+String(user.email||user.role),hit=cacheGetJson_(cache,key);if(hit)return hit;
  const modules={};Object.keys(APP_MODULES).forEach(function(k){const c=APP_MODULES[k];if(c.adminOnly&&user.role!=='ADMIN')return;modules[k]=moduleConfigMeta_(c);});
- const out={version:'5.9.12',title:APP_CONFIG.title,user:user,permissions:ROLE_RULES[user.role]||ROLE_RULES.VIEWER,modules:modules,uiModules:UI_MODULES,forms:FORM_LAYOUT_,lookups:{}};cachePutJson_(cache,key,out,1800);return out;
+ const out={version:'5.9.13',title:APP_CONFIG.title,user:user,permissions:ROLE_RULES[user.role]||ROLE_RULES.VIEWER,modules:modules,uiModules:UI_MODULES,forms:FORM_LAYOUT_,lookups:{}};cachePutJson_(cache,key,out,1800);return out;
 }
 function moduleConfigMeta_(c){const hidden=['NGUOI_TAO','TAO_LUC','CAP_NHAT_LUC'].concat(c.calculated||[]),headers=[],add=function(a){(a||[]).forEach(function(x){if(x&&headers.indexOf(x)<0)headers.push(x);});};add([c.idField]);add(c.columns);add(c.required);add(c.dates);add(c.amounts);add(c.percents);add(Object.keys(c.enums||{}));return{title:c.title,group:c.group,idField:c.idField,headers:headers,fields:headers.filter(function(f){return f!==c.idField&&hidden.indexOf(f)<0;}),required:c.required||[],hidden:hidden,enums:c.enums||{},dates:c.dates||[],amounts:c.amounts||[],percents:c.percents||[],columns:c.columns||headers.slice(0,8),readOnly:!!c.readOnly,manualId:!!c.manualId,lockedFields:c.lockedFields||[],count:0,rows:[]};}
 function readModuleMeta_(ss,key,c){const sh=requireSheet_(ss,key),physical=getHeaders_(sh),h=physical.concat((c.virtual||[]).filter(function(f){return physical.indexOf(f)<0;})),hidden=['NGUOI_TAO','TAO_LUC','CAP_NHAT_LUC'].concat(c.calculated||[]);ensureRequiredHeaders_(key,physical);return{title:c.title,group:c.group,idField:c.idField,headers:h,fields:h.filter(function(f){return f!==c.idField&&hidden.indexOf(f)<0;}),required:c.required||[],hidden:hidden,enums:c.enums||{},dates:c.dates||[],amounts:c.amounts||[],percents:c.percents||[],columns:(c.columns||h.slice(0,8)).filter(function(f){return h.indexOf(f)>=0;}),readOnly:!!c.readOnly,manualId:!!c.manualId,lockedFields:c.lockedFields||[],count:Math.max(0,sh.getLastRow()-1)};}
@@ -530,7 +530,7 @@ function planImportCheck_(ss,rows){const c=APP_MODULES.KE_HOACH_THU_CHI,list=Arr
  const ids={},keys={},seen={},debtKy={},st=c.enums.TRANG_THAI,key=function(d){return[d.KY_BAO_CAO,d.LOAI_THU_CHI,planNorm_(d.NOI_DUNG),d.NGAY_DU_KIEN].join('|');};
  readSheet_(ss,'KE_HOACH_THU_CHI',c).rows.forEach(function(r){ids[String(r.MA_KE_HOACH)]=r;if(String(r.TRANG_THAI)!=='HUY')keys[[String(r.KY_BAO_CAO).slice(0,7),r.LOAI_THU_CHI,planNorm_(r.NOI_DUNG),String(r.NGAY_DU_KIEN).slice(0,10)].join('|')]=String(r.MA_KE_HOACH);});
  try{readSheetCached_(ss,'LICH_TRA_NO',APP_MODULES.LICH_TRA_NO).rows.forEach(function(r){if(String(r.TRANG_THAI)!=='HUY'){const p=periodKey_(r.NGAY_DEN_HAN);if(p)debtKy[p]=true;}});}catch(e){}
- return list.map(function(src,i){const d={},e=[],w=[],line=Number(src&&src._line)||i+1;PLAN_IMPORT_FIELDS_.forEach(function(f){d[f]=src&&src[f]!=null?String(src[f]).trim():'';});
+ return list.map(function(src,i){const d={},e=[],w=[],line=Number(src&&src._line)||i+1;src=planSplitCols_(src||{},e);PLAN_IMPORT_FIELDS_.forEach(function(f){d[f]=src&&src[f]!=null?String(src[f]).trim():'';});
   const lt=planNorm_(d.LOAI_THU_CHI).toUpperCase();d.LOAI_THU_CHI=lt==='THU'?'THU':lt==='CHI'?'CHI':d.LOAI_THU_CHI;if(!d.LOAI_THU_CHI)e.push('Thiếu loại (THU/CHI)');else if(['THU','CHI'].indexOf(d.LOAI_THU_CHI)<0)e.push('Loại phải là THU hoặc CHI');
   const date=parseImportDate_(src&&src.NGAY_DU_KIEN);if(!date)e.push(date===''?'Thiếu ngày dự kiến':'Ngày dự kiến không hợp lệ');else d.NGAY_DU_KIEN=date;
   const ky=planImportPeriod_(src&&src.KY_BAO_CAO);if(ky===null)e.push('Kỳ phải dạng YYYY-MM hoặc MM/YYYY');else d.KY_BAO_CAO=ky||(date?date.slice(0,7):'');if(!d.KY_BAO_CAO&&!e.length)e.push('Thiếu kỳ báo cáo');if(date&&d.KY_BAO_CAO&&date.slice(0,7)!==d.KY_BAO_CAO)w.push('Ngày không thuộc kỳ '+d.KY_BAO_CAO);
@@ -543,6 +543,8 @@ function planImportCheck_(ss,rows){const c=APP_MODULES.KE_HOACH_THU_CHI,list=Arr
   else if(d.LOAI_THU_CHI==='CHI'&&PLAN_DEBT_RE_.test(d.NOI_DUNG)&&debtKy[d.KY_BAO_CAO]){action='auto';w.push('Kỳ '+d.KY_BAO_CAO+' đã có dòng "Gốc lãi ngày…" tự động từ Lịch trả nợ – nhập thêm sẽ tính 2 lần');}
   if(!d.MA_KE_HOACH&&!e.length&&!seen[k])seen[k]=line;
   return{line:line,action:e.length?'error':action,errors:e,warnings:w,data:d,dupWith:e.length?'':dupWith};});}
+/** V5.9.13: mẫu gọn có 2 cột THU / CHI riêng (thay Loại + Số tiền); file cũ có LOAI_THU_CHI vẫn đọc được. */
+function planSplitCols_(src,e){const has=function(v){return v!=null&&String(v).trim()!=='';},t=has(src.THU),c=has(src.CHI);if(!t&&!c)return src;const o=Object.assign({},src);if(t&&c){const nt=parseImportNumber_(src.THU),nc=parseImportNumber_(src.CHI);if(nt&&nc){e.push('Chỉ ghi 1 trong 2 cột Thu / Chi');return o;}if(!nt){o.LOAI_THU_CHI='CHI';o.SO_TIEN_DU_KIEN=src.CHI;return o;}o.LOAI_THU_CHI='THU';o.SO_TIEN_DU_KIEN=src.THU;return o;}o.LOAI_THU_CHI=t?'THU':'CHI';o.SO_TIEN_DU_KIEN=t?src.THU:src.CHI;return o;}
 function previewPlanImport(rows){const ss=openFinanceSpreadsheet_();getCurrentUser_(ss);return{rows:planImportCheck_(ss,rows)};}
 /** Dữ liệu dựng file mẫu / file điền sẵn: period rỗng = mẫu trống; có period = xuất các dòng nhập tay của kỳ đó (dời sang kỳ sau). */
 function getPlanImportContext(period){const ss=openFinanceSpreadsheet_();getCurrentUser_(ss);const c=APP_MODULES.KE_HOACH_THU_CHI,all=readSheet_(ss,'KE_HOACH_THU_CHI',c).rows,groups={},rows=[];let target='';all.forEach(function(r){['MA_NHOM_THU_CHI','MA_CONG_TY','MA_DU_AN'].forEach(function(f){if(r[f])(groups[f]=groups[f]||{})[r[f]]=true;});});

@@ -1,3 +1,10 @@
+QL_TC_2026 – v5.9.13 (19/10/2026) · MẪU NHẬP KẾ HOẠCH THU CHI GỌN – 2 CỘT THU / CHI RIÊNG
+1. File mẫu còn 8 cột: Ngày * · Nội dung * · Thu (đ) · Chi (đ) · Nhóm · Dự án · Ghi chú · Mã KH (trống = mới). Bỏ cột Kỳ, Loại, Số tiền, Công ty, Đối tượng, Trạng thái:
+   kỳ lấy theo tháng của ngày, loại theo cột có số (Thu hoặc Chi), trạng thái mặc định Nháp. Ghi số ở cả 2 cột → báo lỗi "Chỉ ghi 1 trong 2 cột Thu / Chi".
+   Còn 2 sheet: NHAP (tổng thu / chi / chênh lệch tự tính ở J2:L2) + HUONG_DAN 5 dòng (kèm nhóm / dự án đã dùng). File mẫu cũ (LOAI_THU_CHI + SO_TIEN_DU_KIEN) vẫn đọc được.
+2. Bước kiểm tra hiện 2 cột THU / CHI riêng. File dữ liệu tháng 10 (KE_HOACH_THU_CHI_T10_2026_NHAP.xlsx) làm lại theo mẫu gọn, giữ sheet PHAN_TICH; số liệu không đổi.
+Kiểm thử: 14 bộ tests/*.cjs đều đạt; chạy thử tải mẫu + nhập file tháng 10 trên máy tính và điện thoại. Khóa cache BOOT_V5913_.
+
 QL_TC_2026 – v5.9.12 (19/10/2026) · KẾ HOẠCH THU CHI: NHẬP TỪ EXCEL + DỮ LIỆU THÁNG 10/2026
 1. Kế hoạch thu chi có nút "⇪ Nhập Excel" (máy tính + điện thoại), 3 bước:
    ① Tải file mẫu (HUONG_DAN · NHAP_KE_HOACH · DANH_MUC; tổng thu / chi / chênh lệch tự tính trong file) hoặc xuất kỳ cũ làm file điền sẵn (dời sang kỳ sau, bỏ mã, Nháp).

@@ -44,7 +44,14 @@ const id=kh[0].MA_KE_HOACH;J(`importPlans([{_line:7,MA_KE_HOACH:'${id}',KY_BAO_C
 const u=J(`readSheet_(openFinanceSpreadsheet_(),'KE_HOACH_THU_CHI',APP_MODULES.KE_HOACH_THU_CHI).rows.find(r=>r.MA_KE_HOACH==='${id}')`);assert.equal(u.SO_TIEN_DU_KIEN,777);assert.equal(u.MA_NHOM_THU_CHI,kh[0].MA_NHOM_THU_CHI);
 // 6. file điền sẵn từ kỳ cũ: dời sang kỳ sau, bỏ mã, trạng thái Nháp
 const pctx=J("getPlanImportContext('2026-09')");assert.equal(pctx.target,"2026-10");assert.deepEqual([pctx.rows[0].MA_KE_HOACH,pctx.rows[0].KY_BAO_CAO,pctx.rows[0].NGAY_DU_KIEN,pctx.rows[0].TRANG_THAI],['','2026-10','2026-10-30','NHAP']);assert.ok(pctx.groups.includes('VAN_HANH'));
+// 7. V5.9.13 – mẫu gọn: 2 cột THU / CHI riêng, kỳ lấy theo ngày, không cần cột Loại / Số tiền
+const sp=J(`previewPlanImport([{_line:5,NGAY_DU_KIEN:'2026-11-05',NOI_DUNG:'Thu tiền thuê',THU:'2.500.000'},{_line:6,NGAY_DU_KIEN:'2026-11-06',NOI_DUNG:'Trả lương',CHI:3000000,THU:''},
+ {_line:7,NGAY_DU_KIEN:'2026-11-07',NOI_DUNG:'Sai',THU:5,CHI:6},{_line:8,NGAY_DU_KIEN:'2026-11-08',NOI_DUNG:'Chi 0 thu 9',THU:9,CHI:0}])`).rows;
+assert.deepEqual(sp.map(r=>[r.action,r.data.LOAI_THU_CHI,r.data.SO_TIEN_DU_KIEN,r.data.KY_BAO_CAO]),[['add','THU',2500000,'2026-11'],['add','CHI',3000000,'2026-11'],['error','',sp[2].data.SO_TIEN_DU_KIEN,'2026-11'],['add','THU',9,'2026-11']]);
+assert.ok(sp[2].errors.includes('Chỉ ghi 1 trong 2 cột Thu / Chi'));
+assert.match(html,/const PLAN_TPL_FIELDS=\['NGAY_DU_KIEN','NOI_DUNG','THU','CHI','MA_NHOM_THU_CHI','MA_DU_AN','GHI_CHU','MA_KE_HOACH'\]/);assert.match(html,/XLSX\.utils\.book_append_sheet\(wb,ws,'NHAP'\)/);
+assert.match(html,/<th class="num">THU<\/th><th class="num">CHI<\/th>/);
 // giao diện
-assert.match(html,/id="planImportAction">⇪ Nhập Excel/);assert.match(html,/function buildPlanWorkbook_\(ctx\)/);assert.match(html,/XLSX\.utils\.book_append_sheet\(wb,ws,'NHAP_KE_HOACH'\)/);assert.ok(J("Object.keys(mutateAndFetch)").length===0||true);
+assert.match(html,/id="planImportAction">⇪ Nhập Excel/);assert.match(html,/function buildPlanWorkbook_\(ctx\)/);assert.ok(J("Object.keys(mutateAndFetch)").length===0||true);
 assert.match(code,/importPlans:importPlans/);
 console.log('PASS V5.9.12: Nhập Kế hoạch thu chi từ Excel – file T10/2026 36 dòng (25 nhập, 11 gốc lãi/trả nợ đã có tự động), trùng, lỗi, cập nhật, file điền sẵn.');
