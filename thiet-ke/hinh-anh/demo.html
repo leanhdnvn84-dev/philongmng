@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo Hình ảnh – 4 mẫu</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,500&family=Patrick+Hand&family=Charm:wght@400;700&family=Dancing+Script:wght@700&family=Pangolin&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+/* Demo trang Hình ảnh – ?m=1 Bảng đen lớp học · ?m=2 Sổ ảnh kraft · ?m=3 Phòng triển lãm · ?m=4 Cuộn phim */
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden}
+body{font-family:'Be Vietnam Pro',sans-serif;overflow-x:clip;background:var(--nen);color:var(--chu)}
+img{display:block}
+header.g{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px clamp(16px,3vw,40px);background:var(--hd);color:var(--hdc);border-bottom:1px solid var(--hdl)}
+header.g .lg{width:38px;height:38px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:20px}
+header.g b{font:700 19px 'Playfair Display',serif}header.g nav{margin-left:auto;display:flex;gap:18px;font-size:14.5px;font-weight:500}
+header.g nav span.on{color:var(--nhan);border-bottom:3px solid var(--nhan);padding-bottom:4px}
+.w{max-width:1280px;margin:0 auto;padding:0 clamp(16px,4vw,56px)}
+section{position:relative}
+.hero{display:grid;grid-template-columns:minmax(0,46%) minmax(0,54%);gap:30px;align-items:center;padding:44px clamp(16px,4vw,56px) 40px;max-width:1380px;margin:0 auto}
+.ey{font-size:13px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;color:var(--nhan)}
+.hero h1{margin-top:8px;line-height:1.05}
+.hero p.mo{margin-top:14px;font-size:18px;line-height:1.65;color:var(--phu);max-width:520px}
+.so{display:flex;gap:26px;margin-top:20px;flex-wrap:wrap}.so b{display:block;font-size:34px;font-weight:900;line-height:1}.so small{font-size:14px;color:var(--phu)}
+.nut{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.nut a{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:30px;font-weight:800;font-size:16px;text-decoration:none}
+.nut a.c{background:var(--nhan);color:var(--nhanc)}.nut a.p{border:1.5px solid var(--vien);color:var(--chu)}
+.hr{position:relative;min-height:360px}
+.td{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap;margin:56px 0 18px}
+.td h2{font-size:clamp(26px,3vw,38px);line-height:1.1}.td p{color:var(--phu);font-size:16px}
+.td a{margin-left:auto;font-weight:700;color:var(--nhan);text-decoration:none;font-size:15px}
+.day{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:14px 4px 22px}
+.day figure{flex:none;width:220px;scroll-snap-align:start}
+.kes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+.ab{position:relative;cursor:pointer}.ab .bia{position:relative;aspect-ratio:4/3}
+.ab .bia img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ab b{display:block;margin-top:12px;font-size:18px}.ab small{font-size:14px;color:var(--phu)}
+.loc{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}
+.loc span{flex:none;padding:9px 16px;border-radius:22px;font-weight:700;font-size:15px;border:1.5px solid var(--vien);color:var(--chu);white-space:nowrap}
+.loc span.on{background:var(--nhan);color:var(--nhanc);border-color:var(--nhan)}
+.dem{font-size:15px;color:var(--phu);margin:8px 0 16px}
+.luoi{columns:4 230px;column-gap:20px}
+.luoi figure{break-inside:avoid;margin:0 0 20px;display:block}
+.luoi .anh{position:relative;overflow:hidden}.luoi .anh img{width:100%;height:auto}
+figcaption{font-size:15px;padding-top:8px}
+.them{display:block;margin:10px auto 0;padding:13px 28px;border-radius:26px;font:700 16px 'Be Vietnam Pro';border:1.5px solid var(--vien);background:transparent;color:var(--chu)}
+.ss{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:30px;align-items:center}
+.ss .kh{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:10px;box-shadow:0 14px 30px rgba(0,0,0,.25)}
+.ss .kh img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ss .kh .tren{clip-path:inset(0 50% 0 0)}
+.ss .kh .vach{position:absolute;top:0;bottom:0;left:50%;width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.4)}
+.ss .kh .vach::after{content:'⇆';position:absolute;top:50%;left:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:#fff;color:#333;display:grid;place-items:center;font-size:20px;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.ss .kh i{position:absolute;bottom:12px;font-style:normal;font-weight:800;font-size:13px;letter-spacing:.1em;background:rgba(0,0,0,.55);color:#fff;padding:5px 10px;border-radius:6px}
+.ss .kh i.a{left:12px}.ss .kh i.b{right:12px}
+.ss h3{font-size:clamp(26px,3vw,38px)}.ss p{color:var(--phu);margin-top:10px;font-size:17px;line-height:1.6}
+.ss .lop2{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.ss .lop2 span{padding:6px 12px;border-radius:16px;border:1px solid var(--vien);font-size:14px;font-weight:600}
+.ss .lop2 span.on{background:var(--nhan);color:var(--nhanc);border-color:var(--nhan)}
+.gui{margin:60px 0 0;padding:34px clamp(18px,4vw,44px);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.gui .ic{font-size:54px}.gui div{flex:1;min-width:240px}.gui h3{font-size:clamp(22px,2.4vw,30px)}.gui p{color:var(--phu);margin-top:6px;font-size:16px}
+.gui a{padding:13px 22px;border-radius:26px;background:var(--nhan);color:var(--nhanc);font-weight:800;text-decoration:none}
+footer{margin-top:70px;padding:26px 16px 90px;text-align:center;font-size:14px;color:var(--phu);border-top:1px solid var(--vien)}
+img.cu{filter:sepia(.55) saturate(.8) contrast(1.05) brightness(1.02)}
+
+/* ============ MẪU 1: BẢNG ĐEN LỚP HỌC ============ */
+body.m1{--nen:#22382D;--chu:#F2EFE4;--phu:#C9D3C6;--nhan:#F6D86B;--nhanc:#1E2B22;--vien:rgba(242,239,228,.35);--hd:#1B2D23;--hdc:#F2EFE4;--hdl:#7A5230;
+ background:#22382D radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.06),transparent 60%)}
+.m1 .hero{border:16px solid #7A5230;border-radius:10px;margin:28px auto 0;max-width:calc(100% - 2*clamp(16px,4vw,56px));background:#2E4A3B;box-shadow:inset 0 0 70px rgba(0,0,0,.45),0 18px 40px rgba(0,0,0,.35);position:relative}
+.m1 .hero::after{content:'';position:absolute;left:24px;bottom:-14px;width:70px;height:10px;border-radius:3px;background:#fff;box-shadow:90px 0 0 #F6C343,180px 2px 0 -1px #F2A7B0}
+.m1 .hero h1{font:400 clamp(44px,5.4vw,74px)/1.05 'Pangolin',cursive;color:#F6F3E8;text-shadow:0 0 1px rgba(255,255,255,.4)}
+.m1 .hero h1 u{text-decoration:none;color:#F6D86B}
+.m1 .hero p.mo{font-family:'Patrick Hand',cursive;font-size:21px}
+.m1 .so b{font-family:'Pangolin',cursive;font-weight:400;color:#F6D86B}
+.m1 .td h2{font:400 clamp(30px,3.4vw,44px) 'Pangolin',cursive}
+.m1 figure.pol{background:#FBF8EE;padding:10px 10px 12px;box-shadow:0 8px 18px rgba(0,0,0,.4);transform:rotate(var(--r));position:relative;color:#2B2A33}
+.m1 figure.pol::before{content:'';position:absolute;top:-8px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--ghim);box-shadow:0 2px 4px rgba(0,0,0,.4);z-index:2}
+.m1 figure.pol figcaption{font:400 18px 'Patrick Hand',cursive;text-align:center;color:#2B2A33}
+.m1 .day{position:relative;padding-top:34px}
+.m1 .day::before{content:'';position:absolute;left:0;right:0;top:20px;height:2px;background:#C9B48A;min-width:1700px}
+.m1 .day figure.pol::before{width:12px;height:26px;border-radius:2px;top:-18px;margin-left:-6px;background:#C99A62}
+.m1 .ab .bia img{border:8px solid #FBF8EE;box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.m1 .ab .bia img:nth-child(1){transform:rotate(-7deg) translate(-6px,4px)}.m1 .ab .bia img:nth-child(2){transform:rotate(5deg) translate(6px,2px)}
+.m1 .ab b{font:400 22px 'Pangolin',cursive;margin-top:20px}
+.m1 .loc span{font-family:'Patrick Hand',cursive;font-size:18px;border-style:dashed}
+.m1 .gui{border:2px dashed rgba(242,239,228,.4);border-radius:14px}.m1 .gui h3{font:400 30px 'Pangolin',cursive}
+.m1 .ss h3{font:400 clamp(30px,3.4vw,44px) 'Pangolin',cursive}.m1 .ss .kh{border:10px solid #FBF8EE}
+.m1 .hr figure.pol{position:absolute;width:44%}
+.m1 footer{border-color:#7A5230}
+
+/* ============ MẪU 2: SỔ ẢNH KRAFT ============ */
+body.m2{--nen:#E9DCC4;--chu:#3A2A1E;--phu:#6E5A48;--nhan:#B3261E;--nhanc:#fff;--vien:#B79F7E;--hd:#F5ECDC;--hdc:#3A2A1E;--hdl:#D7C3A3;
+ background:#E9DCC4;background-image:radial-gradient(rgba(120,90,50,.08) 1px,transparent 1px);background-size:6px 6px}
+.m2 .hero h1{font:700 clamp(46px,5.6vw,76px)/1.05 'Dancing Script',cursive;color:#7A2E22}
+.m2 .hero p.mo{font-family:'Charm',cursive;font-size:22px;color:#5A4434}
+.m2 .so b{font-family:'Playfair Display',serif;color:#B3261E}
+.m2 .td h2{font:700 clamp(30px,3.4vw,42px) 'Dancing Script',cursive;color:#7A2E22}
+.m2 figure.pol{background:#FFFBF2;padding:12px;box-shadow:0 6px 14px rgba(80,50,20,.22);transform:rotate(var(--r));position:relative}
+.m2 figure.pol::before{content:'';position:absolute;top:-10px;left:50%;width:84px;height:24px;margin-left:-42px;background:var(--bang);opacity:.85;transform:rotate(-3deg);z-index:2}
+.m2 figure.pol .anh::before,.m2 figure.pol .anh::after{content:'';position:absolute;width:26px;height:26px;z-index:2;background:linear-gradient(135deg,#3A2A1E 50%,transparent 50%)}
+.m2 figure.pol .anh::before{left:0;top:0}.m2 figure.pol .anh::after{right:0;bottom:0;transform:rotate(180deg)}
+.m2 figure.pol figcaption{font:400 19px 'Charm',cursive;text-align:center}
+.m2 .ab .bia{background:#7A2E22;border-radius:4px 10px 10px 4px;padding:14px 14px 14px 26px;box-shadow:6px 8px 0 rgba(58,42,30,.2),inset 10px 0 0 rgba(0,0,0,.18)}
+.m2 .ab .bia img{position:relative;width:100%;height:100%;border:6px solid #FFFBF2;transform:rotate(-2deg)}
+.m2 .ab .bia img+img{display:none}
+.m2 .ab b{font:700 24px 'Dancing Script',cursive;color:#7A2E22}
+.m2 .ab:nth-child(4n+2) .bia{background:#2F5D50}.m2 .ab:nth-child(4n+3) .bia{background:#6B4A8C}.m2 .ab:nth-child(4n) .bia{background:#B07A2B}
+.m2 .loc span{background:#FFFBF2;border-color:#D7C3A3}.m2 .loc span.on{background:var(--nhan)}
+.m2 .gui{background:#FFFBF2;border-radius:4px;box-shadow:0 8px 20px rgba(80,50,20,.18);transform:rotate(-.4deg)}.m2 .gui h3{font:700 32px 'Dancing Script',cursive;color:#7A2E22}
+.m2 .ss h3{font:700 clamp(32px,3.4vw,44px) 'Dancing Script',cursive;color:#7A2E22}.m2 .ss .kh{border:12px solid #FFFBF2;border-radius:2px}
+.m2 .hr figure.pol{position:absolute;width:46%}
+
+/* ============ MẪU 3: PHÒNG TRIỂN LÃM ============ */
+body.m3{--nen:#FAF7F2;--chu:#1F1B18;--phu:#6F655C;--nhan:#C8102E;--nhanc:#fff;--vien:#DDD3C7;--hd:rgba(250,247,242,.95);--hdc:#1F1B18;--hdl:#E8DFD3}
+.m3 .hero{grid-template-columns:minmax(0,38%) minmax(0,62%)}
+.m3 .hero h1{font:700 clamp(44px,5.2vw,72px)/1.05 'Playfair Display',serif;letter-spacing:-.01em}
+.m3 .hero h1 i{color:#C8102E}
+.m3 .so b{font-family:'Playfair Display',serif}
+.m3 .td h2{font:700 clamp(28px,3vw,40px) 'Playfair Display',serif}
+.m3 .hr .lon{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;box-shadow:0 30px 60px rgba(40,20,10,.25)}
+.m3 .hr .lon img{width:100%;height:100%;object-fit:cover}
+.m3 .hr .lon div{position:absolute;left:0;right:0;bottom:0;padding:60px 24px 20px;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff}
+.m3 .hr .lon b{font:700 26px 'Playfair Display',serif;display:block}.m3 .hr .lon small{font-size:14px;opacity:.85}
+.m3 .hr .cham{display:flex;gap:8px;justify-content:center;margin-top:14px}.m3 .hr .cham i{width:8px;height:8px;border-radius:50%;background:#DDD3C7}.m3 .hr .cham i.on{width:24px;border-radius:4px;background:#C8102E}
+.m3 figure.pol .anh{border-radius:12px}
+.m3 figure.pol figcaption b{display:block;font-weight:700;font-size:15.5px}.m3 figure.pol figcaption small{color:var(--phu);font-size:13.5px}
+.m3 .luoi figure.pol .anh img{transition:transform .5s}.m3 .luoi figure.pol:hover .anh img{transform:scale(1.04)}
+.m3 .ab .bia{border-radius:16px;overflow:hidden}
+.m3 .ab .bia img+img{display:none}
+.m3 .ab .bia::after{content:attr(data-n);position:absolute;right:12px;top:12px;background:rgba(255,255,255,.92);color:#1F1B18;font-weight:800;font-size:13px;padding:5px 10px;border-radius:14px}
+.m3 .loc span{border-radius:10px}
+.m3 .gui{background:#1F1B18;color:#fff;border-radius:20px}.m3 .gui p{color:#C9BFB4}.m3 .gui h3{font-family:'Playfair Display',serif}
+.m3 .ss h3{font-family:'Playfair Display',serif}
+
+/* ============ MẪU 4: CUỘN PHIM ============ */
+body.m4{--nen:#17120F;--chu:#F3E9DC;--phu:#B8A99A;--nhan:#F2A93B;--nhanc:#1A120C;--vien:rgba(243,233,220,.25);--hd:#120E0B;--hdc:#F3E9DC;--hdl:#3A2C22;
+ background:#17120F radial-gradient(ellipse at 70% 0%,rgba(242,169,59,.12),transparent 55%)}
+.m4 .hero h1{font:400 clamp(42px,5vw,70px)/1.08 'Special Elite',monospace;color:#F3E9DC}
+.m4 .hero h1 u{text-decoration:none;color:#F2A93B}
+.m4 .so b{font-family:'Special Elite',monospace;font-weight:400;color:#F2A93B}
+.m4 .td h2{font:400 clamp(28px,3vw,38px) 'Special Elite',monospace}
+.m4 .phim{position:relative;background:#0B0806;padding:26px 0;border-radius:6px;overflow:hidden;transform:rotate(-3deg);box-shadow:0 24px 50px rgba(0,0,0,.6)}
+.m4 .phim::before,.m4 .phim::after{content:'';position:absolute;left:0;right:0;height:14px;background:repeating-linear-gradient(90deg,transparent 0 10px,#EEE3D2 10px 22px,transparent 22px 34px);opacity:.85}
+.m4 .phim::before{top:6px}.m4 .phim::after{bottom:6px}
+.m4 .phim .r{display:flex;gap:12px;animation:chay 40s linear infinite;width:max-content;padding:0 12px}
+.m4 .phim img{width:220px;height:160px;object-fit:cover;border-radius:3px}
+@keyframes chay{to{transform:translateX(-50%)}}
+.m4 figure.pol{background:#0B0806;padding:16px 10px 10px;border-radius:4px;position:relative;box-shadow:0 10px 24px rgba(0,0,0,.5)}
+.m4 figure.pol::before{content:'';position:absolute;left:8px;right:8px;top:4px;height:7px;background:repeating-linear-gradient(90deg,#3A2E24 0 8px,transparent 8px 16px)}
+.m4 figure.pol figcaption{font:400 15px 'Special Elite',monospace;color:#E8DCCB;display:flex;justify-content:space-between;gap:8px}
+.m4 figure.pol figcaption em{font-style:normal;color:#F2A93B;flex:none}
+.m4 .anh::after{content:attr(data-ngay);position:absolute;right:8px;bottom:6px;font:700 14px 'Special Elite',monospace;color:#FF8A3D;text-shadow:0 0 4px rgba(255,120,40,.8)}
+.m4 .ab .bia{background:#0B0806;padding:10px;border-radius:6px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;aspect-ratio:4/3}
+.m4 .ab .bia img{position:static;width:100%;height:100%}
+.m4 .ab b{font:400 19px 'Special Elite',monospace}
+.m4 .loc span{font-family:'Special Elite',monospace;border-radius:4px}
+.m4 .gui{border:1px solid rgba(243,233,220,.25);border-radius:8px;background:rgba(255,255,255,.03)}.m4 .gui h3{font-family:'Special Elite',monospace;font-weight:400}
+.m4 .ss h3{font:400 clamp(26px,3vw,36px) 'Special Elite',monospace}.m4 .ss .kh{border:10px solid #0B0806}
+.m4 .them{font-family:'Special Elite',monospace}
+
+/* ============ điện thoại ============ */
+@media(max-width:900px){.hero,.m3 .hero{grid-template-columns:minmax(0,1fr)}.hr{min-height:300px}.kes{grid-template-columns:repeat(2,minmax(0,1fr))}.ss{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){header.g nav{display:none}.luoi{columns:2;column-gap:12px}.luoi figure{margin-bottom:12px}.m1 figure.pol,.m2 figure.pol{padding:6px 6px 8px}
+ .m1 figure.pol figcaption,.m2 figure.pol figcaption{font-size:15px}.day figure{width:170px}.kes{gap:16px}.ab b{font-size:16px}
+ .so b{font-size:28px}.hero{padding-top:28px}.m1 .hero{border-width:10px;padding:24px 16px}.m4 .phim img{width:160px;height:118px}
+ .m4 figure.pol figcaption{font-size:13px;flex-direction:column;gap:0}}
+</style></head>
+<body>
+<header class="g"><span class="lg">🏫</span><b>THPT Nguyễn Hiền</b><nav><span>Trang chủ</span><span>Các lớp</span><span>Ngoại khoá</span><span>Kỷ yếu</span><span class="on">Hình ảnh</span><span>Kết nối</span><span>🎂 Sinh nhật</span><span>Quản trị</span></nav></header>
+<section class="hero"><div class="hl" id="hl"></div><div class="hr" id="hr"></div></section>
+<div class="w">
+ <div class="td"><h2 id="tMoi">Mới dán lên bảng</h2><p>8 tấm vừa được gửi tuần này</p></div>
+ <div class="day" id="day"></div>
+ <div class="td"><h2 id="tAb">Album</h2><p>Mỗi album một buổi chiều không quay lại</p><a href="#">Tất cả 8 album →</a></div>
+ <div class="kes" id="kes"></div>
+ <div class="td"><h2 id="tLuoi">Tất cả hình ảnh</h2></div>
+ <div class="loc" id="loc"></div><div class="dem">Đang xem <b>Cả khoá</b> · 39 tấm · bấm ảnh để xem lớn</div>
+ <div class="luoi" id="luoi"></div>
+ <button class="them">Xem thêm 27 tấm ▾</button>
+ <div class="td"></div>
+ <div class="ss"><div class="kh" id="ss"></div><div><div class="ey">Ngày ấy – Bây giờ</div><h3 id="tSs">2003 → 2023, vẫn là lớp mình</h3><p>Kéo thanh giữa để so ảnh lớp năm cuối cấp với ảnh họp lớp 20 năm. Ai đổi khác nhiều nhất?</p><div class="lop2"><span class="on">12/1</span><span>12/4</span><span>12/7</span><span>12/9</span><span>12/12</span></div></div></div>
+ <div class="gui"><span class="ic">📮</span><div><h3>Còn tấm ảnh cũ nào trong hộc tủ?</h3><p>Chụp lại bằng điện thoại, gửi admin lớp. Bảng ảnh sẽ có thêm một gương mặt thân quen.</p></div><a href="#">Gửi ảnh cho admin lớp</a></div>
+</div>
+<footer>Trang kỷ niệm khoá 2000 – 2003 · Ban liên lạc khoá</footer>
+<script>
+const M=new URLSearchParams(location.search).get('m')||'1';document.body.classList.add('m'+M);
+/* ---- tranh minh hoạ thay ảnh thật ---- */
+function rdF(s){return ()=>{s=(s*16807)%2147483647;return s/2147483647}}
+function nguoi(x,y,k,ao,da,toc){return `<g transform="translate(${x} ${y}) scale(${k})"><path d="M-14 40 Q-14 8 0 8 Q14 8 14 40z" fill="${ao}"/><circle cy="-2" r="10" fill="${da}"/><path d="M-10 -4 Q-10 -14 0 -14 Q10 -14 10 -4 Q6 -9 0 -9 Q-6 -9 -10 -4z" fill="${toc}"/></g>`}
+const DA=['#F1C9A5','#E8B48C','#D9A07A','#F3D2B3'],TOC=['#2A1C14','#1E1410','#3A2618','#4A3020'];
+function canh(k,s){const rd=rdF(s*97+13);let g='',bg='';
+ const dong=(n,y,k2,ao)=>{let r='';for(let i=0;i<n;i++){const x=40+i*(320/(n-1))+rd()*8-4;r+=nguoi(x,y+rd()*4,k2,typeof ao==='function'?ao(i):ao,DA[(rd()*4)|0],TOC[(rd()*4)|0])}return r};
+ if(k==='lop'){bg='#E9D9B8';g+=`<rect width="400" height="150" fill="#F2E3C2"/><rect x="60" y="20" width="280" height="80" fill="#2E4A3B" stroke="#7A5230" stroke-width="6"/><text x="200" y="68" text-anchor="middle" font-family="Pangolin,cursive" font-size="22" fill="#F2EFE4">12/${1+(s%12)} · 2003</text><rect y="150" width="400" height="150" fill="#C9A77A"/>`+dong(9,150,1.05,'#FBFBF6')+dong(8,200,1.2,i=>i%3?'#FBFBF6':'#EDEDE6')+dong(7,250,1.35,'#FBFBF6')}
+ else if(k==='trai'){bg='#1A1430';g+=`<rect width="400" height="300" fill="#1E1838"/>`;for(let i=0;i<40;i++)g+=`<circle cx="${rd()*400}" cy="${rd()*150}" r="${rd()*1.6+.4}" fill="#fff" opacity="${.4+rd()*.6}"/>`;g+=`<rect y="200" width="400" height="100" fill="#2A2018"/><polygon points="30,210 90,130 150,210" fill="#3E6B4A"/><polygon points="260,210 320,140 380,210" fill="#8A4A3A"/><ellipse cx="200" cy="240" rx="120" ry="24" fill="#FF8A3D" opacity=".25"/><path d="M185 245 Q200 190 215 245z" fill="#FFB347"/><path d="M192 245 Q200 210 208 245z" fill="#FFE29A"/>`;for(let i=0;i<8;i++){const a=Math.PI*(.15+i*.1);g+=nguoi(200+Math.cos(a)*140*(i%2?1:-1),250-Math.sin(a)*20,1,'#1A1210','#5A3A2A','#0E0806')}}
+ else if(k==='vannghe'){bg='#3A0E14';g+=`<rect width="400" height="300" fill="#2A0A10"/><path d="M0 0 H130 Q100 150 120 300 H0z" fill="#9E1B2A"/><path d="M400 0 H270 Q300 150 280 300 H400z" fill="#9E1B2A"/><polygon points="200,0 120,300 280,300" fill="#FFF3C4" opacity=".18"/><rect y="230" width="400" height="70" fill="#5A2A18"/>`+nguoi(170,190,1.6,'#FBFBF6','#F1C9A5','#1E1410')+nguoi(230,190,1.6,'#FBFBF6','#E8B48C','#2A1C14')+`<line x1="200" y1="170" x2="200" y2="240" stroke="#999" stroke-width="3"/><circle cx="200" cy="168" r="6" fill="#333"/>`}
+ else if(k==='bong'){bg='#5FAE5A';g+=`<rect width="400" height="110" fill="#BFE3F2"/><rect y="110" width="400" height="190" fill="#5FAE5A"/>`;for(let i=0;i<6;i++)g+=`<rect x="${i*70}" y="110" width="35" height="190" fill="#56A352"/>`;g+=`<rect x="300" y="120" width="80" height="50" fill="none" stroke="#fff" stroke-width="4"/><circle cx="210" cy="250" r="9" fill="#fff" stroke="#222"/>`+[[120,190],[170,170],[250,200],[320,160]].map(([x,y],i)=>nguoi(x,y,1.3,i%2?'#C8102E':'#1D6FD6',DA[i%4],TOC[i%4])).join('')}
+ else if(k==='cong'){bg='#CDEBF6';g+=`<rect width="400" height="300" fill="#CDEBF6"/><rect y="220" width="400" height="80" fill="#E9CFAE"/><rect x="110" y="90" width="26" height="140" fill="#3AB37E"/><rect x="264" y="90" width="26" height="140" fill="#3AB37E"/><path d="M100 98 Q200 20 300 98 L300 114 Q200 40 100 114z" fill="#2E9468"/><rect x="150" y="54" width="100" height="22" rx="3" fill="#fff"/><text x="200" y="70" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="800" font-size="11" fill="#0A4A35">NGUYỄN HIỀN</text>`+dong(5,200,1.1,i=>['#C8102E','#1D6FD6','#F6C343','#3E9B5B','#7B5EA7'][i])}
+ else if(k==='phuong'){bg='#FFF1DC';g+=`<rect width="400" height="300" fill="#FDEBD3"/><rect y="230" width="400" height="70" fill="#E9CFAE"/><path d="M70 300 C80 220 60 180 90 120" stroke="#6B4A33" stroke-width="16" fill="none"/>`;for(let i=0;i<160;i++){const a=rd()*6.28,d=Math.sqrt(rd())*90;g+=`<circle cx="${110+Math.cos(a)*d*1.6}" cy="${90+Math.sin(a)*d*.6}" r="${4+rd()*5}" fill="${rd()<.3?'#5FAE5A':['#E8412F','#C8102E','#F05A3A'][i%3]}"/>`}g+=dong(6,200,1.15,'#FBFBF6')}
+ else if(k==='bien'){bg='#9FD3E8';g+=`<rect width="400" height="130" fill="#BFE6F5"/><rect y="130" width="400" height="70" fill="#3B9AC8"/><path d="M0 190 Q100 180 200 192 T400 190 V300 H0z" fill="#F3DDB3"/><circle cx="330" cy="50" r="24" fill="#FFE29A"/>`+dong(10,205,1.15,i=>['#F6C343','#FBFBF6','#C8102E','#1D6FD6','#3E9B5B'][i%5])}
+ else if(k==='nen'){bg='#120C08';g+=`<rect width="400" height="300" fill="#140E0A"/>`;for(let i=0;i<14;i++){const x=30+i*26,y=170+(i%3)*24;g+=`<ellipse cx="${x}" cy="${y-6}" rx="18" ry="22" fill="#FFB347" opacity=".18"/><rect x="${x-3}" y="${y}" width="6" height="24" fill="#FBFBF6"/><path d="M${x} ${y-14} Q${x+5} ${y-4} ${x} ${y}Q${x-5} ${y-4} ${x} ${y-14}z" fill="#FFD27A"/>`}g+=dong(7,232,1.1,'#2A221C')}
+ else{bg='#F6D88E';g+=`<rect width="400" height="300" fill="#F6D88E"/><rect y="0" width="400" height="40" fill="#C0533A"/>`;for(let i=0;i<5;i++)g+=`<rect x="${20+i*80}" y="60" width="44" height="80" fill="#3E9B5B"/>`;g+=`<rect y="220" width="400" height="80" fill="#D9C2A0"/>`;for(let i=0;i<5;i++){const x=60+i*70;g+=`<g transform="translate(${x} 170)"><path d="M-16 70 L-10 10 Q0 4 10 10 L16 70z" fill="#FBFBF6"/><circle cy="0" r="10" fill="${DA[i%4]}"/><path d="M-11 -2 Q-11 -14 0 -14 Q11 -14 11 -2 L12 24 Q6 18 6 -2 Q0 -8 -6 -2 Q-6 18 -12 24z" fill="#1E1410"/></g>`}}
+ return 'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http:/`+`/www.w3.org/2000/svg" viewBox="0 0 400 300">${g}</svg>`)}
+const ANH=[['lop','Ảnh lớp, tháng Năm 2003','12/1','Ngày ấy',1],['bien','Gặp lại ở Mỹ Khê','12/5','Họp lớp 20 năm',0],['trai','Đêm lửa trại','12/7','Hội trại 26/3',1],['vannghe','Tập văn nghệ dưới mưa','12/2','Đêm văn nghệ 20/11',1],['bong','Trận chung kết bóng đá','12/3','Hội khoẻ Phù Đổng',1],['cong','Về trường sau 20 năm','12/4','Bây giờ',0],['phuong','Cả lớp dưới gốc phượng','12/9','Ảnh tập thể',1],['nen','Thắp nến trăm ngày','12/6','Trăm ngày',1],['aodai','Áo trắng ngày đầu','12/8','Ngày ấy',1],['lop','Ảnh lớp 12/4','12/4','Ngày ấy',1],['bien','Họp lớp ở biển','12/12','Họp lớp 20 năm',0],['phuong','Ôm thầy cô ngày chia tay','12/1','Lễ tri ân',1],['trai','Dựng trại bằng tre','12/10','Hội trại 26/3',1],['vannghe','Múa “Áo trắng” giải nhất','12/11','Đêm văn nghệ 20/11',1],['cong','Chụp chung ở cổng trường','12/7','Bây giờ',0],['bong','Kéo co khối 11','12/5','Hội khoẻ Phù Đổng',1]];
+const H=[260,200,230,300,220,250,280,210];
+const fig=(a,i,cls)=>`<figure class="pol" style="--r:${((i%5)-2)*1.1}deg;--ghim:${['#E8412F','#F6C343','#4FA3E0','#F2A7B0'][i%4]};--bang:${['rgba(246,195,67,.8)','rgba(242,167,176,.8)','rgba(158,215,232,.8)'][i%3]}"><div class="anh" data-ngay="${a[4]?"'0"+(1+i%3):"'23"}"><img class="${a[4]?'cu':''}" src="${canh(a[0],i+3)}" alt="" ${cls||''}></div><figcaption>${M==='3'?`<b>${a[1]}</b><small>Lớp ${a[2]} · ${a[3]}</small>`:M==='4'?`${a[1]}<em>${a[2]}</em>`:a[1]}</figcaption></figure>`;
+/* hero */
+const HL={1:`<div class="ey">Hình ảnh · khoá 2000 – 2003</div><h1>Ảnh dán <u>đầy bảng</u></h1><p class="mo">Mỗi tấm ảnh là một buổi chiều không quay lại được. Bấm vào ảnh để xem lớn, rồi thử tìm mình trong đó.</p>`,
+ 2:`<div class="ey">Hình ảnh · khoá 2000 – 2003</div><h1>Sổ ảnh lưu niệm</h1><p class="mo">Lật từng trang, dán từng tấm – ba năm áo trắng và những lần gặp lại.</p>`,
+ 3:`<div class="ey">Hình ảnh · khoá 2000 – 2003</div><h1>Những khoảnh khắc <i>không quay lại</i></h1><p class="mo">39 tấm ảnh từ 12 lớp, xếp theo từng album. Bấm để xem lớn, hoặc mở trình chiếu cho cả khoá cùng xem.</p>`,
+ 4:`<div class="ey">Hình ảnh · khoá 2000 – 2003</div><h1>Cuộn phim <u>năm ấy</u></h1><p class="mo">Những khung hình còn nguyên vệt nắng 2003 – và những tấm mới chụp ở lần gặp lại.</p>`}[M];
+document.getElementById('hl').innerHTML=HL+`<div class="so"><div><b>39</b><small>tấm ảnh</small></div><div><b>8</b><small>album</small></div><div><b>12</b><small>lớp góp ảnh</small></div></div><div class="nut"><a class="c" href="#">▶ Trình chiếu cả khoá</a><a class="p" href="#">📮 Gửi ảnh</a></div>`;
+const hr=document.getElementById('hr');
+if(M==='1'||M==='2')hr.innerHTML=[[2,'4%','4%'],[0,'52%','0%'],[6,'26%','34%'],[1,'60%','46%']].map(([k,l,t],i)=>fig(ANH[k],i).replace('class="pol"',`class="pol" style="left:${l};top:${t};--r:${[-6,4,-2,7][i]}deg;--ghim:${['#E8412F','#F6C343','#4FA3E0','#F2A7B0'][i]};--bang:rgba(246,195,67,.8)"`)).join('');
+else if(M==='3')hr.innerHTML=`<div class="lon"><img src="${canh('bien',7)}" alt=""><div><b>Gặp lại ở Mỹ Khê</b><small>Họp lớp 20 năm · 07/2023 · 300 bạn về dự</small></div></div><div class="cham"><i class="on"></i><i></i><i></i><i></i><i></i></div>`;
+else{const r=ANH.slice(0,8).map((a,i)=>`<img class="${a[4]?'cu':''}" src="${canh(a[0],i+40)}" alt="">`).join('');hr.innerHTML=`<div class="phim"><div class="r">${r}${r}</div></div>`}
+document.getElementById('day').innerHTML=ANH.slice(0,8).map((a,i)=>fig(a,i)).join('');
+const AB=[['Ngày ấy','lop',12,1],['Hội trại 26/3','trai',8,1],['Đêm văn nghệ 20/11','vannghe',6,1],['Họp lớp 20 năm','bien',9,0],['Hội khoẻ Phù Đổng','bong',5,1],['Lễ tri ân','phuong',4,1],['Trăm ngày','nen',3,1],['Bây giờ','cong',7,0]];
+document.getElementById('kes').innerHTML=AB.map((a,i)=>`<div class="ab"><div class="bia" data-n="${a[2]} ảnh">${[0,1,2,3].map(j=>`<img class="${a[3]?'cu':''}" src="${canh(j?['lop','phuong','cong'][j-1]:a[1],i*7+j)}" alt="">`).slice(0,M==='4'?4:3)[M==='1'?'reverse':'slice']().join('')}</div><b>${a[0]}</b><small>${a[2]} ảnh · ${a[3]?'2000 – 2003':'sau ra trường'}</small></div>`).join('');
+document.getElementById('loc').innerHTML=['Cả khoá','Ảnh chung',...Array.from({length:12},(_,i)=>'12/'+(i+1))].map((t,i)=>`<span class="${i?'':'on'}">${t}</span>`).join('');
+document.getElementById('luoi').innerHTML=ANH.slice(0,12).map((a,i)=>fig(a,i+2,`style="aspect-ratio:400/${H[i%8]};object-fit:cover"`)).join('');
+document.getElementById('ss').innerHTML=`<img class="cu" src="${canh('lop',1)}" alt=""><img class="tren" src="${canh('bien',2)}" alt="" style="clip-path:inset(0 0 0 50%)"><span class="vach"></span><i class="a">2003</i><i class="b">2023</i>`;
+const T={1:['Mới dán lên bảng','Kệ album','Cả bảng ảnh','2003 → 2023, vẫn là lớp mình'],2:['Trang mới dán','Những cuốn album','Từng trang sổ ảnh','Ngày ấy & bây giờ'],3:['Mới thêm','Bộ sưu tập','Tất cả hình ảnh','Hai mươi năm, một khung hình'],4:['Vừa tráng xong','Hộp phim','Toàn bộ khung hình','2003 ⟶ 2023']}[M];
+['tMoi','tAb','tLuoi','tSs'].forEach((id,i)=>document.getElementById(id).textContent=T[i]);
+</script>
+</body></html>
