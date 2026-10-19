@@ -1,3 +1,18 @@
+QL_TC_2026 – v5.9.12 (19/10/2026) · KẾ HOẠCH THU CHI: NHẬP TỪ EXCEL + DỮ LIỆU THÁNG 10/2026
+1. Kế hoạch thu chi có nút "⇪ Nhập Excel" (máy tính + điện thoại), 3 bước:
+   ① Tải file mẫu (HUONG_DAN · NHAP_KE_HOACH · DANH_MUC; tổng thu / chi / chênh lệch tự tính trong file) hoặc xuất kỳ cũ làm file điền sẵn (dời sang kỳ sau, bỏ mã, Nháp).
+   ② Tải file lên → kiểm tra từng dòng: Thêm mới · Cập nhật (có mã) · Trùng dòng đã có (Kỳ + Loại + Nội dung + Ngày) · Trùng trong file · Lỗi
+      · "Gốc lãi đã có tự động": dòng CHI "Gốc lãi…/Trả nợ…/Rút sổ…" trong kỳ đã có Lịch trả nợ → mặc định bỏ qua để không tính 2 lần (chọn được "Vẫn thêm").
+      Chấp nhận Thu/Chi chữ thường, kỳ 10/2026, ngày dd/mm/yyyy, số 1.234.567, trạng thái tiếng Việt (Đã duyệt…). Trạng thái trống = Nháp.
+   ③ Nhập → kết quả + tải dòng lỗi để sửa; bảng chuyển sang kỳ vừa nhập. Ghi nhật ký. Kế hoạch thu chi tự thêm cột GHI_CHU (form có ô Ghi chú).
+2. Dữ liệu tháng 10/2026: file KE_HOACH_THU_CHI_T10_2026_NHAP.xlsx chuyển từ "Thu chi tra lai ky T10.2026" – CHỈ đọc sheet Tổng hợp:
+   36 dòng chi tiết (bỏ dòng nhóm/tổng) = Thu 94.385.906.576 · Chi 94.342.076.323 · dư 43.830.253 (khớp file). Khi nhập: 25 dòng ghi, 11 dòng trả nợ ngân hàng bỏ qua (đã có tự động).
+   Sheet PHAN_TICH: Lịch trả nợ T10 trong phần mềm 85.688.754.962 so với file 72.907.367.916 (gốc lãi + rút sổ) → cao hơn 12.781.387.046;
+   khoản gốc không thấy trong file: KV-T9-012 Indovina (15/10: 1.755.068.000; 28/10: 5.537.726.250), KV-T9-032 Eximbank 7.000.000.000, KV-T9-053 1.108.128.508 (25/10).
+   ⇒ Sau khi nhập, kế hoạch tháng 10 trong phần mềm: Chi 107.123.463.369 · Chênh lệch −12.737.556.793 (Đang hụt) cho tới khi Lịch trả nợ được cập nhật theo thực tế.
+Kiểm thử: 14 bộ tests/*.cjs đều đạt (thêm tests/v5912-nhap-ke-hoach.cjs dùng chính 36 dòng tháng 10); chạy thử giao diện tải file mẫu + nhập file trên máy tính và điện thoại. Khóa cache BOOT_V5912_.
+Cập nhật: chép đè Code.gs + index.html → Triển khai → Quản lý triển khai → Sửa → Phiên bản mới → Kế hoạch thu chi → ⇪ Nhập Excel → chọn KE_HOACH_THU_CHI_T10_2026_NHAP.xlsx.
+
 QL_TC_2026 – v5.9.11 (17/10/2026) · BỐ CỤC CHỐNG TRÀN DỮ LIỆU · CỠ CHỮ
 Đo trên 17 phân hệ ở màn 1366 × 768, 1920 × 1000 và điện thoại 390 px (bản sao dữ liệu thật). Trước khi sửa:
    Nguồn vốn che 712 px (≈ 6 cột phải cuộn ngang) ở 1366, 291 px ở 1920; Khoản vay che 494 px; Lịch trả nợ che 163 px;
