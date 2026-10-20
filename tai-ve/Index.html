@@ -810,7 +810,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .gm .dg{font-size:9.4px;font-weight:500;line-height:1.5;color:#2B2420}.gm .dg b{display:block;font-weight:700;font-size:12px;color:#A3281F}.gm .dg em{display:block;margin-top:1px}
 .gm .gmc:not(.mot) .dg{border-right:1px solid rgba(192,57,43,.35);padding-right:12px}
 .gm .bll{font-size:9.8px;font-weight:500;line-height:1.55;color:#2B2420}.gm .bll b{display:block;font-weight:700;font-size:9.6px;letter-spacing:.3px;color:#A3281F}
-.gm-nhap{display:flex;gap:10px;max-width:559px;margin:12px auto 0}.gm-nhap label{flex:1;font-size:12.5px;color:#F6E2C8}.gm-nhap label.l2{flex:0 0 96px}
+.gm-nhap{display:flex;gap:10px;max-width:559px;margin:12px auto 0}.gm-nhap label{flex:1;font-size:12.5px;color:#F6E2C8}.gm-nhap label.l2{flex:0 0 96px}.gm-nhap label.xg{flex:0 0 108px}
 .gm-nhap input{display:block;width:100%;margin-top:4px;border:0;border-radius:8px;padding:9px 10px;font-size:15px;background:#FBF6EC;color:#2B1D18}
 .thu.gm-on .gm-nut{background:linear-gradient(transparent,#5B1A16 30%)}.thu.gm-on .gm-nut .phu{background:#FBF6EC}
 @media(max-width:600px){.thu.gm-on{padding:0 8px}.thu.gm-on .gm-chon{margin:0 -8px 8px}.thu .gmZ{overflow:hidden;margin:0 auto}}
@@ -1493,11 +1493,13 @@ function moThu(tuDong){apDungPopup();if(tuDong&&store.get('nh_an_'+THU.ma))retur
  $('thuNen').classList.add('on');$('thuBox').scrollTop=0;document.body.style.overflow='hidden';setTimeout(()=>{const x=$('thuBox').querySelector('.x');if(x)x.focus()},50)}
 function diDangKy(){dongThu();menu('connect');setTimeout(()=>{const r=$('r1');if(r){r.scrollIntoView({behavior:'smooth',block:'center'});r.focus()}},350)}
 const gmCanh='<svg class="canh" aria-hidden="true" width="230" height="200" viewBox="0 0 230 200"><g fill="#C8372D">'+[[150,70,1],[190,120,.8],[108,40,.65]].map(([x,y,k])=>`<g transform="translate(${x} ${y}) scale(${k})">`+[0,72,144,216,288].map(r=>`<ellipse cx="0" cy="-13" rx="8" ry="13" transform="rotate(${r})"></ellipse>`).join('')+'</g>').join('')+'</g><g fill="#E8B04A"><circle cx="150" cy="70" r="4"></circle><circle cx="190" cy="120" r="3.2"></circle><circle cx="108" cy="40" r="2.6"></circle></g><g fill="#E0574B"><ellipse cx="78" cy="96" rx="5" ry="8" transform="rotate(-30 78 96)"></ellipse><ellipse cx="120" cy="150" rx="4" ry="7" transform="rotate(40 120 150)"></ellipse><ellipse cx="205" cy="175" rx="4" ry="6" transform="rotate(10 205 175)"></ellipse></g><path d="M60 20 C110 60 170 40 230 90" stroke="#5E7A3A" stroke-width="2" fill="none"></path></svg>';
-function moGiayMoi(loai){apDungPopup();if(loai)gmLoai=loai;const b=$('thuBox'),ban=gmLoai==='ban',_k=b.classList.remove('kh-on'),ten=store.get(ban?'nh_ten_moi':'nh_ten_thay')||'',lop=store.get('nh_lop_moi')||'';b.classList.add('gm-on');
+function moGiayMoi(loai){apDungPopup();if(loai)gmLoai=loai;const b=$('thuBox'),ban=gmLoai==='ban',_k=b.classList.remove('kh-on'),lop=store.get('nh_lop_moi')||'';let ten=store.get(ban?'nh_ten_moi':'nh_ten_thay')||'',xung=store.get('nh_xung_thay')||'';
+ /* Bản cũ ghi chung "Cô Nguyễn…" vào ô tên → tách phần Thầy/Cô ra ô riêng */
+ if(!ban&&!xung){const m=ten.match(/^\s*(thầy|cô)\s+(.*)$/i);if(m){xung=m[1][0].toUpperCase()+m[1].slice(1).toLowerCase();ten=m[2];store.set('nh_xung_thay',xung);store.set('nh_ten_thay',ten||null)}}b.classList.add('gm-on');
  b.innerHTML=`<div class="gm-chon" role="tablist"><button class="x" onclick="dongThu()" aria-label="Đóng">×</button><button role="tab" aria-selected="${ban}" class="${ban?'on':''}" onclick="moGiayMoi('ban')">Mời các bạn</button><button role="tab" aria-selected="${!ban}" class="${ban?'':'on'}" onclick="moGiayMoi('thay')">Mời Thầy/Cô</button></div>
  <div class="gmZ" id="gmZ"><div class="gm"><h2 id="thuTieuDe" class="an">${ban?'Thư mời bạn':'Thư mời Thầy/Cô'} – Gala Ngày trở về</h2><div class="gmk">
  <div class="tieu">${ban?'THÂN MỜI BẠN VỀ DỰ':'TRÂN TRỌNG KÍNH MỜI'}</div>
- <div class="dong">${ban?'Bạn:':'Thầy/Cô:'} <span class="cham" id="gmTen">${esc(ten)}</span></div>
+ <div class="dong">${ban?'Bạn:':`<span id="gmXung">${esc(xung||'Thầy/Cô')}</span>:`} <span class="cham" id="gmTen">${esc(ten)}</span></div>
  ${ban?`<div class="dong">Lớp 12/<span class="cham ngan" id="gmLop">${esc(lop)}</span></div>`:''}
  <p>${esc(ban?GM.loiBan:GM.loiThay)}</p>
  <div class="ke"></div>
@@ -1506,7 +1508,7 @@ function moGiayMoi(loai){apDungPopup();if(loai)gmLoai=loai;const b=$('thuBox'),b
  ${ban?'':'<div class="vd">Sự hiện diện của Thầy/Cô là niềm vinh dự<br>và món quà quý giá đối với chúng em.</div>'}
  </div><div class="gmc${ban?'':' mot'}">${ban?`<div class="dg"><b>Đóng góp: ${esc(GM.dongGop)}/người</b>(${esc(String(GM.gom).replace(/[.]$/,''))})<em>Xác nhận trước ngày ${esc(GM.han)}</em></div>`:''}
  <div class="bll"><b>BAN LIÊN LẠC NIÊN KHÓA ${esc(D.cfg.nienKhoa)}</b>${bll().map(x=>esc(x[0])+(x[1]?': '+esc(x[1]):'')).join('<br>')}</div> </div></div></div>
- <div class="gm-nhap"><label>${ban?'Tên bạn được mời':'Kính mời (ghi Thầy hoặc Cô + họ tên)'}<input id="gmNhap" maxlength="50" value="${esc(ten)}" placeholder="${ban?'Ví dụ: Nguyễn Văn An':'Ví dụ: Cô Nguyễn Thị Thủy / Thầy Trần Văn Minh'}" oninput="$('gmTen').textContent=this.value;store.set('${ban?'nh_ten_moi':'nh_ten_thay'}',this.value||null)"></label>${ban?`<label class="l2">Lớp 12/<input id="gmLopNhap" maxlength="2" inputmode="numeric" value="${esc(lop)}" oninput="$('gmLop').textContent=this.value;store.set('nh_lop_moi',this.value||null)"></label>`:''}</div>
+ <div class="gm-nhap">${ban?'':`<label class="l2 xg">Thầy / Cô<input id="gmXungNhap" maxlength="12" list="gmXungDs" value="${esc(xung)}" placeholder="Thầy/Cô" oninput="$('gmXung').textContent=this.value.trim()||'Thầy/Cô';store.set('nh_xung_thay',this.value.trim()||null)"><datalist id="gmXungDs"><option value="Thầy"><option value="Cô"></datalist></label>`}<label>${ban?'Tên bạn được mời':'Họ tên Thầy/Cô được mời'}<input id="gmNhap" maxlength="50" value="${esc(ten)}" placeholder="${ban?'Ví dụ: Nguyễn Văn An':'Ví dụ: Nguyễn Thị Thủy'}" oninput="$('gmTen').textContent=this.value;store.set('${ban?'nh_ten_moi':'nh_ten_thay'}',this.value||null)"></label>${ban?`<label class="l2">Lớp 12/<input id="gmLopNhap" maxlength="2" inputmode="numeric" value="${esc(lop)}" oninput="$('gmLop').textContent=this.value;store.set('nh_lop_moi',this.value||null)"></label>`:''}</div>
  <div class="nut gm-nut"><button class="phu" onclick="moThu()">← Thư ngỏ</button><div class="bt${ban?' ba':''}"><button class="phu" onclick="xemInGm()">🖨️ In / Lưu thư mời</button><button class="phu" onclick="chepLoiMoi()">Sao chép lời mời</button>${ban?'<button class="chinh" onclick="diDangKy()">Đăng ký tham dự</button>':''}</div></div>`;
  b.scrollTop=0;gmVua_()}
 /* Giờ + ngày trên giấy mời: "17h00" + "Thứ Bảy, 14/11/2026" → "17:00 · THỨ BẢY · 14.11.2026" */
@@ -1516,7 +1518,7 @@ function gmVua_(){const z=$('gmZ'),b=$('thuBox');if(!z||!b)return;const g=z.firs
 window.addEventListener('resize',()=>{if($('gmZ'))gmVua_()});
 /* In / lưu thư mời: bản giấy mời đang xem → A5 (PDF qua hộp thoại in) hoặc ảnh JPG (html2canvas tải khi cần) */
 function gmBan_(){const g=document.querySelector('.thu .gm');if(!g)return null;const c=g.cloneNode(true);c.removeAttribute('id');c.style.zoom='';c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));return '<div class="gmIn">'+c.outerHTML+'</div>'}
-function gmTenTep_(){const t=(($('gmNhap')&&$('gmNhap').value)||'').trim();return 'thu-moi-gala'+(t?'-'+khongDau(t).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''):'')}
+function gmTenTep_(){const t=[$('gmXungNhap')?$('gmXungNhap').value:'',($('gmNhap')&&$('gmNhap').value)||''].join(' ').trim();return 'thu-moi-gala'+(t?'-'+khongDau(t).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''):'')}
 function xemInGm(){const h=gmBan_();if(!h)return;const tam=document.createElement('div');tam.style.cssText='position:fixed;left:-9999px;top:0';tam.innerHTML=h;document.body.appendChild(tam);
  const H=tam.firstChild.offsetHeight||794;tam.remove();const k=Math.min((innerWidth-28)/559,(innerHeight-170)/H,1.2).toFixed(3);
  $('snIn').innerHTML=h;$('snIn').firstChild.style.setProperty('--z',Math.min(1,794/H).toFixed(3));
@@ -1539,7 +1541,7 @@ function luuAnh_(h,chon,ten,nen,tb,sc){toast(tb||'Đang tạo ảnh…');
   const p=document.querySelector('#snXem>p');if(p)p.innerHTML=chiaSe?'Bấm <b>Lưu / Chia sẻ ảnh</b> → chọn <b>Lưu hình ảnh</b> (iPhone) hoặc gửi thẳng qua Zalo. Không được thì <b>nhấn giữ vào ảnh</b> → Lưu ảnh.':'<b>Nhấn giữ vào ảnh</b> → chọn Lưu ảnh / Tải ảnh xuống. Trong Zalo không lưu được thì bấm ••• góc trên → <b>Mở bằng trình duyệt</b> rồi làm lại.';
  }).catch(e=>{tam.remove();toast(e.message||'Không tạo được ảnh')})}
 function chiaSeAnh_(){const a=ANH_LUU;if(!a||!a.f)return;navigator.share({files:[a.f],title:a.ten}).catch(e=>{if(e&&e.name!=='AbortError')toast('Không chia sẻ được – nhấn giữ vào ảnh để lưu')})}
-function chepLoiMoi(){const ban=gmLoai==='ban',ten=($('gmNhap')&&$('gmNhap').value.trim())||'',lop=ban&&$('gmLopNhap')?$('gmLopNhap').value.trim():'';
+function chepLoiMoi(){const ban=gmLoai==='ban',ten=[!ban&&$('gmXungNhap')?$('gmXungNhap').value.trim():'',($('gmNhap')&&$('gmNhap').value.trim())||''].filter(Boolean).join(' '),lop=ban&&$('gmLopNhap')?$('gmLopNhap').value.trim():'';
  const t=ban?`💌 VỀ ĐI BẠN ƠI! · GALA GẶP MẶT CỰU HỌC SINH ${D.cfg.tenTruong} · Niên khoá ${D.cfg.nienKhoa}\nThân mời bạn ${ten||''}${lop?' (lớp 12/'+lop+')':''} về dự đêm Gala gặp mặt.\n🕔 ${GM.gio} · ${GM.ngay}\n📍 ${GM.nhaHang}, ${GM.diaChi}\n💰 Đóng góp ${GM.dongGop}/người (${GM.gom.replace(/^Gồm /,'gồm ').replace(/\.$/,'')}). Xác nhận và đóng góp trước ${GM.han} qua admin lớp hoặc ${GM.web}\nHai mươi ba năm – Một mái trường – Một đại gia đình ❤️`
   :`THƯ MỜI · GALA GẶP MẶT CỰU HỌC SINH ${D.cfg.tenTruong} · Niên khoá ${D.cfg.nienKhoa}\nKính mời ${ten||'Thầy/Cô'} về dự đêm Gala gặp mặt, để học trò được gặp lại, tri ân và ôn lại những kỷ niệm dưới mái trường xưa.\n🕔 ${GM.gio} · ${GM.ngay}\n📍 ${GM.nhaHang}, ${GM.diaChi}\nThay mặt Ban liên lạc khoá ${D.cfg.nienKhoa}`;
  const ok=()=>toast('Đã sao chép lời mời, dán vào Zalo để gửi');
