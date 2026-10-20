@@ -98,7 +98,7 @@ function doGet(e) {
   }
   return out
     .setTitle('THPT Nguyễn Hiền · Niên khoá 2000–2003')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
