@@ -63,6 +63,8 @@ Thư ngỏ có 4 nút: Để sau · 📋 Kế hoạch (`moKeHoach`, `.thu.kh-on 
 
 **Thiệp mời "Ngày trở về"** (`thiet-ke/thiep-moi-mau-nuoc/`, mẫu người dùng gửi): nền tranh màu nước `nen-goc.jpg` (1054×1492, đã có chữ trường/"Ngày trở về"/GALA/"Về bên nhau · Về miền ký ức") → `nen-2x.jpg`; `thiep-moi.html` đặt khối thông tin `.kh` vào vùng giấy trống (left 52mm, top 107mm: Thân mời bạn/Trân trọng kính mời, dòng tên, Lớp 12/, lời, 17h00 · Thứ Bảy, 14.11.2026, Tại …, đóng góp, chữ ký) + ô Ban liên lạc `.lh` góc dưới trái; chữ đỏ #A3281F như tranh; `render.js` giống thiep-moi-gala; zip `thiep-moi-ngay-tro-ve-in.zip`.
 
+**Thiệp mời từng bạn lớp 12/4** (`thiet-ke/thiep-moi-12-4/`, 20/10/2026): `ds.txt` (mỗi dòng 1 tên) → `render.js [scale=3]` mở giấy mời của web app (`moGiayMoi('ban')`, đặt `GM.nhaHang`/`diaChi` = Nhà hàng QUẢNG ĐẠI 2, Số: 190 Đường 30-4, Phường Hòa Cường, TP. Đà Nẵng.), điền tên + Lớp 12/4, chụp `.gm` 1680×2379 → `anh/NN-ten.jpg` + `thiep-moi-12-4.pdf` (A5, 1 trang/bạn; pdf + zip không đưa vào git). Lớp khác: sửa `ds.txt` + `LOP`.
+
 ### Dữ liệu mẫu
 Mọi dòng mẫu có id bắt đầu `mau_`. Nội dung mẫu viết trong `napDuLieuMau_()` (Code.gs); dòng `const DEMO=` trong Index.html
 là bản chụp của nó, **tạo lại** bằng `node tools/build-demo.js` (chạy Code.gs trên Sheet giả lập) rồi build tai-ve. `autoSeed_()` tự nạp khi Sheet trống (một lần, cờ `DEMO_AUTO`).
