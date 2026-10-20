@@ -782,7 +782,8 @@ function taoPublicData_() {
   };
   /* ảnh dán tay vào Sheet: tự mở quyền xem (mỗi ảnh một lần) */
   try {
-    moAnh_([].concat(r.thayCo.map(function (t) { return t.anhId; }), r.hoatDong.map(function (h) { return h.anhId; }), r.anh.map(function (a) { return a.fileId; })).filter(String), false);
+    moAnh_([].concat(r.thayCo.map(function (t) { return t.anhId; }), r.hoatDong.map(function (h) { return h.anhId; }), r.anh.map(function (a) { return a.fileId; }),
+      String((r.cfg || {}).banLienLac || '').split('\n').map(function (x) { return idAnh_(x.split('|')[3] || ''); })).filter(String), false);
   } catch (e) { console.log('moAnh: ' + e.message); }
   return r;
 }
