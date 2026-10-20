@@ -37,7 +37,7 @@ const bad=J(`previewPlanImport([{_line:7,KY_BAO_CAO:'10/2026',LOAI_THU_CHI:'chi'
  {_line:8,LOAI_THU_CHI:'X',NGAY_DU_KIEN:'31/02/2026',NOI_DUNG:'',SO_TIEN_DU_KIEN:'-5'},{_line:9,MA_KE_HOACH:'TD-GL-2026-10-25',LOAI_THU_CHI:'CHI',NGAY_DU_KIEN:'2026-10-25',NOI_DUNG:'x',SO_TIEN_DU_KIEN:1},
  {_line:10,KY_BAO_CAO:'2026-11',LOAI_THU_CHI:'THU',NGAY_DU_KIEN:'2026-10-02',NOI_DUNG:'Thu khác',SO_TIEN_DU_KIEN:0},{_line:11,KY_BAO_CAO:'10/2026',LOAI_THU_CHI:'CHI',NGAY_DU_KIEN:'15/10/2026',NOI_DUNG:'mua  vật tư',SO_TIEN_DU_KIEN:1234567}])`).rows;
 assert.deepEqual([bad[0].action,bad[0].data.KY_BAO_CAO,bad[0].data.LOAI_THU_CHI,bad[0].data.NGAY_DU_KIEN,bad[0].data.SO_TIEN_DU_KIEN,bad[0].data.TRANG_THAI],['add','2026-10','CHI','2026-10-15',1234567,'DA_DUYET']);
-assert.equal(bad[1].action,'error');assert.deepEqual(bad[1].errors,['Loại phải là THU hoặc CHI','Ngày dự kiến không hợp lệ','Thiếu nội dung','Số tiền không được âm']);
+assert.equal(bad[1].action,'error');assert.deepEqual(bad[1].errors,['Loại phải là THU hoặc CHI','Số tiền không được âm']);assert.ok(bad[1].warnings.some(x=>/Ngày "31\/02\/2026" không đọc được → lấy/.test(x)));
 assert.match(bad[2].errors[0],/Dòng tự động/);assert.deepEqual(bad[3].warnings,['Ngày không thuộc kỳ 2026-11','Số tiền = 0']);assert.equal(bad[4].action,'dupfile','trùng nội dung không phân biệt hoa thường / khoảng trắng');
 // 5. cập nhật theo mã: ô trống giữ nguyên
 const id=kh[0].MA_KE_HOACH;J(`importPlans([{_line:7,MA_KE_HOACH:'${id}',KY_BAO_CAO:'2026-10',LOAI_THU_CHI:'${kh[0].LOAI_THU_CHI}',NGAY_DU_KIEN:'${kh[0].NGAY_DU_KIEN}',NOI_DUNG:${JSON.stringify(kh[0].NOI_DUNG)},SO_TIEN_DU_KIEN:777}],{})`);
@@ -63,6 +63,11 @@ assert.match(html,/<th class="num">THU<\/th><th class="num">CHI<\/th>/);
  assert.deepEqual(ck.map(r=>r.action),['add','blank','add','add','total','add','add','total','add','add'],'tên trùng ở 2 nhóm không bị coi là trùng');
  assert.match(ck[5].warnings[0],/Nhóm lấy theo dòng tổng "KS Royal"/);assert.match(ck[2].warnings.join(),/tách thành 2 dòng/);
  assert.equal(cx.planParseGrid_([['x'],['Ngày','Mô tả']],{},0).error.slice(0,23),'Không thấy dòng tiêu đề');}
+// 9. V5.9.16 – cho nhập thiếu ngày / nội dung: ngày cuối kỳ (kỳ trên dòng hoặc kỳ chọn khi nhập), nội dung lấy cột lệch → ghi chú → nhóm → mặc định
+const ms=J(`previewPlanImport([{_line:5,THU:888658576},{_line:6,CHI:4470000000,GHI_CHU:'trả nợ-rút sổ'},{_line:7,THU:5,KY_BAO_CAO:'2026-02',MA_NHOM_THU_CHI:'KS Royal'},{_line:8,CHI:7,_TEXT:'Tổng tiền quỹ',_DATE:'2026-12-03'}],{period:'2026-11'})`).rows;
+assert.deepEqual(ms.map(r=>[r.action,r.data.NGAY_DU_KIEN,r.data.KY_BAO_CAO,r.data.NOI_DUNG]),[['add','2026-11-30','2026-11','Khoản thu chưa ghi nội dung – dòng 5'],['add','2026-11-30','2026-11','trả nợ-rút sổ – dòng 6'],['add','2026-02-28','2026-02','KS Royal – dòng 7'],['add','2026-12-03','2026-12','Tổng tiền quỹ']]);
+assert.match(ms[0].warnings.join(' | '),/Thiếu ngày → lấy 30\/11\/2026 \| Thiếu nội dung → ghi/);assert.match(ms[3].warnings.join(),/Ngày lấy từ cột khác: 03\/12\/2026.*Nội dung lấy từ cột khác/);
+assert.match(html,/id="pimpPer"/);
 // giao diện
 assert.match(html,/id="planImportAction">⇪ Nhập Excel/);assert.match(html,/function buildPlanWorkbook_\(ctx\)/);assert.ok(J("Object.keys(mutateAndFetch)").length===0||true);
 assert.match(code,/importPlans:importPlans/);

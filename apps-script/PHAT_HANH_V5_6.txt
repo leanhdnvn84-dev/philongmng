@@ -1,3 +1,11 @@
+QL_TC_2026 – v5.9.16 (20/10/2026) · NHẬP KẾ HOẠCH: CHO PHÉP THIẾU NGÀY / NỘI DUNG
+1. Thiếu ngày (hoặc ngày không đọc được) → không còn là lỗi: lấy ngày cuối kỳ (kỳ ghi trên dòng; không có thì kỳ chọn ở bước kiểm tra
+   "Dòng thiếu ngày lấy ngày cuối kỳ: [tháng]", mặc định tháng đang xem). Dòng hiện cảnh báo "Thiếu ngày → lấy 31/10/2026".
+2. Thiếu nội dung → không còn là lỗi: lấy chữ ở cột lệch tiêu đề (nếu có) → Ghi chú → Nhóm → "Khoản thu/chi chưa ghi nội dung", kèm " – dòng N".
+   Ngày nằm ở cột lệch tiêu đề cũng được lấy. Dòng chi có ghi chú "trả nợ…" vẫn được nhận là gốc lãi đã có tự động (bỏ qua).
+3. Chỉ còn lỗi khi: không có số tiền hợp lệ ở Thu / Chi, số âm, ghi số ở cả 2 cột không tách được, mã KH không tồn tại.
+Kiểm thử: 14 bộ tests/*.cjs đều đạt; chạy thử file thiếu ngày + nội dung (5 dòng → nhập 4, bỏ 1 trả nợ đã có tự động). Khóa cache BOOT_V5916_.
+
 QL_TC_2026 – v5.9.15 (19/10/2026) · NHẬP EXCEL: BÁO TRẠNG THÁI RÕ, CHỌN LẠI CÙNG FILE VẪN CHẠY
 1. Hộp thoại "⇪ Nhập Excel" hiện trạng thái ngay dưới ô chọn file: "Đang đọc file…" → "Đã đọc n dòng – máy chủ đang kiểm tra…" → bước 2;
    lỗi hiện khung đỏ (không chỉ thông báo 3 giây): không tải được thư viện Excel (cdnjs bị chặn → dùng .csv), file đang mở / bị khóa,
