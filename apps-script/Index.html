@@ -805,6 +805,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .thu .gm p,.gmIn .gm p{display:inline-block;margin:6px 0 0;text-align:left;font-size:10.6px;font-weight:500;line-height:1.38;white-space:pre-line;color:#2B2420}
 .gm .ke{height:1px;background:#C0392B;opacity:.85;margin:7px 0 0}
 .gm .gio{margin-top:6px;font-weight:800;font-size:15px;color:#9E2219;letter-spacing:.2px}
+.gm .icm{display:inline-block;width:1em;height:1em;vertical-align:-.13em;margin-right:.35em;flex:none}.gm .gio .icm{width:.95em;height:.95em}.gm .bll .icm{width:.95em;height:.95em;margin:0 .22em 0 .1em}
 .gm .dd{margin-top:4px;font-size:11px;font-weight:500;line-height:1.35;color:#2B2420}.gm .dd b{font-weight:700}.gm .dd small{display:block;font-size:9.4px;color:#5A4E48}
 .gm .vd{margin-top:6px;font-style:italic;font-size:10.6px;font-weight:500;line-height:1.5;color:#2B2420}
 /* dải chân: đóng góp + Ban liên lạc trên nền giấy mờ cho dễ đọc */
@@ -1517,15 +1518,17 @@ function moGiayMoi(loai){apDungPopup();if(loai)gmLoai=loai;const b=$('thuBox'),b
  ${ban?`<div class="dong">Lớp 12/<span class="cham ngan" id="gmLop">${esc(lop)}</span></div>`:''}
  <p id="gmLoi">${esc(ban?GM.loiBan:gmXung_(GM.loiThay,xung))}</p>
  <div class="ke"></div>
- <div class="gio">${esc(gmGio_())}</div>
- <div class="dd">Địa điểm: ${/\[/.test(GM.nhaHang)?'<span class="cham"></span>':`<b>${esc(GM.nhaHang)}</b>${GM.diaChi&&!/\[/.test(GM.diaChi)?`<small>${esc(GM.diaChi)}</small>`:''}`}</div>
+ <div class="gio">${icM_('clock')}${esc(gmGio_())}</div>
+ <div class="dd">${icM_('pin')}Địa điểm: ${/\[/.test(GM.nhaHang)?'<span class="cham"></span>':`<b>${esc(GM.nhaHang)}</b>${GM.diaChi&&!/\[/.test(GM.diaChi)?`<small>${esc(GM.diaChi)}</small>`:''}`}</div>
  ${ban?'':`<div class="vd" id="gmVd">${gmVdHtml_(xung)}</div>`}
- </div><div class="gmc${ban?'':' mot'}">${ban?`<div class="dg"><b>Đóng góp: ${esc(GM.dongGop)}/người</b>(${esc(String(GM.gom).replace(/[.]$/,''))})<em>Xác nhận trước ngày ${esc(GM.han)}</em></div>`:''}
- <div class="bll"><b>BAN LIÊN LẠC NIÊN KHÓA ${esc(D.cfg.nienKhoa)}</b>${bll().map(x=>esc(x[0])+(x[1]?': '+esc(x[1]):'')).join('<br>')}</div> </div></div></div>
+ </div><div class="gmc${ban?'':' mot'}">${ban?`<div class="dg"><b>${icM_('gift')}Đóng góp: ${esc(GM.dongGop)}/người</b>(${esc(String(GM.gom).replace(/[.]$/,''))})<em>Xác nhận trước ngày ${esc(GM.han)}</em></div>`:''}
+ <div class="bll"><b>BAN LIÊN LẠC NIÊN KHÓA ${esc(D.cfg.nienKhoa)}</b>${bll().map(x=>esc(x[0])+(x[1]?': '+icM_('phone')+esc(x[1]):'')).join('<br>')}</div> </div></div></div>
  <div class="gm-nhap">${ban?'':`<label class="l2 xg">Thầy / Cô<input id="gmXungNhap" maxlength="12" list="gmXungDs" value="${esc(xung)}" placeholder="Thầy/Cô" oninput="gmDoiXung(this.value)"><datalist id="gmXungDs"><option value="Thầy"><option value="Cô"></datalist></label>`}<label>${ban?'Tên bạn được mời':'Họ tên Thầy/Cô được mời'}<input id="gmNhap" maxlength="50" value="${esc(ten)}" placeholder="${ban?'Ví dụ: Nguyễn Văn An':'Ví dụ: Nguyễn Thị Thủy'}" oninput="$('gmTen').textContent=this.value;store.set('${ban?'nh_ten_moi':'nh_ten_thay'}',this.value||null)"></label>${ban?`<label class="l2">Lớp 12/<input id="gmLopNhap" maxlength="2" inputmode="numeric" value="${esc(lop)}" oninput="$('gmLop').textContent=this.value;store.set('nh_lop_moi',this.value||null)"></label>`:''}</div>
  <div class="nut gm-nut"><button class="phu" onclick="moThu()">← Thư ngỏ</button><div class="bt${ban?' ba':''}"><button class="phu" onclick="xemInGm()">🖨️ In / Lưu thư mời</button><button class="phu" onclick="chepLoiMoi()">Sao chép lời mời</button>${ban?'<button class="chinh" onclick="diDangKy()">Đăng ký tham dự</button>':''}</div></div>`;
  b.scrollTop=0;gmVua_()}
 /* Giấy mời Thầy/Cô: chữ "Thầy/Cô" trong lời mời + câu vinh dự đổi theo ô Thầy / Cô người dùng gõ */
+/* Icon trên giấy mời: màu ghi thẳng vào thuộc tính SVG (không dùng currentColor) để ảnh JPG html2canvas vẽ đúng */
+function icM_(k){return `<svg class="icm" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#A3281F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]||''}</svg>`}
 function gmXung_(t,x){x=String(x||'').trim();return x?String(t||'').replace(/(Thầy|thầy)\s*[/]\s*(Cô|cô)/g,m=>m[0]==='t'?x.toLowerCase():x):String(t||'')}
 function gmVdHtml_(x){return esc(gmXung_('Sự hiện diện của Thầy/Cô là niềm vinh dự',x))+'<br>và món quà quý giá đối với chúng em.'}
 function gmDoiXung(v){v=String(v||'').trim();$('gmXung').textContent=v||'Thầy/Cô';$('gmLoi').textContent=gmXung_(GM.loiThay,v);$('gmVd').innerHTML=gmVdHtml_(v);store.set('nh_xung_thay',v||null)}
