@@ -428,7 +428,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-gal .hang button{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:26px;font:700 15.5px 'Be Vietnam Pro';cursor:pointer;border:0;background:var(--do);color:#fff;box-shadow:0 6px 16px rgba(200,16,46,.25)}
 .p-gal .noi{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/9;max-height:360px;width:100%;box-shadow:0 24px 50px rgba(40,20,10,.22);background:#E9E1D6}
 .p-gal .noi .k{position:absolute;inset:0;opacity:0;transition:opacity 1s;cursor:pointer;display:grid;place-items:center;font-size:64px;color:rgba(255,255,255,.9)}
-.p-gal .noi .k.on{opacity:1}.p-gal .noi .k img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.p-gal .noi .k.on{opacity:1}.p-gal .noi .k img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.p-gal .noi .k img.nen{object-fit:cover;filter:blur(18px) brightness(.72);transform:scale(1.15)}
 .p-gal .noi .k div{position:absolute;left:0;right:0;bottom:0;padding:50px 22px 16px;background:linear-gradient(transparent,rgba(0,0,0,.68));color:#fff;text-align:left}
 .p-gal .noi .k b{display:block;font:700 22px/1.2 'Playfair Display',serif}.p-gal .noi .k small{font-size:14px;opacity:.88}
 .p-gal .cham{display:flex;gap:7px;justify-content:center;margin-top:12px}.p-gal .cham button{width:8px;height:8px;border-radius:4px;border:0;background:#DDD3C7;padding:0;cursor:pointer;transition:width .3s}.p-gal .cham button.on{width:24px;background:var(--do)}
@@ -1225,7 +1225,7 @@ const NAV_BOT=['home','classes','birthday','yearbook','gallery'],NAV_THEM=['even
 const navTen=k=>(NAV.find(x=>x[0]===k)||[k,k])[1].replace(/^\S+\s(?=Sinh)/,'');
 const navSvg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>`;
 /* Bấm menu: trang về trạng thái ban đầu, đủ nội dung (bỏ bộ lọc, thẻ, ô tìm của lần trước) */
-function menu(k){if(k==='yearbook'){ybT=1;wLop=''}if(k==='gallery'){gF='';gA=''}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF='';AP_AL='';dkL=''}if(k==='birthday'){snLop='';snQ='';snThang=new Date().getMonth()+1}dongThem();
+function menu(k){if(k==='yearbook'){ybT=1;wLop=''}if(k==='gallery'){gF='';gA='';GAL_NOI_K=''}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF='';AP_AL='';dkL=''}if(k==='birthday'){snLop='';snQ='';snThang=new Date().getMonth()+1}dongThem();
  if(k==='home')renderHome();if(k==='events')renderEvents();if(k==='connect')renderConnect();go(k)}
 function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')">${t}</button>`).join('');
  $('navBot').innerHTML=NAV_BOT.map(k=>`<button data-k="${k}" onclick="menu('${k}')">${navSvg(k)}${navTen(k)}</button>`).join('')+`<button class="them-nut" id="nbThem" onclick="moThem()" aria-haspopup="true" aria-label="Các trang khác: ${NAV_THEM.map(navTen).join(', ')}">${navSvg('them')}Thêm</button>`;
@@ -1849,6 +1849,17 @@ async function sendNote(){const t=$('w1').value.trim(),l=$('w2').value,n=$('w3')
 
 /* ===================== HÌNH ẢNH ===================== */
 let gF='',gA='';
+/* Ảnh nổi bật: chọn ngẫu nhiên 1 lần mỗi lần mở trang (GAL_NOI_K) – ghim ⭐ trước, bỏ ảnh tài liệu (danh sách, sổ…), ưu tiên album có người, mỗi album ≤2 tấm, tối đa 8 */
+const GAL_BO=/danh s[aá]ch|(^|\s)sổ(\s|$)|gi[aấ]y|b[aả]ng điểm|học bạ|tài liệu|văn bản/i,GAL_UU=/tập thể|ảnh lớp|lớp 12|giao lưu|họp lớp|gặp lại|ngày ấy|bây giờ|gala|kỷ niệm|tri ân|thầy cô|chung/i,laGhim_=p=>/^\s*⭐/.test(p.chuThich||'');
+let GAL_NOI_K='',GAL_NOI_DS=[];
+function galNoiChon_(){const k=D.anh.length+'|'+(D.anh[0]||{}).id;if(k===GAL_NOI_K&&GAL_NOI_DS.length)return GAL_NOI_DS;GAL_NOI_K=k;
+ const tron=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+ let ds=D.anh.filter(p=>p.fileId);if(!ds.length)ds=D.anh.slice();
+ const ghim=tron(ds.filter(laGhim_)),con=ds.filter(p=>!laGhim_(p)&&!GAL_BO.test((p.album||'')+' '+(p.chuThich||'')));
+ const nhom={};con.forEach(p=>{(nhom[p.album]=nhom[p.album]||[]).push(p)});
+ const albs=tron(Object.keys(nhom)).sort((a,b)=>GAL_UU.test(b)-GAL_UU.test(a)),kq=ghim.slice(0,8);
+ for(let vong=0;vong<2&&kq.length<8;vong++)for(const a of albs){if(kq.length>=8)break;const t=tron(nhom[a]).filter(p=>!kq.includes(p))[0];if(t)kq.push(t)}
+ if(!kq.length)kq.push(...tron(ds).slice(0,8));const g=Math.min(ghim.length,8);GAL_NOI_DS=kq.slice(0,g).concat(tron(kq.slice(g)));return GAL_NOI_DS}
 let GAL_N=16,GAL_K='',GAL_HEN=0,GAL_I=0,SS_L='';
 const GAL_TL=['4/3','3/4','1/1','4/3','16/10','4/5','4/3','3/2'];
 function galNoi_(k){const el=$('galNoi');if(!el){clearInterval(GAL_HEN);GAL_HEN=0;return}const ks=el.querySelectorAll('.k'),ds=document.querySelectorAll('#galCham button');if(!ks.length)return;GAL_I=(k==null?GAL_I+1:k)%ks.length;ks.forEach((x,n)=>x.classList.toggle('on',n===GAL_I));ds.forEach((x,n)=>x.classList.toggle('on',n===GAL_I))}
@@ -1857,13 +1868,13 @@ function galSs(v){const k=$('galSs');if(k)k.style.setProperty('--x',v+'%')}
 function renderGal(){const lops=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id)),hasChung=D.anh.some(a=>!a.lopId);
  const byL=D.anh.filter(a=>!gF||(gF==='_'?!a.lopId:a.lopId===gF));const albs=[...new Set(byL.map(a=>a.album))];if(gA&&!albs.includes(gA))gA='';
  const list=byL.filter(a=>!gA||a.album===gA);window.GAL=list;window.ALBS=albs;if(GAL_K!==gF+'|'+gA){GAL_K=gF+'|'+gA;GAL_N=16}
- const moi=D.anh.slice().sort((x,y)=>String(y.taoLuc||'').localeCompare(String(x.taoLuc||''))),noi=(moi.some(p=>p.fileId)?moi.filter(p=>p.fileId):moi).slice(0,6);window.GAL_NOI=noi;
+ const noi=galNoiChon_();window.GAL_NOI=noi;
  const nAl=new Set(D.anh.map(a=>a.album)).size,coAnh=list.some(p=>p.fileId),cap=p=>`${p.lopId?'Lớp '+esc(lopName(p.lopId)):'Ảnh chung'} · ${esc(p.album)}`;
  const laNgay=a=>/ngày ấy/i.test(a.album),laBay=a=>/bây giờ/i.test(a.album),cap2=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id&&laNgay(a))&&D.anh.some(a=>a.lopId===l.id&&laBay(a)));if(!cap2.some(l=>l.id===SS_L))SS_L=cap2.length?cap2[0].id:'';
  const ssA=SS_L&&D.anh.find(a=>a.lopId===SS_L&&laNgay(a)),ssB=SS_L&&D.anh.find(a=>a.lopId===SS_L&&laBay(a));
  $('v-gallery').innerHTML=`<div class="gd"><div><div class="ey">Hình ảnh · khoá ${esc(D.cfg.nienKhoa)}</div><h2>Khoảnh khắc <i>không quay lại</i></h2><p class="sub">Hội trại, văn nghệ, giao lưu, họp lớp – bấm ảnh để xem lớn, rồi thử tìm mình trong đó.</p>
    <div class="hang"><div class="so"><div><b>${D.anh.length}</b><small>tấm ảnh</small></div><div><b>${nAl}</b><small>album</small></div><div><b>${lops.length}</b><small>lớp góp ảnh</small></div></div>${D.anh.some(p=>p.fileId)?`<button onclick="tcMoi(()=>{gF='';gA='';renderGal();tcMo(GAL,0)})">▶ Trình chiếu cả khoá</button>`:''}</div></div>
-  ${noi.length?`<div><div class="noi" id="galNoi">${noi.map((p,k)=>`<div class="k${k?'':' on'}" style="background:${grad(k)}" onclick="openLb(GAL_NOI,${k})">${pic(p,1200)}<div><b>${esc(p.chuThich||p.album)}</b><small>${cap(p)}</small></div></div>`).join('')}</div>${noi.length>1?`<div class="cham" id="galCham">${noi.map((p,k)=>`<button class="${k?'':'on'}" onclick="galNoi_(${k})" aria-label="Ảnh ${k+1}"></button>`).join('')}</div>`:''}</div>`:''}</div>
+  ${noi.length?`<div><div class="noi" id="galNoi">${noi.map((p,k)=>`<div class="k${k?'':' on'}" style="background:${grad(k)}" onclick="openLb(GAL_NOI,${k})">${p.fileId?`<img class="nen" src="${imgUrl(p.fileId,400)}" alt="" aria-hidden="true">${img(p.fileId,1200)}`:pic(p,1200)}<div><b>${esc(String(p.chuThich||p.album).replace(/^\s*⭐\s*/,''))}</b><small>${cap(p)}</small></div></div>`).join('')}</div>${noi.length>1?`<div class="cham" id="galCham">${noi.map((p,k)=>`<button class="${k?'':'on'}" onclick="galNoi_(${k})" aria-label="Ảnh ${k+1}"></button>`).join('')}</div>`:''}</div>`:''}</div>
  <div class="w">
  ${albs.length>1?`<div class="td"><h3>Bộ sưu tập</h3><p>${gF?(gF==='_'?'Ảnh chung':'Lớp '+esc(lopName(gF)))+' · ':''}${albs.length} album${albs.length>5?' · vuốt ngang để xem thêm':''}</p></div><div class="bst">${albs.map((a,k)=>{const ds=byL.filter(x=>x.album===a),b=ds.find(x=>x.fileId)||ds[0];return `<button class="ab${gA===a?' on':''}" onclick="galChon(gF,ALBS[${k}])"><div class="bia" style="background:${grad(k+3)}">${pic(b,600)}<i>${ds.length} ảnh</i></div><b>${esc(a)}</b><small>${ds.length} ảnh</small></button>`}).join('')}</div>`:''}
  <div class="td" id="galLuoi"><h3>Tất cả hình ảnh</h3></div>
