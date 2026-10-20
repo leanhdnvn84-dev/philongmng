@@ -30,7 +30,7 @@ Trang công khai chỉ trả cột chuẩn (`pubOf_`), bỏ cột riêng tư `PR
 - Lỗi phiên có tiền tố `SESSION:` → frontend tự đăng xuất.
 - Hoạt động do admin lớp đề xuất có `trangThai='pending'`, Ban liên lạc duyệt.
 - Lưu bút công khai gửi vào `pending`; đăng ký họp lớp trạng thái `cho | xacnhan | huy`.
-- Quản trị → **Đăng ký họp lớp**: super thấy ô 12 lớp (số xác nhận + số mới, `dkL` lọc lớp, "Tất cả" chia nhóm theo lớp); admin lớp chỉ thấy lớp mình (server lọc `mine` trong `getAdminData`). Lọc trạng thái `dkF` (cho/xacnhan/huy/all), "Sao chép danh sách" (`chepDk`, tab để dán Excel/Zalo).
+- Quản trị → **Đăng ký họp lớp**: super thấy ô 12 lớp (số xác nhận + số mới, `dkL` lọc lớp, "Tất cả" chia nhóm theo lớp); admin lớp chỉ thấy lớp mình (server lọc `mine` trong `getAdminData`). Lọc trạng thái `dkF` (cho/xacnhan/huy/all), "Sao chép danh sách" (`chepDk`, tab để dán Excel/Zalo). **Đăng ký gõ tay trong Sheet** (20/10: 68 xác nhận mà lớp nào cũng 0): `read_('DangKy')` đổi cột lopId (hoặc cột "Lớp") ghi kiểu "12/4", "12.4", "Lớp 12-4"… về id lớp qua `lopKhop_` (so 2 số với tên lớp), giữ chữ gốc `_lopGoc` để `rowOf_` ghi lại y nguyên khi Xác nhận/Huỷ; còn không khớp → ô "⚠ Chưa rõ lớp" (`dkL='_'`, nền cam `.lac`) + dòng "lớp ghi: …" dưới tên.
 
 ### Hàm public gọi từ frontend
 `login, logout, changePassword, getPublicData, submitNote, getAdminData, saveClass, deleteClass,

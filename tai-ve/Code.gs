@@ -217,10 +217,27 @@ function read_(n) {
       o.ngaySinh = o.namsinh || o.ngaysinh || o['ngay sinh'] || o['Ngày sinh'] || o['Ngày tháng năm sinh'] || o.ngaySinh || '';
       if (Object.prototype.hasOwnProperty.call(o, 'Nu')) o.nu = o.Nu;
     }
+    if (n === 'DangKy') {
+      /* Gõ tay trong Sheet: cột lopId (hoặc "Lớp") có thể ghi "12/4", "12.4", "Lớp 12-4"… → đổi về id lớp; giữ chữ gốc để ghi lại y nguyên */
+      const g = o.lopId || o.lop || o['Lớp'] || o['lớp'] || '', id = lopKhop_(g);
+      if (id && id !== o.lopId) { o._lopGoc = o.lopId; o.lopId = id; } else if (!id && g && !o.lopId) o.lopId = g;
+    }
     if (o[key] === '') return;
     out.push(o);
   });
   return (_cache[n] = out);
+}
+/** Tìm id lớp từ id hoặc tên lớp ghi kiểu bất kỳ ("12/4", "12.4", "12-4", "Lớp 12/4", "lop12_4"); không thấy → ''. */
+function lopKhop_(v) {
+  v = String(v || '').trim();
+  if (!v) return '';
+  const ds = read_('Lop');
+  if (ds.some(function (l) { return l.id === v; })) return v;
+  const so = function (t) { const m = String(t || '').match(/(\d{1,2})\D{1,6}(\d{1,2})(?!\d)/); return m ? Number(m[1]) + '/' + Number(m[2]) : ''; };
+  const k = so(v);
+  if (!k) return '';
+  const l = ds.find(function (x) { return so(x.ten) === k; });
+  return l ? l.id : '';
 }
 
 function safe_(v) {
@@ -230,6 +247,7 @@ function safe_(v) {
 function rowOf_(n, o) { const h = hdr_(n); return h.map(function (k, j) {
   if (n === 'HocSinh' && k.toLowerCase() === 'nu') return /^(true|1|yes|x|✓|co|có)$/i.test(String(o.nu || '').trim());
   if (n === 'HocSinh' && /^(ngaysinh|namsinh|ngay sinh|ngày sinh|ngày tháng năm sinh)$/i.test(k)) return safe_(o.ngaySinh);
+  if (n === 'DangKy' && k === 'lopId' && o._lopGoc != null && lopKhop_(o._lopGoc) === o.lopId) return safe_(o._lopGoc);
   return safe_(o[colKey_(h, j)]);
 }); }
 
