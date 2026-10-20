@@ -154,13 +154,15 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-adm .ttDong .so{font-weight:700;color:#8A84A0;text-align:center}.p-adm .ttDong input,.p-adm .ttDong select{margin:0;min-width:0}
 .p-adm .ttDong .nut{display:flex;gap:4px}.p-adm .ttDong .nut button{border:1px solid #D9D2EA;background:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:15px}.p-adm .ttDong .nut .xoa{color:#B3261E}
 @media(max-width:900px){.p-adm .ttDong{grid-template-columns:28px 1fr auto}.p-adm .ttDong select{grid-column:2}.p-adm .ttDong input{grid-column:1/-1}.p-adm .ttDong .nut{grid-column:3;grid-row:1}}
-.ttNen{position:fixed;inset:0;z-index:157;background:rgba(25,16,10,.62);display:none;padding:16px;overflow-y:auto;overflow-x:hidden}.ttNen.on{display:flex}
-.ttNen .tt{position:relative;box-sizing:border-box;width:80vw;min-height:80vh;margin:auto;display:flex;flex-direction:column;overflow:visible;background:#FFFCF4;border-radius:18px;border:2px solid #E9C25A;box-shadow:0 24px 70px rgba(0,0,0,.5);padding:28px 26px 22px;font-family:'Be Vietnam Pro';color:#2B1D18;animation:tcVao .5s ease}
-.ttNen .x{position:absolute;top:8px;right:14px;background:none;border:0;font-size:34px;color:#8A7F72;cursor:pointer}
+.ttNen{position:fixed;inset:0;z-index:157;background:rgba(25,16,10,.62);display:none;padding:16px;overflow:hidden}.ttNen.on{display:flex}
+.ttNen .tt{position:relative;box-sizing:border-box;width:80vw;min-height:min(80vh,calc(100dvh - 32px));max-height:calc(100dvh - 32px);margin:auto;display:flex;flex-direction:column;overflow:hidden;background:#FFFCF4;border-radius:18px;border:2px solid #E9C25A;box-shadow:0 24px 70px rgba(0,0,0,.5);padding:28px 26px 22px;font-family:'Be Vietnam Pro';color:#2B1D18;animation:tcVao .5s ease}
+.ttNen #ttND{flex:none}.ttNen .tt{justify-content:center}.ttNen .tt.cuon{overflow-y:auto}
+.ttNen .x{position:absolute;z-index:2;top:8px;right:14px;background:none;border:0;font-size:34px;color:#8A7F72;cursor:pointer}
 .ttNen .dau{text-align:center;margin-bottom:18px}.ttNen .dau img{width:62px;height:62px}
 .ttNen .dau .ey{font:800 13px 'Be Vietnam Pro';letter-spacing:4px;text-transform:uppercase;color:#B3261E;margin-top:6px}
 .ttNen .dau h2{font:700 clamp(30px,5vw,44px)/1.1 'Playfair Display',serif;margin:6px 0 6px}.ttNen .dau p{margin:0 auto;max-width:56ch;font-size:15px;color:#5B4636;line-height:1.55}
-.ttNen .hang{margin-top:22px}.ttNen .hang h3{display:flex;align-items:center;gap:10px;font:800 15px 'Be Vietnam Pro';letter-spacing:3px;text-transform:uppercase;margin:0 0 12px;color:var(--h)}
+.ttNen .bang{display:flex;flex-wrap:wrap;justify-content:center;gap:0 28px}.ttNen .bang .hang{flex:1 1 260px;min-width:0}.ttNen .bang .hang.kc,.ttNen .bang .hang.dh{flex-basis:100%}
+.ttNen .hang{margin-top:18px}.ttNen .hang h3{display:flex;align-items:center;gap:10px;font:800 15px 'Be Vietnam Pro';letter-spacing:3px;text-transform:uppercase;margin:0 0 12px;color:var(--h)}
 .ttNen .hang h3:before,.ttNen .hang h3:after{content:'';flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--h))}.ttNen .hang h3:after{background:linear-gradient(90deg,var(--h),transparent)}
 .ttNen .ds{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}.ttNen .ds .the{flex:0 1 var(--w,220px);box-sizing:border-box}
 .ttNen .the{background:#fff;border:2px solid var(--h);border-radius:14px;padding:16px 14px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.06);position:relative}
@@ -170,7 +172,8 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .ttNen .the a{display:inline-block;margin-top:8px;font-size:14px;font-weight:700;color:#4A2C8F;text-decoration:none}
 .ttNen .hang.kc .the b{font-size:21px}.ttNen .hang.dh .ds{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 .ttNen .hang.dh .chip{border:1.5px solid var(--h);border-radius:99px;padding:7px 14px;font-size:15px;font-weight:600;background:#fff}
-.ttNen .cuoi{margin-top:auto;text-align:center;font-size:14.5px;color:#5B4636;border-top:1px dashed #E2CDB3;padding-top:14px}.ttNen .cuoi b{color:#2B1D18}
+@media(max-height:520px){.ttNen{padding:8px}.ttNen .tt{max-height:calc(100dvh - 16px);min-height:0;padding:14px 18px 10px}.ttNen .dau img,.ttNen .dau p{display:none}.ttNen .dau{margin-bottom:6px}.ttNen .the p{display:none}.ttNen .the{padding:10px}}
+.ttNen .cuoi{margin-top:22px;text-align:center;font-size:14.5px;color:#5B4636;border-top:1px dashed #E2CDB3;padding-top:14px}.ttNen .cuoi b{color:#2B1D18}
 .tchieu .taib{display:flex;flex-direction:column;align-items:center;text-align:center;color:#fff}
 .tchieu .taib .hg{font:800 clamp(14px,1.8vw,20px) 'Be Vietnam Pro';letter-spacing:4px;text-transform:uppercase;padding:6px 16px;border-radius:4px;color:#1a1a1a;background:var(--h)}
 .tchieu .taib .lg{width:min(46vw,300px);height:min(46vw,300px);margin:22px auto 18px;border-radius:24px;background:#fff;display:grid;place-items:center;overflow:hidden;border:6px solid var(--h);box-shadow:0 20px 50px rgba(0,0,0,.55);font:700 120px 'Playfair Display',serif;color:var(--h)}
@@ -178,7 +181,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .tchieu .taib b{font:700 clamp(32px,5.4vw,60px)/1.1 'Playfair Display',serif;color:#F6D86B;text-shadow:0 2px 10px rgba(0,0,0,.6)}
 .tchieu .taib em{font:400 clamp(18px,2.4vw,26px) 'Charm',cursive;margin-top:12px;max-width:70vw}
 .tchieu .lop.hien .taib{animation:tcVao 1s cubic-bezier(.2,.8,.2,1)}
-@media(max-width:560px){.ttNen{padding:12px}.ttNen .tt{width:100%;min-height:80vh;padding:22px 14px 16px}.ttNen .ds .the{flex:1 1 140px;min-width:0}}
+@media(max-width:560px){.ttNen{padding:12px}.ttNen .tt{width:100%;padding:22px 14px 16px}.ttNen .ds .the{flex:1 1 140px;min-width:0}}
 .tcMenu{position:fixed;inset:0;z-index:158;background:rgba(20,14,10,.6);display:none;place-items:center;padding:16px}.tcMenu.on{display:grid}
 .tcMenu .hop{position:relative;background:#FBF5E6;border-radius:16px;width:min(560px,100%);max-height:92vh;overflow:auto;padding:24px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.45);font-family:'Be Vietnam Pro'}
 .tcMenu h3{font:700 26px 'Playfair Display',serif;color:#2B1D18;margin:0 0 4px}.tcMenu .hop>p{font-size:14px;color:#6B5A4E;margin:0 0 16px}
@@ -1399,14 +1402,19 @@ function ttViet_(t){let x=String(t||'').replace(/\(.*?\)/g,' ').trim();const so=
 function ttLienHe_(v){if(!v)return '';if(/^https?:/i.test(v))return `<a href="${esc(v)}" target="_blank" rel="noopener">🌐 Trang web</a>`;const lk=contactLink(v);return lk?`<a href="${esc(lk)}" target="_blank" rel="noopener">📞 ${esc(v)}</a>`:`<a>${esc(v)}</a>`}
 function moTT(){const ds=ttDs();let h=`<div class="dau"><img src="${$('hLogo').src}" alt=""><div class="ey">Gala gặp mặt · Khoá ${esc(D.cfg.nienKhoa||'')}</div><h2>Tri ân nhà tài trợ</h2><p>Cảm ơn các nhà tài trợ, các bạn và gia đình đã chung tay để buổi gặp mặt của Khóa ${esc(D.cfg.nienKhoa||'2000 – 2003')} Trường ${esc(D.cfg.tenTruong||'THPT Nguyễn Hiền')} thêm ấm áp, trọn vẹn.</p></div>`;
  if(!ds.length)h+='<p style="text-align:center;color:#7B6455;font-size:16px;margin:26px 0">Danh sách nhà tài trợ đang được cập nhật.<br>Rất mong được các bạn, các anh chị và doanh nghiệp đồng hành cùng buổi Gala.</p>';
- TT_HANG.forEach((H,i)=>{const n=ds.filter(x=>x.hang===i);if(!n.length)return;
+ h+='<div class="bang">'; TT_HANG.forEach((H,i)=>{const n=ds.filter(x=>x.hang===i);if(!n.length)return;
   h+=`<div class="hang ${H[1]}" style="--h:${H[2]};--w:${H[3]}px;--lg:${H[4]}px"><h3>${esc(H[0])}</h3><div class="ds">`+(H[1]==='dh'?n.map(x=>`<span class="chip">${esc(x.ten)}</span>`).join(''):n.map(x=>`<div class="the"><div class="lg">${x.logo?`<img src="${imgUrl(x.logo,400)}" alt="" onerror="this.remove()">`:''}${x.logo?'':esc(ttViet_(x.ten))}</div><b>${esc(x.ten)}</b>${x.loi?`<p>${esc(x.loi)}</p>`:''}${ttLienHe_(x.lh)}</div>`).join(''))+'</div></div>'});
+  h+='</div>';
   if(String(D.cfg.anhien||'1')!=='0'){
    const b=bll()[0],ten=D.cfg.ttNguoiLienHe||b&&b[0]||'Ban liên lạc khoá',so=D.cfg.ttSoLienHe||b&&b[1]||'';
    h+=`<div class="cuoi">${esc(D.cfg.ttLoiMoi||'Muốn đồng hành cùng buổi Gala? Liên hệ')} <b>${esc(ten)}</b>${so?' · '+ttLienHe_(so):''}.</div>`;
   }
- $('ttND').innerHTML=h;$('ttNen').classList.add('on');$('ttNen').scrollTop=0;tk('trang','taitro')}
+ $('ttND').innerHTML=h;$('ttNen').classList.add('on');ttVua_();$('ttND').querySelectorAll('img').forEach(i=>i.addEventListener('load',ttVua_,{once:true}));if(document.fonts&&document.fonts.ready)document.fonts.ready.then(ttVua_);tk('trang','taitro')}
 function dongTT(){$('ttNen').classList.remove('on')}
+/* Popup nhà tài trợ luôn vừa 1 màn hình: thu nhỏ cả nội dung (zoom, dò nhị phân, tối thiểu 0.4); quá nhiều nhà tài trợ mới cho cuộn trong khung */
+function ttVua_(){const t=document.querySelector('.ttNen .tt'),n=$('ttND');if(!t||!n||!$('ttNen').classList.contains('on'))return;t.classList.remove('cuon');n.style.zoom='';t.scrollTop=0;const cs=getComputedStyle(t),cho=t.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),tran=()=>n.getBoundingClientRect().height>cho-4;if(!tran())return;
+ let a=.4,b=1;for(let k=0;k<9;k++){const m=(a+b)/2;n.style.zoom=m;if(tran())b=m;else a=m}n.style.zoom=a;while(tran()&&a>.4){a-=.01;n.style.zoom=a}n.style.zoom=Math.floor(a*1000)/1000;if(tran())t.classList.add('cuon')}
+addEventListener('resize',()=>{clearTimeout(window.TT_T);window.TT_T=setTimeout(ttVua_,120)});
 function tcChiTT(tron){const a=ttDs().sort((x,y)=>x.hang-y.hang).map(tai=>({tai}));return tron?tcXao(a):a}
 function tcXao(a){a=a.slice();for(let k=a.length-1;k>0;k--){const r=Math.floor(Math.random()*(k+1));[a[k],a[r]]=[a[r],a[k]]}return a}
 function tcVe(){const p=TC.ds[TC.i];if(!p)return;if(TC.ky||!p.fileId){tcVeKy(p);return}TC.tCur=TC.t;const moi=TC.mat==='A'?'B':'A',el=$('tc'+moi),cu=$('tc'+TC.mat),im=el.querySelector('img'),u=imgUrl(p.fileId,1920);
