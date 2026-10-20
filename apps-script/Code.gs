@@ -625,7 +625,8 @@ function pubBust_(n) {
   if (n === 'NhatKy' || n === 'LuotXem') return;
   try {
     const c = CacheService.getScriptCache();
-    const slide = ['Lop', 'Anh', 'LuuBut', 'ThayCo', 'TinTuc', 'CauHinh', 'TaiKhoan'].indexOf(n) >= 0;
+    /* n rỗng (lamMoiDuLieu, giuAm, getDuLieuMoi) = làm mới tất cả, kể cả máy đang trình chiếu */
+    const slide = !n || ['Lop', 'Anh', 'LuuBut', 'ThayCo', 'TinTuc', 'CauHinh', 'TaiKhoan'].indexOf(n) >= 0;
     c.removeAll((n === 'LuuBut' ? [PUB_KEY + 'n', 'LB_MOI'] : [PUB_KEY + 'n']).concat(slide ? ['TC_DATA'] : []));
     if (slide) c.put('TC_REV', uid_(), SESSION_TTL);
   } catch (e) { }

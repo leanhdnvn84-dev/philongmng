@@ -1337,7 +1337,7 @@ function tcChuNoi(p){const e=$('tcNoi');clearTimeout(TC.noiHen);e.className='noi
  const lb=(D.luuBut||[]).filter(n=>n.noiDung&&String(n.noiDung).length<=220),trich=0;
  const tu=x=>esc(x).split(' ').map((w,k)=>`<i style="animation-delay:${(.55+k*.09).toFixed(2)}s">${w}</i>`).join(' ');
  let h;if(trich){const n=lb[Math.floor(Math.random()*lb.length)];h=`<span class="ke">Lưu bút</span><span class="lon">“${tu(String(n.noiDung).trim())}”</span><span class="tg" style="animation-delay:1.4s">— ${esc(n.tacGia||'Một người bạn')}${n.lopId&&lopName(n.lopId)?', lớp '+esc(lopName(n.lopId)):''}</span>`}
- else{const ke=[p.lopId?'Lớp '+lopName(p.lopId):'Cả khoá '+(D.cfg.nienKhoa||''),p.album].filter(Boolean).join(' · '),t=String(p.chuThich||'').trim()||TC_CAU[TC.dem%TC_CAU.length];h=`<span class="ke">${esc(ke)}</span><span class="lon">${tu(t.length>90?t.slice(0,88)+'…':t)}</span><span class="gach"></span>`}
+ else{const ke=[TC.moiK&&TC.moiK.has('a'+p.id)?'✨ Vừa đăng':'',p.lopId?'Lớp '+lopName(p.lopId):'Cả khoá '+(D.cfg.nienKhoa||''),p.album].filter(Boolean).join(' · '),t=String(p.chuThich||'').trim()||TC_CAU[TC.dem%TC_CAU.length];h=`<span class="ke">${esc(ke)}</span><span class="lon">${tu(t.length>90?t.slice(0,88)+'…':t)}</span><span class="gach"></span>`}
  setTimeout(()=>{e.innerHTML=h;e.className='noi '+(trich?'trich ':'')+'vt'+(TC.dem%5);if(TC.chay)TC.noiHen=setTimeout(()=>e.classList.add('tat'),Math.max(2200,(TC.t-.9)*1000))},350)}
 function tcDoiChu(){TC.chu=!TC.chu;try{localStorage.setItem('nh_tc_chu',TC.chu?'1':'0')}catch(e){}$('tc').classList.toggle('chu',TC.chu);$('tcChu').classList.toggle('on',TC.chu);const p=TC.ds[TC.i];TC.dem--;tcChuNoi(p);toast(TC.chu?'Bật chữ nổi trên ảnh':'Tắt chữ nổi')}
 /* Trình chiếu kỷ yếu: thiệp lưu bút xen kẽ thầy cô (đều nhau, thầy cô còn dư thì nối cuối) */
@@ -1385,13 +1385,22 @@ function tcChiTin(tron){const a=(D.tinTuc||[]).filter(w=>w&&w.tieuDe).map(tin=>(
 function tcMoi(f){f();if(!LIVE||!$('tc').classList.contains('on'))return;tcLayMoi_(true)}
 function tcKhoa_(x){return x.fileId?'a'+x.id:x.n?'n'+x.n.id:x.t?'t'+x.t.id:x.tai?'r'+x.tai.ten:'w'+(x.tin&&x.tin.id)}
 function tcChuKy_(x){return JSON.stringify([x.cfg,x.lop&&x.lop.map(l=>[l.id,l.ten]),x.anh,x.luuBut,x.thayCo,x.tinTuc])}
-function tcBatCapNhat_(){clearInterval(TC.capNhat);TC.moSeq=(TC.moSeq||0)+1;TC.sig=tcChuKy_(D);TC.rev='';TC.layLuc=0;TC.dangLay=false;if(LIVE)TC.capNhat=setInterval(tcCapNhat,15000)}
+function tcBiet_(){return new Set([].concat((D.anh||[]).map(x=>'a'+x.id),(D.luuBut||[]).map(x=>'n'+x.id),(D.thayCo||[]).map(x=>'t'+x.id)))}
+function tcBatCapNhat_(){clearInterval(TC.capNhat);TC.biet=tcBiet_();TC.moSeq=(TC.moSeq||0)+1;TC.sig=tcChuKy_(D);TC.moiK=new Set();TC.rev='';TC.layLuc=0;TC.dangLay=false;if(LIVE)TC.capNhat=setInterval(tcCapNhat,10000)}
 function tcHopData_(p){const moi=new Map((p.lop||[]).map(l=>[l.id,l])),lop=(D.lop||[]).map(l=>Object.assign({},l,moi.get(l.id)||{})),da=new Set(lop.map(l=>l.id));(p.lop||[]).forEach(l=>{if(!da.has(l.id))lop.push(Object.assign({hs:[]},l))});return Object.assign({},D,p,{lop})}
 function tcApDungSlide_(r){if(!r||!r.data||!r.data.cfg||!r.data.lop||!$('tc').classList.contains('on'))return;TC.rev=r.rev||'0';TC.layLuc=Date.now();const sig=tcChuKy_(r.data);if(sig===TC.sig)return;TC.sig=sig;setD(tcHopData_(r.data));TC.duLieuMoi=1;TM_T=0;
- const cu=TC.ds[TC.i],k=cu?tcKhoa_(cu):'';
- if(TC.ky)TC.ds=(TC.lam||tcXenKy)(TC.tron);else{const base=(TC.layAnh?TC.layAnh():TC.goc).filter(p=>p&&p.fileId);TC.goc=base;TC.ds=TC.xen?tcXenAnh(TC.tron?tcXao(base):base,TC.tron):TC.tron?tcXao(base):base.slice()}
- if(!TC.ds.length){tcDong();return}const i=TC.ds.findIndex(x=>tcKhoa_(x)===k);TC.i=i>=0?i:Math.min(TC.i,TC.ds.length-1);TC.daCo=new Set((D.luuBut||[]).map(n=>n.id));$('tcSo').textContent=(TC.i+1)+'/'+TC.ds.length;
- const b=document.createElement('div');b.className='moiVe';b.textContent='↻ Đã cập nhật dữ liệu mới nhất';$('tc').appendChild(b);setTimeout(()=>b.remove(),4000)}
+ /* Giữ nguyên thứ tự đang chiếu (kể cả khi trộn): mục cũ cập nhật nội dung, mục bị ẩn/xoá bỏ ra, mục MỚI chen ngay sau thiệp đang chiếu */
+ const cu=TC.ds[TC.i],k=cu?tcKhoa_(cu):'';let nd;
+ if(TC.ky)nd=(TC.lam||tcXenKy)(false);else{const base=(TC.layAnh?TC.layAnh():TC.goc).filter(p=>p&&p.fileId);TC.goc=base;nd=TC.xen?tcXenAnh(base,TC.tron):base.slice()}
+ const U=TC.ky||!TC.xen?nd:TC.goc.concat((D.luuBut||[]).filter(n=>n&&String(n.noiDung||'').trim()).map(n=>({n})),(D.thayCo||[]).filter(t=>t&&t.hoTen).map(t=>({t}))),m=new Map(U.map(x=>[tcKhoa_(x),x])),cuK=new Set(TC.ds.map(tcKhoa_)),biet=TC.biet||new Set(),giu=[];let viTri=-1,mat=false;
+ TC.ds.forEach((x,j)=>{const kx=tcKhoa_(x),y=m.get(kx);if(j===TC.i){viTri=giu.length-(y?0:1);mat=!y}if(y){giu.push(x.moi&&y.n?Object.assign({},y,{moi:1}):y);m.delete(kx)}});
+ let moi=TC.ky||!TC.xen?nd.filter(x=>!cuK.has(tcKhoa_(x))):U.filter(x=>!cuK.has(tcKhoa_(x))&&!biet.has(tcKhoa_(x)));TC.biet=tcBiet_();if(TC.tron)moi=tcXao(moi);
+ const sau=Math.max(-1,Math.min(viTri,giu.length-1));TC.moiK=TC.moiK||new Set();moi.forEach(x=>TC.moiK.add(tcKhoa_(x)));
+ TC.ds=giu.slice(0,sau+1).concat(moi.map(x=>x.n?Object.assign({},x,{moi:1}):x),giu.slice(sau+1));
+ if(!TC.ds.length){tcDong();return}const i=TC.ds.findIndex(x=>tcKhoa_(x)===k);TC.i=i>=0?i:Math.max(0,Math.min(sau+1,TC.ds.length-1));TC.daCo=new Set((D.luuBut||[]).map(n=>n.id));$('tcSo').textContent=(TC.i+1)+'/'+TC.ds.length;
+ if(mat||i<0)tcVe();
+ const na=moi.filter(x=>x.fileId).length,nl=moi.filter(x=>x.n).length,nk=moi.length-na-nl,b=document.createElement('div');b.className='moiVe';
+ b.textContent=moi.length?'✨ '+[na?na+' ảnh mới':'',nl?nl+' lưu bút mới':'',nk?nk+' nội dung mới':''].filter(Boolean).join(' · ')+' – chiếu ngay sau đây':'↻ Đã cập nhật dữ liệu mới nhất';$('tc').appendChild(b);setTimeout(()=>b.remove(),4500)}
 function tcLayMoi_(force){if(TC.dangLay||!$('tc').classList.contains('on'))return;TC.dangLay=true;const seq=TC.moSeq;api('getSlideData',!!force).then(r=>{if(seq===TC.moSeq)tcApDungSlide_(r)}).catch(()=>{}).finally(()=>{if(seq===TC.moSeq)TC.dangLay=false})}
 function tcCapNhat(){if(!LIVE||TC.dangLay||!$('tc').classList.contains('on'))return;if(Date.now()-(TC.layLuc||0)>=60000){tcLayMoi_(true);return}const seq=TC.moSeq;api('getSlideRevision').then(rev=>{if(seq===TC.moSeq&&rev!==TC.rev)tcLayMoi_(false)}).catch(()=>{})}
 /* Nhà tài trợ (Cài đặt CauHinh `taiTro`, sửa ở Quản trị → Thư ngỏ & Gala): mỗi dòng "Hạng | Tên | Lời cảm ơn/đóng góp | Logo (link Drive) | Liên hệ/website"; dòng # bỏ qua */
