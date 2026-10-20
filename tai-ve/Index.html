@@ -1266,7 +1266,9 @@ setTimeout(function lap(){hoiMoi_();setTimeout(lap,40000+Math.random()*15000)},1
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&PR_REV)hoiMoi_()});
 async function loadPublic(){try{const r=await api('getPublicData');TM_J=JSON.stringify(r);TM_T=Date.now();setD(r)}catch(e){if(!LIVE)setD(null);throw e}finally{window._dangMo=0;renderPublic()}}
 /* Ban liên lạc: mỗi dòng "Họ tên | Điện thoại/Zalo | Vai trò" (Cài đặt) */
-function bll(){return String(D.cfg.banLienLac||'').split(/\n/).map(x=>x.split('|').map(y=>y.trim())).filter(x=>x[0])}
+/* Ban liên lạc: mỗi dòng "Họ tên | Điện thoại | Vai trò | Ảnh" – ô nào là link Drive/ảnh (ở bất kỳ vị trí nào) thì tách ra làm ảnh [3], không hiện thành chữ */
+const laAnhLk_=v=>/drive\.google|docs\.google|googleusercontent|\.(jpe?g|png|webp)(\?|$)/i.test(v)||/^[\w-]{25,}$/.test(v);
+function bll(){return String(D.cfg.banLienLac||'').split(/\n/).map(x=>{const o=x.split('|').map(y=>y.trim()),a=o.find(laAnhLk_)||'',r=o.filter(y=>!laAnhLk_(y));return [r[0]||'',r[1]||'',r[2]||'',a]}).filter(x=>x[0])}
 function bllLien(v){const lk=contactLink(v);return v?(lk?`<a href="${esc(lk)}" target="_blank" rel="noopener">${esc(v)}</a>`:esc(v)):''}
 function renderPublic(){const c=D.cfg;$('hTen').textContent=c.tenTruong||'THPT Nguyễn Hiền';$('hSub').textContent='Đà Nẵng, khoá '+(c.nienKhoa||'');
  document.title=(c.tenTruong||'')+' · Khoá '+(c.nienKhoa||'');
