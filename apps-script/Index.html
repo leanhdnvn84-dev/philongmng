@@ -970,8 +970,10 @@ html.in-sn #snIn{display:block}}
 .snXem{position:fixed;inset:0;z-index:190;background:rgba(30,12,30,.8);display:flex;flex-direction:column;align-items:center;padding:14px;overflow:auto}
 .snXem .bao{flex:none;width:calc(148mm * var(--k));height:calc(209mm * var(--k));margin:auto;box-shadow:0 20px 50px rgba(0,0,0,.5)}
 .snXem .bao .tr{transform:scale(var(--k));transform-origin:0 0}
-.gmIn .gm{width:559px;max-width:none;margin:0;box-shadow:none}.gmIn *{animation:none!important}
-@media print{html.in-sn #snIn .gmIn{width:148mm;height:209mm;overflow:hidden;display:flex;align-items:center;justify-content:center}html.in-sn #snIn .gmIn .gm{zoom:var(--z,1)}}
+.gmIn .gm{width:559px;max-width:none;margin:0;box-shadow:none;background-image:none;isolation:isolate}
+.gmIn .gm .gmNen{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;display:block}
+.gmIn,.gmIn *{-webkit-print-color-adjust:exact;print-color-adjust:exact}.gmIn *{animation:none!important}
+@media print{html.in-sn #snIn{height:208mm;overflow:hidden}html.in-sn #snIn .gmIn{break-after:avoid;page-break-after:avoid;width:148mm;height:208mm;overflow:hidden;display:flex;align-items:center;justify-content:center}html.in-sn #snIn .gmIn .gm{zoom:var(--z,1)}}
 .snXem .bao.gmb{background:#FBF6EC}.snXem .bao.gmb>.gmIn{transform:scale(var(--k));transform-origin:0 0}
 .snXem .anh{flex:none;margin:auto;max-width:100%;max-height:calc(100dvh - 190px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
 .snXem .nut{flex:none;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
@@ -1546,7 +1548,9 @@ function gmGio_(){const g=String(GM.gio||'').replace(/^(\d{1,2})h(\d{0,2})$/i,(a
 function gmVua_(){const z=$('gmZ'),b=$('thuBox');if(!z||!b)return;const g=z.firstChild,cs=getComputedStyle(b),w=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),c=b.querySelector('.gm-chon'),n=b.querySelector('.gm-nut'),p=b.querySelector('.gm-nhap'),h=b.clientHeight-(c?c.offsetHeight+10:0)-(n?n.offsetHeight:0)-8,kw=Math.min(1,w/559);let k=Math.min(kw,h/793);const k2=p?Math.min(kw,(h-p.offsetHeight-12)/793):k;if(k2>=.62)k=k2;k=Math.max(k,Math.min(kw,.5));g.style.zoom=k<1?k.toFixed(3):'';z.style.width=k<1?Math.floor(559*k)+'px':''}
 window.addEventListener('resize',()=>{if($('gmZ'))gmVua_()});
 /* In / lưu thư mời: bản giấy mời đang xem → A5 (PDF qua hộp thoại in) hoặc ảnh JPG (html2canvas tải khi cần) */
-function gmBan_(){const g=document.querySelector('.thu .gm');if(!g)return null;const c=g.cloneNode(true);c.removeAttribute('id');c.style.zoom='';c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));return '<div class="gmIn">'+c.outerHTML+'</div>'}
+function gmBan_(){const g=document.querySelector('.thu .gm');if(!g)return null;const c=g.cloneNode(true);c.removeAttribute('id');c.style.zoom='';c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+ /* Bản in/ảnh: nền tranh là thẻ <img> (luôn in được kể cả khi tắt "Đồ hoạ nền" trong hộp in), không dựa vào background CSS */
+ c.insertAdjacentHTML('afterbegin',`<img class="gmNen" src="${GM_NEN}" crossorigin="anonymous" alt="">`);return '<div class="gmIn">'+c.outerHTML+'</div>'}
 function gmTenTep_(){const t=[$('gmXungNhap')?$('gmXungNhap').value:'',($('gmNhap')&&$('gmNhap').value)||''].join(' ').trim();return 'thu-moi-gala'+(t?'-'+khongDau(t).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''):'')}
 function xemInGm(){const h=gmBan_();if(!h)return;const tam=document.createElement('div');tam.style.cssText='position:fixed;left:-9999px;top:0';tam.innerHTML=h;document.body.appendChild(tam);
  const H=tam.firstChild.offsetHeight||794;tam.remove();const k=Math.min((innerWidth-28)/559,(innerHeight-170)/H,1.2).toFixed(3);
@@ -1783,7 +1787,8 @@ function xemInSn(){const x=snDs('').find(y=>String(y.s.id)===String(SN_ID));if(!
 function luuAnhSn(){const x=snDs('').find(y=>String(y.s.id)===String(SN_ID));if(!x)return;luuAnh_(snTrangIn_(x),'.tr','thiep-sinh-nhat-'+khongDau(x.s.hoTen).toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.jpg','#FFFBF5','Đang tạo ảnh thiệp…')}
 function inSn(){const h=document.documentElement;h.classList.add('in-sn');const xong=()=>{h.classList.remove('in-sn');removeEventListener('afterprint',xong)};addEventListener('afterprint',xong);
  const chay=()=>{try{print()}catch(e){toast('Trình duyệt này không in được. Mở trang bằng Chrome/Safari rồi thử lại nhé.')}setTimeout(xong,1500)};
- (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(chay,120))}
+ const anh=[...document.querySelectorAll('#snIn img')].map(i=>i.complete?0:new Promise(ok=>{i.onload=i.onerror=ok;setTimeout(ok,6000)}));
+ Promise.all([document.fonts&&document.fonts.ready?document.fonts.ready:0].concat(anh)).then(()=>setTimeout(chay,150))}
 
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('snNen').classList.contains('on'))dongSn();if($('tbNen').classList.contains('on'))dongTB();dongThem()});
 /* ===================== CÁC LỚP ===================== */
