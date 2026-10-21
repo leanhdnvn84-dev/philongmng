@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cổng trường – demo vẽ lại</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700&family=Dancing+Script:wght@700&family=Charm:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0;font-family:'Be Vietnam Pro',sans-serif;color:#2B2420;background:#FFF8EF}
+.chon{position:sticky;top:0;z-index:20;display:flex;gap:8px;justify-content:center;padding:10px;background:#FFF8EFee;border-bottom:1px solid #F0DCC8}
+.chon a{padding:8px 16px;border-radius:999px;border:1.5px solid #E9CBB8;text-decoration:none;color:#2B2420;font-weight:700;font-size:14px}
+.chon a.on{background:#C8102E;border-color:#C8102E;color:#fff}
+.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,54%) minmax(0,46%);min-height:620px;background:var(--troi)}
+.a .hero{--troi:linear-gradient(180deg,#BFE4F3 0%,#E3F3EE 46%,#FFF0D9 82%,#F7E3C9 100%)}
+.b .hero{--troi:linear-gradient(180deg,#F9C7A3 0%,#FCD9B8 30%,#FFE9CF 62%,#F7DDC2 100%)}
+.l{position:relative;z-index:3;padding:52px clamp(16px,4vw,64px) 70px}
+.ey{font-size:13px;letter-spacing:.32em;font-weight:800;color:#2F8F5B}
+.b .ey{color:#B5452B}
+h1{font:700 clamp(58px,8vw,112px)/1.05 'Dancing Script',cursive;color:#C8102E;margin:10px 0 6px;text-shadow:0 3px 0 #fff}
+h2{font:700 clamp(22px,2.3vw,30px) 'Playfair Display',serif;margin:0 0 18px}
+.tt{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:17px;color:#6B5A50}.tt b{color:#2B2420}
+.dem{display:flex;gap:10px;margin:22px 0}.dem div{width:84px;background:#fff;border-radius:12px;text-align:center;padding:10px 0;box-shadow:0 6px 0 #2F8F5B,0 10px 20px rgba(0,0,0,.08)}.dem b{display:block;font:800 40px 'Be Vietnam Pro';color:#C8102E;line-height:1}.dem span{font-size:12px;font-weight:700;color:#6B5A50;letter-spacing:.08em}
+.nut{display:flex;gap:10px;flex-wrap:wrap}.nut span{padding:12px 20px;border-radius:30px;font-weight:700;background:#fff;border:1.5px solid #E9CBB8}.nut span:first-child{background:#C8102E;color:#fff;border-color:#C8102E}
+.r{position:relative;z-index:1}
+.r svg{position:absolute;right:-2%;bottom:0;width:112%;height:auto;display:block}
+@media(max-width:760px){.r svg{right:0;width:100%}}
+.canh{position:absolute;top:-24px;right:-46px;width:min(300px,22vw);height:200px;background:url(../ngoai-khoa/canh.webp) right top/contain no-repeat;z-index:2;pointer-events:none}
+.the{position:relative;z-index:5;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;max-width:1150px;margin:-40px auto 40px;padding:0 20px}
+.the div{background:#fff;border-radius:16px;height:120px;box-shadow:0 10px 26px rgba(120,60,30,.12)}.the div:first-child{background:#B0101F}
+.ghi{max-width:1150px;margin:0 auto 40px;padding:0 20px;font-size:15px;line-height:1.7;color:#5A4E48}
+@media(max-width:760px){.hero{grid-template-columns:1fr;min-height:0}.l{padding:200px 16px 20px}.r{height:clamp(230px,62vw,360px)}.canh{width:240px;height:170px}.the{grid-template-columns:1fr;margin-top:-20px}}
+</style>
+</head>
+<body>
+<div class="chon"><a href="?m=a" id="ca">Mẫu A · Ngày nắng</a><a href="?m=b" id="cb">Mẫu B · Hoàng hôn Gala</a></div>
+<section class="hero">
+ <div class="canh"></div>
+ <div class="l">
+  <div class="ey">KẾT NỐI · KHOÁ 2000 – 2003 · 23 NĂM RA TRƯỜNG</div>
+  <h1>Về đi bạn ơi!</h1>
+  <h2>Gala “Ngày trở về” – gặp mặt toàn khoá</h2>
+  <div class="tt"><span>🕔 <b>17:00 · Thứ Bảy, 14.11.2026</b></span><span>📍 <b>Nhà hàng QUẢNG ĐẠI 2</b></span><span>🎁 Đóng góp <b>700.000đ</b></span></div>
+  <div class="dem"><div><b>24</b><span>NGÀY</span></div><div><b>05</b><span>GIỜ</span></div><div><b>22</b><span>PHÚT</span></div><div><b>37</b><span>GIÂY</span></div></div>
+  <div class="nut"><span>✍ Đăng ký tham dự</span><span>✉ Giấy mời</span><span>📋 Kế hoạch</span></div>
+ </div>
+ <div class="r" id="r"></div>
+</section>
+<div class="the"><div></div><div></div></div>
+<div class="ghi" id="ghi"></div>
+<script>
+const m=new URLSearchParams(location.search).get('m')==='b'?'b':'a';document.body.className=m;document.getElementById('c'+m).classList.add('on');
+let s=7;const rd=()=>{s=(s*16807)%2147483647;return s/2147483647};
+/* hoa phượng 5 cánh nhỏ */
+const hoa=(x,y,r,c)=>{let g='';for(let k=0;k<5;k++){const a=k*72+rd()*20;g+=`<ellipse cx="${x}" cy="${y-r*.55}" rx="${(r*.42).toFixed(1)}" ry="${(r*.62).toFixed(1)}" fill="${c}" transform="rotate(${a.toFixed(0)} ${x} ${y})"/>`}return g+`<circle cx="${x}" cy="${y}" r="${(r*.22).toFixed(1)}" fill="#F6C447"/>`};
+/* tán cây: các khối lá mềm + chùm hoa */
+const tan=(cx,cy,w,h,n)=>{let g='';const la=['#4E9A4A','#5FAE5A','#3F8A40'];for(let i=0;i<7;i++){const x=cx+(rd()-.5)*w*.8,y=cy+(rd()-.5)*h*.6,rx=w*(.22+rd()*.14),ry=h*(.22+rd()*.12);g+=`<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="${la[i%3]}" opacity=".92"/>`}
+ for(let i=0;i<n;i++){const a=rd()*6.28,d=Math.sqrt(rd()),x=cx+Math.cos(a)*d*w*.5,y=cy+Math.sin(a)*d*h*.45;g+=hoa(x.toFixed(1),y.toFixed(1),(4+rd()*4).toFixed(1),['#E8412F','#D2342A','#F05A3A','#C8102E'][i%4])}return g};
+/* người đi về phía cổng (nhìn từ sau) */
+const nguoi=(x,y,k,ao,toc,dai)=>`<g transform="translate(${x} ${y}) scale(${k})"><ellipse cx="0" cy="2" rx="13" ry="3" fill="#000" opacity=".12"/><path d="M-9 0 L-7 -34 L7 -34 L9 0z" fill="#3B3F4A"/><path d="M-12 -32 Q-12 -56 0 -58 Q12 -56 12 -32z" fill="${ao}"/>${dai?`<path d="M-11 -34 L-14 -2 L14 -2 L11 -34z" fill="${ao}" opacity=".96"/>`:''}<circle cx="0" cy="-66" r="9" fill="${toc}"/>${dai?`<path d="M-8 -66 Q-9 -46 -3 -40 L3 -40 Q9 -46 8 -66z" fill="${toc}"/>`:''}</g>`;
+function cong(){
+ let g='';const B=m==='b';
+ /* mặt trời + mây */
+ g+=B?`<circle cx="560" cy="150" r="70" fill="#FFE1A8" opacity=".55"/><circle cx="560" cy="150" r="42" fill="#FFC56E"/>`:`<circle cx="585" cy="95" r="60" fill="#FFF5C8" opacity=".6"/><circle cx="585" cy="95" r="30" fill="#FFE07A"/>`;
+ const may=(x,y,k)=>`<g opacity="${B?.55:.85}" fill="#fff" transform="translate(${x} ${y}) scale(${k})"><ellipse cx="0" cy="0" rx="40" ry="14"/><ellipse cx="22" cy="-10" rx="24" ry="16"/><ellipse cx="-20" cy="-6" rx="20" ry="12"/></g>`;
+ g+=may(120,70,1)+may(470,40,.8)+may(330,175,.6);
+ /* mặt đất: thảm cỏ + đường lát dẫn vào cổng */
+ g+=`<path d="M0 360 Q350 330 700 360 L700 460 L0 460z" fill="${B?'#9FBF7A':'#A9D18C'}"/><path d="M262 344 L408 344 L520 460 L150 460z" fill="${B?'#F1D6B4':'#F6E3C8'}"/><path d="M335 348 L335 460" stroke="${B?'#E6C39C':'#EBD3B2'}" stroke-width="3" stroke-dasharray="10 12"/>`;
+ /* tường rào thấp hai bên */
+ const tuong=(x1,x2)=>{let t=`<rect x="${x1}" y="300" width="${x2-x1}" height="46" fill="#FFF7EC"/><rect x="${x1}" y="294" width="${x2-x1}" height="9" rx="3" fill="#2E9468"/>`;for(let x=x1+8;x<x2-6;x+=22)t+=`<rect x="${x}" y="310" width="10" height="26" rx="2" fill="#E9DCC8"/>`;for(let x=x1;x<=x2;x+=88)t+=`<rect x="${x-6}" y="286" width="14" height="62" rx="3" fill="#F4E9D8"/><rect x="${x-8}" y="282" width="18" height="8" rx="2" fill="#2E9468"/>`;return t};
+ g+=tuong(0,214)+tuong(456,700);
+ /* cây phượng trái (sau tường) + cây nhỏ phải */
+ g+=`<path d="M104 350 C112 300 96 262 120 214 C126 200 140 190 152 178 M118 250 C92 236 74 228 56 220 M124 226 C150 214 170 204 190 200" stroke="#6B4A33" stroke-width="13" fill="none" stroke-linecap="round"/>`;
+ g+=tan(112,170,220,150,46)+tan(48,206,110,86,16);
+ g+=`<path d="M648 352 C652 320 642 300 654 276" stroke="#6B4A33" stroke-width="9" fill="none" stroke-linecap="round"/>`+tan(655,250,120,90,18);
+ /* cổng: 2 trụ + vòm + biển tên (không bị che) */
+ const tru=x=>`<rect x="${x}" y="150" width="46" height="198" rx="4" fill="#3AB37E"/><rect x="${x+6}" y="164" width="34" height="170" rx="3" fill="#43C089"/><rect x="${x-6}" y="140" width="58" height="16" rx="4" fill="#2E9468"/><rect x="${x-4}" y="338" width="54" height="12" rx="2" fill="#2E9468"/>`;
+ g+=tru(206)+tru(418);
+ g+=`<path d="M194 168 Q335 58 476 168 L476 190 Q335 84 194 190z" fill="#2E9468"/>`;
+ g+=`<rect x="250" y="70" width="170" height="62" rx="8" fill="#fff" stroke="#C8102E" stroke-width="3"/><text x="335" y="92" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="700" font-size="11" letter-spacing="2" fill="#2E9468">TRƯỜNG THPT</text><text x="335" y="120" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="800" font-size="22" fill="#0A4A35">NGUYỄN HIỀN</text>`;
+ /* cánh cổng mở */
+ const canhCong=(x0,dx)=>{let t='';for(let i=0;i<7;i++)t+=`<line x1="${x0+i*dx}" y1="${214+i*2}" x2="${x0+i*dx}" y2="${342-i}" stroke="#4B5A55" stroke-width="2.6"/>`;return t+`<line x1="${x0}" y1="214" x2="${x0+6*dx}" y2="226" stroke="#4B5A55" stroke-width="3"/><line x1="${x0}" y1="300" x2="${x0+6*dx}" y2="306" stroke="#4B5A55" stroke-width="3"/>`};
+ g+=canhCong(254,7)+canhCong(416,-7);
+ if(B){/* dây đèn + băng rôn chào mừng */
+  g+=`<path d="M200 150 Q335 210 470 150" stroke="#5A3E2B" stroke-width="1.5" fill="none"/>`;for(let i=0;i<=12;i++){const t=i/12,x=200+270*t,y=150+4*60*t*(1-t);g+=`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="5" fill="#FFD36E"/><circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="10" fill="#FFD36E" opacity=".25"/>`}
+  g+=`<rect x="244" y="196" width="182" height="30" rx="4" fill="#C8102E"/><text x="335" y="216" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="700" font-size="12.5" fill="#FFF3D6">CHÀO MỪNG CÁC BẠN TRỞ VỀ</text>`}
+ /* cánh phượng rơi trên sân */
+ for(let i=0;i<26;i++){const x=(30+rd()*640).toFixed(0),y=(362+rd()*90).toFixed(0);g+=`<ellipse cx="${x}" cy="${y}" rx="3.5" ry="2" fill="#E0574B" opacity=".75" transform="rotate(${(rd()*180).toFixed(0)} ${x} ${y})"/>`}
+ /* các bạn đang trở về */
+ g+=nguoi(306,388,.82,'#FFFFFF','#2B2420',1)+nguoi(342,394,.86,'#7FB2E5','#3A2A20',0)+nguoi(377,386,.78,'#F7F2EA','#2B2420',1)+nguoi(424,404,.92,'#E7C35A','#2B2420',0);
+ return `<svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${g}</svg>`}
+document.getElementById('r').innerHTML=cong();
+document.getElementById('ghi').innerHTML=m==='b'
+ ?'<b>Mẫu B · Hoàng hôn Gala:</b> nền trời cam hồng lúc 17:00 (đúng giờ Gala), dây đèn vàng giăng qua cổng, băng rôn đỏ “CHÀO MỪNG CÁC BẠN TRỞ VỀ”; vẫn giữ cổng, tường rào, cây phượng, các bạn đang đi vào.'
+ :'<b>Mẫu A · Ngày nắng:</b> giữ trời xanh hiện tại; biển tên đặt lại (TRƯỜNG THPT nhỏ ở trên, NGUYỄN HIỀN to bên dưới, viền đỏ, không bị hoa che); trụ cổng có gờ, cánh cổng sắt mở; tường rào thấp kiểu trường thay hàng cọc; cây phượng có tán lá + hoa 5 cánh thay đám chấm tròn; sân lát dẫn vào cổng, cánh phượng rơi; 4 bạn (áo trắng, áo dài) đang đi về phía cổng.';
+</script>
+</body>
+</html>
