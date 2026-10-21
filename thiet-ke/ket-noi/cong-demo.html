@@ -12,6 +12,15 @@
 .chon a.on{background:#C8102E;border-color:#C8102E;color:#fff}
 .hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,54%) minmax(0,46%);min-height:620px;background:var(--troi)}
 .a .hero{--troi:linear-gradient(180deg,#BFE4F3 0%,#E3F3EE 46%,#FFF0D9 82%,#F7E3C9 100%)}
+.c .hero{--troi:linear-gradient(180deg,#FBF5EC 0%,#F8EEDF 55%,#F3E3CE 100%)}
+.c .ey{color:#9E2219}
+/* Mẫu C: dùng lại tranh màu nước của giấy mời (cắt phần sân trường + dãy lớp + cây phượng), hoà mép vào nền */
+.c .r{display:flex;align-items:flex-end;justify-content:flex-end}
+.tranh{position:absolute;right:0;bottom:0;width:min(118%,760px);aspect-ratio:1050/1080;background:url(../../assets/giay-moi-nen.webp) 0 97.6%/133.4% auto no-repeat;
+ -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 24%),linear-gradient(180deg,transparent 0,#000 26%),radial-gradient(130% 100% at 70% 80%,#000 55%,transparent 82%);-webkit-mask-composite:source-in,source-in;mask-image:linear-gradient(90deg,transparent 0,#000 24%),linear-gradient(180deg,transparent 0,#000 26%),radial-gradient(130% 100% at 70% 80%,#000 55%,transparent 82%);mask-composite:intersect}
+.tranh::after{content:'Sân trường Nguyễn Hiền · mùa phượng';position:absolute;right:26px;bottom:64px;font:400 19px 'Charm',cursive;color:#7A3B2E;background:rgba(255,250,240,.78);padding:4px 14px;border-radius:999px}
+.c .canh{opacity:.9}
+@media(max-width:760px){.c .r{height:clamp(280px,78vw,420px)}.tranh{width:100%;aspect-ratio:auto;height:100%;background-size:150% auto;background-position:8% 96%}.tranh::after{bottom:40px;right:12px;font-size:15px}}
 .b .hero{--troi:linear-gradient(180deg,#F9C7A3 0%,#FCD9B8 30%,#FFE9CF 62%,#F7DDC2 100%)}
 .l{position:relative;z-index:3;padding:52px clamp(16px,4vw,64px) 70px}
 .ey{font-size:13px;letter-spacing:.32em;font-weight:800;color:#2F8F5B}
@@ -32,7 +41,7 @@ h2{font:700 clamp(22px,2.3vw,30px) 'Playfair Display',serif;margin:0 0 18px}
 </style>
 </head>
 <body>
-<div class="chon"><a href="?m=a" id="ca">Mẫu A · Ngày nắng</a><a href="?m=b" id="cb">Mẫu B · Hoàng hôn Gala</a></div>
+<div class="chon"><a href="?m=a" id="ca">Mẫu A · Ngày nắng</a><a href="?m=b" id="cb">Mẫu B · Hoàng hôn Gala</a><a href="?m=c" id="cc">Mẫu C · Tranh thật</a></div>
 <section class="hero">
  <div class="canh"></div>
  <div class="l">
@@ -48,7 +57,7 @@ h2{font:700 clamp(22px,2.3vw,30px) 'Playfair Display',serif;margin:0 0 18px}
 <div class="the"><div></div><div></div></div>
 <div class="ghi" id="ghi"></div>
 <script>
-const m=new URLSearchParams(location.search).get('m')==='b'?'b':'a';document.body.className=m;document.getElementById('c'+m).classList.add('on');
+const m=({b:'b',c:'c'})[new URLSearchParams(location.search).get('m')]||'a';document.body.className=m;document.getElementById('c'+m).classList.add('on');
 let s=7;const rd=()=>{s=(s*16807)%2147483647;return s/2147483647};
 /* hoa phượng 5 cánh nhỏ */
 const hoa=(x,y,r,c)=>{let g='';for(let k=0;k<5;k++){const a=k*72+rd()*20;g+=`<ellipse cx="${x}" cy="${y-r*.55}" rx="${(r*.42).toFixed(1)}" ry="${(r*.62).toFixed(1)}" fill="${c}" transform="rotate(${a.toFixed(0)} ${x} ${y})"/>`}return g+`<circle cx="${x}" cy="${y}" r="${(r*.22).toFixed(1)}" fill="#F6C447"/>`};
@@ -88,8 +97,8 @@ function cong(){
  /* các bạn đang trở về */
  g+=nguoi(306,388,.82,'#FFFFFF','#2B2420',1)+nguoi(342,394,.86,'#7FB2E5','#3A2A20',0)+nguoi(377,386,.78,'#F7F2EA','#2B2420',1)+nguoi(424,404,.92,'#E7C35A','#2B2420',0);
  return `<svg viewBox="0 0 700 460" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${g}</svg>`}
-document.getElementById('r').innerHTML=cong();
-document.getElementById('ghi').innerHTML=m==='b'
+document.getElementById('r').innerHTML=m==='c'?'<div class="tranh"></div>':cong();
+document.getElementById('ghi').innerHTML=m==='c'?'<b>Mẫu C · Tranh thật:</b> dùng lại tranh màu nước của giấy mời (dãy lớp học xanh, cây phượng đỏ, sân trường rải cánh phượng), mép hoà dần vào nền giấy kem; cùng một ảnh với giấy mời nên không tải thêm. Có thể thay bằng ảnh chụp thật cổng trường (link Drive) nếu Ban liên lạc có.':m==='b'
  ?'<b>Mẫu B · Hoàng hôn Gala:</b> nền trời cam hồng lúc 17:00 (đúng giờ Gala), dây đèn vàng giăng qua cổng, băng rôn đỏ “CHÀO MỪNG CÁC BẠN TRỞ VỀ”; vẫn giữ cổng, tường rào, cây phượng, các bạn đang đi vào.'
  :'<b>Mẫu A · Ngày nắng:</b> giữ trời xanh hiện tại; biển tên đặt lại (TRƯỜNG THPT nhỏ ở trên, NGUYỄN HIỀN to bên dưới, viền đỏ, không bị hoa che); trụ cổng có gờ, cánh cổng sắt mở; tường rào thấp kiểu trường thay hàng cọc; cây phượng có tán lá + hoa 5 cánh thay đám chấm tròn; sân lát dẫn vào cổng, cánh phượng rơi; 4 bạn (áo trắng, áo dài) đang đi về phía cổng.';
 </script>
