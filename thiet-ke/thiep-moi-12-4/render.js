@@ -7,6 +7,8 @@ const GMOI={nhaHang:'Nhà hàng QUẢNG ĐẠI 2',diaChi:'Số: 190 Đường 30
 const ten=fs.readFileSync(path.join(D,DS),'utf8').split('\n').map(x=>x.trim()).filter(Boolean);
 const khongDau=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D');
 (async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const p=await b.newPage({viewport:{width:1200,height:1600},deviceScaleFactor:SC});
+/* Nền giấy mời nay tải từ Cloudflare → dùng tệp có sẵn trong assets/ */
+await p.route(/giay-moi-nen\.webp/,r=>r.fulfill({path:path.resolve(D,'../../assets/giay-moi-nen.webp'),contentType:'image/webp'}));
 await p.goto('file://'+path.resolve(D,'../../apps-script/Index.html'));await p.waitForTimeout(7000);
 await p.evaluate(g=>{D.cfg.giayMoi=JSON.stringify(Object.assign((()=>{try{return JSON.parse(D.cfg.giayMoi||'{}')}catch(e){return {}}})(),g));moThu();moGiayMoi('ban');document.querySelectorAll('.bdemo,#tbNut').forEach(e=>e.remove())},GMOI);
 await p.evaluate(()=>document.fonts.ready);const out=path.join(D,THU);fs.mkdirSync(out,{recursive:true});const files=[];

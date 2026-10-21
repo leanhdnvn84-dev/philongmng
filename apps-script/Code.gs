@@ -785,6 +785,21 @@ function batGiuAm() {
   giuAm();
   Logger.log('Đã bật giữ ấm: dữ liệu công khai được dựng sẵn mỗi 5 phút.');
 }
+/** Ban liên lạc mở Quản trị → tự bật giữ ấm (5 phút) + tự cập nhật khi sửa tay Sheet nếu chưa có (kiểm tra tối đa 1 lần/6 giờ).
+    Nhờ vậy bộ đệm dữ liệu luôn nóng, link mở nhanh mà không cần nhớ chạy batTuCapNhat() trong trình soạn thảo. */
+function damBaoTuDong_() {
+  try {
+    const c = CacheService.getScriptCache();
+    if (c.get('TRIG_KT')) return;
+    c.put('TRIG_KT', '1', 21600);
+    const ten = ScriptApp.getProjectTriggers().map(function (t) { return t.getHandlerFunction(); });
+    if (ten.indexOf('giuAm') < 0) ScriptApp.newTrigger('giuAm').timeBased().everyMinutes(5).create();
+    if (ten.indexOf('khiSuaSheet') < 0) {
+      ScriptApp.newTrigger('khiSuaSheet').forSpreadsheet(DATA_SHEET_ID).onEdit().create();
+      ScriptApp.newTrigger('khiSuaSheet').forSpreadsheet(DATA_SHEET_ID).onChange().create();
+    }
+  } catch (e) { console.log('damBaoTuDong_: ' + e.message); }
+}
 function taoPublicData_() {
   try { autoSeed_(); } catch (e) { console.log('autoSeed: ' + e.message); }
   const accs = read_('TaiKhoan').filter(function (a) { return a.role === 'class' && a.active !== '0'; });
@@ -850,6 +865,7 @@ function getLuuBut() {
 function getAdminData(token) {
   const u = auth_(token);
   const isS = u.role === 'super';
+  if (isS) damBaoTuDong_();
   const accs = read_('TaiKhoan');
   const hs = read_('HocSinh');
   let lop = sort_(read_('Lop'));
