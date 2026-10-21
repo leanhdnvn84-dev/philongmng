@@ -478,7 +478,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 
 /* ===== KẾT NỐI · BÁO TƯỜNG ===== */
 .p-kn{--do:#C8102E;--do2:#E8412F;--vang:#F6C343;--la:#2E9468;--la2:#3AB37E;--chu:#2B2420;--phu:#6B5B53;background:#FFF8EF;color:var(--chu);font-family:'Be Vietnam Pro',sans-serif}
-.p-kn .kn-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,54%) minmax(0,46%);min-height:600px;background:linear-gradient(180deg,#CDEBF6 0%,#EAF6F1 45%,#FFF1DC 80%,#F7E3C9 100%)}
+.p-kn .kn-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,54%) minmax(0,46%);min-height:600px;background:linear-gradient(180deg,#FBF5EC 0%,#F8EEDF 55%,#F3E3CE 100%)}
 .p-kn .kn-hero .l{position:relative;z-index:3;padding:52px clamp(16px,4vw,64px) 70px}
 .p-kn .ey{font-size:13px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:var(--la)}
 .p-kn h1{font:700 clamp(58px,8vw,112px)/1.05 'Dancing Script',cursive;color:var(--do);margin-top:6px;text-shadow:0 4px 0 rgba(255,255,255,.8)}
@@ -493,7 +493,10 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-kn .nut button{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:30px;font:700 15.5px 'Be Vietnam Pro';background:var(--do);color:#fff;border:0;box-shadow:0 6px 16px rgba(200,16,46,.28);cursor:pointer}
 .p-kn .nut button.phu{background:#fff;color:var(--chu);border:1.5px solid #E9CBB8;box-shadow:none}.p-kn .nut button .ic-s{width:18px;height:18px}.p-kn .nut button.phu .ic-s{color:var(--do)}
 .p-kn .kn-hero .r{position:relative;z-index:1}
-.p-kn svg.kn-cong{position:absolute;right:0;bottom:0;width:100%;height:auto;max-height:100%}
+/* Mẫu C (21/10): tranh màu nước của giấy mời (sân trường, dãy lớp, cây phượng) cắt phần dưới trái, mép trái/trên mờ dần vào nền giấy kem; Cài đặt "Ảnh cổng trường" (anhCong) → ảnh chụp thật thay tranh */
+.p-kn .kn-tranh{position:absolute;right:0;bottom:0;width:min(118%,760px);aspect-ratio:1050/1080;background:url(https://nguyenhien.philong.cloud/giay-moi-nen.webp) 0 97.6%/133.4% auto no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 24%),linear-gradient(180deg,transparent 0,#000 26%),radial-gradient(130% 100% at 70% 80%,#000 55%,transparent 82%);-webkit-mask-composite:source-in,source-in;mask-image:linear-gradient(90deg,transparent 0,#000 24%),linear-gradient(180deg,transparent 0,#000 26%),radial-gradient(130% 100% at 70% 80%,#000 55%,transparent 82%);mask-composite:intersect}
+.p-kn .kn-tranh.anh{background-size:cover;background-position:center 70%}
+.p-kn .kn-tranh span{position:absolute;right:26px;bottom:64px;font:400 19px 'Charm',cursive;color:#7A3B2E;background:rgba(255,250,240,.8);padding:4px 14px;border-radius:999px}
 .p-kn .kn-canh{position:absolute;top:-30px;right:-40px;width:min(400px,30vw);height:250px;background:var(--anhCanh) right top/contain no-repeat;z-index:2;pointer-events:none;animation:evLac 7s ease-in-out infinite;transform-origin:100% 0}
 .p-kn .kn-roi{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4}
 .p-kn .kn-roi i{position:absolute;top:-20px;width:12px;height:16px;border-radius:60% 60% 60% 0;background:#E8412F;opacity:.85;animation:evRoi linear infinite}.p-kn .kn-roi i.v{background:#F6C343}
@@ -569,7 +572,7 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 .p-kn .ket p{font:700 clamp(30px,3.6vw,46px) 'Dancing Script',cursive;color:var(--do)}.p-kn .ket small{display:block;margin-top:8px;font-size:16px;color:var(--phu)}
 @media (prefers-reduced-motion:reduce){.p-kn .kn-roi{display:none}.p-kn .kn-canh{animation:none}}
 @media(max-width:1000px){.p-kn .kn-hero{grid-template-columns:minmax(0,1fr);min-height:0}.p-kn .kn-hero .l{padding:200px 16px 20px}.p-kn .kn-canh{width:300px;height:200px;right:-40px;animation:none}
- .p-kn .kn-hero .r{height:clamp(230px,44vw,360px)}.p-kn .hang1{grid-template-columns:minmax(0,1fr);margin-top:-20px}.p-kn .cua{grid-template-columns:repeat(4,1fr)}}
+ .p-kn .kn-hero .r{height:clamp(280px,78vw,420px)}.p-kn .kn-tranh{width:100%;aspect-ratio:auto;height:100%;background-size:150% auto;background-position:8% 96%}.p-kn .kn-tranh span{bottom:40px;right:12px;font-size:15px}.p-kn .hang1{grid-template-columns:minmax(0,1fr);margin-top:-20px}.p-kn .cua{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:760px){.p-kn .dem{gap:8px}.p-kn .dem div{min-width:0;flex:1;padding:10px 4px 8px}
  .p-kn .sodd{padding:20px 14px 16px;background-image:linear-gradient(90deg,transparent 22px,#F3B7BE 22px,#F3B7BE 24px,transparent 24px),repeating-linear-gradient(transparent 0 33px,#DCE6F2 33px 34px)}
  .p-kn .sodd>*{margin-left:18px}.p-kn .sodd input{margin-left:18px;width:calc(100% - 18px)}
@@ -1960,7 +1963,7 @@ function renderConnect(){const c=D.cfg,lead=D.tinTuc.find(t=>t.noiBat==='1')||D.
    <div class="tt"><span><i class="tron">${ic_('clock')}</i><b>${esc(knGio_())}</b></span><span><i class="tron">${ic_('pin')}</i>${coNh?`<b>${esc(nh)}</b>`:'<b>Nhà hàng</b> đang cập nhật'}</span>${GM.dongGop?`<span><i class="tron">${ic_('gift')}</i>Đóng góp <b>${esc(GM.dongGop)}</b></span>`:''}</div>
    <div class="dem" id="knDem"></div>
    <div class="nut"><button onclick="knDk()">${ic_('but')}Đăng ký tham dự</button><button class="phu" onclick="knMo('gm')">${ic_('mail')}Giấy mời</button><button class="phu" onclick="knMo('kh')">${ic_('ds')}Kế hoạch</button></div></div>
-  <div class="r"><svg class="kn-cong" viewBox="0 0 640 440" preserveAspectRatio="xMaxYMax meet" aria-hidden="true">${knCong_()}</svg></div></div>
+  <div class="r">${(()=>{const a=idAnh(c.anhCong||'');return `<div class="kn-tranh${a?' anh':''}"${a?` style="background-image:url('${imgUrl(a,1600)}')"`:''} aria-hidden="true"><span>${a?'Cổng trường Nguyễn Hiền':'Sân trường Nguyễn Hiền · mùa phượng'}</span></div>`})()}</div></div>
  <div class="w"><div class="hang1">
   <section class="ve" id="knVe"><div class="dau"><small>Vé về trường${han?' · hạn '+esc(han):''}</small><h2>Đăng ký tham dự</h2><p>Ban liên lạc và admin lớp sẽ gọi xác nhận.</p></div>
    <div class="f"><label for="r1">Họ tên</label><input id="r1" maxlength="60" placeholder="Ví dụ: Trần Thị Bình">
@@ -1983,15 +1986,6 @@ function renderConnect(){const c=D.cfg,lead=D.tinTuc.find(t=>t.noiBat==='1')||D.
  </div><div class="ket"><p>Hẹn gặp lại dưới gốc phượng</p><small>${esc(knGio_())} · Ban liên lạc khoá ${esc(c.nienKhoa)}</small></div>`;
  knTab(KN_T);knDem_();clearInterval(KN_DH);if(hen>new Date())KN_DH=setInterval(knDem_,1000)}
 /* Cổng trường xanh lá trang Kết nối (vẽ cố định) */
-function knCong_(){let s=5;const rd=()=>{s=(s*16807)%2147483647;return s/2147483647};let g='<rect x="60" y="330" width="560" height="110" fill="#E9CFAE"/><path d="M200 440 L260 330 L420 330 L480 440z" fill="#F3DCC0"/>';
- for(let i=0;i<14;i++){const x=40+i*42;if(x>200&&x<470)continue;g+=`<rect x="${x}" y="270" width="6" height="70" fill="#5A6B63"/>`}
- g+='<rect x="30" y="266" width="170" height="8" fill="#2E9468"/><rect x="470" y="266" width="170" height="8" fill="#2E9468"/><rect x="196" y="150" width="44" height="190" fill="#3AB37E"/><rect x="430" y="150" width="44" height="190" fill="#3AB37E"/><path d="M180 160 Q335 40 490 160 L490 186 Q335 70 180 186z" fill="#2E9468"/>';
- g+='<rect x="250" y="88" width="170" height="40" rx="6" fill="#fff"/><text x="335" y="115" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="900" font-size="19" fill="#0A4A35">NGUYỄN HIỀN</text><text x="335" y="148" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="700" font-size="12" fill="#0A4A35">TRƯỜNG THPT</text>';
- for(let k=0;k<2;k++){const x0=k?378:240;for(let i=0;i<6;i++)g+=`<rect x="${x0+i*9}" y="210" width="3" height="128" fill="#4B5A55"/>`;g+=`<rect x="${x0}" y="210" width="54" height="4" fill="#4B5A55"/><rect x="${x0}" y="300" width="54" height="4" fill="#4B5A55"/>`}
- [[190,165],[230,120],[290,92],[380,92],[440,120],[480,165]].forEach(([x,y])=>{for(let j=0;j<14;j++){const a=rd()*6.28,d=rd()*16;g+=`<circle cx="${(x+Math.cos(a)*d).toFixed(1)}" cy="${(y+Math.sin(a)*d*.7).toFixed(1)}" r="${(3+rd()*4).toFixed(1)}" fill="${rd()<.3?'#5FAE5A':['#E8412F','#C8102E','#F05A3A'][j%3]}"/>`}});
- g+='<path d="M90 440 C96 380 80 340 104 290 M104 290 C130 266 150 250 170 230 M100 320 C70 300 50 290 30 280" stroke="#6B4A33" stroke-width="14" fill="none" stroke-linecap="round"/>';
- [[100,240,70],[160,220,50],[40,260,48]].forEach(([cx,cy,r])=>{for(let i=0;i<90;i++){const a=rd()*6.28,d=Math.sqrt(rd())*r;g+=`<circle cx="${(cx+Math.cos(a)*d).toFixed(1)}" cy="${(cy+Math.sin(a)*d*.7).toFixed(1)}" r="${(3.5+rd()*5).toFixed(1)}" fill="${rd()<.3?'#5FAE5A':['#E8412F','#D2342A','#F05A3A','#C8102E'][i%4]}" opacity=".95"/>`}});
- return g}
 function findF(q){q=String(q||'').trim();const el=$('fres');if(!el)return;
  if(KN_T==='tim'){const ds=(D.timBan||[]).filter(x=>!q||khopTim(q,[x.timAi,x.nguoiTim,lopName(x.lopCanTim),lopName(x.lopNguoiTim),x.manhMoi].join(' '))).sort((a,b)=>(a.trangThai==='datim')-(b.trangThai==='datim'));
   el.innerHTML=ds.length?ds.slice(0,20).map(x=>`<button class="hs" onclick="moTB('bang')"><span class="av tim">${esc(String(x.timAi||'?').trim().split(/\s+/).pop().charAt(0))}</span><span><b>${esc(x.timAi)}${x.lopCanTim?' · lớp '+esc(lopName(x.lopCanTim)):''}</b><small>${esc(x.nguoiTim||'Một người bạn')}${x.lopNguoiTim?' (lớp '+esc(lopName(x.lopNguoiTim))+')':''} đang tìm${x.manhMoi?' · '+esc(String(x.manhMoi).slice(0,60)):''}</small></span><em class="${x.trangThai==='datim'?'thay':'tim'}">${x.trangThai==='datim'?'Đã tìm thấy':'Đang tìm'}</em></button>`).join(''):`<p>${q?'Không có ai khớp trong bảng tìm bạn.':'Chưa có ai nhờ tìm bạn. Bấm “Nhờ tìm bạn” để cả khoá cùng tìm giúp.'}</p>`;return}
@@ -2199,6 +2193,7 @@ const R={
   <label style="flex-direction:row;align-items:center;gap:8px;display:flex"><input type="checkbox" id="cf_tuDuyetLb" style="width:auto" ${c.tuDuyetLb==='1'?'checked':''}> Tự duyệt lưu bút (bật trong buổi Gala: khách quét mã QR viết lưu bút, hiện ngay trên trình chiếu kỷ yếu, không chờ duyệt). Xong buổi nên tắt.</label>
    <label>Đoạn giới thiệu dưới câu mở đầu<textarea id="cf_doanMoDau" rows="7">${esc(c.doanMoDau||'')}</textarea><small class="who">Dấu xuống dòng trong ô này được giữ nguyên trên trang chủ. Chữ trong ngoặc nhọn tự thay: {namRaTruong} năm ra trường, {tenTruong} tên trường, {diaChi} số nhà + đường, {soNam} số năm từ ngày ra trường, {soLop} số lớp. Để trống thì dùng đoạn mặc định.</small></label>
   <label>Dòng bản quyền (hộp "Về phần mềm" ở Quản trị)<textarea id="cf_banQuyen" rows="2" placeholder="${esc(BQ_MAC_DINH)}">${esc(c.banQuyen||'')}</textarea><small class="who">Để trống → dùng câu mặc định. Chữ tự thay: {nam} năm hiện tại, {nienKhoa} niên khoá, {tenTruong} tên trường.</small></label>
+   <label>Ảnh cổng trường (trang Kết nối)<input id="cf_anhCong" value="${esc(c.anhCong||'')}" placeholder="Dán link ảnh Drive – để trống dùng tranh màu nước"><small class="who">Ảnh chụp thật cổng/sân trường thay cho tranh ở đầu trang Kết nối; mép ảnh tự mờ dần vào nền. Ảnh ngang, rõ nét là đẹp nhất.</small></label>
   <label>Câu trích dẫn cuối trang chủ<textarea id="cf_trichDan" rows="2">${esc(c.trichDan)}</textarea></label><label>Người viết câu trích dẫn<input id="cf_trichDanTacGia" value="${esc(c.trichDanTacGia)}"></label>
   <label>Thư gửi bạn cũ (hiện ở trang chủ)<textarea id="cf_loiNgo" rows="5">${esc(c.loiNgo)}</textarea></label><label>Người ký thư<input id="cf_nguoiKy" value="${esc(c.nguoiKy)}"></label>
   <label>Ban liên lạc (hiện ở chân trang và trang Kết nối) – mỗi dòng: Họ tên | Điện thoại/Zalo | Vai trò | Ảnh (link Drive, tuỳ chọn)<textarea id="cf_banLienLac" rows="4" placeholder="Lê Đình Anh | 0935 452 565 | Trưởng ban | https:\/\/drive.google.com/file/d/…/view\nNguyễn Thị Tuyết Mai | 0905 516 896">${esc(c.banLienLac||'')}</textarea><small class="who">Mỗi dòng một người: Họ tên | Điện thoại hoặc Zalo | Vai trò (tuỳ chọn). Để trống thì dùng danh sách mặc định.</small></label>
@@ -2283,7 +2278,7 @@ function xemPopup(w){const giu=D.cfg;D.cfg=Object.assign({},giu,{thuNgo:docPopup
  try{if(w==='thu')moThu();else if(w==='gm')moGiayMoi();else moKeHoach()}finally{D.cfg=giu}}
 function chepDk(){const S=isS(),lopX=S?dkL:A.me.lopId,l=A.dangKy.filter(x=>(!lopX||(lopX==='_'?!A.lop.some(L=>L.id===x.lopId):x.lopId===lopX))&&(dkF==='all'||x.trangThai===dkF));
  const tt={cho:'Mới',xacnhan:'Đã xác nhận',huy:'Đã huỷ'};chep(['STT\tHọ tên\tLớp\tLiên hệ\tGhi chú\tTrạng thái'].concat(l.map((d,i)=>[i+1,d.hoTen,lopName(d.lopId),d.lienHe,d.ghiChu,tt[d.trangThai]||d.trangThai].join('\t'))).join('\n'),'Đã sao chép '+l.length+' bạn, dán vào Excel hoặc Zalo')}
-function saveCfg(){const o={};['tenTruong','diaChi','nienKhoa','namRaTruong','cauMoDau','trichDan','trichDanTacGia','loiNgo','nguoiKy','banLienLac','doanMoDau','ttLoiMoi','ttNguoiLienHe','ttSoLienHe','banQuyen'].forEach(k=>o[k]=$('cf_'+k).value);o.tuDuyetLb=$('cf_tuDuyetLb').checked?'1':'';o.anhien=$('cf_anhien').checked?'1':'0';act(()=>api('saveConfig',TOK,o),'','Đã lưu cài đặt')}
+function saveCfg(){const o={};['tenTruong','diaChi','nienKhoa','namRaTruong','cauMoDau','trichDan','trichDanTacGia','loiNgo','nguoiKy','banLienLac','doanMoDau','ttLoiMoi','ttNguoiLienHe','ttSoLienHe','banQuyen','anhCong'].forEach(k=>o[k]=$('cf_'+k).value);o.tuDuyetLb=$('cf_tuDuyetLb').checked?'1':'';o.anhien=$('cf_anhien').checked?'1':'0';act(()=>api('saveConfig',TOK,o),'','Đã lưu cài đặt')}
 async function changePw(){const o=$('pwO').value,n=$('pwN').value,r=$('pwR').value;if(n!==r)return toast('Mật khẩu nhập lại không khớp',1);if(n.length<6)return toast('Mật khẩu mới phải từ 6 ký tự',1);
  try{busy(1);await api('changePassword',TOK,o,n);toast('Đã đổi mật khẩu');['pwO','pwN','pwR'].forEach(i=>$(i).value='')}catch(e){err(e)}finally{busy(0)}}
 

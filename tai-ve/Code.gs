@@ -26,7 +26,7 @@ const SHEETS = {
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe', 'banQuyen'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe', 'banQuyen', 'anhCong'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
@@ -829,7 +829,7 @@ function taoPublicData_() {
   /* ảnh dán tay vào Sheet: tự mở quyền xem (mỗi ảnh một lần) */
   try {
     moAnh_([].concat(r.thayCo.map(function (t) { return t.anhId; }), r.hoatDong.map(function (h) { return h.anhId; }), r.anh.map(function (a) { return a.fileId; }),
-      String((r.cfg || {}).banLienLac || '').split('\n').map(function (x) { const o = x.split('|').map(function (y) { return y.trim(); }).filter(function (y) { return /drive\.google|docs\.google|^[\w-]{25,}$/.test(y); }); return o.length ? idAnh_(o[0]) : ''; })).filter(String), false);
+      String((r.cfg || {}).banLienLac || '').split('\n').map(function (x) { const o = x.split('|').map(function (y) { return y.trim(); }).filter(function (y) { return /drive\.google|docs\.google|^[\w-]{25,}$/.test(y); }); return o.length ? idAnh_(o[0]) : ''; }), [idAnh_((r.cfg || {}).anhCong || '')]).filter(String), false);
   } catch (e) { console.log('moAnh: ' + e.message); }
   return r;
 }
