@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hành trình trở về – demo luồng gợi nhớ</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Dancing+Script:wght@600;700&family=Charm:wght@400;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<style>
+:root{--do:#C8102E;--do2:#E0574B;--kem:#FFF8EF;--giay:#FDF6EA;--chu:#2B2420;--phu:#7A6A60;--vang:#E8B04A;--xanh:#2F8F5B;--vien:#EAD9C6}
+*{box-sizing:border-box}
+html,body{margin:0;background:#F3EBE0;color:var(--chu);font-family:'Be Vietnam Pro',system-ui,sans-serif}
+.dau{max-width:1180px;margin:0 auto;padding:28px 20px 8px}
+.dau small{letter-spacing:.2em;font-weight:700;color:var(--xanh);font-size:12px}
+.dau h1{font:700 clamp(28px,4vw,44px)/1.15 'Playfair Display',serif;margin:6px 0 8px}
+.dau h1 em{color:var(--do)}
+.dau p{max-width:760px;color:var(--phu);line-height:1.6;margin:0}
+.khung{max-width:1180px;margin:0 auto;padding:18px 20px 40px;display:grid;grid-template-columns:330px 1fr;gap:34px;align-items:start}
+/* dòng thời gian */
+.tl{position:sticky;top:16px;background:#fff;border-radius:18px;padding:18px 18px 10px;box-shadow:0 10px 30px rgba(120,60,30,.10)}
+.tl h3{margin:0 0 10px;font-size:15px;letter-spacing:.04em}
+.tl ol{list-style:none;margin:0;padding:0}
+.tl li{position:relative;padding:8px 8px 10px 40px;border-radius:12px;cursor:pointer;font-size:14px;line-height:1.4}
+.tl li::before{content:attr(data-n);position:absolute;left:8px;top:8px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;background:#F2E6D8;color:var(--phu)}
+.tl li:not(:last-child)::after{content:'';position:absolute;left:19px;top:34px;bottom:-6px;border-left:2px dashed #E4D3C0}
+.tl li b{display:block}
+.tl li span{color:var(--phu);font-size:12.5px}
+.tl li.moi b::after{content:'MỚI';margin-left:6px;font-size:10px;font-weight:800;background:var(--do);color:#fff;border-radius:6px;padding:1px 5px;vertical-align:2px}
+.tl li.on{background:#FFF1E6}
+.tl li.on::before{background:var(--do);color:#fff}
+.tl .gc{margin:10px 0 6px;padding:10px 12px;border-radius:12px;background:#F7F2EA;font-size:12.5px;color:var(--phu);line-height:1.55}
+/* điện thoại */
+.san{display:flex;flex-direction:column;align-items:center;gap:16px}
+.dt{width:390px;height:780px;border-radius:44px;background:#1B1714;padding:12px;box-shadow:0 30px 60px rgba(60,30,10,.28)}
+.mh{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:var(--kem)}
+.mh .tai{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:110px;height:26px;border-radius:14px;background:#1B1714;z-index:9}
+.buoc{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.buoc.on{display:flex;animation:hien .5s ease}
+@keyframes hien{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.nut-dk{display:flex;gap:10px}
+.nut-dk button{border:0;border-radius:999px;padding:11px 20px;font:700 14px 'Be Vietnam Pro';cursor:pointer}
+.nut-dk .lui{background:#fff;color:var(--chu);border:1.5px solid var(--vien)}
+.nut-dk .toi{background:var(--do);color:#fff;box-shadow:0 6px 16px rgba(200,16,46,.3)}
+.ghichu{max-width:560px;text-align:center;color:var(--phu);font-size:14px;line-height:1.6;min-height:66px}
+.ghichu b{color:var(--chu)}
+/* thành phần chung trong màn */
+.canh{position:absolute;top:-30px;right:-70px;width:330px;height:230px;background:url(../ngoai-khoa/canh.webp) no-repeat right top/contain;transform:rotate(-6deg);pointer-events:none;opacity:.95}
+.canh.duoi{top:auto;bottom:-60px;left:-90px;right:auto;transform:rotate(170deg);opacity:.35}
+.roi i{position:absolute;top:-20px;width:12px;height:16px;border-radius:60% 40% 60% 40%;background:var(--do2);opacity:.75;animation:roi linear infinite}
+@keyframes roi{to{transform:translate(-40px,820px) rotate(540deg)}}
+.giua{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 28px;position:relative;z-index:2}
+.logo{width:66px;height:66px;border-radius:50%;background:#fff;padding:6px;box-shadow:0 6px 18px rgba(120,60,30,.18)}
+.chao{font:700 40px/1.1 'Dancing Script',cursive;color:var(--do);margin:14px 0 2px}
+.kh{color:var(--phu);font-size:14px}
+.ten-tr{font:600 22px 'Playfair Display',serif;margin:6px 0 2px}
+.cau{font:400 19px/1.5 'Charm',cursive;color:#5A4038;margin:14px 0}
+.vong{width:84px;height:84px;border-radius:50%;border:3px solid var(--do);display:grid;place-items:center;margin-top:8px;font:800 26px 'Be Vietnam Pro';color:var(--do);line-height:1}
+.vong small{display:block;font-size:10px;font-weight:600;color:var(--phu);letter-spacing:.05em}
+.dau-mh{padding:44px 22px 10px;position:relative;z-index:2}
+.dau-mh .ey{font-size:11px;letter-spacing:.18em;font-weight:800;color:var(--xanh)}
+.dau-mh h2{font:700 26px/1.2 'Playfair Display',serif;margin:6px 0 6px}
+.dau-mh h2 em{color:var(--do);font-style:italic}
+.dau-mh p{margin:0;color:var(--phu);font-size:14px;line-height:1.5}
+.than{flex:1;overflow:auto;padding:4px 18px 16px;position:relative;z-index:2}
+.chan{padding:12px 18px 20px;display:flex;gap:10px;align-items:center;position:relative;z-index:2}
+.btn{flex:1;border:0;border-radius:999px;padding:13px 16px;font:700 15px 'Be Vietnam Pro';background:var(--do);color:#fff;box-shadow:0 6px 16px rgba(200,16,46,.28);cursor:pointer}
+.btn.phu{background:#fff;color:var(--chu);border:1.5px solid var(--vien);box-shadow:none;flex:0 0 auto}
+.bo{font-size:13px;color:var(--phu);text-decoration:underline;background:none;border:0;cursor:pointer;font-family:inherit}
+.cham{display:flex;gap:6px;justify-content:center;padding:0 0 2px}
+.cham i{width:7px;height:7px;border-radius:50%;background:#E2D2BF}.cham i.on{background:var(--do);width:18px;border-radius:4px}
+/* Zalo */
+.zalo{background:#E7ECF3}
+.zalo .thanh{background:#0068FF;color:#fff;padding:44px 16px 12px;font-weight:700;display:flex;gap:10px;align-items:center}
+.zalo .thanh i{width:32px;height:32px;border-radius:50%;background:#fff3;display:grid;place-items:center;font-style:normal}
+.zalo .tn{padding:14px}
+.bong{background:#fff;border-radius:14px;padding:10px 12px;margin:8px 40px 8px 0;font-size:14px;line-height:1.45;box-shadow:0 1px 2px #0001}
+.bong .ai{font-size:11.5px;color:#7A8597;margin-bottom:2px}
+.lk{border-radius:12px;overflow:hidden;border:1px solid #E3E7EE;margin-top:8px;cursor:pointer}
+.lk .anh{height:150px;background:linear-gradient(160deg,#FCE7D6,#F6C9A9);position:relative;overflow:hidden}
+.lk .anh .canh{width:170px;height:120px;top:-14px;right:-34px}
+.lk .anh b{position:absolute;left:12px;bottom:10px;font:700 30px 'Dancing Script';color:var(--do)}
+.lk .tt{padding:8px 10px;font-size:13px}.lk .tt b{display:block}.lk .tt span{color:#7A8597;font-size:12px}
+.tay{position:absolute;right:70px;top:420px;font-size:38px;animation:cham 1.4s ease-in-out infinite;z-index:5}
+@keyframes cham{50%{transform:translate(-6px,-8px)}}
+/* chọn lớp */
+.lop12{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.nhan{position:relative;background:#fff;border-radius:10px;padding:16px 6px 10px;text-align:center;box-shadow:0 4px 10px rgba(120,60,30,.10);cursor:pointer;transform:rotate(var(--r));transition:.2s;border:2px solid transparent}
+.nhan::before{content:'';position:absolute;top:-7px;left:50%;width:44px;height:14px;transform:translateX(-50%) rotate(-3deg);background:rgba(232,176,74,.55)}
+.nhan b{font:700 22px 'Playfair Display',serif;color:var(--chu)}
+.nhan small{display:block;font-size:11px;color:var(--phu)}
+.nhan.on{border-color:var(--do);transform:rotate(0) scale(1.04);box-shadow:0 8px 18px rgba(200,16,46,.22)}
+.nhan.on b{color:var(--do)}
+.loi-nho{margin-top:14px;padding:12px 14px;border-radius:12px;background:#fff;font:400 16px/1.5 'Charm';color:#5A4038;border-left:4px solid var(--vang)}
+/* tìm tên */
+.o{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--vien);border-radius:14px;padding:12px 14px;font-size:16px}
+.o .gc{color:var(--chu);font-weight:600}.o .nhay{width:2px;height:20px;background:var(--do);animation:nhay 1s steps(1) infinite}
+@keyframes nhay{50%{opacity:0}}
+.goiy{margin-top:10px;background:#fff;border-radius:14px;box-shadow:0 8px 20px rgba(120,60,30,.10);overflow:hidden}
+.goiy div{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #F2E7DA;font-size:15px;cursor:pointer}
+.goiy div:last-child{border:0}
+.goiy .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;background:#E58BA0;font-size:14px;flex:none}
+.goiy .av.nam{background:#6A9BD8}
+.goiy small{display:block;color:var(--phu);font-size:12px}
+.goiy div.on{background:#FFF1E6}
+.goiy div.on::after{content:'Đây là mình ✓';margin-left:auto;font-size:12px;font-weight:700;color:var(--do)}
+.khac{margin-top:12px;font-size:13px;color:var(--phu);text-align:center;line-height:1.5}
+/* ký ức */
+.chao2{font:700 34px/1.1 'Dancing Script';color:var(--do)}
+.so-do{background:#fff;border-radius:16px;padding:12px;box-shadow:0 6px 16px rgba(120,60,30,.10)}
+.bang-den{background:#244A3A;color:#E8F0E6;border-radius:8px;text-align:center;padding:8px;font:400 15px 'Charm';border:5px solid #8A5A35}
+.buc{display:flex;justify-content:center;margin:8px 0}
+.buc span{background:#C99A6B;color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:4px 10px}
+.day{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 10px}
+.ban{display:flex;gap:3px}
+.ban i{flex:1;height:22px;border-radius:5px;background:#F1E6D8;font-style:normal;font-size:9.5px;display:grid;place-items:center;color:#8A7A6E;white-space:nowrap;overflow:hidden}
+.ban i.toi{background:var(--do);color:#fff;font-weight:800;box-shadow:0 0 0 3px rgba(200,16,46,.25);animation:sang 1.6s ease-in-out infinite}
+.ban i.canh2{background:#FBD9A8;color:#6B4A1E;font-weight:700}
+@keyframes sang{50%{box-shadow:0 0 0 6px rgba(200,16,46,.12)}}
+.chu-thich{display:flex;gap:12px;font-size:11.5px;color:var(--phu);margin-top:8px;justify-content:center}
+.chu-thich b{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.the{background:#fff;border-radius:14px;padding:12px 14px;margin-top:10px;box-shadow:0 4px 12px rgba(120,60,30,.08);display:flex;gap:12px;align-items:center}
+.the .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none;background:#FFF1E6}
+.the b{display:block;font-size:14px}.the span{font-size:12.5px;color:var(--phu);line-height:1.45}
+.the.lb span{font:400 14.5px/1.45 'Charm';color:#5A4038}
+.anh-cu{height:120px;border-radius:12px;margin-top:10px;background:linear-gradient(135deg,#C9B79A,#8F7B5E);position:relative;overflow:hidden;filter:sepia(.5)}
+.anh-cu::after{content:'Lớp 12/4 · Ngày ấy (2003)';position:absolute;left:10px;bottom:8px;color:#fff;font:700 15px 'Dancing Script';text-shadow:0 1px 4px #0006}
+.anh-cu i{position:absolute;bottom:0;width:34px;height:70px;border-radius:17px 17px 0 0;background:#F4F1EA;opacity:.85}
+/* lớp đang chờ */
+.dem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 10px}
+.dem div{background:#fff;border-radius:12px;padding:8px 4px;text-align:center;box-shadow:0 3px 8px rgba(120,60,30,.08)}
+.dem b{display:block;font:800 22px 'Be Vietnam Pro';color:var(--do)}.dem span{font-size:10.5px;color:var(--phu);letter-spacing:.05em}
+.thanh-dk{background:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 4px 12px rgba(120,60,30,.08)}
+.thanh-dk .tr{height:10px;border-radius:5px;background:#F1E6D8;overflow:hidden;margin:8px 0}
+.thanh-dk .tr i{display:block;height:100%;width:32%;background:linear-gradient(90deg,var(--do2),var(--do))}
+.mat{display:flex;margin-top:6px}
+.mat span{width:30px;height:30px;border-radius:50%;border:2px solid #fff;margin-left:-6px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;background:#E58BA0}
+.mat span:first-child{margin-left:0}.mat span.n{background:#6A9BD8}.mat span.c{background:#BFAE9C}
+.viec{display:grid;gap:8px;margin-top:10px}
+.viec button{display:flex;align-items:center;gap:12px;text-align:left;background:#fff;border:1.5px solid var(--vien);border-radius:14px;padding:11px 14px;font:600 14px 'Be Vietnam Pro';color:var(--chu);cursor:pointer}
+.viec button i{font-style:normal;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#FFF1E6;font-size:17px;flex:none}
+.viec button small{display:block;font-weight:400;color:var(--phu);font-size:12px}
+.viec button.chinh{background:var(--do);border-color:var(--do);color:#fff}.viec button.chinh small{color:#FFDCE0}.viec button.chinh i{background:#fff3}
+/* trang chủ cá nhân */
+.hd{display:flex;align-items:center;gap:10px;padding:44px 16px 10px;background:#fff;border-bottom:1px solid #F0E4D6;position:relative;z-index:3}
+.hd img{width:34px;height:34px}.hd b{font:600 16px 'Playfair Display'}.hd small{display:block;font-size:11px;color:var(--phu)}
+.hd .ban-be{margin-left:auto;display:flex;align-items:center;gap:6px;background:#FFF1E6;border-radius:999px;padding:4px 10px 4px 4px;font-size:12px;font-weight:700;color:var(--do)}
+.hd .ban-be span{width:24px;height:24px;border-radius:50%;background:#E58BA0;color:#fff;display:grid;place-items:center;font-size:11px}
+.hero2{padding:18px 18px 8px;position:relative;z-index:2}
+.hero2 h2{font:700 30px/1.15 'Playfair Display';margin:0}.hero2 h2 em{color:var(--do)}
+.tu-lan{margin:12px 0;background:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 4px 12px rgba(120,60,30,.08)}
+.tu-lan b{font-size:13px;letter-spacing:.04em;color:var(--xanh)}
+.tu-lan ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px}
+.tu-lan li{display:flex;gap:8px;align-items:center}.tu-lan li i{font-style:normal}
+.menu-d{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #F0E4D6;display:flex;justify-content:space-around;padding:8px 0 16px;font-size:10.5px;color:var(--phu);z-index:4}
+.menu-d span{display:flex;flex-direction:column;align-items:center;gap:2px}.menu-d span.on{color:var(--do);font-weight:700}
+.menu-d i{font-style:normal;font-size:18px}
+/* chế độ xem tất cả */
+body.all .khung{display:block;max-width:none}
+body.all .tl,body.all .nut-dk,body.all .ghichu{display:none}
+body.all .san{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:26px}
+.wrap-all{display:contents}
+@media(max-width:900px){.khung{grid-template-columns:1fr}.tl{position:static}.dt{width:min(390px,100%);height:760px}}
+</style>
+</head>
+<body>
+<div class="dau">
+ <small>DEMO LUỒNG · KHÔNG SỬA WEB APP</small>
+ <h1>Hành trình <em>trở về</em> – từ link Zalo tới khi “gặp lại” lớp mình</h1>
+ <p>Bấm từng bước bên trái hoặc nút Tiếp. Các bước có nhãn <b style="color:#C8102E">MỚI</b> là đề xuất thêm; những bước còn lại web app đang có. Mọi thứ chỉ nhớ trên máy người xem, không cần đăng nhập, bước nào cũng bỏ qua được.</p>
+</div>
+<div class="khung">
+ <div class="tl">
+  <h3>LUỒNG ĐỀ XUẤT (lần đầu ≈ 40–60 giây)</h3>
+  <ol id="tl">
+   <li data-n="1" onclick="den(0)"><b>Bấm link trên Zalo</b><span>Ảnh xem trước có hoa phượng + “Ngày trở về”</span></li>
+   <li data-n="2" onclick="den(1)"><b>Màn chờ chào theo giờ</b><span>Đang có: lời chào, câu gợi nhớ, đếm ngày Gala</span></li>
+   <li data-n="3" class="moi" onclick="den(2)"><b>“Ngày ấy bạn ngồi lớp nào?”</b><span>Chọn 1 trong 12 nhãn vở</span></li>
+   <li data-n="4" class="moi" onclick="den(3)"><b>Tìm tên mình</b><span>Gõ vài chữ → gợi ý từ danh sách lớp</span></li>
+   <li data-n="5" class="moi" onclick="den(4)"><b>Ký ức ùa về</b><span>Chỗ ngồi, bạn cùng bàn, GVCN, ảnh &amp; lưu bút của lớp</span></li>
+   <li data-n="6" class="moi" onclick="den(5)"><b>Lớp mình đang chờ</b><span>Ai đã đăng ký, đếm ngược, 1 chạm đăng ký / giấy mời có tên</span></li>
+   <li data-n="7" class="moi" onclick="den(6)"><b>Lần sau mở lại</b><span>Chào đúng tên, “từ lần trước có gì mới”</span></li>
+  </ol>
+  <div class="gc">Thư ngỏ hiện ngay sau bước 6 (lần đầu) thay vì chen trước, để người xem đã “nhập vai” rồi mới đọc thư. Ai bấm “Mình chỉ ghé xem” thì đi luồng cũ: màn chờ → thư ngỏ → trang chủ.</div>
+ </div>
+ <div class="san">
+  <div class="dt"><div class="mh" id="mh"><div class="tai"></div>
+
+   <!-- 0 · Zalo -->
+   <div class="buoc zalo">
+    <div class="thanh"><i>‹</i>Nhóm “Nguyễn Hiền 2000–2003”</div>
+    <div class="tn">
+     <div class="bong"><div class="ai">Lê Trung Hiếu · Ban liên lạc</div>Cả nhà ơi, trang kỷ niệm khoá mình đây, vào tìm tên mình và đăng ký Gala 14/11 nha 🌸
+      <div class="lk" onclick="den(1)"><div class="anh"><div class="canh"></div><b>Ngày trở về</b></div><div class="tt"><b>THPT Nguyễn Hiền · Khoá 2000 – 2003</b><span>nguyenhien.philong.cloud</span></div></div>
+     </div>
+     <div class="bong" style="margin-left:60px;margin-right:0;background:#D6E8FF">Vào liền 😍</div>
+    </div>
+    <div class="tay">👆</div>
+   </div>
+
+   <!-- 1 · màn chờ -->
+   <div class="buoc">
+    <div class="canh"></div><div class="canh duoi"></div><div class="roi" id="roi1"></div>
+    <div class="giua">
+     <img class="logo" src="../../assets/logo-nguyen-hien.png" alt="">
+     <div class="chao">Chào buổi tối</div>
+     <div class="kh">các bạn niên khoá 2000 – 2003</div>
+     <div class="ten-tr">THPT Nguyễn Hiền</div>
+     <div style="color:var(--do)">✿</div>
+     <div class="cau">“Tối nay, gọi cho một người bạn cũ nhé…”</div>
+     <div class="vong">24<small>NGÀY NỮA</small></div>
+     <div class="kh" style="margin-top:6px">tới Gala 14.11</div>
+    </div>
+   </div>
+
+   <!-- 2 · chọn lớp -->
+   <div class="buoc">
+    <div class="canh" style="opacity:.28;width:220px;height:150px;right:-60px;top:-24px"></div>
+    <div class="dau-mh"><div class="ey">BƯỚC 1/3 · NHỚ LẠI</div><h2>Ngày ấy, bạn ngồi <em>lớp nào?</em></h2><p>Chạm vào nhãn vở của lớp mình.</p></div>
+    <div class="than">
+     <div class="lop12" id="lop12"></div>
+     <div class="loi-nho" id="loiNho">Chọn lớp để xem lại cô chủ nhiệm và mấy bạn cùng lớp nhé…</div>
+    </div>
+    <div class="cham"><i class="on"></i><i></i><i></i></div>
+    <div class="chan"><button class="bo" onclick="den(6)">Mình chỉ ghé xem</button><button class="btn" onclick="den(3)">Đúng lớp này →</button></div>
+   </div>
+
+   <!-- 3 · tìm tên -->
+   <div class="buoc">
+    <div class="dau-mh"><div class="ey">BƯỚC 2/3 · LỚP 12/4</div><h2>Còn nhớ tên mình trong <em>sổ điểm danh?</em></h2><p>Gõ vài chữ, không cần dấu.</p></div>
+    <div class="than">
+     <div class="o">🔎 <span class="gc" id="go"></span><span class="nhay"></span></div>
+     <div class="goiy" id="goiy"></div>
+     <div class="khac">Không thấy tên? Bấm <b>“Mình chưa có trong danh sách”</b> → gửi admin lớp 12/4 bổ sung.<br>Chỉ ghi nhớ trên máy này, xoá được bất cứ lúc nào.</div>
+    </div>
+    <div class="cham"><i></i><i class="on"></i><i></i></div>
+    <div class="chan"><button class="btn phu" onclick="den(2)">‹</button><button class="btn" onclick="den(4)">Đây là mình →</button></div>
+   </div>
+
+   <!-- 4 · ký ức -->
+   <div class="buoc">
+    <div class="dau-mh" style="padding-bottom:6px"><div class="ey">BƯỚC 3/3 · KÝ ỨC</div><div class="chao2">Chào Phương Chi!</div><p>23 năm rồi đó. Chỗ của bạn vẫn còn đây…</p></div>
+    <div class="than">
+     <div class="so-do">
+      <div class="bang-den">Lớp 12/4 · GVCN: Cô Nguyễn Thị Thu Thủy</div>
+      <div class="buc"><span>Bàn giáo viên</span></div>
+      <div class="day" id="day"></div>
+      <div class="chu-thich"><span><b style="background:var(--do)"></b>Bạn</span><span><b style="background:#FBD9A8"></b>Bạn cùng bàn</span></div>
+     </div>
+     <div class="the"><div class="ic">👭</div><div><b>Ngồi cạnh: Ngô Hải Châu</b><span>Bàn 4 dãy giữa · đã đăng ký Gala ✓</span></div></div>
+     <div class="anh-cu"><i style="left:30px"></i><i style="left:74px;height:80px"></i><i style="left:118px"></i><i style="left:162px;height:76px"></i><i style="left:206px"></i><i style="left:250px;height:82px"></i></div>
+     <div class="the lb"><div class="ic">✍️</div><div><b style="font-family:'Be Vietnam Pro'">Lưu bút lớp mình · Huỳnh Kim Ngân</b><span>“Nhớ mấy buổi trốn tiết ngồi dưới gốc phượng, Chi chép bài hộ cả nhóm…”</span></div></div>
+     <div class="the"><div class="ic">🎂</div><div><b>Tháng 11 có 3 bạn sinh nhật</b><span>Lê Đình Anh (05/11) · Mai Thị Huyền (14/11) · …</span></div></div>
+    </div>
+    <div class="chan"><button class="btn phu" onclick="den(3)">‹</button><button class="btn" onclick="den(5)">Lớp mình đang chờ →</button></div>
+   </div>
+
+   <!-- 5 · lớp đang chờ -->
+   <div class="buoc">
+    <div class="canh" style="opacity:.28;width:220px;height:150px;right:-60px;top:-24px"></div>
+    <div class="dau-mh"><div class="ey">GALA · 17:00 THỨ BẢY 14.11.2026</div><h2>Lớp 12/4 <em>đang chờ</em> bạn</h2></div>
+    <div class="than">
+     <div class="dem"><div><b>24</b><span>NGÀY</span></div><div><b>05</b><span>GIỜ</span></div><div><b>12</b><span>PHÚT</span></div><div><b>40</b><span>GIÂY</span></div></div>
+     <div class="thanh-dk"><b style="font-size:14px">18 / 56 bạn lớp 12/4 đã đăng ký</b><div class="tr"><i></i></div>
+      <div class="mat"><span>NT</span><span class="n">LĐ</span><span>HK</span><span class="n">HC</span><span>NV</span><span class="n">MH</span><span>VO</span><span class="c">+11</span></div>
+      <div style="font-size:12.5px;color:var(--phu);margin-top:6px">Bạn cùng bàn Hải Châu cũng đã đăng ký ✓</div></div>
+     <div class="viec">
+      <button class="chinh"><i>✅</i><span>Đăng ký tham dự (1 chạm)<small>Đã điền sẵn: Hà Nguyễn Phương Chi · 12/4</small></span></button>
+      <button><i>💌</i><span>Giấy mời có tên mình<small>Thiệp “Ngày trở về” ghi sẵn tên, lưu ảnh gửi Zalo</small></span></button>
+      <button><i>✍️</i><span>Viết một dòng lưu bút<small>Gửi lớp 12/4 hoặc cả khoá</small></span></button>
+      <button><i>🔎</i><span>Nhờ tìm một bạn cũ<small>Bạn nào lớp mình chưa liên lạc được?</small></span></button>
+     </div>
+    </div>
+    <div class="chan"><button class="btn phu" onclick="den(4)">‹</button><button class="btn" onclick="den(6)">Vào trang kỷ niệm →</button></div>
+   </div>
+
+   <!-- 6 · lần sau -->
+   <div class="buoc">
+    <div class="hd"><img src="../../assets/logo-nguyen-hien.png" alt=""><div><b>THPT Nguyễn Hiền</b><small>Đà Nẵng, khoá 2000 – 2003</small></div><div class="ban-be"><span>PC</span>Chi · 12/4</div></div>
+    <div class="canh" style="top:64px;right:-80px;width:200px;height:140px;opacity:.35"></div>
+    <div class="hero2">
+     <div class="chao2" style="font-size:30px">Chào buổi tối, Chi</div>
+     <h2>Mùa hè này, <em>về lại</em> sân trường nhé.</h2>
+     <div class="tu-lan"><b>TỪ LẦN TRƯỚC BẠN GHÉ (3 ngày)</b><ul>
+      <li><i>✍️</i>2 lưu bút mới gửi lớp 12/4</li>
+      <li><i>🖼️</i>5 ảnh mới trong album “Ngày ấy”</li>
+      <li><i>🎟️</i>+4 bạn lớp mình đăng ký Gala (22/56)</li>
+      <li><i>🎂</i>Mai bạn Lê Đình Anh sinh nhật</li></ul></div>
+     <div class="the" style="margin-top:0"><div class="ic">💺</div><div><b>Vào lớp 12/4</b><span>Sơ đồ lớp mở sẵn chỗ ngồi của bạn</span></div></div>
+     <div class="khac">Không phải Chi? <u>Đổi người</u></div>
+    </div>
+    <div class="menu-d"><span class="on"><i>🏠</i>Trang chủ</span><span><i>📒</i>Các lớp</span><span><i>🎂</i>Sinh nhật</span><span><i>📖</i>Kỷ yếu</span><span><i>🖼️</i>Hình ảnh</span><span><i>•••</i>Thêm</span></div>
+   </div>
+
+  </div></div>
+  <div class="ghichu" id="ghichu"></div>
+  <div class="nut-dk"><button class="lui" onclick="den(B-1)">‹ Trước</button><button class="toi" onclick="den(B+1)">Tiếp ›</button></div>
+ </div>
+</div>
+<script>
+const GC=[
+ '<b>Bước 1 · Bấm link.</b> Ban liên lạc gửi link vào nhóm Zalo. Ảnh xem trước (og:image) nên là tranh phượng + “Ngày trở về” để người ta muốn bấm.',
+ '<b>Bước 2 · Màn chờ (đang có).</b> Trang khung và web app hiện giống hệt nhau: lời chào theo giờ, câu gợi nhớ, đếm ngày tới Gala. Không thay đổi.',
+ '<b>Bước 3 · Chọn lớp (mới).</b> 12 nhãn vở như trang Các lớp. Chọn xong hiện GVCN + vài tên bạn để “nhá” ký ức. Có nút “Mình chỉ ghé xem” để đi thẳng vào trang.',
+ '<b>Bước 4 · Tìm tên (mới).</b> Gõ không dấu, gợi ý từ danh sách lớp đang có (khopTim). Chọn “Đây là mình” → nhớ trên máy (localStorage), không gửi đi đâu.',
+ '<b>Bước 5 · Ký ức ùa về (mới).</b> Lấy từ dữ liệu sẵn có: sơ đồ lớp sáng đúng chỗ ngồi, bạn cùng bàn, ảnh album “Ngày ấy”, 1 lưu bút của lớp, sinh nhật trong tháng.',
+ '<b>Bước 6 · Lớp mình đang chờ (mới).</b> Số bạn lớp đã đăng ký + mặt chữ cái, đếm ngược. Đăng ký 1 chạm (điền sẵn tên + lớp), giấy mời có tên mình, viết lưu bút. Sau bước này mới hiện thư ngỏ.',
+ '<b>Bước 7 · Lần sau mở lại (mới).</b> Bỏ qua các bước giới thiệu: chào đúng tên, chip “Chi · 12/4” trên đầu trang, khối “Từ lần trước bạn ghé” (lưu bút, ảnh, đăng ký mới, sinh nhật sắp tới).'];
+const LOP=[['12/1','Cô Lan'],['12/2','Thầy Minh'],['12/3','Cô Hoa'],['12/4','Cô Thu Thủy'],['12/5','Thầy Hùng'],['12/6','Cô Mai'],['12/7','Thầy Sơn'],['12/8','Cô Hằng'],['12/9','Cô Nga'],['12/10','Thầy Tâm'],['12/11','Cô Yến'],['12/12','Thầy Phúc']];
+$=i=>document.getElementById(i);
+$('lop12').innerHTML=LOP.map((l,i)=>`<div class="nhan${i===3?' on':''}" style="--r:${((i*37)%7-3)*.8}deg" onclick="chonLop(${i})"><b>${l[0]}</b><small>${l[1]}</small></div>`).join('');
+function chonLop(i){document.querySelectorAll('.nhan').forEach((e,k)=>e.classList.toggle('on',k===i));$('loiNho').innerHTML=i===3?'Lớp 12/4 · GVCN Cô Nguyễn Thị Thu Thủy · 56 bạn<br>“Tuyết Mai, Phương Chi, Đình Anh, Hải Châu…”':'Lớp '+LOP[i][0]+' · GVCN '+LOP[i][1]}
+chonLop(3);
+const TEN=[['Hà Nguyễn Phương Chi',1],['Đinh Ngô Mỹ Linh',1],['Hà Thị Thu',1]];
+function goTen(){const t='phuong chi';let k=0;$('go').textContent='';clearInterval(window.GT);window.GT=setInterval(()=>{k++;$('go').textContent=t.slice(0,k);if(k>=t.length){clearInterval(window.GT);$('goiy').innerHTML=`<div class="on"><span class="av">PC</span><span>Hà Nguyễn <b>Phương Chi</b><small>Lớp 12/4 · bàn 4, dãy giữa</small></span></div><div><span class="av">PT</span><span>Dương Thị <b>Phương</b> Trang<small>Lớp 12/4</small></span></div><div><span class="av nam">VP</span><span>Võ Trần Thanh <b>Phương</b><small>Lớp 12/4</small></span></div>`}},120);$('goiy').innerHTML=''}
+const DS=['T.Mai','P.Chi','Đ.Anh','T.Anh','N.Ánh','Q.Bảo','H.Châu','T.Chỉnh','T.Cường','V.Dũng','V.Hiếu','B.Hoài','M.Hoàng','H.Hoàng','V.Huy','V.Huy','T.Huyền','C.Huyền'];
+$('day').innerHTML=Array.from({length:9},(_,b)=>`<div class="ban"><i class="${b===4?'canh2':''}">${b===4?'H.Châu':DS[(b*2)%18]}</i><i class="${b===4?'toi':''}">${b===4?'Bạn':DS[(b*2+1)%18]}</i></div>`).join('');
+function roi(el){el.innerHTML=Array.from({length:12},(_,i)=>`<i style="left:${(i*37)%100}%;animation-duration:${6+(i%5)}s;animation-delay:${-(i*0.9)}s;transform:scale(${.6+(i%3)*.25})"></i>`).join('')}
+roi($('roi1'));
+let B=0;const buoc=[...document.querySelectorAll('.buoc')];
+function den(i){B=Math.max(0,Math.min(buoc.length-1,i));buoc.forEach((e,k)=>e.classList.toggle('on',k===B));document.querySelectorAll('#tl li').forEach((e,k)=>e.classList.toggle('on',k===B));$('ghichu').innerHTML=GC[B];if(B===3)goTen();try{history.replaceState(null,'','#'+(B+1))}catch(e){}}
+const q=new URLSearchParams(location.search);
+if(q.get('all')){document.body.classList.add('all');const san=document.querySelector('.san'),g=document.querySelector('.dt');buoc.forEach((b,k)=>{if(!k)return;const c=g.cloneNode(false),m=document.createElement('div');m.className='mh';m.innerHTML='<div class="tai"></div>';const bb=b.cloneNode(true);bb.classList.add('on');bb.style.animation='none';m.appendChild(bb);c.appendChild(m);san.insertBefore(c,san.querySelector('.ghichu'))});buoc[0].classList.add('on');$('goiy').innerHTML='';$('go').textContent='phuong chi';goTen.call();document.querySelectorAll('.goiy').forEach(g=>g.innerHTML=`<div class="on"><span class="av">PC</span><span>Hà Nguyễn <b>Phương Chi</b><small>Lớp 12/4 · bàn 4, dãy giữa</small></span></div><div><span class="av">PT</span><span>Dương Thị <b>Phương</b> Trang<small>Lớp 12/4</small></span></div><div><span class="av nam">VP</span><span>Võ Trần Thanh <b>Phương</b><small>Lớp 12/4</small></span></div>`);document.querySelectorAll('.gc#go,#go').forEach(e=>e.textContent='phuong chi');clearInterval(window.GT)}
+else den(Math.max(0,(parseInt((location.hash||'#1').slice(1))||1)-1));
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')den(B+1);if(e.key==='ArrowLeft')den(B-1)});
+</script>
+</body>
+</html>
