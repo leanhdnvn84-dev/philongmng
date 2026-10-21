@@ -1240,7 +1240,7 @@ const NAV_BOT=['home','classes','birthday','yearbook','gallery'],NAV_THEM=['even
 const navTen=k=>(NAV.find(x=>x[0]===k)||[k,k])[1].replace(/^\S+\s(?=Sinh)/,'');
 const navSvg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">${SVG[k]}</svg>`;
 /* Bấm menu: trang về trạng thái ban đầu, đủ nội dung (bỏ bộ lọc, thẻ, ô tìm của lần trước) */
-function menu(k){if(k==='yearbook'){ybT=1;wLop=''}if(k==='gallery'){gF='';gA='';GAL_NOI_K=''}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF='';AP_AL='';dkL=''}if(k==='birthday'){snLop='';snQ='';snThang=new Date().getMonth()+1}dongThem();
+function menu(k){if(k==='yearbook'){ybT=1;wLop=''}if(k==='gallery'){gF='';gA='';GAL_NOI_K='';GAL_SO={}}if(k==='admin'){aT=0;adLop='';nbF='pending';dkF='cho';apF='';AP_AL='';dkL=''}if(k==='birthday'){snLop='';snQ='';snThang=new Date().getMonth()+1}dongThem();
  if(k==='home')renderHome();if(k==='events'){VE_CHO.events=0;renderEvents()}if(k==='connect'){VE_CHO.connect=0;renderConnect()}go(k)}
 function buildNav(){$('navTop').innerHTML=NAV.map(([k,t])=>`<button data-k="${k}" onclick="menu('${k}')">${t}</button>`).join('');
  $('navBot').innerHTML=NAV_BOT.map(k=>`<button data-k="${k}" onclick="menu('${k}')">${navSvg(k)}${navTen(k)}</button>`).join('')+`<button class="them-nut" id="nbThem" onclick="moThem()" aria-haspopup="true" aria-label="Các trang khác: ${NAV_THEM.map(navTen).join(', ')}">${navSvg('them')}Thêm</button>`;
@@ -1921,9 +1921,12 @@ const GAL_TL=['4/3','3/4','1/1','4/3','16/10','4/5','4/3','3/2'];
 function galNoi_(k){const el=$('galNoi');if(!el){clearInterval(GAL_HEN);GAL_HEN=0;return}const ks=el.querySelectorAll('.k'),ds=document.querySelectorAll('#galCham button');if(!ks.length)return;GAL_I=(k==null?GAL_I+1:k)%ks.length;ks.forEach((x,n)=>x.classList.toggle('on',n===GAL_I));ds.forEach((x,n)=>x.classList.toggle('on',n===GAL_I))}
 function galChon(f,a){gF=f;gA=a;renderGal();const g=$('galLuoi');if(g)g.scrollIntoView({behavior:'smooth',block:'start'})}
 function galSs(v){const k=$('galSs');if(k)k.style.setProperty('--x',v+'%')}
+/* Lưới "Cả khoá" và "Ảnh chung" (chưa chọn album) xếp NGẪU NHIÊN: mỗi ảnh một số ngẫu nhiên giữ suốt lần xem (Xem thêm không đảo lại), bấm menu Hình ảnh thì trộn lại (GAL_SO={}); lọc theo lớp/album giữ thứ tự cũ */
+let GAL_SO={};
+function tronGal_(ds){if(gA||(gF&&gF!=='_'))return ds;ds.forEach(a=>{if(GAL_SO[a.id]==null)GAL_SO[a.id]=Math.random()});return ds.slice().sort((x,y)=>GAL_SO[x.id]-GAL_SO[y.id])}
 function renderGal(){const lops=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id)),hasChung=D.anh.some(a=>!a.lopId);
  const byL=D.anh.filter(a=>!gF||(gF==='_'?!a.lopId:a.lopId===gF));const albs=[...new Set(byL.map(a=>a.album))];if(gA&&!albs.includes(gA))gA='';
- const list=byL.filter(a=>!gA||a.album===gA);window.GAL=list;window.ALBS=albs;if(GAL_K!==gF+'|'+gA){GAL_K=gF+'|'+gA;GAL_N=16}
+ const list=tronGal_(byL.filter(a=>!gA||a.album===gA));window.GAL=list;window.ALBS=albs;if(GAL_K!==gF+'|'+gA){GAL_K=gF+'|'+gA;GAL_N=16}
  const noi=galNoiChon_();window.GAL_NOI=noi;
  const nAl=new Set(D.anh.map(a=>a.album)).size,coAnh=list.some(p=>p.fileId),cap=p=>`${p.lopId?'Lớp '+esc(lopName(p.lopId)):'Ảnh chung'} · ${esc(p.album)}`;
  const laNgay=a=>/ngày ấy/i.test(a.album),laBay=a=>/bây giờ/i.test(a.album),cap2=D.lop.filter(l=>D.anh.some(a=>a.lopId===l.id&&laNgay(a))&&D.anh.some(a=>a.lopId===l.id&&laBay(a)));if(!cap2.some(l=>l.id===SS_L))SS_L=cap2.length?cap2[0].id:'';
