@@ -219,8 +219,8 @@ function read_(n) {
     }
     if (n === 'DangKy') {
       /* Gõ tay trong Sheet: cột lopId (hoặc "Lớp") có thể ghi "12/4", "12.4", "Lớp 12-4"… → đổi về id lớp; giữ chữ gốc để ghi lại y nguyên */
-      const g = o.lopId || o.lop || o['Lớp'] || o['lớp'] || '', id = lopKhop_(g);
-      if (id && id !== o.lopId) { o._lopGoc = o.lopId; o.lopId = id; } else if (!id && g && !o.lopId) o.lopId = g;
+      const g = o.lopId || o.lop || o['Lớp'] || o['lớp'] || o.Lop || '', id = lopKhop_(g) || lopTheoTen_(o.hoTen);
+      if (id && id !== o.lopId) { o._lopGoc = o.lopId; o._lopTu = id; o.lopId = id; } else if (!id && g && !o.lopId) o.lopId = g;
     }
     if (o[key] === '') return;
     out.push(o);
@@ -233,11 +233,23 @@ function lopKhop_(v) {
   if (!v) return '';
   const ds = read_('Lop');
   if (ds.some(function (l) { return l.id === v; })) return v;
-  const so = function (t) { const m = String(t || '').match(/(\d{1,2})\D{1,6}(\d{1,2})(?!\d)/); return m ? Number(m[1]) + '/' + Number(m[2]) : ''; };
-  const k = so(v);
-  if (!k) return '';
-  const l = ds.find(function (x) { return so(x.ten) === k; });
+  /* Các số ≤ 2 chữ số trong chuỗi (bỏ năm 4 chữ số): "12/4" → [12,4]; ô bị Sheet đổi thành ngày "4/12/2026" → [4,12]; "Lớp 4" → [4] */
+  const so = function (t) { return (String(t || '').match(/\d+/g) || []).filter(function (x) { return x.length <= 2; }).map(Number); };
+  const n = so(v), lop = ds.map(function (x) { const k = so(x.ten); return { id: x.id, a: k[0], b: k[k.length - 1] }; }).filter(function (x) { return x.b != null; });
+  if (!n.length) return '';
+  let l = n.length >= 2 && lop.find(function (x) { return x.a === n[0] && x.b === n[1]; });
+  if (!l && n.length >= 2) l = lop.find(function (x) { return x.a === n[1] && x.b === n[0]; });
+  if (!l && n.length === 1) { const c = lop.filter(function (x) { return x.b === n[0]; }); if (c.length === 1) l = c[0]; }
   return l ? l.id : '';
+}
+/** Cột lớp trống/không đọc được: tìm theo họ tên trong danh sách học sinh (bỏ dấu, không phân biệt hoa thường) – chỉ khi đúng 1 lớp có tên đó. */
+function lopTheoTen_(ten) {
+  const t = boDau_(ten).replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  const lops = {};
+  read_('HocSinh').forEach(function (h) { if (boDau_(h.hoTen).replace(/\s+/g, ' ').trim() === t && h.lopId) lops[h.lopId] = 1; });
+  const ks = Object.keys(lops).filter(function (k) { return read_('Lop').some(function (l) { return l.id === k; }); });
+  return ks.length === 1 ? ks[0] : '';
 }
 
 function safe_(v) {
@@ -247,7 +259,7 @@ function safe_(v) {
 function rowOf_(n, o) { const h = hdr_(n); return h.map(function (k, j) {
   if (n === 'HocSinh' && k.toLowerCase() === 'nu') return /^(true|1|yes|x|✓|co|có)$/i.test(String(o.nu || '').trim());
   if (n === 'HocSinh' && /^(ngaysinh|namsinh|ngay sinh|ngày sinh|ngày tháng năm sinh)$/i.test(k)) return safe_(o.ngaySinh);
-  if (n === 'DangKy' && k === 'lopId' && o._lopGoc != null && lopKhop_(o._lopGoc) === o.lopId) return safe_(o._lopGoc);
+  if (n === 'DangKy' && k === 'lopId' && o._lopGoc != null && o._lopTu === o.lopId) return safe_(o._lopGoc);
   return safe_(o[colKey_(h, j)]);
 }); }
 
@@ -1388,6 +1400,21 @@ function setRegistrationStatus(token, id, status) {
   });
 }
 
+/** Ban liên lạc chọn lớp cho đăng ký "Chưa rõ lớp" (ghi id lớp vào cột lopId). */
+function setRegistrationClass(token, id, lopId) {
+  return lock_(function () {
+    const u = auth_(token);
+    if (u.role !== 'super') throw new Error('Chỉ Ban liên lạc được chuyển lớp.');
+    const d = find_('DangKy', id), l = find_('Lop', lopId);
+    if (!d) throw new Error('Đăng ký không tồn tại.');
+    if (!l) throw new Error('Vui lòng chọn lớp.');
+    d.lopId = l.id;
+    delete d._lopGoc;
+    update_('DangKy', d);
+    log_(u, 'Chuyển đăng ký của ' + d.hoTen + ' vào lớp ' + l.ten);
+    return true;
+  });
+}
 function deleteRegistration(token, id) {
   return lock_(function () {
     const u = auth_(token);
