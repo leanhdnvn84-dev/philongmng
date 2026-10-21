@@ -66,7 +66,7 @@ const FORM_TEMPLATE_SEEDS = [
   ['FM_BHXH_01B', '01B-HSB', 'Mẫu 01B-HSB - Danh sách đề nghị BHXH', 'BHXH', 'Danh sách do đơn vị sử dụng lao động lập để đề nghị giải quyết chế độ ốm đau, thai sản, dưỡng sức phục hồi sức khỏe.', 13],
   ['FM_BHXH_13', '13-HSB', 'Mẫu 13-HSB - Giấy ủy quyền BHXH', 'BHXH', 'Giấy ủy quyền lĩnh thay hoặc thực hiện thủ tục BHXH; không dùng thay mẫu ủy quyền nội bộ.', 14],
   ['FM_BHXH_14', '14-HSB', 'Mẫu 14-HSB - Đơn đề nghị BHXH', 'BHXH', 'Đơn đề nghị BHXH dùng theo đúng thủ tục áp dụng, không dùng như mẫu đề nghị chung.', 15],
-  ['FM_GUI_XE', 'BM-HC-02', 'Mẫu đăng ký gửi xe máy', 'Hành chính', 'Đăng ký danh sách, số lượng xe máy của nhân viên gửi tại bãi xe tòa nhà văn phòng.', 16],
+  ['FM_GUI_XE', 'BM-HC-02', 'Mẫu đăng ký gửi xe máy', 'Hành chính', 'Bên thuê văn phòng đăng ký danh sách, số lượng xe máy gửi tại bãi xe tòa nhà Phi Long.', 16],
   ["FMV_HOP_DONG_THU_VIEC", "BM-01-01", "Hợp đồng thử việc", "Hợp đồng", "Hợp đồng lao động, phụ lục và các nội dung thỏa thuận liên quan.", 101],
   ["FMV_HOP_DONG_MUA_BAN", "BM-01-02", "Hợp đồng mua bán", "Hợp đồng", "Hợp đồng mua bán, nguyên tắc, dịch vụ, thuê, thi công, bảo trì, vận chuyển, hợp tác, đại lý, gia công, tư vấn, phần mềm.", 102],
   ["FMV_HOP_DONG_NGUYEN_TAC", "BM-01-03", "Hợp đồng nguyên tắc", "Hợp đồng", "Hợp đồng mua bán, nguyên tắc, dịch vụ, thuê, thi công, bảo trì, vận chuyển, hợp tác, đại lý, gia công, tư vấn, phần mềm.", 103],
@@ -369,7 +369,7 @@ function formLegalProfile_(id) {
 
 /** Hồ sơ pháp lý chỉ dùng để phân biệt mẫu nội bộ và mẫu cơ quan nhà nước. */
 const FORM_TEMPLATE_LEGAL_PROFILES = {
-  FM_GUI_XE: { LOAI_MAU: 'Nội bộ doanh nghiệp - văn bản gửi Ban quản lý tòa nhà', PHAM_VI_SU_DUNG: 'Đăng ký danh sách, số lượng xe máy của nhân viên gửi tại bãi xe tòa nhà theo tháng.', CAN_CU_PHAP_LY: 'Hợp đồng thuê văn phòng và nội quy bãi xe của tòa nhà; Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (họ tên, điện thoại, biển số xe chỉ dùng cho quản lý bãi xe).', MAU_CHUAN: 'Không có mẫu bắt buộc chung' },
+  FM_GUI_XE: { LOAI_MAU: 'Cho thuê văn phòng - đăng ký của bên thuê', PHAM_VI_SU_DUNG: 'Bên thuê văn phòng đăng ký danh sách, số lượng xe máy gửi tại bãi xe tòa nhà Phi Long; Ban Quản lý xác nhận.', CAN_CU_PHAP_LY: 'Hợp đồng thuê văn phòng và nội quy bãi xe của tòa nhà; Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (họ tên, điện thoại, biển số xe chỉ dùng cho quản lý bãi xe).', MAU_CHUAN: 'Không có mẫu bắt buộc chung' },
   FM_UY_QUYEN: { LOAI_MAU: 'Nội bộ doanh nghiệp', PHAM_VI_SU_DUNG: 'Ủy quyền nội bộ, giao nhận hồ sơ hoặc thay mặt xử lý công việc.', CAN_CU_PHAP_LY: 'Bộ luật Dân sự số 91/2015/QH13; quy định nội bộ về thẩm quyền ký.', MAU_CHUAN: 'Không có mẫu bắt buộc chung' },
   FM_HOP_DONG: { LOAI_MAU: 'Nội bộ doanh nghiệp - khung hợp đồng', PHAM_VI_SU_DUNG: 'Khung soạn thảo hợp đồng lao động/phụ lục; phải rà soát trước khi ký.', CAN_CU_PHAP_LY: 'Bộ luật Lao động số 45/2019/QH14, Điều 21; Thông tư 10/2020/TT-BLĐTBXH; Nghị định 337/2025/NĐ-CP về hợp đồng lao động điện tử; Nghị định 293/2025/NĐ-CP về lương tối thiểu từ 01/01/2026.', MAU_CHUAN: 'Không có một mẫu A4 duy nhất' },
   FM_DE_NGHI_THANH_TOAN: { LOAI_MAU: 'Nội bộ doanh nghiệp - chứng từ hỗ trợ', PHAM_VI_SU_DUNG: 'Đề nghị thanh toán nội bộ; đính kèm hóa đơn, hợp đồng, nghiệm thu hoặc chứng từ liên quan.', CAN_CU_PHAP_LY: 'Luật Kế toán số 88/2015/QH13 (sửa đổi bởi Luật số 56/2024/QH15), Điều 16-20; chế độ kế toán doanh nghiệp đang áp dụng.', MAU_CHUAN: 'Không có mẫu bắt buộc chung' },
