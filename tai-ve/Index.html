@@ -1439,7 +1439,8 @@ function tcVeKy(x){const moi=TC.mat==='A'?'B':'A',el=$('tc'+moi),cu=$('tc'+TC.ma
 function tcXenAnh(anh,tron){let lb=(D.luuBut||[]).filter(n=>n&&String(n.noiDung||'').trim()),tc=(D.thayCo||[]).filter(t=>t&&t.hoTen);if(tron){lb=tcXao(lb);tc=tcXao(tc)}
  const out=[];let a=0,b=0,k=0;anh.forEach((p,i)=>{out.push(p);if((i+1)%3===0){const muonLb=k%2===0;let x=null;if(muonLb&&a<lb.length||b>=tc.length&&a<lb.length)x={n:lb[a++]};else if(b<tc.length)x={t:tc[b++]};if(x){out.push(x);k++}}});return out}
 /* Trang chủ → "Chiếu tất cả": mọi ảnh xen lưu bút và thầy cô; chưa có ảnh thì chiếu kỷ yếu */
-function tcMoTatCa(){if((D.anh||[]).some(a=>a.fileId))tcMo(D.anh,0,true);else tcMoKy()}
+/* Chiếu tất cả: luôn bắt đầu ngẫu nhiên (bật 🔀, ảnh đầu chọn ngẫu nhiên) */
+function tcMoTatCa(){TC.tron=true;const co=(D.anh||[]).filter(a=>a.fileId);if(co.length)tcMo(D.anh,D.anh.indexOf(co[Math.floor(Math.random()*co.length)]),true);else tcMoKy();$('tcTron').classList.toggle('on',TC.tron)}
 /* Menu Trình chiếu (nút ở trang chủ): thầy cô · lưu bút · hình ảnh · tin tức · tất cả (trừ tin tức) */
 function tcMenu(){const na=(D.anh||[]).filter(a=>a.fileId).length,nl=(D.luuBut||[]).length,nt=(D.thayCo||[]).length,nn=(D.tinTuc||[]).length;
  const o=(ic,t,so,mo,f)=>`<button ${so?'':'disabled'} onclick="tcMenuDong();${f}"><span class="ic">${ic}</span><b>${t}</b><small>${so?mo:'Chưa có nội dung'}</small></button>`;
