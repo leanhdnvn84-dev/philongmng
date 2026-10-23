@@ -12,3 +12,6 @@ Phông: Playfair Display 900 (tên trường, số 23) · Be Vietnam Pro 800–9
 - `mau-ao-polo-vang.jpg`: ảnh mẫu Keyball đổi vải trắng → vàng #F6C531 (giữ cổ/viền tay xanh, logo ngực, huy hiệu tay, bảng size).
 - `doi-mau-vang.py`: cách làm – tách áo bằng rembg (isnet-general-use) từng nửa ảnh, chỉ đổi điểm ảnh vải (sáng, không màu), nhân màu vàng theo độ sáng để giữ nếp gấp; chừa nền trắng của logo (hình thoi) và huy hiệu (elip theo vòng vàng).
 - `bang-chon-mau-ao.jpg`: bảng so sánh 12 màu (trắng gốc, vàng + 10 màu mới) kèm mã màu; `mau-mau/ao-01…10-*.jpg` từng ảnh đủ cỡ (`mau-mau/10-mau-ao.zip`). Tạo bằng `doi-mau-vang.py <thư mục mặt nạ> <ảnh gốc> <ảnh ra> <mã màu không #>`.
+
+## In lại logo áo (23/10/2026)
+`render-in.js` → thư mục `in-lai/`: logo ngực trái 10×10 cm và huy hiệu tay trái 8×8 cm, mỗi cái có PNG nền trong suốt 300 dpi + 600 dpi (đã ghi dpi trong tệp) và PDF vector đúng kích thước (chữ, hoa, vòng là vector; logo trường là ảnh). Gói gửi xưởng: `logo-ao-in-lai.zip`. Xem trước: `xem-truoc-logo-in-lai.jpg`.
