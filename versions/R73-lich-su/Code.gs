@@ -10,8 +10,7 @@ const DATA_SHEETS = [
   'TUYEN_DUNG_NHU_CAU', 'TUYEN_DUNG_UNG_VIEN', 'TUYEN_DUNG_PHONG_VAN'
 ];
 const APP_BOOTSTRAP_SHEETS = [
-  'DM_NHAN_VIEN', 'DM_PHONG_BAN', 'DM_CHUC_VU', 'DM_BO_PHAN', 'DM_NHOM',
-  'TUYEN_DUNG_NHU_CAU', 'TUYEN_DUNG_UNG_VIEN'
+  'DM_NHAN_VIEN', 'DM_PHONG_BAN', 'DM_CHUC_VU', 'DM_BO_PHAN', 'DM_NHOM'
 ];
 
 const WORK_HISTORY_HEADERS = [
@@ -1789,19 +1788,58 @@ function ensureContractClauses_(ss) {
   return pending.length;
 }
 
+/** Dấu phiên bản danh mục biểu mẫu: chỉ rà soát/bổ sung bốn bảng biểu mẫu khi mã nguồn đổi (mẫu, căn cứ, điều khoản, cột) hoặc thiếu sheet; các lần mở sau chỉ đọc dữ liệu. */
+const FORM_CATALOG_REV_ = 'R73-perf-1';
+var formCatalogSignatureCache_ = '';
+function formCatalogSignature_() {
+  if (formCatalogSignatureCache_) return formCatalogSignatureCache_;
+  var text = JSON.stringify([FORM_CATALOG_REV_, FORM_TEMPLATE_SEEDS, FORM_TEMPLATE_RETIRED, FORM_TEMPLATE_BASES, FORM_TEMPLATE_MODULES, FORM_TEMPLATE_LEGAL_PROFILES,
+    LEGAL_UPDATES_.map(function (item) { return [String(item[0]), item[1]]; }), CONTRACT_CLAUSE_SEEDS, COMPANY_INFO_SEEDS,
+    FORM_TEMPLATE_HEADERS, FORM_REQUEST_HEADERS, CONTRACT_CLAUSE_HEADERS, COMPANY_INFO_HEADERS]);
+  var hash = 5381;
+  for (var i = 0; i < text.length; i++) hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
+  formCatalogSignatureCache_ = FORM_CATALOG_REV_ + ':' + text.length + ':' + (hash >>> 0).toString(36);
+  return formCatalogSignatureCache_;
+}
+
+function ensureFormCatalog_(ss, force) {
+  var store = PropertiesService.getScriptProperties(), signature = formCatalogSignature_();
+  if (!force && store.getProperty('FORM_CATALOG_SCHEMA') === signature && ['DM_BIEU_MAU', 'PHIEU_BIEU_MAU', 'DM_DIEU_KHOAN', 'DM_CONG_TY'].every(function (name) { return ss.getSheetByName(name); })) return null;
+  var result = ensureDefaultFormTemplates_(ss);
+  ensureFormSheet_(ss, 'PHIEU_BIEU_MAU');
+  ensureContractClauses_(ss);
+  ensureCompanyInfo_(ss);
+  store.setProperty('FORM_CATALOG_SCHEMA', signature);
+  return result;
+}
+
 /** Chạy một lần để tạo danh mục biểu mẫu dùng chung và bảng lưu phiếu. */
 function setupFormCatalog() {
   requireEditorRun_();
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), result = ensureDefaultFormTemplates_(ss), templateSheet = result.sheet;
-  ensureContractClauses_(ss);
-  ensureCompanyInfo_(ss);
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID), result = ensureFormCatalog_(ss, true), templateSheet = result.sheet;
   var requestSheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), added = result.added;
   SpreadsheetApp.flush();
   return { success: true, added: added, updated: result.updated || 0, templates: Math.max(0, templateSheet.getLastRow() - 1), requests: Math.max(0, requestSheet.getLastRow() - 1), message: 'Đã sẵn sàng DM_BIEU_MAU và PHIEU_BIEU_MAU cùng căn cứ biểu mẫu.' };
 }
 
 function formTemplateById_(ss, value) {
-  var wanted = key_(value);
+  var wanted = key_(value), sheet = ss.getSheetByName('DM_BIEU_MAU');
+  if (!wanted || !sheet) return null;
+  // Tìm đúng ô mã mẫu rồi đọc một dòng, thay vì đọc cả danh mục vài trăm mẫu.
+  try {
+    var meta = headers_(sheet), columns = [meta.columns.ID_BIEU_MAU, meta.columns.MA_BIEU_MAU];
+    var hits = sheet.createTextFinder(String(value).trim()).matchEntireCell(true).findAll();
+    for (var i = 0; i < hits.length; i++) {
+      var rowNumber = hits[i].getRow();
+      if (rowNumber < 2 || columns.indexOf(hits[i].getColumn()) === -1) continue;
+      var values = sheet.getRange(rowNumber, 1, 1, meta.headers.length).getDisplayValues()[0], item = {};
+      meta.headers.forEach(function (header, index) { if (header) item[header] = values[index] || ''; });
+      if (key_(item.ID_BIEU_MAU) === wanted || key_(item.MA_BIEU_MAU) === wanted) {
+        Object.defineProperty(item, '__row', { value: rowNumber, enumerable: false });
+        return item;
+      }
+    }
+  } catch (error) {}
   return readSheet_(ss, 'DM_BIEU_MAU').rows.find(function (row) {
     return key_(row.ID_BIEU_MAU) === wanted || key_(row.MA_BIEU_MAU) === wanted;
   }) || null;
@@ -1810,7 +1848,7 @@ function formTemplateById_(ss, value) {
 function saveFormRequest(input) {
   input = input || {};
   var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', 'THEM'), ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  ensureDefaultFormTemplates_(ss);
+  ensureFormCatalog_(ss);
   var template = formTemplateById_(ss, input.ID_BIEU_MAU);
   if (!template) throw new Error('Biểu mẫu đã chọn không tồn tại trong DM_BIEU_MAU.');
   var employeeCode = String(input.MA_NHAN_VIEN || '').trim(), employee = null;
@@ -1824,7 +1862,7 @@ function saveFormRequest(input) {
     try { detail = JSON.parse(formDataJson) || {}; } catch (error) { throw new Error('Dữ liệu chi tiết biểu mẫu không hợp lệ.'); }
   }
   var shared = formSharedFields_(detail.fields || {});
-  var sheet = ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet), now = new Date(), formDate = input.NGAY_LAP ? parseAttendanceDate_(input.NGAY_LAP, 'Ngày lập') : now;
+  var sheet = ss.getSheetByName('PHIEU_BIEU_MAU') || ensureFormSheet_(ss, 'PHIEU_BIEU_MAU'), meta = headers_(sheet), now = new Date(), formDate = input.NGAY_LAP ? parseAttendanceDate_(input.NGAY_LAP, 'Ngày lập') : now;
   var record = {
     ID_PHIEU: 'PH_' + Utilities.getUuid(), ID_BIEU_MAU: template.ID_BIEU_MAU || template.MA_BIEU_MAU || '',
     TEN_BIEU_MAU: template.TEN_BIEU_MAU || '', MA_NHAN_VIEN: employeeCode, HO_VA_TEN: employee && employee.HO_VA_TEN || '',
@@ -1835,12 +1873,29 @@ function saveFormRequest(input) {
   Object.keys(shared).forEach(function (field) { record[field] = shared[field]; });
   record.LICH_SU = JSON.stringify([formHistoryEntry_(auth, 'Tạo phiếu', 'Lưu nháp')]);
   var rowNumber = appendFormRecord_(sheet, meta, record);
-  ['ID_PHIEU', 'ID_BIEU_MAU', 'MA_NHAN_VIEN'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
-  ['NGAY_LAP', 'NGAY_TAO'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy HH:mm'); });
-  ['NGAY_HIEU_LUC', 'NGAY_HET_HAN'].forEach(function (field) { if (meta.columns[field] && record[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('dd/MM/yyyy'); });
-  ['SO_VAN_BAN', 'PHONG_BAN'].forEach(function (field) { if (meta.columns[field]) sheet.getRange(rowNumber, meta.columns[field]).setNumberFormat('@'); });
+  // Gộp định dạng theo nhóm ô (một lệnh mỗi nhóm) thay vì từng ô.
+  var a1 = function (fields, when) {
+    return fields.filter(function (field) { return meta.columns[field] && (!when || record[field]); }).map(function (field) { return columnLetter_(meta.columns[field]) + rowNumber; });
+  };
+  [[a1(['ID_PHIEU', 'ID_BIEU_MAU', 'MA_NHAN_VIEN', 'SO_VAN_BAN', 'PHONG_BAN']), '@'], [a1(['NGAY_LAP', 'NGAY_TAO']), 'dd/MM/yyyy HH:mm'], [a1(['NGAY_HIEU_LUC', 'NGAY_HET_HAN'], true), 'dd/MM/yyyy']].forEach(function (group) {
+    if (group[0].length) sheet.getRangeList(group[0]).setNumberFormat(group[1]);
+  });
   writeSystemLog_(ss, auth, 'BIEU_MAU', 'THEM', record.ID_PHIEU, null, formLogSlim_(record), 'Tạo phiếu biểu mẫu.');
-  return { success: true, id: record.ID_PHIEU };
+  // Trả về dòng vừa lưu (đúng định dạng hiển thị) để trình duyệt chèn vào danh sách, không phải tải lại cả bảng.
+  var saved = null;
+  try {
+    var values = sheet.getRange(rowNumber, 1, 1, meta.headers.length).getDisplayValues()[0];
+    saved = {};
+    meta.headers.forEach(function (header, index) { if (header) saved[header] = values[index] || ''; });
+    if (key_(auth.roleCode) === 'role-user' && auth.employeeCode && saved.MA_NHAN_VIEN && key_(saved.MA_NHAN_VIEN) !== key_(auth.employeeCode)) saved = null;
+  } catch (error) { saved = null; }
+  return { success: true, id: record.ID_PHIEU, row: saved };
+}
+
+function columnLetter_(column) {
+  var text = '';
+  for (var n = column; n > 0; n = Math.floor((n - 1) / 26)) text = String.fromCharCode(65 + (n - 1) % 26) + text;
+  return text;
 }
 
 /** Tách bộ trường quản lý dùng chung từ dữ liệu biểu mẫu để lọc, nhắc hạn và báo cáo trên Sheet. */
@@ -2244,7 +2299,7 @@ function requestedDataSheets_(names) {
 }
 
 function getAppData(input) {
-  var isRequest = input && typeof input === 'object', sessionToken = isRequest ? input._sessionToken : input;
+  var startedAt = Date.now(), isRequest = input && typeof input === 'object', sessionToken = isRequest ? input._sessionToken : input;
   var auth = requireAuth_(sessionToken), requested = isRequest ? requestedDataSheets_(input.sheets) : DATA_SHEETS.slice();
   var data = {};
   // Máy chủ lọc theo quyền XEM: ẩn menu thôi chưa đủ, sheet không được phép trả về rỗng.
@@ -2255,13 +2310,8 @@ function getAppData(input) {
   });
   try {
     var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    if (requested.indexOf('DM_BIEU_MAU') !== -1 || requested.indexOf('PHIEU_BIEU_MAU') !== -1) {
-      // Bổ sung mẫu mặc định theo kiểu không phá dữ liệu cũ khi mở chức năng Biểu mẫu.
-      ensureDefaultFormTemplates_(ss);
-      ensureFormSheet_(ss, 'PHIEU_BIEU_MAU');
-    }
-    if (requested.indexOf('DM_DIEU_KHOAN') !== -1) ensureContractClauses_(ss);
-    if (requested.indexOf('DM_CONG_TY') !== -1) ensureCompanyInfo_(ss);
+    // Bổ sung mẫu mặc định theo kiểu không phá dữ liệu cũ; chỉ chạy khi danh mục trong mã nguồn đổi.
+    if (['DM_BIEU_MAU', 'PHIEU_BIEU_MAU', 'DM_DIEU_KHOAN', 'DM_CONG_TY'].some(function (name) { return requested.indexOf(name) !== -1; })) ensureFormCatalog_(ss);
     if (['TUYEN_DUNG_NHU_CAU', 'TUYEN_DUNG_UNG_VIEN', 'TUYEN_DUNG_PHONG_VAN'].some(function (name) { return requested.indexOf(name) !== -1; })) { try { ensureRecruitSheets_(ss); } catch (error) {} }
     requested.forEach(function (name) {
       try {
@@ -2295,6 +2345,8 @@ function getAppData(input) {
       });
     });
   }
+  // Đo thời gian máy chủ: xem trong Apps Script > Lần thực thi.
+  console.log('getAppData ' + (Date.now() - startedAt) + ' ms: ' + requested.join(','));
   return data;
 }
 
