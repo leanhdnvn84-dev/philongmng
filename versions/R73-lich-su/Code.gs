@@ -1810,6 +1810,62 @@ function ensureFormCatalog_(ss, force) {
   ensureContractClauses_(ss);
   ensureCompanyInfo_(ss);
   store.setProperty('FORM_CATALOG_SCHEMA', signature);
+  sheetCacheReset_();
+  return result;
+}
+
+/**
+ * Lưu đệm phía máy chủ (CacheService) cho các danh mục biểu mẫu ít thay đổi và không chứa dữ liệu cá nhân.
+ * Mỗi bảng được chia khúc (giới hạn 100 KB/khóa) và đọc lại bằng một lệnh getAll.
+ * Bộ đệm tự hết hạn sau 10 phút (để nhận phần sửa tay trên Sheet), được làm mới khi danh mục được rà soát,
+ * hoặc khi người dùng bấm “Làm mới”. Không lưu đệm danh sách nhân viên, phiếu đã lập hay dữ liệu tuyển dụng.
+ */
+const SHEET_CACHE_NAMES_ = ['DM_BIEU_MAU', 'DM_DIEU_KHOAN', 'DM_CONG_TY'];
+const SHEET_CACHE_TTL_ = 600;
+const SHEET_CACHE_CHUNK_ = 30000;
+const SHEET_CACHE_MAX_CHUNKS_ = 16;
+function sheetCacheVersion_() {
+  return PropertiesService.getScriptProperties().getProperty('SHEET_CACHE_VER') || '0';
+}
+function sheetCacheReset_() {
+  PropertiesService.getScriptProperties().setProperty('SHEET_CACHE_VER', String(Date.now()));
+}
+function sheetCacheKey_(version, name, part) {
+  return 'sc:' + version + ':' + name + ':' + part;
+}
+/** Đọc các bảng được phép lưu đệm: lấy từ bộ đệm nếu đủ khúc, thiếu thì đọc Sheet rồi ghi lại bộ đệm. */
+function readSheetsCached_(ss, names, fresh) {
+  var result = {}, cache = null, version = '';
+  try { cache = CacheService.getScriptCache(); version = sheetCacheVersion_(); } catch (error) { cache = null; }
+  if (cache && !fresh) {
+    var keys = [];
+    names.forEach(function (name) {
+      keys.push(sheetCacheKey_(version, name, 'n'));
+      for (var i = 0; i < SHEET_CACHE_MAX_CHUNKS_; i++) keys.push(sheetCacheKey_(version, name, i));
+    });
+    var hit = {};
+    try { hit = cache.getAll(keys) || {}; } catch (error) { hit = {}; }
+    names.forEach(function (name) {
+      var count = Number(hit[sheetCacheKey_(version, name, 'n')] || 0), parts = [];
+      if (!count) return;
+      for (var i = 0; i < count; i++) {
+        var part = hit[sheetCacheKey_(version, name, i)];
+        if (part == null) return;
+        parts.push(part);
+      }
+      try { result[name] = JSON.parse(parts.join('')); } catch (error) { delete result[name]; }
+    });
+  }
+  names.forEach(function (name) {
+    if (result[name]) return;
+    result[name] = readSheet_(ss, name);
+    if (!cache || result[name].missing) return;
+    var text = JSON.stringify(result[name]), values = {}, count = Math.ceil(text.length / SHEET_CACHE_CHUNK_);
+    if (count > SHEET_CACHE_MAX_CHUNKS_) return;
+    for (var i = 0; i < count; i++) values[sheetCacheKey_(version, name, i)] = text.slice(i * SHEET_CACHE_CHUNK_, (i + 1) * SHEET_CACHE_CHUNK_);
+    values[sheetCacheKey_(version, name, 'n')] = String(count);
+    try { cache.putAll(values, SHEET_CACHE_TTL_); } catch (error) {}
+  });
   return result;
 }
 
@@ -2313,7 +2369,15 @@ function getAppData(input) {
     // Bổ sung mẫu mặc định theo kiểu không phá dữ liệu cũ; chỉ chạy khi danh mục trong mã nguồn đổi.
     if (['DM_BIEU_MAU', 'PHIEU_BIEU_MAU', 'DM_DIEU_KHOAN', 'DM_CONG_TY'].some(function (name) { return requested.indexOf(name) !== -1; })) ensureFormCatalog_(ss);
     if (['TUYEN_DUNG_NHU_CAU', 'TUYEN_DUNG_UNG_VIEN', 'TUYEN_DUNG_PHONG_VAN'].some(function (name) { return requested.indexOf(name) !== -1; })) { try { ensureRecruitSheets_(ss); } catch (error) {} }
+    var cachedNames = requested.filter(function (name) { return SHEET_CACHE_NAMES_.indexOf(name) !== -1; });
+    if (cachedNames.length) {
+      try {
+        var cached = readSheetsCached_(ss, cachedNames, isRequest && input.fresh === true);
+        cachedNames.forEach(function (name) { data[name] = cached[name]; });
+      } catch (error) {}
+    }
     requested.forEach(function (name) {
+      if (data[name]) return;
       try {
         data[name] = readSheet_(ss, name);
       } catch (error) {
