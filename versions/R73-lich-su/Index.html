@@ -1849,7 +1849,7 @@
     var FORM_PARTY_KEYS={partyA:1,partyB:1};
     /* Ô in thành một dòng riêng (hết bề ngang) khi: ô dài theo cấu hình, số tiền có dòng bằng chữ, hoặc giá trị thực tế dài quá nửa dòng. Ô ngắn được ghép đôi và không xuống dòng. */
     var FORM_PRINT_HALF_CHARS=18;
-    function formPrintWide(field,fields) { if(field.full||field.type==='textarea')return true;var html=formPrintValue(field,fields);if(!html)return false;if(html.indexOf('pf-words')!==-1)return true;var text=html.replace(/<br\s*\/?>/g,'\n').replace(/<[^>]+>/g,'').replace(/&[a-z#0-9]+;/gi,'x');return text.indexOf('\n')!==-1||text.length>FORM_PRINT_HALF_CHARS; }
+    function formPrintWide(field,fields) { if(field.full||field.type==='textarea')return true;var html=formPrintValue(field,fields);if(!html)return false;if(html.indexOf('pf-words')!==-1)return true;var text=html.replace(/<br\s*\/{0,1}>/g,'\n').replace(/<[^>]+>/g,'').replace(/&[a-z#0-9]+;/gi,'x');return text.indexOf('\n')!==-1||text.length>FORM_PRINT_HALF_CHARS; }
     function formPrintSections(data) {
       var fields=data.fields||{},blank=formPrintBlank(data);if(!Object.keys(fields).length&&!blank)return '';
       var config=formEditorConfigFor({id:data.templateId||'',tab:data.tab||'all'}),national=formUsesNational(data),number=0,fill='<span class="fill"></span>',generic=!!FORM_GENERIC[formTemplateKey(data)],sections=config.sections||[],skip=FORM_PRINT_SKIP[formTemplateKey(data)]||[],bodyText=(FORM_GENERIC[formTemplateKey(data)]||{}).title==='vv',body=bodyText?formValueText(fields,'content').trim():'';
