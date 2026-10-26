@@ -84,7 +84,7 @@ function doGet(e) {
   const out = HtmlService.createHtmlOutputFromFile('Index');
   /* Tham số trên link (vd. ?viet=1 từ mã QR ở buổi Gala → mở thẳng ô Viết lưu bút). Chỉ nhận vài khoá, giá trị chữ/số ngắn. */
   const p = (e && e.parameter) || {}, tham = {};
-  ['viet', 'trang'].forEach(function (k) { if (p[k] && /^[\w-]{1,20}$/.test(p[k])) tham[k] = p[k]; });
+  ['viet', 'trang', 'man'].forEach(function (k) { if (p[k] && /^[\w-]{1,20}$/.test(p[k])) tham[k] = p[k]; });
   const th = 'window.THAM=' + JSON.stringify(tham) + ';';
   /* Gửi sẵn dữ liệu công khai cùng trang: khỏi chờ thêm một lần gọi google.script.run (mở trong Zalo nhanh hơn).
      Thoát "/" và "<" để Apps Script không cắt "//" và không đóng thẻ script sớm. */
