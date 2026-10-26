@@ -2012,6 +2012,8 @@
       var doc=document.implementation.createHTMLDocument(''),root=doc.createElement('div');root.innerHTML=String(html||'');
       var walk=function(node){Array.prototype.slice.call(node.childNodes).forEach(function(child){
         if(child.nodeType===8){child.remove();return;}if(child.nodeType!==1)return;var tag=child.tagName.toUpperCase();
+        // Logo công ty: giữ một dấu chỗ, khi hiển thị/in gắn lại đúng logo của ứng dụng (không nhận ảnh từ nội dung soạn).
+        if(tag==='IMG'&&child.classList.contains('form-brand-logo')){var mark=doc.createElement('span');mark.className='free-logo';node.replaceChild(mark,child);return;}
         if(FREE_DROP[tag]){child.remove();return;}
         walk(child);
         if(!FREE_TAGS[tag]){while(child.firstChild)node.insertBefore(child.firstChild,child);child.remove();return;}
@@ -2026,7 +2028,7 @@
     }
     function formFreePrintHtml(data) {
       var free=data.free;
-      return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>'+esc('Phiếu '+formPrintTitle(data.templateName))+'</title><style>'+formPrintCss()+'.pg-break{display:none}table.free-table{width:100%;border-collapse:collapse;margin:4pt 0}table.free-table td,table.free-table th{padding:3pt 5pt;border:1px solid #000;vertical-align:top}</style></head><body'+(free.cls?' class="'+esc(free.cls)+'"':'')+'><main class="print-sheet">'+formFreeClean(free.html)+(free.note?'<p class="footer-note footer-fixed">'+esc(FORM_VALID_NOTE)+'</p>':'')+'</main></body></html>';
+      return '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>'+esc('Phiếu '+formPrintTitle(data.templateName))+'</title><style>'+formPrintCss()+'.pg-break{display:none}table.free-table{width:100%;border-collapse:collapse;margin:4pt 0}table.free-table td,table.free-table th{padding:3pt 5pt;border:1px solid #000;vertical-align:top}</style></head><body'+(free.cls?' class="'+esc(free.cls)+'"':'')+'><main class="print-sheet">'+formFreeClean(free.html).replace(/<span class="free-logo"><\/span>/g,'<img class="form-brand-logo" src="'+PL_LOGO+'" width="176" height="55" alt="Phi Long Technology">')+(free.note?'<p class="footer-note footer-fixed">'+esc(FORM_VALID_NOTE)+'</p>':'')+'</main></body></html>';
     }
     /* Lấy phần thân bản A4 tạo từ ô nhập để mở trong trình soạn thảo. */
     function formFreeFromGenerated(data) {
