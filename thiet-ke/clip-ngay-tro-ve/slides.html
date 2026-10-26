@@ -1,0 +1,51 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Hình chèn clip – Ngày trở về</title>
+<!-- 10 hình chèn clip Gala "Ngày trở về". ?n=1..10 chọn hình, ?d=doc cho bản dọc 9:16 (mặc định ngang 16:9). Chụp bằng render.js -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Patrick+Hand&family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#FBF5EC}
+body.doc,body.doc .k{width:1080px;height:1920px}
+.k{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Patrick Hand',cursive;color:#2B2420;background:linear-gradient(180deg,#FBF5EC,#F3E3CE)}
+.tranh{position:absolute;background:url(../../assets/giay-moi-nen.webp) no-repeat}
+.canh{position:absolute;background:url(../ngoai-khoa/canh.webp) center/contain no-repeat;pointer-events:none}
+.roi i{position:absolute;width:22px;height:18px;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff6b5a,#c8102e);opacity:.85}
+.nd{position:absolute;z-index:3}
+.gv{font-family:'Great Vibes',cursive;font-weight:400;line-height:1.15;color:#B3261E}
+.ey{font:700 30px 'Be Vietnam Pro',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#9E1B22}
+.ph{font-size:46px;line-height:1.45;color:#4A3A31}
+.logo{width:120px;height:120px;border-radius:50%;background:#fff;padding:12px;box-shadow:0 8px 30px rgba(120,60,30,.2)}
+.gach{width:220px;height:3px;background:linear-gradient(90deg,transparent,#C9A24A,transparent);margin:28px 0}
+.giua{text-align:center}.giua .gach{margin:28px auto}
+/* nền tối đỏ phượng */
+.k.toi{background:radial-gradient(120% 90% at 30% 20%,#7E2620,#3B0E0B)}
+.k.toi .gv{color:#FFE3C2}.k.toi .ph{color:#F6DCC8}.k.toi .ey{color:#E8B04A}
+/* bản dọc */
+body.doc .ph{font-size:52px}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const P=new URLSearchParams(location.search),N=+(P.get('n')||1),DOC=P.get('d')==='doc';if(DOC)document.body.classList.add('doc');
+const k=document.getElementById('k'),W=DOC?1080:1920,H=DOC?1920:1080;
+const roi=(n,mau)=>'<div class="roi">'+Array.from({length:n},(_,i)=>`<i style="left:${(i*37+11)%100}%;top:${(i*53+7)%100}%;transform:rotate(${i*47}deg) scale(${.6+(i%4)*.25});${mau?'background:'+mau:''}"></i>`).join('')+'</div>';
+const LOGO='<img class="logo" src="../../assets/logo-nguyen-hien.png" alt="">';
+/* tranh: vị trí cắt (x%,y%) và cỡ nền (% bề rộng khung tranh) */
+function tranh(st,pos,size,mask){return `<div class="tranh" style="${st};background-position:${pos};background-size:${size};-webkit-mask-image:${mask};mask-image:${mask}"></div>`}
+const S=[
+ /* 1 */ ()=>DOC?
+   tranh('inset:0','8% 96%','260% auto','linear-gradient(180deg,transparent 0,#000 45%)')+`<div class="nd giua" style="left:80px;right:80px;top:300px"><div class="ey">THPT Nguyễn Hiền · 2000 – 2003</div><div class="gach"></div><div class="gv" style="font-size:190px">Hai mươi<br>ba năm…</div></div>`+roi(10)
+  :tranh('right:0;top:0;width:62%;height:100%','0 97%','150% auto','linear-gradient(90deg,transparent 0,#000 35%)')+`<div class="nd" style="left:130px;top:300px;width:900px"><div class="ey">THPT Nguyễn Hiền · 2000 – 2003</div><div class="gach"></div><div class="gv" style="font-size:190px">Hai mươi<br>ba năm…</div></div>`+roi(10),
+ /* 2 */ ()=>tranh('inset:0',DOC?'10% 99%':'0 98%',DOC?'280% auto':'100% auto','linear-gradient(180deg,rgba(0,0,0,.25),#000 70%)')+`<div class="nd giua" style="left:0;right:0;${DOC?'top:260px':'top:130px'};padding:0 120px"><div class="gv" style="font-size:${DOC?110:120}px">Tháng Năm năm 2003</div><div class="ph" style="margin-top:20px;text-shadow:0 2px 0 #FBF5EC">ba hồi trống cuối cùng vang lên trên sân trường,<br>những cánh phượng rơi đỏ lối…</div></div>`,
+ /* 3 */ ()=>`<div class="canh" style="${DOC?'right:-160px;top:-60px;width:900px;height:620px':'right:-120px;top:-60px;width:1000px;height:680px'};transform:rotate(-6deg)"></div>`+roi(16)+`<div class="nd" style="${DOC?'left:90px;right:90px;top:760px':'left:140px;top:360px;width:1100px'}"><div class="ph" style="font-size:${DOC?60:56}px">Có những người bạn</div><div class="gv" style="font-size:${DOC?150:150}px">tưởng như đã rất xa…</div></div>`,
+ /* 4 */ ()=>`<div class="nd giua" style="left:0;right:0;top:${DOC?520:230}px;padding:0 120px"><div style="display:inline-block;background:#FFFDF8;background-image:repeating-linear-gradient(transparent 0 ${DOC?61:92}px,#EADFF0 ${DOC?61:92}px ${DOC?62:93}px);border-left:6px solid #F3B7BE;padding:60px 80px;transform:rotate(-2deg);box-shadow:0 30px 60px rgba(91,58,46,.2);text-align:left;max-width:${DOC?860:1300}px"><div class="ph" style="font-size:${DOC?56:72}px;line-height:${DOC?62:93}px;color:#3A2E5C">Cuốn lưu bút chưa kịp chuyền hết một vòng lớp.<br>Có những lời tạm biệt mình hẹn để mai nói…<br>rồi để tới tận bây giờ.</div></div></div>`+roi(8),
+ /* 5 */ ()=>tranh('inset:0',DOC?'50% 99%':'50% 99%',DOC?'260% auto':'100% auto','radial-gradient(70% 70% at 50% 60%,#000 30%,rgba(0,0,0,.35) 100%)')+`<div class="nd giua" style="left:0;right:0;top:${DOC?700:330}px"><div class="gv" style="font-size:${DOC?150:170}px;text-shadow:0 3px 0 #FFF8EE,0 0 40px #FFF8EE">Chỉ cần một ngày trở về…</div></div>`,
+ /* 6 */ ()=>`<div class="k toi" style="position:absolute;inset:0"></div><div class="canh" style="left:-140px;top:-80px;width:${DOC?800:900}px;height:600px;transform:scaleX(-1) rotate(8deg)"></div><div class="canh" style="right:-160px;bottom:-120px;width:${DOC?760:820}px;height:560px;opacity:.7;transform:rotate(170deg)"></div>`+roi(18,'radial-gradient(circle at 30% 30%,#ff8a75,#e0263f)')+`<div class="nd giua" style="left:0;right:0;top:${DOC?640:270}px"><div class="gv" style="font-size:${DOC?190:260}px;color:#FFE3C2;text-shadow:0 6px 30px rgba(0,0,0,.4)">Về đi bạn ơi!</div></div>`,
+ /* 7 */ ()=>tranh(DOC?'left:0;right:0;top:0;height:46%':'right:0;top:0;width:50%;height:100%',DOC?'0 0':'100% 0',DOC?'100% auto':'cover',DOC?'linear-gradient(180deg,#000 60%,transparent)':'linear-gradient(90deg,transparent 0,#000 30%)')+`<div class="nd ${DOC?'giua':''}" style="${DOC?'left:70px;right:70px;top:960px':'left:120px;top:150px;width:980px'}"><div class="ey">Gala gặp mặt cựu học sinh</div><div class="gv" style="font-size:${DOC?150:140}px;margin:6px 0">Ngày trở về</div><div class="gach"></div>
+   <div style="font:800 ${DOC?72:76}px 'Be Vietnam Pro';color:#B3261E;letter-spacing:.02em">17:00 · THỨ BẢY</div><div style="font:800 ${DOC?100:110}px 'Playfair Display';color:#2B2420;font-variant-numeric:lining-nums">14.11.2026</div>
+   <div class="ph" style="margin-top:24px;font-size:${DOC?46:44}px"><b style="font-family:'Be Vietnam Pro';font-weight:700;color:#2B2420">Nhà hàng Quảng Đại 2</b><br>190 Đường 30-4, P. Hòa Cường, TP. Đà Nẵng</div></div>`,
+ /* 8 */ ()=>{const v=Array.from({length:12},(_,i)=>{const a=i/12*2*Math.PI-Math.PI/2,R=DOC?380:360,cx=DOC?540:960,cy=DOC?1060:600;return `<div style="position:absolute;left:${cx+R*Math.cos(a)-75}px;top:${cy+R*Math.sin(a)-75}px;width:150px;height:150px;border-radius:50%;background:#fff;border:5px solid ${['#C8102E','#E07B1F','#2F8F5B'][i%3]};display:grid;place-items:center;font:800 40px 'Be Vietnam Pro';color:#2B2420;box-shadow:0 10px 24px rgba(91,58,46,.18)">12/${i+1}</div>`}).join('');
+   return roi(10)+v+`<div class="nd giua" style="left:0;right:0;top:${DOC?180:90}px"><div class="gv" style="font-size:${DOC?140:120}px">12 lớp · một mái trường</div></div><div class="nd giua" style="left:0;right:0;top:${DOC?990:530}px"><div style="font:800 60px 'Playfair Display';color:#B3261E">2000</div><div style="font:800 60px 'Playfair Display';color:#B3261E">2003</div></div>`},
+ /* 9 */ ()=>`<div class="canh" style="right:-100px;top:-40px;width:${DOC?760:880}px;height:600px;transform:rotate(-8deg)"></div>`+roi(10)+`<div class="nd" style="${DOC?'left:90px;right:90px;top:700px;text-align:center':'left:150px;top:300px;width:1150px'}"><div class="ey">Tri ân thầy cô</div><div class="gv" style="font-size:${DOC?130:140}px;margin-top:10px">Cảm ơn thầy cô</div><div class="ph" style="margin-top:20px">đã cho chúng em một thời áo trắng<br>đẹp nhất trong đời.</div></div>`,
+ /* 10 */ ()=>tranh('inset:0',DOC?'30% 99%':'0 99%',DOC?'260% auto':'100% auto','linear-gradient(180deg,rgba(0,0,0,.2) 0,#000 65%)')+`<div class="nd giua" style="left:50%;transform:translateX(-50%);top:${DOC?300:90}px;width:${DOC?940:1300}px;padding:40px 60px 50px;background:rgba(251,245,236,.86);border-radius:36px;box-shadow:0 20px 60px rgba(91,58,46,.18);backdrop-filter:blur(4px)">${LOGO}<div class="gv" style="font-size:${DOC?130:140}px;margin-top:20px;text-shadow:0 3px 0 #FFF8EE">Hẹn gặp lại<br>dưới gốc phượng</div><div class="gach"></div><div style="font:700 ${DOC?40:38}px 'Be Vietnam Pro';color:#2B2420;text-shadow:0 2px 0 #FFF8EE">Ban liên lạc khoá 2000 – 2003 · THPT Nguyễn Hiền</div><div style="font:600 ${DOC?36:34}px 'Be Vietnam Pro';color:#9E1B22;margin-top:10px;text-shadow:0 2px 0 #FFF8EE">Đăng ký: nguyenhien.philong.cloud</div></div>`
+];
+k.innerHTML=S[N-1]();
+</script></body></html>
