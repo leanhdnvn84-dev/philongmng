@@ -2101,15 +2101,25 @@ function formDriveFolder_(moduleName) {
 /** Ký → PDF → lưu Drive: chỉ cho phiếu đã duyệt; HTML do trình duyệt dựng từ đúng mẫu in. */
 function saveFormPdf(input) {
   input = input || {};
-  var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', 'THEM'), id = String(input.ID_PHIEU || '').trim(), html = String(input.HTML || '');
+  var auth = requirePermission_(input._sessionToken, 'BIEU_MAU', 'THEM'), id = String(input.ID_PHIEU || '').trim(), html = String(input.HTML || ''), pdfData = String(input.PDF || '');
   if (!id) throw new Error('Thiếu phiếu biểu mẫu cần lưu PDF.');
-  if (!html || html.length > 2000000) throw new Error('Nội dung in không hợp lệ hoặc quá lớn.');
+  // Ưu tiên PDF dựng sẵn trên trình duyệt (giống nút Xuất PDF); HTML chỉ còn cho bản ứng dụng cũ.
+  if (pdfData && pdfData.length > 40000000) throw new Error('Tệp PDF quá lớn để lưu.');
+  if (!pdfData && (!html || html.length > 2000000)) throw new Error('Nội dung in không hợp lệ hoặc quá lớn.');
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID), found = formRequestFind_(ss, id), row = found.data;
   // Phiếu dùng cho cá nhân từng tài khoản, không qua duyệt: lưu PDF được ngay, trừ phiếu đã hủy.
   if (key_(row.TRANG_THAI) === key_('Đã hủy')) throw new Error('Phiếu đã hủy, không lưu PDF.');
   var template = formTemplateById_(ss, row.ID_BIEU_MAU) || {}, folder = formDriveFolder_(template.PHAN_HE || FORM_TEMPLATE_MODULES[row.ID_BIEU_MAU]);
   var name = [row.SO_VAN_BAN, row.TIEU_DE || row.TEN_BIEU_MAU, row.NGAY_LAP].filter(function (part) { return String(part || '').trim(); }).join(' - ').replace(/[\\/:*?"<>|]+/g, '-').slice(0, 150) || id;
-  var pdf = Utilities.newBlob(html, 'text/html', name + '.html').getAs('application/pdf').setName(name + '.pdf'), file = folder.createFile(pdf), now = new Date();
+  var pdf;
+  if (pdfData) {
+    var bytes = Utilities.base64Decode(pdfData);
+    if (bytes.length < 5 || bytes[0] !== 37 || bytes[1] !== 80 || bytes[2] !== 68 || bytes[3] !== 70) throw new Error('Tệp gửi lên không phải PDF.');
+    pdf = Utilities.newBlob(bytes, 'application/pdf', name + '.pdf');
+  } else {
+    pdf = Utilities.newBlob(html, 'text/html', name + '.html').getAs('application/pdf').setName(name + '.pdf');
+  }
+  var file = folder.createFile(pdf), now = new Date();
   if (found.meta.columns.LINK_PDF) found.sheet.getRange(found.rowNumber, found.meta.columns.LINK_PDF).setValue(file.getUrl());
   if (found.meta.columns.NGAY_LUU_PDF) found.sheet.getRange(found.rowNumber, found.meta.columns.NGAY_LUU_PDF).setValue(now).setNumberFormat('dd/MM/yyyy HH:mm');
   formHistoryWrite_(found, formHistoryEntry_(auth, 'Lưu PDF Drive', folder.getName() + '/' + file.getName()));
