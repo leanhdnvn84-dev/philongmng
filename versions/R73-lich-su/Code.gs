@@ -412,6 +412,8 @@ const AUTH_MIN_PASSWORD_LENGTH = 8;
 const AUTH_SESSION_PREFIX = 'PHI_LONG_LOCAL_SESSION_';
 const AUTH_SESSION_IDLE_HOURS = 8;
 const AUTH_SESSION_MAX_DAYS = 7;
+/** "Ghi nhớ đăng nhập": phiên trên máy riêng giữ tối đa số ngày này (vẫn bị hủy ngay khi khóa tài khoản, đổi mật khẩu hoặc đăng xuất). */
+const AUTH_REMEMBER_DAYS = 30;
 const AUTH_SESSION_MAX_PER_USER = 5;
 const AUTH_SESSION_CHECK_MINUTES = 5;
 const AUTH_VERSION_KEY = 'PHI_LONG_AUTH_VERSION';
@@ -744,6 +746,7 @@ function authSessionKey_(token) {
 function authSessionExpired_(session, now) {
   var created = Date.parse(session && session.createdAt || ''), last = Date.parse(session && (session.lastActivityAt || session.createdAt) || '');
   if (!created || !last) return true;
+  if (session.remember) return now - created > AUTH_REMEMBER_DAYS * 86400000;
   return now - last > AUTH_SESSION_IDLE_HOURS * 3600000 || now - created > AUTH_SESSION_MAX_DAYS * 86400000;
 }
 
@@ -1419,7 +1422,7 @@ function saveSystemRole(input) {
 
 function loginLocal(input) {
   input = input || {};
-  var username = String(input.username || '').trim(), password = String(input.password || ''), device = String(input.device || '').trim();
+  var username = String(input.username || '').trim(), password = String(input.password || ''), device = String(input.device || '').trim(), remember = input.remember === true;
   if (!username || !password) throw new Error('Vui lòng nhập tên đăng nhập và mật khẩu.');
   var lock = LockService.getScriptLock();
   lock.waitLock(15000);
@@ -1451,13 +1454,13 @@ function loginLocal(input) {
     authWriteField_(sheet, meta, found.rowNumber, 'LAN_DANG_NHAP_CUOI', now, 'dd/MM/yyyy HH:mm:ss');
     if (!authIsHashed_(account.MAT_KHAU)) authWriteField_(sheet, meta, found.rowNumber, 'MAT_KHAU', authPasswordHash_(password), '@');
     var store = PropertiesService.getScriptProperties(), user = authContext_(ss, account, authData), token = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, '');
-    var session = { user: user, createdAt: now.toISOString(), lastActivityAt: now.toISOString(), checkedAt: now.toISOString(), authVersion: store.getProperty(AUTH_VERSION_KEY) || '0' };
+    var session = { user: user, createdAt: now.toISOString(), lastActivityAt: now.toISOString(), checkedAt: now.toISOString(), authVersion: store.getProperty(AUTH_VERSION_KEY) || '0', remember: remember };
     // Phiên hết hạn sau AUTH_SESSION_IDLE_HOURS giờ không thao tác hoặc AUTH_SESSION_MAX_DAYS ngày;
     // dọn phiên cũ trước khi tạo phiên mới để Script Properties không bị đầy.
     authPurgeSessions_(store, username, 1);
     store.setProperty(authSessionKey_(token), JSON.stringify(session));
-    writeLoginLog_(ss, username, account.MA_NHAN_VIEN, 'Thành công', 'Đăng nhập hợp lệ', device);
-    return { success: true, token: token, user: user };
+    writeLoginLog_(ss, username, account.MA_NHAN_VIEN, 'Thành công', remember ? 'Đăng nhập hợp lệ (ghi nhớ ' + AUTH_REMEMBER_DAYS + ' ngày)' : 'Đăng nhập hợp lệ', device);
+    return { success: true, token: token, user: user, remember: remember };
   } finally {
     lock.releaseLock();
   }
