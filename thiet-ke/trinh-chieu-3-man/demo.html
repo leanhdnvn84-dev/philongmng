@@ -1,0 +1,48 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Màn chiếu 3 phần – demo</title>
+<!-- Demo màn chiếu Gala chia 3 phần 1m + 2.8m + 1m: nội dung trọn trong phần giữa 2.8m, 2 bên là mã QR viết lưu bút.
+     Tham số: ?w=1920&h=1080 (độ phân giải máy chiếu/LED) &k=ngang|doc|lb|can (ảnh ngang, ảnh dọc, thiệp lưu bút, căn chỉnh) &m=1,2.8,1 (bề rộng 3 phần, mét) -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@700&family=Charm:wght@400;700&family=Be+Vietnam+Pro:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{background:#000;font-family:'Be Vietnam Pro',sans-serif;overflow:hidden}
+.man{position:relative;display:grid;background:linear-gradient(180deg,#1A1A22,#050507);overflow:hidden}
+/* phần giữa: mọi nội dung trình chiếu nằm trọn trong đây */
+.giua{position:relative;overflow:hidden;display:grid;place-items:center}
+.giua img.anh{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 40px rgba(0,0,0,.6))}
+.noi{position:absolute;left:6%;right:6%;top:7%;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.7),0 0 24px rgba(0,0,0,.55)}
+.noi .ke{display:inline-block;background:#F6C94C;color:#2B2420;font-weight:800;letter-spacing:.12em;padding:.25em .6em;border-radius:4px;font-size:calc(var(--g)*.022)}
+.noi b{display:block;font:700 calc(var(--g)*.055)/1.15 'Dancing Script',cursive;margin-top:.15em}
+.dk{position:absolute;bottom:3%;left:50%;transform:translateX(-50%);display:flex;gap:10px;background:rgba(0,0,0,.45);padding:8px 14px;border-radius:30px;color:#fff;font-size:calc(var(--g)*.015)}
+.dk i{font-style:normal;opacity:.85}
+/* thiệp lưu bút */
+.giay{width:78%;max-height:84%;background:#FFFDF8;background-image:linear-gradient(90deg,transparent 7%,#F3B7BE 7%,#F3B7BE 7.3%,transparent 7.3%),repeating-linear-gradient(transparent 0 calc(var(--g)*.05),#E9E1F2 calc(var(--g)*.05) calc(var(--g)*.052));padding:5% 6% 4% 11%;transform:rotate(-1.5deg);box-shadow:0 20px 60px rgba(0,0,0,.5);font:400 calc(var(--g)*.034)/calc(var(--g)*.052) Charm,serif;color:#3A2E5C}
+.giay .tg{display:block;text-align:right;color:#B3261E;font-weight:700;margin-top:4%}
+.moi{display:inline-block;background:#C8102E;color:#fff;font:700 calc(var(--g)*.016) 'Be Vietnam Pro';padding:.3em .8em;border-radius:20px;margin-bottom:3%}
+/* 2 bên: mã QR viết lưu bút */
+.ben{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4%;padding:4% 7%;text-align:center;color:#FFE3C2;background:radial-gradient(120% 80% at 50% 30%,#5B1A16,#2A0B09)}
+.ben .logo{width:calc(var(--b)*.28);aspect-ratio:1;border-radius:50%;background:#fff;padding:3%}
+.ben .tieu{font:400 calc(var(--b)*.15)/1.1 'Great Vibes',cursive;color:#FFE3C2}
+.ben .qr{width:calc(var(--b)*.86);aspect-ratio:1;background:#fff;border-radius:6%;padding:6%;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.ben .qr img{width:100%;height:100%;image-rendering:pixelated;display:block}
+.ben .huong{max-width:calc(var(--b)*.95);font:700 calc(var(--b)*.062)/1.35 'Be Vietnam Pro';color:#fff}
+.ben .huong em{display:block;font:400 calc(var(--b)*.055)/1.35 'Be Vietnam Pro';font-style:normal;color:#F6C94C;margin-top:.3em}
+.ben .mui{font-size:calc(var(--b)*.12);color:#F6C94C;animation:nhun 1.6s ease-in-out infinite}
+@keyframes nhun{50%{transform:translateY(-12%)}}
+/* căn chỉnh: khung + thước để kỹ thuật viên chỉnh máy chiếu */
+.can .vach{position:absolute;top:0;bottom:0;width:4px;background:#00E5FF;z-index:5}
+.can .nhan{position:absolute;top:50%;transform:translate(-50%,-50%);font:800 calc(var(--g)*.04) 'Be Vietnam Pro';color:#00E5FF;z-index:5;text-align:center}
+.can .nhan small{display:block;font-size:.45em;color:#fff;font-weight:600}
+.luoi{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:5% 10%}
+</style></head><body><div class="man" id="man"></div>
+<script>
+const P=new URLSearchParams(location.search),W=+(P.get('w')||1920),H=+(P.get('h')||1080),K=P.get('k')||'ngang',M=(P.get('m')||'1,2.8,1').split(',').map(Number),T=M[0]+M[1]+M[2];
+const wb=Math.round(W*M[0]/T),wg=W-2*wb,man=document.getElementById('man');
+man.style.cssText+=`width:${W}px;height:${H}px;grid-template-columns:${wb}px ${wg}px ${W-wb-wg}px;--g:${Math.min(wg,H*1.6)}px;--b:${Math.min(wb,H*.42)}px`;
+const ben=`<div class="ben"><img class="logo" src="../../assets/logo-nguyen-hien.png" alt=""><div class="tieu">Lưu bút Gala</div><div class="qr"><img src="qr-viet-luu-but.png" alt=""></div><div class="huong">Quét mã viết lưu bút<em>lời của bạn hiện ngay lên màn hình</em></div><div class="mui">▲</div></div>`;
+let g='';
+if(K==='ngang'||K==='doc')g=`<img class="anh" src="${K==='ngang'?'../ket-noi/cong-c-may-tinh.jpg':'../../assets/giay-moi-nen.webp'}"><div class="noi"><span class="ke">LỚP 12/4 · HỌP LỚP</span><b>Chiều tan học, cả lớp ra sân trường</b></div><div class="dk"><i>‹</i><i>❚❚</i><i>›</i><i>3/120</i><i>5 giây</i><i>🔀</i></div>`;
+else if(K==='lb')g=`<div class="giay"><span class="moi">✨ Vừa gửi</span><br>Hơn 20 năm rồi, nhớ quá sân trường và những buổi chiều tan học dưới gốc phượng. Hẹn cả lớp tối nay mình hát lại bài “Mong ước kỷ niệm xưa” nhé!<span class="tg">— Minh Anh · lớp 12/4</span></div>`;
+else g=`<div class="luoi"></div>`;
+man.innerHTML=(K==='can'?'<div class="ben" style="background:#111"></div>':ben)+`<div class="giua">${g}</div>`+(K==='can'?'<div class="ben" style="background:#111"></div>':ben);
+if(K==='can'){man.classList.add('can');man.insertAdjacentHTML('beforeend',`<div class="vach" style="left:${wb-2}px"></div><div class="vach" style="left:${wb+wg-2}px"></div><div class="nhan" style="left:${wb/2}px">${M[0]} m<small>${wb}px</small></div><div class="nhan" style="left:${wb+wg/2}px">${M[1]} m<small>${wg}px · nội dung chiếu</small></div><div class="nhan" style="left:${W-wb/2}px">${M[2]} m<small>${wb}px</small></div>`)}
+</script></body></html>
