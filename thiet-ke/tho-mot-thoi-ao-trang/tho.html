@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>Một thời áo trắng – Một đời tri ân</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,400;0,600;1,400;1,500&family=Playfair+Display:wght@600;700&family=Charm:wght@400;700&display=swap" rel="stylesheet">
+<style>
+#t3 .kho{font-size:3.8mm!important;line-height:2.05!important;margin-bottom:11mm!important}
+.kho p:nth-child(odd){padding-left:5mm!important}.tho{column-gap:13mm!important}.kho{font-size:4mm!important;line-height:1.82!important;margin-bottom:6.5mm!important}.mien .kho{font-size:4mm!important;margin-bottom:3mm!important}.ket .kho{font-size:5.2mm!important}.san{height:72mm!important}
+.dau .an{width:24mm;height:24mm;margin:0 auto;border-radius:50%;background:radial-gradient(circle,#fff 58%,#FBEFEA 59%);border:.6mm solid #B3261E;box-shadow:0 0 0 1.2mm #FAF4E9,0 0 0 1.5mm rgba(179,38,30,.5),0 .6mm 2.5mm rgba(120,60,30,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#B3261E;line-height:1}
+.dau .an b{font:700 9mm/1 'Playfair Display',serif;font-variant-numeric:lining-nums}.dau .an small{font:600 2.3mm 'Noto Serif';letter-spacing:.5mm;text-transform:uppercase;margin-top:.8mm}
+.mo{font:italic 500 4.6mm/1.7 'Noto Serif',serif;color:#8E1F17;margin:2mm 0 0}
+.mien .tho2{display:grid;grid-template-columns:repeat(2,auto);justify-content:space-around;column-gap:8mm;margin-top:3mm}
+
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;background:#9b8f80}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.trang{position:relative;width:210mm;height:297mm;margin:0 auto 8mm;overflow:hidden;background:#FAF4E9;
+ background-image:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.7),transparent 70%),radial-gradient(circle at 20% 80%,rgba(214,190,150,.12),transparent 40%);
+ color:#3A2A22;font-family:'Noto Serif',serif;page-break-after:always;break-after:page}
+@media print{html,body{background:none}.trang{margin:0}}
+/* khung đôi vàng */
+.khung{position:absolute;inset:9mm;border:.5mm solid #C9A24A;pointer-events:none;z-index:3}
+.khung:before{content:'';position:absolute;inset:1.6mm;border:.25mm solid rgba(201,162,74,.75)}
+.goc{position:absolute;width:9mm;height:9mm;z-index:4;color:#B08A35;font-size:5mm;line-height:9mm;text-align:center;background:#FAF4E9;border-radius:50%}
+.goc.tl{top:4.6mm;left:4.6mm}.goc.tr{top:4.6mm;right:4.6mm}.goc.bl{bottom:4.6mm;left:4.6mm}.goc.br{bottom:4.6mm;right:4.6mm}
+.anh{position:absolute;z-index:1;pointer-events:none}
+.phuong-goc{top:0;left:0;width:72mm;-webkit-mask-image:radial-gradient(ellipse at 0 0,#000 52%,transparent 72%);mask-image:radial-gradient(ellipse at 0 0,#000 52%,transparent 72%)}
+.phuong-phai{top:4mm;right:-6mm;width:70mm;transform:scaleX(-1) rotate(-6deg);opacity:.95}
+.phuong-duoi{right:0;bottom:0;width:58mm;-webkit-mask-image:radial-gradient(ellipse at 100% 100%,#000 50%,transparent 72%);mask-image:radial-gradient(ellipse at 100% 100%,#000 50%,transparent 72%)}
+.san{left:0;right:0;bottom:0;width:100%;height:92mm;object-fit:cover;object-position:0 70%;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 45%);mask-image:linear-gradient(to bottom,transparent,#000 45%);opacity:.95}
+.nd{position:absolute;inset:16mm 18mm 16mm;z-index:2}
+/* đầu trang 1 */
+.dau{text-align:center;padding-top:4mm}
+.dau img{width:21mm;height:21mm;border-radius:50%;background:#fff;padding:1mm;box-shadow:0 .6mm 2.5mm rgba(120,60,30,.2)}
+.dau .truong{font:600 3.2mm 'Noto Serif';letter-spacing:.9mm;color:#7A2A20;margin:3mm 0 0}
+.dau h1{font:700 11.5mm 'Playfair Display',serif;letter-spacing:2.2mm;color:#8E1F17;margin:3mm 0 0;line-height:1}
+.dau .mtdn{font:400 17mm 'Great Vibes',cursive;color:#B3261E;margin:-1mm 0 0;line-height:1.15}
+.hoa{display:flex;align-items:center;justify-content:center;gap:3mm;color:#C9A24A;font-size:4mm;margin:1.5mm 0}
+.hoa:before,.hoa:after{content:'';width:28mm;height:.25mm;background:linear-gradient(90deg,transparent,#C9A24A)}
+.hoa:after{background:linear-gradient(-90deg,transparent,#C9A24A)}
+.tang{font:italic 400 3.9mm/1.6 'Noto Serif';color:#5B4336;margin:1mm 0 0}
+.tang b{font-weight:600;font-style:normal;color:#7A2A20}
+/* thơ */
+.tho{columns:2;column-gap:12mm;column-rule:.25mm dashed rgba(179,38,30,.25);margin-top:7mm}
+.kho{break-inside:avoid;margin:0 0 5.6mm;font-size:4.05mm;line-height:1.78}
+.kho p{margin:0;white-space:nowrap}
+.kho p:nth-child(odd){padding-left:7mm}
+.kho:before{content:'✿';display:block;color:#C8102E;opacity:.55;font-size:3mm;line-height:1;margin:0 0 1.2mm 7mm}
+.kho .dd{font-weight:600;color:#8E1F17}
+.tieu{text-align:center;font:400 10mm 'Great Vibes',cursive;color:#B3261E;margin:0;line-height:1.1}
+.phu{text-align:center;font:600 2.9mm 'Noto Serif';letter-spacing:.8mm;color:#7A5A2A;text-transform:uppercase;margin:0 0 3mm}
+/* khối 12 lớp */
+.mien{margin-top:4mm;background:linear-gradient(160deg,rgba(109,207,156,.16),rgba(83,189,139,.10));border:.3mm solid rgba(46,125,79,.35);border-radius:4mm;padding:5mm 6mm 2mm;position:relative}
+.mien .tho3{display:grid;grid-template-columns:repeat(2,auto);justify-content:space-around;column-gap:8mm;margin-top:3mm}.mien .tho3 .kho:nth-child(3){grid-column:1/-1;justify-self:center}
+.mien .kho{font-size:3.95mm;line-height:1.75;margin-bottom:4mm}
+.mien .kho p:nth-child(odd){padding-left:3mm}
+.mien .kho:before{content:'📍';filter:hue-rotate(0deg);opacity:.8;margin-left:0}
+.lop12{display:flex;justify-content:center;gap:1.8mm;flex-wrap:wrap;margin:2mm 0 3mm}
+.lop12 i{font:600 2.7mm 'Noto Serif';font-style:normal;color:#1F6B3F;border:.25mm solid rgba(46,125,79,.5);border-radius:3mm;padding:.6mm 2mm;background:rgba(255,255,255,.6)}
+/* trang 3 */
+.ket{margin:5mm auto 0;width:128mm;text-align:center;position:relative;padding:6mm 8mm 5mm;border-top:.3mm solid #C9A24A;border-bottom:.3mm solid #C9A24A}
+.ket .kho{font:italic 500 5.2mm/1.75 'Noto Serif';color:#8E1F17;margin:0}
+.ket .kho p:nth-child(odd){padding-left:0}
+.ket .kho:before{display:none}
+.ky{text-align:center;margin-top:6mm;font:400 6.4mm 'Charm',cursive;color:#5B4336}
+.ky b{display:block;font:600 3mm 'Noto Serif';letter-spacing:.8mm;color:#7A5A2A;text-transform:uppercase;margin-top:1mm}
+.so{position:absolute;bottom:11.5mm;left:0;right:0;text-align:center;font:600 2.7mm 'Noto Serif';letter-spacing:.6mm;color:#9B7B3E;z-index:5}
+.so span{background:#FAF4E9;padding:0 2.5mm}
+</style></head><body>
+
+<!-- TRANG 1 -->
+<section class="trang">
+ <img class="anh phuong-goc" src="../tho-mot-thoi-de-nho/phuong-goc.jpg" alt="">
+ <img class="anh phuong-phai" src="../tho-mot-thoi-de-nho/canh-phuong.webp" alt="">
+ <div class="khung"></div><i class="goc tl">❀</i><i class="goc tr">❀</i><i class="goc bl">❀</i><i class="goc br">❀</i>
+ <div class="nd">
+  <div class="dau">
+   <div class="an"><b>35</b><small>năm</small></div>
+   <p class="truong">THƠ LỤC BÁT · HỘI KHÓA 1989 – 1992</p>
+   <h1 style="font-size:10.5mm;letter-spacing:1.6mm">MỘT THỜI ÁO TRẮNG</h1>
+   <p class="mtdn">Một đời tri ân</p>
+   <div class="hoa">✿</div>
+   <p class="mo" id="mo"></p>
+  </div>
+  <div class="tho" id="t1" style="margin-top:5mm"></div>
+  <div class="mien" style="margin-top:0">
+   <p class="tieu" style="font-size:8.5mm">Bảy lớp chung một con đường</p>
+   <p class="phu" style="color:#1F6B3F;margin-bottom:0">Từ những miền quê về chung một mái trường</p>
+   <div class="tho2" id="t2"></div>
+  </div>
+  <div class="tho" id="t1b" style="margin-top:6mm"></div>
+ </div>
+ <div class="so"><span>— 1 —</span></div>
+</section>
+
+<!-- TRANG 2 -->
+<section class="trang">
+ <img class="anh phuong-goc" src="../tho-mot-thoi-de-nho/phuong-goc.jpg" alt="" style="width:36mm;opacity:.9">
+ <div class="khung"></div><i class="goc tl">❀</i><i class="goc tr">❀</i><i class="goc bl">❀</i><i class="goc br">❀</i>
+ <div class="nd">
+  <p class="tieu" style="margin-top:4mm">Phấn bay trắng cả một đời</p>
+  <p class="phu">Thầy cô · mái trường · tuổi thơ</p>
+  <div class="tho" id="t3" style="margin-top:8mm;column-gap:14mm"></div>
+  <div class="hoa" style="margin-top:6mm">✿</div>
+ </div>
+ <img class="anh phuong-duoi" src="../tho-mot-thoi-de-nho/phuong-duoi.jpg" alt="" style="width:44mm">
+ <div class="so"><span>— 2 —</span></div>
+</section>
+
+<!-- TRANG 3 -->
+<section class="trang">
+ <img class="anh phuong-phai" src="../tho-mot-thoi-de-nho/canh-phuong.webp" alt="" style="width:60mm">
+ <img class="anh san" src="../tho-mot-thoi-de-nho/san-truong.jpg" alt="">
+ <div class="khung"></div><i class="goc tl">❀</i><i class="goc tr">❀</i><i class="goc bl">❀</i><i class="goc br">❀</i>
+ <div class="nd">
+  <p class="tieu" style="margin-top:4mm">Ba lăm năm – một lời thề</p>
+  <p class="phu">Hẹn ngày hội khóa lại gần bên nhau</p>
+  <div class="tho" id="t4" style="margin-top:4mm"></div>
+  <div class="ket" id="t5"></div>
+  <div class="ky">Hội khóa 1989 – 1992<b>ba mươi lăm năm ngày gặp lại</b></div>
+ </div>
+ <div class="so"><span>— 3 —</span></div>
+</section>
+
+<script>
+const THO=`Ba mươi lăm năm ấy trôi qua,
+Mái trường xưa vẫn thiết tha gọi về.
+Bạn bè khắp nẻo sơn khê,
+Hôm nay sum họp, tràn trề nhớ thương.
+Ngày xưa chung một mái trường,
+Thầy cô gieo chữ, dẫn đường chúng em.
+Đất nước vừa thoát đói nghèo,
+Bao cấp khép lại, gieo neo vẫn còn.
+Đường quê sình lầy, lối mòn,
+Mưa dầm, nắng dội, chân son đến trường.
+Hòa Xuân cách trở dặm đường,
+Hòa Tiến xa ngái, gió sương dãi dầu.
+Hòa Châu, Hòa Phước cùng nhau,
+Hòa Thọ, Hòa Phát một màu nhớ thương.
+Khuê Trung, Cẩm Lệ chung trường,
+Bảy lớp chung một con đường tuổi thơ.
+Cơm ăn còn bữa no, chờ,
+Áo quần chắp vá, ước mơ vẫn đầy.
+Phòng trường mái dột, vách gầy,
+Trang thơm trang sách đong đầy niềm tin.
+Thầy cô chắt chiu chữ tình,
+Bao nhiêu vất vả lặng thinh chẳng lời.
+Phấn bay trắng cả một đời,
+Ươm bao con chữ cho người mai sau.
+Thương thầy tóc bạc mái đầu,
+Thương cô lặng lẽ qua cầu gió sương.
+Dẫu đời còn lắm đoạn trường,
+Thầy cô vẫn giữ yêu thương vẹn tròn.
+Chúng em khôn lớn chẳng còn,
+Mỗi người mỗi ngả, nước non mỗi miền.
+Có người cuộc sống bình yên,
+Có người xuôi ngược truân chuyên giữa đời.
+Có người rạng rỡ nụ cười,
+Có người còn nặng những lời lo toan.
+Nhưng đâu đo được giàu sang,
+Bằng tình bè bạn, nghĩa vàng thầy cô.
+Dẫu đời xuôi ngược nhấp nhô,
+Về đây vẫn thấy tuổi thơ trong lòng.
+Ba lăm năm, một dòng sông,
+Bao nhiêu thương nhớ chất chồng tháng năm.
+Hôm nay gặp lại tri âm,
+Tay cầm tay, mắt lệ thầm rưng rưng.
+Tóc thầy đã bạc mấy phần,
+Tóc cô điểm trắng, bước chân chậm rồi.
+Bạn xưa nhận chẳng ra người,
+Gọi nhau một tiếng, bồi hồi tuổi xanh.
+Ôi thời áo trắng trong lành,
+Một thời gian khó hóa thành vàng son.
+Ơn thầy nghĩa bạn sắt son,
+Đi qua năm tháng vẫn còn vẹn nguyên.
+Hội trường rộn rã tiếng cười,
+Chuyện xưa kể mãi, đất trời cũng vui.
+Vần thơ nối những bùi ngùi,
+Lời văn giữ lại ngọt bùi ngày xưa.
+Bao nhiêu kỷ niệm đong đưa,
+Gửi vào trang viết cho vừa nhớ thương.
+Mai này dẫu cách muôn phương,
+Xin đừng quên nhé mái trường thân yêu.
+Ba lăm năm – một lời thề,
+Dẫu xa vẫn nhớ ngày về bên nhau.
+Hôm nay tóc bạc mái đầu,
+Vẫn nghe trống giục, vẫn đau đáu tình.
+Thôi đừng lưu luyến một mình,
+Nâng ly ta chúc nghĩa tình dài lâu!
+Thầy cô mạnh khỏe bên nhau,
+Bạn bè trẻ mãi, bạc đầu vẫn vui.
+Bảy lớp chung một nụ cười,
+Hát vang bài hát một thời thanh xuân.
+Mai về giữ trọn tình thân,
+Hẹn ngày hội khóa lại gần bên nhau!
+Hòa Xuân, Hòa Tiến chung lòng,
+Hòa Châu, Hòa Phước, một dòng tri ân.
+Hòa Thọ, Hòa Phát quây quần,
+Khuê Trung, Cẩm Lệ – tình thân chẳng rời!
+Ba lăm năm ấy – một thời,
+Một đời thương nhớ, một đời không quên!`;
+const DD=['Hòa Xuân','Hòa Châu','Hòa Tiến','Hòa Phước','Hòa Thọ','Hòa Phát','Khuê Trung','Cẩm Lệ'];
+const L=THO.split('\n').map(s=>s.trim()).filter(Boolean);
+const K=[];for(let i=2;i<70;i+=4)K.push(L.slice(i,i+4));
+const ve=(ds,dd)=>ds.map(k=>'<div class="kho">'+k.map(l=>{let h=l.replace(/&/g,'&amp;').replace(/</g,'&lt;');if(dd)DD.forEach(d=>{h=h.split(d).join('<span class="dd">'+d+'</span>')});return '<p>'+h+'</p>'}).join('')+'</div>').join('');
+document.getElementById('mo').innerHTML=L.slice(0,2).join('<br>');
+document.getElementById('t1').innerHTML=ve(K.slice(0,2));
+document.getElementById('t2').innerHTML=ve(K.slice(2,4),1);
+document.getElementById('t1b').innerHTML=ve(K.slice(4,6));
+document.getElementById('t3').innerHTML=ve(K.slice(6,14));
+document.getElementById('t4').innerHTML=ve(K.slice(14,17));
+document.getElementById('t5').innerHTML=ve([L.slice(70)],1);
+</script>
+</body></html>
