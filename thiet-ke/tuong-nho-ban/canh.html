@@ -1,0 +1,123 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Tưởng nhớ bạn đã đi xa</title>
+<!-- 10 cảnh tưởng nhớ những người bạn đã đi xa – Gala "Ngày trở về". ?n=1..10. Khung 1920×1080, chụp ×2 = 3840×2160 bằng render.js -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Charm:wght@400;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400;1,500&family=Be+Vietnam+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0B0F1C}
+.k{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Noto Serif',serif;color:#F3E6D3}
+.ab{position:absolute}
+.tranh{position:absolute;background:url(../../assets/giay-moi-nen.webp) no-repeat}
+.canh{position:absolute;background:url(../ngoai-khoa/canh.webp) center/contain no-repeat;pointer-events:none}
+.gv{font-family:'Great Vibes',cursive;font-weight:400;line-height:1.15}
+.ey{font:600 24px 'Be Vietnam Pro',sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#C9A86A}
+.loi{font:italic 400 50px/1.55 'Noto Serif',serif;color:#F1E2CC;text-shadow:0 3px 14px rgba(0,0,0,.55)}
+.dam{font:italic 600 58px/1.5 'Noto Serif',serif;color:#FFE9C4;text-shadow:0 3px 18px rgba(0,0,0,.6)}
+.giua{text-align:center}
+.gach{width:280px;height:2px;margin:30px auto;background:linear-gradient(90deg,transparent,#C9A86A,transparent)}
+.dem{background:radial-gradient(90% 80% at 50% 30%,#1D2744 0%,#0F1528 55%,#070A14 100%)}
+.sao i{position:absolute;border-radius:50%;background:#FFF6E0}
+.bokeh i{position:absolute;border-radius:50%;filter:blur(2px)}
+.roi i{position:absolute;width:22px;height:17px;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff8a72,#b3261e);opacity:.7}
+.nau{filter:sepia(.75) saturate(.8) brightness(.95)}
+.polaroid{position:absolute;background:#FBF7EE;padding:26px 26px 110px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const N=+(new URLSearchParams(location.search).get('n')||1),k=document.getElementById('k');
+const sao=(n,h)=>'<div class="sao">'+Array.from({length:n},(_,i)=>{const s=1+(i%4)*.8;return `<i style="left:${(i*137)%1920}px;top:${(i*73)%(h||700)}px;width:${s}px;height:${s}px;opacity:${.25+(i%6)*.12};box-shadow:0 0 ${s*3}px rgba(255,240,210,.6)"></i>`}).join('')+'</div>';
+const bokeh=n=>'<div class="bokeh">'+Array.from({length:n},(_,i)=>{const r=30+(i*17)%90;return `<i style="left:${(i*211)%1900}px;top:${80+(i*97)%520}px;width:${r}px;height:${r}px;background:radial-gradient(circle,rgba(255,${200+(i%3)*20},${120+(i%4)*30},.35),transparent 70%)"></i>`}).join('')+'</div>';
+const roi=(n,y0,y1)=>'<div class="roi">'+Array.from({length:n},(_,i)=>`<i style="left:${(i*37+11)%100}%;top:${y0+((i*53+7)%100)*(y1-y0)/100}%;transform:rotate(${i*47}deg) scale(${.55+(i%4)*.22})"></i>`).join('')+'</div>';
+const tranh=(st,pos,size,mask,cls)=>`<div class="tranh ${cls||''}" style="${st};background-position:${pos};background-size:${size};${mask?`-webkit-mask-image:${mask};mask-image:${mask}`:''}"></div>`;
+const hongTrang=(x,y,r)=>`<g transform="translate(${x} ${y}) scale(${r/40})"><circle r="40" fill="#F6F1E8"/><path d="M-30 5C-30-25 25-30 30 0S5 35-15 25S-20-10 0-10S15 10 0 12" fill="none" stroke="#C9BFAE" stroke-width="5" stroke-linecap="round"/><path d="M-38 0C-40 30-10 45 15 38M38-5C42 20 25 40 5 42M-20-34C0-46 30-40 36-18" fill="none" stroke="#D8CFBF" stroke-width="4" stroke-linecap="round"/></g>`;
+const cuc=(x,y,r,m)=>`<g transform="translate(${x} ${y})">${Array.from({length:22},(_,i)=>`<ellipse rx="${r*.18}" ry="${r*.62}" transform="rotate(${i*360/22}) translate(0 ${-r*.45})" fill="${m||'#F7F3EA'}" stroke="#DDD4C2" stroke-width="1"/>`).join('')}${Array.from({length:14},(_,i)=>`<ellipse rx="${r*.13}" ry="${r*.4}" transform="rotate(${i*360/14+8}) translate(0 ${-r*.28})" fill="#FFFDF7"/>`).join('')}<circle r="${r*.16}" fill="#E9D9A6"/></g>`;
+const nguoi=(x,y,s,ao,toc)=>`<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-118" r="22" fill="${toc||'#2B2420'}"/><path d="M-30-92Q0-104 30-92L36-20H-36Z" fill="${ao||'#F7F4EC'}"/><path d="M-30-90L-44-30M30-90L44-30" stroke="${ao||'#F7F4EC'}" stroke-width="14" stroke-linecap="round"/><path d="M-34-22H34L28 60H6L0-2L-6 60H-28Z" fill="#2E3A55"/></g>`;
+const nen=(x,y,s,h)=>`<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="${h}" rx="44" ry="8" fill="rgba(0,0,0,.4)"/><rect x="-26" y="0" width="52" height="${h}" rx="6" fill="#EFE5D2"/><ellipse cx="0" cy="1" rx="26" ry="6" fill="#F8F1E2"/><path d="M0-4V-14" stroke="#2B1D18" stroke-width="3"/><path d="M0-62C14-40 16-26 0-12C-16-26-14-40 0-62Z" fill="#FFD36B"/><path d="M0-42C6-32 6-24 0-17C-6-24-6-32 0-42Z" fill="#FFFBEA"/></g>`;
+const quang=(x,y,r,a)=>`<div class="ab" style="left:${x-r}px;top:${y-r}px;width:${2*r}px;height:${2*r}px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,100,${a||.32}),rgba(255,170,80,.08) 55%,transparent 75%)"></div>`;
+const S=[
+/* 1 */ ()=>`<div class="k dem">${bokeh(26)}
+ <div class="ab" style="left:0;right:0;bottom:0;height:380px;background:linear-gradient(180deg,transparent,rgba(5,7,14,.9))"></div>
+ <svg class="ab" style="left:0;bottom:0" width="1920" height="360" viewBox="0 0 1920 360"><path d="M260 250H1660L1760 360H160Z" fill="#141B2E"/><path d="M260 250H1660" stroke="#C9A86A" stroke-width="2" opacity=".5"/>${[420,600,780,1140,1320,1500].map((x,i)=>nen(x,232,.55,60)).join('')}<g transform="translate(960 300)"><ellipse rx="70" ry="14" fill="#F6F1E8" opacity=".9"/>${hongTrang(0,-6,30)}</g></svg>
+ ${quang(960,820,320,.22)}
+ <div class="ab giua" style="left:0;right:0;top:220px">
+  <div class="ey">Gala Ngày trở về · 14.11.2026</div>
+  <div class="gv" style="font-size:150px;color:#FFE6BF;margin-top:16px">Giữa niềm vui ngày hội ngộ…</div>
+  <div class="gach"></div>
+  <div class="loi">Có những khoảng trống khiến lòng ta lặng lại.</div></div></div>`,
+/* 2 */ ()=>`<div class="k" style="background:#2A2118">
+ ${tranh('inset:0','0 98%','135% auto','','nau')}
+ <div class="ab" style="inset:0;background:linear-gradient(90deg,rgba(20,14,10,.92) 0%,rgba(20,14,10,.75) 40%,rgba(20,14,10,.15) 75%)"></div>
+ <div class="ab" style="left:150px;top:300px;width:900px">
+  <div class="ey">Ngày ấy</div>
+  <div class="gv" style="font-size:118px;color:#FFE6BF;margin-top:12px">Có những người bạn</div>
+  <div class="loi" style="margin-top:20px">từng cùng ta cắp sách đến trường.</div></div></div>`,
+/* 3 */ ()=>`<div class="k" style="background:linear-gradient(135deg,#3A2E24,#1E1712)">
+ <div class="ab" style="left:300px;top:80px;width:1320px;height:780px;background:#F6EFDF;transform:rotate(-2deg);box-shadow:0 40px 80px rgba(0,0,0,.6);background-image:linear-gradient(90deg,transparent 120px,#E7A3A8 120px,#E7A3A8 123px,transparent 123px),repeating-linear-gradient(transparent 0 61px,#C9D6E6 61px 63px);filter:sepia(.25)"></div>
+ <div class="ab" style="left:420px;top:160px;width:1120px;transform:rotate(-2deg);font:400 54px/62px 'Charm',cursive;color:#2E3F66">
+  <div style="font:400 42px 'Charm',cursive;color:#9E1B22">Lưu bút · Tháng Năm 2003</div><br>
+  Mai này dù đi đâu, nhớ nhau nhé…<br>Nhớ những trưa trốn ngủ, những chiều tan học,<br>nhớ tiếng cười giòn tan dưới gốc phượng.<br><span style="color:#9E1B22">Hẹn ngày gặp lại!</span></div>
+ <svg class="ab" style="left:1330px;top:650px;transform:rotate(-12deg)" width="200" height="120" viewBox="0 0 200 120"><path d="M0 60L200 0L120 120L95 75Z" fill="#FFFFFF" stroke="#B9AE9A" stroke-width="2"/><path d="M95 75L200 0" stroke="#B9AE9A" stroke-width="2"/></svg>
+ <div class="ab" style="inset:0;background:radial-gradient(70% 70% at 50% 50%,transparent 55%,rgba(0,0,0,.55))"></div>
+ <div class="ab giua" style="left:0;right:0;bottom:60px"><div class="dam" style="font-size:52px">Từng sẻ chia tiếng cười, từng hẹn ngày gặp lại.</div></div></div>`,
+/* 4 */ ()=>`<div class="k" style="background:radial-gradient(70% 70% at 50% 40%,#1A1E2E,#07080E)">${sao(90,1080)}
+ <svg class="ab" style="left:900px;top:430px" width="120" height="100" viewBox="0 0 120 100"><path d="M10 50C10 15 60 0 90 20S115 80 70 90S10 85 10 50Z" fill="#C8102E" opacity=".9" transform="rotate(-25 60 50)"/></svg>
+ <div class="ab" style="left:956px;top:120px;width:2px;height:300px;background:linear-gradient(transparent,rgba(255,180,160,.35))"></div>
+ <div class="ab giua" style="left:0;right:0;top:640px">
+  <div class="gv" style="font-size:120px;color:#F3E1C8">Nhưng hôm nay…</div>
+  <div class="loi" style="margin-top:14px">đã mãi mãi không thể trở về.</div></div></div>`,
+/* 5 */ ()=>`<div class="k" style="background:linear-gradient(160deg,#3B2F25,#18120D)">
+ <div class="polaroid" style="left:300px;top:110px;width:900px;transform:rotate(-3deg)">
+  <div style="position:relative;width:848px;height:560px;overflow:hidden;background:#C9B08A">
+   ${tranh('inset:0','0 98%','135% auto','','nau')}
+   <div class="ab" style="inset:0;background:linear-gradient(180deg,rgba(80,55,30,.15),rgba(80,55,30,.35))"></div>
+   <svg class="ab nau" style="left:0;bottom:0" width="848" height="330" viewBox="0 0 848 330">${[90,190,290,390,490,590,690,780].map((x,i)=>nguoi(x,250+(i%2)*14,1.15+(i%3)*.06,i%2?'#F7F4EC':'#FFFFFF',i%3?'#2B2420':'#3A2A20')).join('')}</svg>
+   <div class="ab" style="inset:0;box-shadow:inset 0 0 90px rgba(60,35,15,.55)"></div></div>
+  <div style="position:absolute;left:0;right:0;bottom:30px;text-align:center;font:400 46px 'Charm',cursive;color:#4A3A31">Lớp 12 · Tháng Năm 2003</div></div>
+ <div class="ab" style="left:1250px;top:300px;width:640px">
+  <div class="ey">Hai mươi ba năm trước…</div>
+  <div class="loi" style="margin-top:26px;font-size:42px;white-space:nowrap">Chúng ta vẫn đứng bên nhau,<br>trẻ trung và đầy ước mơ.</div></div></div>`,
+/* 6 */ ()=>`<div class="k" style="background:radial-gradient(80% 80% at 60% 40%,#2C2238,#100C16)">
+ ${tranh('right:-80px;top:-60px;width:900px;height:700px;transform:scaleX(-1);opacity:.4','0 0','280% auto','radial-gradient(ellipse at 0 0,#000 45%,transparent 72%)','nau')}
+ ${roi(12,40,100)}
+ <div class="ab" style="left:180px;top:300px;width:1300px">
+  <div class="gv" style="font-size:110px;color:#EBD9F0">Đâu ai biết rằng…</div>
+  <div class="dam" style="margin-top:30px">Có những nụ cười sẽ mãi dừng lại<br>ở tuổi thanh xuân.</div></div></div>`,
+/* 7 */ ()=>`<div class="k" style="background:radial-gradient(60% 70% at 50% 60%,#2B2A35,#0C0B10)">
+ <div class="ab" style="left:50%;top:-100px;width:900px;height:1300px;margin-left:-450px;background:radial-gradient(ellipse 45% 60% at 50% 70%,rgba(255,238,200,.28),transparent 70%)"></div>
+ <svg class="ab" style="left:700px;top:420px" width="520" height="620" viewBox="0 0 520 620">
+  <ellipse cx="260" cy="590" rx="230" ry="26" fill="rgba(0,0,0,.5)"/>
+  <rect x="120" y="40" width="280" height="250" rx="16" fill="#F2EEE6"/><rect x="120" y="40" width="280" height="250" rx="16" fill="none" stroke="#D9D2C4" stroke-width="4"/>
+  <path d="M100 290H420L440 340H80Z" fill="#F7F4EE"/><path d="M80 340H440L430 380H90Z" fill="#E4DED2"/>
+  <path d="M110 380L95 585M410 380L425 585M150 380L150 560M370 380L370 560" stroke="#C9C2B4" stroke-width="16" stroke-linecap="round"/>
+  <path d="M260 160Q200 120 190 180Q240 200 260 160Z" fill="#C9A86A" opacity=".8"/><path d="M260 160Q320 120 330 180Q280 200 260 160Z" fill="#C9A86A" opacity=".8"/><path d="M250 165L230 250M270 165L290 250" stroke="#C9A86A" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+  <path d="M250 330C230 320 200 330 180 345" stroke="#3E6B2E" stroke-width="5" fill="none"/>${hongTrang(270,325,36)}</svg>
+ <div class="ab giua" style="left:0;right:0;top:110px">
+  <div class="loi">Chiếc ghế hôm nay có thể trống…</div>
+  <div class="dam" style="margin-top:22px">Nhưng trong tim chúng ta,<br>chỗ ngồi ấy vẫn luôn có người.</div></div></div>`,
+/* 8 */ ()=>`<div class="k" style="background:linear-gradient(180deg,#1E2440 0%,#6B4A5E 45%,#E3946A 75%,#F6C98E 100%)">
+ <div class="ab" style="left:50%;top:640px;width:420px;height:420px;margin-left:-210px;border-radius:50%;background:radial-gradient(circle,#FFE7B8,#F7B26A 60%,transparent 72%)"></div>
+ <svg class="ab" style="left:0;bottom:0" width="1920" height="420" viewBox="0 0 1920 420"><path d="M0 300Q480 250 960 290T1920 280V420H0Z" fill="#2B1C24"/>
+  <g transform="translate(905 300) scale(1.25)" fill="#1A1016"><circle cx="-40" cy="-150" r="24"/><circle cx="34" cy="-146" r="24"/><path d="M-70-122Q-40-134-12-122L-6-30H-74Z"/><path d="M8-120Q34-130 62-118L70-30H2Z"/><path d="M-14-116Q10-112 34-100L30-88Q8-96-14-100Z"/><path d="M14-112Q-12-108-36-96L-32-84Q-10-92 14-96Z"/><path d="M-74-30H-6L-10 40H-70ZM2-30H70L66 40H6Z"/></g></svg>
+ <div class="ab giua" style="left:0;right:0;top:150px">
+  <div class="gv" style="font-size:120px;color:#FFF0D8;text-shadow:0 6px 22px rgba(0,0,0,.35)">Giá như được quay lại…</div>
+  <div class="loi" style="margin-top:16px">ta sẽ ôm nhau thêm một lần nữa.</div></div></div>`,
+/* 9 */ ()=>`<div class="k" style="background:radial-gradient(60% 70% at 50% 70%,#2B1B10,#090604)">
+ ${quang(960,760,520,.3)}
+ <svg class="ab" style="left:0;top:470px" width="1920" height="560" viewBox="0 0 1920 560">
+  ${[[560,250,.9,150],[740,230,1.1,200],[960,210,1.35,250],[1180,230,1.1,200],[1360,250,.9,150]].map(([x,y,s,h])=>nen(x,y,s,h)).join('')}
+  ${cuc(330,420,90)}${cuc(450,460,70)}${cuc(1590,420,90)}${cuc(1470,460,70)}${hongTrang(250,480,50)}${hongTrang(1670,480,50)}</svg>
+ <div class="ab giua" style="left:0;right:0;top:130px">
+  <div class="ey">Một phút mặc niệm</div>
+  <div class="loi" style="margin-top:28px">Hôm nay, xin dành một khoảng lặng</div>
+  <div class="gv" style="font-size:118px;color:#FFE3B8;margin-top:6px">cho những người bạn đã đi xa</div></div></div>`,
+/* 10 */ ()=>`<div class="k dem">${sao(140,1080)}
+ <div class="canh" style="left:-130px;top:-100px;width:700px;height:470px;transform:rotate(10deg);opacity:.85"></div>
+ <div class="canh" style="right:-130px;top:-100px;width:700px;height:470px;transform:scaleX(-1) rotate(10deg);opacity:.85"></div>
+ ${roi(14,30,100)}
+ <div class="ab giua" style="left:0;right:0;top:250px">
+  <div class="dam" style="font-size:62px">Cảm ơn vì thanh xuân của chúng tôi…<br>đã từng có bạn.</div>
+  <div class="gach"></div>
+  <div class="gv" style="font-size:96px;color:#FFE6BF">Bạn không trở về… nhưng chúng tôi<br>sẽ không bao giờ quên bạn.</div>
+  <div class="ey" style="margin-top:36px;font-size:22px">Niên khoá 2000 – 2003 · THPT Nguyễn Hiền</div></div></div>`
+];
+k.outerHTML=S[N-1]();
+</script></body></html>
