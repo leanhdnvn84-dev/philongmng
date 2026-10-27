@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>Nguyễn Hiền – Một thời để nhớ</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,400;0,600;1,400;1,500&family=Playfair+Display:wght@600;700&family=Charm:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;background:#9b8f80}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.trang{position:relative;width:210mm;height:297mm;margin:0 auto 8mm;overflow:hidden;background:#FAF4E9;
+ background-image:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.7),transparent 70%),radial-gradient(circle at 20% 80%,rgba(214,190,150,.12),transparent 40%);
+ color:#3A2A22;font-family:'Noto Serif',serif;page-break-after:always;break-after:page}
+@media print{html,body{background:none}.trang{margin:0}}
+/* khung đôi vàng */
+.khung{position:absolute;inset:9mm;border:.5mm solid #C9A24A;pointer-events:none;z-index:3}
+.khung:before{content:'';position:absolute;inset:1.6mm;border:.25mm solid rgba(201,162,74,.75)}
+.goc{position:absolute;width:9mm;height:9mm;z-index:4;color:#B08A35;font-size:5mm;line-height:9mm;text-align:center;background:#FAF4E9;border-radius:50%}
+.goc.tl{top:4.6mm;left:4.6mm}.goc.tr{top:4.6mm;right:4.6mm}.goc.bl{bottom:4.6mm;left:4.6mm}.goc.br{bottom:4.6mm;right:4.6mm}
+.anh{position:absolute;z-index:1;pointer-events:none}
+.phuong-goc{top:0;left:0;width:72mm;-webkit-mask-image:radial-gradient(ellipse at 0 0,#000 52%,transparent 72%);mask-image:radial-gradient(ellipse at 0 0,#000 52%,transparent 72%)}
+.phuong-phai{top:4mm;right:-6mm;width:70mm;transform:scaleX(-1) rotate(-6deg);opacity:.95}
+.phuong-duoi{right:0;bottom:0;width:58mm;-webkit-mask-image:radial-gradient(ellipse at 100% 100%,#000 50%,transparent 72%);mask-image:radial-gradient(ellipse at 100% 100%,#000 50%,transparent 72%)}
+.san{left:0;right:0;bottom:0;width:100%;height:92mm;object-fit:cover;object-position:0 70%;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 45%);mask-image:linear-gradient(to bottom,transparent,#000 45%);opacity:.95}
+.nd{position:absolute;inset:16mm 18mm 16mm;z-index:2}
+/* đầu trang 1 */
+.dau{text-align:center;padding-top:4mm}
+.dau img{width:21mm;height:21mm;border-radius:50%;background:#fff;padding:1mm;box-shadow:0 .6mm 2.5mm rgba(120,60,30,.2)}
+.dau .truong{font:600 3.2mm 'Noto Serif';letter-spacing:.9mm;color:#7A2A20;margin:3mm 0 0}
+.dau h1{font:700 11.5mm 'Playfair Display',serif;letter-spacing:2.2mm;color:#8E1F17;margin:3mm 0 0;line-height:1}
+.dau .mtdn{font:400 17mm 'Great Vibes',cursive;color:#B3261E;margin:-1mm 0 0;line-height:1.15}
+.hoa{display:flex;align-items:center;justify-content:center;gap:3mm;color:#C9A24A;font-size:4mm;margin:1.5mm 0}
+.hoa:before,.hoa:after{content:'';width:28mm;height:.25mm;background:linear-gradient(90deg,transparent,#C9A24A)}
+.hoa:after{background:linear-gradient(-90deg,transparent,#C9A24A)}
+.tang{font:italic 400 3.9mm/1.6 'Noto Serif';color:#5B4336;margin:1mm 0 0}
+.tang b{font-weight:600;font-style:normal;color:#7A2A20}
+/* thơ */
+.tho{columns:2;column-gap:12mm;column-rule:.25mm dashed rgba(179,38,30,.25);margin-top:7mm}
+.kho{break-inside:avoid;margin:0 0 5.6mm;font-size:4.05mm;line-height:1.78}
+.kho p{margin:0;white-space:nowrap}
+.kho p:nth-child(odd){padding-left:7mm}
+.kho:before{content:'✿';display:block;color:#C8102E;opacity:.55;font-size:3mm;line-height:1;margin:0 0 1.2mm 7mm}
+.kho .dd{font-weight:600;color:#8E1F17}
+.tieu{text-align:center;font:400 10mm 'Great Vibes',cursive;color:#B3261E;margin:0;line-height:1.1}
+.phu{text-align:center;font:600 2.9mm 'Noto Serif';letter-spacing:.8mm;color:#7A5A2A;text-transform:uppercase;margin:0 0 3mm}
+/* khối 12 lớp */
+.mien{margin-top:4mm;background:linear-gradient(160deg,rgba(109,207,156,.16),rgba(83,189,139,.10));border:.3mm solid rgba(46,125,79,.35);border-radius:4mm;padding:5mm 6mm 2mm;position:relative}
+.mien .tho3{display:grid;grid-template-columns:repeat(2,auto);justify-content:space-around;column-gap:8mm;margin-top:3mm}.mien .tho3 .kho:nth-child(3){grid-column:1/-1;justify-self:center}
+.mien .kho{font-size:3.95mm;line-height:1.75;margin-bottom:4mm}
+.mien .kho p:nth-child(odd){padding-left:3mm}
+.mien .kho:before{content:'📍';filter:hue-rotate(0deg);opacity:.8;margin-left:0}
+.lop12{display:flex;justify-content:center;gap:1.8mm;flex-wrap:wrap;margin:2mm 0 3mm}
+.lop12 i{font:600 2.7mm 'Noto Serif';font-style:normal;color:#1F6B3F;border:.25mm solid rgba(46,125,79,.5);border-radius:3mm;padding:.6mm 2mm;background:rgba(255,255,255,.6)}
+/* trang 3 */
+.ket{margin:5mm auto 0;width:128mm;text-align:center;position:relative;padding:6mm 8mm 5mm;border-top:.3mm solid #C9A24A;border-bottom:.3mm solid #C9A24A}
+.ket .kho{font:italic 500 5.2mm/1.75 'Noto Serif';color:#8E1F17;margin:0}
+.ket .kho p:nth-child(odd){padding-left:0}
+.ket .kho:before{display:none}
+.ky{text-align:center;margin-top:6mm;font:400 6.4mm 'Charm',cursive;color:#5B4336}
+.ky b{display:block;font:600 3mm 'Noto Serif';letter-spacing:.8mm;color:#7A5A2A;text-transform:uppercase;margin-top:1mm}
+.so{position:absolute;bottom:11.5mm;left:0;right:0;text-align:center;font:600 2.7mm 'Noto Serif';letter-spacing:.6mm;color:#9B7B3E;z-index:5}
+.so span{background:#FAF4E9;padding:0 2.5mm}
+</style></head><body>
+
+<!-- TRANG 1 -->
+<section class="trang">
+ <img class="anh phuong-goc" src="phuong-goc.jpg" alt="">
+ <img class="anh phuong-phai" src="canh-phuong.webp" alt="">
+ <div class="khung"></div><i class="goc tl">❀</i><i class="goc tr">❀</i><i class="goc bl">❀</i><i class="goc br">❀</i>
+ <div class="nd">
+  <div class="dau">
+   <img src="logo.png" alt="Logo THPT Nguyễn Hiền">
+   <p class="truong">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</p>
+   <h1>NGUYỄN HIỀN</h1>
+   <p class="mtdn">Một thời để nhớ</p>
+   <div class="hoa">✿</div>
+   <p class="tang">Thân tặng thầy cô và bạn bè <b>niên khóa 2000 – 2003</b></p>
+  </div>
+  <div class="tho" id="t1"></div>
+ </div>
+ <div class="so"><span>— 1 —</span></div>
+</section>
+
+<!-- TRANG 2 -->
+<section class="trang">
+ <img class="anh phuong-goc" src="phuong-goc.jpg" alt="" style="width:36mm;opacity:.9">
+ <div class="khung"></div><i class="goc tl">❀</i><i class="goc tr">❀</i><i class="goc bl">❀</i><i class="goc br">❀</i>
+ <div class="nd">
+  <p class="tieu" style="margin-top:4mm">Gặp nhau tay lại trong tay</p>
+  <p class="phu">23 năm · một lần hội ngộ</p>
+  <div class="tho" id="t2" style="margin-top:4mm"></div>
+  <div class="mien">
+   <p class="tieu" style="font-size:9mm">Mười hai lớp lại sum vầy</p>
+   <p class="phu" style="color:#1F6B3F;margin-bottom:1mm">Bạn bè từ mọi miền quê về chung một mái</p>
+   <div class="lop12" id="lop12"></div>
+   <div class="tho3" id="t3"></div>
+  </div>
+ </div>
+ <img class="anh phuong-duoi" src="phuong-duoi.jpg" alt="" style="width:44mm">
+ <div class="so"><span>— 2 —</span></div>
+</section>
+
+<!-- TRANG 3 -->
+<section class="trang">
+ <img class="anh phuong-phai" src="canh-phuong.webp" alt="" style="width:60mm">
+ <img class="anh san" src="san-truong.jpg" alt="">
+ <div class="khung"></div><i class="goc tl">❀</i><i class="goc tr">❀</i><i class="goc bl">❀</i><i class="goc br">❀</i>
+ <div class="nd">
+  <p class="tieu" style="margin-top:4mm">Một thời áo trắng</p>
+  <p class="phu">trọn đời chẳng quên</p>
+  <div class="tho" id="t4" style="margin-top:4mm"></div>
+  <div class="ket" id="t5"></div>
+  <div class="ky">Đà Nẵng – Ngày hội ngộ niên khóa 2000 – 2003<b>sau 23 năm</b></div>
+ </div>
+ <div class="so"><span>— 3 —</span></div>
+</section>
+
+<script>
+const THO=`Hai mươi ba năm xa rồi,
+Hôm nay trở lại, bồi hồi bước chân.
+Nguyễn Hiền thương nhớ bao lần,
+Mái trường năm cũ, tình thân đong đầy.
+
+Ngày xưa chung một nơi này,
+Mười hai lớp học, tháng ngày mộng mơ.
+Tuổi xanh đẹp tựa vần thơ,
+Bao nhiêu kỷ niệm đến giờ chưa phai.
+
+Ngày xưa đường đất còn dài,
+Sớm hôm mưa nắng, miệt mài đến trường.
+Có người vượt mấy dặm đường,
+Áo sờn, dép mỏng vẫn thương lớp mình.
+
+Quê nghèo cuộc sống mưu sinh,
+Bữa cơm đạm bạc, nghĩa tình chứa chan.
+Dẫu cho vất vả gian nan,
+Trong tim vẫn sáng muôn vàn ước mơ.
+
+Bảng đen, phấn trắng ngày xưa,
+Thầy cô lặng lẽ sớm trưa nhọc nhằn.
+Bao mùa mưa nắng khó khăn,
+Chắt chiu con chữ, âm thầm vì con.
+
+Tháng năm dẫu có hao mòn,
+Ơn thầy nghĩa cô vẫn còn trong tim.
+Bao năm xuôi ngược kiếm tìm,
+Hôm nay trở lại lặng im nghẹn ngào.
+
+Sân trường phượng đỏ năm nào,
+Hàng cây, ghế đá, lời chào thân quen.
+Tiếng ve gọi những mùa hè,
+Gọi bao thương nhớ ùa về trong ta.
+
+Ngày xưa chung một mái nhà,
+Giờ đây mỗi đứa đi xa một miền.
+Người vui cuộc sống bình yên,
+Người còn vất vả, ưu phiền áo cơm.
+
+Có người thành đạt vẻ vang,
+Có người lặng lẽ lo toan tháng ngày.
+Gặp nhau tay lại trong tay,
+Giàu nghèo xin để ngoài này, bạn ơi!
+
+Vẫn câu nói cũ trên môi,
+Vẫn tên gọi ấy một thời học sinh.
+Nhìn nhau tóc đã bạc mình,
+Mà sao ánh mắt vẫn tình ngày xưa.
+
+Có người qua mấy mùa mưa,
+Chưa lần gặp lại, như vừa hôm qua.
+Có người đã mãi đi xa,
+Để bao thương nhớ trong ta nghẹn lời.
+
+Bạn ơi, dẫu cách phương trời,
+Một thời áo trắng trọn đời chẳng quên.
+Hôm nay gặp lại bạn hiền,
+Mừng vui xen lẫn nỗi niềm xót xa.
+
+Thầy cô tóc đã phôi pha,
+Chúng em tóc cũng điểm hoa sương chiều.
+Bao nhiêu thương nhớ, bao nhiêu,
+Gói trong hai tiếng thân yêu: cô, thầy!
+
+Hôm nay hội ngộ về đây,
+Xin cho sống lại tháng ngày tuổi xanh.
+Bao năm xuôi ngược nhọc nhằn,
+Bỗng nghe tiếng trống trong ngần năm xưa.
+
+Hòa Xuân thương nhớ bao ngày,
+Hòa Châu, Hòa Tiến hôm nay sum vầy.
+Hòa Phước nghĩa nặng tình đầy,
+Hòa Thọ, Hòa Phát chung tay kết tình.
+
+Khuê Trung, Cẩm Lệ chúng mình,
+Hòa Liên xa cách vẫn tình đậm sâu.
+Hải Châu nối nhịp bên nhau,
+Hòa Cường thương mến trước sau vẹn lòng.
+
+Ngũ Hành Sơn vẫn chờ mong,
+Sơn Trà, Thanh Khê một lòng về đây.
+Mười hai lớp lại sum vầy,
+Hai ba năm vẫn đong đầy yêu thương.
+
+Thầy cô tóc đã pha sương,
+Chúng em vẫn nhớ mái trường năm xưa.
+Dẫu đời dãi nắng dầm mưa,
+Tình thầy nghĩa bạn vẫn chưa phai mờ.
+
+Người xa, người ở bốn bờ,
+Hôm nay gặp lại, ngẩn ngơ kề vai.
+Nắm tay quên hết tháng ngày,
+Cười vang như thuở còn ngồi bên nhau.
+
+Mai này dẫu có về đâu,
+Nguyễn Hiền vẫn mãi một màu thanh xuân.
+Hai ba năm, một lần gần,
+Bao nhiêu thương nhớ hóa thành niềm vui.
+
+Nâng ly rạng rỡ nụ cười,
+Mừng nhau còn được bên người năm xưa.
+Hẹn nhau qua những mùa sau,
+Cho tình bè bạn bền lâu chẳng mờ.
+
+Nguyễn Hiền – một bến đợi chờ,
+Một thời áo trắng, một trời yêu thương.
+Dẫu đi muôn nẻo dặm trường,
+Vẫn chung một mái, vẫn thương một đời!`;
+const DD=['Hòa Xuân','Hòa Châu','Hòa Tiến','Hòa Phước','Hòa Thọ','Hòa Phát','Khuê Trung','Cẩm Lệ','Hòa Liên','Hải Châu','Hòa Cường','Ngũ Hành Sơn','Sơn Trà','Thanh Khê'];
+const K=THO.split(/\n\s*\n/).map(k=>k.trim().split('\n'));
+const ve=(ds,dd)=>ds.map(k=>'<div class="kho">'+k.map(l=>{let h=l.replace(/&/g,'&amp;').replace(/</g,'&lt;');if(dd)DD.forEach(d=>{h=h.split(d).join('<span class="dd">'+d+'</span>')});return '<p>'+h+'</p>'}).join('')+'</div>').join('');
+document.getElementById('t1').innerHTML=ve(K.slice(0,8));
+document.getElementById('t2').innerHTML=ve(K.slice(8,14));
+document.getElementById('t3').innerHTML=ve(K.slice(14,17),1);
+document.getElementById('t4').innerHTML=ve(K.slice(17,21));
+document.getElementById('t5').innerHTML=ve(K.slice(21));
+document.getElementById('lop12').innerHTML=Array.from({length:12},(_,i)=>'<i>12/'+(i+1)+'</i>').join('');
+</script>
+</body></html>
