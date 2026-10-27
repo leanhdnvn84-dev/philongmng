@@ -31,8 +31,8 @@ const tranh=(st,pos,size,mask,cls)=>`<div class="tranh ${cls||''}" style="${st};
 const hongTrang=(x,y,r)=>`<g transform="translate(${x} ${y}) scale(${r/40})"><circle r="40" fill="#F6F1E8"/><path d="M-30 5C-30-25 25-30 30 0S5 35-15 25S-20-10 0-10S15 10 0 12" fill="none" stroke="#C9BFAE" stroke-width="5" stroke-linecap="round"/><path d="M-38 0C-40 30-10 45 15 38M38-5C42 20 25 40 5 42M-20-34C0-46 30-40 36-18" fill="none" stroke="#D8CFBF" stroke-width="4" stroke-linecap="round"/></g>`;
 const cuc=(x,y,r,m)=>`<g transform="translate(${x} ${y})">${Array.from({length:22},(_,i)=>`<ellipse rx="${r*.18}" ry="${r*.62}" transform="rotate(${i*360/22}) translate(0 ${-r*.45})" fill="${m||'#F7F3EA'}" stroke="#DDD4C2" stroke-width="1"/>`).join('')}${Array.from({length:14},(_,i)=>`<ellipse rx="${r*.13}" ry="${r*.4}" transform="rotate(${i*360/14+8}) translate(0 ${-r*.28})" fill="#FFFDF7"/>`).join('')}<circle r="${r*.16}" fill="#E9D9A6"/></g>`;
 const nguoi=(x,y,s,ao,toc)=>`<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-118" r="22" fill="${toc||'#2B2420'}"/><path d="M-30-92Q0-104 30-92L36-20H-36Z" fill="${ao||'#F7F4EC'}"/><path d="M-30-90L-44-30M30-90L44-30" stroke="${ao||'#F7F4EC'}" stroke-width="14" stroke-linecap="round"/><path d="M-34-22H34L28 60H6L0-2L-6 60H-28Z" fill="#2E3A55"/></g>`;
-const nen=(x,y,s,h)=>`<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="${h}" rx="44" ry="8" fill="rgba(0,0,0,.4)"/><rect x="-26" y="0" width="52" height="${h}" rx="6" fill="#EFE5D2"/><ellipse cx="0" cy="1" rx="26" ry="6" fill="#F8F1E2"/><path d="M0-4V-14" stroke="#2B1D18" stroke-width="3"/><path d="M0-62C14-40 16-26 0-12C-16-26-14-40 0-62Z" fill="#FFD36B"/><path d="M0-42C6-32 6-24 0-17C-6-24-6-32 0-42Z" fill="#FFFBEA"/></g>`;
-const quang=(x,y,r,a)=>`<div class="ab" style="left:${x-r}px;top:${y-r}px;width:${2*r}px;height:${2*r}px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,100,${a||.32}),rgba(255,170,80,.08) 55%,transparent 75%)"></div>`;
+const nen=(x,y,s,h)=>`<g transform="translate(${x} ${y}) scale(${s})"><g class="nenlua"><ellipse cx="0" cy="${h}" rx="44" ry="8" fill="rgba(0,0,0,.4)"/><rect x="-26" y="0" width="52" height="${h}" rx="6" fill="#EFE5D2"/><ellipse cx="0" cy="1" rx="26" ry="6" fill="#F8F1E2"/><path d="M0-4V-14" stroke="#2B1D18" stroke-width="3"/><path d="M0-62C14-40 16-26 0-12C-16-26-14-40 0-62Z" fill="#FFD36B"/><path d="M0-42C6-32 6-24 0-17C-6-24-6-32 0-42Z" fill="#FFFBEA"/></g></g>`;
+const quang=(x,y,r,a)=>`<div class="ab quang" style="left:${x-r}px;top:${y-r}px;width:${2*r}px;height:${2*r}px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,100,${a||.32}),rgba(255,170,80,.08) 55%,transparent 75%)"></div>`;
 const S=[
 /* 1 */ ()=>`<div class="k dem">${bokeh(26)}
  <div class="ab" style="left:0;right:0;bottom:0;height:380px;background:linear-gradient(180deg,transparent,rgba(5,7,14,.9))"></div>
@@ -120,4 +120,40 @@ const S=[
   <div class="ey" style="margin-top:36px;font-size:22px">Niên khoá 2000 – 2003 · THPT Nguyễn Hiền</div></div></div>`
 ];
 k.outerHTML=S[N-1]();
+/* ?dong=1: chuyển động cho clip 10 giây (render-clip.js tua từng khung bằng Web Animations) */
+if(new URLSearchParams(location.search).get('dong')){const st=document.createElement('style');st.textContent=`
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.08)}}
+@keyframes kbL{from{transform:scaleX(-1) scale(1)}to{transform:scaleX(-1) scale(1.08)}}
+@keyframes hien{from{opacity:0;transform:translateY(28px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes roi{from{transform:translate(0,-140px) rotate(0)}to{transform:translate(120px,1200px) rotate(540deg)}}
+@keyframes nhay{0%,100%{opacity:.2}50%{opacity:1}}
+@keyframes troi{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,-22px)}}
+@keyframes lua{0%,100%{transform:scale(1,1)}25%{transform:scale(.94,1.06)}50%{transform:scale(1.04,.96)}75%{transform:scale(.97,1.03)}}
+@keyframes tho{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes vao{from{opacity:1}to{opacity:0}}
+@keyframes ra{from{opacity:0}to{opacity:1}}
+@keyframes canhRoi{from{transform:translateY(-420px) rotate(-60deg)}to{transform:none}}
+@keyframes mat{from{transform:translateY(-60px)}to{transform:translateY(40px)}}
+.tranh,.canh{animation:kb 10s linear both}
+.roi i{animation:roi linear infinite both}
+.sao i{animation:nhay ease-in-out infinite both}
+.bokeh i{animation:troi ease-in-out infinite both}
+.nenlua{transform-box:fill-box;transform-origin:50% 100%}
+.quang{animation:tho 2.2s ease-in-out infinite both}
+.den{position:absolute;inset:0;background:#000;z-index:99;pointer-events:none}
+`;document.head.appendChild(st);
+ const kk=document.querySelector('.k');
+ kk.querySelectorAll('.tranh,.canh').forEach(e=>{if(/scaleX\(-1\)/.test(e.getAttribute('style')||''))e.style.animationName='kbL'});
+ kk.querySelectorAll('.roi i').forEach((e,i)=>{e.style.animationDuration=(6+i%5)+'s';e.style.animationDelay=(-i*0.83)+'s'});
+ kk.querySelectorAll('.sao i').forEach((e,i)=>{e.style.animationDuration=(1.8+i%7*.4)+'s';e.style.animationDelay=(-i*.37)+'s'});
+ kk.querySelectorAll('.bokeh i').forEach((e,i)=>{e.style.animationDuration=(5+i%4)+'s';e.style.animationDelay=(-i*.7)+'s'});
+ kk.querySelectorAll('path[fill="#FFD36B"],path[fill="url(#lua)"],.nenlua').forEach((e,i)=>{e.style.transformBox='fill-box';e.style.transformOrigin='50% 100%';e.style.animation=`lua ${.9+i%3*.25}s ease-in-out ${-i*.3}s infinite both`});
+ const chu=[...kk.querySelectorAll('.polaroid,.ey,.gv,.loi,.dam,.gach,.ab[style*="Charm"]')].filter(e=>!e.parentElement.closest('.polaroid'));
+ chu.forEach((e,i)=>{e.style.animation=`hien 1.4s cubic-bezier(.2,.7,.2,1) ${(0.7+i*1.1).toFixed(2)}s both`});
+ if(N===4)kk.querySelector('svg').style.animation='canhRoi 4.5s cubic-bezier(.3,.6,.3,1) .2s both';
+ if(N===8){const m=kk.querySelector('.ab[style*="FFE7B8"]');if(m)m.style.animation='mat 10s linear both'}
+ const d=document.createElement('div');d.className='den';d.style.animation='vao .8s ease both';kk.appendChild(d);
+ const d2=document.createElement('div');d2.className='den';d2.style.animation='ra .8s ease 9.2s both';kk.appendChild(d2);
+}
+
 </script></body></html>
