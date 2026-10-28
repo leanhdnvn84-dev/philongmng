@@ -95,7 +95,18 @@ const S=[
   <div class="gv vang" style="font-size:150px;margin-top:6px">Và câu chuyện vẫn còn tiếp tục…</div>
   <div class="gach"></div>
   <div class="loi" style="color:#3A2A22;text-shadow:none">Mời các bạn cùng bước tiếp hành trình Ngày trở về</div>
-  <div class="ey" style="margin-top:30px;color:#9E1B22">Nguyễn Hiền · 2000 – 2003 · 14.11.2026</div></div></div>`
+  <div class="ey" style="margin-top:30px;color:#9E1B22">Nguyễn Hiền · 2000 – 2003 · 14.11.2026</div></div></div>`,
+/* 6 – Bản gọn 15 giây */ ()=>`<div class="k sang gon"><div class="tia"></div>
+ ${tranh('left:0;right:0;bottom:0;height:230px','0 100%','120% auto','linear-gradient(180deg,transparent,#000 75%)')}
+ <div class="canh" style="left:-140px;top:-110px;width:700px;height:470px;transform:rotate(8deg)"></div>
+ <div class="canh" style="right:-140px;top:-110px;width:700px;height:470px;transform:scaleX(-1) rotate(8deg)"></div>
+ ${roi(22,0,100)}
+ <div class="g-td giua ab" style="left:0;right:0;top:130px"><div class="ey" style="color:#9E1B22">Khép lại một chặng ký ức</div>
+  <div class="gv vang" style="font-size:112px;margin-top:4px">Ba điều ta mang theo suốt cuộc đời</div></div>
+ <div class="g-huy">${huy(330,bang,'Thầy cô','dạy ta con chữ')}${huy(810,banbe,'Bạn bè','cho ta tiếng cười')}${huy(1290,cong,'Mái trường','cho ta nơi để nhớ')}</div>
+ <div class="g-ket giua ab" style="left:0;right:0;top:330px"><img src="../../assets/logo-nguyen-hien.png" alt="" style="width:120px;height:120px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 30px rgba(120,60,30,.25)">
+  <div class="gv vang" style="font-size:150px;margin-top:6px">Và câu chuyện vẫn còn tiếp tục…</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none">Mời các bạn cùng bước tiếp hành trình Ngày trở về</div></div></div>`
 ];
 
 k.outerHTML=S[N-1]();
@@ -153,6 +164,19 @@ k.outerHTML=S[N-1]();
  kk.querySelectorAll('.khung3').forEach((e,i)=>e.animate([{opacity:0,transform:e.style.transform+' translateY(80px)'},{opacity:1,transform:e.style.transform}],{duration:1400,delay:500+i*1600,fill:'both',easing:'cubic-bezier(.2,.8,.3,1.1)'}));
  kk.querySelectorAll('.tuyen').forEach(e=>e.animate([{strokeDashoffset:1440},{strokeDashoffset:0}],{duration:5000,delay:2600,fill:'both',easing:'ease-in-out'}));
  kk.querySelectorAll('.moc').forEach((e,i)=>e.animate([{opacity:0},{opacity:1}],{duration:800,delay:2600+i*1600,fill:'both'}));
+})();
+
+(function(){const kk=document.querySelector('.k.gon');if(!kk)return;
+ kk.querySelectorAll('.g-td *,.g-ket *,.g-td,.g-ket,.huy').forEach(e=>{e.getAnimations().forEach(a=>a.cancel());e.style.animation='none'});
+ const td=kk.querySelector('.g-td'),hu=kk.querySelector('.g-huy'),ket=kk.querySelector('.g-ket');
+ td.animate([{opacity:0,transform:'translateY(24px)'},{opacity:1,transform:'none'}],{duration:1200,delay:600,fill:'both'});
+ kk.querySelectorAll('.huy').forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(60px) scale(.85)'},{opacity:1,transform:'none'}],{duration:1100,delay:1800+i*900,fill:'both',easing:'cubic-bezier(.2,.8,.3,1.2)'}));
+ [td,hu].forEach(e=>e.animate([{opacity:1,filter:'blur(0)'},{opacity:0,filter:'blur(6px)'}],{duration:900,delay:7600,fill:'forwards'}));
+ ket.animate([{opacity:0},{opacity:1}],{duration:10,delay:8500,fill:'both'});
+ ket.querySelector('img').animate([{opacity:0,transform:'scale(.5)'},{opacity:1,transform:'scale(1.06)'},{opacity:1,transform:'scale(1)'}],{duration:1000,delay:8500,fill:'both'});
+ ket.querySelector('.gv').animate([{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 -5% 0 0)'}],{duration:2200,delay:9300,fill:'both',easing:'cubic-bezier(.45,.05,.3,1)'});
+ ket.querySelector('.loi').animate([{opacity:0,transform:'translateY(20px)'},{opacity:1,transform:'none'}],{duration:1100,delay:11400,fill:'both'});
+ kk.querySelectorAll('.tranh,.canh,.tia').forEach(e=>e.getAnimations().forEach(a=>{a.effect.updateTiming({duration:15000})}));
 })();
 
 </script></body></html>
