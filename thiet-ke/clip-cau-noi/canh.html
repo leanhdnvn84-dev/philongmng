@@ -52,6 +52,11 @@ const mau=['#F7F4EC','#C8102E','#2E5D8C','#E8B04A','#3E7A3A','#7A4A8C','#F7F4EC'
 const bang=`<svg viewBox="0 0 200 160" width="200" height="160"><rect x="10" y="10" width="180" height="120" rx="6" fill="#24382E" stroke="#8A5A35" stroke-width="10"/><text x="100" y="82" text-anchor="middle" font-family="Patrick Hand" font-size="40" fill="#F4F1E6">A, B, C</text><rect x="40" y="134" width="120" height="10" fill="#8A5A35"/></svg>`;
 const banbe=`<svg viewBox="0 0 200 160" width="200" height="160">${nguoi(70,150,.75,'#FFFFFF')}${nguoi(130,150,.75,'#FFFFFF','#3A2A20')}<path d="M90 60Q100 52 110 60" stroke="#F7F4EC" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M100 24C92 16 84 22 90 30L100 40L110 30C116 22 108 16 100 24Z" fill="#C8102E"/></svg>`;
 const cong=`<svg viewBox="0 0 200 160" width="200" height="160"><rect x="20" y="40" width="22" height="110" fill="#3AB37E"/><rect x="158" y="40" width="22" height="110" fill="#3AB37E"/><rect x="10" y="22" width="180" height="34" rx="6" fill="#53BD8B"/><text x="100" y="46" text-anchor="middle" font-family="Noto Serif" font-weight="700" font-size="15" fill="#FFF6D8">THPT NGUYỄN HIỀN</text><path d="M42 150V90H158V150" fill="none" stroke="#2E7D4F" stroke-width="4"/><path d="M60 150V100M80 150V100M100 150V100M120 150V100M140 150V100" stroke="#2E7D4F" stroke-width="3"/></svg>`;
+
+const sach=`<svg viewBox="0 0 200 160" width="200" height="160"><path d="M100 40C70 22 40 22 14 30V140C40 132 70 132 100 150C130 132 160 132 186 140V30C160 22 130 22 100 40Z" fill="#FFFDF6" stroke="#8A5A35" stroke-width="6"/><path d="M100 40V150" stroke="#8A5A35" stroke-width="5"/>${[60,80,100].map(y=>`<path d="M30 ${y}Q60 ${y-8} 88 ${y}M112 ${y}Q140 ${y-8} 170 ${y}" stroke="#9FB6D6" stroke-width="4" fill="none"/>`).join('')}<path d="M150 10L120 70" stroke="#B3261E" stroke-width="8" stroke-linecap="round"/></svg>`;
+const hoa=`<svg viewBox="0 0 200 160" width="200" height="160"><path d="M100 150L60 70H140Z" fill="#C9A27A"/><path d="M100 70V30M100 70L70 38M100 70L130 38" stroke="#3E7A3A" stroke-width="6"/><circle cx="100" cy="30" r="22" fill="#D63A31"/><circle cx="68" cy="40" r="18" fill="#F08AA0"/><circle cx="132" cy="40" r="18" fill="#C8102E"/><path d="M85 110Q100 120 115 110" stroke="#B3261E" stroke-width="8" fill="none"/></svg>`;
+const timSvg=`<svg viewBox="0 0 200 160" width="200" height="160"><path d="M100 140C30 95 20 55 45 35S95 30 100 55C105 30 135 15 155 35S170 95 100 140Z" fill="#C8102E"/><path d="M70 55Q78 45 90 50" stroke="#FFB3B3" stroke-width="8" fill="none" stroke-linecap="round"/></svg>`;
+const ly=`<svg viewBox="0 0 200 160" width="200" height="160"><path d="M60 20H140L130 80Q100 100 70 80Z" fill="rgba(255,255,255,.7)" stroke="#BBA88A" stroke-width="5"/><path d="M66 45H134L128 78Q100 94 72 78Z" fill="#E8B04A"/><path d="M100 92V140M70 145H130" stroke="#BBA88A" stroke-width="7" stroke-linecap="round"/><circle cx="150" cy="22" r="6" fill="#E8B04A"/><circle cx="162" cy="40" r="4" fill="#E8B04A"/></svg>`;
 const huy=(x,svg,t,s)=>`<div class="huy" style="left:${x}px"><div class="vong">${svg}</div><div class="ht">${t}</div><div class="hs">${s}</div></div>`;
 const S=[
 /* 1 – Ba điều mang theo */ ()=>`<div class="k sang"><div class="tia"></div>
@@ -104,6 +109,28 @@ const S=[
  <div class="g-td giua ab" style="left:0;right:0;top:130px"><div class="ey" style="color:#9E1B22">Khép lại một chặng ký ức</div>
   <div class="gv vang" style="font-size:112px;margin-top:4px">Ba điều ta mang theo suốt cuộc đời</div></div>
  <div class="g-huy">${huy(330,bang,'Thầy cô','dạy ta con chữ')}${huy(810,banbe,'Bạn bè','cho ta tiếng cười')}${huy(1290,cong,'Mái trường','cho ta nơi để nhớ')}</div>
+ <div class="g-ket giua ab" style="left:0;right:0;top:330px"><img src="../../assets/logo-nguyen-hien.png" alt="" style="width:120px;height:120px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 30px rgba(120,60,30,.25)">
+  <div class="gv vang" style="font-size:150px;margin-top:6px">Và câu chuyện vẫn còn tiếp tục…</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none">Mời các bạn cùng bước tiếp hành trình Ngày trở về</div></div></div>`,
+()=>`<div class="k sang gon"><div class="tia"></div>
+ ${tranh('left:0;right:0;bottom:0;height:230px','0 100%','120% auto','linear-gradient(180deg,transparent,#000 75%)')}
+ <div class="canh" style="left:-140px;top:-110px;width:700px;height:470px;transform:rotate(8deg)"></div>
+ <div class="canh" style="right:-140px;top:-110px;width:700px;height:470px;transform:scaleX(-1) rotate(8deg)"></div>
+ ${roi(22,0,100)}
+ <div class="g-td giua ab" style="left:0;right:0;top:130px"><div class="ey" style="color:#9E1B22">Gala Ngày trở về · Phần 2</div>
+  <div class="gv vang" style="font-size:150px;margin-top:4px">Tri ân Thầy Cô</div></div>
+ <div class="g-huy">${huy(330,bang,'Gieo con chữ','bảng đen, phấn trắng')}${huy(810,sach,'Thắp ước mơ','từng trang giáo án')}${huy(1290,hoa,'Người lái đò','thầm lặng sớm trưa')}</div>
+ <div class="g-ket giua ab" style="left:0;right:0;top:330px"><img src="../../assets/logo-nguyen-hien.png" alt="" style="width:120px;height:120px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 30px rgba(120,60,30,.25)">
+  <div class="gv vang" style="font-size:150px;margin-top:6px">Kính dâng Thầy Cô</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none">những người đã thắp sáng tuổi thanh xuân của chúng em</div></div></div>`,
+()=>`<div class="k sang gon"><div class="tia"></div>
+ ${tranh('left:0;right:0;bottom:0;height:230px','0 100%','120% auto','linear-gradient(180deg,transparent,#000 75%)')}
+ <div class="canh" style="left:-140px;top:-110px;width:700px;height:470px;transform:rotate(8deg)"></div>
+ <div class="canh" style="right:-140px;top:-110px;width:700px;height:470px;transform:scaleX(-1) rotate(8deg)"></div>
+ ${roi(22,0,100)}
+ <div class="g-td giua ab" style="left:0;right:0;top:130px"><div class="ey" style="color:#9E1B22">Khép lại phút tri ân</div>
+  <div class="gv vang" style="font-size:112px;margin-top:4px">Ơn thầy nghĩa cô – mãi trong tim</div></div>
+ <div class="g-huy">${huy(330,hoa,'Lời cảm ơn','gửi trọn hôm nay')}${huy(810,timSvg,'Lòng biết ơn','theo suốt cuộc đời')}${huy(1290,ly,'Lời chúc','Thầy Cô mạnh khoẻ, bình an')}</div>
  <div class="g-ket giua ab" style="left:0;right:0;top:330px"><img src="../../assets/logo-nguyen-hien.png" alt="" style="width:120px;height:120px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 30px rgba(120,60,30,.25)">
   <div class="gv vang" style="font-size:150px;margin-top:6px">Và câu chuyện vẫn còn tiếp tục…</div>
   <div class="loi" style="color:#3A2A22;text-shadow:none">Mời các bạn cùng bước tiếp hành trình Ngày trở về</div></div></div>`
