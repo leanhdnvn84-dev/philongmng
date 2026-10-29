@@ -23,6 +23,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#0B0F1C}
 .polaroid{position:absolute;background:#FBF7EE;padding:26px 26px 110px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
 .sang{background:radial-gradient(70% 80% at 50% 40%,#FFFDF6 0%,#FBEFDB 55%,#F1D9B6 100%)}
 .sang .vang{background:linear-gradient(180deg,#D9363E,#9C1E2A);-webkit-background-clip:text;background-clip:text;color:transparent;filter:none}
+.het{position:absolute;left:0;right:0;bottom:56px;display:flex;align-items:center;justify-content:center;gap:34px}.het b{font:700 64px/1 'Noto Serif',serif;letter-spacing:.42em;margin-right:-.42em;color:#9E1B22;text-shadow:0 0 18px #FFF8EA,0 0 6px #FFF8EA,0 0 30px #FFF8EA}.het i{width:200px;height:2px;background:linear-gradient(90deg,transparent,#C9A24A)}.het i:last-child{transform:scaleX(-1)}
 .sang .loi,.sang .dam{color:#3A2A22;text-shadow:none}.sang .dam{color:#8E1F17}.sang .ey{color:#9E7A3A!important}
 .nhung{background:radial-gradient(60% 75% at 50% 38%,#9C2A22 0%,#6B1612 45%,#2A0706 100%)}
 .vang{background:linear-gradient(180deg,#FFF1C9 0%,#F2C566 45%,#C08A2E 70%,#F7DA8E 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
@@ -126,6 +127,8 @@ const S=[
   <div class="gv vang" style="font-size:150px;margin-top:8px">Một thời để nhớ</div>
   <div class="gv vang" style="font-size:150px">Một đời để thương</div></div></div>`
 ];
+/* 9 – Kết + chữ HẾT (clip riêng 10 giây, render-het.js) */
+S.push(()=>S[7]().replace(/<[/]div>$/,`<div class="het"><i></i><b>HẾT</b><i></i></div></div>`));
 
 k.outerHTML=S[N-1]();
 /* chuyển động cho clip (render-clip.js tua từng khung bằng Web Animations) */
@@ -172,6 +175,7 @@ k.outerHTML=S[N-1]();
  kk.querySelectorAll('.bt').forEach((e,i)=>{e.animate([{opacity:0},{opacity:1}],{duration:800,delay:900+i*500,fill:'both'})});
  kk.querySelectorAll('.tim').forEach(e=>{e.style.transformBox='fill-box';e.style.transformOrigin='center';e.style.animation='tim 1.6s ease-in-out infinite both'});
  kk.querySelectorAll('.trang').forEach((e,i)=>e.animate([{opacity:0,transform:e.style.transform+' translateY(40px)'},{opacity:1,transform:e.style.transform}],{duration:1200,delay:300+i*500,fill:'both',easing:'ease-out'}));
+ kk.querySelectorAll('.het').forEach(e=>{e.animate([{opacity:0,transform:'translateY(24px)',filter:'blur(6px)'},{opacity:1,transform:'none',filter:'none'}],{duration:1400,delay:5600,fill:'both',easing:'ease-out'});e.querySelectorAll('i').forEach(g=>g.animate([{scale:'0 1'},{scale:'1 1'}],{duration:1200,delay:6000,fill:'both',easing:'ease-out'}))});
  kk.querySelectorAll('.polaroid').forEach((e,i)=>e.animate([{opacity:0,transform:e.style.transform+' translateY(60px) scale(.94)'},{opacity:1,transform:e.style.transform}],{duration:1300,delay:400+i*1800,fill:'both',easing:'cubic-bezier(.2,.8,.3,1.1)'}));
  kk.querySelectorAll('.ab[style*="Charm"]').forEach((e,i)=>e.animate([{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 -5% 0 0)'}],{duration:1600,delay:1000+i*1200,fill:'both'}));
  kk.querySelectorAll('.l12 span').forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(20px)'},{opacity:1,transform:'none'}],{duration:600,delay:5200+i*180,fill:'both'}));
