@@ -1,0 +1,44 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Backdrop Gala – 10 mẫu</title>
+<!-- 10 mẫu phông Gala cùng một nội dung, tông màu nước của backdrop-gala-mau-nuoc. mau.html?m=1..10, tỉ lệ 2:1, kích thước theo vw. render.js → 01..10-*.jpg 3840×1920 + tong-quan.jpg -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:wght@700&family=Be+Vietnam+Pro:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="nen.css">
+<style>
+.san1{position:absolute;bottom:0;width:64vw;height:46vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 0 100%/82vw auto;-webkit-mask-image:linear-gradient(90deg,#000 50%,transparent 97%),linear-gradient(180deg,transparent 0,#000 30%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 50%,transparent 97%),linear-gradient(180deg,transparent 0,#000 30%);mask-composite:intersect}
+.san1.phai{right:0;transform:scaleX(-1)}
+.khoi{position:absolute;text-align:center}
+.the{position:absolute;left:21vw;right:21vw;top:3.2vw;bottom:3.2vw;border-radius:1.6vw;background:linear-gradient(180deg,rgba(255,252,244,.97),rgba(253,244,228,.95));box-shadow:0 1.4vw 3vw rgba(90,40,20,.25);outline:.18vw solid #C9A24A;outline-offset:-1vw}
+.khung{position:absolute;inset:1.6vw;border:.3vw solid #C9A24A;border-radius:.6vw;box-shadow:inset 0 0 0 .5vw rgba(255,250,238,.6),inset 0 0 0 .66vw #C9A24A}
+.khung i{position:absolute;font:400 2.6vw 'Noto Serif',serif;color:#C9A24A;line-height:1;background:#FBF3E4;padding:0 .4vw}
+.vom{position:absolute;left:6vw;bottom:4vw;width:31vw;height:40vw;border-radius:15.5vw 15.5vw 1vw 1vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 22% 100%/72vw auto;border:.55vw solid #fff;outline:.2vw solid #C9A24A;box-shadow:0 1.2vw 3vw rgba(90,40,20,.3)}
+.mattroi{position:absolute;left:50%;top:5vw;width:36vw;height:36vw;margin-left:-18vw;border-radius:50%;background:radial-gradient(circle,#FFF6D8 0%,#FFD98A 45%,rgba(255,200,120,.35) 62%,transparent 72%)}
+.lua{display:inline-block;position:relative;background:linear-gradient(180deg,#C8102E,#9C1E2A);color:#FFF4DE!important;text-shadow:none!important;padding:.5vw 3.4vw;box-shadow:0 .5vw 1.2vw rgba(156,30,42,.3)}
+.lua:before,.lua:after{content:'';position:absolute;top:.8vw;width:2.6vw;height:100%;background:#7E1520;z-index:-1}
+.lua:before{left:-2vw;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,40% 50%)}.lua:after{right:-2vw;clip-path:polygon(0 0,100% 0,60% 50%,100% 100%,0 100%)}
+.nk.vien{background:rgba(255,251,242,.9);color:#9E1B22;border:.2vw solid #C9A24A;box-shadow:none}
+.vong span{position:absolute;width:4.6vw;height:4.6vw;margin:-2.3vw 0 0 -2.3vw;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 1.25vw 'Be Vietnam Pro',sans-serif;color:#fff;border:.2vw solid rgba(255,255,255,.9);box-shadow:0 .35vw 1vw rgba(90,40,20,.25)}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const M=+(new URLSearchParams(location.search).get('m')||1);
+const MAU12=['#C8102E','#E8743B','#E8B04A','#3E7A3A','#2F8F8B','#2E5D8C','#5B4BA8','#8E3FA0','#C2477F','#B07A1E','#4F7F3A','#9C1E2A'];
+const P=[[14,30,20],[23,18,-30],[9,52,60],[31,40,15],[76,20,40],[86,36,-20],[69,44,80],[92,55,10],[18,64,-50],[80,62,30],[40,8,25],[60,10,-35],[4,40,70],[96,28,-60],[27,58,5],[73,30,50],[48,88,40],[55,70,-20],[36,76,65],[64,82,10]];
+const roi=n=>'<div class="roi">'+P.slice(0,n||16).map(([x,y,r],i)=>'<i style="left:'+x+'vw;top:'+y*.5+'vw;transform:rotate('+r+'deg) scale('+(.7+(i%4)*.18).toFixed(2)+')"></i>').join('')+'</div>';
+const NEN='<div class="tia"></div><div class="nang"></div>',SAN2='<div class="san trai"></div><div class="san phai"></div><div class="gach"></div>',MO='<div class="mo"></div>',CANH='<div class="canh c1"></div><div class="canh c2"></div>';
+const nd=(o)=>{o=o||{};return '<img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><div class="ey" style="margin-top:1vw">Trường THPT Nguyễn Hiền · Đà Nẵng</div><div class="td" style="margin-top:'+(o.mt||2.9)+'vw">Về đi bạn ơi!</div><div class="vach" style="margin-top:.1vw"></div><div class="gala" style="margin-top:1vw">'+(o.lua?'<span class="lua">GALA GẶP MẶT CỰU HỌC SINH</span>':'GALA GẶP MẶT CỰU HỌC SINH')+'</div><div style="margin-top:'+(o.lua?1.6:1.1)+'vw"><span class="nk'+(o.lua?' vien':'')+'">NIÊN KHOÁ 2000 – 2003</span></div><div class="cau" style="margin-top:1.2vw">“Hai mươi ba năm – Một mái trường – Một đại gia đình”</div><div class="ngay" style="margin-top:.7vw">THỨ BẢY<b>✦</b>14 . 11 . 2026<b>✦</b>ĐÀ NẴNG</div>'};
+const lop=(st,c)=>'<div class="giua lop" style="'+st+'">'+MAU12.map((m,i)=>'<span'+(c?' style="background:'+m+';color:#fff;border-color:rgba(255,255,255,.9)"':'')+'>12/'+(i+1)+'</span>').join('')+'</div>';
+const giua=(st,h)=>'<div class="giua" style="'+st+'">'+h+'</div>';
+const vong=()=>'<div class="vong">'+MAU12.map((m,i)=>{const a=(166-i*(152/11))*Math.PI/180;return '<span style="left:'+(50+46*Math.cos(a)).toFixed(2)+'vw;top:'+(12+34*Math.sin(a)*.95).toFixed(2)+'vw;background:'+m+'">12/'+(i+1)+'</span>'}).join('')+'</div>';
+const MAU=[
+/* 1 Đối xứng (mẫu đã duyệt) */ ()=>NEN+SAN2+MO+CANH+roi()+giua('top:1vw',nd())+lop('bottom:2vw'),
+/* 2 Sân trường bên trái, chữ bên phải */ ()=>NEN+'<div class="san1"></div><div class="ab" style="left:36vw;right:0;top:0;bottom:0;background:radial-gradient(55% 60% at 55% 50%,rgba(255,250,238,.95),rgba(255,250,238,.6) 60%,transparent)"></div><div class="canh c2" style="width:24vw;height:16vw"></div>'+roi()+'<div class="khoi" style="left:39vw;right:5vw;top:1.6vw;zoom:.84">'+nd()+'<div class="lop" style="margin-top:2.2vw;zoom:.82">'+MAU12.map((m,i)=>'<span>12/'+(i+1)+'</span>').join('')+'</div></div>',
+/* 3 Sân trường bên phải, chữ bên trái */ ()=>NEN+'<div class="san1 phai"></div><div class="ab" style="left:0;right:36vw;top:0;bottom:0;background:radial-gradient(55% 60% at 45% 50%,rgba(255,250,238,.95),rgba(255,250,238,.6) 60%,transparent)"></div><div class="canh c1" style="width:24vw;height:16vw"></div>'+roi()+'<div class="khoi" style="left:5vw;right:39vw;top:1.6vw;zoom:.84">'+nd()+'<div class="lop" style="margin-top:2.2vw;zoom:.82">'+MAU12.map((m,i)=>'<span>12/'+(i+1)+'</span>').join('')+'</div></div>',
+/* 4 Thẻ giấy nổi giữa sân trường */ ()=>NEN+SAN2+'<div class="the"></div>'+CANH+roi()+'<div class="khoi" style="left:21vw;right:21vw;top:4.4vw;zoom:.8">'+nd()+'</div>'+lop('bottom:4.6vw;zoom:.74'),
+/* 5 Khung vàng */ ()=>NEN+'<div style="position:absolute;inset:0;opacity:.6">'+SAN2+'</div>'+MO+'<div class="khung"><i style="left:47.5vw;top:-1.7vw">✦</i><i style="left:47.5vw;bottom:-1.7vw">✦</i></div>'+CANH+roi()+giua('top:3.4vw;zoom:.9',nd())+lop('bottom:3.8vw;zoom:.88'),
+/* 6 Ô cửa vòm */ ()=>NEN+'<div class="vom"></div><div class="canh c2" style="width:24vw;height:16vw"></div>'+roi()+'<div class="khoi" style="left:39vw;right:5vw;top:1.6vw;zoom:.84">'+nd()+'<div class="lop" style="margin-top:2.2vw;zoom:.82">'+MAU12.map((m,i)=>'<span>12/'+(i+1)+'</span>').join('')+'</div></div>',
+/* 7 Nắng chiều vàng */ ()=>'<div class="ab" style="inset:0;background:linear-gradient(180deg,#FFF4DC 0%,#FBD9A8 45%,#F2B98C 100%)"></div>'+NEN+'<div class="mattroi"></div><div style="position:absolute;inset:0;filter:sepia(.25) saturate(1.15)">'+SAN2+'</div>'+MO+CANH+roi()+giua('top:1vw',nd())+lop('bottom:2vw'),
+/* 8 Dải lụa đỏ */ ()=>NEN+SAN2+MO+CANH+roi()+giua('top:1vw',nd({lua:1}))+lop('bottom:2vw'),
+/* 9 Vòng mười hai lớp */ ()=>NEN+SAN2+MO+CANH+roi()+vong()+giua('top:1vw;zoom:.9',nd()),
+/* 10 Tối giản – chỉ hoa phượng */ ()=>NEN+'<div class="mattroi" style="top:9vw;opacity:.7"></div>'+CANH+'<div class="canh" style="left:-5vw;bottom:-4.4vw;transform:scaleY(-1) rotate(8deg)"></div><div class="canh" style="right:-5vw;bottom:-4.4vw;transform:scale(-1,-1) rotate(8deg)"></div>'+roi(20)+giua('top:1vw',nd())+lop('bottom:2.2vw',1)
+];
+document.getElementById('k').innerHTML=MAU[M-1]();
+</script></body></html>

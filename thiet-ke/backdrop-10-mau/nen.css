@@ -1,0 +1,27 @@
+/* chép từ backdrop-gala-mau-nuoc/backdrop.html – dùng chung cho 10 mẫu */
+*{box-sizing:border-box;margin:0}
+html,body{width:100vw;height:50vw;overflow:hidden;background:#FBF3E4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.k{position:relative;width:100vw;height:50vw;overflow:hidden;font-family:'Noto Serif',serif;background:radial-gradient(80% 75% at 50% 22%,#FFFDF7 0%,#FBF0DC 55%,#F3DFC0 100%)}
+.ab{position:absolute}
+.tia{position:absolute;left:50%;top:-55vw;width:130vw;height:130vw;margin-left:-65vw;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,226,150,.30) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(closest-side,#000 25%,transparent 70%);mask-image:radial-gradient(closest-side,#000 25%,transparent 70%)}
+.nang{position:absolute;left:50%;top:-12vw;width:60vw;height:44vw;margin-left:-30vw;border-radius:50%;background:radial-gradient(closest-side,rgba(255,240,190,.9),rgba(255,236,180,.35) 55%,transparent)}
+.san{position:absolute;bottom:0;width:50vw;height:33vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 0 100%/64vw auto;
+ -webkit-mask-image:linear-gradient(90deg,#000 45%,transparent 98%),linear-gradient(180deg,transparent 0,#000 38%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 45%,transparent 98%),linear-gradient(180deg,transparent 0,#000 38%);mask-composite:intersect}
+.san.trai{left:0}.san.phai{right:0;transform:scaleX(-1)}
+.gach{position:absolute;left:30vw;right:30vw;bottom:0;height:9vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 50% 100%/64vw auto;-webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent),linear-gradient(180deg,transparent,#000 60%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent),linear-gradient(180deg,transparent,#000 60%);mask-composite:intersect;opacity:.85}
+.canh{position:absolute;width:32vw;height:21.3vw;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+.c1{left:-5vw;top:-4.4vw;transform:rotate(8deg)}.c2{right:-5vw;top:-4.4vw;transform:scaleX(-1) rotate(8deg)}
+.roi i{position:absolute;width:1.25vw;height:.95vw;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff7a62,#c8102e);opacity:.8}
+.mo{position:absolute;left:19vw;right:19vw;top:3vw;height:44vw;background:radial-gradient(50% 50% at 50% 46%,rgba(255,250,238,.96) 0%,rgba(255,250,238,.85) 52%,rgba(255,250,238,0) 100%)}
+.giua{position:absolute;left:0;right:0;text-align:center}
+.logo{width:6.6vw;height:6.6vw;border-radius:50%;background:#fff;padding:.55vw;box-shadow:0 .5vw 1.6vw rgba(120,60,30,.25)}
+.ey{font:700 1.45vw 'Be Vietnam Pro',sans-serif;letter-spacing:.34em;margin-right:-.34em;text-transform:uppercase;color:#9E1B22}
+.td{font:400 10.4vw/1.02 'Great Vibes',cursive;color:#B3261E;text-shadow:0 .3vw 1.2vw rgba(179,38,30,.18)}
+.vach{width:30vw;height:.16vw;margin:0 auto;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+.gala{font:700 3.25vw/1.15 'Noto Serif',serif;letter-spacing:.1em;margin-right:-.1em;color:#5B2A12;text-shadow:0 0 .6vw #FFF8EA}
+.nk{display:inline-block;font:700 2vw 'Be Vietnam Pro',sans-serif;letter-spacing:.14em;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);padding:.6vw 2.6vw;border-radius:3vw;box-shadow:0 .5vw 1.3vw rgba(179,38,30,.3)}
+.cau{font:italic 500 1.85vw 'Noto Serif',serif;color:#4A3A31;text-shadow:0 0 .6vw #FFF8EA}
+.ngay{font:700 2.05vw 'Playfair Display',serif;font-variant-numeric:lining-nums;letter-spacing:.16em;color:#9E1B22;text-shadow:0 0 .6vw #FFF8EA}
+.ngay b{color:#C9A24A;margin:0 .9vw;font-weight:400}
+.lop{display:flex;justify-content:center;gap:.75vw}
+.lop span{width:4.5vw;height:4.5vw;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 1.25vw 'Be Vietnam Pro',sans-serif;color:#9E1B22;background:rgba(255,251,242,.95);border:.2vw solid #C9A24A;box-shadow:0 .35vw 1vw rgba(90,40,20,.22)}
