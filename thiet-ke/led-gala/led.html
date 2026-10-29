@@ -1,0 +1,64 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Hình LED Gala</title>
+<!-- 10 hình chạy màn LED Gala, cùng tông phông sân khấu màu nước (backdrop-gala-mau-nuoc). led.html?n=1..10, khung 1920×1080; render.js chụp ×2 = 3840×2160 -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:wght@700&family=Be+Vietnam+Pro:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#FBF3E4}
+.k{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Noto Serif',serif;background:radial-gradient(80% 75% at 50% 22%,#FFFDF7 0%,#FBF0DC 55%,#F3DFC0 100%)}
+.ab{position:absolute}
+.tia{position:absolute;left:50%;top:-1200px;width:2800px;height:2800px;margin-left:-1400px;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,226,150,.30) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(closest-side,#000 25%,transparent 70%);mask-image:radial-gradient(closest-side,#000 25%,transparent 70%)}
+.nang{position:absolute;left:50%;top:-260px;width:1300px;height:900px;margin-left:-650px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,240,190,.9),rgba(255,236,180,.35) 55%,transparent)}
+.san{position:absolute;bottom:0;width:900px;height:620px;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 0 100%/1180px auto;
+ -webkit-mask-image:linear-gradient(90deg,#000 40%,transparent 98%),linear-gradient(180deg,transparent 0,#000 38%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 40%,transparent 98%),linear-gradient(180deg,transparent 0,#000 38%);mask-composite:intersect}
+.san.trai{left:0}.san.phai{right:0;transform:scaleX(-1)}
+.canh{position:absolute;width:540px;height:360px;background:url(../ngoai-khoa/canh.webp) center/contain no-repeat}
+.c1{left:-110px;top:-90px;transform:rotate(8deg)}.c2{right:-110px;top:-90px;transform:scaleX(-1) rotate(8deg)}
+.roi i{position:absolute;width:24px;height:18px;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff7a62,#c8102e);opacity:.8}
+.mo{position:absolute;left:300px;right:300px;top:40px;height:1000px;background:radial-gradient(50% 50% at 50% 46%,rgba(255,250,238,.96) 0%,rgba(255,250,238,.86) 55%,rgba(255,250,238,0) 100%)}
+.giua{position:absolute;left:0;right:0;text-align:center}
+.logo{width:130px;height:130px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 10px 30px rgba(120,60,30,.25)}
+.ey{font:700 25px 'Be Vietnam Pro',sans-serif;letter-spacing:.24em;margin-right:-.24em;text-transform:uppercase;color:#9E1B22}
+.td{font:400 190px/1.05 'Great Vibes',cursive;color:#B3261E;text-shadow:0 6px 24px rgba(179,38,30,.18)}
+.td.vua{font-size:150px}
+.vach{width:560px;height:3px;margin:0 auto;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+.gala{font:700 60px/1.2 'Noto Serif',serif;letter-spacing:.1em;margin-right:-.1em;color:#5B2A12;text-shadow:0 0 12px #FFF8EA}
+.nk{display:inline-block;font:700 38px 'Be Vietnam Pro',sans-serif;letter-spacing:.14em;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);padding:12px 48px;border-radius:60px;box-shadow:0 10px 26px rgba(179,38,30,.3)}
+.loi{font:italic 500 40px/1.55 'Noto Serif',serif;color:#3A2A22;text-shadow:0 0 12px #FFF8EA}
+.dam{font:700 42px/1.5 'Noto Serif',serif;color:#8E1F17;text-shadow:0 0 12px #FFF8EA}
+.ngay{font:700 40px 'Playfair Display',serif;font-variant-numeric:lining-nums;letter-spacing:.16em;color:#9E1B22;text-shadow:0 0 12px #FFF8EA}
+.ngay b{color:#C9A24A;margin:0 18px;font-weight:400}
+.lop{display:flex;justify-content:center;gap:16px}
+.lop span{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 26px 'Be Vietnam Pro',sans-serif;color:#9E1B22;background:rgba(255,251,242,.96);border:4px solid #C9A24A;box-shadow:0 8px 20px rgba(90,40,20,.22)}
+.lop.mau span{color:#fff;border-color:rgba(255,255,255,.85);width:118px;height:118px;font-size:32px}
+.ct{display:inline-grid;grid-template-columns:auto auto;gap:16px 60px;text-align:left;margin-top:30px}
+.ct div{display:flex;align-items:center;gap:20px;font:600 38px 'Noto Serif',serif;color:#3A2A22;text-shadow:0 0 10px #FFF8EA}
+.ct b{flex:none;width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#C8102E,#9C1E2A);color:#fff;font:700 30px 'Playfair Display',serif;font-variant-numeric:lining-nums;box-shadow:0 6px 16px rgba(179,38,30,.3)}
+.qr{display:inline-block;background:#fff;padding:26px;border-radius:30px;box-shadow:0 16px 40px rgba(90,40,20,.25);border:4px solid #C9A24A}
+.qr img{width:360px;height:360px;display:block;image-rendering:pixelated}
+.not{font:400 70px 'Noto Serif',serif;color:#C9A24A}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const N=+(new URLSearchParams(location.search).get('n')||1);
+const MAU12=['#C8102E','#E8743B','#E8B04A','#3E7A3A','#2F8F8B','#2E5D8C','#5B4BA8','#8E3FA0','#C2477F','#B07A1E','#4F7F3A','#9C1E2A'];
+const P=[[7,28,20],[13,18,-30],[5,52,60],[23,40,15],[84,20,40],[92,36,-20],[76,44,80],[95,55,10],[15,64,-50],[88,62,30],[34,8,25],[64,10,-35],[3,40,70],[97,28,-60],[27,58,5],[72,30,50]];
+const roi='<div class="roi">'+P.map(([x,y,r],i)=>'<i style="left:'+x+'%;top:'+y+'%;transform:rotate('+r+'deg) scale('+(.7+(i%4)*.2).toFixed(2)+')"></i>').join('')+'</div>';
+const nen='<div class="tia"></div><div class="nang"></div><div class="san trai"></div><div class="san phai"></div><div class="mo"></div><div class="canh c1"></div><div class="canh c2"></div>'+roi;
+const logo='<img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png" alt="">';
+const ey='<div class="ey">Gala “Ngày trở về” · Niên khoá 2000 – 2003</div>';
+const lop12=c=>'<div class="lop'+(c?' mau':'')+'">'+MAU12.map((m,i)=>'<span'+(c?' style="background:'+m+'"':'')+'>12/'+(i+1)+'</span>').join('')+'</div>';
+const nenThap=(x,y,s,h)=>'<g transform="translate('+x+' '+y+') scale('+s+')"><ellipse cx="0" cy="'+h+'" rx="40" ry="7" fill="rgba(90,50,20,.18)"/><rect x="-24" y="0" width="48" height="'+h+'" rx="6" fill="#FFF8EC" stroke="#E6D3B3" stroke-width="2"/><path d="M0-4V-14" stroke="#4A3A31" stroke-width="3"/><circle cx="0" cy="-36" r="46" fill="rgba(255,200,110,.28)"/><path d="M0-62C14-40 16-26 0-12C-16-26-14-40 0-62Z" fill="#FFB43C"/><path d="M0-44C6-34 6-25 0-17C-6-25-6-34 0-44Z" fill="#FFF3C4"/></g>';
+const S=[
+/* 1 Chào mừng */ ()=>'<div class="giua" style="top:70px">'+logo+'<div class="ey" style="margin-top:20px">Trường THPT Nguyễn Hiền · Đà Nẵng</div><div class="td" style="margin-top:22px">Về đi bạn ơi!</div><div class="vach"></div><div class="gala" style="margin-top:18px">GALA GẶP MẶT CỰU HỌC SINH</div><div style="margin-top:22px"><span class="nk">NIÊN KHOÁ 2000 – 2003</span></div><div class="ngay" style="margin-top:28px">THỨ BẢY<b>✦</b>14 . 11 . 2026<b>✦</b>ĐÀ NẴNG</div></div>',
+/* 2 Kính chào Thầy Cô */ ()=>'<div class="giua" style="top:110px">'+logo+'<div style="margin-top:22px">'+ey+'</div><div class="td" style="margin-top:22px">Kính chào quý Thầy Cô</div><div class="vach" style="margin-top:6px"></div><div class="loi" style="margin-top:26px">Cảm ơn Thầy Cô đã về chung vui cùng học trò –</div><div class="dam">những đứa trẻ năm nào, nay đã trở về.</div></div>',
+/* 3 Chương trình */ ()=>'<div class="giua" style="top:60px">'+ey+'<div class="td vua" style="margin-top:14px">Chương trình Gala</div><div class="vach"></div><div class="ct">'+['Đón khách · Chụp ảnh lưu niệm','Khai mạc','Tri ân Thầy Cô','Một phút hoài niệm','Mười hai lớp sum vầy','Giao lưu văn nghệ','Lưu bút Gala','Hẹn gặp lại'].map((t,i)=>'<div><b>'+(i+1)+'</b>'+t+'</div>').join('')+'</div></div>',
+/* 4 Khai mạc */ ()=>'<div class="giua" style="top:120px">'+logo+'<div style="margin-top:24px">'+ey+'</div><div class="td" style="margin-top:20px;font-size:220px">Khai mạc</div><div class="vach"></div><div class="loi" style="margin-top:26px">Hai mươi ba năm – một mái trường – một đại gia đình.</div><div class="dam">Chào mừng các bạn đã trở về!</div></div>',
+/* 5 Tri ân */ ()=>'<div class="giua" style="top:150px">'+ey+'<div class="td" style="margin-top:20px">Tri ân Thầy Cô</div><div class="vach"></div><div class="gala" style="margin-top:22px;font-size:46px">MỘT THỜI ÁO TRẮNG – MỘT ĐỜI TRI ÂN</div><div class="loi" style="margin-top:28px">Cảm ơn Thầy Cô – những người đã thắp lửa</div><div class="dam">cho tuổi mười tám của chúng em.</div></div>',
+/* 6 Hoài niệm */ ()=>'<div class="giua" style="top:130px">'+ey+'<div class="td vua" style="margin-top:20px">Một phút hoài niệm</div><div class="vach"></div><div class="loi" style="margin-top:26px">Nhớ về những người bạn đã đi xa.</div><div class="dam">Mỗi lần gọi tên nhau, là một lần họ trở về.</div><svg width="760" height="260" viewBox="-380 -110 760 260" style="margin-top:20px">'+[[-240,30,.8,110],[-120,10,1,140],[0,-10,1.2,170],[120,10,1,140],[240,30,.8,110]].map(a=>nenThap(...a)).join('')+'</svg></div>',
+/* 7 Mười hai lớp */ ()=>'<div class="giua" style="top:110px">'+logo+'<div style="margin-top:22px">'+ey+'</div><div class="td" style="margin-top:16px">Mười hai lớp lại sum vầy</div><div class="vach"></div><div class="loi" style="margin-top:20px;margin-bottom:40px">Từ 12/1 đến 12/12 – mỗi lớp một màu, chung một sân trường.</div>'+lop12(1)+'</div>',
+/* 8 Văn nghệ */ ()=>'<div class="giua" style="top:150px">'+ey+'<div class="not" style="margin-top:10px">♪ ♫ ♪</div><div class="td" style="margin-top:0">Giao lưu văn nghệ</div><div class="vach"></div><div class="loi" style="margin-top:26px">Hát lại những bài ca của tuổi học trò,</div><div class="dam">cùng nhau sống lại một thời áo trắng.</div></div>',
+/* 9 Lưu bút */ ()=>'<div class="giua" style="top:60px">'+ey+'<div class="td vua" style="margin-top:4px">Lưu bút Gala</div><div class="qr" style="margin-top:10px"><img src="../trinh-chieu-3-man/qr-viet-luu-but.png" alt=""></div><div class="dam" style="margin-top:22px">Quét mã viết lưu bút</div><div class="loi" style="font-size:34px">lời của bạn sẽ hiện ngay lên màn hình</div></div>',
+/* 10 Hẹn gặp lại */ ()=>'<div class="giua" style="top:90px">'+logo+'<div class="ey" style="margin-top:22px">Nguyễn Hiền · 2000 – 2003</div><div class="td" style="margin-top:14px;font-size:170px">Một thời để nhớ</div><div class="td" style="font-size:170px">Một đời để thương</div><div class="vach" style="margin-top:10px"></div><div class="gala" style="margin-top:20px;font-size:50px">HẸN GẶP LẠI!</div></div>'
+];
+document.getElementById('k').innerHTML=nen+S[N-1]()+(N===7?'':'<div class="giua" style="bottom:28px">'+lop12(0).replace('class="lop"','class="lop" style="transform:scale(.62);transform-origin:50% 100%"')+'</div>');
+</script></body></html>
