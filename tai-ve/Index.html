@@ -124,7 +124,8 @@ footer.g .ft-r{text-align:right}footer.g .ft-b{max-width:440px}footer.g .ft-b b{
 @media(max-width:760px){.tchieu .lop img{max-width:92vw}}
 /* Màn Gala 3 phần (.tchieu.ba): --tl/--tg/--tr = bề rộng trái/giữa/phải (vw), nội dung chỉ trong phần giữa, 2 cột .tcBen mã QR */
 .tcBen,.tcCan{display:none}
-body .tchieu.ba .tcBen{display:flex;position:absolute;top:0;bottom:0;z-index:2;flex-direction:column;align-items:center;justify-content:center;gap:3vh;padding:3vh 1vw;text-align:center;color:#FFE3C2;background:radial-gradient(120% 80% at 50% 30%,#5B1A16,#2A0B09);--b:min(var(--tl),42vh)}
+body .tchieu.ba .tcBen{display:flex;position:absolute;top:0;bottom:0;z-index:2;flex-direction:column;align-items:center;justify-content:flex-start;gap:3vh;padding:2.5vh 1vw 3vh;text-align:center;color:#FFE3C2;background:radial-gradient(120% 80% at 50% 30%,#5B1A16,#2A0B09);--b:min(var(--tl),42vh)}
+body .tchieu.ba .tcBen .lg{order:-2}body .tchieu.ba .tcBen .qr{order:-1}
 body .tchieu.ba .tcBen.trai{left:0;width:var(--tl)}body .tchieu.ba .tcBen.phai{right:0;width:var(--tr)}
 .tcBen .lg{width:calc(var(--b)*.28);aspect-ratio:1;border-radius:50%;background:#fff;padding:calc(var(--b)*.03);object-fit:contain}
 .tcBen .td{font:400 calc(var(--b)*.15)/1.1 'Great Vibes',cursive}
