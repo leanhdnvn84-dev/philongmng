@@ -1,0 +1,186 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Clip Hẹn gặp lại</title>
+<!-- 10 cảnh kết "Khép lại ngày hội ngộ" – Gala "Ngày trở về". ?n=1..10. Khung 1920×1080, chụp ×2 = 3840×2160 bằng render.js -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Patrick+Hand&family=Charm:wght@400;700&family=Charm:wght@400;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400;1,500&family=Be+Vietnam+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0B0F1C}
+.k{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Noto Serif',serif;color:#F3E6D3}
+.ab{position:absolute}
+.tranh{position:absolute;background:url(../../assets/giay-moi-nen.webp) no-repeat}
+.canh{position:absolute;background:url(../ngoai-khoa/canh.webp) center/contain no-repeat;pointer-events:none}
+.gv{font-family:'Great Vibes',cursive;font-weight:400;line-height:1.15}
+.ey{font:600 24px 'Be Vietnam Pro',sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#C9A86A}
+.loi{font:italic 400 50px/1.55 'Noto Serif',serif;color:#F1E2CC;text-shadow:0 3px 14px rgba(0,0,0,.55)}
+.dam{font:italic 600 58px/1.5 'Noto Serif',serif;color:#FFE9C4;text-shadow:0 3px 18px rgba(0,0,0,.6)}
+.giua{text-align:center}
+.gach{width:280px;height:2px;margin:30px auto;background:linear-gradient(90deg,transparent,#C9A86A,transparent)}
+.dem{background:radial-gradient(90% 80% at 50% 30%,#1D2744 0%,#0F1528 55%,#070A14 100%)}
+.sao i{position:absolute;border-radius:50%;background:#FFF6E0}
+.bokeh i{position:absolute;border-radius:50%;filter:blur(2px)}
+.roi i{position:absolute;width:22px;height:17px;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff8a72,#b3261e);opacity:.7}
+.nau{filter:sepia(.75) saturate(.8) brightness(.95)}
+.polaroid{position:absolute;background:#FBF7EE;padding:26px 26px 110px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.sang{background:radial-gradient(70% 80% at 50% 40%,#FFFDF6 0%,#FBEFDB 55%,#F1D9B6 100%)}
+.sang .vang{background:linear-gradient(180deg,#D9363E,#9C1E2A);-webkit-background-clip:text;background-clip:text;color:transparent;filter:none}
+.sang .loi,.sang .dam{color:#3A2A22;text-shadow:none}.sang .dam{color:#8E1F17}.sang .ey{color:#9E7A3A!important}
+.nhung{background:radial-gradient(60% 75% at 50% 38%,#9C2A22 0%,#6B1612 45%,#2A0706 100%)}
+.vang{background:linear-gradient(180deg,#FFF1C9 0%,#F2C566 45%,#C08A2E 70%,#F7DA8E 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+@keyframes song{from{transform:scale(.6);opacity:.8}to{transform:scale(1.25);opacity:0}}
+.song{transform-box:fill-box;transform-origin:center;animation:song 2.1s ease-out infinite}
+.tia{position:absolute;left:50%;top:-500px;width:2400px;height:2400px;margin-left:-1200px;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,236,170,.2) 0 6deg,transparent 6deg 18deg);-webkit-mask-image:radial-gradient(closest-side,#000 20%,transparent 60%);mask-image:radial-gradient(closest-side,#000 20%,transparent 60%)}
+.l12{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:34px}.l12 span{font:600 24px 'Noto Serif',serif;color:#1F6B3F;border:2px solid rgba(46,125,79,.5);border-radius:20px;padding:6px 16px;background:rgba(255,255,255,.75)}
+.trang{background:#FFFDF6;box-shadow:0 30px 60px rgba(60,30,10,.25);background-image:repeating-linear-gradient(transparent 0 57px,#CFDCEC 57px 59px)}
+.huy2{position:absolute;width:320px;text-align:center}.vong2{width:300px;height:300px;margin:0 auto;border-radius:50%;background:#FFFDF6;border:6px solid #E8C27A;box-shadow:0 0 0 12px rgba(232,194,122,.25),0 20px 40px rgba(120,60,30,.2);display:flex;align-items:center;justify-content:center}.ht2{font:400 54px/1.15 'Great Vibes',cursive;color:#B3261E;margin:22px -40px 0}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const N=+(new URLSearchParams(location.search).get('n')||1),k=document.getElementById('k');
+const sao=(n,h)=>'<div class="sao">'+Array.from({length:n},(_,i)=>{const s=1+(i%4)*.8;return `<i style="left:${(i*137)%1920}px;top:${(i*73)%(h||700)}px;width:${s}px;height:${s}px;opacity:${.25+(i%6)*.12};box-shadow:0 0 ${s*3}px rgba(255,240,210,.6)"></i>`}).join('')+'</div>';
+const bokeh=n=>'<div class="bokeh">'+Array.from({length:n},(_,i)=>{const r=30+(i*17)%90;return `<i style="left:${(i*211)%1900}px;top:${80+(i*97)%520}px;width:${r}px;height:${r}px;background:radial-gradient(circle,rgba(255,${200+(i%3)*20},${120+(i%4)*30},.35),transparent 70%)"></i>`}).join('')+'</div>';
+const roi=(n,y0,y1)=>'<div class="roi">'+Array.from({length:n},(_,i)=>`<i style="left:${(i*37+11)%100}%;top:${y0+((i*53+7)%100)*(y1-y0)/100}%;transform:rotate(${i*47}deg) scale(${.55+(i%4)*.22})"></i>`).join('')+'</div>';
+const tranh=(st,pos,size,mask,cls)=>`<div class="tranh ${cls||''}" style="${st};background-position:${pos};background-size:${size};${mask?`-webkit-mask-image:${mask};mask-image:${mask}`:''}"></div>`;
+const hongTrang=(x,y,r)=>`<g transform="translate(${x} ${y}) scale(${r/40})"><circle r="40" fill="#F6F1E8"/><path d="M-30 5C-30-25 25-30 30 0S5 35-15 25S-20-10 0-10S15 10 0 12" fill="none" stroke="#C9BFAE" stroke-width="5" stroke-linecap="round"/><path d="M-38 0C-40 30-10 45 15 38M38-5C42 20 25 40 5 42M-20-34C0-46 30-40 36-18" fill="none" stroke="#D8CFBF" stroke-width="4" stroke-linecap="round"/></g>`;
+const cuc=(x,y,r,m)=>`<g transform="translate(${x} ${y})">${Array.from({length:22},(_,i)=>`<ellipse rx="${r*.18}" ry="${r*.62}" transform="rotate(${i*360/22}) translate(0 ${-r*.45})" fill="${m||'#F7F3EA'}" stroke="#DDD4C2" stroke-width="1"/>`).join('')}${Array.from({length:14},(_,i)=>`<ellipse rx="${r*.13}" ry="${r*.4}" transform="rotate(${i*360/14+8}) translate(0 ${-r*.28})" fill="#FFFDF7"/>`).join('')}<circle r="${r*.16}" fill="#E9D9A6"/></g>`;
+const nguoi=(x,y,s,ao,toc)=>`<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-118" r="22" fill="${toc||'#2B2420'}"/><path d="M-30-92Q0-104 30-92L36-20H-36Z" fill="${ao||'#F7F4EC'}"/><path d="M-30-90L-44-30M30-90L44-30" stroke="${ao||'#F7F4EC'}" stroke-width="14" stroke-linecap="round"/><path d="M-34-22H34L28 60H6L0-2L-6 60H-28Z" fill="#2E3A55"/></g>`;
+const nen=(x,y,s,h)=>`<g transform="translate(${x} ${y}) scale(${s})"><g class="nenlua"><ellipse cx="0" cy="${h}" rx="44" ry="8" fill="rgba(0,0,0,.4)"/><rect x="-26" y="0" width="52" height="${h}" rx="6" fill="#EFE5D2"/><ellipse cx="0" cy="1" rx="26" ry="6" fill="#F8F1E2"/><path d="M0-4V-14" stroke="#2B1D18" stroke-width="3"/><path d="M0-62C14-40 16-26 0-12C-16-26-14-40 0-62Z" fill="#FFD36B"/><path d="M0-42C6-32 6-24 0-17C-6-24-6-32 0-42Z" fill="#FFFBEA"/></g></g>`;
+const quang=(x,y,r,a)=>`<div class="ab quang" style="left:${x-r}px;top:${y-r}px;width:${2*r}px;height:${2*r}px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,100,${a||.32}),rgba(255,170,80,.08) 55%,transparent 75%)"></div>`;
+const tay=(x,y,s)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M-44-60L0-40L44-60" stroke="#2B2420" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+const mau=['#F7F4EC','#C8102E','#2E5D8C','#E8B04A','#3E7A3A','#7A4A8C','#F7F4EC','#D9534F'];
+const chu=(x,y,t,g,c,f)=>`<div class="ab" style="left:${x}px;top:${y}px;transform:rotate(${g}deg);font:400 ${f||40}px 'Charm',cursive;color:${c||'#2E3F66'}">${t}</div>`;
+const vongIc=(x,y,svg,t)=>`<div class="huy2" style="left:${x}px;top:${y}px"><div class="vong2">${svg}</div><div class="ht2">${t}</div></div>`;
+const icOm=`<svg viewBox="0 0 200 160" width="180" height="144">${nguoi(78,150,.8,'#C8102E')}${nguoi(122,150,.8,'#2E5D8C','#5A5A5A')}<path d="M60 70Q100 40 140 70" stroke="#C8102E" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M100 26C94 18 86 22 90 30L100 40L110 30C114 22 106 18 100 26Z" fill="#C8102E"/></svg>`;
+const icHoi=`<svg viewBox="0 0 200 160" width="180" height="144"><path d="M20 30H150Q170 30 170 50V96Q170 116 150 116H70L40 140V116H40Q20 116 20 96V50Q20 30 40 30Z" fill="#E8F4FA" stroke="#2E5D8C" stroke-width="5"/><text x="95" y="82" text-anchor="middle" font-family="Charm" font-size="26" fill="#2E5D8C">Khoẻ không?</text></svg>`;
+const icTen=`<svg viewBox="0 0 200 160" width="180" height="144"><rect x="20" y="40" width="160" height="90" rx="12" fill="#FFFDF6" stroke="#B3261E" stroke-width="5"/><rect x="20" y="40" width="160" height="28" rx="12" fill="#B3261E"/><text x="100" y="60" text-anchor="middle" font-family="Be Vietnam Pro" font-weight="700" font-size="15" fill="#fff">XIN CHÀO, TÔI LÀ</text><text x="100" y="112" text-anchor="middle" font-family="Charm" font-size="36" fill="#2E3F66">"Thằng Tèo"</text></svg>`;
+const S=[
+/* 1 – Hôm nay chúng ta đã trở về */ ()=>`<div class="k" style="background:linear-gradient(180deg,#FFE9C8 0%,#FBD9AE 45%,#F2C08E 100%)">
+ <div class="ab" style="left:50%;top:380px;width:560px;height:560px;margin-left:-280px;border-radius:50%;background:radial-gradient(circle,#FFF6D8,#FFD38A 55%,transparent 72%)"></div>
+ ${tranh('left:0;right:0;bottom:0;height:560px','0 100%','120% auto','linear-gradient(180deg,transparent,#000 45%)')}
+ <div class="ab" style="left:0;right:0;bottom:0;height:560px;background:linear-gradient(180deg,rgba(255,200,140,.25),rgba(255,180,120,.15))"></div>
+ <div class="canh" style="left:-130px;top:-100px;width:720px;height:490px;transform:rotate(8deg)"></div>
+ <div class="canh" style="right:-130px;top:-100px;width:720px;height:490px;transform:scaleX(-1) rotate(8deg)"></div>
+ ${roi(20,0,100)}
+ <div class="ab" style="left:260px;right:260px;top:120px;height:520px;background:radial-gradient(50% 50% at 50% 50%,rgba(255,248,236,.95),rgba(255,248,236,.7) 55%,transparent 100%)"></div>
+ <div class="ab giua" style="left:0;right:0;top:200px">
+  <div class="gv" style="font-size:140px;color:#B3261E">Hôm nay, chúng ta đã trở về</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:0 1px 10px rgba(255,240,220,.9);font-size:44px;margin-top:16px">Trở về với mái trường, với thầy cô,</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:0 1px 10px rgba(255,240,220,.9);font-size:44px">với những người bạn từng cùng nhau đi qua ba mùa phượng.</div></div></div>`,
+/* 2 – 23 năm */ ()=>`<div class="k" style="background:radial-gradient(80% 80% at 50% 45%,#FFFCF4,#F3E2C6 70%,#E7CCA2)">
+ <div class="polaroid" style="left:200px;top:120px;width:560px;transform:rotate(-5deg)"><div style="position:relative;width:508px;height:360px;overflow:hidden">${tranh('inset:0','0 98%','135% auto','','nau')}<svg class="ab nau" style="left:0;bottom:0" width="508" height="230" viewBox="0 0 508 230">${[60,135,210,285,360,440].map(x=>nguoi(x,210,.95,'#FFFFFF')).join('')}</svg></div><div style="position:absolute;left:0;right:0;bottom:24px;text-align:center;font:400 40px 'Charm',cursive;color:#4A3A31">2003</div></div>
+ <div class="polaroid" style="left:1160px;top:150px;width:560px;transform:rotate(4deg)"><div style="position:relative;width:508px;height:360px;overflow:hidden">${tranh('inset:0','100% 100%','120% auto')}<svg class="ab" style="left:0;bottom:0" width="508" height="230" viewBox="0 0 508 230">${[60,135,210,285,360,440].map((x,i)=>nguoi(x,210,.95,mau[(i+1)%8],i%2?'#9A9A9A':'#2B2420')).join('')}</svg></div><div style="position:absolute;left:0;right:0;bottom:24px;text-align:center;font:400 40px 'Charm',cursive;color:#4A3A31">2026</div></div>
+ <div class="ab" style="left:820px;top:300px;width:280px;text-align:center;font:400 120px 'Great Vibes',cursive;color:#C9A24A">→</div>
+ <div class="ab giua" style="left:0;right:0;top:700px">
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:42px">Hai mươi ba năm – đủ dài để mái tóc điểm sương,</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:42px">đủ dài để mỗi người đi một con đường riêng…</div>
+  <div class="gv" style="font-size:96px;color:#B3261E;margin-top:4px">nhưng chưa bao giờ đủ dài để chúng ta quên nhau</div></div></div>`,
+/* 3 – Hội ngộ nào cũng đến lúc tàn */ ()=>`<div class="k" style="background:radial-gradient(70% 80% at 50% 30%,#FFF6E6,#F6DDBC 60%,#E9C49A)">
+ <svg class="ab" style="left:0;top:0" width="1920" height="420" viewBox="0 0 1920 420"><path d="M0 60Q480 200 960 90T1920 70" stroke="#8A5A35" stroke-width="3" fill="none"/>${Array.from({length:26},(_,i)=>{const x=i*76+20,y=60+Math.sin(i/25*Math.PI*2.2)*60+70*Math.sin(i/25*Math.PI);return `<circle class="den-day" cx="${x}" cy="${y}" r="13" fill="#FFE29A"/><circle cx="${x}" cy="${y}" r="30" fill="rgba(255,226,154,.25)" class="den-day"/>`}).join('')}</svg>
+ <svg class="ab" style="left:0;bottom:0" width="1920" height="460" viewBox="0 0 1920 460">${[[300,360],[760,380],[1200,370],[1640,360]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="180" ry="40" fill="#FFFDF6" stroke="#E4D3B4" stroke-width="3"/><path d="M${x-180} ${y}V${y+70}H${x+180}V${y}" fill="#F5EBDA"/><path d="M${x-20} ${y-90}L${x} ${y-20}L${x+20} ${y-90}Z" fill="rgba(255,255,255,.7)" stroke="#C9B48E" stroke-width="3"/><circle cx="${x+70}" cy="${y-14}" r="18" fill="#C8102E" opacity=".8"/>`).join('')}</svg>
+ <div class="ab giua" style="left:0;right:0;top:330px">
+  <div class="gv" style="font-size:118px;color:#B3261E">Rồi buổi hội ngộ nào cũng đến lúc tàn</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:42px;margin-top:10px">Đèn sân khấu sẽ tắt, những bàn tiệc sẽ thưa dần,</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:42px">mỗi người lại trở về với nhịp sống của riêng mình.</div></div></div>`,
+/* 4 – Những điều sẽ ở lại */ ()=>`<div class="k sang"><div class="tia"></div>
+ ${roi(14,0,100)}
+ <div class="ab giua" style="left:0;right:0;top:90px"><div class="gv vang" style="font-size:110px">Nhưng có những điều sẽ ở lại</div></div>
+ ${vongIc(250,330,icOm,'Một cái ôm thật chặt')}${vongIc(800,330,icHoi,'Một lời hỏi thăm sau bao năm')}${vongIc(1350,330,icTen,'Một cái tên gọi lại như ngày xưa')}
+ <div class="ab giua" style="left:0;right:0;top:820px"><div class="dam" style="color:#8E1F17;text-shadow:none;font-size:46px">Hãy mang những điều ấy theo,</div><div class="loi" style="color:#3A2A22;text-shadow:none;font-size:44px">như mang theo một góc sân trường trong tim.</div></div></div>`,
+/* 5 – Đừng đợi */ ()=>`<div class="k" style="background:linear-gradient(135deg,#F6FBFF,#E6F2F9 50%,#FFF3E2)">
+ <svg class="ab dt" style="left:1260px;top:150px" width="420" height="800" viewBox="0 0 420 800"><rect x="10" y="10" width="400" height="780" rx="56" fill="#2B2420"/><rect x="30" y="70" width="360" height="660" rx="20" fill="#FBF6EC"/><rect x="160" y="30" width="100" height="16" rx="8" fill="#5A4A40"/>
+  <g class="tn1"><rect x="60" y="140" width="290" height="90" rx="26" fill="#E3EEF7"/><text x="80" y="195" font-family="Noto Serif" font-size="26" fill="#2E3F66">Dạo này bạn khoẻ không?</text></g>
+  <g class="tn2"><rect x="110" y="260" width="250" height="90" rx="26" fill="#C8102E"/><text x="130" y="315" font-family="Noto Serif" font-size="26" fill="#fff">Nhớ bạn lắm đó!</text></g>
+  <g class="tn3"><rect x="60" y="380" width="290" height="90" rx="26" fill="#E3EEF7"/><text x="80" y="435" font-family="Noto Serif" font-size="26" fill="#2E3F66">Cuối tuần cà phê nhé?</text></g>
+  <g class="tn4"><rect x="140" y="500" width="220" height="90" rx="26" fill="#C8102E"/><text x="165" y="555" font-family="Noto Serif" font-size="26" fill="#fff">Hẹn nhé! ❤</text></g></svg>
+ <div class="ab" style="left:150px;top:150px;width:1060px">
+  <div class="gv" style="font-size:80px;color:#B3261E;white-space:nowrap">Đừng để lần gặp sau phải đợi thêm 23 năm</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:44px;margin-top:20px">Hãy gọi cho nhau khi nhớ.</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:44px">Hãy ghé thăm nhau khi có thể.</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:44px">Hãy nói lời thương khi còn kịp.</div>
+  <div class="dam" style="color:#8E1F17;text-shadow:none;font-size:48px;margin-top:10px">Và hãy về thăm thầy cô… khi thầy cô vẫn còn chờ.</div></div></div>`,
+/* 6 – Lời hứa */ ()=>`<div class="k" style="background:linear-gradient(180deg,#F4C98E 0%,#F2A36B 40%,#C96B5A 70%,#5A3550 100%)">
+ <div class="ab" style="left:50%;top:420px;width:520px;height:520px;margin-left:-260px;border-radius:50%;background:radial-gradient(circle,#FFF1C8,#FFC77A 55%,transparent 72%)"></div>
+ <svg class="ab" style="left:0;bottom:0" width="1920" height="460" viewBox="0 0 1920 460"><path d="M0 330Q960 280 1920 330V460H0Z" fill="#2B1A26"/>
+  ${Array.from({length:15},(_,i)=>{const x=150+i*115,y=330-Math.sin(i/14*Math.PI)*14;return `<g fill="#2B1A26" transform="translate(${x} ${y}) scale(1.05)"><circle cx="0" cy="-150" r="22"/><path d="M-28-124Q0-134 28-124L34-40H-34Z"/><path d="M-34-40H34L28 40H-28Z"/></g>${i<14?`<path d="M${x+30} ${y-100}Q${x+57} ${y-80} ${x+85} ${y-100}" stroke="#2B1A26" stroke-width="12" fill="none" stroke-linecap="round"/>`:''}`}).join('')}</svg>
+ <div class="ab giua" style="left:0;right:0;top:100px">
+  <div class="loi" style="color:#4A2A20;text-shadow:0 1px 10px rgba(255,240,210,.8)">Bởi "hẹn gặp lại" không chỉ là một lời chào.</div>
+  <div class="gv" style="font-size:120px;color:#FFF6E4;text-shadow:0 4px 18px rgba(90,30,20,.45)">Đó là một lời hứa</div>
+  <div class="dam" style="color:#5B1A12;text-shadow:0 1px 10px rgba(255,240,210,.8);font-size:48px">rằng chúng ta sẽ còn giữ lấy nhau – dù đi đâu, dù bao lâu.</div></div></div>`,
+/* 7 – Hẹn gặp lại nhé */ ()=>`<div class="k" style="background:#FBF3E4">
+ ${tranh('inset:0','0 98%','135% auto')}
+ <div class="ab" style="inset:0;background:radial-gradient(75% 70% at 50% 40%,rgba(255,250,238,.97) 0%,rgba(255,250,238,.92) 55%,rgba(255,250,238,.35) 90%)"></div>
+ ${roi(26,0,100)}
+ <div class="ab giua" style="left:0;right:0;top:130px">
+  <div class="loi" style="color:#3A2A22;text-shadow:none">Vì vậy, xin đừng nói "tạm biệt". Hãy nói:</div>
+  <div class="gv" style="font-size:108px;color:#B3261E;white-space:nowrap">Hẹn gặp lại nhé, những người bạn của tuổi mười tám!</div>
+  <div class="gach"></div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:44px">Hẹn gặp lại dưới gốc phượng năm nào.</div>
+  <div class="loi" style="color:#3A2A22;text-shadow:none;font-size:44px">Hẹn gặp lại ở lớp học của năm 2003 –</div>
+  <div class="dam" style="color:#8E1F17;text-shadow:none;font-size:48px">nơi chúng ta mãi mãi trẻ trung, và mãi mãi… là bạn bè.</div></div></div>`,
+/* 8 – Kết */ ()=>`<div class="k sang"><div class="tia"></div>
+ ${tranh('left:0;right:0;bottom:0;height:300px','0 100%','120% auto','linear-gradient(180deg,transparent,#000 75%)')}
+ <div class="canh" style="left:-130px;top:-100px;width:760px;height:520px;transform:rotate(8deg)"></div>
+ <div class="canh" style="right:-130px;top:-100px;width:760px;height:520px;transform:scaleX(-1) rotate(8deg)"></div>
+ ${roi(26,0,100)}
+ <div class="ab giua" style="left:0;right:0;top:200px">
+  <img class="logo" src="../../assets/logo-nguyen-hien.png" alt="" style="width:140px;height:140px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 30px rgba(120,60,30,.25)">
+  <div class="ey" style="font-size:32px;margin-top:22px;color:#9E1B22">Nguyễn Hiền · 2000 – 2003</div>
+  <div class="gv vang" style="font-size:150px;margin-top:8px">Một thời để nhớ</div>
+  <div class="gv vang" style="font-size:150px">Một đời để thương</div></div></div>`
+];
+
+k.outerHTML=S[N-1]();
+/* chuyển động cho clip (render-clip.js tua từng khung bằng Web Animations) */
+(function(){const st=document.createElement('style');st.textContent=`
+@keyframes kb{from{transform:scale(1.08)}to{transform:scale(1)}}
+@keyframes kbL{from{transform:scaleX(-1) scale(1.08) rotate(8deg)}to{transform:scaleX(-1) scale(1) rotate(8deg)}}
+@keyframes kbR{from{transform:scale(1.08) rotate(8deg)}to{transform:scale(1) rotate(8deg)}}
+@keyframes hien{from{opacity:0;transform:translateY(26px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes bat{0%{opacity:0;transform:scale(.5)}60%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+@keyframes viet{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 -5% 0 0)}}
+@keyframes roi{from{transform:translate(0,-160px) rotate(0)}to{transform:translate(140px,1250px) rotate(600deg)}}
+@keyframes xoay{from{transform:rotate(0)}to{transform:rotate(18deg)}}
+@keyframes lua{0%,100%{transform:scale(1,1)}25%{transform:scale(.93,1.07)}50%{transform:scale(1.05,.95)}75%{transform:scale(.97,1.03)}}
+@keyframes tho{0%,100%{opacity:.75}50%{opacity:1}}
+@keyframes noi{from{transform:translateY(40px) rotate(var(--g,0deg));opacity:0}to{transform:translateY(0) rotate(var(--g,0deg));opacity:1}}
+.tranh{animation:kb 15s linear both}
+.tia{animation:xoay 15s linear both}
+.roi i{animation:roi linear infinite both}
+`;document.head.appendChild(st);
+ const kk=document.querySelector('.k');
+ kk.querySelectorAll('.canh').forEach(e=>{const t=e.getAttribute('style')||'';e.style.animation=`${/scaleX\(-1\)/.test(t)?'kbL':(/rotate/.test(t)?'kbR':'kb')} 15s linear both`});
+ kk.querySelectorAll('.roi i').forEach((e,i)=>{e.style.animationDuration=(6+i%5)+'s';e.style.animationDelay=(-i*.83)+'s'});
+ kk.querySelectorAll('path[fill="#FFD36B"],path[fill="url(#lua)"]').forEach((e,i)=>{e.style.transformBox='fill-box';e.style.transformOrigin='50% 100%';e.style.animation=`lua ${.9+i%3*.25}s ease-in-out ${-i*.3}s infinite both`});
+ kk.querySelectorAll('.ab[style*="radial-gradient(closest-side,rgba(255"]').forEach(e=>e.style.animation='tho 2.2s ease-in-out infinite both');
+ const thiep=[...kk.querySelectorAll('.thiep')];thiep.forEach((e,i)=>{const g=(e.style.transform.match(/rotate\(([^)]+)\)/)||[])[1]||'0deg';e.style.setProperty('--g',g);e.style.animation=`noi .8s cubic-bezier(.2,.8,.3,1.2) ${(1.6+i*.22).toFixed(2)}s both`});
+ kk.querySelectorAll('.giay').forEach(e=>{e.style.animation='hien 1.2s ease .3s both'});
+ const chu=[...kk.querySelectorAll('.logo,.ey,.gv,.gach,.phan,.loi,.dam,.ab>div[style*="Noto Serif"],.ab>div[style*="Charm"],.giay>div,.ab.giua>div')].filter((e,i,a)=>a.indexOf(e)===i&&!e.closest('.thiep'));
+ let d=0.5;chu.forEach(e=>{const vi=e.classList.contains('gv')||e.classList.contains('phan');e.style.animation=e.classList.contains('logo')?`bat 1s cubic-bezier(.3,1.4,.5,1) ${d.toFixed(2)}s both`:(vi&&e.offsetHeight<260?`viet 1.8s cubic-bezier(.45,.05,.3,1) ${d.toFixed(2)}s both`:`hien 1.2s ease ${d.toFixed(2)}s both`);d+=vi?1.1:.75});
+})();
+
+(function(){const kk=document.querySelector('.k');const st=document.createElement('style');st.textContent=`
+@keyframes troiMay{from{transform:translateX(-60px)}to{transform:translateX(80px)}}
+@keyframes nay{0%,100%{transform:translate(220px,120px)}50%{transform:translate(220px,40px)}}
+@keyframes xe{from{transform:translateX(-260px)}to{transform:translateX(120px)}}
+@keyframes ve{from{stroke-dashoffset:600}to{stroke-dashoffset:0}}
+@keyframes tim{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes lac2{0%,100%{rotate:0deg}50%{rotate:1.5deg}}
+`;document.head.appendChild(st);
+ kk.querySelectorAll('.may').forEach((e,i)=>e.style.animation=`troiMay ${15+i*2}s linear both`);
+ kk.querySelectorAll('.nay').forEach(e=>{e.style.animation='nay 1.4s ease-in-out infinite both'});
+ kk.querySelectorAll('.xe').forEach(e=>e.style.animation='xe 15s linear both');
+ kk.querySelectorAll('.ky').forEach((e,i)=>{e.style.opacity=0;e.animate([{opacity:0},{opacity:1}],{duration:700,delay:2500+i*900,fill:'both'})});
+ kk.querySelectorAll('.duong').forEach((e,i)=>{e.setAttribute('stroke-dasharray','600');e.animate([{strokeDashoffset:600},{strokeDashoffset:0}],{duration:2200,delay:1500+i*500,fill:'both',easing:'ease-out'})});
+ kk.querySelectorAll('.bt').forEach((e,i)=>{e.animate([{opacity:0},{opacity:1}],{duration:800,delay:900+i*500,fill:'both'})});
+ kk.querySelectorAll('.tim').forEach(e=>{e.style.transformBox='fill-box';e.style.transformOrigin='center';e.style.animation='tim 1.6s ease-in-out infinite both'});
+ kk.querySelectorAll('.trang').forEach((e,i)=>e.animate([{opacity:0,transform:e.style.transform+' translateY(40px)'},{opacity:1,transform:e.style.transform}],{duration:1200,delay:300+i*500,fill:'both',easing:'ease-out'}));
+ kk.querySelectorAll('.polaroid').forEach((e,i)=>e.animate([{opacity:0,transform:e.style.transform+' translateY(60px) scale(.94)'},{opacity:1,transform:e.style.transform}],{duration:1300,delay:400+i*1800,fill:'both',easing:'cubic-bezier(.2,.8,.3,1.1)'}));
+ kk.querySelectorAll('.ab[style*="Charm"]').forEach((e,i)=>e.animate([{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 -5% 0 0)'}],{duration:1600,delay:1000+i*1200,fill:'both'}));
+ kk.querySelectorAll('.l12 span').forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(20px)'},{opacity:1,transform:'none'}],{duration:600,delay:5200+i*180,fill:'both'}));
+})();
+
+(function(){const kk=document.querySelector('.k');
+ kk.querySelectorAll('.huy2').forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(60px) scale(.85)'},{opacity:1,transform:'none'}],{duration:1200,delay:1800+i*1400,fill:'both',easing:'cubic-bezier(.2,.8,.3,1.2)'}));
+ [1,2,3,4].forEach(i=>kk.querySelectorAll('.tn'+i).forEach(e=>e.animate([{opacity:0,transform:'translateY(20px)'},{opacity:1,transform:'none'}],{duration:600,delay:1500+i*1300,fill:'both'})));
+ kk.querySelectorAll('.den-day').forEach((e,i)=>e.animate([{opacity:1},{opacity:1,offset:.45},{opacity:.15}],{duration:13400,delay:0,fill:'both'}));
+})();
+
+</script></body></html>

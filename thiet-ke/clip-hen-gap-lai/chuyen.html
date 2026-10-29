@@ -1,0 +1,65 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Đoạn chuyển – Họ vẫn ở đây</title>
+<!-- Clip chuyển 15 giây: từ ánh nến (tưởng nhớ) sang nắng sớm (hẹn gặp lại). render-chuyen.js tua từng khung bằng Web Animations -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,400;0,600;1,400;1,500&family=Be+Vietnam+Pro:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#000}
+.k{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Noto Serif',serif}
+.ab{position:absolute}
+.dem{position:absolute;inset:0;background:radial-gradient(60% 70% at 50% 70%,#2B1B10,#090604)}
+.quang{position:absolute;left:50%;top:420px;width:1100px;height:1100px;margin-left:-550px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,190,100,.32),rgba(255,170,80,.08) 55%,transparent 75%)}
+.sang{position:absolute;inset:0;background:radial-gradient(80% 70% at 50% 25%,#FFFDF7 0%,#FBF0DC 55%,#F3DFC0 100%)}
+.tia{position:absolute;left:50%;top:-500px;width:2400px;height:2400px;margin-left:-1200px;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,226,150,.28) 0 6deg,transparent 6deg 18deg);-webkit-mask-image:radial-gradient(closest-side,#000 20%,transparent 60%);mask-image:radial-gradient(closest-side,#000 20%,transparent 60%)}
+.mattroi{position:absolute;left:50%;top:560px;width:520px;height:520px;margin-left:-260px;border-radius:50%;background:radial-gradient(circle,#FFF8DC,#FFD98A 55%,transparent 72%)}
+.tranh{position:absolute;left:0;right:0;bottom:0;height:420px;background:url(../../assets/giay-moi-nen.webp) no-repeat 0 100%/120% auto;-webkit-mask-image:linear-gradient(180deg,transparent,#000 60%);mask-image:linear-gradient(180deg,transparent,#000 60%)}
+.canh{position:absolute;width:760px;height:520px;background:url(../ngoai-khoa/canh.webp) center/contain no-repeat}
+.roi i{position:absolute;top:-40px;width:24px;height:19px;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff7a62,#c8102e);opacity:.85}
+.giua{position:absolute;left:0;right:0;text-align:center}
+.loi{font:italic 400 50px/1.55 'Noto Serif',serif}
+.gv{font:400 120px/1.15 'Great Vibes',cursive}
+.ey{font:700 24px 'Be Vietnam Pro',sans-serif;letter-spacing:.32em;text-transform:uppercase}
+@keyframes hien{from{opacity:0;transform:translateY(24px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes an{from{opacity:1;filter:blur(0)}to{opacity:0;filter:blur(6px)}}
+@keyframes ra{from{opacity:0}to{opacity:1}}
+@keyframes mo{from{opacity:1}to{opacity:0}}
+@keyframes len{from{transform:translateY(240px)}to{transform:translateY(0)}}
+@keyframes lua{0%,100%{transform:scale(1,1)}25%{transform:scale(.93,1.07)}50%{transform:scale(1.05,.95)}75%{transform:scale(.97,1.03)}}
+@keyframes tho{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes xoay{from{transform:rotate(0)}to{transform:rotate(14deg)}}
+@keyframes viet{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 -5% 0 0)}}
+@keyframes roi{from{transform:translate(0,0) rotate(0)}to{transform:translate(150px,1200px) rotate(600deg)}}
+@keyframes kb{from{transform:scale(1.1)}to{transform:scale(1)}}
+.dem-lop{animation:mo 3s ease-in-out 6s both}
+.quang{animation:tho 2.2s ease-in-out infinite both}
+.sang-lop{animation:ra 3s ease-in-out 6s both}
+.mattroi{animation:len 6s cubic-bezier(.2,.6,.3,1) 6s both}
+.tia{animation:xoay 15s linear both}
+.tranh{animation:kb 15s linear both}
+.c1{left:-130px;top:-100px;transform:rotate(8deg)}.c2{right:-130px;top:-100px;transform:scaleX(-1) rotate(8deg)}
+.roi i{animation:roi linear infinite both}
+.lua{transform-box:fill-box;transform-origin:50% 100%;animation:lua 1s ease-in-out infinite both}
+.t1{animation:hien 1.3s ease .6s both,an 1s ease 5.6s forwards}
+.t2{animation:hien 1.3s ease 2.4s both,an 1s ease 5.6s forwards}
+.t3{animation:hien 1.2s ease 8.6s both}
+.t4{animation:viet 2.2s cubic-bezier(.45,.05,.3,1) 9.6s both}
+.d1{position:absolute;inset:0;background:#000;z-index:9;animation:mo .8s ease both}
+.d2{position:absolute;inset:0;background:#000;z-index:9;animation:ra 1s ease 14s both}
+</style></head><body><div class="k">
+ <div class="dem-lop ab" style="inset:0"><div class="dem"></div><div class="quang"></div>
+  <svg class="ab" style="left:0;top:560px" width="1920" height="520" viewBox="0 0 1920 520">
+   ${0}</svg></div>
+ <div class="sang-lop ab" style="inset:0"><div class="sang"></div><div class="mattroi"></div><div class="tia"></div><div class="tranh"></div>
+  <div class="canh c1"></div><div class="canh c2"></div><div class="roi" id="roi"></div></div>
+ <div class="giua t1 loi" style="top:190px;color:#F3E1C8">Có những người bạn đã đi trước chúng ta một đoạn đường.</div>
+ <div class="giua t2 gv" style="top:290px;color:#FFE3B8">Mỗi lần gọi tên nhau, là một lần họ trở về.</div>
+ <div class="giua t3 loi" style="top:230px;color:#3A2A22">Và bởi chúng ta vẫn còn có nhau…</div>
+ <div class="giua t4 gv" style="top:320px;color:#B3261E;font-size:130px">nên vẫn còn những lần hẹn gặp lại.</div>
+ <div class="d1"></div><div class="d2"></div>
+</div>
+<script>
+const nen=(x,y,s,h)=>`<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="${h}" rx="44" ry="8" fill="rgba(0,0,0,.4)"/><rect x="-26" y="0" width="52" height="${h}" rx="6" fill="#EFE5D2"/><ellipse cx="0" cy="1" rx="26" ry="6" fill="#F8F1E2"/><path d="M0-4V-14" stroke="#2B1D18" stroke-width="3"/><g class="lua"><path d="M0-62C14-40 16-26 0-12C-16-26-14-40 0-62Z" fill="#FFD36B"/><path d="M0-42C6-32 6-24 0-17C-6-24-6-32 0-42Z" fill="#FFFBEA"/></g></g>`;
+document.querySelector('svg').innerHTML=[[560,250,.9,150],[740,230,1.1,200],[960,210,1.35,250],[1180,230,1.1,200],[1360,250,.9,150]].map(a=>nen(...a)).join('');
+document.querySelectorAll('.lua').forEach((e,i)=>{e.style.animationDuration=(.9+i%3*.25)+'s';e.style.animationDelay=(-i*.3)+'s'});
+document.getElementById('roi').innerHTML=Array.from({length:22},(_,i)=>`<i style="left:${(i*37+11)%100}%;animation-duration:${6+i%5}s;animation-delay:${-(i*.71).toFixed(2)}s;scale:${(.55+(i%4)*.22).toFixed(2)}"></i>`).join('');
+</script></body></html>
