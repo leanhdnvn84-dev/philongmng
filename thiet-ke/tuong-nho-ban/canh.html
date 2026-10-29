@@ -134,7 +134,7 @@ if(new URLSearchParams(location.search).get('dong')){const st=document.createEle
 @keyframes ra{from{opacity:0}to{opacity:1}}
 @keyframes canhRoi{from{transform:translateY(-420px) rotate(-60deg)}to{transform:none}}
 @keyframes mat{from{transform:translateY(-60px)}to{transform:translateY(40px)}}
-.tranh,.canh{animation:kb 11s linear both}
+.tranh,.canh{animation:kb 9s linear both}
 .roi i{animation:roi linear infinite both}
 .sao i{animation:nhay ease-in-out infinite both}
 .bokeh i{animation:troi ease-in-out infinite both}
@@ -151,9 +151,9 @@ if(new URLSearchParams(location.search).get('dong')){const st=document.createEle
  const chu=[...kk.querySelectorAll('.polaroid,.ey,.gv,.loi,.dam,.gach,.ab[style*="Charm"]')].filter(e=>!e.parentElement.closest('.polaroid'));
  chu.forEach((e,i)=>{e.style.animation=`hien 1.4s cubic-bezier(.2,.7,.2,1) ${(0.7+i*1.1).toFixed(2)}s both`});
  if(N===4)kk.querySelector('svg').style.animation='canhRoi 4.5s cubic-bezier(.3,.6,.3,1) .2s both';
- if(N===8){const m=kk.querySelector('.ab[style*="FFE7B8"]');if(m)m.style.animation='mat 11s linear both'}
+ if(N===8){const m=kk.querySelector('.ab[style*="FFE7B8"]');if(m)m.style.animation='mat 9s linear both'}
  const d=document.createElement('div');d.className='den';d.style.animation='vao .8s ease both';kk.appendChild(d);
- const d2=document.createElement('div');d2.className='den';d2.style.animation='ra .8s ease 10.2s both';kk.appendChild(d2);
+ const d2=document.createElement('div');d2.className='den';d2.style.animation='ra .8s ease 8.2s both';kk.appendChild(d2);
 }
 
 </script></body></html>
