@@ -59,8 +59,8 @@ const S=[
  <div class="canh" style="left:-130px;top:-100px;width:720px;height:490px;transform:rotate(8deg)"></div>
  <div class="canh" style="right:-130px;top:-100px;width:720px;height:490px;transform:scaleX(-1) rotate(8deg)"></div>
  ${roi(20,0,100)}
- <div class="ab" style="left:260px;right:260px;top:120px;height:520px;background:radial-gradient(50% 50% at 50% 50%,rgba(255,248,236,.95),rgba(255,248,236,.7) 55%,transparent 100%)"></div>
- <div class="ab giua" style="left:0;right:0;top:200px">
+ <div class="ab" style="left:260px;right:260px;top:220px;height:520px;background:radial-gradient(50% 50% at 50% 50%,rgba(255,248,236,.95),rgba(255,248,236,.7) 55%,transparent 100%)"></div>
+ <div class="ab giua" style="left:0;right:0;top:300px">
   <div class="gv" style="font-size:140px;color:#B3261E">Hôm nay, chúng ta đã trở về</div>
   <div class="loi" style="color:#3A2A22;text-shadow:0 1px 10px rgba(255,240,220,.9);font-size:44px;margin-top:16px">Trở về với mái trường, với thầy cô,</div>
   <div class="loi" style="color:#3A2A22;text-shadow:0 1px 10px rgba(255,240,220,.9);font-size:44px">với những người bạn từng cùng nhau đi qua ba mùa phượng.</div></div></div>`,
@@ -102,7 +102,7 @@ const S=[
   ${Array.from({length:15},(_,i)=>{const x=150+i*115,y=330-Math.sin(i/14*Math.PI)*14;return `<g fill="#2B1A26" transform="translate(${x} ${y}) scale(1.05)"><circle cx="0" cy="-150" r="22"/><path d="M-28-124Q0-134 28-124L34-40H-34Z"/><path d="M-34-40H34L28 40H-28Z"/></g>${i<14?`<path d="M${x+30} ${y-100}Q${x+57} ${y-80} ${x+85} ${y-100}" stroke="#2B1A26" stroke-width="12" fill="none" stroke-linecap="round"/>`:''}`}).join('')}</svg>
  <div class="ab giua" style="left:0;right:0;top:100px">
   <div class="loi" style="color:#4A2A20;text-shadow:0 1px 10px rgba(255,240,210,.8)">Bởi "hẹn gặp lại" không chỉ là một lời chào.</div>
-  <div class="gv" style="font-size:120px;color:#FFF6E4;text-shadow:0 4px 18px rgba(90,30,20,.45)">Đó là một lời hứa</div>
+  <div class="gv" style="font-size:130px;color:#8E1F17;text-shadow:0 2px 14px rgba(255,236,200,.8)">Đó là một lời hứa</div>
   <div class="dam" style="color:#5B1A12;text-shadow:0 1px 10px rgba(255,240,210,.8);font-size:48px">rằng chúng ta sẽ còn giữ lấy nhau – dù đi đâu, dù bao lâu.</div></div></div>`,
 /* 7 – Hẹn gặp lại nhé */ ()=>`<div class="k" style="background:#FBF3E4">
  ${tranh('inset:0','0 98%','135% auto')}
