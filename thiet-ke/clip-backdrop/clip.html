@@ -1,0 +1,81 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Clip backdrop Gala</title>
+<!-- Clip backdrop chạy màn LED: phông màu nước động, vòng lặp 20 giây liền mạch (mọi chuyển động có chu kỳ chia hết 20 giây). render.js chụp 600 khung rồi lặp thành 5 phút -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:wght@700&family=Be+Vietnam+Pro:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+@page{size:300cm 150cm;margin:0}
+html,body{width:100vw;height:50vw;overflow:hidden;background:#FBF3E4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.k{position:relative;width:100vw;height:50vw;overflow:hidden;font-family:'Noto Serif',serif;background:radial-gradient(80% 75% at 50% 22%,#FFFDF7 0%,#FBF0DC 55%,#F3DFC0 100%)}
+.ab{position:absolute}
+.tia{position:absolute;left:50%;top:-55vw;width:130vw;height:130vw;margin-left:-65vw;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,226,150,.30) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(closest-side,#000 25%,transparent 70%);mask-image:radial-gradient(closest-side,#000 25%,transparent 70%)}
+.nang{position:absolute;left:50%;top:-12vw;width:60vw;height:44vw;margin-left:-30vw;border-radius:50%;background:radial-gradient(closest-side,rgba(255,240,190,.9),rgba(255,236,180,.35) 55%,transparent)}
+.san{position:absolute;bottom:0;width:50vw;height:33vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 0 100%/64vw auto;
+ -webkit-mask-image:linear-gradient(90deg,#000 45%,transparent 98%),linear-gradient(180deg,transparent 0,#000 38%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 45%,transparent 98%),linear-gradient(180deg,transparent 0,#000 38%);mask-composite:intersect}
+.san.trai{left:0}.san.phai{right:0;transform:scaleX(-1)}
+.gach{position:absolute;left:30vw;right:30vw;bottom:0;height:9vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 50% 100%/64vw auto;-webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent),linear-gradient(180deg,transparent,#000 60%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent),linear-gradient(180deg,transparent,#000 60%);mask-composite:intersect;opacity:.85}
+.canh{position:absolute;width:32vw;height:21.3vw;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+.c1{left:-5vw;top:-4.4vw;transform:rotate(8deg)}.c2{right:-5vw;top:-4.4vw;transform:scaleX(-1) rotate(8deg)}
+.roi i{position:absolute;width:1.25vw;height:.95vw;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff7a62,#c8102e);opacity:.8}
+.mo{position:absolute;left:19vw;right:19vw;top:3vw;height:44vw;background:radial-gradient(50% 50% at 50% 46%,rgba(255,250,238,.96) 0%,rgba(255,250,238,.85) 52%,rgba(255,250,238,0) 100%)}
+.giua{position:absolute;left:0;right:0;text-align:center}
+.logo{width:6.6vw;height:6.6vw;border-radius:50%;background:#fff;padding:.55vw;box-shadow:0 .5vw 1.6vw rgba(120,60,30,.25)}
+.ey{font:700 1.45vw 'Be Vietnam Pro',sans-serif;letter-spacing:.34em;margin-right:-.34em;text-transform:uppercase;color:#9E1B22}
+.td{font:400 10.4vw/1.02 'Great Vibes',cursive;color:#B3261E;text-shadow:0 .3vw 1.2vw rgba(179,38,30,.18)}
+.vach{width:30vw;height:.16vw;margin:0 auto;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+.gala{font:700 3.25vw/1.15 'Noto Serif',serif;letter-spacing:.1em;margin-right:-.1em;color:#5B2A12;text-shadow:0 0 .6vw #FFF8EA}
+.nk{display:inline-block;font:700 2vw 'Be Vietnam Pro',sans-serif;letter-spacing:.14em;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);padding:.6vw 2.6vw;border-radius:3vw;box-shadow:0 .5vw 1.3vw rgba(179,38,30,.3)}
+.cau{font:italic 500 1.85vw 'Noto Serif',serif;color:#4A3A31;text-shadow:0 0 .6vw #FFF8EA}
+.ngay{font:700 2.05vw 'Playfair Display',serif;font-variant-numeric:lining-nums;letter-spacing:.16em;color:#9E1B22;text-shadow:0 0 .6vw #FFF8EA}
+.ngay b{color:#C9A24A;margin:0 .9vw;font-weight:400}
+.lop{display:flex;justify-content:center;gap:.75vw}
+.lop span{width:4.5vw;height:4.5vw;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 1.25vw 'Be Vietnam Pro',sans-serif;color:#9E1B22;background:rgba(255,251,242,.95);border:.2vw solid #C9A24A;box-shadow:0 .35vw 1vw rgba(90,40,20,.22)}
+
+@keyframes xoayTia{to{transform:rotate(15deg)}}
+@keyframes tho{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes tranhT{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@keyframes tranhP{0%,100%{transform:scaleX(-1) scale(1)}50%{transform:scaleX(-1) scale(1.025)}}
+@keyframes lacT{0%,100%{transform:rotate(8deg)}50%{transform:rotate(9.6deg)}}
+@keyframes lacP{0%,100%{transform:scaleX(-1) rotate(8deg)}50%{transform:scaleX(-1) rotate(9.6deg)}}
+@keyframes roi{from{transform:translate(0,-6vw) rotate(0)}to{transform:translate(var(--dx),56vw) rotate(var(--r))}}
+@keyframes nhun{0%,100%{transform:translateY(0)}50%{transform:translateY(-.45vw)}}
+@keyframes sang{0%,100%{text-shadow:0 .3vw 1.2vw rgba(179,38,30,.18)}50%{text-shadow:0 .3vw 1.2vw rgba(179,38,30,.18),0 0 2.2vw rgba(255,214,140,.95)}}
+@keyframes vet{0%{left:-40%}25%,100%{left:140%}}
+@keyframes hao{0%,100%{box-shadow:0 .5vw 1.6vw rgba(120,60,30,.25),0 0 0 0 rgba(255,220,150,.0)}50%{box-shadow:0 .5vw 1.6vw rgba(120,60,30,.25),0 0 0 1vw rgba(255,220,150,.35)}}
+@keyframes lap{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
+.tia{animation:xoayTia 20s linear infinite}
+.nang{animation:tho 5s ease-in-out infinite}
+.san.trai{transform-origin:50% 100%;animation:tranhT 20s ease-in-out infinite}
+.san.phai{transform-origin:50% 100%;animation:tranhP 20s ease-in-out infinite}
+.c1{animation:lacT 5s ease-in-out infinite}.c2{animation:lacP 5s ease-in-out -2.5s infinite}
+.roi i{top:0;animation:roi linear infinite}
+.lop span{animation:nhun 4s ease-in-out infinite}
+.td{animation:sang 5s ease-in-out infinite}
+.logo{animation:hao 5s ease-in-out infinite}
+.nk{position:relative;overflow:hidden}.nk:after{content:'';position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:vet 10s ease-in-out infinite}
+.lap i{position:absolute;font-style:normal;color:#E2B65A;font-size:1.3vw;animation:lap 4s ease-in-out infinite}
+</style></head><body><div class="k">
+ <div class="tia"></div><div class="nang"></div>
+ <div class="san trai"></div><div class="san phai"></div><div class="gach"></div>
+ <div class="mo"></div>
+ <div class="canh c1"></div><div class="canh c2"></div>
+ <div class="roi" id="roi"></div><div class="lap" id="lap"></div>
+ <div class="giua" style="top:1vw">
+  <img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png" alt="">
+  <div class="ey" style="margin-top:1vw">Trường THPT Nguyễn Hiền · Đà Nẵng</div>
+  <div class="td" style="margin-top:2.9vw">Về đi bạn ơi!</div>
+  <div class="vach" style="margin-top:.1vw"></div>
+  <div class="gala" style="margin-top:1vw">GALA GẶP MẶT CỰU HỌC SINH</div>
+  <div style="margin-top:1.1vw"><span class="nk">NIÊN KHOÁ 2000 – 2003</span></div>
+  <div class="cau" style="margin-top:1.2vw">“Hai mươi ba năm – Một mái trường – Một đại gia đình”</div>
+  <div class="ngay" style="margin-top:.7vw">THỨ BẢY<b>✦</b>14 . 11 . 2026<b>✦</b>ĐÀ NẴNG</div>
+ </div>
+ <div class="giua lop" style="bottom:2vw" id="lop"></div>
+</div>
+<script>
+document.getElementById('lop').innerHTML=Array.from({length:12},(_,i)=>'<span>12/'+(i+1)+'</span>').join('');
+document.querySelectorAll('.lop span').forEach((e,i)=>e.style.animationDelay=(-i*.33).toFixed(2)+'s');
+document.getElementById('roi').innerHTML=Array.from({length:30},(_,i)=>{const d=i%3?10:20;return '<i style="left:'+((i*37+11)%100)+'vw;--dx:'+(4+(i%5)*2)+'vw;--r:'+(360+(i%4)*180)+'deg;animation-duration:'+d+'s;animation-delay:'+(-(i*1.37)%d).toFixed(2)+'s;scale:'+(.6+(i%4)*.18).toFixed(2)+'"></i>'}).join('');
+const L=[[30,14],[70,14],[24,40],[76,40],[38,58],[62,58],[18,26],[82,26],[45,6],[55,6],[33,82],[67,82],[12,60],[88,60]];
+document.getElementById('lap').innerHTML=L.map(([x,y],i)=>'<i style="left:'+x+'vw;top:'+y*.5+'vw;animation-delay:'+(-i*.57).toFixed(2)+'s">✦</i>').join('');
+</script></body></html>
