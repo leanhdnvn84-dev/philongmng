@@ -243,12 +243,21 @@ function lopKhop_(v) {
   return l ? l.id : '';
 }
 /** Cột lớp trống/không đọc được: tìm theo họ tên trong danh sách học sinh (bỏ dấu, không phân biệt hoa thường) – chỉ khi đúng 1 lớp có tên đó. */
+let _tenLop = null;
 function lopTheoTen_(ten) {
   const t = boDau_(ten).replace(/\s+/g, ' ').trim();
   if (!t) return '';
-  const lops = {};
-  read_('HocSinh').forEach(function (h) { if (boDau_(h.hoTen).replace(/\s+/g, ' ').trim() === t && h.lopId) lops[h.lopId] = 1; });
-  const ks = Object.keys(lops).filter(function (k) { return read_('Lop').some(function (l) { return l.id === k; }); });
+  if (!_tenLop) {
+    _tenLop = {};
+    const coLop = {};
+    read_('Lop').forEach(function (l) { coLop[l.id] = 1; });
+    read_('HocSinh').forEach(function (h) {
+      if (!h.lopId || !coLop[h.lopId]) return;
+      const k = boDau_(h.hoTen).replace(/\s+/g, ' ').trim();
+      (_tenLop[k] = _tenLop[k] || {})[h.lopId] = 1;
+    });
+  }
+  const ks = Object.keys(_tenLop[t] || {});
   return ks.length === 1 ? ks[0] : '';
 }
 
@@ -263,10 +272,22 @@ function rowOf_(n, o) { const h = hdr_(n); return h.map(function (k, j) {
   return safe_(o[colKey_(h, j)]);
 }); }
 
+/** Chỉ đọc k dòng cuối của sheet (nhật ký dài dần theo thời gian – không cần đọc hết). */
+function docCuoi_(n, k) {
+  const sh = sh_(n), h = hdr_(n), last = sh.getLastRow();
+  if (last < 2) return [];
+  const tu = Math.max(2, last - k + 1);
+  return sh.getRange(tu, 1, last - tu + 1, h.length).getDisplayValues().map(function (r, i) {
+    const o = { _row: tu + i };
+    h.forEach(function (c, j) { o[colKey_(h, j)] = clean_(r[j]); });
+    return o;
+  });
+}
 function append_(n, o) {
   const sh = sh_(n), r = sh.getLastRow() + 1;
   sh.getRange(r, 1, 1, hdr_(n).length).setNumberFormat('@').setValues([rowOf_(n, o)]);
   delete _cache[n];
+  if (n === 'HocSinh' || n === 'Lop') _tenLop = null;
   pubBust_(n);
 }
 function appendMany_(n, list) {
@@ -275,11 +296,13 @@ function appendMany_(n, list) {
   sh.getRange(r, 1, list.length, hdr_(n).length).setNumberFormat('@')
     .setValues(list.map(function (o) { return rowOf_(n, o); }));
   delete _cache[n];
+  if (n === 'HocSinh' || n === 'Lop') _tenLop = null;
   pubBust_(n);
 }
 function update_(n, o) {
   sh_(n).getRange(o._row, 1, 1, hdr_(n).length).setNumberFormat('@').setValues([rowOf_(n, o)]);
   delete _cache[n];
+  if (n === 'HocSinh' || n === 'Lop') _tenLop = null;
   pubBust_(n);
 }
 function find_(n, val) {
@@ -291,6 +314,7 @@ function remove_(n, pred) {
   const sh = sh_(n);
   rows.forEach(function (r) { sh.deleteRow(r); });
   delete _cache[n];
+  if (n === 'HocSinh' || n === 'Lop') _tenLop = null;
   pubBust_(n);
   return rows.length;
 }
@@ -381,19 +405,33 @@ function idAnh_(v) {
  * Tự mở quyền "Bất kỳ ai có đường liên kết đều xem được", mỗi ảnh một lần (nhớ trong Script Property ANH_DA_MO).
  */
 function moAnh_(ids, epBuoc) {
-  let memo = [];
-  try { memo = JSON.parse(PROP.getProperty('ANH_DA_MO') || '[]'); } catch (e) { }
-  const ketQua = [];
-  let doi = false;
+  /* Nhớ mọi ảnh đã mở (trước đây chỉ nhớ 300 ảnh cuối → khoá có hơn 300 ảnh thì mỗi lần dựng dữ liệu công khai
+     lại gọi Drive mở quyền hàng trăm ảnh, rất chậm). Danh sách chia nhiều Script Property ANH_DA_MO_0, _1… (mỗi cái ≤ 230 mã). */
+  const props = PROP.getProperties(), da = {};
+  Object.keys(props).forEach(function (k) {
+    if (k === 'ANH_DA_MO' || k.indexOf('ANH_DA_MO_') === 0) { try { JSON.parse(props[k]).forEach(function (x) { da[x] = 1; }); } catch (e) { } }
+  });
+  const ketQua = [], batDau = Date.now();
+  let doi = false, lam = 0;
   ids.forEach(function (id) {
-    if (!id || (!epBuoc && memo.indexOf(id) >= 0)) return;
+    if (!id || (!epBuoc && da[id])) return;
+    /* Không ép buộc: mỗi lượt tối đa 15 ảnh mới hoặc 6 giây – phần còn lại để lượt sau, không làm trang chờ lâu */
+    if (!epBuoc && (lam >= 15 || Date.now() - batDau > 6000)) return;
+    lam++;
     try {
       DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
       ketQua.push([id, 'đã mở']);
     } catch (e) { ketQua.push([id, 'lỗi: ' + e.message]); }
-    if (memo.indexOf(id) < 0) { memo.push(id); doi = true; }
+    if (!da[id]) { da[id] = 1; doi = true; }
   });
-  if (doi) { try { PROP.setProperty('ANH_DA_MO', JSON.stringify(memo.slice(-300))); } catch (e) { } }
+  if (doi) {
+    try {
+      const ds = Object.keys(da), moi = {};
+      for (let k = 0; k * 230 < ds.length; k++) moi['ANH_DA_MO_' + k] = JSON.stringify(ds.slice(k * 230, (k + 1) * 230));
+      PROP.setProperties(moi);
+      if (props.ANH_DA_MO) PROP.deleteProperty('ANH_DA_MO');
+    } catch (e) { console.log('moAnh_ nhớ: ' + e.message); }
+  }
   return ketQua;
 }
 /* ---------- Ảnh lấy thẳng từ thư mục Drive ----------
@@ -690,6 +728,12 @@ function pubJson_() {
   } catch (e) { }
   let j;
   try { j = JSON.stringify(taoPublicData_()); } finally { try { c.remove('PUB_DANG'); } catch (e) { } }
+  luuPub_(c, j);
+  return j;
+}
+/** Dấu nội dung (băm nhanh): chỉ đổi khi dữ liệu công khai thật sự khác. */
+/** Ghi JSON công khai vào bộ đệm (chia khúc) + dấu nội dung PUB_REV. */
+function luuPub_(c, j) {
   try {
     const o = {}, n = Math.ceil(j.length / PUB_CHUNK);
     for (let i = 0; i < n; i++) o[PUB_KEY + i] = j.slice(i * PUB_CHUNK, (i + 1) * PUB_CHUNK);
@@ -697,9 +741,7 @@ function pubJson_() {
     c.put(PUB_KEY + 'n', String(n), PUB_TTL);
     c.put('PUB_REV', bam_(j), 21600);
   } catch (e) { console.log('PUB cache: ' + e.message); }
-  return j;
 }
-/** Dấu nội dung (băm nhanh): chỉ đổi khi dữ liệu công khai thật sự khác. */
 function bam_(t) {
   let h = 5381, g = 0;
   for (let i = 0; i < t.length; i++) { h = ((h << 5) + h + t.charCodeAt(i)) | 0; g = (g * 31 + t.charCodeAt(i)) | 0; }
@@ -767,8 +809,11 @@ function getSlideData(force) {
 /* Giữ ấm: trigger 5 phút/lần dựng sẵn dữ liệu công khai vào bộ đệm, để doGet không phải đọc Sheet khi có người mở trang
    (bớt màn trắng lúc mở). Sửa tay Sheet cũng tự hiện sau tối đa 5 phút. */
 function giuAm() {
-  pubBust_('');
-  pubJson_();
+  /* Dựng bản mới TRƯỚC rồi mới thay bộ đệm cũ: trong lúc dựng, khách vẫn được phục vụ ngay bằng bản cũ
+     (trước đây xoá bộ đệm trước → mọi máy mở trang trong lúc đó phải chờ tới 12 giây hoặc tự dựng lại). */
+  const c = CacheService.getScriptCache(), j = JSON.stringify(taoPublicData_());
+  luuPub_(c, j);
+  try { c.remove('TC_DATA'); c.put('TC_REV', uid_(), SESSION_TTL); } catch (e) { }
 }
 /** Chạy MỘT LẦN trong trình soạn thảo để bật giữ ấm (cần cấp quyền). */
 /** Chạy MỘT LẦN trong trình soạn thảo: bật giữ ấm 5 phút + tự cập nhật khi sửa tay Sheet (cần cấp quyền). */
@@ -882,7 +927,7 @@ function getAdminData(token) {
   const mine = function (x, field) { return isS || x[field] === u.lopId; };
   const lopIds = {};
   read_('Lop').forEach(function (l) { lopIds[l.id] = 1; });
-  const log = read_('NhatKy').filter(function (x) { return isS || x.user === u.user; }).slice(-50).reverse().map(pub_);
+  const log = docCuoi_('NhatKy', 400).filter(function (x) { return isS || x.user === u.user; }).slice(-50).reverse().map(pub_);
   return {
     me: u,
     cfg: cfg_(),
