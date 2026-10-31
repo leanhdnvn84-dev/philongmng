@@ -16,7 +16,7 @@ const SHEETS = {
   HoatDong: ['id', 'namHoc', 'ngay', 'tieuDe', 'moTa', 'icon', 'anhId', 'trangThai', 'lopDeXuat', 'taoLuc'],
   ThayCo:   ['id', 'hoTen', 'vaiTro', 'anhId', 'thuTu'],
   LuuBut:   ['id', 'lopId', 'tacGia', 'noiDung', 'trangThai', 'taoLuc'],
-  Anh:      ['id', 'album', 'lopId', 'chuThich', 'fileId', 'nguoiDang', 'taoLuc'],
+  Anh:      ['id', 'album', 'lopId', 'chuThich', 'fileId', 'nguoiDang', 'taoLuc', 'chieu'],
   TaiKhoan: ['user', 'hoTen', 'role', 'lopId', 'salt', 'hash', 'active', 'lienHe'],
   TinTuc:   ['id', 'loai', 'tieuDe', 'noiDung', 'ngay', 'noiBat', 'trangThai', 'taoLuc'],
   DangKy:   ['id', 'lopId', 'hoTen', 'lienHe', 'ghiChu', 'trangThai', 'taoLuc'],
@@ -1270,16 +1270,34 @@ function uploadPhoto(token, p) {
   });
 }
 
-function updatePhoto(token, id, album, chuThich) {
+/** chieu: '' = cho phép trình chiếu (mặc định), '0' = không trình chiếu (vd. ảnh tài liệu, danh sách).
+ *  caAlbum: áp dụng cho phép/không cho mọi ảnh cùng album (cùng lớp) – ghi một lượt. */
+function updatePhoto(token, id, album, chuThich, chieu, caAlbum) {
   return lock_(function () {
     const u = auth_(token);
     const a = find_('Anh', id);
     if (!a) throw new Error('Ảnh không tồn tại.');
     canLop_(u, a.lopId);
+    const cu = a.album, ch = String(chieu) === '0' ? '0' : '';
     a.album = req_(album, 'tên album', 60);
     a.chuThich = String(chuThich || '').slice(0, 200);
+    if (chieu != null) a.chieu = ch;
+    if (!caAlbum) { update_('Anh', a); return 1; }
+    /* cả album: ghi lại toàn bộ cột "chieu" một lần thay vì từng dòng */
     update_('Anh', a);
-    return true;
+    const sh = sh_('Anh'), cot = hdr_('Anh').indexOf('chieu') + 1, last = sh.getLastRow();
+    let n = 0;
+    if (cot > 0 && last >= 2) {
+      const rg = sh.getRange(2, cot, last - 1, 1), v = rg.getValues();
+      read_('Anh').forEach(function (x) {
+        if (x.id !== a.id && x.album === cu && String(x.lopId || '') === String(a.lopId || '')) { v[x._row - 2][0] = ch; n++; }
+      });
+      rg.setNumberFormat('@').setValues(v);
+    }
+    delete _cache.Anh;
+    pubBust_('Anh');
+    log_(u, (ch === '0' ? 'Tắt' : 'Bật') + ' trình chiếu album ' + cu + ' (' + (n + 1) + ' ảnh)');
+    return n + 1;
   });
 }
 
