@@ -1,0 +1,43 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Câu đối Gala</title>
+<!-- 2 câu đối đứng 1 m × 3 m hai bên sân khấu, cùng tông phông màu nước. cau-doi.html?b=phai (tri ân Thầy Cô) | ?b=trai (bạn bè). Mọi kích thước theo vw (khung 1:3). render.js → xem trước + PDF 100×300 cm + ảnh 3000×9000 -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,600;0,700;1,500&family=Playfair+Display:wght@700&family=Be+Vietnam+Pro:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+@page{size:100cm 300cm;margin:0}
+html,body{width:100vw;height:300vw;overflow:hidden;background:#FBF3E4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.k{position:relative;width:100vw;height:300vw;overflow:hidden;font-family:'Noto Serif',serif;background:radial-gradient(90% 40% at 50% 8%,#FFFDF7 0%,#FBF0DC 55%,#F3DFC0 100%)}
+.tia{position:absolute;left:50%;top:-60vw;width:240vw;height:240vw;margin-left:-120vw;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,226,150,.32) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(closest-side,#000 20%,transparent 70%);mask-image:radial-gradient(closest-side,#000 20%,transparent 70%)}
+.san{position:absolute;left:0;right:0;bottom:0;height:95vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 8% 100%/190vw auto;-webkit-mask-image:linear-gradient(180deg,transparent,#000 45%);mask-image:linear-gradient(180deg,transparent,#000 45%)}
+.phai .san{transform:scaleX(-1)}
+.canh{position:absolute;top:-10vw;width:120vw;height:80vw;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+.trai .canh{left:-22vw;transform:rotate(10deg)}.phai .canh{right:-22vw;transform:scaleX(-1) rotate(10deg)}
+.khung{position:absolute;inset:4vw;border:.6vw solid #C9A24A;border-radius:2vw;box-shadow:inset 0 0 0 1.2vw rgba(255,250,238,.55),inset 0 0 0 1.5vw #C9A24A}
+.mo{position:absolute;left:4vw;right:4vw;top:58vw;height:170vw;background:radial-gradient(60% 50% at 50% 50%,rgba(255,250,238,.95),rgba(255,250,238,.7) 60%,transparent)}
+.roi i{position:absolute;width:3vw;height:2.3vw;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff7a62,#c8102e);opacity:.8}
+.giua{position:absolute;left:0;right:0;text-align:center}
+.logo{width:16vw;height:16vw;border-radius:50%;background:#fff;padding:1.3vw;box-shadow:0 1.2vw 3vw rgba(120,60,30,.25)}
+.ey{font:700 4.2vw 'Be Vietnam Pro',sans-serif;letter-spacing:.3em;margin-right:-.3em;color:#9E1B22;text-transform:uppercase}
+.vach{width:60vw;height:.4vw;margin:0 auto;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+.cau{white-space:nowrap;font:400 19vw/1.12 'Great Vibes',cursive;color:#B3261E;text-shadow:0 .6vw 2.4vw rgba(179,38,30,.2),0 0 2vw #FFF8EA}
+.cau.dam{color:#8E1F17}
+.hoa{font:400 7vw 'Noto Serif',serif;color:#C9A24A;line-height:1;margin:2.4vw 0}
+.chan{display:inline-block;background:rgba(255,250,238,.92);border:.3vw solid #C9A24A;border-radius:3vw;padding:2vw 5vw;font:700 3.4vw 'Playfair Display',serif;font-variant-numeric:lining-nums;letter-spacing:.14em;color:#5B2A12;text-shadow:0 0 1vw #FFF8EA}
+.chan small{display:block;font:600 3vw 'Noto Serif',serif;letter-spacing:.06em;color:#9E1B22;margin-bottom:1vw}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const B=new URLSearchParams(location.search).get('b')||'phai';
+const C={
+ phai:{ey:'Tri ân Thầy Cô',l1:['Phấn trắng','bảng đen'],l2:['nghĩa Thầy Cô','trọn đời','ghi nhớ']},
+ trai:{ey:'Tình bạn áo trắng',l1:['Áo trắng','hoa phượng'],l2:['tình bạn bè','mãi mãi','vẹn nguyên']}
+}[B];
+const P=[[12,40,20],[82,52,-30],[20,88,60],[74,110,15],[10,150,40],[88,170,-20],[24,205,80],[78,228,10],[50,250,-40],[30,262,30],[66,268,-60]];
+document.getElementById('k').className='k '+B;
+document.getElementById('k').innerHTML='<div class="tia"></div><div class="san"></div><div class="mo"></div><div class="khung"></div><div class="canh"></div>'
+ +'<div class="roi">'+P.map(([x,y,r],i)=>'<i style="left:'+x+'vw;top:'+y+'vw;transform:rotate('+r+'deg) scale('+(.7+(i%4)*.2).toFixed(2)+')"></i>').join('')+'</div>'
+ +'<div class="giua" style="top:50vw"><img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><div class="ey" style="margin-top:3vw">'+C.ey+'</div><div class="vach" style="margin-top:2.4vw"></div></div>'
+ +'<div class="giua" id="cd" style="top:94vw">'+C.l1.map(t=>'<div class="cau">'+t+'</div>').join('')+'<div class="hoa">✦</div>'+C.l2.map(t=>'<div class="cau dam">'+t+'</div>').join('')+'</div>'
+ +'<div class="giua" style="bottom:12vw"><div class="chan"><small>Gala “Ngày trở về”</small>NIÊN KHOÁ 2000 – 2003<br>14 . 11 . 2026</div></div>';
+/* dòng nào rộng quá 82vw thì thu nhỏ cho vừa (giữ 1 dòng) */
+document.fonts.ready.then(()=>document.querySelectorAll('.cau').forEach(e=>{const w=e.scrollWidth,m=innerWidth*.82;if(w>m)e.style.fontSize=(19*m/w).toFixed(2)+'vw'}));
+</script></body></html>
