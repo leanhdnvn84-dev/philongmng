@@ -1270,34 +1270,58 @@ function uploadPhoto(token, p) {
   });
 }
 
-/** chieu: '' = cho phép trình chiếu (mặc định), '0' = không trình chiếu (vd. ảnh tài liệu, danh sách).
- *  caAlbum: áp dụng cho phép/không cho mọi ảnh cùng album (cùng lớp) – ghi một lượt. */
-function updatePhoto(token, id, album, chuThich, chieu, caAlbum) {
+/** Sửa ảnh: album (chuyển sang album khác / album mới), chú thích, chieu ('' cho phép trình chiếu, '0' không chiếu),
+ *  lopId (chuyển sang lớp khác / '' = Ảnh chung; null = giữ nguyên – chỉ Ban liên lạc đổi lớp được).
+ *  caAlbum: áp album mới + lớp + chieu cho MỌI ảnh cùng album cũ (cùng lớp) – ghi theo cột một lượt.
+ *  Đổi lớp thì chuyển luôn tệp sang thư mục Drive của lớp mới (đồng bộ Drive không đưa ảnh về lớp cũ). */
+function updatePhoto(token, id, album, chuThich, chieu, caAlbum, lopId) {
   return lock_(function () {
     const u = auth_(token);
     const a = find_('Anh', id);
     if (!a) throw new Error('Ảnh không tồn tại.');
     canLop_(u, a.lopId);
-    const cu = a.album, ch = String(chieu) === '0' ? '0' : '';
-    a.album = req_(album, 'tên album', 60);
+    const cuAlbum = a.album, cuLop = String(a.lopId || '');
+    const moiAlbum = req_(album, 'tên album', 60);
+    let moiLop = cuLop;
+    if (lopId != null && String(lopId) !== cuLop) {
+      if (u.role !== 'super') throw new Error('Chỉ Ban liên lạc mới chuyển ảnh sang lớp khác.');
+      if (lopId && !find_('Lop', lopId)) throw new Error('Lớp không tồn tại.');
+      moiLop = String(lopId || '');
+    }
+    const ch = chieu == null ? null : (String(chieu) === '0' ? '0' : '');
+    const ds = caAlbum ? read_('Anh').filter(function (x) { return x.album === cuAlbum && String(x.lopId || '') === cuLop; }) : [a];
+    /* chuyển tệp Drive sang thư mục lớp mới */
+    if (moiLop !== cuLop) {
+      let tm = null;
+      try { tm = thuMucAnh_(moiLop); } catch (e) { }
+      ds.forEach(function (x) { try { if (tm && x.fileId) DriveApp.getFileById(idAnh_(x.fileId)).moveTo(tm); } catch (e) { } });
+    }
+    if (!caAlbum) {
+      a.album = moiAlbum; a.lopId = moiLop;
+      a.chuThich = String(chuThich || '').slice(0, 200);
+      if (ch != null) a.chieu = ch;
+      update_('Anh', a);
+      if (cuAlbum !== moiAlbum || cuLop !== moiLop) log_(u, 'Chuyển ảnh sang album ' + moiAlbum);
+      return 1;
+    }
+    /* cả album: chú thích riêng của ảnh đang sửa, còn lại ghi theo cột (album, lopId, chieu) */
     a.chuThich = String(chuThich || '').slice(0, 200);
-    if (chieu != null) a.chieu = ch;
-    if (!caAlbum) { update_('Anh', a); return 1; }
-    /* cả album: ghi lại toàn bộ cột "chieu" một lần thay vì từng dòng */
     update_('Anh', a);
-    const sh = sh_('Anh'), cot = hdr_('Anh').indexOf('chieu') + 1, last = sh.getLastRow();
-    let n = 0;
-    if (cot > 0 && last >= 2) {
-      const rg = sh.getRange(2, cot, last - 1, 1), v = rg.getValues();
-      read_('Anh').forEach(function (x) {
-        if (x.id !== a.id && x.album === cu && String(x.lopId || '') === String(a.lopId || '')) { v[x._row - 2][0] = ch; n++; }
+    const sh = sh_('Anh'), h = hdr_('Anh'), last = sh.getLastRow(), rows = {};
+    ds.forEach(function (x) { rows[x._row] = 1; });
+    if (last >= 2) {
+      [['album', moiAlbum], ['lopId', moiLop], ['chieu', ch]].forEach(function (c) {
+        const cot = h.indexOf(c[0]) + 1;
+        if (cot < 1 || c[1] == null) return;
+        const rg = sh.getRange(2, cot, last - 1, 1), v = rg.getValues();
+        Object.keys(rows).forEach(function (r) { v[r - 2][0] = c[1]; });
+        rg.setNumberFormat('@').setValues(v);
       });
-      rg.setNumberFormat('@').setValues(v);
     }
     delete _cache.Anh;
     pubBust_('Anh');
-    log_(u, (ch === '0' ? 'Tắt' : 'Bật') + ' trình chiếu album ' + cu + ' (' + (n + 1) + ' ảnh)');
-    return n + 1;
+    log_(u, 'Sửa cả album ' + cuAlbum + (moiAlbum !== cuAlbum ? ' → ' + moiAlbum : '') + ' (' + ds.length + ' ảnh)');
+    return ds.length;
   });
 }
 
