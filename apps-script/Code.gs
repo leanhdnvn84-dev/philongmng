@@ -1288,7 +1288,7 @@ function updatePhoto(token, id, album, chuThich, chieu, caAlbum, lopId) {
       if (lopId && !find_('Lop', lopId)) throw new Error('Lớp không tồn tại.');
       moiLop = String(lopId || '');
     }
-    const ch = chieu == null ? null : (String(chieu) === '0' ? '0' : '');
+    const ch = chieu == null ? null : chieuChuan_(chieu);
     const ds = caAlbum ? read_('Anh').filter(function (x) { return x.album === cuAlbum && String(x.lopId || '') === cuLop; }) : [a];
     /* chuyển tệp Drive sang thư mục lớp mới */
     if (moiLop !== cuLop) {
@@ -1321,6 +1321,28 @@ function updatePhoto(token, id, album, chuThich, chieu, caAlbum, lopId) {
     delete _cache.Anh;
     pubBust_('Anh');
     log_(u, 'Sửa cả album ' + cuAlbum + (moiAlbum !== cuAlbum ? ' → ' + moiAlbum : '') + ' (' + ds.length + ' ảnh)');
+    return ds.length;
+  });
+}
+
+/** '0' = không trình chiếu, '2' = ưu tiên chiếu (chiếu trước – vd. ảnh Gala vừa chụp), còn lại '' = cho phép. */
+function chieuChuan_(v) { v = String(v == null ? '' : v); return v === '0' || v === '2' ? v : ''; }
+/** Chọn nhiều ảnh ở Quản trị → Hình ảnh: đặt trình chiếu cho cả nhóm một lượt (ghi cột "chieu" theo dòng). Admin lớp chỉ đổi ảnh lớp mình. */
+function setPhotoShow(token, ids, chieu) {
+  return lock_(function () {
+    const u = auth_(token), ch = chieuChuan_(chieu), can = {};
+    (ids || []).slice(0, 2000).forEach(function (i) { can[String(i)] = 1; });
+    const ds = read_('Anh').filter(function (x) { return can[x.id] && (u.role === 'super' || String(x.lopId || '') === String(u.lopId || '')); });
+    if (!ds.length) throw new Error('Chưa chọn ảnh nào (hoặc ảnh không thuộc lớp bạn quản lý).');
+    const sh = sh_('Anh'), cot = hdr_('Anh').indexOf('chieu') + 1, last = sh.getLastRow();
+    if (cot > 0 && last >= 2) {
+      const rg = sh.getRange(2, cot, last - 1, 1), v = rg.getValues();
+      ds.forEach(function (x) { v[x._row - 2][0] = ch; });
+      rg.setNumberFormat('@').setValues(v);
+    }
+    delete _cache.Anh;
+    pubBust_('Anh');
+    log_(u, (ch === '0' ? 'Tắt' : ch === '2' ? 'Ưu tiên' : 'Bật') + ' trình chiếu ' + ds.length + ' ảnh');
     return ds.length;
   });
 }
