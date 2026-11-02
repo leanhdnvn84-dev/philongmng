@@ -38,7 +38,7 @@ function docSo(n){const cs=['không','một','hai','ba','bốn','năm','sáu','b
  const out=[];for(let k=nh.length-1;k>=0;k--){if(!nh[k])continue;out.push(ba(nh[k],k<nh.length-1)+(dv[k]?' '+dv[k]:''))}
  const s=out.join(' ').replace(/\s+/g,' ').trim();return s.charAt(0).toUpperCase()+s.slice(1)+' đồng'}
 const soCham=String(SO).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
-document.getElementById('k').innerHTML='<div class="tia"></div><div class="san trai"></div><div class="san phai"></div><div class="khung"></div><div class="canh c1"></div><div class="canh c2"></div>'
+document.getElementById('k').innerHTML='<div class="tia"></div><div class="san trai"></div><div class="san phai"></div><div class="khung"></div>'
  +'<div class="giua" style="top:3.6vw"><img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""></div>'
  +'<div class="giua" style="top:12.6vw"><div class="ey">CỰU HỌC SINH TRƯỜNG THPT NGUYỄN HIỀN</div><div class="ey">NIÊN KHOÁ 2000 – 2003</div></div>'
  +'<div class="giua" style="top:21.4vw"><div class="tt">TRAO TẶNG</div><div class="so" style="margin-top:1.6vw">'+soCham+' VND</div><div class="chu" style="margin-top:.9vw">( '+docSo(SO)+' )</div>'
