@@ -1,0 +1,48 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Bảng trao tặng</title>
+<!-- Bảng trao tặng (cầm tay khi trao quà) – tông màu nước của phông Gala. Khổ 60×40 cm (3:2), kích thước theo vw.
+     Tham số: ?so=10000000&cho1=…&cho2=… (số tiền tự đọc thành chữ). render.js → xem trước + PDF 60×40 cm + PNG -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:wght@600;700;800&family=Playfair+Display:wght@800&family=Be+Vietnam+Pro:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+@page{size:60cm 40cm;margin:0}
+html,body{width:100vw;height:66.667vw;overflow:hidden;background:#FBF3E4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.k{position:relative;width:100vw;height:66.667vw;overflow:hidden;font-family:'Noto Serif',serif;background:radial-gradient(80% 80% at 50% 30%,#FFFEFA 0%,#FBF2E2 60%,#F3E2C6 100%)}
+.tia{position:absolute;left:50%;top:-70vw;width:200vw;height:200vw;margin-left:-100vw;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,226,150,.22) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(closest-side,#000 20%,transparent 65%);mask-image:radial-gradient(closest-side,#000 20%,transparent 65%)}
+.san{position:absolute;bottom:0;width:42vw;height:26vw;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 0 100%/56vw auto;opacity:.5;-webkit-mask-image:linear-gradient(90deg,#000 35%,transparent 95%),linear-gradient(180deg,transparent,#000 55%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 35%,transparent 95%),linear-gradient(180deg,transparent,#000 55%);mask-composite:intersect}
+.san.trai{left:0}.san.phai{right:0;transform:scaleX(-1)}
+.canh{position:absolute;width:34vw;height:22.6vw;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+.c1{left:-6vw;top:-6vw;transform:rotate(8deg)}.c2{right:-6vw;top:-6vw;transform:scaleX(-1) rotate(8deg)}
+.khung{position:absolute;inset:2.2vw;border:.35vw solid #C9A24A;border-radius:1.2vw;box-shadow:inset 0 0 0 .7vw rgba(255,250,238,.6),inset 0 0 0 .9vw #C9A24A}
+.giua{position:absolute;left:0;right:0;text-align:center}
+.logo{width:8vw;height:8vw;border-radius:50%;background:#fff;padding:.6vw;box-shadow:0 .5vw 1.4vw rgba(120,60,30,.22)}
+.ey{font:700 2.5vw/1.35 'Noto Serif',serif;letter-spacing:.05em;color:#3A2A22;text-shadow:0 0 .6vw #FFF8EA}
+.tt{font:800 5.6vw/1 'Noto Serif',serif;letter-spacing:.06em;color:#C8102E;text-shadow:0 .2vw .6vw rgba(200,16,46,.15)}
+.so{font:800 9.6vw/1 'Playfair Display',serif;font-variant-numeric:lining-nums;color:#16285A;letter-spacing:.01em;white-space:nowrap}
+.chu{font:italic 600 2.5vw 'Noto Serif',serif;color:#3A2A22}
+.cho{font:800 3.3vw/1.3 'Noto Serif',serif;color:#16285A;text-transform:uppercase}
+.vach{width:30vw;height:.22vw;margin:0 auto;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+.chan{font:400 3.6vw 'Great Vibes',cursive;color:#9E1B22}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const q=new URLSearchParams(location.search),SO=+(q.get('so')||10000000),CHO1=q.get('cho1')||'Cho học sinh Trường',CHO2=q.get('cho2')||'Trung học phổ thông Nguyễn Hiền';
+/* Đọc số thành chữ tiếng Việt: 10000000 → "Mười triệu đồng" */
+function docSo(n){const cs=['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+ function ba(x,day){const t=Math.floor(x/100),c=Math.floor(x%100/10),d=x%10;let r=[];
+  if(day||t)r.push(cs[t]+' trăm');
+  if(c>1){r.push(cs[c]+' mươi');if(d===1)r.push('mốt');else if(d===5)r.push('lăm');else if(d)r.push(cs[d])}
+  else if(c===1){r.push('mười');if(d===5)r.push('lăm');else if(d)r.push(cs[d])}
+  else if(d){if(day||t)r.push('lẻ');r.push(cs[d])}
+  return r.join(' ')}
+ if(!n)return 'Không đồng';const dv=['','nghìn','triệu','tỷ'];let nh=[],i=0;while(n>0){nh.push(n%1000);n=Math.floor(n/1000)}
+ const out=[];for(let k=nh.length-1;k>=0;k--){if(!nh[k])continue;out.push(ba(nh[k],k<nh.length-1)+(dv[k]?' '+dv[k]:''))}
+ const s=out.join(' ').replace(/\s+/g,' ').trim();return s.charAt(0).toUpperCase()+s.slice(1)+' đồng'}
+const soCham=String(SO).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+document.getElementById('k').innerHTML='<div class="tia"></div><div class="san trai"></div><div class="san phai"></div><div class="khung"></div><div class="canh c1"></div><div class="canh c2"></div>'
+ +'<div class="giua" style="top:3.6vw"><img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""></div>'
+ +'<div class="giua" style="top:12.6vw"><div class="ey">CỰU HỌC SINH TRƯỜNG THPT NGUYỄN HIỀN</div><div class="ey">NIÊN KHOÁ 2000 – 2003</div></div>'
+ +'<div class="giua" style="top:21.4vw"><div class="tt">TRAO TẶNG</div><div class="so" style="margin-top:1.6vw">'+soCham+' VND</div><div class="chu" style="margin-top:.9vw">( '+docSo(SO)+' )</div>'
+ +'<div class="vach" style="margin-top:1.6vw"></div><div class="cho" style="margin-top:1.3vw">'+CHO1+'<br>'+CHO2+'</div></div>'
+ +'<div class="giua" style="bottom:3.4vw"><div class="chan">Gala Ngày trở về · 14.11.2026</div></div>';
+document.fonts.ready.then(()=>{const e=document.querySelector('.so');if(e.scrollWidth>innerWidth*.84)e.style.fontSize=(9.6*innerWidth*.84/e.scrollWidth).toFixed(2)+'vw'});
+</script></body></html>
