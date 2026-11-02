@@ -1,7 +1,7 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8">
 <title>Bảng trao tặng</title>
 <!-- Bảng trao tặng (cầm tay khi trao quà) – tông màu nước của phông Gala. Khổ 60×40 cm (3:2), kích thước theo vw.
-     Tham số: ?so=10000000&cho1=…&cho2=… (số tiền tự đọc thành chữ). render.js → xem trước + PDF 60×40 cm + PNG -->
+     Tham số: ?ten=Người trao (tuỳ chọn)&so=10000000&cho1=…&cho2=… (số tiền tự đọc thành chữ). render.js → xem trước + PDF 60×40 cm + PNG -->
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:wght@600;700;800&family=Playfair+Display:wght@800&family=Be+Vietnam+Pro:wght@700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
@@ -22,10 +22,11 @@ html,body{width:100vw;height:66.667vw;overflow:hidden;background:#FBF3E4;-webkit
 .chu{font:italic 600 2.5vw 'Noto Serif',serif;color:#3A2A22}
 .cho{font:800 3.3vw/1.3 'Noto Serif',serif;color:#16285A;text-transform:uppercase}
 .vach{width:30vw;height:.22vw;margin:0 auto;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+.ten{font:800 3.7vw/1.15 'Noto Serif',serif;color:#9E1B22;letter-spacing:.03em;text-shadow:0 0 .6vw #FFF8EA}
 .chan{font:400 3.6vw 'Great Vibes',cursive;color:#9E1B22}
 </style></head><body><div class="k" id="k"></div>
 <script>
-const q=new URLSearchParams(location.search),SO=+(q.get('so')||10000000),CHO1=q.get('cho1')||'Cho học sinh Trường',CHO2=q.get('cho2')||'Trung học phổ thông Nguyễn Hiền';
+const q=new URLSearchParams(location.search),TEN=q.get('ten')||'',SO=+(q.get('so')||10000000),CHO1=q.get('cho1')||'Cho học sinh Trường',CHO2=q.get('cho2')||'Trung học phổ thông Nguyễn Hiền';
 /* Đọc số thành chữ tiếng Việt: 10000000 → "Mười triệu đồng" */
 function docSo(n){const cs=['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
  function ba(x,day){const t=Math.floor(x/100),c=Math.floor(x%100/10),d=x%10;let r=[];
@@ -40,9 +41,9 @@ function docSo(n){const cs=['không','một','hai','ba','bốn','năm','sáu','b
 const soCham=String(SO).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 document.getElementById('k').innerHTML='<div class="tia"></div><div class="san trai"></div><div class="san phai"></div><div class="khung"></div>'
  +'<div class="giua" style="top:3.6vw"><img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""></div>'
- +'<div class="giua" style="top:12.6vw"><div class="ey">CỰU HỌC SINH TRƯỜNG THPT NGUYỄN HIỀN</div><div class="ey">NIÊN KHOÁ 2000 – 2003</div></div>'
- +'<div class="giua" style="top:21.4vw"><div class="tt">TRAO TẶNG</div><div class="so" style="margin-top:1.6vw">'+soCham+' VND</div><div class="chu" style="margin-top:.9vw">( '+docSo(SO)+' )</div>'
+ +'<div class="giua" style="top:'+(TEN?11.8:12.6)+'vw"><div class="ey">CỰU HỌC SINH TRƯỜNG THPT NGUYỄN HIỀN</div><div class="ey">NIÊN KHOÁ 2000 – 2003</div></div>'
+ +(TEN?'<div class="giua" style="top:20.2vw"><div class="ten">'+TEN+'</div></div>':'')+'<div class="giua" style="top:'+(TEN?25.8:21.4)+'vw"><div class="tt">TRAO TẶNG</div><div class="so" style="margin-top:'+(TEN?1:1.6)+'vw'+(TEN?';font-size:8.6vw':'')+'">'+soCham+' VND</div><div class="chu" style="margin-top:.9vw">( '+docSo(SO)+' )</div>'
  +'<div class="vach" style="margin-top:1.6vw"></div><div class="cho" style="margin-top:1.3vw">'+CHO1+'<br>'+CHO2+'</div></div>'
  +'<div class="giua" style="bottom:3.4vw"><div class="chan">Gala Ngày trở về · 14.11.2026</div></div>';
-document.fonts.ready.then(()=>{const e=document.querySelector('.so');if(e.scrollWidth>innerWidth*.84)e.style.fontSize=(9.6*innerWidth*.84/e.scrollWidth).toFixed(2)+'vw'});
+document.fonts.ready.then(()=>{const e=document.querySelector('.so');if(e.scrollWidth>innerWidth*.84)e.style.fontSize=((TEN?8.6:9.6)*innerWidth*.84/e.scrollWidth).toFixed(2)+'vw'});
 </script></body></html>
