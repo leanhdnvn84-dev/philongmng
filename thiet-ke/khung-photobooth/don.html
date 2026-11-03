@@ -1,0 +1,33 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Khung photo booth 1 ảnh</title>
+<!-- Khung photo booth 1 ảnh, ngang 6x4 inch = 1800x1200 px (300 dpi), tông Gala "Ngày trở về", bản gọn.
+     Ô ảnh trong suốt x120 y44 1560x963 (tỉ lệ 1,62). don.html?xem=1 → đặt ảnh mẫu (mau-anh.jpg). render-don.js → khung-1-anh.png + xem-truoc-1-anh.jpg -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+html,body{width:1800px;height:1200px;overflow:hidden;background:transparent}
+.k{position:relative;width:1800px;height:1200px;overflow:hidden;font-family:'Noto Serif',serif}
+.ab{position:absolute}
+.xem{position:absolute;left:120px;top:44px;width:1560px;height:963px;background:url(mau-anh.jpg) center/cover}
+.nen{position:absolute;inset:0;background:radial-gradient(80% 70% at 50% 40%,#FFFDF7 0%,#FBF0DC 70%,#F5E4C8 100%)}
+.vien{position:absolute;left:112px;top:36px;width:1576px;height:979px;border:8px solid #fff;border-radius:12px;outline:2px solid #C9A24A;outline-offset:6px;box-shadow:0 8px 24px rgba(120,60,30,.2)}
+.canh{position:absolute;width:420px;height:280px;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+.chan{position:absolute;left:120px;right:120px;top:1030px;height:150px;display:flex;align-items:center;justify-content:space-between}
+.logo{width:118px;height:118px;border-radius:50%;background:#fff;padding:9px;box-shadow:0 4px 12px rgba(120,60,30,.22)}
+.td{position:absolute;left:0;right:0;top:1022px;text-align:center;font:400 128px/1.1 'Great Vibes',cursive;color:#B3261E}
+.tt{text-align:right;color:#5B2A12;font-weight:700;font-size:30px;letter-spacing:.06em;line-height:1.45}
+.tt b{color:#9E1B22;font-size:34px}
+.tl{color:#9E1B22;font-weight:700;font-size:28px;letter-spacing:.08em;line-height:1.4;margin-left:24px}
+.tl span{display:block;color:#5B2A12;font-size:24px;font-weight:600;letter-spacing:.04em}
+</style></head><body><div class="k">
+<div class="nen" style="clip-path:path(evenodd,'M0 0H1800V1200H0Z M132 44H1668A12 12 0 0 1 1680 56V995A12 12 0 0 1 1668 1007H132A12 12 0 0 1 120 995V56A12 12 0 0 1 132 44Z')"></div>
+<script>if(new URLSearchParams(location.search).get('xem'))document.write('<div class="xem"></div>')</script>
+<div class="vien"></div>
+<div class="canh" style="left:-70px;top:-60px;transform:rotate(8deg)"></div>
+<div class="canh" style="right:-90px;bottom:175px;width:340px;height:226px;transform:scale(-1,-1) rotate(8deg)"></div>
+<div class="td">Ngày trở về</div>
+<div class="chan">
+ <div style="display:flex;align-items:center"><img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png"><div class="tl">THPT NGUYỄN HIỀN<span>Niên khoá 2000 – 2003</span></div></div>
+ <div class="tt">GALA GẶP MẶT<br><b>14 . 11 . 2026</b></div>
+</div>
+</div></body></html>
