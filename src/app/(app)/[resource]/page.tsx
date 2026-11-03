@@ -1,24 +1,31 @@
 import { notFound, redirect } from 'next/navigation'
 import ResourceManager from '@/components/ResourceManager'
 import { getAuth, can } from '@/lib/auth'
-import { getResource } from '@/lib/resources'
+import { getResource, NAV, PROPOSAL_KINDS } from '@/lib/resources'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ResourcePage({ params }: { params: { resource: string } }) {
+export default async function ResourcePage({ params, searchParams }: {
+  params: { resource: string }; searchParams: Record<string, string | string[] | undefined>
+}) {
   const res = getResource(params.resource)
-  if (!res || res.nav === false) notFound()
+  if (!res || res.key === 'de_xuat_chi_tiet') notFound()
   const auth = await getAuth()
   if (!auth) redirect('/login')
-  if (!can(auth, res.module, 'view')) {
-    return <p className="text-red-600">Bạn không có quyền xem mục này.</p>
+  if (!can(auth, res.module, 'view')) return <p className="text-red-600">Bạn không có quyền xem mục này.</p>
+
+  // fixed filters from the menu link (e.g. ?loai_de_xuat=MUA_VAT_TU); only declared fields pass
+  const filters: Record<string, string> = {}
+  for (const f of res.fields) {
+    const v = searchParams[f.name]
+    if (typeof v === 'string' && v) filters[f.name] = v
   }
+  const qs = new URLSearchParams(filters).toString()
+  const navLabel = NAV.flatMap((g) => g.items).find((i) => decodeURIComponent(i.href) === `/${res.key}${qs ? '?' + decodeURIComponent(qs) : ''}`)?.label
+  const title = navLabel ?? (filters.loai_de_xuat ? `Đề xuất ${PROPOSAL_KINDS[filters.loai_de_xuat]?.toLowerCase() ?? ''}` : res.title)
+
   return (
-    <ResourceManager
-      resourceKey={res.key}
-      canCreate={can(auth, res.module, 'create')}
-      canEdit={can(auth, res.module, 'edit')}
-      canDelete={can(auth, res.module, 'delete')}
-    />
+    <ResourceManager key={res.key + qs} resourceKey={res.key} title={title} filters={filters}
+      perms={{ create: can(auth, res.module, 'create'), edit: can(auth, res.module, 'edit'), delete: can(auth, res.module, 'delete'), approve: can(auth, res.module, 'approve') }} />
   )
 }

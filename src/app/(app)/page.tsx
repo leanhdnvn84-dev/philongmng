@@ -2,72 +2,95 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { formatMoney } from '@/lib/resources'
+import { formatDate, formatMoney } from '@/lib/resources'
 
-interface Stats {
-  buildings: number; rooms: number; occupied: number; available: number; tenants: number
-  openJobs: number; urgentJobs: number; damaged: number; activeContracts: number
-  occupancyRate: number; monthlyRevenue: number; receivable: number; overdue: number
-  expiring: { id: string; endDate: string; fee: number; tenant: string; room: string }[]
+function Tile({ label, value, href, tone = '' }: { label: string; value: React.ReactNode; href?: string; tone?: string }) {
+  const body = (
+    <div className={`bg-white rounded-lg border p-4 h-full ${href ? 'hover:border-blue-400' : ''}`}>
+      <div className="text-xs text-gray-500">{label}</div>
+      <div className={`text-2xl font-bold mt-1 ${tone}`}>{value}</div>
+    </div>
+  )
+  return href ? <Link href={href}>{body}</Link> : body
 }
+const red = (n: number) => (n ? 'text-red-600' : '')
+const amber = (n: number) => (n ? 'text-amber-600' : '')
 
-function Stat({ label, value, tone = 'text-gray-900' }: { label: string; value: string | number; tone?: string }) {
+function List({ title, href, rows, render }: { title: string; href: string; rows: any[]; render: (r: any) => React.ReactNode }) {
   return (
-    <div className="card">
-      <div className="text-sm text-gray-500">{label}</div>
-      <div className={`text-3xl font-bold mt-1 ${tone}`}>{value}</div>
+    <div className="bg-white rounded-lg border p-4">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="font-semibold">{title}</h2>
+        <Link href={href} className="text-sm text-blue-600 hover:underline">Xem tất cả →</Link>
+      </div>
+      {rows.length === 0 ? <p className="text-sm text-gray-500">Không có mục nào.</p> : (
+        <ul className="divide-y text-sm">{rows.map((r) => <li key={r.id} className="py-2 flex justify-between gap-3">{render(r)}</li>)}</ul>
+      )}
     </div>
   )
 }
 
 export default function Dashboard() {
-  const [s, setS] = useState<Stats | null>(null)
+  const [d, setD] = useState<any>(null)
   const [err, setErr] = useState('')
-
   useEffect(() => {
-    fetch('/api/dashboard').then((r) => r.json()).then((j) => (j.success ? setS(j.data) : setErr(j.error)))
-      .catch(() => setErr('Không tải được dữ liệu'))
+    fetch('/api/dashboard').then((r) => r.json()).then((j) => (j.success ? setD(j) : setErr(j.error))).catch(() => setErr('Không tải được dữ liệu'))
   }, [])
-
   if (err) return <p className="text-red-600">{err}</p>
-  if (!s) return <p className="text-gray-500">Đang tải…</p>
+  if (!d) return <p className="text-gray-500">Đang tải…</p>
+  const { cv, hn, krv, bt, dx, kho, tb, kt, tang } = d.data
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Tổng quan</h1>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat label="Tòa nhà" value={s.buildings} />
-        <Stat label="Tổng số phòng" value={s.rooms} />
-        <Stat label="Tỷ lệ lấp đầy" value={`${s.occupancyRate}%`} tone="text-blue-700" />
-        <Stat label="Phòng trống" value={s.available} tone="text-green-700" />
-        <Stat label="Khách thuê đang hoạt động" value={s.tenants} />
-        <Stat label="Hợp đồng hiệu lực" value={s.activeContracts} />
-        <Stat label="Doanh thu thuê / tháng" value={formatMoney(s.monthlyRevenue)} tone="text-blue-700" />
-        <Stat label="Công nợ phải thu" value={formatMoney(s.receivable)} tone={s.receivable ? 'text-red-600' : 'text-gray-900'} />
-        <Stat label="Hóa đơn quá hạn" value={s.overdue} tone={s.overdue ? 'text-red-600' : 'text-gray-900'} />
-        <Stat label="Thiết bị hỏng" value={s.damaged} tone={s.damaged ? 'text-red-600' : 'text-gray-900'} />
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-bold">Tổng quan</h1>
+        <p className="text-sm text-gray-500">Hôm nay {formatDate(d.today)}</p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="card lg:col-span-2">
-          <h2 className="font-semibold mb-3">Hợp đồng sắp hết hạn (30 ngày)</h2>
-          {s.expiring.length === 0 ? <p className="text-gray-500 text-sm">Không có hợp đồng nào sắp hết hạn.</p> : (
-            <div className="table-responsive">
-              <table className="table text-sm">
-                <thead><tr><th>Khách thuê</th><th>Phòng</th><th>Hết hạn</th><th>Phí / tháng</th></tr></thead>
-                <tbody>{s.expiring.map((c) => (
-                  <tr key={c.id}><td>{c.tenant}</td><td>{c.room}</td><td>{c.endDate}</td><td>{formatMoney(c.fee)}</td></tr>
-                ))}</tbody>
-              </table>
-            </div>
-          )}
-        </div>
-        <div className="card">
-          <h2 className="font-semibold mb-3">Bảo trì</h2>
-          <p className="text-3xl font-bold">{s.openJobs}</p>
-          <p className="text-sm text-gray-500 mb-2">công việc chưa hoàn thành</p>
-          <p className={s.urgentJobs ? 'text-red-600 font-medium' : 'text-gray-500'}>{s.urgentJobs} ưu tiên cao</p>
-          <Link href="/maintenance" className="text-blue-600 underline text-sm mt-3 inline-block">Xem công việc →</Link>
-        </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3">
+        {cv && <>
+          <Tile label="Công việc quá hạn" value={cv.overdue} tone={red(cv.overdue)} href="/cong_viec" />
+          <Tile label="Đến hạn hôm nay" value={cv.dueToday} tone={amber(cv.dueToday)} href="/cong_viec" />
+          <Tile label="Công việc đang mở" value={cv.open} href="/cong_viec" />
+        </>}
+        {hn && <Tile label="Việc hằng ngày hôm nay" value={`${hn.done}/${hn.total}`} href="/cong_viec_hang_ngay" />}
+        {krv && <Tile label="Khách đang trong tòa nhà" value={krv.inside} href="/khach_ra_vao?trang_thai=Đang trong tòa nhà" />}
+        {bt && <>
+          <Tile label="Bảo trì trễ lịch" value={bt.late} tone={red(bt.late)} href="/lich_bao_tri" />
+          <Tile label="Bảo trì sắp đến hạn" value={bt.soon + bt.dueToday} tone={amber(bt.soon + bt.dueToday)} href="/lich_bao_tri" />
+          <Tile label="Lịch chờ ngày gốc" value={bt.waiting} href="/lich_bao_tri" />
+        </>}
+        {dx && <Tile label="Đề xuất chờ duyệt" value={dx.pending} tone={amber(dx.pending)} href="/de_xuat?loai_de_xuat=MUA_VAT_TU" />}
+        {dx && <Tile label="Giá trị chờ duyệt" value={formatMoney(dx.amount)} />}
+        {kho && <Tile label="Vật tư dưới tồn tối thiểu" value={kho.low.length} tone={red(kho.low.length)} href="/vat_tu" />}
+        {kt && <Tile label="Khách đang thuê" value={kt.renting} href="/khach_thue" />}
+        {tang && <Tile label="Tầng / khu trống" value={`${tang.empty}/${tang.total}`} href="/tang" />}
+        {tb && <Tile label="Thiết bị" value={tb.total} href="/thiet_bi" />}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {cv && <List title="Công việc cần chú ý" href="/cong_viec" rows={cv.list} render={(r) => <>
+          <span className="truncate"><span className="font-mono text-xs text-gray-500">{r.id}</span> {r.noi_dung}</span>
+          <span className={`whitespace-nowrap ${r.canh_bao === 'QUÁ HẠN' ? 'text-red-600' : 'text-amber-600'}`}>{r.canh_bao}{r.deadline ? ` · ${formatDate(r.deadline)}` : ''}</span>
+        </>} />}
+        {bt && <List title="Bảo trì đến hạn" href="/lich_bao_tri" rows={bt.list} render={(r) => <>
+          <span className="truncate">{r.tang ? `${r.tang} · ` : ''}{r.ten_khu_vuc} — {r.ten_hang_muc}</span>
+          <span className={`whitespace-nowrap ${r.canh_bao === 'TRỄ LỊCH' ? 'text-red-600' : 'text-amber-600'}`}>{formatDate(r.ngay_ke_tiep)} ({r.so_ngay_con_lai} ngày)</span>
+        </>} />}
+        {kt && <List title="Hợp đồng thuê sắp hết hạn (60 ngày)" href="/khach_thue" rows={kt.expiring} render={(r) => <>
+          <span className="truncate">{r.ten_khach_thue}</span>
+          <span className={`whitespace-nowrap ${r.so_ngay_con_lai < 0 ? 'text-red-600' : 'text-amber-600'}`}>{formatDate(r.ngay_ket_thuc)}</span>
+        </>} />}
+        {kho && kho.low.length > 0 && <List title="Vật tư cần bổ sung" href="/vat_tu" rows={kho.low.slice(0, 8)} render={(r) => <>
+          <span className="truncate">{r.ten_vat_tu}</span>
+          <span className="whitespace-nowrap text-red-600">tồn {r.ton_hien_tai}{r.dvt ? ` ${r.dvt}` : ''} / tối thiểu {r.ton_toi_thieu}</span>
+        </>} />}
+        {tb && <div className="bg-white rounded-lg border p-4">
+          <h2 className="font-semibold mb-2">Thiết bị theo trạng thái</h2>
+          <ul className="text-sm divide-y">{Object.entries(tb.by as Record<string, number>).map(([k, v]) => (
+            <li key={k} className="py-1.5 flex justify-between"><Link className="hover:underline" href={`/thiet_bi?trang_thai=${encodeURIComponent(k)}`}>{k}</Link><span>{v}</span></li>
+          ))}</ul>
+        </div>}
       </div>
     </div>
   )
