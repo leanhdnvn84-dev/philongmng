@@ -1,0 +1,30 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Khung photo booth ảnh đôi</title>
+<!-- Khung photo booth ảnh đôi, dọc 4x6 inch = 1200x1800 px (300 dpi), cùng kiểu gọn với don.html.
+     2 ô ảnh trong suốt 1078x664 (x61; y64 và y760). doi.html?xem=1 → đặt ảnh mẫu. render-doi.js → khung-anh-doi.png + xem-truoc-anh-doi.jpg -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+html,body{width:1200px;height:1800px;overflow:hidden;background:transparent}
+.k{position:relative;width:1200px;height:1800px;overflow:hidden;font-family:'Noto Serif',serif}
+.xem{position:absolute;left:61px;width:1078px;height:664px;background:center/cover}
+.nen{position:absolute;inset:0;background:radial-gradient(80% 70% at 50% 40%,#FFFDF7 0%,#FBF0DC 70%,#F5E4C8 100%)}
+.vien{position:absolute;left:53px;width:1094px;height:680px;border:8px solid #fff;border-radius:12px;outline:2px solid #C9A24A;outline-offset:6px;box-shadow:0 8px 24px rgba(120,60,30,.2)}
+.canh{position:absolute;width:380px;height:253px;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+.td{position:absolute;left:0;right:0;top:1468px;text-align:center;font:400 132px/1.1 'Great Vibes',cursive;color:#B3261E}
+.vach{position:absolute;left:390px;right:390px;top:1630px;height:3px;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+.d1{position:absolute;left:0;right:0;top:1650px;text-align:center;color:#5B2A12;font-weight:700;font-size:29px;letter-spacing:.06em}
+.d2{position:absolute;left:0;right:0;top:1702px;text-align:center;color:#9E1B22;font-weight:700;font-size:31px;letter-spacing:.1em}
+.d2 b{color:#C9A24A;font-weight:400;margin:0 14px}
+.logo{position:absolute;left:70px;top:1488px;width:120px;height:120px;border-radius:50%;background:#fff;padding:9px;box-shadow:0 4px 12px rgba(120,60,30,.22)}
+</style></head><body><div class="k">
+<div class="nen" style="clip-path:path(evenodd,'M0 0H1200V1800H0Z M73 64H1127A12 12 0 0 1 1139 76V716A12 12 0 0 1 1127 728H73A12 12 0 0 1 61 716V76A12 12 0 0 1 73 64Z M73 760H1127A12 12 0 0 1 1139 772V1412A12 12 0 0 1 1127 1424H73A12 12 0 0 1 61 1412V772A12 12 0 0 1 73 760Z')"></div>
+<script>if(new URLSearchParams(location.search).get('xem'))document.write('<div class="xem" style="top:64px;background-image:url(mau-anh.jpg)"></div><div class="xem" style="top:760px;background-image:url(mau-anh-2.jpg)"></div>')</script>
+<div class="vien" style="top:56px"></div><div class="vien" style="top:752px"></div>
+<div class="canh" style="left:-70px;top:-58px;transform:rotate(8deg)"></div>
+<div class="canh" style="right:-80px;top:1300px;width:330px;height:220px;transform:scale(-1,-1) rotate(8deg)"></div>
+<img class="logo" src="../backdrop-gala-mau-nuoc/logo-1600.png">
+<div class="td">Ngày trở về</div><div class="vach"></div>
+<div class="d1">TRƯỜNG THPT NGUYỄN HIỀN · NIÊN KHOÁ 2000 – 2003</div>
+<div class="d2">GALA GẶP MẶT<b>✦</b>14 . 11 . 2026</div>
+</div></body></html>
