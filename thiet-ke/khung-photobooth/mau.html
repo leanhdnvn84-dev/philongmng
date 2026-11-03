@@ -62,7 +62,8 @@ const T=[
  {nen:KN,vien:'8px solid #fff',ngoai:'2px solid #C9A24A',r:12,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#B3261E',ch:'#5B2A12',nh:'#9E1B22',vach:'#C9A24A',tr:[],ten:'phuong-polaroid',cg:['tl'],vien:'18px solid #fff',ngoai:'',r:2},
  {nen:KN,vien:'8px solid #fff',ngoai:'2px solid #C9A24A',r:12,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#B3261E',ch:'#5B2A12',nh:'#9E1B22',vach:'#C9A24A',tr:[],ten:'phuong-bo-tron',cg:['tr'],r:30,ngoai:'3px solid #C9A24A'},
  {nen:KN,vien:'8px solid #fff',ngoai:'2px solid #C9A24A',r:12,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#B3261E',ch:'#5B2A12',nh:'#9E1B22',vach:'#C9A24A',tr:[],ten:'phuong-nen-nga',cg:['br'],nen:'radial-gradient(80% 70% at 50% 40%,#FFFFFB 0%,#FDF8EE 70%,#F7EEDD 100%)'},
- {nen:KN,vien:'8px solid #fff',ngoai:'2px solid #C9A24A',r:12,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#B3261E',ch:'#5B2A12',nh:'#9E1B22',vach:'#C9A24A',tr:[],ten:'phuong-kem-dam',cg:['tl'],nen:'radial-gradient(80% 70% at 50% 40%,#FDF3E1 0%,#F6E3C4 70%,#EBCFA4 100%)',ngoai:'2px solid #B8913E'}
+ {nen:KN,vien:'8px solid #fff',ngoai:'2px solid #C9A24A',r:12,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#B3261E',ch:'#5B2A12',nh:'#9E1B22',vach:'#C9A24A',tr:[],ten:'phuong-kem-dam',cg:['tl'],nen:'radial-gradient(80% 70% at 50% 40%,#FDF3E1 0%,#F6E3C4 70%,#EBCFA4 100%)',ngoai:'2px solid #B8913E'},
+ {nen:KN,vien:'8px solid #fff',ngoai:'2px solid #C9A24A',r:12,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#B3261E',ch:'#5B2A12',nh:'#9E1B22',vach:'#C9A24A',tr:[],ten:'ngay-tro-ve-day-du',dd:1,nx:['tia','san','roi'],tr:['dd']}
 ];
 const t=T[M-1];
 const A='../backdrop-gala-mau-nuoc/';
@@ -94,6 +95,10 @@ t.tr.forEach(k=>{
  if(g==='tr')tr+='<div class="canh" style="left:'+(f[0]+f[2]-250*s2)+'px;top:'+(f[1]-100*s2)+'px;width:'+w1+'px;height:'+h1+'px;transform:scaleX(-1) rotate(8deg)"></div>';
  if(g==='br')tr+='<div class="canh" style="left:'+(l[0]+l[2]-210*s2)+'px;top:'+(l[1]+l[3]-h2*.75)+'px;width:'+w2+'px;height:'+h2+'px;transform:scale(-1,-1) rotate(8deg)"></div>';
  if(g==='bl')tr+='<div class="canh" style="left:'+(l[0]-120*s2)+'px;top:'+(l[1]+l[3]-h2*.75)+'px;width:'+w2+'px;height:'+h2+'px;transform:scaleY(-1) rotate(-8deg)"></div>'});
+if(t.dd){const z={1:.9,2:1,3:.5,4:1}[B],C=(x,y,w,tf)=>'<div class="canh" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+(w*.666)+'px;transform:'+tf+'"></div>';
+ tr+=C(-80*z,-60*z,(B===1?260:300)*z,'rotate(8deg)')+C(W-(B===1?180:220)*z,-60*z,(B===1?260:300)*z,'scaleX(-1) rotate(8deg)');
+ if(O.length>1)tr+=C(f[0]+f[2]-220*z,f[1]+f[3]-115*z,300*z,'rotate(-158deg) scaleY(-1)');
+ tr+=C(l[0]-96*z,l[1]+l[3]-110*z,300*z,'rotate(-22deg) scaleY(-1)')}
 if(t.tr.indexOf('gocv')>=0){const g=(x,y,sx,sy)=>'<svg style="left:'+x+'px;top:'+y+'px;width:110px;height:110px;transform:scale('+sx+','+sy+')" viewBox="0 0 90 90"><path d="M4 86V4H86" fill="none" stroke="#C9A24A" stroke-width="4"/><path d="M14 86V14H86" fill="none" stroke="#C9A24A" stroke-width="1.5"/><circle cx="14" cy="14" r="5" fill="#B3261E"/></svg>';
  tr+=g(10,10,1,1)+g(W-120,10,-1,1)+g(10,H-120,1,-1)+g(W-120,H-120,-1,-1)}
 let nx='';
@@ -116,7 +121,19 @@ const dong=(top,sz,mau,txt,ex)=>'<div class="ab c" style="left:0;right:0;top:'+t
 const TEN='TRƯỜNG THPT NGUYỄN HIỀN',NGAY='ĐÀ NẴNG · THỨ BẢY · 14.11.2026';
 const td=(top,z)=>'<div class="ab c" style="left:0;right:0;top:'+top+'px;font:'+t.ft+';font-size:'+z+'px;line-height:1.15;color:'+t.tm+';'+bo+'">'+t.td+'</div>';
 const vach=top=>'<div class="ab" style="left:'+(W*.33)+'px;right:'+(W*.33)+'px;top:'+top+'px;height:3px;background:linear-gradient(90deg,transparent,'+t.vach+',transparent)"></div>';
-if(B===1){
+if(t.dd){
+ const sao='<b style="color:#C9A24A;font-weight:400;margin:0 .35em">✦</b>';
+ const dau=(top,lg,z1,z2,mot)=>'<div class="ab" style="left:0;right:0;top:'+top+'px;display:flex;justify-content:center;align-items:center;gap:'+Math.round(lg*.2)+'px">'+logo(lg)+
+  '<div style="text-align:left;'+(mot?'display:flex;align-items:baseline;gap:14px':'')+'"><div style="font:800 '+z1+'px \'Be Vietnam Pro\';color:#9E1B22;letter-spacing:.03em">TRƯỜNG THPT NGUYỄN HIỀN</div>'+
+  '<div style="font:600 '+z2+'px \'Noto Serif\';color:#5B2A12;letter-spacing:.06em;margin-top:'+(mot?0:3)+'px">'+(mot?sao:'')+'ĐÀ NẴNG'+sao+'THỨ BẢY'+sao+'14.11.2026</div></div></div>';
+ const pill=z=>'<span style="display:inline-block;font:700 '+z+'px \'Be Vietnam Pro\';letter-spacing:.12em;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);padding:'+Math.round(z*.25)+'px '+Math.round(z*1.1)+'px;border-radius:40px;box-shadow:0 4px 10px rgba(179,38,30,.3)">NIÊN KHOÁ 2000 – 2003</span>';
+ const gala=z=>'<span style="font:700 '+z+'px \'Noto Serif\';color:#5B2A12;letter-spacing:.08em;text-shadow:0 0 8px #FFF8EA">GALA GẶP MẶT CỰU HỌC SINH</span>';
+ const ttd=(top,z)=>'<div class="ab c" style="left:0;right:0;top:'+top+'px;font:400 '+z+'px/1.05 \'Great Vibes\',cursive;color:#B3261E;text-shadow:0 3px 12px rgba(255,248,234,.9)">Ngày trở về</div>';
+ if(B===1)chan=dau(10,58,28,24,1)+ttd(1014,96)+'<div class="ab c" style="left:0;right:0;top:1128px">'+gala(26)+'<span style="display:inline-block;width:22px"></span>'+pill(20)+'</div>';
+ else if(B===3)chan=dau(10,50,19,14)+ttd(1492,80)+vach(1582)+'<div class="ab c" style="left:0;right:0;top:1598px">'+gala(19)+'</div><div class="ab c" style="left:0;right:0;top:1638px">'+pill(15)+'</div>';
+ else{const y0=B===2?1500:1532,z=B===2?126:116;
+  chan=dau(22,92,36,27)+ttd(y0,z)+vach(y0+z*1.12)+'<div class="ab c" style="left:0;right:0;top:'+(y0+z*1.12+12)+'px">'+gala(34)+'</div><div class="ab c" style="left:0;right:0;top:'+(y0+z*1.12+62)+'px">'+pill(26)+'</div>'}
+}else if(B===1){
  chan='<div class="ab c" style="left:0;right:0;top:14px;font:600 30px \'Noto Serif\';letter-spacing:.05em;color:'+t.ch+';'+bo+'"><b style="color:'+t.nh+'">'+TEN+'</b>  |  '+NGAY+'</div>'+
   '<div class="ab" style="left:90px;top:1056px">'+logo(108)+'</div>'+td(1022,100)+
   dong(1146,24,t.nh,lua('GALA GẶP MẶT CỰU HỌC SINH · NIÊN KHOÁ 2000 – 2003'));
@@ -136,5 +153,5 @@ let h=(XEM?O.map(([x,y,w,hh],i)=>'<div class="xem" style="left:'+x+'px;top:'+y+'
  O.map(([x,y,w,hh])=>{const v=B===3?Math.min(parseInt(t.vien),6):parseInt(t.vien);return '<div class="vien" style="left:'+(x-v)+'px;top:'+(y-v)+'px;width:'+(w+2*v)+'px;height:'+(hh+2*v)+'px;border:'+t.vien.replace(/^\d+px/,v+'px')+';border-radius:'+(t.r?t.r+v:0)+'px;'+(t.ngoai&&B!==3?'outline:'+t.ngoai+';outline-offset:6px;':'')+'box-shadow:0 8px 22px rgba(0,0,0,.18)"></div>'}).join('')+
  tr+chan;
 const k=document.getElementById('k');k.style.cssText='width:'+W+'px;height:'+H+'px';k.innerHTML=h;
-document.title=String(M>25?M-25:M>10?M-10:M).padStart(2,'0')+'-'+t.ten;
+document.title=String(M>35?M-35:M>25?M-25:M>10?M-10:M).padStart(2,'0')+'-'+t.ten;
 </script></body></html>
