@@ -1,0 +1,89 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Khung photo booth – 10 mẫu</title>
+<!-- 10 mẫu khung photo booth gọn × 3 kiểu: mau.html?m=1..10&b=1|2|3&xem=1
+     b=1: 1 ảnh, ngang 1800x1200 (6x4 inch, 300 dpi) · b=2: ảnh đôi, dọc 1200x1800 · b=3: 3 ảnh, dọc 1200x1800.
+     Ô ảnh trong suốt (clip-path evenodd). render-10-mau.js → 10-mau/*.png + 10-mau/xem-truoc/*.jpg + tong-quan-*.jpg -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@700&family=Patrick+Hand&family=Sriracha&family=Noto+Serif:wght@600;700&family=Be+Vietnam+Pro:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+html,body{background:transparent;overflow:hidden}
+.k{position:relative;overflow:hidden;font-family:'Noto Serif',serif}
+.ab{position:absolute}
+.nen{position:absolute;inset:0}
+.xem{position:absolute;background:center/cover}
+.vien{position:absolute}
+.logo{border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.2);flex:none}
+.canh{position:absolute;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+.bang{position:absolute;width:150px;height:42px;background:linear-gradient(90deg,rgba(255,255,255,.25) 0 6%,transparent 6% 94%,rgba(255,255,255,.25) 94%),rgba(250,232,190,.78);box-shadow:0 2px 4px rgba(0,0,0,.12)}
+svg{position:absolute;overflow:visible}
+.c{text-align:center}
+</style></head><body><div class="k" id="k"></div>
+<script>
+const Q=new URLSearchParams(location.search),M=+(Q.get('m')||1),B=+(Q.get('b')||1),XEM=Q.get('xem');
+const DOC=B>1,W=DOC?1200:1800,H=DOC?1800:1200;
+document.documentElement.style.cssText='width:'+W+'px;height:'+H+'px';
+/* ô ảnh theo kiểu */
+const O={1:[[120,44,1560,963]],2:[[61,64,1078,664],[61,760,1078,664]],3:[[205,44,790,488],[205,554,790,488],[205,1064,790,488]]}[B];
+/* 10 mẫu */
+const T=[
+ {ten:'kem-phuong',nen:'radial-gradient(80% 70% at 50% 40%,#FFFDF7 0%,#FBF0DC 70%,#F5E4C8 100%)',vien:'8px solid #fff',ngoai:'2px solid #C9A24A',r:12,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#B3261E',ch:'#5B2A12',nh:'#9E1B22',vach:'#C9A24A',tr:['canh']},
+ {ten:'xanh-la',nen:'linear-gradient(165deg,#E6EC7A 0%,#B9D84C 32%,#8DC63F 62%,#B6D84E 100%)',vien:'8px solid #fff',r:14,td:'Về đi bạn ơi!',ft:"400 .74em 'Sriracha'",tm:'#fff',bong:'0 3px 10px rgba(50,80,10,.45)',ch:'#fff',nh:'#fff',vach:'rgba(255,255,255,.8)',tr:['cuc']},
+ {ten:'vang-nang',nen:'linear-gradient(165deg,#FFEE8A 0%,#FFDB3A 40%,#FFD01A 100%)',vien:'8px solid #fff',r:14,td:'Về đi bạn ơi!',ft:"400 .74em 'Sriracha'",tm:'#fff',bong:'0 3px 10px rgba(160,100,0,.5)',ch:'#6B4300',nh:'#B3261E',vach:'#fff',tr:['cuc']},
+ {ten:'do-phuong',nen:'radial-gradient(90% 70% at 50% 35%,#C8202E 0%,#A31B25 60%,#7E1520 100%)',vien:'8px solid #FFF4DE',ngoai:'2px solid #E8C26A',r:10,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#FFE6A6',ch:'#FFF4DE',nh:'#E8C26A',vach:'#E8C26A',tr:['goc']},
+ {ten:'troi-xanh',nen:'linear-gradient(180deg,#BFE2FF 0%,#DDF0FF 55%,#F4FAFF 100%)',vien:'8px solid #fff',r:14,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#1E5A96',ch:'#1E3A5F',nh:'#C8102E',vach:'#7FB2E0',tr:['may','canh']},
+ {ten:'kraft-ky-yeu',nen:'radial-gradient(90% 80% at 50% 40%,#D8B88E 0%,#C9A57A 60%,#B48C5E 100%)',vien:'16px solid #fff',r:2,td:'Ngày trở về',ft:"700 .7em 'Dancing Script'",tm:'#4A2E14',ch:'#4A2E14',nh:'#8E2A1E',vach:'#6E4A26',tr:['bang']},
+ {ten:'vo-o-ly',nen:'linear-gradient(90deg,transparent 54px,#E86A6A 54px 57px,transparent 57px),repeating-linear-gradient(0deg,#CFE0F3 0 2px,transparent 2px 40px),repeating-linear-gradient(90deg,#E4EEF8 0 1px,transparent 1px 40px),#FFFEF8',vien:'3px solid #2E5D8C',r:0,td:'Về đi bạn ơi!',ft:"400 .8em 'Patrick Hand'",tm:'#1F4E9C',ch:'#1F4E9C',nh:'#C8102E',vach:'#1F4E9C',tr:['bang']},
+ {ten:'bang-den',nen:'radial-gradient(80% 70% at 50% 40%,#36574A 0%,#2A4539 60%,#1F3329 100%)',khung:'inset 0 0 0 26px #8B5A2B,inset 0 0 0 30px #6E4520',vien:'6px solid rgba(255,255,255,.92)',r:4,td:'Về đi bạn ơi!',ft:"400 .8em 'Patrick Hand'",tm:'#fff',bong:'0 0 2px rgba(255,255,255,.6)',ch:'#EEF0E6',nh:'#FFD866',vach:'rgba(255,255,255,.6)',tr:['phan']},
+ {ten:'hong-pastel',nen:'radial-gradient(80% 70% at 50% 35%,#FFF0F4 0%,#FFD9E3 65%,#F9C3D2 100%)',vien:'8px solid #fff',r:16,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#C2185B',ch:'#6A1B3A',nh:'#C2185B',vach:'#E58BAA',tr:['canh']},
+ {ten:'trang-vang-kim',nen:'#FFFFFF',khung:'inset 0 0 0 22px #fff,inset 0 0 0 24px #C9A24A,inset 0 0 0 30px #fff,inset 0 0 0 31px #C9A24A',vien:'3px solid #C9A24A',r:0,td:'Ngày trở về',ft:"400 1em 'Great Vibes'",tm:'#A8812F',ch:'#3A3A3A',nh:'#A8812F',vach:'#C9A24A',tr:[]}
+];
+const t=T[M-1];
+const A='../backdrop-gala-mau-nuoc/';
+/* path ô trong suốt */
+const op=([x,y,w,h])=>{const R=t.r;if(!R)return 'M'+x+' '+y+'H'+(x+w)+'V'+(y+h)+'H'+x+'Z';
+ return 'M'+(x+R)+' '+y+'H'+(x+w-R)+'A'+R+' '+R+' 0 0 1 '+(x+w)+' '+(y+R)+'V'+(y+h-R)+'A'+R+' '+R+' 0 0 1 '+(x+w-R)+' '+(y+h)+'H'+(x+R)+'A'+R+' '+R+' 0 0 1 '+x+' '+(y+h-R)+'V'+(y+R)+'A'+R+' '+R+' 0 0 1 '+(x+R)+' '+y+'Z'};
+const CLIP="path(evenodd,'M0 0H"+W+'V'+H+'H0Z '+O.map(op).join(' ')+"')";
+/* trang trí */
+const cuc=(x,y,s,r)=>{let p='';for(let i=0;i<20;i++)p+='<ellipse cx="0" cy="-27" rx="7.5" ry="24" fill="#fff" stroke="#D9DCD2" stroke-width=".8" transform="rotate('+(i*18+(i%2)*4)+')"/>';
+ return '<svg style="left:'+(x-60*s)+'px;top:'+(y-60*s)+'px;width:'+(120*s)+'px;height:'+(120*s)+'px;transform:rotate('+r+'deg)" viewBox="-60 -60 120 120">'+p+'<circle r="15" fill="#F5B91A"/><circle r="15" fill="none" stroke="#C98410" stroke-width="1" stroke-dasharray="1.5 2.5"/></svg>'};
+const laCuc=(x,y,s,r)=>'<svg style="left:'+x+'px;top:'+y+'px;width:'+(90*s)+'px;height:'+(36*s)+'px;transform:rotate('+r+'deg)" viewBox="0 0 90 36"><path d="M2 18C20 2 66 0 88 18C66 34 20 34 2 18Z" fill="#5E9E2F"/></svg>';
+const f=O[0],l=O[O.length-1],sc=DOC?(B===3?.8:1):1.1;
+let tr='';
+t.tr.forEach(k=>{
+ if(k==='canh')tr+='<div class="canh" style="left:'+(f[0]-130*sc)+'px;top:'+(f[1]-100*sc)+'px;width:'+(380*sc)+'px;height:'+(253*sc)+'px;transform:rotate(8deg)"></div>'+
+   '<div class="canh" style="left:'+(l[0]+l[2]-(B===3?110:210)*sc)+'px;top:'+(l[1]+l[3]-120*sc)+'px;width:'+(330*sc)+'px;height:'+(220*sc)+'px;transform:scale(-1,-1) rotate(8deg)"></div>';
+ if(k==='cuc'){const a=f[0]+f[2],b=f[1]+f[3],c=l[0],d=l[1]+l[3];
+   tr+=laCuc(a-120,b-60,1.3,-35)+laCuc(a-60,b-110,1.1,-80)+cuc(a-30,b-50,1.05*sc,10)+cuc(a-90,b+10,.85*sc,-15)+cuc(a+18,b+18,.7*sc,25)+
+       laCuc(c-50,d-30,1.3,200)+laCuc(c+10,d,1.1,160)+cuc(c,d-60,1.05*sc,-8)+cuc(c+70,d+4,.85*sc,12)+cuc(c-30,d+16,.7*sc,-20)}
+ if(k==='bang')O.forEach(([x,y,w,h],i)=>{tr+='<div class="bang" style="left:'+(x-55)+'px;top:'+(y-4)+'px;transform:rotate(-38deg)"></div><div class="bang" style="left:'+(x+w-95)+'px;top:'+(y-4)+'px;transform:rotate(38deg)"></div>'});
+ if(k==='goc'){const g=(x,y,sx,sy)=>'<svg style="left:'+x+'px;top:'+y+'px;width:90px;height:90px;transform:scale('+sx+','+sy+')" viewBox="0 0 90 90"><path d="M4 86V4H86" fill="none" stroke="#E8C26A" stroke-width="4"/><path d="M16 86V16H86" fill="none" stroke="#E8C26A" stroke-width="1.5"/><circle cx="16" cy="16" r="5" fill="#E8C26A"/></svg>';
+   tr+=g(18,18,1,1)+g(W-108,18,-1,1)+g(18,H-108,1,-1)+g(W-108,H-108,-1,-1)}
+ if(k==='may')[[W*.08,O[0][1]+O[0][3]*.3,260],[W*.78,O[0][1]+40,300],[W*.85,H*.55,240],[W*.02,H*.62,220]].forEach(([x,y,w])=>{tr=('<div class="ab" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+(w*.4)+'px;border-radius:50%;background:radial-gradient(closest-side,#fff,rgba(255,255,255,0));filter:blur(4px)"></div>')+tr});
+ if(k==='phan'){const s=(x,y,z)=>'<div class="ab" style="left:'+x+'px;top:'+y+'px;font:400 '+z+'px \'Patrick Hand\';color:rgba(255,255,255,.75)">✦</div>';
+   tr+=s(60,40,40)+s(W-100,60,30)+s(40,H-200,34)+s(W-90,H-260,44)}
+});
+/* chữ chân */
+const logo=s=>'<img class="logo" src="'+A+'logo-1600.png" style="width:'+s+'px;height:'+s+'px;padding:'+Math.round(s*.075)+'px">';
+const bo=t.bong?'text-shadow:'+t.bong+';':'';
+let chan='';
+if(B===1){
+ chan='<div class="ab" style="left:120px;right:120px;top:1030px;height:150px;display:flex;align-items:center;justify-content:space-between">'+
+  '<div style="display:flex;align-items:center">'+logo(118)+'<div style="margin-left:24px;color:'+t.nh+';font:700 28px \'Noto Serif\';letter-spacing:.08em;line-height:1.4;'+bo+'">THPT NGUYỄN HIỀN<span style="display:block;color:'+t.ch+';font-size:24px;font-weight:600;letter-spacing:.04em">Niên khoá 2000 – 2003</span></div></div>'+
+  '<div style="text-align:right;color:'+t.ch+';font:700 30px \'Noto Serif\';letter-spacing:.06em;line-height:1.45;'+bo+'">GALA GẶP MẶT<br><b style="color:'+t.nh+';font-size:34px">14 . 11 . 2026</b></div></div>'+
+  '<div class="ab c" style="left:0;right:0;top:1030px;font:'+t.ft+';font-size:108px;line-height:1.15;color:'+t.tm+';'+bo+'">'+t.td+'</div>';
+}else{
+ const y0=B===2?1468:1552,z=B===2?132:100,lg=B===2?120:100;
+ chan='<div class="ab" style="left:70px;top:'+(y0+20)+'px">'+logo(lg)+'</div>'+
+  '<div class="ab c" style="left:0;right:0;top:'+y0+'px;font:'+t.ft+';font-size:'+z+'px;line-height:1.15;color:'+t.tm+';'+bo+'">'+t.td+'</div>'+
+  '<div class="ab" style="left:390px;right:390px;top:'+(y0+z*1.24)+'px;height:3px;background:linear-gradient(90deg,transparent,'+t.vach+',transparent)"></div>'+
+  '<div class="ab c" style="left:0;right:0;top:'+(y0+z*1.24+(B===2?16:12))+'px;color:'+t.ch+';font:700 '+(B===2?29:26)+'px \'Noto Serif\';letter-spacing:.06em;'+bo+'">TRƯỜNG THPT NGUYỄN HIỀN · NIÊN KHOÁ 2000 – 2003</div>'+
+  '<div class="ab c" style="left:0;right:0;top:'+(y0+z*1.24+(B===2?68:54))+'px;color:'+t.nh+';font:700 '+(B===2?31:28)+'px \'Noto Serif\';letter-spacing:.1em;'+bo+'">GALA GẶP MẶT <b style="color:'+t.vach+';font-weight:400;margin:0 12px">✦</b> 14 . 11 . 2026</div>';
+}
+const XA=['mau-anh.jpg','mau-anh-2.jpg','mau-anh.jpg'];
+let h=(XEM?O.map(([x,y,w,hh],i)=>'<div class="xem" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+hh+'px;background-image:url('+XA[i]+')"></div>').join(''):'')+
+ '<div class="nen" style="clip-path:'+CLIP+';background:'+t.nen+(t.khung?';box-shadow:'+t.khung:'')+'"></div>'+
+ O.map(([x,y,w,hh])=>{const v=parseInt(t.vien);return '<div class="vien" style="left:'+(x-v)+'px;top:'+(y-v)+'px;width:'+(w+2*v)+'px;height:'+(hh+2*v)+'px;border:'+t.vien+';border-radius:'+(t.r?t.r+v:0)+'px;'+(t.ngoai?'outline:'+t.ngoai+';outline-offset:6px;':'')+'box-shadow:0 8px 22px rgba(0,0,0,.18)"></div>'}).join('')+
+ tr+chan;
+const k=document.getElementById('k');k.style.cssText='width:'+W+'px;height:'+H+'px';k.innerHTML=h;
+document.title=String(M).padStart(2,'0')+'-'+t.ten;
+</script></body></html>
