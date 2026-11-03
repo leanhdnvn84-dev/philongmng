@@ -60,16 +60,16 @@ const trong = () => new Paragraph({ spacing: { after: 60 }, children: [] });
 const MUC = [];
 function muc(so, ten, gio, cue, body, moi) { MUC.push({ so, ten, gio, cue, body, moi }); }
 
-muc('00', 'ĐÓN KHÁCH – CHECK-IN – CHỤP ẢNH TỪNG LỚP', '16:00 – 17:25', [
+muc('00', 'ĐÓN KHÁCH – CHECK-IN – CHỤP ẢNH TỪNG LỚP', '16:00 – 17:00', [
   ['Màn LED', 'Clip backdrop "Ngày trở về" (bản 5 phút, chạy lặp) – xen trình chiếu ảnh cả khoá kèm mã QR viết lưu bút ở 2 bên màn.'],
   ['Âm thanh', 'Nhạc nền nhẹ: Mong ước kỷ niệm xưa, Phượng hồng, Ngày ấy bạn và tôi, Tình thơ.'],
   ['Hậu cần', 'Bàn đón khách theo 12 lớp: điểm danh sĩ số, phát thẻ tên; mỗi lớp chụp 1 ảnh tập thể trước backdrop + 2 câu đối. Xếp chỗ thầy cô ở bàn đầu.'],
-  ['Gợi ý', '16:00 – 16:45 các lớp check-in, chụp ảnh lớp theo lượt (mỗi lớp ≈ 3 phút, gọi theo thứ tự 12/1 → 12/12); 16:45 – 17:25 đón thầy cô, giao lưu tự do, viết lưu bút.'],
+  ['Gợi ý', '16:00 – 16:35 các lớp check-in, chụp ảnh lớp theo lượt (mỗi lớp ≈ 3 phút, gọi theo thứ tự 12/1 → 12/12); 16:35 – 17:00 đón thầy cô, giao lưu tự do, viết lưu bút.'],
 ], [
   Moi('Không có lời MC – đội đón khách hướng dẫn. Nhắc mọi người quét mã QR trên màn hình để viết lưu bút (bài viết sẽ hiện lên màn hình trong đêm Gala).'),
 ]);
 
-muc('01', 'VOICE OFF – MỜI ỔN ĐỊNH VỊ TRÍ', '17:25 – 17:30', [
+muc('01', 'VOICE OFF – MỜI ỔN ĐỊNH VỊ TRÍ', '17:00 – 17:05', [
   ['Âm thanh', 'Micro hậu trường (voice off), nhạc nền nhỏ dần.'],
   ['Hậu cần', 'Các lớp hoàn tất điểm danh, báo sĩ số cho Ban tổ chức.'],
 ], [
@@ -81,7 +81,7 @@ muc('01', 'VOICE OFF – MỜI ỔN ĐỊNH VỊ TRÍ', '17:25 – 17:30', [
   P('Xin trân trọng cảm ơn!'),
 ]);
 
-muc('02', 'CLIP MỞ ĐẦU & MC KHAI MẠC', '17:30 – 17:40', [
+muc('02', 'CLIP MỞ ĐẦU & MC KHAI MẠC', '17:05 – 17:15', [
   ['Màn LED', 'Tắt đèn khán phòng → chiếu clip mở đầu 15 giây "Ngày trở về" → dừng ở khung hình backdrop. Bật đèn sân khấu, MC bước ra.'],
   ['Âm thanh', 'Âm thanh của clip; sau đó nhạc nền piano nhẹ khi MC đọc thơ.'],
 ], [
@@ -96,7 +96,7 @@ muc('02', 'CLIP MỞ ĐẦU & MC KHAI MẠC', '17:30 – 17:40', [
   P('Đó cũng chính là lý do của chương trình ngày hôm nay.'),
 ]);
 
-muc('03', 'GIỚI THIỆU ĐẠI BIỂU', '17:40 – 17:50', [
+muc('03', 'GIỚI THIỆU ĐẠI BIỂU', '17:15 – 17:25', [
   ['Màn LED', 'Slide "Kính chào Quý thầy cô"; nếu có ảnh, hiện ảnh từng thầy cô khi MC đọc tên.'],
   ['Hậu cần', 'Mời từng thầy cô đứng dậy chào khi được giới thiệu; vỗ tay theo nhóm, không vỗ từng tên cho đỡ ngắt quãng.'],
 ], [
@@ -131,7 +131,7 @@ muc('03', 'GIỚI THIỆU ĐẠI BIỂU', '17:40 – 17:50', [
   P('Xin quý vị dành một tràng pháo tay thật nồng nhiệt để chào đón và bày tỏ lòng biết ơn đến quý thầy cô!'),
 ]);
 
-muc('04', 'ĐẠI DIỆN HỘI KHOÁ PHÁT BIỂU', '17:50 – 17:57', [
+muc('04', 'ĐẠI DIỆN HỘI KHOÁ PHÁT BIỂU', '17:25 – 17:32', [
   ['Màn LED', 'Backdrop tĩnh "Ngày trở về".'],
   ['Hậu cần', 'Micro có dây/bục phát biểu; bài phát biểu khoảng 5 phút.'],
 ], [
@@ -145,7 +145,7 @@ muc('04', 'ĐẠI DIỆN HỘI KHOÁ PHÁT BIỂU', '17:50 – 17:57', [
   P('Hy vọng rằng, sau cuộc gặp gỡ hôm nay, sợi dây gắn kết của tập thể niên khoá 2000 – 2003 sẽ ngày càng bền chặt; để dù cuộc sống có bận rộn đến đâu, chúng ta vẫn luôn dành cho nhau một chỗ trong trái tim và luôn nhớ rằng mình đã từng có chung một mái trường.'),
 ]);
 
-muc('05', 'NGHI THỨC TRI ÂN THẦY CÔ', '17:57 – 18:12', [
+muc('05', 'NGHI THỨC TRI ÂN THẦY CÔ', '17:32 – 17:47', [
   ['Màn LED', 'Trình chiếu "Chiếu hình thầy cô" (thiệp thầy cô + câu tri ân) suốt lúc tặng hoa.'],
   ['Âm thanh', 'Nhạc không lời: Người thầy, Bụi phấn.'],
   ['Hậu cần', '12 bó hoa + quà theo lớp xếp sẵn sau cánh gà; mỗi lớp cử 1–2 bạn đón thầy cô lớp mình lên sân khấu. Thợ ảnh chờ sẵn.'],
@@ -168,7 +168,7 @@ muc('05', 'NGHI THỨC TRI ÂN THẦY CÔ', '17:57 – 18:12', [
   P('Xin cả khán phòng dành một tràng pháo tay thật dài, thật nồng nhiệt gửi đến quý thầy cô kính yêu!'),
 ]);
 
-muc('06', 'ĐẠI DIỆN THẦY CÔ PHÁT BIỂU', '18:12 – 18:20', [
+muc('06', 'ĐẠI DIỆN THẦY CÔ PHÁT BIỂU', '17:47 – 17:55', [
   ['Màn LED', 'Backdrop tĩnh.'],
   ['Hậu cần', 'Báo trước cho thầy/cô phát biểu; mời ngồi hàng đầu để lên nhanh.'],
 ], [
@@ -185,7 +185,7 @@ muc('06', 'ĐẠI DIỆN THẦY CÔ PHÁT BIỂU', '18:12 – 18:20', [
   ...Tho(['Bụi phấn xưa có thể nhoà theo gió,', 'Nhưng nghĩa thầy trò còn mãi với thời gian.', 'Hai mươi ba năm – xin gửi một lời tri ân,', 'Về mái trường xưa, về thầy cô yêu dấu!']),
 ]);
 
-muc('07', 'TRAO TẶNG QUỸ KHUYẾN HỌC NHÀ TRƯỜNG', '18:20 – 18:28', [
+muc('07', 'TRAO TẶNG QUỸ KHUYẾN HỌC NHÀ TRƯỜNG', '17:55 – 18:03', [
   ['Màn LED', 'Slide "Hướng về mái trường xưa – Quỹ khuyến học Trường THPT Nguyễn Hiền".'],
   ['Âm thanh', 'Nhạc nền hùng tráng nhẹ khi trao bảng.'],
   ['Hậu cần', '2 bảng trao tặng (in sẵn): Khoá 2000 – 2003 [[!10.000.000 VNĐ – xác nhận số tiền!]]; anh Trần Quốc Thuyên – lớp 12/4: 3.000.000 VNĐ. Phong bì kèm theo, 2 bó hoa tặng lại người trao.'],
@@ -201,7 +201,7 @@ muc('07', 'TRAO TẶNG QUỸ KHUYẾN HỌC NHÀ TRƯỜNG', '18:20 – 18:28', 
   P('Những tấm lòng nhỏ hôm nay mong sẽ trở thành những học bổng, những phần thưởng tiếp thêm động lực cho các em học sinh Nguyễn Hiền. Xin một tràng pháo tay thật lớn cảm ơn những tấm lòng hướng về mái trường!'),
 ], true);
 
-muc('08', 'NÂNG LY KHAI TIỆC', '18:28 – 18:35', [
+muc('08', 'NÂNG LY KHAI TIỆC', '18:03 – 18:10', [
   ['Màn LED', 'Backdrop "Ngày trở về".'],
   ['Âm thanh', 'Nhạc sôi động khi hô "Một, hai, ba"; sau đó nhạc nền nhẹ.'],
   ['Hậu cần', 'Nhà hàng rót sẵn đồ uống trước khi MC mời; đại diện 12 lớp lên sân khấu.'],
@@ -225,34 +225,34 @@ muc('08', 'NÂNG LY KHAI TIỆC', '18:28 – 18:35', [
   P('Xin trân trọng cảm ơn và kính mời quý vị cùng nhập tiệc!'),
 ]);
 
-muc('09', 'DÙNG TIỆC', '18:35 – 18:45', [
+muc('09', 'DÙNG TIỆC', '18:10 – 18:20', [
   ['Màn LED', 'Trình chiếu "Tất cả" (ảnh cả khoá xen lưu bút, thầy cô) – mã QR viết lưu bút luôn ở 2 bên màn.'],
   ['Âm thanh', 'Nhạc nền nhẹ; phục vụ món.'],
 ], [
-  Sub('MC nhắc ngắn (khoảng 18:40):'),
+  Sub('MC nhắc ngắn (khoảng 18:15):'),
   P('Trong lúc thưởng thức bữa tiệc, xin mời các bạn nhìn lên màn hình: những tấm ảnh của 12 lớp đang lần lượt hiện lên. Bạn nào chưa viết lưu bút, hãy quét mã QR hai bên màn hình – lời nhắn của bạn sẽ được chiếu ngay trong đêm nay.'),
 ]);
 
-muc('10', 'GIAO LƯU VĂN NGHỆ – LỚP 12/1 ĐẾN 12/6', '18:45 – 19:10', [
+muc('10', 'GIAO LƯU VĂN NGHỆ – LỚP 12/1 ĐẾN 12/6', '18:20 – 18:45', [
   ['Hậu cần', 'Thứ tự tiết mục sắp xếp linh hoạt; mỗi lớp 1 tiết mục ≈ 4 phút. Các lớp nộp tên bài + nhạc nền (USB) cho kỹ thuật trước 16:30.'],
 ], [
   Moi('MC giới thiệu từng tiết mục: tên lớp – tên bài – người trình bày; sau mỗi tiết mục mời một tràng pháo tay.'),
 ]);
 
-muc('11', 'GAME SHOW 1 – “AI THÔNG MINH HƠN HỌC SINH NGUYỄN HIỀN”', '19:10 – 19:25', [
+muc('11', 'GAME SHOW 1 – “AI THÔNG MINH HƠN HỌC SINH NGUYỄN HIỀN”', '18:45 – 19:00', [
   ['Màn LED', 'Slide câu hỏi (nếu có).'],
   ['Hậu cần', 'Những câu hỏi “hại não” hài hước, vui nhộn; 05 phần quà.'],
 ], []);
 
-muc('12', 'GIAO LƯU VĂN NGHỆ – LỚP 12/7 ĐẾN 12/12', '19:25 – 19:50', [
+muc('12', 'GIAO LƯU VĂN NGHỆ – LỚP 12/7 ĐẾN 12/12', '19:00 – 19:25', [
   ['Hậu cần', 'Sắp xếp linh hoạt, mỗi lớp 1 tiết mục ≈ 4 phút.'],
 ], []);
 
-muc('13', 'GAME SHOW 2 – BONG BÓNG KHỔNG LỒ', '19:50 – 20:05', [
+muc('13', 'GAME SHOW 2 – BONG BÓNG KHỔNG LỒ', '19:25 – 19:40', [
   ['Hậu cần', '6 bộ bong bóng khổng lồ (2 lớp ghép 1 đội); 06 phần quà; chuẩn bị khu vực chơi an toàn, dọn bàn ghế gần sân khấu.'],
 ], []);
 
-muc('14', 'CHÚC MỪNG SINH NHẬT CÁC BẠN SINH THÁNG 11', '20:05 – 20:15', [
+muc('14', 'CHÚC MỪNG SINH NHẬT CÁC BẠN SINH THÁNG 11', '19:40 – 19:50', [
   ['Âm thanh', 'Nhạc “Happy Birthday” / Khúc hát mừng sinh nhật.'],
   ['Hậu cần', 'Bánh kem, nến; tắt đèn khán phòng, mời mọi người bật đèn flash điện thoại.'],
 ], [
@@ -261,7 +261,7 @@ muc('14', 'CHÚC MỪNG SINH NHẬT CÁC BẠN SINH THÁNG 11', '20:05 – 20:15
   Moi('Tắt đèn – bật flash – cả khán phòng cùng hát mừng sinh nhật – thổi nến – chụp ảnh.'),
 ]);
 
-muc('15', 'KHOẢNH KHẮC LẮNG ĐỌNG – NHỚ VỀ MÁI TRƯỜNG XƯA', '20:15 – 20:25', [
+muc('15', 'KHOẢNH KHẮC LẮNG ĐỌNG – NHỚ VỀ MÁI TRƯỜNG XƯA', '19:50 – 20:00', [
   ['Màn LED', 'Trình chiếu ảnh cũ của lớp, thầy cô, mái trường. Phần “Một phút hoài niệm”: slide nền tối, ngọn nến.'],
   ['Âm thanh', 'Mong ước kỷ niệm xưa hoặc piano nhẹ; tắt hẳn nhạc trong một phút hoài niệm.'],
   ['Hậu cần', 'Giảm đèn khán phòng.'],
@@ -283,7 +283,7 @@ muc('15', 'KHOẢNH KHẮC LẮNG ĐỌNG – NHỚ VỀ MÁI TRƯỜNG XƯA', '
   P('Xin kính chúc quý thầy cô luôn mạnh khoẻ. Xin chúc tất cả những người bạn của niên khoá 2000 – 2003 luôn bình an, hạnh phúc và dù ở bất cứ nơi đâu, vẫn luôn nhớ về nhau bằng những tình cảm đẹp nhất.'),
 ]);
 
-muc('16', 'VINH DANH TÌNH BẠN – CHỤP ẢNH LƯU NIỆM', '20:25 – 20:40', [
+muc('16', 'VINH DANH TÌNH BẠN – CHỤP ẢNH LƯU NIỆM', '20:00 – 20:15', [
   ['Âm thanh', 'Nối vòng tay lớn (cả khán phòng nắm tay) → mời lên hết sân khấu hát “Nụ cười 18 – 20”.'],
   ['Hậu cần', 'Thợ ảnh + flycam/máy quay đứng sẵn; xếp thầy cô hàng ghế đầu.'],
 ], [
@@ -294,7 +294,7 @@ muc('16', 'VINH DANH TÌNH BẠN – CHỤP ẢNH LƯU NIỆM', '20:25 – 20:40
   P('Và xin đừng quên, sau bức ảnh này, chúng ta vẫn còn rất nhiều dịp để gặp nhau. Hãy cùng giữ cho tình cảm của niên khoá 2000 – 2003 luôn bền chặt!'),
 ]);
 
-muc('17', 'BẾ MẠC – LỜI CHIA TAY', '20:40 – 20:45', [
+muc('17', 'BẾ MẠC – LỜI CHIA TAY', '20:15 – 20:20', [
   ['Màn LED', 'Slide “Hẹn gặp lại” → sau đó trình chiếu ảnh cả khoá tới khi khách về.'],
   ['Âm thanh', 'Nhạc nền chia tay: Mong ước kỷ niệm xưa.'],
 ], [
@@ -320,7 +320,7 @@ const dau = [
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new TextRun({ text: 'KỊCH BẢN MC – GALA DINNER', font: FONT, size: 36, bold: true, color: DO })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new TextRun({ text: '“TÔN SƯ TRỌNG ĐẠO – GẮN KẾT BẠN BÈ – HƯỚNG VỀ MÁI TRƯỜNG XƯA”', font: FONT, size: 26, bold: true, color: '5B2A12' })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new TextRun({ text: 'NGÀY TRỞ VỀ · Trường THPT Nguyễn Hiền – Niên khoá 2000 – 2003', font: FONT, size: 24, italics: true, color: XAM })] }),
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: VANG, space: 6 } }, children: runs('Thứ Bảy, 14/11/2026 · Đón khách 16:00 – Khai mạc 17:30 · Nhà hàng Quảng Đại 2, 190 Đường 30-4, Phường Hòa Cường, TP. Đà Nẵng', { size: 22 }) }),
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: VANG, space: 6 } }, children: runs('Thứ Bảy, 14/11/2026 · Đón khách 16:00 – 17:00 · Khai mạc 17:05 · Nhà hàng Quảng Đại 2, 190 Đường 30-4, Phường Hòa Cường, TP. Đà Nẵng', { size: 22 }) }),
 ];
 
 /* Bảng tổng quan */
@@ -329,7 +329,7 @@ function bangTongQuan() {
   const o = (t, w, b, fill, color) => new TableCell({ width: { size: w, type: WidthType.DXA }, borders: bien, shading: { type: ShadingType.CLEAR, color: 'auto', fill }, margins: { top: 40, bottom: 40, left: 90, right: 90 }, children: [new Paragraph({ children: [new TextRun({ text: t, font: FONT, size: 21, bold: b, color })] })] });
   const rows = [new TableRow({ tableHeader: true, children: [o('Mục', cw[0], true, '9E1B22', 'FFFFFF'), o('Thời gian', cw[1], true, '9E1B22', 'FFFFFF'), o('Nội dung', cw[2], true, '9E1B22', 'FFFFFF')] })];
   MUC.forEach((m, i) => rows.push(new TableRow({ children: [o(m.so, cw[0], true, i % 2 ? 'FFFCF6' : 'F6EBD6', DO), o(m.gio, cw[1], false, i % 2 ? 'FFFCF6' : 'F6EBD6'), o(m.ten + (m.moi ? '  (mới)' : ''), cw[2], false, i % 2 ? 'FFFCF6' : 'F6EBD6')] })));
-  rows.push(new TableRow({ children: [o('', cw[0], false, 'FFFCF6'), o('20:45 – 21:30', cw[1], false, 'FFFCF6'), o('Giao lưu tự do, chụp ảnh theo lớp, tiễn thầy cô ra về', cw[2], false, 'FFFCF6')] }));
+  rows.push(new TableRow({ children: [o('', cw[0], false, 'FFFCF6'), o('20:20 – 21:00', cw[1], false, 'FFFCF6'), o('Giao lưu tự do, chụp ảnh theo lớp, tiễn thầy cô ra về', cw[2], false, 'FFFCF6')] }));
   return new Table({ width: { size: W, type: WidthType.DXA }, columnWidths: cw, rows });
 }
 
@@ -352,7 +352,7 @@ body.push(...Ds([
   'Mục 07: số tiền khoá trao Quỹ khuyến học (đang ghi 10.000.000 đ); Cô Hiệu trưởng có đáp từ hay không.',
   'Mục 03: họ đầy đủ của “Cô Ái Trang” (GVCN 12/10).',
   'Mục 15: danh sách thầy cô, bạn bè đã mất (nếu muốn đọc tên).',
-  'Giờ: đón khách từ 16:00; khai mạc 17:30 (thư ngỏ ghi 17h30). Giấy mời đang ghi 17:00 – nếu in lại nên thống nhất.',
+  'Giờ: đón khách 16:00 – 17:00, khai mạc 17:05 (khớp giấy mời 17:00). Thư ngỏ đang ghi 17h30 – nên sửa lại cho thống nhất.',
 ]));
 body.push(Sub('Những chỗ đã sửa so với bản gốc:'));
 body.push(...Ds([
