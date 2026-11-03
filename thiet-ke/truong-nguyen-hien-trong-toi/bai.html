@@ -30,23 +30,23 @@ body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .dau p{text-align:center;text-indent:0}
 .dau img{width:20mm;height:20mm;border-radius:50%;background:#fff;padding:1mm;box-shadow:0 .6mm 2.5mm rgba(120,60,30,.2)}
 .dau .truong{font:600 3.1mm 'Noto Serif';letter-spacing:.9mm;color:#7A2A20;margin:2.6mm 0 0}
-.dau h1{font:700 9.4mm 'Playfair Display',serif;letter-spacing:1.1mm;color:#8E1F17;margin:3mm 0 0;line-height:1}
-.dau .tt{font:400 17mm 'Great Vibes',cursive;color:#B3261E;margin:-1mm 0 0;line-height:1.15}
+.dau h1{font:400 19mm 'Great Vibes',cursive;color:#A3221A;margin:2mm 0 0;line-height:1.05;text-shadow:0 .4mm 1.5mm rgba(179,38,30,.15)}
+.dau .tt{font:400 14mm 'Great Vibes',cursive;color:#B3261E;margin:-3mm 0 0 34mm;line-height:1.1}
 .hoa{display:flex;align-items:center;justify-content:center;gap:3mm;color:#C9A24A;font-size:4mm;margin:1mm 0}
 .hoa:before,.hoa:after{content:'';width:28mm;height:.25mm;background:linear-gradient(90deg,transparent,#C9A24A)}
 .hoa:after{background:linear-gradient(-90deg,transparent,#C9A24A)}
-.tacgia{font:600 4.2mm 'Noto Serif';color:#5B2A12;margin:1mm 0 0}
-.tacgia span{display:block;font:italic 400 3.4mm 'Noto Serif';color:#7A5A2A;margin-top:.6mm}
+.tacgia{font:700 6mm 'Charm',cursive;color:#24306E;margin:1mm 0 0}
+.tacgia span{display:block;font:400 4.4mm 'Charm',cursive;color:#7A5A2A;margin-top:0}
 .kn{display:inline-block;font:600 2.8mm 'Noto Serif';letter-spacing:.6mm;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);border-radius:6mm;padding:1mm 4.5mm;margin:3mm 0 5mm}
 /* nội dung */
-h2{display:flex;align-items:center;gap:3mm;margin:5mm 0 2.5mm;font:700 5.4mm/1.25 'Playfair Display',serif;color:#8E1F17;break-after:avoid}
+h2{display:flex;align-items:center;gap:3mm;margin:5mm 0 2.5mm;font:700 6.6mm/1.25 'Charm',cursive;color:#A3221A;break-after:avoid}
 h2 i{flex:none;width:8.5mm;height:8.5mm;border-radius:50%;border:.35mm solid #C9A24A;color:#B08A35;font:600 4.2mm/7.8mm 'Playfair Display',serif;font-style:normal;text-align:center;background:#fff}
 h2:after{content:'';flex:1;height:.25mm;background:linear-gradient(90deg,#C9A24A,transparent)}
 h3{margin:4mm 0 2mm;font:700 5.4mm 'Charm',cursive;color:#7A2A20}
 h3:before{content:'✿ ';color:#C8102E;opacity:.6;font-style:normal}
 p{margin:0 0 2.3mm;font:400 4.6mm/1.58 'Charm',cursive;color:#24306E;text-align:justify;text-indent:7mm;hyphens:none}
 p.dc{text-indent:0}
-p.dc:first-letter{float:left;font:700 13mm/.95 'Playfair Display',serif;color:#B3261E;margin:1mm 2.2mm 0 0}
+p.dc:first-letter{float:left;font:700 15mm/.9 'Charm',cursive;color:#B3261E;margin:1mm 2.2mm 0 0}
 .nb{color:#8E1F17;font-weight:700}
 ul{list-style:none;margin:0 0 2.5mm;padding:0 0 0 7mm}
 li{position:relative;font:400 4.6mm/1.55 'Charm',cursive;color:#24306E;text-align:justify;margin-bottom:1.4mm}
@@ -57,8 +57,8 @@ li:before{content:'❀';position:absolute;left:-5.5mm;top:.2mm;color:#C8102E;opa
 .loi{margin:3mm 10mm 3.5mm;padding:3mm 5mm;text-align:center;font:700 5.1mm/1.5 'Charm',cursive;color:#8E1F17;border-top:.3mm solid #C9A24A;border-bottom:.3mm solid #C9A24A;text-indent:0}
 .tho{font:400 6mm/1.5 'Charm',cursive;text-align:center;color:#8E1F17;margin:2mm 0 3mm;text-indent:0}
 .ket{margin:6mm auto 0;width:128mm;text-align:center;padding:5mm 8mm;border-top:.3mm solid #C9A24A;border-bottom:.3mm solid #C9A24A;font:700 6mm/1.6 'Charm',cursive;color:#8E1F17}
-.ky{text-align:right;margin:7mm 6mm 0;font:400 8mm 'Charm',cursive;color:#5B4336;line-height:1.2}
-.ky b{display:block;font:600 2.9mm 'Noto Serif';letter-spacing:.6mm;color:#7A5A2A;text-transform:uppercase;margin-top:1mm}
+.ky{text-align:right;margin:7mm 6mm 0;font:700 8mm 'Charm',cursive;color:#24306E;line-height:1.2}
+.ky b{display:block;font:400 4.4mm 'Charm',cursive;color:#7A5A2A;margin-top:0}
 .so{position:absolute;bottom:11.5mm;left:0;right:0;text-align:center;font:600 2.7mm 'Noto Serif';letter-spacing:.6mm;color:#9B7B3E;z-index:5}
 .so span{background:#FAF4E9;padding:0 2.5mm}
 #mau{display:none}
@@ -68,7 +68,7 @@ li:before{content:'❀';position:absolute;left:-5.5mm;top:.2mm;color:#C8102E;opa
 const A='../tho-mot-thoi-de-nho/';
 /* Nội dung – nguyên văn bài của Thầy Phạm Úc, chỉ sửa lỗi gõ. Mỗi phần tử là 1 khối HTML (không tách giữa trang). */
 const ND=[
-'<div class="dau"><img src="'+A+'logo.png" alt=""><p class="truong">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</p><h1>TRƯỜNG NGUYỄN HIỀN</h1><p class="tt">trong tôi</p><div class="hoa">✿</div><p class="tacgia">Phạm Úc<span>Nguyên Hiệu trưởng</span></p><span class="kn">KỶ NIỆM 30 NĂM THÀNH LẬP TRƯỜNG · 1996 – 2026</span></div>',
+'<div class="dau"><img src="'+A+'logo.png" alt=""><p class="truong">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</p><h1>Trường Nguyễn Hiền</h1><p class="tt">trong tôi</p><div class="hoa">✿</div><p class="tacgia">Phạm Úc<span>Nguyên Hiệu trưởng</span></p><span class="kn">KỶ NIỆM 30 NĂM THÀNH LẬP TRƯỜNG · 1996 – 2026</span></div>',
 '<h2><i>1</i>Buổi đầu – gieo trường trên đất khó</h2>',
 '<p class="dc">Hôm đó là ngày 15/10/1996, tôi được điều về nhận việc ở trường mới, trường Trung học phổ thông Bán công Hoà Cường, khi ấy còn gởi dạy nhờ tại trường THCS Tây Sơn, thời điểm trường đã đi vào giảng dạy được một tháng rưỡi, Ban giám hiệu bấy giờ có hai Phó hiệu trưởng là cô Trần Thị Hường và thầy Đàm Văn Hoè và chừng 10 giáo viên trong biên chế.</p>',
 '<p>Năm học đầu tiên đáng nhớ nầy rồi cũng kết thúc và sau đó về được trường mới, ở khu Bình An Hoà Cường, nơi đây còn im ắng trong mấy rặng tre xanh, đường đất ngoằn ngoèo phân chia những thửa ruộng trời mưa phải đi bằng ghe và đọng lại trong kí ức những trận lụt trắng đồng cùng lời cảnh báo của bà con: làm cái trường thấp như thế này trời mưa làm sao các cháu học được! Lời “tiên tri” ấy không lâu sau đã thấy ứng nghiệm. Trời mưa, nước cống trào lên, nước ở đường Phan Đăng Lưu tràn vào ngập phòng học hơn cả thước. Năm nào cũng thế cái chu kỳ cứ trời mưa nước dâng, thầy trò phải dọn lụt, phải nghỉ học, phải học bù. Điều lạ là trường ở trung tâm thành phố Đà Nẵng mà y như ở vùng hạ lưu sông Thu Bồn! Trường Nguyễn Hiền được xây theo phương thức: “Chìa khoá trao tay”. Nhà trường không thể có ý kiến. Cũng như sau nầy Nhà nước xây thêm 6 phòng, các em học đâu được vài ba năm rồi cũng phải đóng cửa, vì trụ bong, trần tróc không đảm bảo an toàn cho học sinh.</p>',
