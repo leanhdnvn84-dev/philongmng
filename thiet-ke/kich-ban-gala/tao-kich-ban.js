@@ -60,10 +60,11 @@ const trong = () => new Paragraph({ spacing: { after: 60 }, children: [] });
 const MUC = [];
 function muc(so, ten, gio, cue, body, moi) { MUC.push({ so, ten, gio, cue, body, moi }); }
 
-muc('00', 'ĐÓN KHÁCH – CHECK-IN – CHỤP ẢNH TỪNG LỚP', '17:00 – 17:25', [
+muc('00', 'ĐÓN KHÁCH – CHECK-IN – CHỤP ẢNH TỪNG LỚP', '16:00 – 17:25', [
   ['Màn LED', 'Clip backdrop "Ngày trở về" (bản 5 phút, chạy lặp) – xen trình chiếu ảnh cả khoá kèm mã QR viết lưu bút ở 2 bên màn.'],
   ['Âm thanh', 'Nhạc nền nhẹ: Mong ước kỷ niệm xưa, Phượng hồng, Ngày ấy bạn và tôi, Tình thơ.'],
   ['Hậu cần', 'Bàn đón khách theo 12 lớp: điểm danh sĩ số, phát thẻ tên; mỗi lớp chụp 1 ảnh tập thể trước backdrop + 2 câu đối. Xếp chỗ thầy cô ở bàn đầu.'],
+  ['Gợi ý', '16:00 – 16:45 các lớp check-in, chụp ảnh lớp theo lượt (mỗi lớp ≈ 3 phút, gọi theo thứ tự 12/1 → 12/12); 16:45 – 17:25 đón thầy cô, giao lưu tự do, viết lưu bút.'],
 ], [
   Moi('Không có lời MC – đội đón khách hướng dẫn. Nhắc mọi người quét mã QR trên màn hình để viết lưu bút (bài viết sẽ hiện lên màn hình trong đêm Gala).'),
 ]);
@@ -233,7 +234,7 @@ muc('09', 'DÙNG TIỆC', '18:35 – 18:45', [
 ]);
 
 muc('10', 'GIAO LƯU VĂN NGHỆ – LỚP 12/1 ĐẾN 12/6', '18:45 – 19:10', [
-  ['Hậu cần', 'Thứ tự tiết mục sắp xếp linh hoạt; mỗi lớp 1 tiết mục ≈ 4 phút. Các lớp nộp tên bài + nhạc nền (USB) cho kỹ thuật trước 17:00.'],
+  ['Hậu cần', 'Thứ tự tiết mục sắp xếp linh hoạt; mỗi lớp 1 tiết mục ≈ 4 phút. Các lớp nộp tên bài + nhạc nền (USB) cho kỹ thuật trước 16:30.'],
 ], [
   Moi('MC giới thiệu từng tiết mục: tên lớp – tên bài – người trình bày; sau mỗi tiết mục mời một tràng pháo tay.'),
 ]);
@@ -319,7 +320,7 @@ const dau = [
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new TextRun({ text: 'KỊCH BẢN MC – GALA DINNER', font: FONT, size: 36, bold: true, color: DO })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new TextRun({ text: '“TÔN SƯ TRỌNG ĐẠO – GẮN KẾT BẠN BÈ – HƯỚNG VỀ MÁI TRƯỜNG XƯA”', font: FONT, size: 26, bold: true, color: '5B2A12' })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: [new TextRun({ text: 'NGÀY TRỞ VỀ · Trường THPT Nguyễn Hiền – Niên khoá 2000 – 2003', font: FONT, size: 24, italics: true, color: XAM })] }),
-  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: VANG, space: 6 } }, children: runs('Thứ Bảy, 14/11/2026 · Đón khách 17:00 – Khai mạc 17:30 · Nhà hàng Quảng Đại 2, 190 Đường 30-4, Phường Hòa Cường, TP. Đà Nẵng', { size: 22 }) }),
+  new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: VANG, space: 6 } }, children: runs('Thứ Bảy, 14/11/2026 · Đón khách 16:00 – Khai mạc 17:30 · Nhà hàng Quảng Đại 2, 190 Đường 30-4, Phường Hòa Cường, TP. Đà Nẵng', { size: 22 }) }),
 ];
 
 /* Bảng tổng quan */
@@ -351,7 +352,7 @@ body.push(...Ds([
   'Mục 07: số tiền khoá trao Quỹ khuyến học (đang ghi 10.000.000 đ); Cô Hiệu trưởng có đáp từ hay không.',
   'Mục 03: họ đầy đủ của “Cô Ái Trang” (GVCN 12/10).',
   'Mục 15: danh sách thầy cô, bạn bè đã mất (nếu muốn đọc tên).',
-  'Giờ: giấy mời ghi 17:00, thư ngỏ ghi 17h30 → kịch bản thống nhất 17:00 đón khách, 17:30 khai mạc.',
+  'Giờ: đón khách từ 16:00; khai mạc 17:30 (thư ngỏ ghi 17h30). Giấy mời đang ghi 17:00 – nếu in lại nên thống nhất.',
 ]));
 body.push(Sub('Những chỗ đã sửa so với bản gốc:'));
 body.push(...Ds([
