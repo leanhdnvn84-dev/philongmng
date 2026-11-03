@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>Trường Nguyễn Hiền trong tôi</title>
+<!-- Bài viết của Thầy Phạm Úc (nguyên Hiệu trưởng), dàn trang A4 cùng phong cách thiet-ke/tho-mot-thoi-de-nho.
+     Nội dung trong mảng ND bên dưới; trang tự chia (paginate) khi mở. render.js → PDF A4 + xem-truoc-N.jpg -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400;1,500&family=Playfair+Display:wght@600;700&family=Charm:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;background:#9b8f80}
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.trang{position:relative;width:210mm;height:297mm;margin:0 auto 8mm;overflow:hidden;background:#FAF4E9;
+ background-image:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.7),transparent 70%),radial-gradient(circle at 20% 80%,rgba(214,190,150,.12),transparent 40%);
+ color:#3A2A22;font-family:'Noto Serif',serif;page-break-after:always;break-after:page}
+@media print{html,body{background:none}.trang{margin:0}}
+.khung{position:absolute;inset:9mm;border:.5mm solid #C9A24A;pointer-events:none;z-index:3}
+.khung:before{content:'';position:absolute;inset:1.6mm;border:.25mm solid rgba(201,162,74,.75)}
+.goc{position:absolute;width:9mm;height:9mm;z-index:4;color:#B08A35;font-size:5mm;line-height:9mm;text-align:center;background:#FAF4E9;border-radius:50%;font-style:normal}
+.goc.tl{top:4.6mm;left:4.6mm}.goc.tr{top:4.6mm;right:4.6mm}.goc.bl{bottom:4.6mm;left:4.6mm}.goc.br{bottom:4.6mm;right:4.6mm}
+.anh{position:absolute;z-index:1;pointer-events:none}
+.phuong-goc{top:0;left:0;width:56mm;-webkit-mask-image:radial-gradient(ellipse at 0 0,#000 52%,transparent 72%);mask-image:radial-gradient(ellipse at 0 0,#000 52%,transparent 72%)}
+.phuong-phai{top:4mm;right:-6mm;width:70mm;transform:scaleX(-1) rotate(-6deg);opacity:.95}
+.phuong-nho{top:2mm;right:-4mm;width:44mm;transform:scaleX(-1) rotate(-6deg);opacity:.9}
+.phuong-duoi{right:0;bottom:0;width:58mm;-webkit-mask-image:radial-gradient(ellipse at 100% 100%,#000 50%,transparent 72%);mask-image:radial-gradient(ellipse at 100% 100%,#000 50%,transparent 72%)}
+.san{left:0;right:0;bottom:0;width:100%;height:80mm;object-fit:cover;object-position:0 70%;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 50%);mask-image:linear-gradient(to bottom,transparent,#000 50%);opacity:.9}
+.nd{position:absolute;inset:17mm 19mm 19mm;z-index:2;overflow:hidden}
+.trang.dau1 .nd{top:15mm}
+.trang:not(.dau1) .nd{top:24mm}
+/* đầu bài */
+.dau{text-align:center;padding-top:3mm}
+.dau p{text-align:center;text-indent:0}
+.dau img{width:20mm;height:20mm;border-radius:50%;background:#fff;padding:1mm;box-shadow:0 .6mm 2.5mm rgba(120,60,30,.2)}
+.dau .truong{font:600 3.1mm 'Noto Serif';letter-spacing:.9mm;color:#7A2A20;margin:2.6mm 0 0}
+.dau h1{font:700 9.4mm 'Playfair Display',serif;letter-spacing:1.1mm;color:#8E1F17;margin:3mm 0 0;line-height:1}
+.dau .tt{font:400 17mm 'Great Vibes',cursive;color:#B3261E;margin:-1mm 0 0;line-height:1.15}
+.hoa{display:flex;align-items:center;justify-content:center;gap:3mm;color:#C9A24A;font-size:4mm;margin:1mm 0}
+.hoa:before,.hoa:after{content:'';width:28mm;height:.25mm;background:linear-gradient(90deg,transparent,#C9A24A)}
+.hoa:after{background:linear-gradient(-90deg,transparent,#C9A24A)}
+.tacgia{font:600 4.2mm 'Noto Serif';color:#5B2A12;margin:1mm 0 0}
+.tacgia span{display:block;font:italic 400 3.4mm 'Noto Serif';color:#7A5A2A;margin-top:.6mm}
+.kn{display:inline-block;font:600 2.8mm 'Noto Serif';letter-spacing:.6mm;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);border-radius:6mm;padding:1mm 4.5mm;margin:3mm 0 5mm}
+/* nội dung */
+h2{display:flex;align-items:center;gap:3mm;margin:5mm 0 2.5mm;font:700 5.4mm/1.25 'Playfair Display',serif;color:#8E1F17;break-after:avoid}
+h2 i{flex:none;width:8.5mm;height:8.5mm;border-radius:50%;border:.35mm solid #C9A24A;color:#B08A35;font:600 4.2mm/7.8mm 'Playfair Display',serif;font-style:normal;text-align:center;background:#fff}
+h2:after{content:'';flex:1;height:.25mm;background:linear-gradient(90deg,#C9A24A,transparent)}
+h3{margin:4mm 0 2mm;font:italic 600 4.4mm 'Noto Serif';color:#7A2A20}
+h3:before{content:'✿ ';color:#C8102E;opacity:.6;font-style:normal}
+p{margin:0 0 2.3mm;font-size:3.72mm;line-height:1.66;text-align:justify;text-indent:7mm;hyphens:none}
+p.dc{text-indent:0}
+p.dc:first-letter{float:left;font:700 12.5mm/.9 'Playfair Display',serif;color:#B3261E;margin:1mm 2.2mm 0 0}
+.nb{color:#8E1F17;font-weight:600}
+ul{list-style:none;margin:0 0 2.5mm;padding:0 0 0 7mm}
+li{position:relative;font-size:3.72mm;line-height:1.62;text-align:justify;margin-bottom:1.4mm}
+li:before{content:'❀';position:absolute;left:-5.5mm;top:.2mm;color:#C8102E;opacity:.65;font-size:3mm}
+.bon{display:grid;grid-template-columns:1fr 1fr;gap:2mm 4mm;margin:1mm 4mm 3mm;padding:3mm 4mm;border:.3mm dashed rgba(179,38,30,.35);border-radius:3mm;background:rgba(255,255,255,.45)}
+.bon div{font-size:3.5mm;line-height:1.45;color:#5B2A12}
+.bon div:before{content:'✕ ';color:#B3261E;font-weight:700}
+.loi{margin:3mm 10mm 3.5mm;padding:3mm 5mm;text-align:center;font:italic 500 4.1mm/1.6 'Noto Serif';color:#8E1F17;border-top:.3mm solid #C9A24A;border-bottom:.3mm solid #C9A24A;text-indent:0}
+.tho{font:400 6mm/1.5 'Charm',cursive;text-align:center;color:#8E1F17;margin:2mm 0 3mm;text-indent:0}
+.ket{margin:6mm auto 0;width:128mm;text-align:center;padding:5mm 8mm;border-top:.3mm solid #C9A24A;border-bottom:.3mm solid #C9A24A;font:italic 500 5mm/1.7 'Noto Serif';color:#8E1F17}
+.ky{text-align:right;margin:7mm 6mm 0;font:400 8mm 'Charm',cursive;color:#5B4336;line-height:1.2}
+.ky b{display:block;font:600 2.9mm 'Noto Serif';letter-spacing:.6mm;color:#7A5A2A;text-transform:uppercase;margin-top:1mm}
+.so{position:absolute;bottom:11.5mm;left:0;right:0;text-align:center;font:600 2.7mm 'Noto Serif';letter-spacing:.6mm;color:#9B7B3E;z-index:5}
+.so span{background:#FAF4E9;padding:0 2.5mm}
+#mau{display:none}
+</style></head><body>
+<div id="sach"></div>
+<script>
+const A='../tho-mot-thoi-de-nho/';
+/* Nội dung – nguyên văn bài của Thầy Phạm Úc, chỉ sửa lỗi gõ. Mỗi phần tử là 1 khối HTML (không tách giữa trang). */
+const ND=[
+'<div class="dau"><img src="'+A+'logo.png" alt=""><p class="truong">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</p><h1>TRƯỜNG NGUYỄN HIỀN</h1><p class="tt">trong tôi</p><div class="hoa">✿</div><p class="tacgia">Phạm Úc<span>Nguyên Hiệu trưởng</span></p><span class="kn">KỶ NIỆM 30 NĂM THÀNH LẬP TRƯỜNG · 1996 – 2026</span></div>',
+'<h2><i>1</i>Buổi đầu – gieo trường trên đất khó</h2>',
+'<p class="dc">Hôm đó là ngày 15/10/1996, tôi được điều về nhận việc ở trường mới, trường Trung học phổ thông Bán công Hoà Cường, khi ấy còn gởi dạy nhờ tại trường THCS Tây Sơn, thời điểm trường đã đi vào giảng dạy được một tháng rưỡi, Ban giám hiệu bấy giờ có hai Phó hiệu trưởng là cô Trần Thị Hường và thầy Đàm Văn Hoè và chừng 10 giáo viên trong biên chế.</p>',
+'<p>Năm học đầu tiên đáng nhớ nầy rồi cũng kết thúc và sau đó về được trường mới, ở khu Bình An Hoà Cường, nơi đây còn im ắng trong mấy rặng tre xanh, đường đất ngoằn ngoèo phân chia những thửa ruộng trời mưa phải đi bằng ghe và đọng lại trong kí ức những trận lụt trắng đồng cùng lời cảnh báo của bà con: làm cái trường thấp như thế này trời mưa làm sao các cháu học được! Lời “tiên tri” ấy không lâu sau đã thấy ứng nghiệm. Trời mưa, nước cống trào lên, nước ở đường Phan Đăng Lưu tràn vào ngập phòng học hơn cả thước. Năm nào cũng thế cái chu kỳ cứ trời mưa nước dâng, thầy trò phải dọn lụt, phải nghỉ học, phải học bù. Điều lạ là trường ở trung tâm thành phố Đà Nẵng mà y như ở vùng hạ lưu sông Thu Bồn! Trường Nguyễn Hiền được xây theo phương thức: “Chìa khoá trao tay”. Nhà trường không thể có ý kiến. Cũng như sau nầy Nhà nước xây thêm 6 phòng, các em học đâu được vài ba năm rồi cũng phải đóng cửa, vì trụ bong, trần tróc không đảm bảo an toàn cho học sinh.</p>',
+'<h2><i>2</i>Những tấm lòng</h2>',
+'<p class="dc">Nhưng chính trong thời gian khó ấy, câu chuyện của trường Nguyễn Hiền lại bắt đầu khác đi. Thầy cô, anh chị em nhân viên ai nấy đều chung một tinh thần mà tôi vẫn luôn nhắc:</p>',
+'<p class="loi">“Cố lên một tí và làm việc nhiều lên một tí”</p>',
+'<p>Cứ thế, chúng tôi cùng nhau vun đắp để có trường Nguyễn Hiền như hôm nay.</p>',
+'<p>Việc đầu tiên khi về trường mới phải có một tên trường mới. Chúng tôi thống nhất đề nghị lấy tên trường THPT Nguyễn Hiền. Đó là một vị Tiến sĩ tuổi trẻ tài cao, là một ông quan thanh liêm, đức độ, một tấm gương sáng để học sinh noi theo. Có tên trường rồi, anh Trần Thơm làm logo và nhà trường sử dụng cho đến tận bây giờ. Rồi chúng tôi xây cổng trường mới khang trang hơn. Vì cổng cũ nhà thầu xây như cổng tam quan, trông hao hao như cổng chùa không hợp với trường học.</p>',
+'<p>Và từ đó, những tấm lòng đã đến, đã đồng hành với chúng tôi:</p>',
+'<ul><li>Công ty Nông Lâm Thuỷ sản, Cẩm Lệ Hoà Vang hỗ trợ toàn bộ cây xanh để trường trồng lấy bóng mát, sau còn bồi dưỡng thêm 6 triệu đồng công chăm cây…</li><li>Xí nghiệp Lâm nghiệp, Hoà Cường, nhường lại bình hạ thế, nhờ đó điện ổn định góp phần rất lớn vào sinh hoạt và giảng dạy của nhà trường.</li></ul>',
+'<ul><li>Công ty ICI DULUX Việt Nam có trụ sở ở Bến Cát thành phố Hồ Chí Minh, qua anh Võ Thành Nhân, hỗ trợ sơn lại trường, cả tường rào cổng ngõ. Sau được biết công ty họ chi tiền sơn 250 triệu, tiền công 70 triệu đồng (theo thời giá bây giờ trên 3,5 tỷ đồng) và nhiều suất học bổng quý giá cho học sinh.</li><li>Trường đi vào hoạt động vài ba năm, nhưng chưa có bài ca chính thức để học sinh hát. Tôi viết lời, anh Ngô Văn Bảy, bí thư Đoàn trường, phổ nhạc, các em đàn hát nghe cũng rộn ràng. Nhạc sĩ Trương Duy Huyến biết, anh nói: “Tôi sẽ viết một ca khúc tặng trường anh.” Khi bản nhạc ra đời, tôi đã nghỉ hưu.</li></ul>',
+'<p>Tôi ghi lại những tấm lòng ấy, không chỉ để tri ân, mà còn để nhắn gởi một điều: <span class="nb">Nguyễn Hiền chưa bao giờ đơn độc.</span></p>',
+'<h3>Chuyện khó nhớ</h3>',
+'<p>Khi về làm công tác tại trường Nguyễn Hiền, tôi mới hiểu hết giá trị thật của giáo viên trong biên chế và giáo viên ngoài biên chế. Trường Nguyễn Hiền được phép hợp đồng giáo viên, số nầy thường chiếm tỉ lệ trên dưới 70%. Mấy năm đầu, họ chịu nhiều thiệt thòi, như:</p>',
+'<div class="bon"><div>Không có lương trong ba tháng hè</div><div>Không có bảo hiểm y tế</div><div>Không được tham gia coi thi, chấm thi</div><div>Không được học bồi dưỡng hè</div></div>',
+'<p>Dĩ nhiên không được bố trí làm tổ trưởng trở lên… Sau nhờ có sự can thiệp và đề nghị của Sở GD-ĐT mới dần dỡ bỏ “bốn không” trên.</p>',
+'<p class="loi">Nay đã 80 tuổi nhớ lại chuyện “bốn không” thấy đắng lòng!</p>',
+'<h2><i>3</i>Những nốt lặng làm nên chiều sâu</h2>',
+'<p class="dc">Song hành cùng việc xây dựng cơ sở vật chất, chúng tôi đau đáu một khát vọng khác: nâng cao trình độ đội ngũ để đảm bảo chất lượng giáo dục lâu dài. Đó là những nốt lặng bền bỉ ít người thấy. Đến năm học 2001 – 2002, trường đã có hai nhân viên hoàn thành chương trình Đại học, bốn giáo viên hoàn thành Thạc sĩ, lúc đó học ở Huế, trong số có hai người đậu Tiến sĩ. Về sau nhiều thầy cô tiếp tục được cử đi học Thạc sĩ. Đó là nỗ lực cầu tiến rất đáng trân trọng của Hội đồng sư phạm, tạo nền tảng vững chắc để xây dựng công tác tổ chức và chuẩn bị lực lượng kế cận chu đáo, về sau lan toả và ngày càng phát huy tác dụng. Tiếp đó là sự đầu tư có định hướng cho thư viện, thiết bị, phòng bộ môn, phòng vi tính… tất cả đều đạt chuẩn và hiện diện một cách tích cực trong từng tiết dạy của thầy cô.</p>',
+'<p>Thời gian đã trôi qua mấy mươi năm đủ để tôi vẫn thấy tin tưởng và tự hào về họ.</p>',
+'<h2><i>4</i>Hoa trái ngọt ngào mang tên học trò</h2>',
+'<p class="dc">Trong phong trào thi đua hai tốt cũng như hoạt động của Đoàn thanh niên, văn nghệ thể thao, các em để lại nhiều hình ảnh và tình cảm tốt đẹp: như em Trần Văn Quốc Bản, thủ khoa đại học TDTT; Hà Minh Tuấn, Thạc sĩ Bác sĩ thuộc lực lượng Mũ nồi xanh gìn giữ hoà bình của Liên hiệp quốc ở Nam Sudan. Nhiều em thành đồng nghiệp của chúng tôi như Phan Hữu Thịnh, Nguyễn Thị Thuý Trân… Các em Nguyễn Đức Phúc, Tôn Nữ Ngọc Tuyền, Nam Bình, Minh Hiệu, Minh Thư… và nhiều em thuộc các thế hệ học sinh sau nầy góp phần điểm tô bức tranh trường Nguyễn Hiền ngày càng giàu sắc màu của hi vọng và tương lai.</p>',
+'<p>Thành công của các em là đánh giá đầy đủ nhất sự phát triển toàn diện có ý nghĩa xây dựng truyền thống của trường THPT Nguyễn Hiền. <span class="nb">Nay đã đến lúc cần có Hội cựu học sinh trường THPT Nguyễn Hiền để có nơi các em đi về, liên lạc và kết nối xây dựng truyền thống của trường ngày càng tốt đẹp!</span></p>',
+'<h2><i>5</i>Giữ lại một mái trường</h2>',
+'<p class="dc">Nhưng có lẽ điều tôi nhớ nhất là câu chuyện “chuyển đổi” trường THPT Nguyễn Hiền thành trường tư thục iSchool vào cuối năm 2009 đầu năm 2010. Tình thế đặt chúng tôi vào suy nghĩ: còn hay mất trường Nguyễn Hiền! Và, Hội đồng sư phạm trường Nguyễn Hiền không đồng tình với chủ trương chuyển đổi. Tại thời điểm đó có nhiều tờ báo lên tiếng ủng hộ nhà trường, như tờ Giáo dục và Thời đại (11/12/2009), phóng viên Hà Ánh Ngọc có bài “Phải tính tới quyền lợi của số đông học sinh”, Báo Công an Thành phố Đà Nẵng (12/12/2009), phóng viên Anh Đào với bài “Vì sao phải chuyển đổi trường THPT Nguyễn Hiền thành Trường iSchool Đà Nẵng”; cũng trên Báo Công an Đà Nẵng (29/12/2009) ông Ngô Văn Dũng, Phó Bí thư thường trực Quận ủy Hải Châu có bài “Nên giữ ngôi trường nầy”, Báo Tuổi Trẻ (24/12/2009) có bài “Dân sợ ra biển, sợ chuyển đổi trường” của V. Hùng – Đ. Cường…</p>',
+'<p>Bầu không khí của trường Nguyễn Hiền lúc ấy trở nên nặng nề, ai nấy đều im lặng như chờ đợi điều xấu nhất sẽ đến! Tôi hiểu rằng câu chuyện không đơn giản là đổi chủ, đổi tên một ngôi trường mà là tương lai của hàng ngàn học sinh, là công việc của bao thầy cô và cán bộ nhân viên. Tôi miên man suy nghĩ và trong lòng cũng trở nên nặng trĩu. Đồng nghiệp tôi có người tổ chức liên hoan chia tay và cũng có người khuyên tôi “buông”.</p>',
+'<p class="loi">Tôi đi họp trong tâm trạng như thế!</p>',
+'<p>Tôi nhớ như in cuộc họp chiều ngày 10/11/2009 do Giám đốc Sở GD-ĐT Huỳnh Văn Hoa chủ trì. Nhìn toàn cảnh, Hội nghị diễn ra trong không khí trang nghiêm. Câu chuyện “chuyển đổi” như được nâng lên tầm khác! Không nhẹ nhàng như hạ cái biển trường nầy xuống và trương cái biển trường kia lên. Trong lòng tôi rộn lên bao ý nghĩ lẫn nỗi băn khoăn: Không khéo mấy ngàn học trò của mình không còn chỗ học, đồng nghiệp của mình sẽ đi đâu? và ngày mai không có nơi tìm về!</p>',
+'<p>Trong phần thảo luận đề xuất ý kiến, có đại biểu ủng hộ Tập đoàn Nguyễn Hoàng và cũng có nhiều đại biểu không đồng tình. Như vị nữ đại biểu của Sở Kế hoạch – Đầu tư (KH-ĐT) lại đưa ra chi tiết khá bất lợi cho Tập đoàn Nguyễn Hoàng là Thành phố Đà Nẵng đã có quyết định xây mới một trường THPT Công lập trên địa bàn Quận Hải Châu. Nhưng do chưa có mặt bằng nên đến bây giờ chưa thực hiện được. Nay nếu chuyển trường Nguyễn Hiền thành trường tư thục iSchool thì Quận Hải Châu phải xây mới thêm trường THPT Công lập. Lại đặt ra bài toán về quỹ đất và kinh phí. Hơn nữa hiện nay luật cũng không cho phép chuyển trường Công lập ra trường Tư thục. Vì vậy, chúng tôi không đồng thuận chuyển trường Nguyễn Hiền thành trường tư thục iSchool.</p>',
+'<p>Nhìn quanh hội trường nhận ra ánh mắt của nhiều người gởi gắm nơi tôi, tôi bình tĩnh nói: Hơn 2.300 em học sinh của trường Nguyễn Hiền khi chuyển thành trường tư thục iSchool chắc chắn gặp nhiều bất ổn nên chúng tôi đề nghị các cơ quan có thẩm quyền tạo điều kiện để các em được ở lại trường cũ tiếp tục học tập. Trường THPT Nguyễn Hiền là trường công lập có truyền thống giảng dạy học tập tích cực, hiệu quả. Trường tuy còn nhiều khó khăn nhưng có thành tích thi đua ấn tượng. Nhiều năm là trường tiên tiến; trong đó có mấy năm liền là tiên tiến xuất sắc được Bộ GD-ĐT công nhận. Là trường có cảnh quan Xanh – Sạch – Đẹp thuộc tốp nhất nhì của thành phố Đà Nẵng và đang trong thời kỳ phát triển ổn định. Được ngành, địa phương và phụ huynh học sinh ủng hộ. Vả lại, khi chuyển đổi, hơn 2.300 học sinh của trường học ở đâu? Vì trường THPT nào trong thành phố cũng đã quá tải và đường sá đi lại khó khăn. Nên ông và Tập đoàn Nguyễn Hoàng tốt nhất và hợp lý nhất là đầu tư vào nơi khác. Còn Trường THPT Nguyễn Hiền cần được giữ nguyên để các em được bình yên đến trường.</p>',
+'<p>Sau đó, tại cuộc họp ngày 08/01/2010 ở Ủy ban Nhân dân TP Đà Nẵng, lúc tìm phòng, có người cầm tay tôi và nói: mình ở phía ni thầy. Tôi nhớ mãi sự ân cần của anh Nguyễn Văn Khoa, Phó Chánh văn phòng, người ký giấy mời tôi đi họp. Câu nói chỉ có năm chữ <span class="nb">“mình ở phía ni thầy”</span> gợi trong tôi tinh thần tiếp sức lớn lao trong cuộc họp quyết định nầy. Tôi được bố trí ngồi cạnh ông Giám đốc Sở GD-ĐT. Phía bên kia, Tập đoàn Nguyễn Hoàng có 14 vị và một chuyên gia người nước ngoài. Không có mặt ông Tổng Giám đốc Hoàng Quốc Việt.</p>',
+'<p>Sau khi nghe nhiều ý kiến của Tập đoàn Nguyễn Hoàng và ý kiến của Ngành giáo dục Thành phố, Chủ tịch UBND TP Đà Nẵng ông Trần Văn Minh kết luận:</p>',
+'<p class="loi">“…Việc chuyển đổi trường Nguyễn Hiền thành trường Tư thục iSchool đến đây kết thúc. Ông Hiệu trưởng trường Nguyễn Hiền yên tâm lãnh đạo nhà trường thực hiện nhiệm vụ dạy và học cho tốt…”</p>',
+'<p>Nghe những lời ấy bao căng thẳng lo nghĩ trong tôi như tan biến. Tôi vui mừng đến mức vội nhắn tin thắng lợi về trường mà không nhớ hội nghị phần 2 triển khai hệ thống wifi public cho toàn thành phố, kết thúc ra sao.</p>',
+'<p>Họp xong tôi vội ra về, đi đến đường Bạch Đằng thì anh Nguyễn Văn Khoa chạy theo gọi: <i>“Chủ tịch mời thầy vào văn phòng uống trà.”</i> Tôi quay lại, trong lòng vẫn còn nguyên niềm vui vì cuối cùng trường THPT Nguyễn Hiền được các cấp lãnh đạo giữ lại.</p>',
+'<p>Rời phòng họp hôm ấy, tôi rẽ lên đường Trần Phú về nhà, nhưng tôi lên trường dù lúc ấy quá trưa. Vì tôi biết nhiều người đợi tôi ở đấy. Khi về đến nơi, thầy cô và học sinh tập trung chật cả sân trường, nhiều em đứng tràn ra đường Phan Đăng Lưu, tôi phải để xe bên ngoài mới vào trường được. Cảnh tượng náo nhiệt gần như đi bão khi đội tuyển Việt Nam thắng trận… Các em tung cả mũ nón lên trời và hô vang:</p>',
+'<p class="tho">Còn trường! Còn trường để học rồi các bạn ơi!</p>',
+'<p>Tôi liên tưởng đến một chiến thắng mà chiến thắng đó không thuộc về cá nhân ai. Đó là chiến thắng của lẽ phải, của tinh thần trách nhiệm trước học sinh. Và mỗi lần nhớ lại tôi thấy mình may mắn vì đã góp được một tiếng nói để giữ lại mái trường thân yêu nầy.</p>',
+'<h2><i>6</i>Tương lai và hi vọng</h2>',
+'<p class="dc">Hôm nay đứng trước mốc son 30 năm, tôi vẫn hướng về một tinh thần đã làm nên Nguyễn Hiền từ buổi đầu gian khó: Tinh thần đoàn kết tất cả vì học sinh thân yêu và sự phát triển của trường Nguyễn Hiền.</p>',
+'<div class="ket">Đó là mạch nguồn để Nguyễn Hiền<br>đi tiếp dài hơn, xa hơn.</div>',
+'<div class="ky">Phạm Úc<b>Nguyên Hiệu trưởng trường THPT Nguyễn Hiền</b></div>'
+];
+/* chia trang: đổ từng khối vào trang hiện tại, tràn thì sang trang mới */
+const S=document.getElementById('sach');let so=0;
+function trangMoi(){so++;const t=document.createElement('section');t.className='trang'+(so===1?' dau1':'');
+ t.innerHTML=(so===1?'<img class="anh phuong-goc" src="'+A+'phuong-goc.jpg" alt=""><img class="anh phuong-phai" src="'+A+'canh-phuong.webp" alt="">':'<img class="anh phuong-nho" src="'+A+'canh-phuong.webp" alt="">')+
+ '<div class="khung"></div><i class="goc tl">❀</i><i class="goc tr">❀</i><i class="goc bl">❀</i><i class="goc br">❀</i><div class="nd"></div><div class="so"><span>— '+so+' —</span></div>';
+ S.appendChild(t);return t.querySelector('.nd')}
+function tran(nd){const r=nd.getBoundingClientRect(),e=nd.lastElementChild,b=e.getBoundingClientRect().bottom+parseFloat(getComputedStyle(e).marginBottom||0);return b>r.bottom+.5}
+function chia(){S.innerHTML='';so=0;let nd=trangMoi();
+ ND.forEach((h,i)=>{const w=document.createElement('div');w.innerHTML=h;const el=w.firstElementChild;nd.appendChild(el);
+  if(tran(nd)&&nd.children.length>1){nd.removeChild(el);
+   /* tiêu đề mục không đứng một mình cuối trang */
+   const cuoi=nd.lastElementChild;let keo=null;if(cuoi&&/^H[23]$/.test(cuoi.tagName)){keo=cuoi;nd.removeChild(cuoi)}
+   nd=trangMoi();if(keo)nd.appendChild(keo);nd.appendChild(el)}});
+ /* trang cuối: tranh sân trường + phượng dưới */
+ const t=S.lastElementChild;t.insertAdjacentHTML('afterbegin','<img class="anh san" src="'+A+'san-truong.jpg" alt=""><img class="anh phuong-duoi" src="'+A+'phuong-duoi.jpg" alt="">');
+ document.title='Trường Nguyễn Hiền trong tôi ('+so+' trang)'}
+const PHONG=["400 16px 'Noto Serif'","600 16px 'Noto Serif'","700 16px 'Noto Serif'","italic 400 16px 'Noto Serif'","italic 500 16px 'Noto Serif'","italic 600 16px 'Noto Serif'","600 16px 'Playfair Display'","700 16px 'Playfair Display'","400 16px 'Charm'","400 16px 'Great Vibes'"];
+Promise.all(PHONG.map(f=>document.fonts.load(f,'Trường Nguyễn Hiền ộ'))).catch(()=>{}).then(()=>document.fonts.ready).then(chia);
+</script>
+</body></html>
