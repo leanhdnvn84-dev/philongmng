@@ -93,6 +93,7 @@ const workFields = (dateField: Field): Field[] => [
   { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện', type: 'ref', ref: 'nhan_vien' },
   { name: 'nguoi_lam_cung', label: 'Người làm cùng', type: 'text', inList: false },
   { name: 'id_nha_thau', label: 'Nhà thầu', type: 'ref', ref: 'nha_thau', inList: false },
+  { name: 'don_vi_thuc_hien', label: 'Đơn vị thực hiện', type: 'text', inList: false },
   { name: 'trang_thai', label: 'Trạng thái', type: 'select', options: WORK_STATES, default: 'Chưa thực hiện' },
   { name: 'giai_doan_hien_tai', label: 'Giai đoạn', type: 'text', ro: true },
   { name: 'ngay_hoan_thanh', label: 'Ngày hoàn thành', type: 'date', inList: false },
@@ -108,6 +109,7 @@ export const RESOURCES: Resource[] = [
     fields: [
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(0, 2),
       { name: 'khu_vuc', label: 'Khu vực', type: 'text' },
+      { name: 'cach_thuc_hien', label: 'Cách thực hiện', type: 'textarea', inList: false },
       { name: 'deadline', label: 'Hạn hoàn thành', type: 'date' },
       { name: 'muc_do', label: 'Mức độ', type: 'select', options: ['Bình thường', 'Gấp', 'Rất gấp'] },
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(2),
@@ -163,6 +165,7 @@ export const RESOURCES: Resource[] = [
       { name: 'id_hang_muc', label: 'Hạng mục', type: 'ref', ref: 'hang_muc_bao_tri', required: true },
       { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện/theo dõi', type: 'ref', ref: 'nhan_vien' },
       { name: 'id_nha_thau', label: 'Đơn vị bảo trì', type: 'ref', ref: 'nha_thau' },
+      { name: 'don_vi_thuc_hien', label: 'Đơn vị (ghi tay)', type: 'text', inList: false },
       { name: 'noi_dung_thuc_hien', label: 'Nội dung thực hiện', type: 'textarea' },
       { name: 'ket_qua', label: 'Kết quả', type: 'text' },
       { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: false },

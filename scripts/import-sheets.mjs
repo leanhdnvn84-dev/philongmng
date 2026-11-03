@@ -15,9 +15,9 @@ const db = createClient(url, key, { auth: { persistSession: false } })
 // sheet → table. idCol = the sheet column holding the record ID. rename = sheet header → db column.
 const MAP = [
   { sheet: 'VAI_TRO', table: 'vai_tro' },
-  { sheet: 'PHAN_QUYEN', table: 'phan_quyen' },
+  { sheet: 'PHAN_QUYEN', table: 'phan_quyen', dedupe: ['id_vai_tro', 'module'] },
   { sheet: 'DM_NHAN_VIEN', table: 'nhan_vien', rename: { SDT: 'dien_thoai', DIEN_THOAI_LIEN_HE: 'dien_thoai' } },
-  { sheet: 'DM_NHA_THAU', table: 'nha_thau', rename: { TEN_NHA_THAU: 'ten_cong_ty', SDT: 'dien_thoai', CHUYEN_MON: 'linh_vuc' } },
+  { sheet: 'DM_NHA_THAU', table: 'nha_thau', rename: { DON_VI: 'ten_cong_ty', TEN_NHA_THAU: 'ten_cong_ty', HO_TEN: 'nguoi_lien_he', SDT: 'dien_thoai', CHUYEN_MON: 'linh_vuc' } },
   { sheet: 'DM_NHA_CUNG_CAP', table: 'nha_cung_cap', rename: { TEN_CONG_TY: 'ten_nha_cung_cap', SDT: 'dien_thoai' } },
   { sheet: 'DM_KHU_VUC_TOA_NHA', table: 'khu_vuc', rename: { KHU_VUC: 'ten_khu_vuc', TEN_KHU_VUC: 'ten_khu_vuc' } },
   { sheet: 'DM_HANG_MUC_BAO_TRI', table: 'hang_muc_bao_tri', idCol: 'ID_HANG_MUC', rename: { HANG_MUC: 'ten_hang_muc' } },
@@ -46,7 +46,7 @@ const MAP = [
 // order matters for foreign keys: parents first (same order as MAP)
 const ORDER = [...new Set(MAP.map((m) => m.table))]
 
-const TRUE = new Set(['true', '1', 'x', 'có', 'co', 'yes', 'y', 'v', '✓', 'đúng'])
+const TRUE = new Set(['true', '1', 'x', 'có', 'co', 'yes', 'y', 'v', '✓', 'đúng', 'hoạt động', 'hoat dong', 'hoat_dong'])
 const norm = (s) => String(s ?? '').trim().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '')
 
 function cellValue(v) {
@@ -131,6 +131,21 @@ for (const table of ORDER) {
         if (!rec.id) { skipped++; return }
         rec.id = String(rec.id).trim()
         if (m.kind) { rec.extra.LOAI_DE_XUAT = m.kind; rec.ten ??= null }
+        // V191 value variants → the values the new app uses
+        const ext = (k) => rec.extra[k] ?? ''
+        if (table === 'khach_ra_vao' && rec.trang_thai) {
+          const t = norm(rec.trang_thai)
+          rec.trang_thai = t.includes('HUY') ? 'Hủy' : t.includes('HEN') ? 'Hẹn trước' : (t.includes('DANG') || t.includes('TRONG')) ? 'Đang trong tòa nhà' : t.includes('RA') ? 'Đã ra' : rec.trang_thai
+        }
+        if (table === 'tien_dien' && rec.trang_thai) {
+          const t = norm(rec.trang_thai)
+          rec.trang_thai = t === 'DA_CHOT' ? 'Đã chốt' : t === 'NHAP' ? 'Nháp' : rec.trang_thai
+        }
+        if (table === 'cong_viec_hang_ngay' && !rec.trang_thai && norm(ext('KET_QUA')) === 'DA_XONG') rec.trang_thai = 'Hoàn thành'
+        if ((table === 'cong_viec' || table === 'cong_viec_hang_ngay') && /^NT\d+$/.test(String(rec.id_nguoi_thuc_hien ?? ''))) {
+          rec.id_nha_thau ??= rec.id_nguoi_thuc_hien // V191 sometimes stored a contractor code as the performer
+          rec.id_nguoi_thuc_hien = null
+        }
         if (table === 'nhap_xuat_kho' && rec.loai_giao_dich) rec.loai_giao_dich = norm(rec.loai_giao_dich).startsWith('NHAP') ? 'NHAP' : 'XUAT'
         if (table === 'de_xuat' && rec.loai_de_xuat) rec.loai_de_xuat = norm(rec.loai_de_xuat).replace(/^DE_XUAT_/, '').replace(/^MUA$/, 'MUA_THIET_BI')
         // dangling references (deleted employee, area…) → keep the value in extra instead of failing
@@ -147,7 +162,10 @@ for (const table of ORDER) {
       const required = { nhat_ky_bao_tri: ['id_khu_vuc', 'id_hang_muc', 'ngay_thuc_hien'], lich_bao_tri: ['id_khu_vuc', 'id_hang_muc'],
         de_xuat_chi_tiet: ['id_de_xuat'], nhap_xuat_kho: ['id_vat_tu', 'loai_giao_dich', 'so_luong'], thu_hoi: ['id_thiet_bi'],
         lich_su_chuyen_thiet_bi: ['id_thiet_bi'], phan_quyen: ['id_vai_tro', 'module'], tien_dien: ['ky', 'ma_cong_to'] }[table] ?? []
-      const good = rows.filter((r) => required.every((c) => r[c] != null && r[c] !== ''))
+      let good = rows.filter((r) => required.every((c) => r[c] != null && r[c] !== ''))
+      if (m.dedupe) { // keep the last row for each natural key (later edits win)
+        const byKey = new Map(); for (const r of good) byKey.set(m.dedupe.map((c) => r[c]).join('|'), r); good = [...byKey.values()]
+      }
       const dropped = rows.length - good.length
       let saved = good
       if (!DRY) {

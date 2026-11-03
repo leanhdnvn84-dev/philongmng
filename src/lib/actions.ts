@@ -161,13 +161,24 @@ const taoKy: Handler = async ({ auth, input }) => {
   const { data: last } = await db.from('tien_dien').select('ky').lt('ky', ky).order('ky', { ascending: false }).limit(1)
   if (!last?.length) bad('Chưa có kỳ trước để sao chép công tơ. Hãy thêm công tơ bằng nút Thêm.')
   const { data: prev } = await db.from('tien_dien').select('*').eq('ky', last![0].ky)
-  const rows = (prev ?? []).map((p) => ({
+  // a meter may have several readings in one period: continue from its latest one
+  const latest = new Map<string, any>()
+  for (const p of prev ?? []) {
+    const cur = latest.get(p.ma_cong_to)
+    const later = !cur || String(p.ngay_chot ?? '') > String(cur.ngay_chot ?? '') ||
+      (String(p.ngay_chot ?? '') === String(cur.ngay_chot ?? '') && Number(p.chi_so_moi ?? 0) > Number(cur.chi_so_moi ?? 0))
+    if (later) latest.set(p.ma_cong_to, p)
+  }
+  const { data: existing } = await db.from('tien_dien').select('ma_cong_to').eq('ky', ky)
+  const have = new Set((existing ?? []).map((r) => r.ma_cong_to))
+  const rows = [...latest.values()].filter((p) => !have.has(p.ma_cong_to)).map((p) => ({
     ky, id_khach_thue: p.id_khach_thue, ten_khach_thue: p.ten_khach_thue, id_tang: p.id_tang, tang: p.tang,
     ma_cong_to: p.ma_cong_to, ten_cong_to: p.ten_cong_to, nhom_hoa_don: p.nhom_hoa_don,
     chi_so_cu: p.chi_so_moi, chi_so_moi: null, don_gia: price ?? p.don_gia, vat: p.vat, chu_ky_thang: p.chu_ky_thang,
     trang_thai: 'Nháp', nguon: `Tạo từ kỳ ${p.ky}`, nguoi_cap_nhat: auth.name,
   }))
-  const { data, error } = await db.from('tien_dien').upsert(rows, { onConflict: 'ky,ma_cong_to', ignoreDuplicates: true }).select('id')
+  if (!rows.length) bad(`Kỳ ${ky} đã có đủ công tơ`)
+  const { data, error } = await db.from('tien_dien').insert(rows).select('id')
   if (error) throw error
   await audit(auth, 'tien_dien', null, 'create_period', { ky, from: last![0].ky, created: data?.length ?? 0 })
   return { message: `Đã tạo ${data?.length ?? 0} công tơ cho kỳ ${ky} (sao chép từ ${last![0].ky})` }

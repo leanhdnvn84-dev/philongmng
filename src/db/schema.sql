@@ -261,8 +261,16 @@ CREATE TABLE IF NOT EXISTS public.tien_dien (
   vat NUMERIC, chu_ky_thang INTEGER DEFAULT 1,
   trang_thai TEXT DEFAULT 'Nháp', ghi_chu TEXT, nguon TEXT, nguoi_cap_nhat TEXT,
   extra JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ DEFAULT now(), updated_at TIMESTAMPTZ DEFAULT now(),
-  CHECK (chi_so_moi IS NULL OR chi_so_cu IS NULL OR chi_so_moi >= chi_so_cu),
-  UNIQUE (ky, ma_cong_to));
+  CHECK (chi_so_moi IS NULL OR chi_so_cu IS NULL OR chi_so_moi >= chi_so_cu));
+-- a meter can be read more than once in a period (V191 data: May 2025 read on 12/5 and 23/5)
+ALTER TABLE public.tien_dien DROP CONSTRAINT IF EXISTS tien_dien_ky_ma_cong_to_key;
+CREATE INDEX IF NOT EXISTS ix_td_ky_cong_to ON public.tien_dien(ky, ma_cong_to);
+
+-- columns added after the first release (CREATE TABLE IF NOT EXISTS does not add them to existing DBs)
+ALTER TABLE public.cong_viec ADD COLUMN IF NOT EXISTS cach_thuc_hien TEXT;
+ALTER TABLE public.cong_viec ADD COLUMN IF NOT EXISTS don_vi_thuc_hien TEXT;
+ALTER TABLE public.cong_viec_hang_ngay ADD COLUMN IF NOT EXISTS don_vi_thuc_hien TEXT;
+ALTER TABLE public.nhat_ky_bao_tri ADD COLUMN IF NOT EXISTS don_vi_thuc_hien TEXT;
 
 -- ---------- AUDIT ----------
 CREATE TABLE IF NOT EXISTS public.audit_logs (
@@ -287,6 +295,8 @@ CREATE INDEX IF NOT EXISTS ix_audit_created ON public.audit_logs(created_at DESC
 
 -- ---------- computed views (alerts are computed live, never stored) ----------
 -- security_invoker: views obey the caller's RLS, so anon/authenticated still see nothing.
+-- views use t.* so they are dropped and recreated when tables gain columns
+DROP VIEW IF EXISTS public.v_lich_bao_tri, public.v_cong_viec, public.v_vat_tu, public.v_khach_thue, public.v_de_xuat;
 CREATE OR REPLACE VIEW public.v_lich_bao_tri WITH (security_invoker = true) AS
 WITH base AS (
   SELECT l.*, kv.tang, kv.ten_khu_vuc, hm.ten_hang_muc, hm.nhom,
@@ -443,7 +453,9 @@ INSERT INTO public.vai_tro (id, ten_vai_tro, mo_ta, sieu_quan_tri) VALUES
   ('VR0004','Super Admin','Toàn quyền hệ thống', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- default matrix only for a brand-new database (never mixes into imported/edited permissions)
 INSERT INTO public.phan_quyen (id_vai_tro, module, xem, them, sua, xoa, duyet)
+SELECT * FROM (
 SELECT r, m, true, true, true, r = 'VR0001', r = 'VR0001'
 FROM unnest(ARRAY['VR0001']) r, unnest(ARRAY['CONG_VIEC','CVHN','KHACH_RA_VAO','BAO_TRI','DE_XUAT','THIET_BI','KHO','THU_HOI',
   'KHACH_THUE','QUAN_LY_TANG','KHACH_HANG_TIEM_NANG','TIEN_DIEN','DANH_MUC','BAO_CAO']) m
@@ -453,6 +465,8 @@ FROM unnest(ARRAY['CONG_VIEC','CVHN','BAO_TRI','THIET_BI','KHO','BAO_CAO']) m
 UNION ALL
 SELECT 'VR0003', m, true, m IN ('KHACH_RA_VAO','CVHN','DE_XUAT'), m IN ('KHACH_RA_VAO','CVHN'), false, false
 FROM unnest(ARRAY['CONG_VIEC','CVHN','KHACH_RA_VAO','DE_XUAT','KHACH_THUE']) m
+) AS seed(r, m, xem, them, sua, xoa, duyet)
+WHERE NOT EXISTS (SELECT 1 FROM public.phan_quyen)
 ON CONFLICT (id_vai_tro, module) DO NOTHING;
 
 SELECT public.sync_id_sequences();
