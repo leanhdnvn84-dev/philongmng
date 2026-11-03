@@ -147,7 +147,7 @@ if(t.dd){
   '<div class="ab" style="left:'+lt+'px;top:'+(y0+28)+'px">'+logo(B===2?110:100)+'</div>'+td(y0,z)+vach(y0+z*1.22)+
   dong(y0+z*1.22+14,30,t.nh,lua('GALA GẶP MẶT CỰU HỌC SINH'))+dong(y0+z*1.22+62,27,t.ch,'Niên khoá 2000 – 2003','font-weight:600');
 }
-const XA=['mau-anh.jpg','mau-anh-2.jpg','mau-anh.jpg'];
+const XA=Q.get('anh')?Q.get('anh').split(','):['mau-anh.jpg','mau-anh-2.jpg','mau-anh.jpg'];
 let h=(XEM?O.map(([x,y,w,hh],i)=>'<div class="xem" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+hh+'px;background-image:url('+XA[i]+')"></div>').join(''):'')+
  '<div class="nen" style="clip-path:'+CLIP+';background:'+t.nen+(t.khung?';box-shadow:'+(B===1||B===3?t.khung.replace(/(\d+)px/g,(m,n)=>Math.round(n*.4)+'px'):t.khung):'')+'">'+nx+'</div>'+
  O.map(([x,y,w,hh])=>{const v=B===3?Math.min(parseInt(t.vien),6):parseInt(t.vien);return '<div class="vien" style="left:'+(x-v)+'px;top:'+(y-v)+'px;width:'+(w+2*v)+'px;height:'+(hh+2*v)+'px;border:'+t.vien.replace(/^\d+px/,v+'px')+';border-radius:'+(t.r?t.r+v:0)+'px;'+(t.ngoai&&B!==3?'outline:'+t.ngoai+';outline-offset:6px;':'')+'box-shadow:0 8px 22px rgba(0,0,0,.18)"></div>'}).join('')+
