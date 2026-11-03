@@ -1,205 +1,44 @@
-# Phi Long Building Management System
+# Phi Long Building – Hệ thống quản lý tòa nhà
 
-Modern Building Management System built with **Next.js + Supabase + TypeScript**
+Next.js 14 (App Router) + Supabase (Postgres + Auth) + TypeScript + Tailwind.
 
-## Features
+## Chức năng
+- Đăng nhập (Supabase Auth), phân quyền theo vai trò × module (xem / tạo / sửa / xóa)
+- Quản lý: tòa nhà, tầng, phòng, khách thuê, hợp đồng, bảo trì, thiết bị, nhà thầu, nhà cung cấp, người dùng
+- Tìm kiếm, lọc trạng thái, phân trang, xuất CSV
+- Quy tắc nghiệp vụ: 1 phòng chỉ có 1 hợp đồng hiệu lực; phòng tự chuyển Đang thuê/Trống theo hợp đồng; hợp đồng quá hạn tự chuyển Hết hạn; công việc bảo trì tự ghi thời điểm hoàn thành
+- Nhật ký thao tác (`audit_logs`)
+- Dashboard: tỷ lệ lấp đầy, doanh thu thuê/tháng, hợp đồng sắp hết hạn, bảo trì tồn đọng
 
-✅ **6 Main Modules:**
-- 🏢 Buildings & Structure (Tòa nhà, Tầng, Phòng)
-- 👥 Tenants & Contracts (Khách thuê, Hợp đồng)
-- 🔧 Maintenance (Quản lý bảo trì)
-- ⚙️ Equipment & Warehouse (Kho thiết bị)
-- 👤 Personnel & Users (Nhân viên, Người dùng)
-- 📊 System & Permissions (Hệ thống, Phân quyền)
+## Cài đặt
+1. Supabase → SQL Editor, chạy lần lượt `src/db/schema.sql` rồi `src/db/migrations/002_complete.sql`.
+2. `cp .env.local.example .env.local` và điền khóa Supabase của bạn.
+3. ```bash
+   npm install
+   npm run create-admin   # tạo tài khoản admin từ ADMIN_EMAIL / ADMIN_PASSWORD
+   npm run dev            # http://localhost:3000
+   ```
+4. Đăng nhập, đổi mật khẩu admin, tạo người dùng khác ở mục **Người dùng**.
 
-✅ **Technology Stack:**
-- Frontend: React 18 + Next.js 14
-- Backend: Next.js API Routes
-- Database: PostgreSQL (Supabase)
-- Authentication: Supabase Auth
-- Security: Row Level Security (RLS)
-- Styling: Tailwind CSS
+## Phân quyền mặc định
+| Vai trò | Quyền |
+|---|---|
+| admin | Toàn quyền |
+| manager | Xem/tạo/sửa mọi module (xóa chỉ ở Bảo trì), chỉ xem Hệ thống |
+| technician | Xem tòa nhà; xem/sửa bảo trì và thiết bị |
+| staff | Xem tòa nhà, hợp đồng, thiết bị; khách thuê (xem/tạo/sửa); bảo trì (xem/tạo) |
 
-✅ **Key Features:**
-- Role-based Access Control (RBAC)
-- Row Level Security (RLS) policies
-- CRUD APIs for all entities
-- Responsive UI (mobile + desktop)
-- Audit logging
-- Search & filtering
-- Data export
+Chỉnh ở bảng `permissions`.
 
-## Quick Start
+## Kiến trúc
+- `src/lib/resources.ts` – khai báo mọi thực thể (trường, cột, quyền). **Thêm thực thể mới = thêm 1 mục ở đây** + bảng SQL.
+- `src/app/api/[resource]` – CRUD chung: kiểm tra đăng nhập + quyền, chỉ nhận các trường khai báo, ghi audit log.
+- Trình duyệt không truy cập bảng trực tiếp (RLS bật, không có policy); toàn bộ dữ liệu đi qua API dùng service-role key ở server.
 
-### 1. Prerequisites
-- Node.js 18+
-- npm or yarn
-- Supabase account
-
-### 2. Installation
-
+## Triển khai
 ```bash
-# Clone repository
-git clone https://github.com/leanhdnvn84-dev/phi-long-building.git
-cd phi-long-building
-
-# Install dependencies
-npm install
-
-# Setup environment variables
-cp .env.local.example .env.local
-# Edit .env.local with your Supabase credentials
+docker compose up --build   # cần biến môi trường như .env.local
 ```
 
-### 3. Database Setup
-
-1. Go to [Supabase Dashboard](https://app.supabase.com)
-2. Create a new project
-3. Go to SQL Editor
-4. Copy content from `src/db/schema.sql`
-5. Run the SQL query to create all tables
-
-### 4. Run Development Server
-
-```bash
-npm run dev
-```
-
-Visit http://localhost:3000
-
-### 5. API Testing
-
-```bash
-# Get all buildings
-curl http://localhost:3000/api/buildings
-
-# Create new building
-curl -X POST http://localhost:3000/api/buildings \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Phi Long Tower",
-    "address": "123 Main St",
-    "city": "Ho Chi Minh",
-    "total_floors": 10
-  }'
-```
-
-## Project Structure
-
-```
-phi-long-building/
-├── src/
-│   ├── app/
-│   │   ├── api/              # API routes (CRUD endpoints)
-│   │   ├── layout.tsx        # Root layout
-│   │   ├── page.tsx          # Home page
-│   │   └── globals.css       # Global styles
-│   ├── components/           # React components
-│   ├── lib/
-│   │   ├── supabase.ts       # Supabase client
-│   │   └── types.ts          # TypeScript types
-│   └── db/
-│       └── schema.sql        # Database schema
-├── public/                   # Static files
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-└── README.md
-```
-
-## API Endpoints
-
-### Buildings
-- `GET /api/buildings` - List all buildings
-- `GET /api/buildings?limit=10&offset=0` - Paginated list
-- `GET /api/buildings/[id]` - Get single building
-- `POST /api/buildings` - Create building
-- `PUT /api/buildings/[id]` - Update building
-- `DELETE /api/buildings/[id]` - Delete building
-
-### Similar endpoints for:
-- `/api/tenants`
-- `/api/contracts`
-- `/api/maintenance`
-- `/api/equipment`
-- `/api/users`
-
-## Environment Variables
-
-```
-NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
-SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-```
-
-## Database Schema
-
-### Main Tables:
-- `buildings` - Buildings info
-- `floors` - Floors in building
-- `rooms` - Individual rooms/units
-- `tenants` - Tenant info
-- `contracts` - Rental contracts
-- `maintenance_jobs` - Maintenance tasks
-- `equipment` - Equipment inventory
-- `users` - System users
-- `roles` - User roles
-- `permissions` - Role permissions
-- `audit_logs` - Change tracking
-
-## Authentication & Security
-
-- Uses Supabase Auth for user authentication
-- Row Level Security (RLS) for data access control
-- Role-based permissions system
-- Audit logging for all changes
-
-## Deployment
-
-### Deploy to Vercel (Recommended for development)
-```bash
-# Push to GitHub
-git push origin main
-
-# Connect to Vercel
-vercel
-```
-
-### Deploy to ZoneCloud VPS
-```bash
-# Build
-npm run build
-
-# Create Docker image
-docker build -t phi-long-building .
-
-# Push to VPS and run
-docker compose up -d
-```
-
-## Development Roadmap
-
-**Phase 1 (Weeks 1-2):** 
-- ✅ Setup Next.js + Supabase
-- ✅ Database schema
-- ✅ API templates
-
-**Phase 2 (Weeks 3-4):**
-- [ ] Complete API endpoints for all modules
-- [ ] React components for each module
-- [ ] Authentication flow
-- [ ] RLS policies
-
-**Phase 3 (Weeks 5-6):**
-- [ ] Data migration from Google Sheets
-- [ ] Testing
-- [ ] Deployment setup
-- [ ] User training materials
-
-## Support
-
-For issues or questions, contact: anh@leanhdnvn.com
-
-## License
-
-© 2025 Phi Long Building Management System
+## Bảo mật
+`SUPABASE_SERVICE_ROLE_KEY` chỉ dùng phía server, không bao giờ commit.
