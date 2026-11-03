@@ -1,4 +1,11 @@
 node_modules
-data/
-.env
+.next
+out
+build
 *.log
+.DS_Store
+.env
+.env.local
+.env.*.local
+.vercel
+dist
