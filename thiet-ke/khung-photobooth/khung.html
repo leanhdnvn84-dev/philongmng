@@ -1,8 +1,9 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8">
 <title>Khung photo booth Gala</title>
-<!-- Khung photo booth 4x6 inch (1200x1800 px = 300 dpi), 2 ô ảnh trong suốt, theo mẫu người dùng gửi (mau-xanh.jpg, mau-vang.jpg).
+<!-- Khung photo booth (m=phuong: tông Gala "Ngày trở về" – nền kem, nắng, phượng, sân trường màu nước, chữ thư pháp đỏ)
+     Khung photo booth 4x6 inch (1200x1800 px = 300 dpi), 2 ô ảnh trong suốt, theo mẫu người dùng gửi (mau-xanh.jpg, mau-vang.jpg).
      khung.html?m=xanh|vang   &xem=1 → đặt ảnh mẫu dưới khung để xem trước.   render.js → khung-*.png + xem-truoc-*.jpg -->
-<link href="https://fonts.googleapis.com/css2?family=Sriracha&family=Be+Vietnam+Pro:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sriracha&family=Great+Vibes&family=Noto+Serif:wght@600;700&family=Be+Vietnam+Pro:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;box-sizing:border-box}
 html,body{width:1200px;height:1800px;overflow:hidden;background:transparent}
@@ -26,7 +27,8 @@ const MAU={
  xanh:{nen:'linear-gradient(165deg,#E6EC7A 0%,#B9D84C 30%,#8DC63F 58%,#A6D046 80%,#D3E35E 100%)',
   loang:['rgba(255,250,170,.75)','rgba(255,255,255,.35)','rgba(120,180,40,.45)'],bong:'rgba(60,90,10,.35)'},
  vang:{nen:'linear-gradient(165deg,#FFE97A 0%,#FFDB3A 35%,#FFD21A 65%,#FFE04A 100%)',
-  loang:['rgba(255,255,255,.7)','rgba(255,250,215,.6)','rgba(255,196,0,.35)'],bong:'rgba(150,110,0,.35)'}
+  loang:['rgba(255,255,255,.7)','rgba(255,250,215,.6)','rgba(255,196,0,.35)'],bong:'rgba(150,110,0,.35)'},
+ phuong:{nen:'',loang:[],bong:'rgba(120,60,30,.3)'}
 }[M];
 /* ô trong suốt: path evenodd với góc bo */
 const oPath=o=>{const {x,y,w,h}=o;return 'M'+(x+R)+' '+y+'H'+(x+w-R)+'A'+R+' '+R+' 0 0 1 '+(x+w)+' '+(y+R)+'V'+(y+h-R)+'A'+R+' '+R+' 0 0 1 '+(x+w-R)+' '+(y+h)+'H'+(x+R)+'A'+R+' '+R+' 0 0 1 '+x+' '+(y+h-R)+'V'+(y+R)+'A'+R+' '+R+' 0 0 1 '+(x+R)+' '+y+'Z'};
@@ -49,7 +51,7 @@ const timNho=(x,y,s)=>'<svg style="left:'+x+'px;top:'+y+'px;width:'+(70*s)+'px;h
 const sach=(x,y,s,r)=>'<svg style="left:'+x+'px;top:'+y+'px;width:'+(200*s)+'px;height:'+(130*s)+'px;transform:rotate('+r+'deg);filter:drop-shadow(0 6px 8px '+MAU.bong+')" viewBox="0 0 200 130"><path d="M100 30C70 10 30 8 6 18V112C30 102 70 104 100 124Z" fill="#B23A2E"/><path d="M100 30C130 10 170 8 194 18V112C170 102 130 104 100 124Z" fill="#B23A2E"/><path d="M100 24C72 4 34 2 12 12V104C34 94 72 96 100 116Z" fill="#fff"/><path d="M100 24C128 4 166 2 188 12V104C166 94 128 96 100 116Z" fill="#F4F1EA"/><path d="M100 24V116" stroke="#D8D2C6" stroke-width="2"/><g fill="none" stroke="#E3DED4" stroke-width="1.5"><path d="M24 30C48 24 72 28 90 38M24 46C48 40 72 44 90 54M24 62C48 56 72 60 90 70M110 38C128 28 152 24 176 30M110 54C128 44 152 40 176 46M110 70C128 60 152 56 176 62"/></g></svg>';
 
 let h='';
-if(XEM)h+='<div class="xem" style="background-image:url(mau-'+M+'.jpg)"></div>';
+if(XEM)h+='<div class="xem" style="background-image:url(mau-'+(M==='phuong'?'xanh':M)+'.jpg)"></div>';
 h+='<div class="nen" style="clip-path:'+CLIP+'"><div class="ab" style="inset:0;background:'+MAU.nen+'"></div>'+
  loang(700,-200,800,600,MAU.loang[0],30)+loang(-200,500,700,500,MAU.loang[1],40)+loang(500,1350,900,500,MAU.loang[0],40)+loang(-300,1500,800,500,MAU.loang[2],40)+loang(800,600,700,600,MAU.loang[1],50)+
  LA.map(a=>la.apply(null,a)).join('')+'</div>';
@@ -62,5 +64,34 @@ h+=laCuc(1020,742,1.3,-35)+laCuc(1080,690,1.1,-80)+cuc(1100,720,1.05,10)+cuc(105
 /* chân: sách + máy bay giấy + tim */
 h+=sach(34,1610,.86,-12)+mayBay(980,1520,1.05)+tim(930,1610,1.2)+timNho(1100,1735,.9);
 h+='<div class="chu ve">Về Đi bạn ơi!</div><div class="chu g1">GALA GẶP MẶT CỰU HỌC SINH</div><div class="chu g2">( Niên Khóa 2000 - 2003 )</div>';
+/* ===== Tông Gala "Ngày trở về" ===== */
+if(M==='phuong'){
+ const A='../backdrop-gala-mau-nuoc/';
+ const CANH=(x,y,w,tf,op)=>'<div class="ab" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+(w*.666)+'px;background:url('+A+'canh.webp) center/contain no-repeat;transform:'+tf+';opacity:'+(op||1)+'"></div>';
+ const P=[[40,330,20],[1150,300,-30],[30,980,60],[1160,1060,15],[120,1560,40],[1100,1520,-20],[20,650,80],[1170,700,10],[960,1760,-50],[230,1770,30],[600,24,25],[1060,140,-35],[150,120,70],[1180,1300,-60],[25,1300,5]];
+ const roi=P.map(([x,y,r],i)=>'<i class="ab" style="left:'+x+'px;top:'+y+'px;width:'+(24+(i%3)*6)+'px;height:'+(18+(i%3)*5)+'px;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff7a62,#c8102e);opacity:.8;transform:rotate('+r+'deg)"></i>').join('');
+ h='';
+ if(XEM)h+='<div class="xem" style="background-image:url(mau-xanh.jpg)"></div>';
+ h+='<div class="nen" style="clip-path:'+CLIP+'">'+
+  '<div class="ab" style="inset:0;background:radial-gradient(90% 60% at 50% 30%,#FFFDF7 0%,#FBF0DC 55%,#F3DFC0 100%)"></div>'+
+  '<div class="ab" style="left:50%;top:-700px;width:2400px;height:2400px;margin-left:-1200px;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,226,150,.28) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(closest-side,#000 20%,transparent 60%)"></div>'+
+  '<div class="ab" style="left:0;right:0;bottom:0;height:420px;background:url('+A+'san-truong.jpg) no-repeat 50% 100%/1500px auto;opacity:.9;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 55%)"></div>'+
+  '<div class="ab" style="left:60px;right:60px;bottom:-10px;height:330px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,250,238,.97),rgba(255,250,238,.85) 62%,transparent)"></div>'+
+  roi+'</div>';
+ h+=['<div class="vien" style="left:'+(W1.x-4)+'px;top:'+(W1.y-4)+'px;width:'+(W1.w+8)+'px;height:'+(W1.h+8)+'px;outline:2px solid #C9A24A;outline-offset:3px;box-shadow:0 8px 22px rgba(120,60,30,.25)"></div>',
+     '<div class="vien" style="left:'+(W2.x-4)+'px;top:'+(W2.y-4)+'px;width:'+(W2.w+8)+'px;height:'+(W2.h+8)+'px;outline:2px solid #C9A24A;outline-offset:3px;box-shadow:0 8px 22px rgba(120,60,30,.25)"></div>'].join('');
+ /* nhành phượng: 2 góc trên, góc dưới phải ô 1, góc dưới trái ô 2 */
+ h+=CANH(-80,-60,290,'rotate(8deg)')+CANH(990,-60,290,'scaleX(-1) rotate(8deg)')+
+    CANH(930,690,300,'rotate(-158deg) scaleY(-1)')+CANH(-30,1390,300,'rotate(-22deg) scaleY(-1)');
+ h+='<div class="ab" style="left:0;right:0;top:20px;display:flex;justify-content:center;align-items:center;gap:18px">'+
+    '<img src="'+A+'logo-1600.png" style="width:92px;height:92px;border-radius:50%;background:#fff;padding:7px;box-shadow:0 4px 12px rgba(120,60,30,.25)">'+
+    '<div style="text-align:left"><div style="font:800 36px \'Be Vietnam Pro\';color:#9E1B22;letter-spacing:.03em">TRƯỜNG THPT NGUYỄN HIỀN</div>'+
+    '<div style="font:600 27px \'Noto Serif\',serif;color:#5B2A12;letter-spacing:.06em;margin-top:4px">ĐÀ NẴNG <b style="color:#C9A24A">✦</b> THỨ BẢY <b style="color:#C9A24A">✦</b> 14.11.2026</div></div></div>';
+ h+='<div class="ab" style="left:0;right:0;top:1500px;text-align:center">'+
+    '<div style="font:400 136px/1.05 \'Great Vibes\',cursive;color:#B3261E;text-shadow:0 3px 12px rgba(255,248,234,.9)">Ngày trở về</div>'+
+    '<div style="width:420px;height:3px;margin:6px auto 0;background:linear-gradient(90deg,transparent,#C9A24A,transparent)"></div>'+
+    '<div style="font:700 36px \'Noto Serif\',serif;color:#5B2A12;letter-spacing:.08em;margin-top:10px;text-shadow:0 0 8px #FFF8EA">GALA GẶP MẶT CỰU HỌC SINH</div>'+
+    '<div style="display:inline-block;margin-top:10px;font:700 27px \'Be Vietnam Pro\';letter-spacing:.12em;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);padding:7px 30px;border-radius:40px;box-shadow:0 4px 10px rgba(179,38,30,.3)">NIÊN KHOÁ 2000 – 2003</div></div>';
+}
 document.getElementById('k').innerHTML=h;
 </script></body></html>
