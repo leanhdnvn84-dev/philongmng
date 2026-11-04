@@ -16,6 +16,7 @@ export interface Field {
   ro?: boolean // computed / server-managed: listed, never accepted from the client
   inList?: boolean // force show/hide as a column
   inForm?: boolean // false = never in the edit form
+  multiline?: boolean // keep line breaks in table cells (proposal line lists)
 }
 
 export type Perm = 'view' | 'create' | 'edit' | 'delete' | 'approve'
@@ -46,6 +47,10 @@ export interface Resource {
   noCreate?: boolean
   noEdit?: boolean
   noDelete?: boolean
+  /** date column driving the month calendar in the left panel */
+  dateField?: string
+  /** ref/select column listed as quick filters in the left panel */
+  sideFilter?: string
   /** rows matching this cannot be edited/deleted (approved proposal, locked period…) */
   locked?: (row: any) => string | null
 }
@@ -105,6 +110,7 @@ export const RESOURCES: Resource[] = [
   // ───────── CÔNG VIỆC ─────────
   {
     key: 'cong_viec', table: 'cong_viec', view: 'v_cong_viec', module: 'CONG_VIEC', title: 'Công việc', singular: 'công việc',
+    dateField: 'ngay_giao', sideFilter: 'id_nguoi_thuc_hien',
     searchFields: ['id', 'noi_dung', 'khu_vuc', 'tien_do'], orderBy: { column: 'ngay_giao', ascending: false },
     fields: [
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(0, 2),
@@ -121,6 +127,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'cong_viec_hang_ngay', table: 'cong_viec_hang_ngay', module: 'CVHN', title: 'Công việc hằng ngày', singular: 'công việc',
+    dateField: 'ngay', sideFilter: 'id_nguoi_thuc_hien',
     searchFields: ['id', 'noi_dung', 'cach_thuc_hien', 'tien_do'], orderBy: { column: 'ngay', ascending: false },
     fields: [
       ...workFields({ name: 'ngay', label: 'Ngày', type: 'date', required: true }).slice(0, 2),
@@ -132,6 +139,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'khach_ra_vao', table: 'khach_ra_vao', module: 'KHACH_RA_VAO', title: 'Khách ra/vào', singular: 'lượt khách',
+    dateField: 'ngay',
     searchFields: ['ho_ten', 'sdt', 'cong_ty', 'nguoi_can_gap', 'bien_so_xe'], orderBy: { column: 'created_at', ascending: false },
     fields: [
       { name: 'ngay', label: 'Ngày', type: 'date' },
@@ -158,6 +166,7 @@ export const RESOURCES: Resource[] = [
   // ───────── BẢO TRÌ ─────────
   {
     key: 'nhat_ky_bao_tri', table: 'nhat_ky_bao_tri', module: 'BAO_TRI', title: 'Nhật ký bảo trì', singular: 'nhật ký',
+    dateField: 'ngay_thuc_hien', sideFilter: 'id_hang_muc',
     searchFields: ['id', 'noi_dung_thuc_hien', 'ket_qua'], orderBy: { column: 'ngay_thuc_hien', ascending: false },
     fields: [
       { name: 'ngay_thuc_hien', label: 'Ngày thực hiện', type: 'date', required: true },
@@ -174,6 +183,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'lich_bao_tri', table: 'lich_bao_tri', view: 'v_lich_bao_tri', module: 'BAO_TRI', title: 'Kế hoạch bảo trì', singular: 'lịch bảo trì',
+    sideFilter: 'id_hang_muc',
     searchFields: ['ten_khu_vuc', 'ten_hang_muc', 'tang', 'nhom'], orderBy: { column: 'ngay_ke_tiep', ascending: true },
     noDelete: true, // generated per area + item; pause it instead (as in V191)
     fields: [
@@ -197,19 +207,26 @@ export const RESOURCES: Resource[] = [
   // ───────── ĐỀ XUẤT ─────────
   {
     key: 'de_xuat', table: 'de_xuat', view: 'v_de_xuat', module: 'DE_XUAT', title: 'Đề xuất', singular: 'đề xuất',
+    dateField: 'ngay_de_xuat', sideFilter: 'id_nguoi_de_xuat',
     searchFields: ['id', 'noi_dung', 'muc_dich_ly_do'], orderBy: { column: 'ngay_de_xuat', ascending: false },
     fields: [
       { name: 'loai_de_xuat', label: 'Loại', type: 'select', options: Object.keys(PROPOSAL_KINDS), required: true },
       { name: 'ngay_de_xuat', label: 'Ngày đề xuất', type: 'date' },
       { name: 'id_nguoi_de_xuat', label: 'Người đề xuất', type: 'ref', ref: 'nhan_vien', required: true },
-      { name: 'noi_dung', label: 'Nội dung', type: 'textarea', required: true, inList: true },
+      { name: 'ds_ten', label: 'Tên vật tư / thiết bị', type: 'text', ro: true, multiline: true },
+      { name: 'ds_nha_cung_cap', label: 'Nhà cung cấp', type: 'text', ro: true, multiline: true },
+      { name: 'ds_don_gia', label: 'Đơn giá', type: 'text', ro: true, multiline: true },
+      { name: 'ds_so_luong', label: 'Số lượng', type: 'text', ro: true, multiline: true },
+      { name: 'ds_dvt', label: 'ĐVT', type: 'text', ro: true, multiline: true },
+      { name: 'ds_thanh_tien', label: 'Thành tiền', type: 'text', ro: true, multiline: true },
+      { name: 'noi_dung', label: 'Nội dung', type: 'textarea', required: true, inList: false },
       { name: 'muc_dich_ly_do', label: 'Mục đích / lý do', type: 'textarea', inList: false },
-      { name: 'so_dong', label: 'Số dòng', type: 'number', ro: true },
-      { name: 'tong_tien', label: 'Tổng tiền', type: 'money', ro: true },
-      { name: 'trang_thai', label: 'Trạng thái', type: 'text', ro: true },
+      { name: 'so_dong', label: 'Số dòng', type: 'number', ro: true, inList: false },
+      { name: 'tong_tien', label: 'Tổng tiền', type: 'money', ro: true, inList: false },
+      { name: 'trang_thai', label: 'Trạng thái', type: 'select', ro: true, options: ['Chờ duyệt', 'Đã duyệt', 'Từ chối'] },
       { name: 'nguoi_duyet', label: 'Người duyệt', type: 'text', ro: true, inList: false },
-      { name: 'ngay_duyet', label: 'Ngày duyệt', type: 'date', ro: true },
-      { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: false },
+      { name: 'ngay_duyet', label: 'Ngày duyệt', type: 'date', ro: true, inList: false },
+      { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: true },
     ],
     optionLabel: (r) => `${r.id} · ${PROPOSAL_KINDS[r.loai_de_xuat] ?? r.loai_de_xuat} · ${String(r.noi_dung ?? '').slice(0, 40)}`,
     locked: (r) => (r?.trang_thai === APPROVED ? 'Đề xuất đã duyệt, không thể sửa hoặc xóa' : null),
@@ -268,6 +285,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'nhap_xuat_kho', table: 'nhap_xuat_kho', module: 'KHO', title: 'Lịch sử nhập xuất', singular: 'giao dịch kho',
+    dateField: 'ngay',
     searchFields: ['id', 'noi_dung', 'id_chung_tu'], orderBy: { column: 'created_at', ascending: false },
     noCreate: true, noEdit: true, noDelete: true, // append-only ledger: correct with a new movement
     fields: [
@@ -284,6 +302,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'thiet_bi', table: 'thiet_bi', module: 'THIET_BI', title: 'Thiết bị', singular: 'thiết bị',
+    sideFilter: 'id_khu_vuc',
     searchFields: ['id', 'ten_thiet_bi', 'serial', 'model', 'hang', 'loai_thiet_bi'], orderBy: { column: 'ten_thiet_bi', ascending: true },
     fields: [
       { name: 'ten_thiet_bi', label: 'Tên thiết bị', type: 'text', required: true },
@@ -407,6 +426,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'khach_hang_tiem_nang', table: 'khach_hang_tiem_nang', module: 'KHACH_HANG_TIEM_NANG', title: 'Khách hàng tiềm năng', singular: 'khách hàng',
+    dateField: 'ngay_tiep_nhan', sideFilter: 'id_nguoi_phu_trach',
     searchFields: ['ten_khach_hang', 'nguoi_lien_he', 'dien_thoai', 'email'], orderBy: { column: 'ngay_tiep_nhan', ascending: false },
     fields: [
       { name: 'ten_khach_hang', label: 'Tên khách hàng', type: 'text', required: true },
@@ -427,6 +447,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'tien_dien', table: 'tien_dien', module: 'TIEN_DIEN', title: 'Tiền điện', singular: 'công tơ',
+    sideFilter: 'id_khach_thue',
     searchFields: ['ma_cong_to', 'ten_cong_to', 'ten_khach_thue', 'tang'], orderBy: { column: 'ky', ascending: false },
     fields: [
       { name: 'ky', label: 'Kỳ', type: 'month', required: true },

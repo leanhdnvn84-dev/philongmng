@@ -22,6 +22,16 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     return ok({ data: options })
   }
 
+  // distinct values of one declared ref/select column (left filter panel)
+  const distinct = url.searchParams.get('distinct')
+  if (distinct) {
+    const f = res.fields.find((x) => x.name === distinct && (x.type === 'ref' || x.type === 'select'))
+    if (!f) return fail('Cột không hợp lệ')
+    const { data, error } = await db.from(res.view ?? res.table).select(f.name).not(f.name, 'is', null).limit(20000)
+    if (error) return dbError(error)
+    return ok({ data: Array.from(new Set((data as any[]).map((r) => r[f.name]))) })
+  }
+
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1') || 1)
   const pageSize = Math.min(2000, Math.max(1, parseInt(url.searchParams.get('pageSize') || '50') || 50))
   let query = db.from(res.view ?? res.table).select('*', { count: 'exact' })
@@ -31,6 +41,13 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     const v = url.searchParams.get(f.name)
     if (v === null || v === '' || f.type === 'password') continue
     query = f.type === 'bool' ? query.eq(f.name, v === 'true') : query.eq(f.name, v)
+  }
+  // date range on the resource's calendar column (from/to = YYYY-MM-DD)
+  if (res.dateField) {
+    const from = url.searchParams.get('from'), to = url.searchParams.get('to')
+    const D = /^\d{4}-\d{2}-\d{2}$/
+    if (from && D.test(from)) query = query.gte(res.dateField, from)
+    if (to && D.test(to)) query = query.lte(res.dateField, to)
   }
   const search = (url.searchParams.get('search') || '').replace(/[,()%*\\"]/g, ' ').trim().slice(0, 100)
   if (search && res.searchFields.length) {

@@ -11,17 +11,35 @@ export interface NavGroup { group: string; items: { label: string; href: string 
 
 function Brand() {
   return (
-    <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="Trang tổng quan">
-      <span className="grid place-items-center h-8 w-8 rounded-md bg-white text-brand-400 font-black text-[13px]">PL</span>
-      <span className="text-[15px] font-extrabold tracking-wide whitespace-nowrap text-white">PHILONG BUILDING</span>
+    <Link href="/" className="shrink-0 inline-flex flex-col items-end leading-none select-none" aria-label="Trang tổng quan">
+      <span className="text-[27px] font-black italic tracking-tight text-white drop-shadow-[0_1px_0_rgba(0,0,0,.15)]">PhiLong</span>
+      <span className="mt-0.5 text-[10px] font-extrabold tracking-[0.2em] text-white">TECHNOLOGY</span>
     </Link>
+  )
+}
+
+function TodayTile() {
+  const now = new Date()
+  const p = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', ...o }).format(now)
+  const day = p({ day: '2-digit' }), month = p({ month: 'numeric' }), weekday = p({ weekday: 'long' }), full = p({ day: '2-digit', month: '2-digit', year: 'numeric' })
+  return (
+    <div className="hidden 2xl:flex items-center gap-2 h-11 pl-1.5 pr-3 rounded-[9px] bg-white shadow-[0_2px_6px_rgba(0,0,0,.12)]">
+      <div className="w-9 overflow-hidden rounded-md border border-brand-200 text-center leading-none">
+        <div className="bg-brand-400 text-white text-[9px] font-black py-0.5">T{month}</div>
+        <div className="text-[15px] font-black text-navy-900 py-0.5">{day}</div>
+      </div>
+      <div className="leading-tight">
+        <div className="text-[9.5px] font-black uppercase tracking-wide text-brand-400">Lịch hôm nay</div>
+        <div className="text-[12px] font-bold text-navy-900 first-letter:uppercase">{weekday} · {full}</div>
+      </div>
+    </div>
   )
 }
 
 // V191 menu button: translucent white outline on the red bar; the open/active one turns white
 const navBtn = (on: boolean) =>
-  `flex items-center gap-1 h-9 px-3 rounded-[7px] border text-[12.5px] font-bold uppercase tracking-wide whitespace-nowrap transition-colors ${
-    on ? 'bg-white text-brand-400 border-white shadow-[0_2px_8px_rgba(0,0,0,.12)]' : 'bg-white/10 text-white border-white/25 hover:bg-white/20 hover:border-white/40'}`
+  `flex items-center gap-1 h-[38px] px-2 2xl:px-3 rounded-[7px] border text-[12px] 2xl:text-[13px] font-extrabold uppercase whitespace-nowrap transition-colors ${
+    on ? 'bg-white text-brand-400 border-white shadow-[0_2px_8px_rgba(0,0,0,.18)]' : 'bg-[#25324a] text-white border-white/20 shadow-[0_2px_4px_rgba(0,0,0,.18)] hover:bg-[#34445f] hover:border-white/35'}`
 
 export default function TopNav({ groups, name, role }: { groups: NavGroup[]; name: string; role: string }) {
   const pathname = usePathname()
@@ -52,11 +70,11 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   }
 
   return (
-    <header ref={ref} className="sticky top-0 z-40 bg-brand-400 border-b border-brand-500 shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_4px_13px_rgba(237,50,55,.25)]">
-      <div className="h-[58px] px-4 lg:px-5 flex items-center gap-4">
+    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-brand-400 border-b border-brand-500 shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_4px_13px_rgba(237,50,55,.25)]">
+      <div className="h-[62px] px-4 lg:px-5 flex items-center gap-3 2xl:gap-5">
         <Brand />
 
-        <nav className="hidden lg:flex items-center gap-1.5 flex-1 min-w-0" aria-label="Menu chính">
+        <nav className="hidden lg:flex items-center gap-1 2xl:gap-1.5 flex-1 min-w-0" aria-label="Menu chính">
           <Link href="/" className={navBtn(pathname === '/')}>Tổng quan</Link>
           {groups.map((g) => (
             <div key={g.group} className="relative" onMouseEnter={() => setOpen(g.group)} onMouseLeave={() => setOpen((o) => (o === g.group ? null : o))}>
@@ -80,13 +98,16 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
           ))}
         </nav>
 
-        <div className="ml-auto relative flex items-center gap-2 shrink-0">
-          <button type="button" onClick={() => setUserMenu(!userMenu)} aria-expanded={userMenu}
-            className="flex items-center gap-2 h-9 pl-1 pr-2.5 rounded-[7px] border border-white/25 bg-white/10 text-white hover:bg-white/20">
-            <span className="grid place-items-center h-7 w-7 rounded-md bg-white text-brand-400 text-[11px] font-black">{initials || 'U'}</span>
-            <span className="hidden 2xl:block text-[13px] font-bold max-w-[160px] truncate">{name}</span>
-            <ChevronDown className="h-3.5 w-3.5" />
+        <div className="ml-auto relative flex items-center gap-3 shrink-0">
+          <TodayTile />
+          <button type="button" onClick={() => setUserMenu(!userMenu)} aria-expanded={userMenu} className="flex items-center gap-2 text-left text-white">
+            <span className="grid place-items-center h-9 w-9 rounded-full bg-white text-brand-400 text-[12px] font-black ring-2 ring-white/60">{initials || 'U'}</span>
+            <span className="hidden 2xl:block leading-tight">
+              <span className="block text-[13px] font-extrabold max-w-[150px] truncate">{name}</span>
+              <span className="block text-[11px] font-semibold text-white/85">{role}</span>
+            </span>
           </button>
+          <button onClick={logout} className="hidden lg:inline-flex h-[34px] items-center px-3 rounded-[7px] bg-white text-[12.5px] font-extrabold text-navy-900 shadow-[0_2px_6px_rgba(0,0,0,.12)] hover:bg-navy-50">Đăng xuất</button>
           {userMenu && (
             <div className="absolute right-0 top-full mt-2 w-60 rounded-[9px] bg-white border border-navy-200 shadow-pop p-[7px]">
               <div className="px-3 py-2 border-b border-navy-200 mb-1">
@@ -108,7 +129,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
         <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobile(false)} />
           <div className="absolute right-0 top-0 h-full w-[86%] max-w-sm bg-white overflow-y-auto">
-            <div className="h-[58px] px-4 flex items-center justify-between bg-brand-400">
+            <div className="h-[62px] px-4 flex items-center justify-between bg-brand-400">
               <Brand />
               <button onClick={() => setMobile(false)} className="grid place-items-center h-9 w-9 rounded-[7px] text-white hover:bg-white/15" aria-label="Đóng menu"><X className="h-5 w-5" /></button>
             </div>

@@ -357,11 +357,28 @@ SELECT k.*, (k.ngay_ket_thuc - public.today_vn()) AS so_ngay_con_lai, CASE
   ELSE '' END AS canh_bao
 FROM public.khach_thue k;
 
+-- 1,234,567 / 2.5 — number format used by V191 tables
+CREATE OR REPLACE FUNCTION public.fmt_num(n NUMERIC) RETURNS TEXT LANGUAGE sql IMMUTABLE AS $$
+  SELECT CASE WHEN n IS NULL THEN '—' WHEN n = trunc(n) THEN to_char(n, 'FM999,999,999,990')
+              ELSE rtrim(to_char(n, 'FM999,999,999,990.999'), '0') END $$;
+
+-- proposal + its lines flattened (one text line per item), as the V191 list shows them
 CREATE OR REPLACE VIEW public.v_de_xuat WITH (security_invoker = true) AS
-SELECT d.*, coalesce(t.so_dong,0) AS so_dong, coalesce(t.tong_tien,0) AS tong_tien
+SELECT d.*, coalesce(t.so_dong,0) AS so_dong, coalesce(t.tong_tien,0) AS tong_tien,
+  t.ds_ten, t.ds_nha_cung_cap, t.ds_don_gia, t.ds_so_luong, t.ds_dvt, t.ds_thanh_tien
 FROM public.de_xuat d
-LEFT JOIN (SELECT id_de_xuat, count(*) AS so_dong, sum(thanh_tien) AS tong_tien
-  FROM public.de_xuat_chi_tiet GROUP BY id_de_xuat) t ON t.id_de_xuat = d.id;
+LEFT JOIN (
+  SELECT c.id_de_xuat, count(*) AS so_dong, sum(c.thanh_tien) AS tong_tien,
+    string_agg(coalesce(v.ten_vat_tu, tb.ten_thiet_bi, nullif(c.ten, ''), '—'), E'\n' ORDER BY c.created_at, c.id) AS ds_ten,
+    string_agg(coalesce(nullif(c.nha_cung_cap, ''), '—'), E'\n' ORDER BY c.created_at, c.id) AS ds_nha_cung_cap,
+    string_agg(public.fmt_num(c.don_gia), E'\n' ORDER BY c.created_at, c.id) AS ds_don_gia,
+    string_agg(public.fmt_num(c.so_luong), E'\n' ORDER BY c.created_at, c.id) AS ds_so_luong,
+    string_agg(coalesce(nullif(c.dvt, ''), v.dvt, '—'), E'\n' ORDER BY c.created_at, c.id) AS ds_dvt,
+    string_agg(public.fmt_num(c.thanh_tien), E'\n' ORDER BY c.created_at, c.id) AS ds_thanh_tien
+  FROM public.de_xuat_chi_tiet c
+  LEFT JOIN public.vat_tu v ON v.id = c.id_vat_tu
+  LEFT JOIN public.thiet_bi tb ON tb.id = c.id_thiet_bi
+  GROUP BY c.id_de_xuat) t ON t.id_de_xuat = d.id;
 
 -- ---------- atomic business operations ----------
 -- stock movement with a per-item lock: XUAT never drives stock below zero, even under concurrency
