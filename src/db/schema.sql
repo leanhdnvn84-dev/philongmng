@@ -396,11 +396,13 @@ END $$;
 -- used by scripts/import-sheets.mjs
 CREATE OR REPLACE FUNCTION public.import_table_columns(p_table TEXT)
 RETURNS TABLE (column_name TEXT, data_type TEXT, is_generated BOOLEAN, fk_table TEXT) LANGUAGE sql STABLE AS $$
+  -- FK targets come from pg_catalog: information_schema hides constraints from non-owner roles (service_role)
   SELECT c.column_name::TEXT, c.data_type::TEXT, (c.is_generated = 'ALWAYS'),
-    (SELECT ccu.table_name::TEXT FROM information_schema.key_column_usage k
-       JOIN information_schema.table_constraints tc ON tc.constraint_name = k.constraint_name AND tc.constraint_type = 'FOREIGN KEY'
-       JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name = k.constraint_name
-      WHERE k.table_schema = 'public' AND k.table_name = p_table AND k.column_name = c.column_name LIMIT 1)
+    (SELECT cf.relname::TEXT FROM pg_catalog.pg_constraint k
+       JOIN pg_catalog.pg_class cf ON cf.oid = k.confrelid
+       JOIN pg_catalog.pg_attribute a ON a.attrelid = k.conrelid AND a.attnum = k.conkey[1]
+      WHERE k.contype = 'f' AND k.conrelid = to_regclass('public.' || p_table)
+        AND array_length(k.conkey, 1) = 1 AND a.attname = c.column_name LIMIT 1)
   FROM information_schema.columns c
   WHERE c.table_schema = 'public' AND c.table_name = p_table $$;
 
