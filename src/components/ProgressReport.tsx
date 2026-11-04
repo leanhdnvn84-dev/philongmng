@@ -63,7 +63,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
 
   return (
     <div className="space-y-3">
-      <div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-600 mb-1">Công việc</p><h1 className="text-2xl md:text-[28px] font-bold tracking-tight text-navy-900">Báo cáo tiến độ</h1></div>
+      <div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-600 mb-1">Công việc</p><h1 className="text-2xl md:text-[28px] font-bold tracking-tight text-navy-900">Báo cáo tiến độ</h1></div>
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_1fr] gap-4">
         <div className="card flex flex-col overflow-hidden lg:h-[calc(100vh-8rem)]">
           <div className="p-3 border-b space-y-2">
@@ -73,7 +73,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
           <ul className="overflow-y-auto divide-y text-sm max-h-80 lg:max-h-none">
             {list.map((w) => (
               <li key={w.id}>
-                <button onClick={() => { setSel(w.id); setFilter(null) }} className={`w-full text-left px-3 py-2 hover:bg-gold-50/60 ${sel === w.id ? "bg-navy-50 border-l-2 border-gold-400" : "border-l-2 border-transparent"}`}>
+                <button onClick={() => { setSel(w.id); setFilter(null) }} className={`w-full text-left px-3 py-2 hover:bg-brand-50/60 ${sel === w.id ? "bg-navy-50 border-l-2 border-brand-400" : "border-l-2 border-transparent"}`}>
                   <div className="flex justify-between gap-2"><span className="font-mono text-xs text-ink-mute">{w.id}</span>
                     <span className={`text-xs ${w.canh_bao === 'QUÁ HẠN' ? 'text-red-600' : 'text-ink-mute'}`}>{w.canh_bao}</span></div>
                   <div className="line-clamp-2">{w.noi_dung}</div>
@@ -110,7 +110,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
               <div className="flex flex-wrap gap-2">
                 {STAGES.filter((s) => counts[s]).map((s) => (
                   <button key={s} onClick={() => setFilter(filter === s ? null : s)}
-                    className={`px-3 py-1 rounded-full text-sm ${COLORS[s]} ${filter === s ? 'ring-2 ring-gold-400' : ''}`}>{s} ×{counts[s]}</button>
+                    className={`px-3 py-1 rounded-full text-sm ${COLORS[s]} ${filter === s ? 'ring-2 ring-brand-400' : ''}`}>{s} ×{counts[s]}</button>
                 ))}
                 {!Object.keys(counts).length && <span className="text-sm text-navy-200">—</span>}
               </div>
@@ -118,7 +118,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
 
             <div>
               <div className="text-xs text-ink-mute mb-1">Diễn biến theo ngày</div>
-              <ol className="border-l-2 border-gold-200 pl-5 space-y-2 text-sm">
+              <ol className="border-l-2 border-brand-200 pl-5 space-y-2 text-sm">
                 {entries.filter((e) => !filter || e.stage === filter).map((e, i) => (
                   <li key={i}>
                     <span className="text-ink-mute mr-2">{e.day}</span>
@@ -195,7 +195,7 @@ function RecordSheet({ work, counts, onClose, onSaved }: { work: Work; counts: R
         <div className="flex flex-wrap gap-2">
           {STAGES.map((s) => (
             <button key={s} type="button" onClick={() => setStage(stage === s ? '' : s)}
-              className={`px-3 py-1.5 rounded-full text-sm ${COLORS[s]} ${stage === s ? 'ring-2 ring-gold-400' : ''}`}>{s} · lần {(counts[s] ?? 0) + 1}</button>
+              className={`px-3 py-1.5 rounded-full text-sm ${COLORS[s]} ${stage === s ? 'ring-2 ring-brand-400' : ''}`}>{s} · lần {(counts[s] ?? 0) + 1}</button>
           ))}
         </div>
         <textarea className="input" rows={3} placeholder="Nội dung…" value={text} onChange={(e) => setText(e.target.value)} autoFocus />

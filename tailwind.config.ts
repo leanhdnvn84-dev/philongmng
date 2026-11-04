@@ -1,22 +1,24 @@
 import type { Config } from 'tailwindcss'
 
+// Palette taken from PHILONG BUILDING V191 (Apps Script): brand red #ED3237,
+// slate-navy text #172033, lines #e4e7ec, canvas #f4f6f8.
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
-      fontFamily: { sans: ['var(--font-sans)', 'system-ui', 'sans-serif'] },
+      fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Segoe UI"', 'Roboto', 'Arial', 'sans-serif'] },
       colors: {
-        // deep navy brand + champagne gold accent
-        navy: { 50: '#f2f5fa', 100: '#e3e9f3', 200: '#c4d0e4', 300: '#94a8cb', 400: '#5f78a8', 500: '#3d5689', 600: '#2c416f', 700: '#22335a', 800: '#172440', 900: '#0f1a30', 950: '#0a1222' },
-        gold: { 50: '#fbf7ec', 100: '#f5ebcc', 200: '#ead59a', 300: '#dcbb67', 400: '#cfa548', 500: '#b88a32', 600: '#986d29', 700: '#795424' },
-        ink: { DEFAULT: '#1b2333', soft: '#4a5468', mute: '#7a8396' },
-        canvas: '#f5f6f9',
+        navy: { 50: '#f8fafc', 100: '#eef1f5', 200: '#e4e7ec', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1f2a3c', 900: '#172033', 950: '#0f1624' },
+        brand: { 50: '#fef2f2', 100: '#fde3e3', 200: '#fbc5c6', 300: '#f6979a', 400: '#ED3237', 500: '#d92a2f', 600: '#b82227', 700: '#941c20' },
+        select: { DEFAULT: '#eaf4ff', accent: '#2189e6' }, // selected table row, as in V191
+        ink: { DEFAULT: '#1f2937', soft: '#475569', mute: '#667085' },
+        canvas: '#f4f6f8',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(15,26,48,.04), 0 4px 16px -4px rgba(15,26,48,.08)',
-        pop: '0 12px 40px -8px rgba(15,26,48,.28)',
+        card: '0 8px 24px rgba(16,24,40,.06)',
+        pop: '0 12px 30px rgba(16,24,40,.16)',
       },
-      borderRadius: { xl: '14px', '2xl': '20px' },
+      borderRadius: { xl: '12px', '2xl': '16px' },
     },
   },
   plugins: [],

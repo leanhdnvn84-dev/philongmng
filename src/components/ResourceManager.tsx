@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Plus, Search, Download, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap } from 'lucide-react'
+import { Plus, Search, Download, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { Action, Field, getResource, visibleInList, formatMoney, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
 
@@ -76,6 +76,7 @@ export default function ResourceManager({
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
   const [editing, setEditing] = useState<Row | null>(null)
   const [viewing, setViewing] = useState<Row | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null) // V191: select a row, then use the toolbar
   const [acting, setActing] = useState<{ action: Action; row: Row | null } | null>(null)
   const pageSize = compact ? 200 : 50
 
@@ -164,94 +165,103 @@ export default function ResourceManager({
   const from = total ? (page - 1) * pageSize + 1 : 0
   const to = Math.min(total, page * pageSize)
 
+  const selected = rows.find((r) => r.id === selectedId) ?? null
+  const lockedMsg = selected ? res.locked?.(selected) ?? null : null
+  const needRow = (fn: (r: Row) => void) => () => { if (selected) fn(selected) }
+
   return (
-    <div className={compact ? 'space-y-3' : 'space-y-5'}>
-      {/* page header */}
-      <div className="flex flex-wrap items-end gap-3 justify-between">
-        <div>
-          {compact ? <h3 className="text-base font-semibold text-ink">{title ?? res.title}</h3> : <>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-600 mb-1">{res.title !== title ? res.title : 'Quản lý'}</p>
-            <h1 className="text-2xl md:text-[28px] font-bold tracking-tight text-navy-900">{title ?? res.title}</h1>
-          </>}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {pageActions.map((a) => (
-            <button key={a.key} className="btn-secondary" onClick={() => setActing({ action: a, row: null })}><Zap className="h-4 w-4 text-gold-500" />{a.label}</button>
-          ))}
-          {!compact && <button className="btn-secondary" onClick={exportCsv}><Download className="h-4 w-4" />Xuất CSV</button>}
-          {canCreate && <button className={compact ? 'btn-secondary btn-sm' : 'btn-primary'} onClick={() => setEditing({})}><Plus className="h-4 w-4" />Thêm {compact ? 'dòng' : res.singular}</button>}
-        </div>
+    <div className={compact ? 'space-y-2' : 'space-y-4'}>
+      {/* page title (V191: plain bold title, actions live in the table toolbar) */}
+      <div className="flex flex-wrap items-center gap-3 justify-between">
+        {compact ? <h3 className="text-[15px] font-bold text-navy-900">{title ?? res.title}</h3>
+          : <h1 className="text-[22px] font-extrabold text-navy-900">{title ?? res.title}</h1>}
+        {!compact && <button className="btn-secondary" onClick={exportCsv}><Download className="h-4 w-4" />Xuất CSV</button>}
       </div>
 
       {msg && (
-        <div role="status" className={`flex items-start justify-between gap-3 rounded-xl px-4 py-3 text-sm ring-1 ${msg.type === 'ok' ? 'bg-emerald-50 text-emerald-800 ring-emerald-200' : 'bg-red-50 text-red-800 ring-red-200'}`}>
+        <div role="status" className={`flex items-start justify-between gap-3 rounded-[9px] border px-4 py-2.5 text-sm font-semibold ${msg.type === 'ok' ? 'bg-green-50 text-green-800 border-green-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
           <span>{msg.text}</span>
           <button onClick={() => setMsg(null)} aria-label="Đóng" className="opacity-60 hover:opacity-100"><X className="h-4 w-4" /></button>
         </div>
       )}
 
       <div className="card overflow-hidden">
-        {!compact && (
-          <div className="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-navy-50">
+        {/* toolbar: Thêm · Sửa · Xóa · Xem + business actions on the selected row */}
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2.5 border-b border-navy-200 bg-white">
+          {canCreate && <button className={compact ? 'btn-primary btn-sm' : 'btn-primary'} onClick={() => setEditing({})}><Plus className="h-4 w-4" />Thêm</button>}
+          {canEdit && <button className={`btn-secondary ${compact ? 'btn-sm' : ''}`} disabled={!selected || !!lockedMsg} title={lockedMsg ?? undefined} onClick={needRow((r) => setEditing(r))}><Pencil className="h-4 w-4" />Sửa</button>}
+          {canDelete && <button className={`btn-secondary ${compact ? 'btn-sm' : ''}`} disabled={!selected || !!lockedMsg} title={lockedMsg ?? undefined} onClick={needRow((r) => remove(r))}><Trash2 className="h-4 w-4" />Xóa</button>}
+          <button className={`btn-secondary ${compact ? 'btn-sm' : ''}`} disabled={!selected} onClick={needRow((r) => setViewing(r))}><Eye className="h-4 w-4" />Xem</button>
+          {rowActions.length > 0 && <span className="mx-1 h-6 w-px bg-navy-200" />}
+          {rowActions.map((a) => {
+            const ok = !!selected && (!a.show || a.show(selected))
+            return <button key={a.key} className={`btn-secondary ${compact ? 'btn-sm' : ''}`} disabled={!ok}
+              onClick={needRow((r) => a.fields?.length ? setActing({ action: a, row: r }) : run(a, r).catch(() => {}))}><Zap className="h-4 w-4 text-brand-400" />{a.label}</button>
+          })}
+          {pageActions.map((a) => (
+            <button key={a.key} className="btn-secondary" onClick={() => setActing({ action: a, row: null })}><Zap className="h-4 w-4 text-brand-400" />{a.label}</button>
+          ))}
+          {!compact && <div className="ml-auto flex flex-wrap items-center gap-2">
             {res.searchFields.length > 0 && (
-              <div className="relative flex-1 min-w-[220px] max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-mute" />
-                <input className="input pl-9 bg-canvas border-transparent focus:bg-white" type="search" placeholder="Tìm kiếm…" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <div className="relative w-[240px] max-w-full">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-mute" />
+                <input className="input pl-8" type="search" placeholder="Tìm kiếm…" value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             )}
             {statusField && (
-              <div className="flex flex-wrap gap-1.5">
-                {['', ...statusField.options!].map((o) => (
-                  <button key={o || 'all'} onClick={() => { setPage(1); setStatus(o) }}
-                    className={`h-8 px-3 rounded-full text-xs font-semibold transition-colors ${status === o ? 'bg-navy-800 text-white' : 'bg-canvas text-ink-soft hover:bg-navy-50'}`}>
-                    {o || 'Tất cả'}
-                  </button>
-                ))}
-              </div>
+              <select className="input w-auto min-w-[170px]" value={status} onChange={(e) => { setPage(1); setStatus(e.target.value) }} aria-label="Lọc trạng thái">
+                <option value="">Mọi trạng thái</option>
+                {statusField.options!.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
             )}
-            <span className="ml-auto text-xs text-ink-mute tabular-nums">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : `${total.toLocaleString('vi-VN')} bản ghi`}</span>
-          </div>
-        )}
+          </div>}
+        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-canvas/60">
-              <tr className="text-left text-[11px] font-semibold uppercase tracking-wider text-ink-mute">
-                {res.key !== 'users' && <th className="px-4 py-3 whitespace-nowrap">Mã</th>}
-                {listFields.map((f) => <th key={f.name} className="px-4 py-3 whitespace-nowrap">{f.label}</th>)}
+        <div className={`overflow-auto ${compact ? 'max-h-[360px]' : 'max-h-[calc(100vh-250px)]'}`}>
+          <table className="w-full text-[13.5px] border-separate border-spacing-0">
+            <thead>
+              <tr className="text-left text-[12.5px] font-bold text-navy-700">
+                {res.key !== 'users' && <th className="sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-3 py-2.5 whitespace-nowrap">Mã</th>}
+                {listFields.map((f) => <th key={f.name} className="sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-3 py-2.5 whitespace-nowrap">{f.label}</th>)}
               </tr>
             </thead>
-            <tbody className="divide-y divide-navy-50">
+            <tbody>
               {loading && rows.length === 0 ? (
-                [...Array(compact ? 2 : 6)].map((_, i) => (
-                  <tr key={i}><td colSpan={listFields.length + 1} className="px-4 py-3.5"><div className="h-4 rounded bg-navy-50 animate-pulse" style={{ width: `${60 + ((i * 13) % 35)}%` }} /></td></tr>
+                [...Array(compact ? 2 : 8)].map((_, i) => (
+                  <tr key={i}><td colSpan={listFields.length + 1} className="px-3 py-3 border-b border-navy-100"><div className="h-3.5 rounded bg-navy-100 animate-pulse" style={{ width: `${60 + ((i * 13) % 35)}%` }} /></td></tr>
                 ))
               ) : rows.length === 0 ? (
                 <tr><td colSpan={listFields.length + 1} className="px-4 py-14 text-center text-ink-mute">
-                  <Inbox className="h-8 w-8 mx-auto mb-2 text-navy-200" />Chưa có dữ liệu
+                  <Inbox className="h-8 w-8 mx-auto mb-2 text-navy-300" />Chưa có dữ liệu
                 </td></tr>
-              ) : rows.map((r) => (
-                <tr key={r.id} onClick={() => setViewing(r)} className={`group cursor-pointer transition-colors hover:bg-gold-50/60 ${loading ? 'opacity-60' : ''}`}>
-                  {res.key !== 'users' && <td className="px-4 py-3 font-mono text-xs text-ink-mute whitespace-nowrap group-hover:text-navy-700">{r.id}</td>}
-                  {listFields.map((f) => (
-                    <td key={f.name} className={`px-4 py-3 align-top ${f.type === 'textarea' || f.name === 'noi_dung' ? 'min-w-[18rem] max-w-md' : 'whitespace-nowrap'}`}>
-                      <div className={f.type === 'textarea' || f.name === 'noi_dung' ? 'line-clamp-2 text-ink' : ''}>{display(f, r[f.name], labels)}</div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              ) : rows.map((r, idx) => {
+                const sel = r.id === selectedId
+                return (
+                  <tr key={r.id} tabIndex={0} aria-selected={sel}
+                    onClick={() => setSelectedId(sel ? null : r.id)} onDoubleClick={() => setViewing(r)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
+                    className={`cursor-pointer outline-none ${loading ? 'opacity-60' : ''} ${sel ? 'bg-select' : idx % 2 ? 'bg-navy-50/60 hover:bg-select/60' : 'bg-white hover:bg-select/60'}`}>
+                    {res.key !== 'users' && <td className={`px-3 py-2 border-b border-navy-100 font-mono text-xs whitespace-nowrap ${sel ? 'text-select-accent font-bold shadow-[inset_3px_0_0_#2189e6]' : 'text-ink-mute'}`}>{r.id}</td>}
+                    {listFields.map((f) => (
+                      <td key={f.name} className={`px-3 py-2 border-b border-navy-100 align-top ${f.type === 'textarea' || f.name === 'noi_dung' ? 'min-w-[18rem] max-w-md' : 'whitespace-nowrap'}`}>
+                        <div className={f.type === 'textarea' || f.name === 'noi_dung' ? 'line-clamp-2 text-ink' : ''}>{display(f, r[f.name], labels)}</div>
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
 
-        {!compact && pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-navy-50 text-sm text-ink-soft">
-            <span className="tabular-nums">{from}–{to} / {total.toLocaleString('vi-VN')}</span>
-            <div className="flex items-center gap-1">
+        {!compact && (
+          <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-t border-navy-200 bg-navy-50 text-[13px] text-ink-soft">
+            <span className="tabular-nums">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>{total ? `${from}–${to} / ` : ''}<b className="text-ink">{total.toLocaleString('vi-VN')}</b> bản ghi{selected ? <> · đang chọn <b className="text-select-accent">{selected.id}</b></> : ' · bấm để chọn dòng, bấm đúp để xem'}</>}</span>
+            {pages > 1 && <div className="flex items-center gap-1">
               <button className="btn-ghost btn-sm" disabled={page <= 1} onClick={() => setPage(page - 1)} aria-label="Trang trước"><ChevronLeft className="h-4 w-4" /></button>
-              <span className="px-2 tabular-nums">Trang {page}/{pages}</span>
+              <span className="px-2 tabular-nums font-semibold">Trang {page}/{pages}</span>
               <button className="btn-ghost btn-sm" disabled={page >= pages} onClick={() => setPage(page + 1)} aria-label="Trang sau"><ChevronRight className="h-4 w-4" /></button>
-            </div>
+            </div>}
           </div>
         )}
       </div>
@@ -260,7 +270,7 @@ export default function ResourceManager({
         <Drawer onClose={() => setViewing(null)}>
           <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-navy-50 px-6 py-4 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold-600">{res.singular}</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-600">{res.singular}</p>
               <h2 className="text-lg font-bold text-navy-900 truncate">{res.key === 'users' ? viewing.ho_ten : viewing.id}</h2>
             </div>
             <button onClick={() => setViewing(null)} className="btn-ghost h-9 w-9 px-0" aria-label="Đóng"><X className="h-5 w-5" /></button>
@@ -286,7 +296,7 @@ export default function ResourceManager({
 
           <div className="sticky bottom-0 bg-white/95 backdrop-blur border-t border-navy-50 px-6 py-3 flex flex-wrap items-center gap-2">
             {rowActions.filter((a) => !a.show || a.show(viewing)).map((a) => (
-              <button key={a.key} className="btn-gold" onClick={() => a.fields?.length ? setActing({ action: a, row: viewing }) : run(a, viewing).catch(() => {})}>
+              <button key={a.key} className="btn-brand" onClick={() => a.fields?.length ? setActing({ action: a, row: viewing }) : run(a, viewing).catch(() => {})}>
                 <Zap className="h-4 w-4" />{a.label}
               </button>
             ))}

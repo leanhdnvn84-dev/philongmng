@@ -8,10 +8,10 @@ import {
 } from 'lucide-react'
 import { formatDate, formatMoney } from '@/lib/resources'
 
-type Tone = 'red' | 'amber' | 'navy' | 'gold' | 'green'
+type Tone = 'red' | 'amber' | 'navy' | 'brand' | 'green'
 const TONES: Record<Tone, string> = {
   red: 'bg-red-50 text-red-600 ring-red-100', amber: 'bg-amber-50 text-amber-600 ring-amber-100',
-  navy: 'bg-navy-50 text-navy-700 ring-navy-100', gold: 'bg-gold-50 text-gold-600 ring-gold-100', green: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+  navy: 'bg-navy-50 text-navy-700 ring-navy-100', brand: 'bg-brand-50 text-brand-600 ring-brand-100', green: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
 }
 
 function Kpi({ label, value, icon: Icon, tone = 'navy', href, hint }: {
@@ -21,9 +21,9 @@ function Kpi({ label, value, icon: Icon, tone = 'navy', href, hint }: {
     <div className="card group h-full p-4 transition-all hover:-translate-y-0.5 hover:shadow-pop">
       <div className="flex items-start justify-between gap-2">
         <span className={`grid place-items-center h-9 w-9 rounded-lg ring-1 ${TONES[tone]}`}><Icon className="h-[18px] w-[18px]" /></span>
-        {href && <ArrowUpRight className="h-4 w-4 text-navy-200 group-hover:text-gold-500 transition-colors" />}
+        {href && <ArrowUpRight className="h-4 w-4 text-navy-200 group-hover:text-brand-500 transition-colors" />}
       </div>
-      <div className="mt-3 text-[26px] leading-none font-bold tracking-tight text-navy-900 tabular-nums">{value}</div>
+      <div className="mt-3 text-[26px] leading-none font-extrabold text-navy-900 tabular-nums">{value}</div>
       <div className="mt-1.5 text-xs font-medium text-ink-mute">{label}</div>
       {hint && <div className="mt-0.5 text-[11px] text-ink-mute/80">{hint}</div>}
     </div>
@@ -36,7 +36,7 @@ function Panel({ title, href, children, count }: { title: string; href: string; 
     <section className="card overflow-hidden">
       <header className="flex items-center justify-between px-5 py-3.5 border-b border-navy-50">
         <h2 className="text-sm font-semibold text-navy-900">{title}{count ? <span className="ml-2 pill-gray">{count}</span> : null}</h2>
-        <Link href={href} className="text-xs font-semibold text-gold-600 hover:text-gold-700">Xem tất cả →</Link>
+        <Link href={href} className="text-xs font-semibold text-brand-600 hover:text-brand-700">Xem tất cả →</Link>
       </header>
       {children}
     </section>
@@ -63,20 +63,19 @@ export default function Dashboard() {
   const weekday = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
 
   return (
-    <div className="space-y-7">
-      {/* hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 px-6 py-7 md:px-8 text-white shadow-card">
-        <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-gold-400/10 blur-2xl" />
-        <div className="absolute right-10 bottom-0 h-24 w-24 rounded-full bg-gold-400/10 blur-xl" />
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold-300">Tổng quan vận hành</p>
-        <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight">{greet}</h1>
-        <p className="mt-1 text-sm text-navy-200 first-letter:uppercase">{weekday}, {formatDate(d.today)}</p>
+    <div className="space-y-5">
+      {/* heading + alert strip (V191 style: plain white card, red accent) */}
+      <div className="card px-5 py-4 flex flex-wrap items-center gap-4 border-l-4 border-l-brand-400">
+        <div className="flex-1 min-w-[220px]">
+          <h1 className="text-[22px] font-extrabold text-navy-900">{greet}</h1>
+          <p className="text-sm text-ink-mute first-letter:uppercase">{weekday}, {formatDate(d.today)}</p>
+        </div>
         {(cv?.overdue || bt?.late) ? (
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm ring-1 ring-white/15">
-            <AlertTriangle className="h-4 w-4 text-gold-300" />
+          <div className="flex items-center gap-2 rounded-[7px] bg-brand-50 border border-brand-200 px-3 py-2 text-sm font-bold text-brand-600">
+            <AlertTriangle className="h-4 w-4" />
             Cần xử lý: {cv?.overdue ? `${cv.overdue} công việc quá hạn` : ''}{cv?.overdue && bt?.late ? ' · ' : ''}{bt?.late ? `${bt.late} hạng mục bảo trì trễ lịch` : ''}
           </div>
-        ) : <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm ring-1 ring-white/15">Mọi việc đang đúng tiến độ</div>}
+        ) : <div className="rounded-[7px] bg-green-50 border border-green-200 px-3 py-2 text-sm font-bold text-green-700">Mọi việc đang đúng tiến độ</div>}
       </div>
 
       {/* KPIs */}
@@ -87,7 +86,7 @@ export default function Dashboard() {
           <Kpi label="Công việc đang mở" value={cv.open} icon={ClipboardList} href="/cong_viec" />
         </>}
         {hn && <Kpi label="Việc hằng ngày hôm nay" value={`${hn.done}/${hn.total}`} icon={ListChecks} tone="green" href="/cong_viec_hang_ngay" />}
-        {krv && <Kpi label="Khách đang trong tòa nhà" value={krv.inside} icon={Users} tone="gold" href="/khach_ra_vao?trang_thai=Đang trong tòa nhà" hint={`${krv.today} lượt hôm nay`} />}
+        {krv && <Kpi label="Khách đang trong tòa nhà" value={krv.inside} icon={Users} tone="brand" href="/khach_ra_vao?trang_thai=Đang trong tòa nhà" hint={`${krv.today} lượt hôm nay`} />}
         {bt && <>
           <Kpi label="Bảo trì trễ lịch" value={bt.late} icon={Wrench} tone={bt.late ? 'red' : 'green'} href="/lich_bao_tri" />
           <Kpi label="Bảo trì sắp đến hạn" value={bt.soon + bt.dueToday} icon={CalendarClock} tone={bt.soon + bt.dueToday ? 'amber' : 'navy'} href="/lich_bao_tri" />
@@ -95,7 +94,7 @@ export default function Dashboard() {
         </>}
         {dx && <>
           <Kpi label="Đề xuất chờ duyệt" value={dx.pending} icon={FileSignature} tone={dx.pending ? 'amber' : 'navy'} href="/de_xuat?loai_de_xuat=MUA_VAT_TU" />
-          <Kpi label="Giá trị chờ duyệt" value={<span className="text-xl">{formatMoney(dx.amount)}</span>} icon={Wallet} tone="gold" />
+          <Kpi label="Giá trị chờ duyệt" value={<span className="text-xl">{formatMoney(dx.amount)}</span>} icon={Wallet} tone="brand" />
         </>}
         {kho && <Kpi label="Vật tư dưới tồn tối thiểu" value={kho.low.length} icon={PackageX} tone={kho.low.length ? 'red' : 'green'} href="/vat_tu" />}
         {kt && <Kpi label="Khách đang thuê" value={kt.renting} icon={Building2} href="/khach_thue" />}
@@ -144,7 +143,7 @@ export default function Dashboard() {
             {Object.entries(tb.by as Record<string, number>).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
               <Link key={k} href={k === '(trống)' ? '/thiet_bi' : `/thiet_bi?trang_thai=${encodeURIComponent(k)}`} className="block group">
                 <div className="flex justify-between text-sm mb-1"><span className="text-ink group-hover:text-navy-700">{k}</span><span className="tabular-nums text-ink-soft">{v}</span></div>
-                <div className="h-1.5 rounded-full bg-navy-50 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-navy-600 to-gold-400" style={{ width: `${(v / Math.max(1, tb.total)) * 100}%` }} /></div>
+                <div className="h-1.5 rounded-full bg-navy-50 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-navy-600 to-brand-400" style={{ width: `${(v / Math.max(1, tb.total)) * 100}%` }} /></div>
               </Link>
             ))}
           </div>
