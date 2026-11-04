@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
-import Sidebar, { SideGroup } from '@/components/Sidebar'
+import TopNav, { NavGroup } from '@/components/TopNav'
 import { getAuth, can } from '@/lib/auth'
 import { NAV } from '@/lib/resources'
 
@@ -10,14 +10,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const auth = await getAuth()
   if (!auth) redirect('/login?error=no-access')
 
-  const groups: SideGroup[] = NAV
+  const groups: NavGroup[] = NAV
     .map((g) => ({ group: g.group, items: g.items.filter((i) => can(auth, i.module, 'view')).map(({ label, href }) => ({ label, href })) }))
     .filter((g) => g.items.length)
 
   return (
-    <div className="md:flex">
-      <Suspense><Sidebar groups={groups} name={auth.name} role={auth.roleName} /></Suspense>
-      <main className="flex-1 p-3 md:p-6 min-w-0">{children}</main>
+    <div className="min-h-screen flex flex-col">
+      <Suspense fallback={<div className="h-16 bg-navy-900" />}>
+        <TopNav groups={groups} name={auth.name} role={auth.roleName} />
+      </Suspense>
+      <main className="flex-1 w-full mx-auto max-w-[1440px] px-4 lg:px-6 py-6 lg:py-8">{children}</main>
+      <footer className="py-6 text-center text-xs text-ink-mute">© PHILONG BUILDING · Hệ thống quản lý vận hành tòa nhà</footer>
     </div>
   )
 }
