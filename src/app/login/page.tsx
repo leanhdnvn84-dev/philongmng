@@ -65,7 +65,7 @@ export default function LoginPage() {
 
           <div className="mt-8 lg:mt-14">
             <p className="text-[12.5px] font-extrabold uppercase tracking-[.22em] text-[#ff8a8e]">Hệ thống quản lý vận hành tòa nhà</p>
-            <h1 className="mt-3 text-[34px] font-black leading-[1.08] tracking-tight sm:text-[44px] lg:text-[52px]">{greet}</h1>
+            <h1 className="mt-3 bg-gradient-to-b from-white to-[#ffd9da] bg-clip-text font-soft text-[36px] font-extrabold leading-[1.12] tracking-[.005em] text-transparent drop-shadow-[0_4px_24px_rgba(255,138,142,.35)] sm:text-[46px] lg:text-[54px]">{greet}</h1>
             <p className="mt-3 text-[15px] font-semibold text-[#b3c0da] first-letter:uppercase sm:text-[17px]">{today || '\u00a0'}</p>
             <p className="mt-1 text-[38px] font-extrabold tabular-nums leading-none tracking-wide sm:text-[48px]" aria-label="Giờ hiện tại">{clock || '--:--:--'}</p>
           </div>
