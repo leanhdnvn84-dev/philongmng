@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { supabaseServer } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
+import { REMEMBER_COOKIE, maxAgeFor } from '@/lib/session'
 
 export const runtime = 'nodejs'
 const BAD = 'Tên đăng nhập / email hoặc mật khẩu không đúng'
@@ -18,6 +20,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}))
   const ident = String(body.identifier ?? '').trim().toLowerCase()
   const password = String(body.password ?? '')
+  const remember = body.remember === true
   if (!ident || ident.length > 200 || !password || password.length > 256)
     return NextResponse.json({ success: false, error: BAD }, { status: 400 })
 
@@ -48,8 +51,9 @@ export async function POST(req: Request) {
     }
   }
 
-  const { error } = await supabaseServer().auth.signInWithPassword({ email: user.email, password })
+  const { error } = await supabaseServer({ remember }).auth.signInWithPassword({ email: user.email, password })
   if (error) return miss()
+  cookies().set(REMEMBER_COOKIE, remember ? '1' : '0', { maxAge: maxAgeFor(remember), path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
   fails.delete(ident)
   return NextResponse.json({ success: true })
 }

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { REMEMBER_COOKIE, maxAgeFor } from '@/lib/session'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
@@ -7,12 +8,13 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: { maxAge: maxAgeFor(request.cookies.get(REMEMBER_COOKIE)?.value === '1') },
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll(list) {
           list.forEach(({ name, value }) => request.cookies.set(name, value))
           response = NextResponse.next({ request })
-          list.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+          list.forEach(({ name, value, options }) => response.cookies.set(name, value, { ...options, ...(options?.maxAge === 0 ? {} : { maxAge: maxAgeFor(request.cookies.get(REMEMBER_COOKIE)?.value === '1') }) }))
         },
       },
     }
