@@ -160,8 +160,8 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
 
       {mobile && (<Portal>
         <div data-drawer className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/45" onClick={() => setMobile(false)} />
-          <div className="absolute inset-x-3 bottom-3 flex max-h-[84vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
+          <div className="pl-fade absolute inset-0 bg-black/45" onClick={() => setMobile(false)} />
+          <div className="pl-sheet absolute inset-x-3 bottom-3 flex max-h-[84vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
             <div className="flex shrink-0 items-center gap-3 bg-brand-50 px-4 py-3">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-400 text-sm font-black text-white">{initials || 'U'}</span>
               <div className="min-w-0 flex-1 leading-tight">

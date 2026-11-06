@@ -33,3 +33,11 @@
 }
 
 * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
+
+/* phone sheets slide up, floating tabs tuck in and out */
+@keyframes pl-sheet-up { from { transform: translateY(24px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes pl-fade { from { opacity: 0 } to { opacity: 1 } }
+.pl-sheet { animation: pl-sheet-up .22s ease-out both }
+.pl-fade { animation: pl-fade .2s ease-out both }
+@media (prefers-reduced-motion: reduce) { .pl-sheet, .pl-fade { animation: none } }

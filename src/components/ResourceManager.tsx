@@ -163,6 +163,14 @@ export default function ResourceManager({
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
+  const [tuck, setTuck] = useState(false) // phone: the filter tab slides into the edge while scrolling down / idle, and back out on scroll up
+  useEffect(() => {
+    let last = window.scrollY, idle: ReturnType<typeof setTimeout>
+    const arm = () => { clearTimeout(idle); idle = setTimeout(() => setTuck(true), 3000) }
+    const on = () => { const y = window.scrollY; setTuck(y > last + 6 ? true : y < last - 6 ? false : (t) => t); last = y; arm() }
+    window.addEventListener('scroll', on, { passive: true }); arm()
+    return () => { window.removeEventListener('scroll', on); clearTimeout(idle) }
+  }, [])
   const [status, setStatus] = useState('')
   const [side, setSide] = useState('')
   const [day, setDay] = useState<string | null>(null)
@@ -520,8 +528,8 @@ export default function ResourceManager({
       </div>
       {(hasCalendar || sideField) && (
         <Portal>
-          <button type="button" onClick={() => setFilterOpen(true)} aria-label="Mở bộ lọc"
-            className="lg:hidden print:hidden fixed left-0 top-[55%] z-30 grid h-16 w-11 place-items-center rounded-r-2xl bg-brand-400 text-white shadow-[0_4px_14px_rgba(237,50,55,.4)] active:brightness-90">
+          <button type="button" onClick={() => { setTuck(false); setFilterOpen(true) }} aria-label="Mở bộ lọc"
+            className={`lg:hidden print:hidden fixed left-0 top-[55%] z-30 grid h-16 w-11 place-items-center rounded-r-2xl bg-brand-400 text-white shadow-[0_4px_14px_rgba(237,50,55,.4)] transition-transform duration-300 active:brightness-90 ${tuck ? '-translate-x-6' : ''}`}>
             <Filter className="h-5 w-5" />
             {(day || side) && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-white ring-2 ring-brand-400" />}
           </button>
@@ -564,8 +572,8 @@ function FilterSheet({ children, onClose }: { children: React.ReactNode; onClose
   useEscape(onClose)
   return (<Portal>
     <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/45" onClick={onClose} />
-      <div className="absolute inset-x-3 bottom-3 flex max-h-[82vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
+      <div className="pl-fade absolute inset-0 bg-black/45" onClick={onClose} />
+      <div className="pl-sheet absolute inset-x-3 bottom-3 flex max-h-[82vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
         <div className="flex shrink-0 items-center justify-between bg-brand-400 px-4 py-3 text-white">
           <h2 className="text-[19px] font-extrabold">Bộ lọc</h2>
           <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center"><X className="h-6 w-6" /></button>
