@@ -10,6 +10,7 @@ import { formatDate, formatMoney } from '@/lib/resources'
 
 type Tone = 'red' | 'amber' | 'blue' | 'green'
 const BAR: Record<Tone, string> = { red: 'bg-red-500', amber: 'bg-amber-500', blue: 'bg-blue-500', green: 'bg-emerald-500' }
+const NUM: Record<Tone, string> = { red: 'text-red-700', amber: 'text-amber-700', blue: 'text-blue-700', green: 'text-emerald-700' }
 const ICON: Record<Tone, string> = { red: 'bg-red-50 text-red-600', amber: 'bg-amber-50 text-amber-600', blue: 'bg-blue-50 text-blue-600', green: 'bg-emerald-50 text-emerald-600' }
 
 function Hero({ label, value, icon: Icon, tone, href, chips }: {
@@ -21,9 +22,9 @@ function Hero({ label, value, icon: Icon, tone, href, chips }: {
       <span className={`absolute inset-x-0 top-0 h-1 ${BAR[tone]}`} />
       <div className="flex items-center justify-between">
         <span className={`grid h-9 w-9 place-items-center rounded-xl ${ICON[tone]}`}><Icon className="h-[18px] w-[18px]" /></span>
-        <ArrowUpRight className="h-4 w-4 text-navy-300 transition group-hover:text-brand-500" />
+        <ArrowUpRight className="h-4 w-4 text-navy-300 transition group-hover:text-blue-600" />
       </div>
-      <div className="mt-2 text-[32px] font-black leading-none tabular-nums text-navy-900">{value}</div>
+      <div className={`mt-2 text-[32px] font-black leading-none tabular-nums ${NUM[tone]}`}>{value}</div>
       <div className="mt-1 text-[13px] font-bold text-ink-soft">{label}</div>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {chips.map((c) => <span key={c.text} className={`rounded-md px-2 py-0.5 text-[11.5px] font-bold ${c.hot ? 'bg-red-50 text-red-600' : 'bg-navy-100 text-ink-soft'}`}>{c.text}</span>)}
@@ -71,7 +72,7 @@ export default function Dashboard() {
   const weekday = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
   const urgent = (cv?.overdue ?? 0) + (bt?.late ?? 0)
   const dailyPct = hn?.total ? Math.round((hn.done / hn.total) * 100) : 0
-  const tbColors = ['#13274a', '#ED3237', '#3b82f6', '#f59e0b', '#10b981', '#94a3b8']
+  const tbColors = ['#ffffff', '#ff8a8e', '#93c5fd', '#fcd34d', '#6ee7b7', '#cbd5e1']
   const tbEntries = tb ? Object.entries(tb.by as Record<string, number>).sort((a, b) => b[1] - a[1]) : []
 
   return (
@@ -100,7 +101,7 @@ export default function Dashboard() {
           chips={[{ text: `${bt.late} trễ lịch`, hot: bt.late > 0 }, { text: `${bt.soon + bt.dueToday} sắp đến hạn` }, { text: `${bt.waiting} chờ ngày gốc` }]} />}
         {krv && <Hero label="Khách trong tòa nhà" value={krv.inside} icon={Users} tone="blue" href="/khach_ra_vao"
           chips={[{ text: `${krv.today} lượt hôm nay` }]} />}
-        {dx && <Hero label="Đề xuất chờ duyệt" value={dx.pending} icon={FileSignature} tone={dx.pending ? 'amber' : 'green'} href="/de_xuat?loai_de_xuat=MUA_VAT_TU"
+        {dx && <Hero label="Đề xuất chờ duyệt" value={dx.pending} icon={FileSignature} tone="blue" href="/de_xuat?loai_de_xuat=MUA_VAT_TU"
           chips={[{ text: dx.amount ? formatMoney(dx.amount) : 'Không có khoản chờ' }]} />}
       </div>
 
@@ -112,12 +113,12 @@ export default function Dashboard() {
             <div className="flex flex-wrap gap-1" role="tablist">
               {tabs.map((t) => (
                 <button key={t.key} role="tab" aria-selected={active?.key === t.key} onClick={() => setTab(t.key)}
-                  className={`rounded-full px-3 py-1 text-[12.5px] font-bold transition ${active?.key === t.key ? 'bg-navy-900 text-white' : 'bg-navy-100 text-ink-soft hover:bg-navy-200'}`}>
+                  className={`rounded-full px-3 py-1 text-[12.5px] font-bold transition ${active?.key === t.key ? 'bg-blue-600 text-white shadow-[0_3px_8px_rgba(37,99,235,.3)]' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}>
                   {t.label}{t.n > 0 && <span className={`ml-1.5 rounded-full px-1.5 text-[11px] ${active?.key === t.key ? 'bg-white/20' : 'bg-white'}`}>{t.n}</span>}
                 </button>
               ))}
             </div>
-            {active && <Link href={active.href} className="ml-auto px-1 text-[12.5px] font-bold text-brand-600 hover:text-brand-700">Xem tất cả →</Link>}
+            {active && <Link href={active.href} className="ml-auto px-1 text-[12.5px] font-bold text-blue-600 hover:text-blue-700">Xem tất cả →</Link>}
           </header>
           <ul className="max-h-[420px] min-h-[160px] overflow-y-auto lg:max-h-none lg:min-h-0 lg:flex-1">
             {active?.key === 'cv' && (cv.list.length === 0 ? <Empty text="Không có công việc nào cần chú ý." /> : cv.list.map((r: any) => (
@@ -146,12 +147,12 @@ export default function Dashboard() {
           {hn && (
             <div className="rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)]">
               <div className="mb-2 flex items-center justify-between"><h2 className="text-[14px] font-extrabold text-navy-900">Việc hằng ngày hôm nay</h2>
-                <Link href="/cong_viec_hang_ngay" className="text-[12.5px] font-bold text-brand-600">Mở →</Link></div>
+                <Link href="/cong_viec_hang_ngay" className="text-[12.5px] font-bold text-blue-600">Mở →</Link></div>
               <div className="flex items-center gap-4">
                 <div className="relative h-[68px] w-[68px] shrink-0">
                   <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90" role="img" aria-label={`Hoàn thành ${dailyPct}%`}>
-                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#eef1f5" strokeWidth="4" />
-                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#10b981" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${(dailyPct / 100) * 97.4} 97.4`} />
+                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e5ecf8" strokeWidth="4" />
+                    <circle cx="18" cy="18" r="15.5" fill="none" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" strokeDasharray={`${(dailyPct / 100) * 97.4} 97.4`} />
                   </svg>
                   <span className="absolute inset-0 grid place-items-center text-[14px] font-black tabular-nums text-navy-900">{dailyPct}%</span>
                 </div>
@@ -160,20 +161,20 @@ export default function Dashboard() {
               </div>
             </div>
           )}
-          <div className="rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)]">
-            <h2 className="mb-1 text-[14px] font-extrabold text-navy-900">Tòa nhà</h2>
-            <ul className="divide-y divide-navy-100 text-[13.5px]">
-              {kt && <li className="flex items-center gap-3 py-1.5"><Building2 className="h-4 w-4 text-ink-mute" /><span className="flex-1 text-ink-soft">Khách đang thuê</span><b className="tabular-nums">{kt.renting}</b></li>}
-              {tang && <li className="flex items-center gap-3 py-1.5"><LayoutGrid className="h-4 w-4 text-ink-mute" /><span className="flex-1 text-ink-soft">Tầng / khu còn trống</span><b className="tabular-nums">{tang.empty}/{tang.total}</b></li>}
-              {tb && <li className="flex items-center gap-3 py-1.5"><Cpu className="h-4 w-4 text-ink-mute" /><span className="flex-1 text-ink-soft">Thiết bị quản lý</span><b className="tabular-nums">{tb.total}</b></li>}
-              {kho && <li className="flex items-center gap-3 py-1.5"><CalendarClock className="h-4 w-4 text-ink-mute" /><span className="flex-1 text-ink-soft">Vật tư dưới tồn tối thiểu</span><b className={`tabular-nums ${kho.low.length ? 'text-red-600' : ''}`}>{kho.low.length}</b></li>}
+          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-navy-900 px-4 py-3 text-white shadow-[0_10px_24px_rgba(29,78,216,.25)]">
+            <h2 className="mb-1 text-[12px] font-extrabold uppercase tracking-[.12em] text-blue-200">Tòa nhà</h2>
+            <ul className="divide-y divide-white/15 text-[13.5px]">
+              {kt && <li className="flex items-center gap-3 py-1.5"><Building2 className="h-4 w-4 text-blue-200" /><span className="flex-1 text-blue-100">Khách đang thuê</span><b className="tabular-nums">{kt.renting}</b></li>}
+              {tang && <li className="flex items-center gap-3 py-1.5"><LayoutGrid className="h-4 w-4 text-blue-200" /><span className="flex-1 text-blue-100">Tầng / khu còn trống</span><b className="tabular-nums">{tang.empty}/{tang.total}</b></li>}
+              {tb && <li className="flex items-center gap-3 py-1.5"><Cpu className="h-4 w-4 text-blue-200" /><span className="flex-1 text-blue-100">Thiết bị quản lý</span><b className="tabular-nums">{tb.total}</b></li>}
+              {kho && <li className="flex items-center gap-3 py-1.5"><CalendarClock className="h-4 w-4 text-blue-200" /><span className="flex-1 text-blue-100">Vật tư dưới tồn tối thiểu</span><b className={`tabular-nums ${kho.low.length ? 'text-red-300' : ''}`}>{kho.low.length}</b></li>}
             </ul>
             {tb && tb.total > 0 && (
               <div className="mt-3">
-                <div className="flex h-2.5 overflow-hidden rounded-full bg-navy-100" role="img" aria-label="Thiết bị theo trạng thái">
+                <div className="flex h-2.5 overflow-hidden rounded-full bg-white/20" role="img" aria-label="Thiết bị theo trạng thái">
                   {tbEntries.map(([k, v], i) => <span key={k} style={{ width: `${(v / tb.total) * 100}%`, background: tbColors[i % tbColors.length] }} />)}
                 </div>
-                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-ink-mute">
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-blue-100">
                   {tbEntries.map(([k, v], i) => <span key={k} className="inline-flex items-center gap-1.5"><i className="h-2 w-2 rounded-full" style={{ background: tbColors[i % tbColors.length] }} />{k === '(trống)' ? 'Cần xử lý' : k} {v}</span>)}
                 </div>
               </div>

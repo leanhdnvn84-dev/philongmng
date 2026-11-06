@@ -118,11 +118,11 @@ export default function WorkReport() {
     <div className="flex flex-col flex-1 lg:min-h-0">
       <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Báo cáo công việc</b></span>
-        <h1 className="text-[22px] font-black text-brand-400">Báo cáo công việc</h1>
+        <h1 className="text-[22px] font-black text-navy-900">Báo cáo công việc</h1>
       </div>
       <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0">
         <div className="card shrink-0 flex flex-wrap items-center gap-3 px-4 py-2.5 print:hidden">
-          <h2 className="text-[15px] font-black text-brand-400 mr-1">BÁO CÁO CÔNG VIỆC</h2>
+          <h2 className="text-[15px] font-black text-blue-700 mr-1">BÁO CÁO CÔNG VIỆC</h2>
           <select className={sel} value={period} onChange={(e) => setPeriod(e.target.value as Period)} aria-label="Kỳ báo cáo">
             <option value="week">Tuần này</option><option value="month">Tháng này</option><option value="lastMonth">Tháng trước</option>
             <option value="quarter">Quý này</option><option value="year">Năm nay</option><option value="custom">Tuỳ chọn</option>
@@ -145,7 +145,7 @@ export default function WorkReport() {
         </div>
 
         <section className="card flex flex-col overflow-hidden lg:flex-1 lg:min-h-0">
-          <div className="shrink-0 px-4 py-2.5 border-b text-[13px] font-black uppercase text-brand-400">
+          <div className="shrink-0 px-4 py-2.5 border-b text-[13px] font-black uppercase text-blue-700">
             Theo nhân viên · {show(from)} – {show(to)} <span className="font-normal normal-case text-ink-mute">· bấm vào nhân viên để xem thống kê</span>
           </div>
           <div className="overflow-auto max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
@@ -219,7 +219,7 @@ function StaffPopup({ name, model, from, to, onClose }: { name: string; model: a
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-3 print:hidden" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
       <div className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-pop">
-        <header className="flex shrink-0 items-start justify-between bg-brand-400 px-5 py-3 text-white">
+        <header className="flex shrink-0 items-start justify-between bg-blue-700 px-5 py-3 text-white">
           <div><div className="text-xs">Thống kê công việc · {show(from)} – {show(to)}</div><h2 className="text-[19px] font-bold">{name}</h2></div>
           <button onClick={onClose} aria-label="Đóng"><X className="h-6 w-6" /></button>
         </header>
@@ -233,7 +233,7 @@ function StaffPopup({ name, model, from, to, onClose }: { name: string; model: a
           <K l="TB ngày hoàn thành" v={avg} n="từ ngày giao tới xong" />
         </div>
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-4">
-          <h4 className="text-[13px] font-black uppercase text-brand-400">Công việc · {W.length}</h4>
+          <h4 className="text-[13px] font-black uppercase text-blue-700">Công việc · {W.length}</h4>
           {W.length ? (
             <div className="overflow-x-auto"><table className="w-full text-sm">
               <thead className="bg-navy-50 text-[12.5px] font-bold"><tr><th className="px-2 py-1.5 text-left">Nội dung / tiến độ mới nhất</th><th className="px-2">Vai trò</th><th className="px-2">Ngày giao</th><th className="px-2">Hạn</th><th className="px-2">Ngày xong</th><th className="px-2">Kết quả</th></tr></thead>
@@ -244,7 +244,7 @@ function StaffPopup({ name, model, from, to, onClose }: { name: string; model: a
               ))}</tbody></table></div>
           ) : <p className="text-sm text-ink-mute">Không có công việc trong kỳ.</p>}
           {D.length > 0 && (<>
-            <h4 className="text-[13px] font-black uppercase text-brand-400">Công việc hằng ngày · {D.length}</h4>
+            <h4 className="text-[13px] font-black uppercase text-blue-700">Công việc hằng ngày · {D.length}</h4>
             <div className="overflow-x-auto"><table className="w-full text-sm">
               <thead className="bg-navy-50 text-[12.5px] font-bold"><tr><th className="px-2 py-1.5 text-left">Nội dung</th><th className="px-2">Vai trò</th><th className="px-2">Ngày</th><th className="px-2">Kết quả</th></tr></thead>
               <tbody className="divide-y">{dSorted.map((x: any) => (

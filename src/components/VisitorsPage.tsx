@@ -197,7 +197,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
 
   const tabBtn = (key: TabKey, label: string, count?: number) => (
     <button key={key} onClick={() => { setTab(key); setOnly4h(false) }} role="tab" aria-selected={tab === key}
-      className={`px-3 py-2.5 text-[13.5px] font-bold border-b-2 -mb-px whitespace-nowrap ${tab === key ? 'text-brand-400 border-brand-400' : 'text-navy-700 border-transparent hover:text-navy-900'}`}>
+      className={`px-3 py-2.5 text-[13.5px] font-bold border-b-2 -mb-px whitespace-nowrap ${tab === key ? 'text-blue-700 border-blue-600' : 'text-navy-700 border-transparent hover:text-navy-900'}`}>
       {label}{count !== undefined ? ` (${count})` : ''}
     </button>
   )
@@ -211,7 +211,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
       {confirmDialog}
       <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Khách ra/vào tòa nhà</b></span>
-        <h1 className="text-[22px] font-black text-brand-400">Khách ra/vào tòa nhà</h1>
+        <h1 className="text-[22px] font-black text-navy-900">Khách ra/vào tòa nhà</h1>
       </div>
 
       <div className="shrink-0 flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
@@ -246,16 +246,16 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
           {/* registration form */}
           <form ref={formRef} onSubmit={submit} className="card p-4 xl:h-full xl:overflow-y-auto print:hidden">
             <div className="flex items-baseline justify-between">
-              <h2 className="text-[13px] font-black uppercase tracking-wide text-brand-400">{editId ? `Sửa ${editId}` : 'Đăng ký khách'}</h2>
+              <h2 className="text-[13px] font-black uppercase tracking-wide text-blue-700">{editId ? `Sửa ${editId}` : 'Đăng ký khách'}</h2>
               <span className="text-[11px] text-ink-mute">{editId ? 'Đang chỉnh sửa' : 'Giờ vào: tự lấy giờ máy chủ'}</span>
             </div>
 
             {!editId && (
               <div className="mt-3 grid grid-cols-2 gap-1 p-1 rounded-[9px] bg-navy-100" role="tablist" aria-label="Kiểu đăng ký">
                 <button type="button" role="tab" aria-selected={mode === 'in'} onClick={() => setMode('in')}
-                  className={`h-9 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'in' ? 'bg-brand-400 text-white shadow' : 'text-navy-700'}`}><UserCheck className="h-4 w-4" />Check-in ngay</button>
+                  className={`h-9 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'in' ? 'bg-blue-600 text-white shadow' : 'text-navy-700'}`}><UserCheck className="h-4 w-4" />Check-in ngay</button>
                 <button type="button" role="tab" aria-selected={mode === 'book'} onClick={() => setMode('book')}
-                  className={`h-9 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'book' ? 'bg-brand-400 text-white shadow' : 'text-navy-700'}`}><CalendarClock className="h-4 w-4" />Đăng ký trước</button>
+                  className={`h-9 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'book' ? 'bg-blue-600 text-white shadow' : 'text-navy-700'}`}><CalendarClock className="h-4 w-4" />Đăng ký trước</button>
               </div>
             )}
 
@@ -266,7 +266,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               </div>
             )}
 
-            <h3 className="mt-4 mb-2 pb-1 border-b border-navy-200 text-[12px] font-black uppercase text-brand-400">Thông tin khách</h3>
+            <h3 className="mt-4 mb-2 pb-1 border-b border-navy-200 text-[12px] font-black uppercase text-blue-700">Thông tin khách</h3>
             <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
               <div><label className={label} htmlFor="v-ho-ten">Họ tên khách{req}</label><input id="v-ho-ten" name="ho_ten" required className={inp} value={form.ho_ten} onChange={(e) => set('ho_ten', e.target.value)} /></div>
               <div><label className={label} htmlFor="v-sdt">Số điện thoại{req}</label><input id="v-sdt" name="sdt" required inputMode="tel" placeholder="Khách quen tự điền" className={inp} value={form.sdt} onChange={(e) => set('sdt', e.target.value)} onBlur={lookupPhone} /></div>
@@ -276,7 +276,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               <div className="col-span-2"><label className={label} htmlFor="v-dia-chi">Địa chỉ</label><input id="v-dia-chi" className={inp} value={form.dia_chi} onChange={(e) => set('dia_chi', e.target.value)} /></div>
             </div>
 
-            <h3 className="mt-4 mb-2 pb-1 border-b border-navy-200 text-[12px] font-black uppercase text-brand-400">Cần liên hệ</h3>
+            <h3 className="mt-4 mb-2 pb-1 border-b border-navy-200 text-[12px] font-black uppercase text-blue-700">Cần liên hệ</h3>
             <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
               <div><label className={label} htmlFor="v-gap">Người cần gặp</label><input id="v-gap" className={inp} value={form.nguoi_can_gap} onChange={(e) => set('nguoi_can_gap', e.target.value)} /></div>
               <div><label className={label} htmlFor="v-pb">Phòng ban</label><input id="v-pb" className={inp} value={form.phong_ban} onChange={(e) => set('phong_ban', e.target.value)} /></div>
@@ -290,7 +290,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               <div className="flex flex-wrap gap-1.5">
                 {PURPOSES.map((p) => (
                   <button key={p} type="button" aria-pressed={form.muc_dich === p} onClick={() => set('muc_dich', p)}
-                    className={`h-7 px-3 rounded-full text-[12px] font-bold border ${form.muc_dich === p ? 'bg-brand-400 border-brand-400 text-white' : 'bg-white border-navy-300 text-navy-800 hover:bg-navy-50'}`}>{p}</button>
+                    className={`h-7 px-3 rounded-full text-[12px] font-bold border ${form.muc_dich === p ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-navy-300 text-navy-800 hover:bg-navy-50'}`}>{p}</button>
                 ))}
               </div>
             </div>
@@ -391,7 +391,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Chi tiết lượt khách">
             <div className="absolute inset-0 bg-navy-950/45" onClick={() => setViewing(null)} />
             <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-pop">
-              <div className="flex items-center justify-between px-5 py-3 bg-brand-400 text-white">
+              <div className="flex items-center justify-between px-5 py-3 bg-blue-700 text-white">
                 <div><div className="text-[11px] font-black uppercase tracking-widest text-white/80">Lượt khách</div><h2 className="text-lg font-extrabold">{viewing.id} · {viewing.ho_ten}</h2></div>
                 <button onClick={() => setViewing(null)} className="grid place-items-center h-8 w-8 rounded-md hover:bg-white/15" aria-label="Đóng"><X className="h-5 w-5" /></button>
               </div>

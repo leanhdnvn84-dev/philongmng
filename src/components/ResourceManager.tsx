@@ -144,7 +144,7 @@ function MonthCalendar({ month, setMonth, counts, day, setDay, unit, fields, fie
       </div>
       <div className="border-t border-navy-200 px-2.5 py-1.5 text-[12px] text-navy-900">
         {loading ? <span className="text-ink-mute">Đang đếm…</span> : monthTotal > 0
-          ? <span><b className="text-brand-400">{monthTotal.toLocaleString('vi-VN')}</b> {unit} trong tháng</span>
+          ? <span><b className="text-blue-700">{monthTotal.toLocaleString('vi-VN')}</b> {unit} trong tháng</span>
           : <span className="text-ink-mute">Tháng này chưa có {unit}. <button className="font-bold text-[#2189e6] underline" onClick={onLatest}>Đến tháng có dữ liệu</button></span>}
         <div className="font-bold mt-0.5">Hôm nay: {formatDate(today)}</div>
       </div>
@@ -323,7 +323,7 @@ export default function ResourceManager({
 
   /* ── V191 "Thiết bị" layout: device table, summary strip, filter panel and detail pane ── */
   const initialsOf = (n: string) => n.split(/\s+/).filter(Boolean).slice(-2).map((w) => w[0]).join('').toUpperCase()
-  const Avatar = ({ name, size = 'h-8 w-8 text-[11px]' }: { name: string; size?: string }) => <span className={`grid shrink-0 place-items-center rounded-full bg-brand-400 font-black text-white ${size}`}>{initialsOf(name) || '?'}</span>
+  const Avatar = ({ name, size = 'h-8 w-8 text-[11px]' }: { name: string; size?: string }) => <span className={`grid shrink-0 place-items-center rounded-full bg-blue-600 font-black text-white ${size}`}>{initialsOf(name) || '?'}</span>
   const devState = (r: Row) => (r.trang_thai ? String(r.trang_thai) : 'Chưa cập nhật')
   const devStats = useMemo(() => {
     const by = (x: string) => devAll.filter((r) => r.trang_thai === x).length
@@ -476,7 +476,7 @@ export default function ResourceManager({
         <Drawer onClose={() => setViewing(null)}>
           <div className="sticky top-0 z-10 bg-white border-b border-navy-200 px-6 py-4 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-400">{res.singular}</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">{res.singular}</p>
               <h2 className="text-lg font-extrabold text-navy-900 truncate">{res.key === 'users' ? viewing.ho_ten : viewing.id}</h2>
             </div>
             <button onClick={() => setViewing(null)} className="btn-ghost h-9 w-9 px-0" aria-label="Đóng"><X className="h-5 w-5" /></button>
@@ -555,7 +555,7 @@ export default function ResourceManager({
       {/* breadcrumb + red title */}
       <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">{title ?? res.title}</b></span>
-        <h1 className="text-[22px] font-black text-brand-400">{title ?? res.title}</h1>
+        <h1 className="text-[22px] font-black text-navy-900">{title ?? res.title}</h1>
       </div>
 
       {/* tile toolbar + status tabs */}
@@ -692,9 +692,9 @@ export default function ResourceManager({
       {(hasCalendar || sideField) && (
         <Portal>
           <button type="button" onClick={() => { setTuck(false); setFilterOpen(true) }} aria-label="Mở bộ lọc"
-            className={`lg:hidden print:hidden fixed left-0 top-[55%] z-30 grid h-16 w-11 place-items-center rounded-r-2xl bg-brand-400 text-white shadow-[0_4px_14px_rgba(237,50,55,.4)] transition-transform duration-300 active:brightness-90 ${tuck ? '-translate-x-6' : ''}`}>
+            className={`lg:hidden print:hidden fixed left-0 top-[55%] z-30 grid h-16 w-11 place-items-center rounded-r-2xl bg-blue-600 text-white shadow-[0_4px_14px_rgba(37,99,235,.4)] transition-transform duration-300 active:brightness-90 ${tuck ? '-translate-x-6' : ''}`}>
             <Filter className="h-5 w-5" />
-            {(day || side) && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-white ring-2 ring-brand-400" />}
+            {(day || side) && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-white ring-2 ring-blue-600" />}
           </button>
         </Portal>
       )}
@@ -737,7 +737,7 @@ function FilterSheet({ children, onClose }: { children: React.ReactNode; onClose
     <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
       <div className="pl-fade absolute inset-0 bg-black/45" onClick={onClose} />
       <div className="pl-sheet absolute inset-x-3 bottom-3 flex max-h-[82vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
-        <div className="flex shrink-0 items-center justify-between bg-brand-400 px-4 py-3 text-white">
+        <div className="flex shrink-0 items-center justify-between bg-blue-700 px-4 py-3 text-white">
           <h2 className="text-[19px] font-extrabold">Bộ lọc</h2>
           <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center"><X className="h-6 w-6" /></button>
         </div>
@@ -832,7 +832,7 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
         e.preventDefault(); setBusy(true); setError('')
         try { await onSubmit({ ...form }) } catch (err: any) { setError(err.message); setBusy(false) }
       }} className="relative w-full sm:max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-t-2xl sm:rounded-xl shadow-pop overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-5 py-3 bg-brand-400 text-white">
+        <div className="flex items-center justify-between gap-3 px-5 py-3 bg-blue-700 text-white">
           <div>
             <h2 className="text-[16px] font-extrabold">{title}</h2>
             {subtitle && <p className="text-xs font-semibold text-white/80">{subtitle}</p>}
@@ -846,7 +846,7 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
             const common = { id: `f-${f.name}`, className: 'input', required, value: form[f.name] ?? '', onChange: (e: React.ChangeEvent<any>) => set(e.target.value) }
             if (f.type === 'bool') return (
               <label key={f.name} className="sm:col-span-2 flex items-center gap-3 rounded-[7px] border border-navy-200 px-3 py-2.5 cursor-pointer hover:bg-navy-50">
-                <input type="checkbox" className="h-4 w-4 accent-brand-400" checked={!!form[f.name]} onChange={(e) => set(e.target.checked)} />
+                <input type="checkbox" className="h-4 w-4 accent-blue-600" checked={!!form[f.name]} onChange={(e) => set(e.target.checked)} />
                 <span className="text-sm font-bold text-ink">{f.label}</span>
               </label>
             )

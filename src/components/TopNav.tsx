@@ -115,15 +115,15 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
               {open === g.group && (
                 <div className="absolute left-0 top-full pt-2 min-w-[280px]">
                   <div className="overflow-hidden rounded-[18px] bg-white shadow-[0_26px_60px_rgba(16,26,45,.28),0_0_0_1px_rgba(16,26,45,.05)]">
-                    <div className="border-b border-[#ffd5d5] bg-gradient-to-br from-[#fff1f1] to-[#ffe4e4] px-4 py-3">
-                      <div className="text-[11px] font-extrabold uppercase tracking-[.12em] text-brand-600">{g.group}</div>
+                    <div className="border-b border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
+                      <div className="text-[11px] font-extrabold uppercase tracking-[.12em] text-blue-700">{g.group}</div>
                       <div className="text-[12.5px] text-ink-mute">{g.items.length} mục</div>
                     </div>
                     <div className="p-2">
                       {g.items.map((i) => (
                         <Link key={i.href} href={i.href}
-                          className={`flex items-center rounded-xl px-3.5 py-2.5 text-[14px] font-bold transition-colors ${isActive(i.href) ? 'bg-brand-50 text-brand-600' : 'text-navy-900 hover:bg-navy-100'}`}>
-                          {i.label}<span className={`ml-auto text-[19px] leading-none ${isActive(i.href) ? 'text-brand-500' : 'text-navy-300'}`}>›</span>
+                          className={`flex items-center rounded-xl px-3.5 py-2.5 text-[14px] font-bold transition-colors ${isActive(i.href) ? 'bg-blue-50 text-blue-700' : 'text-navy-900 hover:bg-navy-100'}`}>
+                          {i.label}<span className={`ml-auto text-[19px] leading-none ${isActive(i.href) ? 'text-blue-600' : 'text-navy-300'}`}>›</span>
                         </Link>
                       ))}
                     </div>
@@ -165,9 +165,9 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
       <Portal>
         <div className="lg:hidden print:hidden">
           <button type="button" onClick={() => setMobile(true)} aria-label="Mở menu"
-            className="fixed left-4 bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-brand-400 text-white shadow-[0_6px_18px_rgba(237,50,55,.45)] active:scale-95">
+            className="fixed left-4 bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-b from-blue-500 to-blue-700 text-white shadow-[0_6px_18px_rgba(37,99,235,.45)] active:scale-95">
             <Menu className="h-6 w-6" />
-            {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-white px-1 text-[11px] font-black text-brand-500 ring-2 ring-brand-400">{unread > 99 ? '99+' : unread}</span>}
+            {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-400 px-1 text-[11px] font-black text-white ring-2 ring-white">{unread > 99 ? '99+' : unread}</span>}
           </button>
           {showTop && (
             <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Lên đầu trang"
@@ -188,8 +188,8 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
         <div data-drawer className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
           <div className="pl-fade absolute inset-0 bg-black/45" onClick={() => setMobile(false)} />
           <div className="pl-sheet absolute inset-x-3 bottom-3 flex max-h-[84vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
-            <div className="flex shrink-0 items-center gap-3 bg-brand-50 px-4 py-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-400 text-sm font-black text-white">{initials || 'U'}</span>
+            <div className="flex shrink-0 items-center gap-3 bg-blue-50 px-4 py-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blue-600 text-sm font-black text-white">{initials || 'U'}</span>
               <div className="min-w-0 flex-1 leading-tight">
                 <div className="truncate text-[17px] font-extrabold text-navy-900">{name}</div>
                 <div className="text-[13px] text-ink-mute">{role}</div>
@@ -197,7 +197,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
               <button onClick={() => setMobile(false)} className="grid h-10 w-10 place-items-center rounded-full bg-white text-navy-900 shadow-sm" aria-label="Đóng menu"><X className="h-5 w-5" /></button>
             </div>
             <nav className="overflow-y-auto overscroll-contain px-3 py-2">
-              <Link href="/" className={`flex items-center gap-3 rounded-[10px] px-3 py-3.5 text-[16px] font-extrabold uppercase ${pathname === '/' ? 'bg-brand-50 text-brand-500' : 'text-navy-900'}`}><span className="w-7 text-center text-[22px]">📊</span>Tổng quan</Link>
+              <Link href="/" className={`flex items-center gap-3 rounded-[10px] px-3 py-3.5 text-[16px] font-extrabold uppercase ${pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-navy-900'}`}><span className="w-7 text-center text-[22px]">📊</span>Tổng quan</Link>
               <button type="button" onClick={() => { setMobile(false); setChatOpen(true) }} className="flex w-full items-center gap-3 rounded-[10px] px-3 py-3.5 text-left text-[16px] font-extrabold uppercase text-navy-900"><span className="w-7 text-center text-[22px]">💬</span><span className="flex-1">Trao đổi</span>{unread > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-brand-400 px-1.5 text-[12px] font-black text-white">{unread}</span>}</button>
               {groups.map((g) => {
                 const expanded = open === g.group || (open === null && groupActive(g))
@@ -209,9 +209,9 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
                       <span className={`text-[12px] text-ink-mute transition-transform ${expanded ? 'rotate-180' : ''}`}>▼</span>
                     </button>
                     {expanded && (
-                      <div className="mb-2 ml-6 border-l-2 border-brand-200 pl-2">
+                      <div className="mb-2 ml-6 border-l-2 border-blue-200 pl-2">
                         {g.items.map((i) => (
-                          <Link key={i.href} href={i.href} className={`block rounded-lg px-3 py-3 text-[15px] font-semibold ${isActive(i.href) ? 'bg-brand-50 text-brand-500' : 'text-ink-soft active:bg-navy-50'}`}>{i.label}</Link>
+                          <Link key={i.href} href={i.href} className={`block rounded-lg px-3 py-3 text-[15px] font-semibold ${isActive(i.href) ? 'bg-blue-50 text-blue-700' : 'text-ink-soft active:bg-navy-50'}`}>{i.label}</Link>
                         ))}
                       </div>
                     )}

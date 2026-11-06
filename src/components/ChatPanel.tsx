@@ -88,7 +88,7 @@ export default function ChatPanel({ popup = false, onClose }: { popup?: boolean;
   const Row = (c: Conv) => (
     <button key={c.key} onClick={() => setActive(c.key)}
       className={`flex w-full items-center gap-3 border-b border-navy-100 px-3 py-3 text-left ${active === c.key ? 'bg-select' : 'hover:bg-navy-50'}`}>
-      <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-black ${c.key === GROUP ? 'bg-navy-900 text-white' : 'bg-brand-50 text-brand-500'}`}>
+      <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-black ${c.key === GROUP ? 'bg-navy-900 text-white' : 'bg-blue-50 text-blue-700'}`}>
         {c.key === GROUP ? <Users className="h-5 w-5" /> : initials(c.name)}
       </span>
       <span className="min-w-0 flex-1">
@@ -112,7 +112,7 @@ export default function ChatPanel({ popup = false, onClose }: { popup?: boolean;
       {!popup && (
         <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
           <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Trao đổi nội bộ</b></span>
-          <h1 className="text-[22px] font-black text-brand-400">Trao đổi nội bộ</h1>
+          <h1 className="text-[22px] font-black text-navy-900">Trao đổi nội bộ</h1>
         </div>
       )}
       <div className={popup ? 'min-h-0 flex-1' : 'px-3 lg:px-5 py-3 lg:flex-1 lg:min-h-0'}>
@@ -120,7 +120,7 @@ export default function ChatPanel({ popup = false, onClose }: { popup?: boolean;
           {/* conversations */}
           <aside className={popup ? `${active ? 'hidden' : 'flex'} w-full flex-col` : `${active ? 'hidden' : 'flex'} w-full flex-col lg:flex lg:w-[320px] lg:shrink-0 lg:border-r border-navy-200`}>
             {popup && (
-              <div className="flex shrink-0 items-center justify-between bg-brand-400 px-4 py-3 text-white">
+              <div className="flex shrink-0 items-center justify-between bg-blue-700 px-4 py-3 text-white">
                 <h2 className="text-[17px] font-extrabold">Trao đổi nội bộ</h2>
                 <button onClick={onClose} aria-label="Đóng" className="grid h-8 w-8 place-items-center rounded-full hover:bg-white/15"><X className="h-5 w-5" /></button>
               </div>
@@ -139,7 +139,7 @@ export default function ChatPanel({ popup = false, onClose }: { popup?: boolean;
             ) : (<>
               <header className="flex shrink-0 items-center gap-3 border-b px-3 py-2.5">
                 <button className={`${popup ? '' : 'lg:hidden '}grid h-9 w-9 place-items-center rounded-full hover:bg-navy-50`} onClick={() => setActive(null)} aria-label="Quay lại"><ArrowLeft className="h-5 w-5" /></button>
-                <span className={`grid h-10 w-10 place-items-center rounded-full text-sm font-black ${current.key === GROUP ? 'bg-navy-900 text-white' : 'bg-brand-50 text-brand-500'}`}>
+                <span className={`grid h-10 w-10 place-items-center rounded-full text-sm font-black ${current.key === GROUP ? 'bg-navy-900 text-white' : 'bg-blue-50 text-blue-700'}`}>
                   {current.key === GROUP ? <Users className="h-5 w-5" /> : initials(current.name)}</span>
                 <div className="min-w-0 flex-1 leading-tight"><div className="truncate font-extrabold text-navy-900">{current.name}</div><div className="truncate text-xs text-ink-mute">{current.key === GROUP ? 'Tất cả mọi người trong hệ thống' : current.role}</div></div>
                 {popup && <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full hover:bg-navy-50"><X className="h-5 w-5" /></button>}
@@ -153,8 +153,8 @@ export default function ChatPanel({ popup = false, onClose }: { popup?: boolean;
                     <div key={m.id}>
                       {head && <div className="my-2 text-center text-[11px] font-semibold text-ink-mute">{dayLabel(m.at)}</div>}
                       <div className={`flex ${m.mine ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[82%] rounded-2xl px-3 py-2 text-[14.5px] shadow-sm ${m.mine ? 'rounded-br-md bg-brand-400 text-white' : 'rounded-bl-md bg-white text-navy-900'}`}>
-                          {!m.mine && current.key === GROUP && <div className="text-[11.5px] font-extrabold text-brand-500">{m.from}</div>}
+                        <div className={`max-w-[82%] rounded-2xl px-3 py-2 text-[14.5px] shadow-sm ${m.mine ? 'rounded-br-md bg-blue-600 text-white' : 'rounded-bl-md bg-white text-navy-900'}`}>
+                          {!m.mine && current.key === GROUP && <div className="text-[11.5px] font-extrabold text-blue-700">{m.from}</div>}
                           <div className="whitespace-pre-wrap break-words">{m.text}</div>
                           <div className={`mt-0.5 text-right text-[10.5px] ${m.mine ? 'text-white/80' : 'text-ink-mute'}`}>{hhmm(m.at)}</div>
                         </div>

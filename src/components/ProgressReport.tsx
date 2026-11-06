@@ -91,11 +91,11 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
     <div className="flex flex-col flex-1 lg:min-h-0">
       <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Báo cáo tiến độ</b></span>
-        <h1 className="text-[22px] font-black text-brand-400">Báo cáo tiến độ</h1>
+        <h1 className="text-[22px] font-black text-navy-900">Báo cáo tiến độ</h1>
       </div>
       <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0">
         <div className="card shrink-0 flex flex-wrap items-center gap-3 px-4 py-2.5 print:hidden">
-          <h2 className="text-[15px] font-black text-brand-400 mr-1">BÁO CÁO TIẾN ĐỘ</h2>
+          <h2 className="text-[15px] font-black text-blue-700 mr-1">BÁO CÁO TIẾN ĐỘ</h2>
           <select className="input w-auto" value={who} onChange={(e) => setWho(e.target.value)} aria-label="Người thực hiện">
             <option value="">Tất cả người thực hiện</option>
             {Object.entries(people).map(([id, n]) => <option key={id} value={id}>{n}</option>)}
@@ -113,7 +113,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
 
         <div className="grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] lg:grid-rows-[minmax(0,1fr)]">
           <div className="card flex flex-col overflow-hidden lg:min-h-0">
-            <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-brand-400 border-b">Danh sách theo dõi · {list.length} việc</div>
+            <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-blue-700 border-b">Danh sách theo dõi · {list.length} việc</div>
             <div className="overflow-auto max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-navy-50 text-left text-[12.5px] font-bold text-navy-800 z-10">
@@ -157,7 +157,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
           </div>
 
           <div className="card flex flex-col overflow-hidden lg:min-h-0 print:hidden">
-            <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-brand-400 border-b">Khối lượng theo người</div>
+            <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-blue-700 border-b">Khối lượng theo người</div>
             <div className="overflow-auto max-h-80 lg:max-h-none lg:flex-1 lg:min-h-0">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-navy-50 text-[12.5px] font-bold text-navy-800 z-10">
@@ -214,11 +214,11 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
       <div className="flex max-h-[94vh] w-full max-w-[1500px] flex-col overflow-hidden rounded-xl bg-white shadow-pop">
-        <div className="shrink-0 bg-brand-400 px-5 py-3 text-white">
+        <div className="shrink-0 bg-blue-700 px-5 py-3 text-white">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                {work.muc_do && <span className="rounded-full bg-white px-2 py-0.5 font-bold text-brand-500">{work.muc_do}</span>}
+                {work.muc_do && <span className="rounded-full bg-white px-2 py-0.5 font-bold text-blue-700">{work.muc_do}</span>}
                 <span>Phân tích tiến độ · {who} · Giao {dmy2(work.ngay_giao ?? '0000-00-00')} → Hạn {dmy2(work.deadline ?? '0000-00-00')}</span>
               </div>
               <h2 className="mt-1 text-[17px] font-bold leading-snug">{work.noi_dung}</h2>
@@ -253,17 +253,17 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
           <div className="mt-1 flex flex-wrap items-center gap-2 pb-2">
             <span className="text-[11px] font-bold uppercase text-ink-mute">Các đợt hoạt động</span>
             {STAGES.filter((s) => counts[s]).map((s) => (
-              <button key={s} onClick={() => setFilter(filter === s ? null : s)} className={`rounded-full px-3 py-1 text-xs font-semibold ${COLORS[s]} ${filter === s ? 'ring-2 ring-brand-400' : ''}`}>
+              <button key={s} onClick={() => setFilter(filter === s ? null : s)} className={`rounded-full px-3 py-1 text-xs font-semibold ${COLORS[s]} ${filter === s ? 'ring-2 ring-blue-600' : ''}`}>
                 {s} ×{counts[s]} <span className="font-normal opacity-70">{range(s)}</span></button>
             ))}
             {!Object.keys(counts).length && <span className="text-xs text-ink-mute">—</span>}
-            {canEdit && !isDone(work) && <button className="rounded-full border border-dashed border-brand-400 px-3 py-1 text-xs font-bold text-brand-400" onClick={() => setSheet(true)}>+ Ghi nhận</button>}
+            {canEdit && !isDone(work) && <button className="rounded-full border border-dashed border-blue-600 px-3 py-1 text-xs font-bold text-blue-700" onClick={() => setSheet(true)}>+ Ghi nhận</button>}
           </div>
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-0 overflow-y-auto border-t md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:overflow-hidden">
           <div className="flex min-h-[260px] flex-col px-5 py-3 md:min-h-0 md:border-r">
-            <div className="shrink-0 text-[12px] font-black uppercase text-brand-400">Diễn biến theo ngày <span className="font-normal normal-case text-ink-mute">{entries.length} dòng</span></div>
+            <div className="shrink-0 text-[12px] font-black uppercase text-blue-700">Diễn biến theo ngày <span className="font-normal normal-case text-ink-mute">{entries.length} dòng</span></div>
             <ol className="mt-2 space-y-1 text-sm md:min-h-0 md:flex-1 md:overflow-y-auto">
               {rows.map((e, i) => {
                 const prev = rows[i - 1]
@@ -282,14 +282,14 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
           </div>
           <div className="space-y-4 px-5 py-3 md:min-h-0 md:overflow-y-auto">
             <section>
-              <div className="text-[12px] font-black uppercase text-brand-400">Nhận xét tự động</div>
+              <div className="text-[12px] font-black uppercase text-blue-700">Nhận xét tự động</div>
               <ul className="mt-2 list-disc space-y-1 rounded-lg border bg-canvas py-3 pl-8 pr-3 text-sm">
                 {insights(work, counts, late, pct, sinceUpd, latest).map((t, i) => <li key={i}>{t}</li>)}
               </ul>
             </section>
             <section>
               <div className="flex items-center justify-between">
-                <div className="text-[12px] font-black uppercase text-brand-400">Nội dung gốc ô tiến độ</div>
+                <div className="text-[12px] font-black uppercase text-blue-700">Nội dung gốc ô tiến độ</div>
                 <div className="flex gap-2">
                   <button className="btn-secondary !py-1 !text-xs" onClick={() => navigator.clipboard?.writeText(work.tien_do ?? '')}>Sao chép</button>
                   <button className="btn-secondary !py-1 !text-xs" onClick={() => setFold(!fold)}>{fold ? 'Mở rộng' : 'Thu gọn'}</button>
@@ -349,7 +349,7 @@ function RecordSheet({ work, counts, onClose, onSaved }: { work: Work; counts: R
         <div className="flex flex-wrap gap-2">
           {STAGES.map((s) => (
             <button key={s} type="button" onClick={() => setStage(stage === s ? '' : s)}
-              className={`px-3 py-1.5 rounded-full text-sm ${COLORS[s]} ${stage === s ? 'ring-2 ring-brand-400' : ''}`}>{s} · lần {(counts[s] ?? 0) + 1}</button>
+              className={`px-3 py-1.5 rounded-full text-sm ${COLORS[s]} ${stage === s ? 'ring-2 ring-blue-600' : ''}`}>{s} · lần {(counts[s] ?? 0) + 1}</button>
           ))}
         </div>
         <textarea className="input" rows={3} placeholder="Nội dung…" value={text} onChange={(e) => setText(e.target.value)} autoFocus />

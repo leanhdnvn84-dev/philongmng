@@ -11,8 +11,8 @@
 }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-[7px] border text-[13px] font-bold transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300; }
-  .btn-primary { @apply btn bg-brand-400 border-brand-400 text-white hover:bg-brand-500 hover:border-brand-500; }
+  .btn { @apply inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-[7px] border text-[13px] font-bold transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300; }
+  .btn-primary { @apply btn bg-blue-600 border-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,.28)] hover:bg-blue-700 hover:border-blue-700; }
   .btn-brand { @apply btn-primary; }
   .btn-secondary { @apply btn bg-white border-navy-200 text-navy-900 hover:bg-navy-50 hover:border-navy-300; }
   .btn-ghost { @apply btn border-transparent text-ink-soft hover:bg-navy-100 hover:text-ink; }
