@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
-  RotateCw, CheckCircle2, Filter, History, Monitor,
+  RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
+import { phieuHtml, printHtml, downloadWord, fileName, type Phieu } from '@/lib/proposalDoc'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
 
 type Row = Record<string, any>
@@ -299,6 +300,21 @@ export default function ResourceManager({
       if (row && viewing) refreshViewing(row.id)
     } catch (e: any) { if (!action.fields?.length) flash(e.message, 'err'); throw e }
   }
+  /** V191 "Phiếu đề xuất": print, PDF (Save as PDF in the print dialog) or Word. */
+  async function phieu(row: Row, mode: 'print' | 'pdf' | 'word') {
+    try {
+      const j = await api(`/api/de_xuat/${row.id}/phieu`)
+      const p = j.data as Phieu
+      const html = phieuHtml(p, window.location.origin), name = fileName(p)
+      if (mode === 'word') { downloadWord(html, name); flash(`Đã tải ${name}.doc`) }
+      else {
+        const old = document.title; document.title = name
+        printHtml(html); setTimeout(() => { document.title = old }, 5000)
+        if (mode === 'pdf') flash('Chọn "Lưu dưới dạng PDF" trong hộp thoại in')
+        else if (p.printedBefore > 0) flash(`Phiếu đã in ${p.printedBefore} lần trước đó`)
+      }
+    } catch (e: any) { flash(e.message, 'err') }
+  }
   function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
@@ -566,6 +582,11 @@ export default function ResourceManager({
             {rowActions.filter((a) => !a.show || a.show(viewing)).map((a) => (
               <button key={a.key} className="btn-primary" onClick={() => doAction(a, viewing)}><Zap className="h-4 w-4" />{a.label}</button>
             ))}
+            {res.key === 'de_xuat' && <>
+              <button className="btn-secondary" onClick={() => phieu(viewing, 'print')}><Printer className="h-4 w-4" />In phiếu</button>
+              <button className="btn-secondary" onClick={() => phieu(viewing, 'pdf')}><FileDown className="h-4 w-4" />PDF</button>
+              <button className="btn-secondary" onClick={() => phieu(viewing, 'word')}><FileText className="h-4 w-4" />Word</button>
+            </>}
             {canEdit && !res.locked?.(viewing) && <button className="btn-secondary" onClick={() => setEditing(viewing)}><Pencil className="h-4 w-4" />Sửa</button>}
             {canDelete && !res.locked?.(viewing) && <button className="btn-danger ml-auto" onClick={() => remove(viewing)}><Trash2 className="h-4 w-4" />Xóa</button>}
             {res.locked?.(viewing) && <span className="flex items-center gap-1.5 text-sm text-ink-mute"><Lock className="h-4 w-4" />{res.locked(viewing)}</span>}
@@ -638,7 +659,12 @@ export default function ResourceManager({
         ))}
         {pageActions.map((a) => <Tile key={a.key} icon={Zap} label={a.label} color="violet" onClick={() => doAction(a, null)} />)}
         {isDev && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={() => selected && (window.location.href = `/lich_su_chuyen_thiet_bi?id_thiet_bi=${selected.id}`)} />}
-        {!isDev && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
+        {res.key === 'de_xuat' && <>
+          <Tile icon={Printer} label="In phiếu" color="slate" disabled={!selected} onClick={withRow((r) => phieu(r, 'print'))} />
+          <Tile icon={FileDown} label="PDF" color="red" disabled={!selected} onClick={withRow((r) => phieu(r, 'pdf'))} />
+          <Tile icon={FileText} label="Word" color="blue" disabled={!selected} onClick={withRow((r) => phieu(r, 'word'))} />
+        </>}
+        {!isDev && res.key !== 'de_xuat' && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
         </div>
 
