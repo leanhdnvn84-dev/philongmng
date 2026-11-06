@@ -6,14 +6,14 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, LogOut, Menu, X } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import Portal from '@/components/Portal'
+import Logo from '@/components/Logo'
 
 export interface NavGroup { group: string; items: { label: string; href: string }[] }
 
 function Brand() {
   return (
-    <Link href="/" className="shrink-0 inline-flex flex-col items-end leading-none select-none" aria-label="Trang tổng quan">
-      <span className="text-[27px] font-black italic tracking-tight text-white drop-shadow-[0_1px_0_rgba(0,0,0,.15)]">PhiLong</span>
-      <span className="mt-0.5 text-[10px] font-extrabold tracking-[0.2em] text-white">TECHNOLOGY</span>
+    <Link href="/" className="shrink-0" aria-label="Trang tổng quan">
+      <Logo variant="white" height={40} />
     </Link>
   )
 }

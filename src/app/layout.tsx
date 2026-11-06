@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: { default: 'PHILONG BUILDING', template: '%s · PHILONG BUILDING' },
+  title: { default: 'PhiLong Building', template: '%s · PhiLong Building' },
   description: 'Hệ thống quản lý vận hành tòa nhà Phi Long',
 }
 export const viewport: Viewport = { themeColor: '#ED3237' }
