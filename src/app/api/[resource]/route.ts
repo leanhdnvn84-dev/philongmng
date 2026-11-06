@@ -42,12 +42,16 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     if (v === null || v === '' || f.type === 'password') continue
     query = f.type === 'bool' ? query.eq(f.name, v === 'true') : query.eq(f.name, v)
   }
-  // date range on the resource's calendar column (from/to = YYYY-MM-DD)
-  if (res.dateField) {
+  // date range on a calendar column (from/to = YYYY-MM-DD); dateField picks one of the declared ones
+  const dateCols = [res.dateField, ...(res.calendarFields ?? []).map((c) => c.name)].filter(Boolean) as string[]
+  const reqCol = url.searchParams.get('dateField')
+  const dateCol = reqCol && dateCols.includes(reqCol) ? reqCol : res.dateField
+  if (dateCol) {
     const from = url.searchParams.get('from'), to = url.searchParams.get('to')
     const D = /^\d{4}-\d{2}-\d{2}$/
-    if (from && D.test(from)) query = query.gte(res.dateField, from)
-    if (to && D.test(to)) query = query.lte(res.dateField, to)
+    if (from && D.test(from)) query = query.gte(dateCol, from)
+    if (to && D.test(to)) query = query.lte(dateCol, to)
+    if (url.searchParams.get('latest') === '1') query = query.not(dateCol, 'is', null).order(dateCol, { ascending: false })
   }
   const search = (url.searchParams.get('search') || '').replace(/[,()%*\\"]/g, ' ').trim().slice(0, 100)
   if (search && res.searchFields.length) {

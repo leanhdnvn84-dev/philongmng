@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
   FileSpreadsheet, RotateCw, CheckCircle2,
@@ -88,9 +88,11 @@ const TAB_TONES: Record<string, string> = {
   blue: 'bg-blue-50 border-blue-300 text-blue-800', gray: 'bg-navy-50 border-navy-300 text-navy-800',
 }
 
-function MonthCalendar({ month, setMonth, counts, day, setDay }: {
+function MonthCalendar({ month, setMonth, counts, day, setDay, unit, fields, field, setField, onLatest, loading }: {
   month: Date; setMonth: (d: Date) => void; counts: Record<string, number>; day: string | null; setDay: (d: string | null) => void
+  unit: string; fields?: { name: string; label: string }[]; field: string; setField: (f: string) => void; onLatest: () => void; loading: boolean
 }) {
+  const monthTotal = Object.values(counts).reduce((a, b) => a + b, 0)
   const y = month.getFullYear(), m = month.getMonth()
   const startDow = (new Date(y, m, 1).getDay() + 6) % 7 // Monday first
   const daysIn = new Date(y, m + 1, 0).getDate()
@@ -107,6 +109,14 @@ function MonthCalendar({ month, setMonth, counts, day, setDay }: {
         <span className="text-[13px] font-extrabold">Tháng {m + 1} / {y}</span>
         <button className="grid place-items-center h-7 w-7 rounded bg-white/15 hover:bg-white/25" onClick={() => setMonth(new Date(y, m + 1, 1))} aria-label="Tháng sau"><ChevronRight className="h-4 w-4" /></button>
       </div>
+      {fields && fields.length > 1 && (
+        <div role="tablist" aria-label="Đếm theo ngày" className="flex gap-1 px-1.5 pt-1.5">
+          {fields.map((f) => (
+            <button key={f.name} role="tab" aria-selected={field === f.name} onClick={() => setField(f.name)}
+              className={`flex-1 h-7 rounded-md text-[11.5px] font-bold ${field === f.name ? 'bg-[#2189e6] text-white' : 'bg-navy-100 text-navy-700 hover:bg-navy-200'}`}>{f.label}</button>
+          ))}
+        </div>
+      )}
       <div className="grid grid-cols-7 px-1.5 pt-1.5 text-center text-[11px] font-semibold text-[#2189e6]">
         {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((d) => <span key={d}>{d}</span>)}
       </div>
@@ -122,7 +132,12 @@ function MonthCalendar({ month, setMonth, counts, day, setDay }: {
           )
         })}
       </div>
-      <div className="border-t border-navy-200 px-2.5 py-1.5 text-[12px] font-bold text-navy-900">Hôm nay: {formatDate(today)}</div>
+      <div className="border-t border-navy-200 px-2.5 py-1.5 text-[12px] text-navy-900">
+        {loading ? <span className="text-ink-mute">Đang đếm…</span> : monthTotal > 0
+          ? <span><b className="text-brand-400">{monthTotal.toLocaleString('vi-VN')}</b> {unit} trong tháng</span>
+          : <span className="text-ink-mute">Tháng này chưa có {unit}. <button className="font-bold text-[#2189e6] underline" onClick={onLatest}>Đến tháng có dữ liệu</button></span>}
+        <div className="font-bold mt-0.5">Hôm nay: {formatDate(today)}</div>
+      </div>
     </div>
   )
 }
@@ -142,6 +157,9 @@ export default function ResourceManager({
   const [side, setSide] = useState('')
   const [day, setDay] = useState<string | null>(null)
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
+  const [calField, setCalField] = useState(res.dateField ?? '')
+  const [calLoading, setCalLoading] = useState(false)
+  const autoJumped = useRef(false)
   const [loading, setLoading] = useState(true)
   const [version, setVersion] = useState(0)
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
@@ -171,9 +189,9 @@ export default function ResourceManager({
     if (query) sp.set('search', query)
     if (status && !omit.status) sp.set('trang_thai', status)
     if (side && sideName) sp.set(sideName, side)
-    if (day && !omit.day) { sp.set('from', day); sp.set('to', day) }
+    if (day && !omit.day) { sp.set('from', day); sp.set('to', day); sp.set('dateField', calField) }
     return sp
-  }, [filterKey, query, status, side, sideName, day])
+  }, [filterKey, query, status, side, sideName, day, calField])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -199,13 +217,26 @@ export default function ResourceManager({
     if (!hasCalendar) return
     const y = month.getFullYear(), m = month.getMonth(), mm = String(m + 1).padStart(2, '0')
     const sp = baseParams({ day: true })
+    sp.set('dateField', calField)
     sp.set('from', `${y}-${mm}-01`); sp.set('to', `${y}-${mm}-${new Date(y, m + 1, 0).getDate()}`); sp.set('pageSize', '2000')
+    setCalLoading(true)
     api(`/api/${res.key}?${sp}`).then((j) => {
       const c: Record<string, number> = {}
-      for (const r of j.data as Row[]) { const k = String(r[res.dateField!] ?? '').slice(0, 10); if (k) c[k] = (c[k] ?? 0) + 1 }
+      for (const r of j.data as Row[]) { const k = String(r[calField] ?? '').slice(0, 10); if (k) c[k] = (c[k] ?? 0) + 1 }
       setDayCounts(c)
+      // first open on an empty month: show the latest month that has records instead of a blank calendar
+      if (!autoJumped.current) { autoJumped.current = true; if (!j.data.length) jumpLatest() }
+    }).catch(() => {}).finally(() => setCalLoading(false))
+  }, [version, month, calField]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function jumpLatest() {
+    const sp = baseParams({ day: true })
+    sp.set('dateField', calField); sp.set('latest', '1'); sp.set('pageSize', '1')
+    api(`/api/${res.key}?${sp}`).then((j) => {
+      const v = j.data?.[0]?.[calField]
+      if (v) { const [yy, mo] = String(v).split('-').map(Number); setMonth(new Date(yy, mo - 1, 1)) }
     }).catch(() => {})
-  }, [version, month]) // eslint-disable-line react-hooks/exhaustive-deps
+  }
 
   useEffect(() => {
     if (!sideName) return
@@ -454,7 +485,9 @@ export default function ResourceManager({
         <div className={hasCalendar || sideField ? 'grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-4 items-start' : ''}>
           {(hasCalendar || sideField) && (
             <aside className="order-2 lg:order-none space-y-3 print:hidden">
-              {hasCalendar && <MonthCalendar month={month} setMonth={setMonth} counts={dayCounts} day={day} setDay={setDay} />}
+              {hasCalendar && <MonthCalendar month={month} setMonth={setMonth} counts={dayCounts} day={day} setDay={setDay}
+                unit={res.singular} fields={res.calendarFields} field={calField} loading={calLoading}
+                setField={(f) => { setCalField(f); setDay(null) }} onLatest={jumpLatest} />}
               {sideField && (
                 <div className="card overflow-hidden">
                   <div className="px-3 py-2 bg-navy-50 border-b border-navy-200 text-[13px] font-extrabold text-navy-900">{sideField.label}</div>

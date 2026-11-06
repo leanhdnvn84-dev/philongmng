@@ -49,6 +49,8 @@ export interface Resource {
   noDelete?: boolean
   /** date column driving the month calendar in the left panel */
   dateField?: string
+  /** extra date columns the calendar can count by (first = dateField) */
+  calendarFields?: { name: string; label: string }[]
   /** ref/select column listed as quick filters in the left panel */
   sideFilter?: string
   /** rows matching this cannot be edited/deleted (approved proposal, locked period…) */
@@ -111,6 +113,7 @@ export const RESOURCES: Resource[] = [
   {
     key: 'cong_viec', table: 'cong_viec', view: 'v_cong_viec', module: 'CONG_VIEC', title: 'Công việc', singular: 'công việc',
     dateField: 'ngay_giao', sideFilter: 'id_nguoi_thuc_hien',
+    calendarFields: [{ name: 'ngay_giao', label: 'Ngày giao' }, { name: 'deadline', label: 'Hạn' }, { name: 'ngay_hoan_thanh', label: 'Hoàn thành' }],
     searchFields: ['id', 'noi_dung', 'khu_vuc', 'tien_do'], orderBy: { column: 'ngay_giao', ascending: false },
     fields: [
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(0, 2),
