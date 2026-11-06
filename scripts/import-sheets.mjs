@@ -142,7 +142,7 @@ for (const table of ORDER) {
           rec.trang_thai = t === 'DA_CHOT' ? 'Đã chốt' : t === 'NHAP' ? 'Nháp' : rec.trang_thai
         }
         if (table === 'cong_viec_hang_ngay' && !rec.trang_thai && norm(ext('KET_QUA')) === 'DA_XONG') rec.trang_thai = 'Hoàn thành'
-        if ((table === 'cong_viec' || table === 'cong_viec_hang_ngay') && /^NT\d+$/.test(String(rec.id_nguoi_thuc_hien ?? ''))) {
+        if ((table === 'cong_viec' || table === 'cong_viec_hang_ngay') && /^NT\d+$/.test(String(rec.id_nguoi_thuc_hien ?? '')) && !known.get('nhan_vien')?.has(String(rec.id_nguoi_thuc_hien))) {
           rec.id_nha_thau ??= rec.id_nguoi_thuc_hien // V191 sometimes stored a contractor code as the performer
           rec.id_nguoi_thuc_hien = null
         }
