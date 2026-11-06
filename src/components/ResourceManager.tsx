@@ -68,6 +68,10 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   if (f.name === 'loai_giao_dich') return <span className={v === 'NHAP' ? 'pill-green' : 'pill-amber'}>{v === 'NHAP' ? 'Nhập' : v === 'XUAT' ? 'Xuất' : v}</span>
   if (f.type === 'bool') return v ? <span className="pill-green">Có</span> : <span className="text-navy-300">—</span>
   if (f.type === 'date') return <span className="tabular-nums">{formatDate(v)}</span>
+  if (f.type === 'datetime') {
+    const d = new Date(v)
+    return <span className="tabular-nums">{isNaN(d.getTime()) ? String(v) : d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+  }
   if (f.type === 'money') return <span className="tabular-nums">{new Intl.NumberFormat('en-US').format(Number(v))}</span>
   if (f.type === 'number') {
     const n = Number(v)

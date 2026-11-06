@@ -43,11 +43,18 @@ const MAP = [
   { sheet: 'KHACH_THUE', table: 'khach_thue', rename: { NGAY_BAT_DAU_THUE: 'ngay_bat_dau', NGAY_KET_THUC_THUE: 'ngay_ket_thuc' } },
   { sheet: 'KHACH_HANG_TIEM_NANG', table: 'khach_hang_tiem_nang' },
   { sheet: 'TIEN_DIEN', table: 'tien_dien' },
+  { sheet: 'LICH_SU_IN', table: 'lich_su_in' },
+  { sheet: 'LICH_SU_DANG_NHAP', table: 'lich_su_dang_nhap' },
+  { sheet: 'DM_DANH_MUC', table: 'danh_muc', unpivot: true },
+  { sheet: 'CAU_HINH_EMAIL_CANH_BAO', table: 'cau_hinh_email_canh_bao' },
+  { sheet: 'NHAT_KY_EMAIL_CANH_BAO', table: 'nhat_ky_email_canh_bao', idCol: 'ID_EMAIL' },
+  { sheet: 'DATA_AUDIT_ARCHIVE', table: 'data_audit_archive', idCol: 'ID_AUDIT' },
+  { sheet: 'HINH_ANH_TIEN_DO', table: 'hinh_anh_tien_do', idCol: 'ID_ANH' },
 ]
 // order matters for foreign keys: parents first (same order as MAP)
 const ORDER = [...new Set(MAP.map((m) => m.table))]
 
-const TRUE = new Set(['true', '1', 'x', 'có', 'co', 'yes', 'y', 'v', '✓', 'đúng', 'hoạt động', 'hoat dong', 'hoat_dong'])
+const TRUE = new Set(['true', '1', 'x', 'có', 'co', 'yes', 'y', 'v', '✓', 'đúng', 'hoạt động', 'hoat dong', 'hoat_dong', 'bật', 'bat'])
 const norm = (s) => String(s ?? '').trim().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '')
 
 function cellValue(v) {
@@ -105,6 +112,24 @@ for (const table of ORDER) {
   for (const m of MAP.filter((x) => x.table === table)) {
     const sheets = wb.worksheets.filter((ws) => (m.sheet instanceof RegExp ? m.sheet.test(ws.name) : ws.name === m.sheet) && (!ONLY.length || ONLY.includes(ws.name)))
     for (const ws of sheets) {
+      if (m.unpivot) { // DM_DANH_MUC: one column per category type → rows (loai, gia_tri, thu_tu)
+        const hdr = (ws.getRow(1).values ?? []).slice(1).map((h) => String(cellValue(h) ?? '').trim())
+        const out = []
+        hdr.forEach((loai, i) => {
+          if (!loai) return
+          let k = 0; const seen = new Set()
+          for (let n = 2; n <= ws.rowCount; n++) {
+            const v = String(cellValue(ws.getRow(n).getCell(i + 1).value) ?? '').trim()
+            if (v && !seen.has(v)) { seen.add(v); out.push({ id: null, loai, gia_tri: v, thu_tu: ++k }) }
+          }
+        })
+        if (!DRY) {
+          const { error } = await db.from(table).upsert(out.map(({ id, ...r }) => r), { onConflict: 'loai,gia_tri' })
+          if (error) { console.error(`✗ ${ws.name} → ${table}: ${error.message}`); process.exitCode = 1 }
+        }
+        report.push({ sheet: ws.name, table, rows: out.length, skipped_no_id: 0, dropped_missing_parent: 0, values_to_extra: 0 })
+        continue
+      }
       const header = (ws.getRow(1).values ?? []).map((h) => norm(cellValue(h)))
       const rows = []
       let skipped = 0, movedToExtra = 0
@@ -124,6 +149,7 @@ for (const table of ORDER) {
           if (t === 'date') out = toDate(v)
           else if (t === 'numeric' || t === 'integer' || t === 'bigint') { out = toNum(v); if (out !== undefined && t !== 'numeric') out = Math.round(out) }
           else if (t === 'boolean') out = TRUE.has(String(v).trim().toLowerCase())
+          else if (t.startsWith('timestamp')) { const d = v instanceof Date ? v : new Date(String(v)); out = isNaN(d) ? undefined : d.toISOString() }
           else if (col.startsWith('gio')) out = toTime(v)
           else out = v instanceof Date ? v.toISOString().slice(0, 10) : String(v).trim()
           if (out === undefined) { rec.extra[h] = String(v); movedToExtra++; return }

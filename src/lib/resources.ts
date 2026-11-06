@@ -2,7 +2,7 @@
 // permissions), the tables, the forms and the sidebar. Mirrors the V191 menu.
 
 export type FieldType =
-  | 'text' | 'email' | 'number' | 'money' | 'date' | 'textarea' | 'select' | 'ref' | 'password' | 'bool' | 'month'
+  | 'text' | 'email' | 'number' | 'money' | 'date' | 'datetime' | 'textarea' | 'select' | 'ref' | 'password' | 'bool' | 'month'
 
 export interface Field {
   name: string
@@ -623,6 +623,116 @@ export const RESOURCES: Resource[] = [
     ],
     optionLabel: (r) => r.id,
   },
+  {
+    key: 'lich_su_in', table: 'lich_su_in', module: 'DE_XUAT', title: 'Lịch sử in phiếu đề xuất', singular: 'lần in',
+    searchFields: ['id_de_xuat', 'loai_de_xuat', 'nguoi_in'], orderBy: { column: 'thoi_gian', ascending: false },
+    noCreate: true, noEdit: true, noDelete: true,
+    fields: [
+      { name: 'thoi_gian', label: 'Thời gian', type: 'datetime', ro: true },
+      { name: 'id_de_xuat', label: 'Mã đề xuất', type: 'text', ro: true },
+      { name: 'loai_de_xuat', label: 'Loại đề xuất', type: 'text', ro: true },
+      { name: 'nguoi_in', label: 'Người in', type: 'text', ro: true },
+      { name: 'lan_in', label: 'Lần in', type: 'number', ro: true },
+    ],
+    optionLabel: (r) => r.id,
+  },
+  {
+    key: 'lich_su_dang_nhap', table: 'lich_su_dang_nhap', module: 'NGUOI_SU_DUNG', title: 'Lịch sử đăng nhập', singular: 'lượt đăng nhập',
+    searchFields: ['email', 'id_nguoi_dung', 'ip_cong_cong', 'trinh_duyet', 'he_dieu_hanh'], orderBy: { column: 'thoi_gian', ascending: false },
+    noCreate: true, noEdit: true, noDelete: true,
+    fields: [
+      { name: 'thoi_gian', label: 'Thời gian', type: 'datetime', ro: true },
+      { name: 'email', label: 'Tài khoản', type: 'text', ro: true },
+      { name: 'id_nguoi_dung', label: 'Mã người dùng', type: 'text', ro: true, inList: false },
+      { name: 'ip_cong_cong', label: 'IP', type: 'text', ro: true },
+      { name: 'trinh_duyet', label: 'Trình duyệt', type: 'text', ro: true },
+      { name: 'he_dieu_hanh', label: 'Hệ điều hành', type: 'text', ro: true },
+      { name: 'vi_tri_gan_dung', label: 'Vị trí gần đúng', type: 'text', ro: true, inList: false },
+      { name: 'ten_thiet_bi', label: 'Tên thiết bị', type: 'text', ro: true, inList: false },
+      { name: 'ma_thiet_bi', label: 'Mã thiết bị', type: 'text', ro: true, inList: false },
+      { name: 'nguon_thong_tin', label: 'Nguồn thông tin', type: 'text', ro: true, inList: false },
+    ],
+    optionLabel: (r) => r.id,
+  },
+  {
+    key: 'danh_muc', table: 'danh_muc', module: 'DANH_MUC', title: 'Danh mục giá trị', singular: 'giá trị danh mục',
+    searchFields: ['loai', 'gia_tri'], orderBy: { column: 'loai', ascending: true },
+    fields: [
+      { name: 'loai', label: 'Loại danh mục', type: 'select', required: true,
+        options: ['TRANG_THAI_CV', 'MUC_DO', 'LOAI_THIET_BI', 'TRANG_THAI_TB', 'LOAI_HOP_DONG', 'TRANG_THAI_HOP_DONG', 'HANG_MUC_BAO_TRI'] },
+      { name: 'gia_tri', label: 'Giá trị', type: 'text', required: true },
+      { name: 'thu_tu', label: 'Thứ tự', type: 'number', default: 0 },
+    ],
+    optionLabel: (r) => r.gia_tri,
+  },
+  {
+    key: 'cau_hinh_email_canh_bao', table: 'cau_hinh_email_canh_bao', module: 'NGUOI_SU_DUNG', title: 'Cấu hình email cảnh báo', singular: 'cảnh báo',
+    searchFields: ['ma_canh_bao', 'ten_canh_bao', 'email_nhan'], orderBy: { column: 'id', ascending: true }, noCreate: true, noDelete: true,
+    fields: [
+      { name: 'ma_canh_bao', label: 'Mã cảnh báo', type: 'text', ro: true },
+      { name: 'ten_canh_bao', label: 'Tên cảnh báo', type: 'text', required: true },
+      { name: 'bat', label: 'Bật', type: 'bool', default: true },
+      { name: 'so_ngay_bao_truoc', label: 'Báo trước (ngày)', type: 'number' },
+      { name: 'gio_gui', label: 'Giờ gửi', type: 'text' },
+      { name: 'email_quan_tri', label: 'Email quản trị', type: 'textarea', inList: false },
+      { name: 'email_gui', label: 'Email gửi', type: 'text', inList: false },
+      { name: 'email_nhan', label: 'Email nhận', type: 'textarea', inList: false },
+      { name: 'gui_nguoi_thuc_hien', label: 'Gửi người thực hiện', type: 'textarea', inList: false },
+      { name: 'gui_nguoi_lam_cung', label: 'Gửi người làm cùng', type: 'textarea', inList: false },
+      { name: 'gui_nguoi_giao', label: 'Gửi người giao', type: 'textarea', inList: false },
+      { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: false },
+    ],
+    optionLabel: (r) => r.ten_canh_bao || r.id,
+  },
+  {
+    key: 'nhat_ky_email_canh_bao', table: 'nhat_ky_email_canh_bao', module: 'NGUOI_SU_DUNG', title: 'Nhật ký email cảnh báo', singular: 'email cảnh báo',
+    searchFields: ['ma_canh_bao', 'module', 'id_ban_ghi', 'nguoi_nhan', 'tieu_de'], orderBy: { column: 'ngay_gui', ascending: false },
+    noCreate: true, noEdit: true, noDelete: true,
+    fields: [
+      { name: 'ngay_gui', label: 'Ngày gửi', type: 'datetime', ro: true },
+      { name: 'ma_canh_bao', label: 'Cảnh báo', type: 'text', ro: true },
+      { name: 'module', label: 'Module', type: 'text', ro: true },
+      { name: 'id_ban_ghi', label: 'Bản ghi', type: 'text', ro: true },
+      { name: 'tieu_de', label: 'Tiêu đề', type: 'text', ro: true },
+      { name: 'trang_thai', label: 'Trạng thái', type: 'text', ro: true },
+      { name: 'so_ngay_con_lai', label: 'Ngày còn lại', type: 'number', ro: true, inList: false },
+      { name: 'nguoi_nhan', label: 'Người nhận', type: 'textarea', ro: true, inList: false },
+      { name: 'noi_dung', label: 'Nội dung', type: 'textarea', ro: true, inList: false },
+    ],
+    optionLabel: (r) => r.id,
+  },
+  {
+    key: 'data_audit_archive', table: 'data_audit_archive', module: 'NGUOI_SU_DUNG', title: 'Lưu trữ kiểm tra dữ liệu', singular: 'bản ghi kiểm tra',
+    searchFields: ['sheet_nguon', 'id_goc', 'loai_loi', 'ly_do'], orderBy: { column: 'ngay_xu_ly', ascending: false },
+    noCreate: true, noEdit: true, noDelete: true,
+    fields: [
+      { name: 'ngay_xu_ly', label: 'Ngày xử lý', type: 'datetime', ro: true },
+      { name: 'sheet_nguon', label: 'Bảng nguồn', type: 'text', ro: true },
+      { name: 'id_goc', label: 'Mã gốc', type: 'text', ro: true },
+      { name: 'loai_loi', label: 'Loại lỗi', type: 'text', ro: true },
+      { name: 'ly_do', label: 'Lý do', type: 'text', ro: true },
+      { name: 'trang_thai', label: 'Trạng thái', type: 'text', ro: true },
+      { name: 'data_goc', label: 'Dữ liệu gốc', type: 'textarea', ro: true, inList: false },
+    ],
+    optionLabel: (r) => r.id,
+  },
+  {
+    key: 'hinh_anh_tien_do', table: 'hinh_anh_tien_do', module: 'CONG_VIEC', title: 'Hình ảnh tiến độ', singular: 'hình ảnh',
+    searchFields: ['id_cong_viec', 'giai_doan', 'dong_tien_do', 'nguoi_tai'], orderBy: { column: 'ngay', ascending: false },
+    noCreate: true, noEdit: true, noDelete: true,
+    fields: [
+      { name: 'ngay', label: 'Ngày', type: 'date', ro: true },
+      { name: 'gio', label: 'Giờ', type: 'text', ro: true },
+      { name: 'id_cong_viec', label: 'Công việc', type: 'text', ro: true },
+      { name: 'giai_doan', label: 'Giai đoạn', type: 'text', ro: true },
+      { name: 'dong_tien_do', label: 'Dòng tiến độ', type: 'text', ro: true },
+      { name: 'nguoi_tai', label: 'Người tải', type: 'text', ro: true },
+      { name: 'an', label: 'Ẩn', type: 'bool', ro: true },
+      { name: 'file_id', label: 'File (Drive)', type: 'text', ro: true, inList: false },
+      { name: 'thumb_id', label: 'Ảnh nhỏ (Drive)', type: 'text', ro: true, inList: false },
+    ],
+    optionLabel: (r) => r.id,
+  },
 ]
 
 export const getResource = (key: string) => RESOURCES.find((r) => r.key === key)
@@ -635,6 +745,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Khách ra/vào', href: '/khach_ra_vao', resource: 'khach_ra_vao', module: 'KHACH_RA_VAO' },
     { label: 'Báo cáo tiến độ', href: '/bao-cao-tien-do', module: 'CONG_VIEC' },
     { label: 'Báo cáo công việc', href: '/bao-cao-cong-viec', module: 'CONG_VIEC' },
+    { label: 'Hình ảnh tiến độ', href: '/hinh_anh_tien_do', resource: 'hinh_anh_tien_do', module: 'CONG_VIEC' },
   ] },
   { group: 'Bảo trì', items: [
     { label: 'Nhật ký bảo trì', href: '/nhat_ky_bao_tri', resource: 'nhat_ky_bao_tri', module: 'BAO_TRI' },
@@ -645,6 +756,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Đề xuất mua thiết bị', href: '/de_xuat?loai_de_xuat=MUA_THIET_BI', resource: 'de_xuat', module: 'DE_XUAT' },
     { label: 'Đề xuất bảo trì', href: '/de_xuat?loai_de_xuat=BAO_TRI', resource: 'de_xuat', module: 'DE_XUAT' },
     { label: 'Đề xuất thanh lý', href: '/de_xuat?loai_de_xuat=THANH_LY', resource: 'de_xuat', module: 'DE_XUAT' },
+    { label: 'Lịch sử in phiếu', href: '/lich_su_in', resource: 'lich_su_in', module: 'DE_XUAT' },
   ] },
   { group: 'Thiết bị & kho', items: [
     { label: 'Kho vật tư', href: '/vat_tu', resource: 'vat_tu', module: 'KHO' },
@@ -670,11 +782,16 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Chu kỳ bảo trì', href: '/hang_muc_bao_tri', resource: 'hang_muc_bao_tri', module: 'DANH_MUC' },
     { label: 'Khu vực tòa nhà', href: '/khu_vuc', resource: 'khu_vuc', module: 'DANH_MUC' },
     { label: 'Chi tiết vận hành', href: '/chi_tiet_van_hanh', resource: 'chi_tiet_van_hanh', module: 'DANH_MUC' },
+    { label: 'Danh mục giá trị', href: '/danh_muc', resource: 'danh_muc', module: 'DANH_MUC' },
   ] },
   { group: 'Hệ thống', items: [
     { label: 'Người dùng', href: '/users', resource: 'users', module: 'NGUOI_SU_DUNG' },
     { label: 'Vai trò', href: '/vai_tro', resource: 'vai_tro', module: 'VAI_TRO' },
     { label: 'Phân quyền', href: '/phan_quyen', resource: 'phan_quyen', module: 'PHAN_QUYEN' },
+    { label: 'Lịch sử đăng nhập', href: '/lich_su_dang_nhap', resource: 'lich_su_dang_nhap', module: 'NGUOI_SU_DUNG' },
+    { label: 'Cấu hình email cảnh báo', href: '/cau_hinh_email_canh_bao', resource: 'cau_hinh_email_canh_bao', module: 'NGUOI_SU_DUNG' },
+    { label: 'Nhật ký email cảnh báo', href: '/nhat_ky_email_canh_bao', resource: 'nhat_ky_email_canh_bao', module: 'NGUOI_SU_DUNG' },
+    { label: 'Kiểm tra dữ liệu', href: '/data_audit_archive', resource: 'data_audit_archive', module: 'NGUOI_SU_DUNG' },
   ] },
 ]
 

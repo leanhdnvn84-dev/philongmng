@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { guard, ok, fail, validId } from '@/lib/http'
-import { getResource } from '@/lib/resources'
+import { getResource, PROPOSAL_KINDS } from '@/lib/resources'
 import { audit } from '@/lib/crud'
 
 export const dynamic = 'force-dynamic'
@@ -30,8 +30,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   ])
   const vtMap = new Map((vt ?? []).map((x: any) => [x.id, x])), tbMap = new Map((tb ?? []).map((x: any) => [x.id, x]))
 
-  const { count } = await db.from('audit_logs').select('id', { count: 'exact', head: true })
+  const { count: auditCount } = await db.from('audit_logs').select('id', { count: 'exact', head: true })
     .eq('table_name', 'de_xuat').eq('record_id', params.id).eq('action', 'in_phieu')
+  const { data: lastPrint } = await db.from('lich_su_in').select('lan_in').eq('id_de_xuat', params.id).order('lan_in', { ascending: false }).limit(1)
+  const count = Math.max(lastPrint?.[0]?.lan_in ?? 0, auditCount ?? 0)
+  await db.from('lich_su_in').insert({ id_de_xuat: params.id, loai_de_xuat: PROPOSAL_KINDS[dx.loai_de_xuat] ?? dx.loai_de_xuat, nguoi_in: g.auth.name, lan_in: count + 1 })
   await audit(g.auth, 'de_xuat', params.id, 'in_phieu', { by: g.auth.name })
 
   return ok({

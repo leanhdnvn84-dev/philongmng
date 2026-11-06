@@ -55,5 +55,15 @@ export async function POST(req: Request) {
   if (error) return miss()
   cookies().set(REMEMBER_COOKIE, remember ? '1' : '0', { maxAge: maxAgeFor(remember), path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
   fails.delete(ident)
+  // login history (V191 LICH_SU_DANG_NHAP): never blocks the sign-in
+  try {
+    const ua = req.headers.get('user-agent') ?? ''
+    const browser = /Edg\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\/|CriOS/.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Khác'
+    const os = /Windows/.test(ua) ? 'Windows' : /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : /Mac OS X|Macintosh/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : 'Khác'
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'Không xác định'
+    const { data: me } = await admin.from('users').select('id_nhan_vien').eq('id', user.id).maybeSingle()
+    await admin.from('lich_su_dang_nhap').insert({ id_nguoi_dung: me?.id_nhan_vien ?? user.id, email: user.email, ip_cong_cong: ip,
+      vi_tri_gan_dung: 'Không xác định', ten_thiet_bi: /Mobile|iPhone|Android/.test(ua) ? 'Điện thoại' : 'Máy tính', trinh_duyet: browser, he_dieu_hanh: os, nguon_thong_tin: 'Máy chủ (User-Agent, IP)' })
+  } catch { /* ignore */ }
   return NextResponse.json({ success: true })
 }

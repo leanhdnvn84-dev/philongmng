@@ -526,3 +526,56 @@ ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS ngay_ban_giao DATE;
 ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS ngay_du_kien_thu_hoi DATE;
 ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS so_bien_ban TEXT;
 ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS link_bien_ban TEXT;
+
+-- ───────── system tables re-added from V191 (logs, alert e-mail, categories, progress photos) ─────────
+CREATE TABLE IF NOT EXISTS public.lich_su_in (
+  id TEXT PRIMARY KEY DEFAULT public.next_id('IN', 5),
+  thoi_gian TIMESTAMPTZ NOT NULL DEFAULT now(),
+  id_de_xuat TEXT, loai_de_xuat TEXT, nguoi_in TEXT, lan_in INT NOT NULL DEFAULT 1,
+  extra JSONB NOT NULL DEFAULT '{}');
+CREATE INDEX IF NOT EXISTS lich_su_in_dx ON public.lich_su_in (id_de_xuat, thoi_gian DESC);
+
+CREATE TABLE IF NOT EXISTS public.lich_su_dang_nhap (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  id_nguoi_dung TEXT, email TEXT, thoi_gian TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ip_cong_cong TEXT, vi_tri_gan_dung TEXT, ten_thiet_bi TEXT, ma_thiet_bi TEXT,
+  trinh_duyet TEXT, he_dieu_hanh TEXT, nguon_thong_tin TEXT, extra JSONB NOT NULL DEFAULT '{}');
+CREATE INDEX IF NOT EXISTS lich_su_dang_nhap_tg ON public.lich_su_dang_nhap (thoi_gian DESC);
+
+CREATE TABLE IF NOT EXISTS public.danh_muc (
+  id TEXT PRIMARY KEY DEFAULT public.next_id('DM', 4),
+  loai TEXT NOT NULL, gia_tri TEXT NOT NULL, thu_tu INT NOT NULL DEFAULT 0,
+  extra JSONB NOT NULL DEFAULT '{}', UNIQUE (loai, gia_tri));
+
+CREATE TABLE IF NOT EXISTS public.cau_hinh_email_canh_bao (
+  id TEXT PRIMARY KEY DEFAULT public.next_id('CB', 3),
+  ma_canh_bao TEXT, ten_canh_bao TEXT, bat BOOLEAN NOT NULL DEFAULT true, so_ngay_bao_truoc INT,
+  gio_gui TEXT, email_quan_tri TEXT, ghi_chu TEXT, email_gui TEXT, email_nhan TEXT,
+  gui_nguoi_thuc_hien TEXT, gui_nguoi_lam_cung TEXT, gui_nguoi_giao TEXT, extra JSONB NOT NULL DEFAULT '{}');
+
+CREATE TABLE IF NOT EXISTS public.nhat_ky_email_canh_bao (
+  id TEXT PRIMARY KEY DEFAULT public.next_id('EM', 6),
+  ngay_gui TIMESTAMPTZ, ma_canh_bao TEXT, module TEXT, id_ban_ghi TEXT, nguoi_nhan TEXT,
+  tieu_de TEXT, trang_thai TEXT, so_ngay_con_lai INT, noi_dung TEXT, extra JSONB NOT NULL DEFAULT '{}');
+CREATE INDEX IF NOT EXISTS nhat_ky_email_tg ON public.nhat_ky_email_canh_bao (ngay_gui DESC);
+
+CREATE TABLE IF NOT EXISTS public.data_audit_archive (
+  id TEXT PRIMARY KEY DEFAULT public.next_id('AUD', 4),
+  ngay_xu_ly TIMESTAMPTZ, sheet_nguon TEXT, id_goc TEXT, loai_loi TEXT, ly_do TEXT, data_goc TEXT,
+  trang_thai TEXT, extra JSONB NOT NULL DEFAULT '{}');
+
+CREATE TABLE IF NOT EXISTS public.hinh_anh_tien_do (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  nguon TEXT, id_cong_viec TEXT, ngay DATE, gio TEXT, giai_doan TEXT, dong_tien_do TEXT,
+  file_id TEXT, thumb_id TEXT, nguoi_tai TEXT, an BOOLEAN NOT NULL DEFAULT false, extra JSONB NOT NULL DEFAULT '{}');
+CREATE INDEX IF NOT EXISTS hinh_anh_tien_do_cv ON public.hinh_anh_tien_do (id_cong_viec, ngay);
+
+ALTER TABLE public.lich_su_in ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lich_su_dang_nhap ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.danh_muc ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cau_hinh_email_canh_bao ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.nhat_ky_email_canh_bao ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.data_audit_archive ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hinh_anh_tien_do ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.lich_su_in, public.lich_su_dang_nhap, public.danh_muc, public.cau_hinh_email_canh_bao,
+  public.nhat_ky_email_canh_bao, public.data_audit_archive, public.hinh_anh_tien_do FROM anon, authenticated;
