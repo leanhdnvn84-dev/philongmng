@@ -2,14 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BellRing, ClipboardList, Eye, EyeOff, Loader2, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import Logo from '@/components/Logo'
-
-const FEATURES = [
-  { icon: ClipboardList, title: 'Công việc và tiến độ', text: 'Giao việc, theo dõi từng giai đoạn, báo cáo theo nhân viên.' },
-  { icon: BellRing, title: 'Bảo trì tự cảnh báo', text: 'Lịch bảo trì nhắc trước hạn, không bỏ sót hạng mục.' },
-  { icon: ShieldCheck, title: 'Phân quyền và lưu vết', text: 'Mỗi người một quyền riêng, mọi thay đổi đều được ghi lại.' },
-]
 
 export default function LoginPage() {
   const router = useRouter()
@@ -70,15 +64,7 @@ export default function LoginPage() {
             <p className="mt-1 text-[38px] font-extrabold tabular-nums leading-none tracking-wide sm:text-[48px]" aria-label="Giờ hiện tại">{clock || '--:--:--'}</p>
           </div>
 
-          <ul className="mt-8 hidden w-full max-w-[520px] flex-col gap-3.5 lg:flex">
-            {FEATURES.map((f) => (
-              <li key={f.title} className="flex items-start gap-4 rounded-2xl border border-white/12 bg-white/[.06] px-4 py-3.5 backdrop-blur">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#ED3237]/90 text-white"><f.icon className="h-5 w-5" /></span>
-                <span><span className="block text-[15px] font-extrabold">{f.title}</span><span className="block text-[13px] leading-snug text-[#a9b8d6]">{f.text}</span></span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-10 hidden text-[12.5px] text-[#8fa3c7] lg:block">Designed &amp; Developed by <b className="text-[#c9d5ec]">Phi Long Technology</b> © 2026</p>
+          <p className="mt-14 hidden text-[12.5px] text-[#8fa3c7] lg:block">Designed &amp; Developed by <b className="text-[#c9d5ec]">Phi Long Technology</b> © 2026</p>
         </section>
 
         {/* right: sign in */}
