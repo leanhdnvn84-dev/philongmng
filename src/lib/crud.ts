@@ -40,6 +40,9 @@ export function sanitize(res: Resource, body: any, creating: boolean) {
       if (!DATE.test(String(v))) { errors.push(`${f.label} không đúng định dạng ngày`); continue }
     } else if (f.type === 'month') {
       if (!MONTH.test(String(v))) { errors.push(`${f.label} phải có dạng YYYY-MM`); continue }
+    } else if (f.name === 'sdt' || f.name === 'dien_thoai') {
+      v = String(v).replace(/\s+/g, ' ')
+      if (!/^\+?[0-9 .()\-]{6,20}$/.test(v)) { errors.push(`${f.label} không hợp lệ`); continue } // a leading + (+84…) is fine for phones
     } else {
       v = String(v).slice(0, f.type === 'textarea' ? 20000 : 500)
       // block spreadsheet formula injection when data is exported back to Sheets/Excel

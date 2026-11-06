@@ -71,7 +71,7 @@ const TILE_COLORS = {
   orange: 'border-b-orange-500 [&_svg]:text-orange-500', red: 'border-b-red-600 [&_svg]:text-red-600', navy: 'border-b-navy-700 [&_svg]:text-navy-700',
   slate: 'border-b-navy-500 [&_svg]:text-navy-600', violet: 'border-b-violet-600 [&_svg]:text-violet-600', amber: 'border-b-amber-500 [&_svg]:text-amber-600',
 }
-function Tile({ icon: Icon, label, color, onClick, disabled, title }: {
+export function Tile({ icon: Icon, label, color, onClick, disabled, title }: {
   icon: React.ComponentType<{ className?: string }>; label: string; color: keyof typeof TILE_COLORS; onClick: () => void; disabled?: boolean; title?: string
 }) {
   return (

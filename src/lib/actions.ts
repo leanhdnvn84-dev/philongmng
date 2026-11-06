@@ -45,6 +45,21 @@ const checkout: Handler = async ({ auth, id, row }) => {
   await audit(auth, 'khach_ra_vao', id, 'checkout', patch)
 }
 
+const checkIn: Handler = async ({ auth, id, row }) => {
+  if (row.trang_thai !== 'Hẹn trước') bad('Chỉ khách hẹn trước mới check-in được')
+  const patch = { ngay: todayVN(), gio_vao: timeVN(), trang_thai: 'Đang trong tòa nhà', nguoi_dang_ky: auth.name }
+  const { data } = await supabaseAdmin().from('khach_ra_vao').update(patch).eq('id', id).eq('trang_thai', 'Hẹn trước').select('id')
+  if (!data?.length) bad('Lượt khách vừa được cập nhật bởi người khác', 409)
+  await audit(auth, 'khach_ra_vao', id, 'check_in', patch)
+}
+
+const huyLuot: Handler = async ({ auth, id, row }) => {
+  if (!['Đang trong tòa nhà', 'Hẹn trước'].includes(row.trang_thai)) bad('Lượt khách này không hủy được')
+  const { data } = await supabaseAdmin().from('khach_ra_vao').update({ trang_thai: 'Hủy' }).eq('id', id).eq('trang_thai', row.trang_thai).select('id')
+  if (!data?.length) bad('Lượt khách vừa được cập nhật bởi người khác', 409)
+  await audit(auth, 'khach_ra_vao', id, 'cancel', { from: row.trang_thai })
+}
+
 // ── Đề xuất ──
 const duyet: Handler = async ({ auth, id, row }) => {
   const db = supabaseAdmin()
@@ -201,7 +216,7 @@ const chotKy: Handler = async ({ auth, input }) => {
 const HANDLERS: Record<string, Record<string, Handler>> = {
   cong_viec: { tien_do: ghiTienDo },
   cong_viec_hang_ngay: { tien_do: ghiTienDo },
-  khach_ra_vao: { checkout },
+  khach_ra_vao: { checkout, check_in: checkIn, huy: huyLuot },
   de_xuat: { duyet, tu_choi: tuChoi },
   vat_tu: { nhap_xuat: nhapXuat },
   thiet_bi: { chuyen, thu_hoi: thuHoi },

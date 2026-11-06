@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import ResourceManager from '@/components/ResourceManager'
+import VisitorsPage from '@/components/VisitorsPage'
 import { getAuth, can } from '@/lib/auth'
 import { getResource, NAV, PROPOSAL_KINDS } from '@/lib/resources'
 
@@ -13,6 +14,11 @@ export default async function ResourcePage({ params, searchParams }: {
   const auth = await getAuth()
   if (!auth) redirect('/login')
   if (!can(auth, res.module, 'view')) return <p className="text-red-600">Bạn không có quyền xem mục này.</p>
+
+  // the visitors desk has its own screen (register form + live lists), like V191
+  if (res.key === 'khach_ra_vao') {
+    return <VisitorsPage userName={auth.name} perms={{ create: can(auth, res.module, 'create'), edit: can(auth, res.module, 'edit') }} />
+  }
 
   // fixed filters from the menu link (e.g. ?loai_de_xuat=MUA_VAT_TU); only declared fields pass
   const filters: Record<string, string> = {}
