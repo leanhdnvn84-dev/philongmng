@@ -149,8 +149,24 @@ export default function WorkReport() {
             Theo nhân viên · {show(from)} – {show(to)} <span className="font-normal normal-case text-ink-mute">· bấm vào nhân viên để xem thống kê</span>
           </div>
           <div className="overflow-auto max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
-            {loading && !model.rows.length ? <p className="p-6 text-center text-ink-mute">Đang tải…</p> : model.rows.length === 0 ? <p className="p-6 text-center text-ink-mute">Không có công việc trong kỳ đã chọn.</p> : (
-              <table className="w-full text-sm">
+            {loading && !model.rows.length ? <p className="p-6 text-center text-ink-mute">Đang tải…</p> : model.rows.length === 0 ? <p className="p-6 text-center text-ink-mute">Không có công việc trong kỳ đã chọn.</p> : (<>
+              <div className="space-y-2.5 p-3 lg:hidden">
+                {model.rows.map((o) => {
+                  const tot = o.wa + o.dd + o.dn, dn = o.wd + o.dd, p = tot ? Math.round(Math.min(dn, tot) / tot * 100) : 0
+                  const stat = (l: string, v: number | string, c = '') => <div className="rounded-lg bg-canvas px-2 py-1.5 text-center"><div className={`text-[16px] font-extrabold tabular-nums ${c}`}>{v || 0}</div><div className="text-[10.5px] leading-tight text-ink-mute">{l}</div></div>
+                  return (
+                    <button key={o.p} type="button" onClick={() => setPop(o.p)} className="block w-full rounded-2xl border border-navy-200 bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50">
+                      <div className="flex items-center gap-2"><span className="text-[15px] font-extrabold text-navy-900">{o.p}</span><span className="ml-auto text-[12px] font-bold text-blue-700">{tot ? `${p}%` : '—'}</span></div>
+                      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-200"><div className={`h-full ${p >= 80 ? 'bg-green-600' : p >= 50 ? 'bg-blue-500' : 'bg-amber-500'}`} style={{ width: `${p}%` }} /></div>
+                      <div className="mt-2.5 grid grid-cols-4 gap-1.5">
+                        {stat('Được giao', o.wa)}{stat('Đã xong', o.wd, 'text-green-700')}{stat('Trễ hạn', o.late, o.late ? 'text-red-600' : '')}{stat('Còn tồn', o.open)}
+                        {stat('Hằng ngày xong', o.dd)}{stat('Hằng ngày chưa', o.dn)}{stat('Làm cùng', o.co, 'text-blue-700')}{stat('Đúng hạn', o.ok, 'text-green-700')}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+              <table className="hidden w-full text-sm lg:table">
                 <thead className="sticky top-0 z-10 bg-navy-50 text-[12.5px] font-bold text-navy-800">
                   <tr>
                     <th className="px-3 py-2 text-left">Nhân viên</th>
@@ -177,7 +193,7 @@ export default function WorkReport() {
                   })}
                 </tbody>
               </table>
-            )}
+            </>)}
           </div>
         </section>
       </div>

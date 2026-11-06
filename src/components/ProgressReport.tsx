@@ -115,7 +115,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
           <div className="card flex flex-col overflow-hidden lg:min-h-0">
             <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-blue-700 border-b">Danh sách theo dõi · {list.length} việc</div>
             <div className="overflow-auto max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
-              <table className="w-full text-sm">
+              <table className="hidden w-full text-sm lg:table">
                 <thead className="sticky top-0 bg-navy-50 text-left text-[12.5px] font-bold text-navy-800 z-10">
                   <tr>{['Mức độ', 'Nội dung / tiến độ', 'Người thực hiện', 'Ngày giao', 'Hạn', 'Còn lại', 'Thời gian đã dùng', 'Trạng thái'].map((h) => <th key={h} className="px-3 py-2 whitespace-nowrap">{h}</th>)}</tr>
                 </thead>
@@ -153,6 +153,36 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
                   {list.length === 0 && <tr><td colSpan={8} className="p-6 text-center text-ink-mute">Không có công việc.</td></tr>}
                 </tbody>
               </table>
+              {/* phone: one card per job */}
+              <div className="space-y-2.5 p-3 lg:hidden">
+                {list.length === 0 ? <p className="py-10 text-center text-ink-mute">Không có công việc.</p> : list.map((w) => {
+                  const last = parse(w.tien_do).filter((e) => e.text).slice(-1)[0]
+                  const tot = w.ngay_giao && w.deadline ? Math.max(1, days(w.ngay_giao, w.deadline)) : 0
+                  const used = tot ? days(w.ngay_giao!, w.ngay_hoan_thanh ?? todayIso()) : 0
+                  const pct = tot ? Math.round((used / tot) * 100) : 0
+                  const left = w.so_ngay_con_lai
+                  const edge = isDone(w) ? 'border-l-emerald-500' : left != null && left < 0 ? 'border-l-red-500' : 'border-l-blue-500'
+                  return (
+                    <button key={w.id} type="button" onClick={() => setSel(w.id)} className={`block w-full rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50`}>
+                      <div className="flex items-center gap-2">
+                        {w.muc_do && <span className={`text-[11.5px] font-extrabold ${levelCls(w.muc_do)}`}>{w.muc_do}</span>}
+                        <span className={`ml-auto text-[12px] font-bold ${stateCls(w)}`}>{w.trang_thai}</span>
+                      </div>
+                      <div className="mt-1.5 text-[15px] font-extrabold leading-snug text-navy-900 line-clamp-3">{w.noi_dung}</div>
+                      {last && <div className="mt-1 text-[12px] text-ink-mute line-clamp-2">Tiến độ: {last.day && `${last.day} `}{last.stage ? `[${last.stage}] ` : ''}{last.text}</div>}
+                      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-soft">
+                        <span className="font-semibold text-navy-800">{name(w)}</span>
+                        <span>{dmy(w.ngay_giao)} → {dmy(w.deadline)}</span>
+                        {isDone(w) ? <span className="text-xs font-semibold text-green-700">Xong</span>
+                          : left == null ? null : left < 0 ? <span className="rounded bg-red-50 px-1.5 py-0.5 text-xs font-semibold text-red-600">Trễ {-left} ngày</span>
+                          : <span className="rounded bg-sky-50 px-1.5 py-0.5 text-xs font-semibold text-sky-700">Còn {left} ngày</span>}
+                      </div>
+                      {tot > 0 && <div className="mt-2"><div className="h-2 overflow-hidden rounded-full bg-gray-200"><div className={`h-full ${pct > 100 ? 'bg-brand-400' : pct > 80 ? 'bg-amber-500' : 'bg-green-600'}`} style={{ width: `${Math.min(100, pct)}%` }} /></div>
+                        <div className="mt-0.5 text-[11px] text-ink-mute">{pct}% thời gian</div></div>}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
 

@@ -376,6 +376,32 @@ export default function ResourceManager({
       </table>
     </div>
   )
+  const devCards = (
+    <div className="lg:hidden space-y-2.5 p-3">
+      {loading && rows.length === 0 ? [...Array(5)].map((_, i) => <div key={i} className="h-28 animate-pulse rounded-2xl bg-navy-100" />)
+        : rows.length === 0 ? <div className="px-4 py-14 text-center text-ink-mute"><Inbox className="mx-auto mb-2 h-8 w-8 text-navy-300" />Không có thiết bị</div>
+        : rows.map((r) => {
+          const a = areas[r.id_khu_vuc], m = staff[r.id_nguoi_quan_ly]
+          return (
+            <button key={r.id} type="button" onClick={() => setViewing(r)} className={`block w-full rounded-2xl border border-navy-200 bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50 ${loading ? 'opacity-60' : ''}`}>
+              <div className="flex items-start gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600"><Monitor className="h-5 w-5" /></span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[15px] font-extrabold leading-snug text-navy-900">{r.ten_thiet_bi}</div>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-ink-mute"><span className="rounded bg-red-50 px-1.5 py-px font-bold text-red-600">{r.id}</span><span className="truncate">{r.thong_so || r.loai_thiet_bi || ''}</span></div>
+                </div>
+                <span className={`shrink-0 ${r.trang_thai ? pill(String(r.trang_thai)) : 'pill-amber'}`}>{devState(r)}</span>
+              </div>
+              <div className="mt-3 flex items-center gap-2.5 border-t border-navy-100 pt-3">
+                {m ? <><Avatar name={m.ho_ten} /><div className="min-w-0 flex-1 leading-tight"><div className="truncate text-[13.5px] font-bold text-navy-900">{m.ho_ten}</div><div className="truncate text-[12px] text-ink-mute">{m.phong_ban || r.phong_ban || 'Người quản lý'}</div></div></> : <div className="flex-1 text-[13px] text-ink-mute">Chưa có người quản lý</div>}
+                <div className="text-right text-[12px] text-ink-soft"><div className="font-semibold">{[a?.tang, a?.ten_khu_vuc].filter(Boolean).join(' · ') || '—'}</div>
+                  <div>SL <b className="text-navy-900">{r.so_luong ?? 1}</b>{r.tinh_trang ? <> · <span className={pill(String(r.tinh_trang))}>{r.tinh_trang}</span></> : null}</div></div>
+              </div>
+            </button>
+          )
+        })}
+    </div>
+  )
   const devPanel = (() => {
     if (!isDev) return null
     const r = selected
@@ -424,6 +450,45 @@ export default function ResourceManager({
       </aside>
     )
   })()
+
+
+  /* ── phone: the same rows as cards (full-page lists only; the desktop table stays) ── */
+  const titleField = listFields.find((f) => /^(noi_dung|ten_|ho_ten|ten$)/.test(f.name)) ?? listFields.find((f) => !STATUS_FIELDS.has(f.name))
+  // at most two pills in the card header (alert + status); other status-like fields (e.g. mức độ) go into the body
+  const allStatus = listFields.filter((f) => STATUS_FIELDS.has(f.name))
+  const statusFields = [...allStatus].sort((a, b) => (a.name === 'canh_bao' ? 0 : a.name === 'trang_thai' ? 1 : 2) - (b.name === 'canh_bao' ? 0 : b.name === 'trang_thai' ? 1 : 2)).slice(0, 2)
+  const bodyFields = listFields.filter((f) => f !== titleField && !statusFields.includes(f)).slice(0, 8)
+  const cardList = (
+    <div className="lg:hidden space-y-2.5 p-3">
+      {loading && rows.length === 0 ? [...Array(5)].map((_, i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-navy-100" />)
+        : rows.length === 0 ? <div className="px-4 py-14 text-center text-ink-mute"><Inbox className="mx-auto mb-2 h-8 w-8 text-navy-300" />Không có dữ liệu</div>
+        : rows.map((r) => {
+          const t = tone(String(r.canh_bao || r.trang_thai || ''))
+          const edge = t === 'red' ? 'border-l-red-500' : t === 'amber' ? 'border-l-amber-400' : t === 'green' ? 'border-l-emerald-500' : t === 'blue' ? 'border-l-blue-500' : 'border-l-navy-300'
+          const shown = bodyFields.filter((f) => r[f.name] !== null && r[f.name] !== undefined && r[f.name] !== '')
+          return (
+            <button key={r.id} type="button" onClick={() => setViewing(r)}
+              className={`block w-full rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50 ${loading ? 'opacity-60' : ''}`}>
+              <div className="flex items-center gap-2">
+                {res.key !== 'users' && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-blue-700">{r.id}</span>}
+                <span className="ml-auto flex flex-wrap justify-end gap-1">{statusFields.map((f) => r[f.name] ? <span key={f.name}>{display(f, r[f.name], labels)}</span> : null)}</span>
+              </div>
+              {titleField && <div className={`mt-2 text-[15px] font-extrabold leading-snug text-navy-900 ${titleField.type === 'textarea' || titleField.name === 'noi_dung' ? 'line-clamp-3' : ''}`}>{display(titleField, r[titleField.name], labels)}</div>}
+              {shown.length > 0 && (
+                <dl className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-2">
+                  {shown.map((f) => (
+                    <div key={f.name} className={f.type === 'textarea' ? 'col-span-2' : 'min-w-0'}>
+                      <dt className="text-[10.5px] font-bold uppercase tracking-wide text-ink-mute">{f.label}</dt>
+                      <dd className={`text-[13.5px] text-ink ${f.type === 'textarea' ? 'line-clamp-3' : 'truncate'}`}>{display(f, r[f.name], labels)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </button>
+          )
+        })}
+    </div>
+  )
 
   /* ── table (shared by full and compact views) ── */
   const table = (
@@ -675,7 +740,8 @@ export default function ResourceManager({
           )}
 
           <div className="card overflow-hidden min-w-0 flex flex-col lg:min-h-0">
-            {isDev ? devTable : table}
+            {isDev ? <div className="hidden lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">{devTable}</div> : <div className="hidden lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">{table}</div>}
+            {isDev ? devCards : cardList}
             <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-t border-navy-200 bg-navy-50 text-[13px] text-ink-soft">
               <span className="tabular-nums">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> :
                 <>Hiển thị {total ? `${from}–${to}` : '0'} / <b className="text-ink">{total.toLocaleString('vi-VN')}</b> {res.singular}{selected ? <> · đang chọn <b className="text-select-accent">{selected.id}</b></> : ' · bấm để chọn, bấm đúp để xem'}</>}</span>

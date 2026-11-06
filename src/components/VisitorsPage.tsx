@@ -328,7 +328,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
             </div>
 
             <div className="overflow-auto max-h-[70vh] min-h-[260px] xl:max-h-none xl:flex-1 xl:min-h-0 p-2.5">
-              <table className="w-full text-[12.5px] border-separate border-spacing-0 rounded-[9px] overflow-hidden border border-navy-200">
+              <table className="hidden w-full text-[12.5px] border-separate border-spacing-0 rounded-[9px] overflow-hidden border border-navy-200 lg:table">
                 <thead>
                   <tr className="text-[12.5px] font-extrabold text-navy-900">
                     {['Ngày vào', 'Giờ', 'Họ tên', 'Đi cùng', 'Công ty', 'SĐT', 'CCCD', 'Địa chỉ', 'Người cần gặp', 'Tầng', 'Mục đích', 'Nội dung', 'Đã ở', 'Trạng thái'].map((h) => (
@@ -375,6 +375,44 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
                   })}
                 </tbody>
               </table>
+              {/* phone: one card per visit, with the actions inline */}
+              <div className="space-y-2.5 lg:hidden">
+                {loading ? [...Array(3)].map((_, i) => <div key={i} className="h-28 animate-pulse rounded-2xl bg-navy-100" />)
+                  : shown.length === 0 ? <div className="px-4 py-12 text-center text-ink-mute"><Inbox className="mx-auto mb-2 h-8 w-8 text-navy-300" />{tab === 'in' ? 'Hiện không có khách trong tòa nhà' : 'Không có dữ liệu'}</div>
+                  : shown.map((r) => {
+                    const mins = minutesIn(r)
+                    const long = r.trang_thai === IN && (mins ?? 0) > 240
+                    const edge = long ? 'border-l-red-500' : r.trang_thai === IN ? 'border-l-emerald-500' : r.trang_thai === BOOK ? 'border-l-blue-500' : 'border-l-navy-300'
+                    const info: [string, unknown][] = [['Công ty', r.cong_ty], ['SĐT', r.sdt], ['Người cần gặp', r.nguoi_can_gap], ['Tầng', r.tang], ['Mục đích', r.muc_dich], ['Đi cùng', r.nguoi_di_cung]]
+                    return (
+                      <div key={r.id} className={`rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white p-3.5 shadow-[0_1px_2px_rgba(16,24,40,.06)]`}>
+                        <button type="button" onClick={() => setViewing(r)} className="block w-full text-left">
+                          <div className="flex items-center gap-2 text-[12px] text-ink-mute">
+                            <span className="rounded-md bg-blue-50 px-2 py-0.5 font-extrabold tabular-nums text-blue-700">{formatDate(r.trang_thai === BOOK && r.ngay_hen ? r.ngay_hen : r.ngay)} · {r.trang_thai === BOOK ? r.gio_hen || '—' : r.gio_vao || '—'}</span>
+                            <span className={`ml-auto ${r.trang_thai === IN ? 'pill-green' : r.trang_thai === BOOK ? 'pill-blue' : r.trang_thai === CANCEL ? 'pill-red' : 'pill-gray'}`}>
+                              {r.trang_thai === IN ? 'Đang ở' : r.trang_thai === OUT ? `Đã ra${r.gio_ra ? ` ${r.gio_ra}` : ''}` : r.trang_thai}</span>
+                          </div>
+                          <div className="mt-2 flex items-center gap-2"><span className="text-[16px] font-extrabold text-navy-900">{r.ho_ten}</span>
+                            {r.trang_thai === IN && <span className={long ? 'pill-red' : 'pill-green'}>{fmtMin(mins)}</span>}</div>
+                          <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5">
+                            {info.filter(([, v]) => v).map(([k, v]) => (
+                              <div key={k} className="min-w-0"><dt className="text-[10.5px] font-bold uppercase tracking-wide text-ink-mute">{k}</dt><dd className="truncate text-[13.5px] text-ink">{String(v)}</dd></div>
+                            ))}
+                          </dl>
+                        </button>
+                        {perms.edit && (r.trang_thai === IN || r.trang_thai === BOOK) && (
+                          <div className="mt-3 flex gap-2 border-t border-navy-100 pt-3">
+                            {r.trang_thai === BOOK
+                              ? <button className="btn-primary h-10 flex-1" onClick={() => act('check_in', r, `Cho ${r.ho_ten} vào tòa nhà?`)}>Check-in</button>
+                              : <button className="btn-primary h-10 flex-1" onClick={() => act('checkout', r, `Ghi nhận ${r.ho_ten} đã ra?`)}>Check-out</button>}
+                            <button className="btn-secondary h-10" onClick={() => printSlip(r)}>In phiếu</button>
+                            <button className="btn-secondary h-10 text-red-600" onClick={() => act('huy', r, `Hủy lượt khách của ${r.ho_ten}?`)}>Hủy</button>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+              </div>
             </div>
           </div>
         </div>
