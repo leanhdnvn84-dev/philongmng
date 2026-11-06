@@ -163,14 +163,14 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
                   const left = w.so_ngay_con_lai
                   const edge = isDone(w) ? 'border-l-emerald-500' : left != null && left < 0 ? 'border-l-red-500' : 'border-l-blue-500'
                   return (
-                    <button key={w.id} type="button" onClick={() => setSel(w.id)} className={`block w-full rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50`}>
+                    <button key={w.id} type="button" onClick={() => setSel(w.id)} className={`block w-full rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white px-3 py-2.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50`}>
                       <div className="flex items-center gap-2">
                         {w.muc_do && <span className={`text-[11.5px] font-extrabold ${levelCls(w.muc_do)}`}>{w.muc_do}</span>}
                         <span className={`ml-auto text-[12px] font-bold ${stateCls(w)}`}>{w.trang_thai}</span>
                       </div>
-                      <div className="mt-1.5 text-[15px] font-extrabold leading-snug text-navy-900 line-clamp-3">{w.noi_dung}</div>
+                      <div className="mt-1 text-[14.5px] font-extrabold leading-snug text-navy-900 line-clamp-2">{w.noi_dung}</div>
                       {last && <div className="mt-1 text-[12px] text-ink-mute line-clamp-2">Tiến độ: {last.day && `${last.day} `}{last.stage ? `[${last.stage}] ` : ''}{last.text}</div>}
-                      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-soft">
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-ink-soft">
                         <span className="font-semibold text-navy-800">{name(w)}</span>
                         <span>{dmy(w.ngay_giao)} → {dmy(w.deadline)}</span>
                         {isDone(w) ? <span className="text-xs font-semibold text-green-700">Xong</span>

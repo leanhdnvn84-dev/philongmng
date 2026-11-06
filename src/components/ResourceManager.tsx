@@ -459,8 +459,8 @@ export default function ResourceManager({
   const statusFields = [...allStatus].sort((a, b) => (a.name === 'canh_bao' ? 0 : a.name === 'trang_thai' ? 1 : 2) - (b.name === 'canh_bao' ? 0 : b.name === 'trang_thai' ? 1 : 2)).slice(0, 2)
   const bodyFields = listFields.filter((f) => f !== titleField && !statusFields.includes(f)).slice(0, 8)
   const cardList = (
-    <div className="lg:hidden space-y-2.5 p-3">
-      {loading && rows.length === 0 ? [...Array(5)].map((_, i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-navy-100" />)
+    <div className="lg:hidden space-y-2 p-2.5">
+      {loading && rows.length === 0 ? [...Array(5)].map((_, i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-navy-100" />)
         : rows.length === 0 ? <div className="px-4 py-14 text-center text-ink-mute"><Inbox className="mx-auto mb-2 h-8 w-8 text-navy-300" />Không có dữ liệu</div>
         : rows.map((r) => {
           const t = tone(String(r.canh_bao || r.trang_thai || ''))
@@ -468,18 +468,19 @@ export default function ResourceManager({
           const shown = bodyFields.filter((f) => r[f.name] !== null && r[f.name] !== undefined && r[f.name] !== '')
           return (
             <button key={r.id} type="button" onClick={() => setViewing(r)}
-              className={`block w-full rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50 ${loading ? 'opacity-60' : ''}`}>
+              className={`block w-full rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white px-3 py-2.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50 ${loading ? 'opacity-60' : ''}`}>
               <div className="flex items-center gap-2">
                 {res.key !== 'users' && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-blue-700">{r.id}</span>}
-                <span className="ml-auto flex flex-wrap justify-end gap-1">{statusFields.map((f) => r[f.name] ? <span key={f.name}>{display(f, r[f.name], labels)}</span> : null)}</span>
+                <span className="ml-auto flex flex-wrap justify-end gap-1">{statusFields.filter((f, i) => r[f.name] && !statusFields.slice(0, i).some((g) => String(r[g.name] ?? '').toLowerCase() === String(r[f.name]).toLowerCase())).map((f) => <span key={f.name}>{display(f, r[f.name], labels)}</span>)}</span>
               </div>
-              {titleField && <div className={`mt-2 text-[15px] font-extrabold leading-snug text-navy-900 ${titleField.type === 'textarea' || titleField.name === 'noi_dung' ? 'line-clamp-3' : ''}`}>{display(titleField, r[titleField.name], labels)}</div>}
+              {titleField && <div className={`mt-1.5 text-[14.5px] font-extrabold leading-snug text-navy-900 ${titleField.type === 'textarea' || titleField.name === 'noi_dung' ? 'line-clamp-2' : 'truncate'}`}>{display(titleField, r[titleField.name], labels)}</div>}
               {shown.length > 0 && (
-                <dl className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-2">
+                // label and value share one line; 2 columns on a phone, 4 on a tablet, 6 when wider
+                <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 sm:grid-cols-4 md:grid-cols-6">
                   {shown.map((f) => (
-                    <div key={f.name} className={f.type === 'textarea' ? 'col-span-2' : 'min-w-0'}>
-                      <dt className="text-[10.5px] font-bold uppercase tracking-wide text-ink-mute">{f.label}</dt>
-                      <dd className={`text-[13.5px] text-ink ${f.type === 'textarea' ? 'line-clamp-3' : 'truncate'}`}>{display(f, r[f.name], labels)}</dd>
+                    <div key={f.name} className={`flex min-w-0 items-baseline gap-1 text-[12.5px] ${f.type === 'textarea' ? 'col-span-2 sm:col-span-4 md:col-span-6' : ''}`}>
+                      <dt className="shrink-0 text-ink-mute">{f.label}:</dt>
+                      <dd className={`min-w-0 font-semibold text-ink ${f.type === 'textarea' ? 'line-clamp-2' : 'truncate'}`}>{display(f, r[f.name], labels)}</dd>
                     </div>
                   ))}
                 </dl>
