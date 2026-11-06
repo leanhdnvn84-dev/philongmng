@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { STAGES, formatDate } from '@/lib/resources'
 
 interface Work {
-  id: string; noi_dung: string; ngay_giao: string | null; deadline: string | null; ngay_hoan_thanh: string | null
+  id: string; muc_do?: string | null; id_nguoi_thuc_hien?: string | null; noi_dung: string; ngay_giao: string | null; deadline: string | null; ngay_hoan_thanh: string | null
   trang_thai: string | null; tien_do: string | null; giai_doan_hien_tai: string | null; canh_bao: string; so_ngay_con_lai: number | null
 }
 interface Entry { day: string; stage: string | null; text: string; n: number | null; raw: string }
@@ -29,154 +29,305 @@ const isDone = (w: Work) => w.canh_bao === 'HOÀN THÀNH'
 const days = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5)
 const todayIso = () => new Date(Date.now() + 7 * 36e5).toISOString().slice(0, 10) // Asia/Ho_Chi_Minh
 
+
+const dmy = (iso: string | null) => (iso ? formatDate(iso) : '')
+/** "26/10" lines carry no year: walk forward from the assignment date, rolling the year when the month wraps. */
+function withDates(entries: Entry[], start: string | null): (Entry & { iso: string | null })[] {
+  let y = Number((start ?? todayIso()).slice(0, 4)), lastM = start ? Number(start.slice(5, 7)) : 0
+  return entries.map((e) => {
+    const m = /^(\d{1,2})\/(\d{1,2})/.exec(e.day)
+    if (!m) return { ...e, iso: null }
+    const mo = Number(m[2]); if (mo < lastM - 6) y += 1; lastM = mo
+    return { ...e, iso: `${y}-${String(mo).padStart(2, '0')}-${String(Number(m[1])).padStart(2, '0')}` }
+  })
+}
+const levelCls = (l?: string | null) => /quan trọng|gấp/i.test(l ?? '') ? 'text-red-600' : 'text-ink-soft'
+const stateCls = (w: Work) => isDone(w) ? 'text-green-700' : /đang/i.test(w.trang_thai ?? '') ? 'text-orange-600' : 'text-red-600'
+
 export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
   const [works, setWorks] = useState<Work[]>([])
-  const [q, setQ] = useState('')
-  const [showDone, setShowDone] = useState(false)
+  const [people, setPeople] = useState<Record<string, string>>({})
+  const [who, setWho] = useState('')
+  const [level, setLevel] = useState('')
+  const [view, setView] = useState('open')
   const [sel, setSel] = useState<string | null>(null)
-  const [filter, setFilter] = useState<string | null>(null)
   const [err, setErr] = useState('')
-  const [sheet, setSheet] = useState(false)
 
   const load = useCallback(async () => {
-    const r = await fetch('/api/cong_viec?pageSize=2000')
-    const j = await r.json()
+    const [r, p] = await Promise.all([fetch('/api/cong_viec?pageSize=2000'), fetch('/api/nhan_vien?pageSize=500')])
+    const j = await r.json(), pj = await p.json().catch(() => ({ data: [] }))
     if (!j.success) { setErr(j.error); return }
     setWorks(j.data)
+    setPeople(Object.fromEntries((pj.data ?? []).map((n: any) => [n.id, n.ho_ten])))
   }, [])
   useEffect(() => { load() }, [load])
 
+  const name = (w: Work) => (w.id_nguoi_thuc_hien && people[w.id_nguoi_thuc_hien]) || '—'
+  const levels = useMemo(() => Array.from(new Set(works.map((w) => w.muc_do).filter(Boolean))) as string[], [works])
   const list = useMemo(() => works
-    .filter((w) => showDone || !isDone(w))
-    .filter((w) => !q || `${w.id} ${w.noi_dung} ${w.tien_do ?? ''}`.toLowerCase().includes(q.toLowerCase()))
-    .sort((a, b) => (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999')), [works, q, showDone])
-  const work = works.find((w) => w.id === sel) ?? null
-  const entries = useMemo(() => parse(work?.tien_do ?? null), [work])
-  const counts = useMemo(() => {
-    const c: Record<string, number> = {}
-    for (const e of entries) if (e.stage) c[e.stage] = (c[e.stage] ?? 0) + 1
-    return c
-  }, [entries])
-  const latest = [...entries].reverse().find((e) => e.stage)
+    .filter((w) => view === 'all' || (view === 'done' ? isDone(w) : view === 'late' ? w.canh_bao === 'QUÁ HẠN' : !isDone(w)))
+    .filter((w) => !who || w.id_nguoi_thuc_hien === who)
+    .filter((w) => !level || w.muc_do === level)
+    .sort((a, b) => (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999')), [works, who, level, view])
 
-  if (err) return <p className="text-red-600">{err}</p>
+  const load2 = useMemo(() => {
+    const m: Record<string, { todo: number; doing: number; late: number }> = {}
+    for (const w of works) {
+      if (isDone(w)) continue
+      const k = w.id_nguoi_thuc_hien ?? ''
+      const c = (m[k] ??= { todo: 0, doing: 0, late: 0 })
+      if (/đang/i.test(w.trang_thai ?? '')) c.doing++; else c.todo++
+      if (w.canh_bao === 'QUÁ HẠN') c.late++
+    }
+    const rows = Object.entries(m).map(([k, c]) => ({ id: k, name: people[k] || 'Chưa phân công', ...c, total: c.todo + c.doing }))
+    const max = Math.max(1, ...rows.map((r) => r.total))
+    return rows.sort((a, b) => b.total - a.total).map((r) => ({ ...r, pct: Math.round((r.total / max) * 100) }))
+  }, [works, people])
+
+  const work = works.find((w) => w.id === sel) ?? null
+  if (err) return <p className="p-4 text-red-600">{err}</p>
 
   return (
     <div className="flex flex-col flex-1 lg:min-h-0">
-      <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-3 bg-white border-b border-navy-200">
+      <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Báo cáo tiến độ</b></span>
         <h1 className="text-[22px] font-black text-brand-400">Báo cáo tiến độ</h1>
       </div>
-      <div className="px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] gap-4">
-        <div className="card flex flex-col overflow-hidden lg:min-h-0">
-          <div className="shrink-0 p-3 border-b space-y-2">
-            <input className="input" type="search" placeholder="Tìm công việc…" value={q} onChange={(e) => setQ(e.target.value)} />
-            <label className="text-sm flex items-center gap-2"><input type="checkbox" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} /> Hiện cả việc đã hoàn thành</label>
-          </div>
-          <ul className="overflow-y-auto divide-y text-sm max-h-80 lg:max-h-none lg:flex-1 lg:min-h-0">
-            {list.map((w) => (
-              <li key={w.id}>
-                <button onClick={() => { setSel(w.id); setFilter(null) }} className={`w-full text-left px-3 py-2 hover:bg-brand-50/60 ${sel === w.id ? "bg-navy-50 border-l-2 border-brand-400" : "border-l-2 border-transparent"}`}>
-                  <div className="flex justify-between gap-2"><span className="font-mono text-xs text-ink-mute">{w.id}</span>
-                    <span className={`text-xs ${w.canh_bao === 'QUÁ HẠN' ? 'text-red-600' : 'text-ink-mute'}`}>{w.canh_bao}</span></div>
-                  <div className="line-clamp-2">{w.noi_dung}</div>
-                </button>
-              </li>
-            ))}
-            {list.length === 0 && <li className="p-4 text-ink-mute">Không có công việc.</li>}
-          </ul>
+      <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0">
+        <div className="card shrink-0 flex flex-wrap items-center gap-3 px-4 py-2.5 print:hidden">
+          <h2 className="text-[15px] font-black text-brand-400 mr-1">BÁO CÁO TIẾN ĐỘ</h2>
+          <select className="input w-auto" value={who} onChange={(e) => setWho(e.target.value)} aria-label="Người thực hiện">
+            <option value="">Tất cả người thực hiện</option>
+            {Object.entries(people).map(([id, n]) => <option key={id} value={id}>{n}</option>)}
+          </select>
+          <select className="input w-auto" value={level} onChange={(e) => setLevel(e.target.value)} aria-label="Mức độ">
+            <option value="">Mọi mức độ</option>
+            {levels.map((l) => <option key={l}>{l}</option>)}
+          </select>
+          <select className="input w-auto" value={view} onChange={(e) => setView(e.target.value)} aria-label="Trạng thái">
+            <option value="open">Việc chưa xong</option><option value="late">Việc quá hạn</option>
+            <option value="done">Đã hoàn thành</option><option value="all">Tất cả</option>
+          </select>
+          <button className="btn-secondary ml-auto" onClick={() => window.print()}>In báo cáo</button>
         </div>
 
-        {!work ? <div className="card p-10 text-center text-ink-mute">Chọn một công việc để xem phân tích tiến độ.</div> : (
-          <div className="card p-6 space-y-5 min-w-0 lg:min-h-0 lg:overflow-y-auto">
-            <div className="flex flex-wrap justify-between gap-2 items-start">
-              <div className="min-w-0">
-                <span className={`inline-block text-xs font-bold px-2 py-1 rounded mb-1 ${isDone(work) ? 'bg-green-100 text-green-800' : latest?.stage === 'Chờ' ? 'bg-gray-200 text-gray-800' : 'bg-orange-100 text-orange-800'}`}>
-                  {isDone(work) ? 'HOÀN THÀNH' : latest?.stage === 'Chờ' ? 'ĐANG CHỜ' : 'ĐANG THI CÔNG'}
-                </span>
-                <h2 className="font-semibold"><span className="font-mono text-ink-mute">{work.id}</span> {work.noi_dung}</h2>
-              </div>
-              {canEdit && !isDone(work) && <button className="btn-primary" onClick={() => setSheet(true)}>+ Ghi nhận</button>}
+        <div className="grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] lg:grid-rows-[minmax(0,1fr)]">
+          <div className="card flex flex-col overflow-hidden lg:min-h-0">
+            <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-brand-400 border-b">Danh sách theo dõi · {list.length} việc</div>
+            <div className="overflow-auto max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-navy-50 text-left text-[12.5px] font-bold text-navy-800 z-10">
+                  <tr>{['Mức độ', 'Nội dung / tiến độ', 'Người thực hiện', 'Ngày giao', 'Hạn', 'Còn lại', 'Thời gian đã dùng', 'Trạng thái'].map((h) => <th key={h} className="px-3 py-2 whitespace-nowrap">{h}</th>)}</tr>
+                </thead>
+                <tbody className="divide-y">
+                  {list.map((w) => {
+                    const last = parse(w.tien_do).filter((e) => e.text).slice(-1)[0]
+                    const tot = w.ngay_giao && w.deadline ? Math.max(1, days(w.ngay_giao, w.deadline)) : 0
+                    const used = tot ? days(w.ngay_giao!, w.ngay_hoan_thanh ?? todayIso()) : 0
+                    const pct = tot ? Math.round((used / tot) * 100) : 0
+                    const left = w.so_ngay_con_lai
+                    return (
+                      <tr key={w.id} onClick={() => setSel(w.id)} className="cursor-pointer hover:bg-select">
+                        <td className={`px-3 py-2 text-xs font-semibold ${levelCls(w.muc_do)}`}>{w.muc_do ?? ''}</td>
+                        <td className="px-3 py-2 min-w-[260px] max-w-[460px]">
+                          <div className="font-bold line-clamp-2">{w.noi_dung}</div>
+                          {last && <div className="text-[11.5px] text-ink-mute line-clamp-2">Tiến độ: {last.day && `${last.day} `}{last.stage ? `[${last.stage}] ` : ''}{last.text}</div>}
+                        </td>
+                        <td className="px-3 py-2">{name(w)}</td>
+                        <td className="px-3 py-2 whitespace-nowrap">{dmy(w.ngay_giao)}</td>
+                        <td className="px-3 py-2 whitespace-nowrap">{dmy(w.deadline)}</td>
+                        <td className="px-3 py-2 whitespace-nowrap">
+                          {isDone(w) ? <span className="text-green-700 text-xs font-semibold">Xong</span>
+                            : left == null ? '' : left < 0 ? <span className="rounded bg-red-50 px-1.5 py-0.5 text-xs font-semibold text-red-600">Trễ {-left} ngày</span>
+                            : <span className="rounded bg-sky-50 px-1.5 py-0.5 text-xs font-semibold text-sky-700">Còn {left} ngày</span>}
+                        </td>
+                        <td className="px-3 py-2 min-w-[130px]">
+                          {tot > 0 && <>
+                            <div className="h-2 rounded-full bg-gray-200 overflow-hidden"><div className={`h-full ${pct > 100 ? 'bg-brand-400' : pct > 80 ? 'bg-amber-500' : 'bg-green-600'}`} style={{ width: `${Math.min(100, pct)}%` }} /></div>
+                            <div className="text-[11px] text-ink-mute mt-0.5">{pct}% thời gian</div></>}
+                        </td>
+                        <td className={`px-3 py-2 whitespace-nowrap text-xs font-semibold ${stateCls(w)}`}>{w.trang_thai}</td>
+                      </tr>
+                    )
+                  })}
+                  {list.length === 0 && <tr><td colSpan={8} className="p-6 text-center text-ink-mute">Không có công việc.</td></tr>}
+                </tbody>
+              </table>
             </div>
-
-            <TimeBar work={work} />
-
-            <div className="grid sm:grid-cols-2 gap-3 text-sm">
-              <div className="bg-canvas rounded-xl p-4"><div className="text-xs text-ink-mute">Hoạt động gần nhất</div>
-                <div className="font-medium">{latest ? `${latest.stage} lần ${latest.n} · ${latest.day}` : 'Chưa có mốc nào được gắn thẻ'}</div></div>
-              <div className="bg-canvas rounded-xl p-4"><div className="text-xs text-ink-mute">Nhận xét</div>
-                <div>{comment(work, entries, counts)}</div></div>
-            </div>
-
-            <div>
-              <div className="text-xs text-ink-mute mb-1">Các đợt hoạt động (bấm để lọc)</div>
-              <div className="flex flex-wrap gap-2">
-                {STAGES.filter((s) => counts[s]).map((s) => (
-                  <button key={s} onClick={() => setFilter(filter === s ? null : s)}
-                    className={`px-3 py-1 rounded-full text-sm ${COLORS[s]} ${filter === s ? 'ring-2 ring-brand-400' : ''}`}>{s} ×{counts[s]}</button>
-                ))}
-                {!Object.keys(counts).length && <span className="text-sm text-navy-200">—</span>}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-xs text-ink-mute mb-1">Diễn biến theo ngày</div>
-              <ol className="border-l-2 border-brand-200 pl-5 space-y-2 text-sm">
-                {entries.filter((e) => !filter || e.stage === filter).map((e, i) => (
-                  <li key={i}>
-                    <span className="text-ink-mute mr-2">{e.day}</span>
-                    {e.stage && <span className={`text-xs px-2 py-0.5 rounded-full mr-2 ${COLORS[e.stage]}`}>{e.stage} lần {e.n}</span>}
-                    <span className="whitespace-pre-wrap">{e.text}</span>
-                  </li>
-                ))}
-                {!entries.length && <li className="text-navy-200">Chưa có tiến độ.</li>}
-              </ol>
-            </div>
-
-            <details className="text-sm">
-              <summary className="cursor-pointer text-ink-soft">Nội dung gốc ô tiến độ</summary>
-              <pre className="whitespace-pre-wrap bg-canvas rounded-xl p-4 mt-2 font-sans">{work.tien_do || '—'}</pre>
-              <button className="btn-secondary mt-2" onClick={() => navigator.clipboard?.writeText(work.tien_do ?? '')}>Sao chép</button>
-            </details>
           </div>
-        )}
+
+          <div className="card flex flex-col overflow-hidden lg:min-h-0 print:hidden">
+            <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-brand-400 border-b">Khối lượng theo người</div>
+            <div className="overflow-auto max-h-80 lg:max-h-none lg:flex-1 lg:min-h-0">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-navy-50 text-[12.5px] font-bold text-navy-800 z-10">
+                  <tr><th className="px-3 py-2 text-left">Người thực hiện</th><th className="px-2 py-2 text-right">Chưa làm</th><th className="px-2 py-2 text-right">Đang làm</th><th className="px-2 py-2 text-right">Quá hạn</th></tr>
+                </thead>
+                <tbody className="divide-y">
+                  {load2.map((r) => (
+                    <tr key={r.id || 'none'} className="cursor-pointer hover:bg-select" onClick={() => setWho(who === r.id ? '' : r.id)}>
+                      <td className="px-3 py-2"><div className={`font-bold ${who === r.id ? 'text-select-600' : ''}`}>{r.name}</div>
+                        <div className="mt-1 h-1.5 rounded-full bg-gray-100"><div className={`h-full rounded-full ${r.late ? 'bg-brand-400' : 'bg-blue-500'}`} style={{ width: `${Math.max(4, r.pct)}%` }} /></div></td>
+                      <td className="px-2 py-2 text-right">{r.todo}</td><td className="px-2 py-2 text-right">{r.doing}</td>
+                      <td className={`px-2 py-2 text-right ${r.late ? 'font-bold text-red-600' : ''}`}>{r.late || ''}</td>
+                    </tr>
+                  ))}
+                  {load2.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-ink-mute">Không có việc đang mở.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {sheet && work && <RecordSheet work={work} counts={counts} onClose={() => setSheet(false)} onSaved={() => { setSheet(false); load() }} />}
+      {work && <Detail work={work} who={name(work)} canEdit={canEdit} onClose={() => setSel(null)} onChanged={load} />}
     </div>
   )
 }
 
-function TimeBar({ work }: { work: Work }) {
-  const start = work.ngay_giao, due = work.deadline, now = work.ngay_hoan_thanh ?? todayIso()
-  if (!start || !due) return <p className="text-sm text-ink-mute">Giao {formatDate(start) || '?'} · Hạn {formatDate(due) || 'chưa đặt'}</p>
-  const total = Math.max(1, days(start, due)), used = days(start, now)
-  const pct = Math.round((used / total) * 100), over = used > total
-  const width = Math.min(100, Math.max(0, over ? (total / used) * 100 : pct))
+function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: string; canEdit: boolean; onClose: () => void; onChanged: () => void }) {
+  const [filter, setFilter] = useState<string | null>(null)
+  const [sheet, setSheet] = useState(false)
+  const [fold, setFold] = useState(false)
+  const entries = useMemo(() => withDates(parse(work.tien_do), work.ngay_giao), [work])
+  const counts = useMemo(() => { const c: Record<string, number> = {}; for (const e of entries) if (e.stage) c[e.stage] = (c[e.stage] ?? 0) + 1; return c }, [entries])
+  const latest = [...entries].reverse().find((e) => e.stage)
+  const dated = entries.filter((e) => e.iso)
+  const lastUpd = dated[dated.length - 1]?.iso ?? null
+  const sinceUpd = lastUpd ? Math.max(0, days(lastUpd, todayIso())) : null
+  const today = work.ngay_hoan_thanh ?? todayIso()
+  const tot = work.ngay_giao && work.deadline ? Math.max(1, days(work.ngay_giao, work.deadline)) : 0
+  const used = tot ? days(work.ngay_giao!, today) : 0
+  const pct = tot ? Math.round((used / tot) * 100) : 0
+  const late = tot ? Math.max(0, used - tot) : 0
+  // days spent waiting: each "Chờ" entry lasts until the next dated entry
+  let wait = 0
+  dated.forEach((e, i) => { if (e.stage === 'Chờ' && dated[i + 1]?.iso) wait += Math.max(0, days(e.iso!, dated[i + 1].iso!)) })
+  const act = (s: string) => dated.filter((e) => e.stage === s).map((e) => e.iso!)
+  const range = (s: string) => { const d = act(s); return d.length ? `${dmy2(d[0])} → ${dmy2(d[d.length - 1])}` : '' }
+  const dmy2 = (iso: string) => iso.slice(8, 10) + '/' + iso.slice(5, 7)
+  const tone = isDone(work) ? 'text-green-700' : late ? 'text-red-600' : 'text-ink'
+  const rows = entries.filter((e) => !filter || e.stage === filter)
+  const pos = tot ? Math.min(100, (used / Math.max(used, tot * 1.0)) * 100) : 0
+  const duePos = tot && used > tot ? (tot / used) * 100 : 100
+
   return (
-    <div>
-      <div className="flex justify-between text-xs text-ink-mute mb-1">
-        <span>Giao {formatDate(start)}</span><span>Hạn {formatDate(due)}</span><span>{work.ngay_hoan_thanh ? 'Xong' : 'Hôm nay'} {formatDate(now)}</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
+      <div className="flex max-h-[94vh] w-full max-w-[1500px] flex-col overflow-hidden rounded-xl bg-white shadow-pop">
+        <div className="shrink-0 bg-brand-400 px-5 py-3 text-white">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                {work.muc_do && <span className="rounded-full bg-white px-2 py-0.5 font-bold text-brand-500">{work.muc_do}</span>}
+                <span>Phân tích tiến độ · {who} · Giao {dmy2(work.ngay_giao ?? '0000-00-00')} → Hạn {dmy2(work.deadline ?? '0000-00-00')}</span>
+              </div>
+              <h2 className="mt-1 text-[17px] font-bold leading-snug">{work.noi_dung}</h2>
+            </div>
+            <button onClick={onClose} aria-label="Đóng" className="text-2xl leading-none">×</button>
+          </div>
+        </div>
+
+        <div className="shrink-0 grid grid-cols-2 gap-2 px-5 pt-3 md:grid-cols-5">
+          <Kpi big={String(entries.length)} sub={`lần cập nhật (${dated.length} có ngày)`} />
+          <Kpi big={sinceUpd == null ? '—' : `${sinceUpd} ngày`} sub={lastUpd ? `từ lần cập nhật cuối (${dmy2(lastUpd)})` : 'chưa có cập nhật'} cls={sinceUpd != null && sinceUpd > 7 ? 'text-amber-600' : 'text-amber-600'} />
+          <Kpi big={latest ? `${latest.stage} lần ${latest.n}` : '—'} sub={latest?.iso ? `hoạt động gần nhất · ${dmy2(latest.iso)}` : 'hoạt động gần nhất'} cls="text-blue-600" />
+          <Kpi big={`${wait} ngày`} sub={`thời gian chờ (${tot ? Math.round((wait / Math.max(1, used)) * 100) : 0}% thời gian)`} />
+          <Kpi big={isDone(work) ? 'Xong' : late ? `Trễ ${late} ngày` : `Còn ${Math.max(0, tot - used)} ngày`} sub={`đã dùng ${pct}% thời gian`} cls={late ? 'text-red-600' : 'text-green-700'} />
+        </div>
+
+        <div className="shrink-0 px-5 pt-3">
+          <div className="flex items-center gap-3">
+            <span className={`rounded-full px-3 py-1 text-xs font-bold ${isDone(work) ? 'bg-green-100 text-green-800' : latest?.stage === 'Chờ' ? 'bg-gray-200 text-gray-800' : 'bg-green-100 text-green-800'}`}>
+              {isDone(work) ? 'HOÀN THÀNH' : latest?.stage === 'Chờ' ? 'ĐANG CHỜ' : 'ĐANG THI CÔNG'}</span>
+            {tot > 0 && <div className="relative flex-1 pt-4 pb-4">
+              <div className="h-2 overflow-hidden rounded-full bg-gray-200 flex">
+                <div className="h-full bg-green-600" style={{ width: `${duePos}%` }} />
+                {used > tot && <div className="h-full flex-1 bg-brand-400" />}
+              </div>
+              <span className="absolute -top-0.5 text-[11px]" style={{ left: `${duePos}%`, transform: 'translateX(-50%)' }}>Hạn <b>{dmy2(work.deadline!)}</b></span>
+              <span className="absolute left-0 bottom-0 text-[11px] text-ink-mute">Giao {dmy2(work.ngay_giao!)}</span>
+              <span className="absolute right-0 bottom-0 text-[11px] text-ink-mute">{isDone(work) ? 'Xong' : 'Hôm nay'} <b>{dmy2(today)}</b> · ngày {used}</span>
+            </div>}
+            {tot > 0 && <div className={`text-right text-sm font-bold ${tone}`}>{pct}%<div className="text-[11px] font-normal text-ink-mute">thời gian</div></div>}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-2 pb-2">
+            <span className="text-[11px] font-bold uppercase text-ink-mute">Các đợt hoạt động</span>
+            {STAGES.filter((s) => counts[s]).map((s) => (
+              <button key={s} onClick={() => setFilter(filter === s ? null : s)} className={`rounded-full px-3 py-1 text-xs font-semibold ${COLORS[s]} ${filter === s ? 'ring-2 ring-brand-400' : ''}`}>
+                {s} ×{counts[s]} <span className="font-normal opacity-70">{range(s)}</span></button>
+            ))}
+            {!Object.keys(counts).length && <span className="text-xs text-ink-mute">—</span>}
+            {canEdit && !isDone(work) && <button className="rounded-full border border-dashed border-brand-400 px-3 py-1 text-xs font-bold text-brand-400" onClick={() => setSheet(true)}>+ Ghi nhận</button>}
+          </div>
+        </div>
+
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-0 overflow-y-auto border-t md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:overflow-hidden">
+          <div className="flex min-h-[260px] flex-col px-5 py-3 md:min-h-0 md:border-r">
+            <div className="shrink-0 text-[12px] font-black uppercase text-brand-400">Diễn biến theo ngày <span className="font-normal normal-case text-ink-mute">{entries.length} dòng</span></div>
+            <ol className="mt-2 space-y-1 text-sm md:min-h-0 md:flex-1 md:overflow-y-auto">
+              {rows.map((e, i) => {
+                const prev = rows[i - 1]
+                const gap = e.iso && prev?.iso ? days(prev.iso, e.iso) : 0
+                return (
+                  <li key={i}>
+                    {gap > 0 && <div className="pl-14 text-[11px] text-ink-mute">↓ {gap} ngày</div>}
+                    <div className="flex gap-2"><span className="w-12 shrink-0 text-xs font-semibold tabular-nums">{e.day}</span>
+                      <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${e.stage ? 'bg-blue-500' : 'bg-gray-400'}`} />
+                      <span className="whitespace-pre-wrap">{e.stage && <span className={`mr-2 rounded-full px-2 py-0.5 text-[11px] ${COLORS[e.stage]}`}>{e.stage} lần {e.n}</span>}{e.text}</span></div>
+                  </li>
+                )
+              })}
+              {!entries.length && <li className="text-ink-mute">Chưa có tiến độ.</li>}
+            </ol>
+          </div>
+          <div className="space-y-4 px-5 py-3 md:min-h-0 md:overflow-y-auto">
+            <section>
+              <div className="text-[12px] font-black uppercase text-brand-400">Nhận xét tự động</div>
+              <ul className="mt-2 list-disc space-y-1 rounded-lg border bg-canvas py-3 pl-8 pr-3 text-sm">
+                {insights(work, counts, late, pct, sinceUpd, latest).map((t, i) => <li key={i}>{t}</li>)}
+              </ul>
+            </section>
+            <section>
+              <div className="flex items-center justify-between">
+                <div className="text-[12px] font-black uppercase text-brand-400">Nội dung gốc ô tiến độ</div>
+                <div className="flex gap-2">
+                  <button className="btn-secondary !py-1 !text-xs" onClick={() => navigator.clipboard?.writeText(work.tien_do ?? '')}>Sao chép</button>
+                  <button className="btn-secondary !py-1 !text-xs" onClick={() => setFold(!fold)}>{fold ? 'Mở rộng' : 'Thu gọn'}</button>
+                </div>
+              </div>
+              <pre className={`mt-2 overflow-auto whitespace-pre-wrap rounded-lg border border-dashed bg-canvas p-3 font-sans text-xs ${fold ? 'max-h-16' : 'max-h-80'}`}>{work.tien_do || '—'}</pre>
+            </section>
+          </div>
+        </div>
+
+        <div className="shrink-0 flex justify-end gap-2 border-t px-5 py-3">
+          {canEdit && !isDone(work) && <button className="btn-secondary" onClick={() => setSheet(true)}>+ Cập nhật tiến độ</button>}
+          <a className="btn-secondary" href="/cong_viec">Mở công việc</a>
+          <button className="btn-primary" onClick={onClose}>Đóng</button>
+        </div>
       </div>
-      <div className="h-3 rounded-full bg-gray-200 overflow-hidden flex" role="img" aria-label={`Đã dùng ${pct}% thời gian`}>
-        <div className="bg-gradient-to-r from-navy-700 to-navy-500 h-full" style={{ width: `${width}%` }} />
-        {over && <div className="bg-red-500 h-full flex-1" />}
-      </div>
-      <div className={`text-xs mt-1 ${over ? 'text-red-600 font-medium' : 'text-ink-soft'}`}>
-        {over ? `Quá hạn ${used - total} ngày (${pct}% thời gian)` : `Đã dùng ${pct}% thời gian · còn ${total - used} ngày`}
-      </div>
+      {sheet && <RecordSheet work={work} counts={counts} onClose={() => setSheet(false)} onSaved={() => { setSheet(false); onChanged() }} />}
     </div>
   )
 }
 
-function comment(w: Work, entries: Entry[], counts: Record<string, number>) {
-  if (isDone(w)) return `Hoàn thành ${formatDate(w.ngay_hoan_thanh)}${w.deadline && w.ngay_hoan_thanh && w.ngay_hoan_thanh > w.deadline ? ' (trễ hạn)' : ''}.`
-  const parts: string[] = []
-  if (w.canh_bao === 'QUÁ HẠN') parts.push(`Quá hạn ${Math.abs(w.so_ngay_con_lai ?? 0)} ngày.`)
-  if ((counts['Khảo sát'] ?? 0) >= 3 && !counts['Thi công']) parts.push('Khảo sát nhiều lần nhưng chưa thi công.')
-  if ((counts['Chờ'] ?? 0) >= 2) parts.push(`Đã phải chờ ${counts['Chờ']} lần.`)
-  if (!entries.length) parts.push('Chưa ghi nhận tiến độ nào.')
-  return parts.join(' ') || 'Đang tiến triển bình thường.'
+function Kpi({ big, sub, cls = '' }: { big: string; sub: string; cls?: string }) {
+  return <div className="rounded-lg border px-4 py-2"><div className={`text-[22px] font-bold leading-tight ${cls}`}>{big}</div><div className="text-[11.5px] text-ink-mute">{sub}</div></div>
+}
+
+function insights(w: Work, counts: Record<string, number>, late: number, pct: number, since: number | null, latest?: { stage: string | null; n: number | null; day: string }) {
+  const out: string[] = []
+  if (isDone(w)) out.push(`Hoàn thành ${formatDate(w.ngay_hoan_thanh)}${late ? ` (trễ ${late} ngày)` : ' đúng hạn'}.`)
+  else if (late) out.push(`Quá hạn: đã dùng ${pct}% thời gian, trễ ${late} ngày — trạng thái ${String(w.trang_thai ?? '').toLowerCase()}.`)
+  else if (w.deadline) out.push(`Trong hạn: đã dùng ${pct}% thời gian.`)
+  const parts = STAGES.filter((s) => counts[s]).map((s) => `${s.toLowerCase()} ${counts[s]} lần`)
+  if (parts.length) out.push(`Hoạt động: ${parts.join(', ')}.`)
+  if (latest) out.push(`Gần nhất: ${latest.stage} lần ${latest.n} (${latest.day}).`)
+  if ((counts['Khảo sát'] ?? 0) >= 3 && !counts['Thi công']) out.push('Khảo sát nhiều lần nhưng chưa thi công.')
+  if ((counts['Chờ'] ?? 0) >= 2) out.push(`Đã phải chờ ${counts['Chờ']} lần.`)
+  if (since != null && !isDone(w)) out.push(since > 7 ? `Chưa cập nhật ${since} ngày — cần nhắc người phụ trách.` : 'Cập nhật đều (≤ 7 ngày).')
+  if (!out.length) out.push('Chưa ghi nhận tiến độ nào.')
+  return out
 }
 
 function RecordSheet({ work, counts, onClose, onSaved }: { work: Work; counts: Record<string, number>; onClose: () => void; onSaved: () => void }) {
