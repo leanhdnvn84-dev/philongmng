@@ -47,7 +47,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(160deg,#0b1830_0%,#13274a_60%,#0b1830_100%)] px-4 pb-14 pt-8 text-white lg:px-14 lg:py-12">
+    <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(160deg,#0b1830_0%,#13274a_60%,#0b1830_100%)] px-4 pb-14 pt-24 text-white lg:px-14 lg:py-12">
       <div aria-hidden className="pointer-events-none absolute -left-32 -top-36 h-[560px] w-[560px] rounded-full bg-[#ED3237] opacity-35 blur-[120px]" />
       <div aria-hidden className="pointer-events-none absolute -bottom-40 -right-36 h-[520px] w-[520px] rounded-full bg-blue-500 opacity-20 blur-[130px]" />
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.04)_1px,transparent_1px)] bg-[size:48px_48px]" />
@@ -55,9 +55,8 @@ export default function LoginPage() {
       <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-[1240px] items-center gap-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-16 lg:min-h-[calc(100vh-6rem)]">
         {/* left: brand, greeting, date/time and what the system does */}
         <section className="flex flex-col items-center text-center lg:items-start lg:text-left">
-          <Logo variant="white" height={56} />
 
-          <div className="mt-8 lg:mt-14">
+          <div>
             <h1 className="bg-gradient-to-b from-white to-[#ffd9da] bg-clip-text font-soft text-[36px] font-extrabold leading-[1.12] tracking-[.005em] text-transparent drop-shadow-[0_4px_24px_rgba(255,138,142,.35)] sm:text-[46px] lg:text-[54px]">{greet}</h1>
             <p className="mt-3 text-[15px] font-semibold text-[#b3c0da] first-letter:uppercase sm:text-[17px]">{today || '\u00a0'}</p>
             <p className="mt-1 text-[38px] font-extrabold tabular-nums leading-none tracking-wide sm:text-[48px]" aria-label="Giờ hiện tại">{clock || '--:--:--'}</p>
@@ -97,6 +96,7 @@ export default function LoginPage() {
           </form>
                   </div>
       </div>
+      <div className="absolute left-5 top-5 lg:left-10 lg:top-8"><Logo variant="white" height={48} /></div>
       <p className="absolute bottom-4 right-5 text-right text-[12.5px] text-[#8fa3c7] lg:bottom-6 lg:right-10">Designed &amp; Developed by <b className="text-[#c9d5ec]">Phi Long Technology</b> © 2026</p>
     </main>
   )
