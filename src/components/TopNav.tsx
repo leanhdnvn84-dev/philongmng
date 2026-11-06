@@ -57,7 +57,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
 
   useEffect(() => { setOpen(null); setMobile(false); setUserMenu(false) }, [here])
   useEffect(() => {
-    const click = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(null); setUserMenu(false) } }
+    const click = (e: MouseEvent) => { if ((e.target as Element | null)?.closest?.('[data-drawer]')) return; if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(null); setUserMenu(false) } }
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpen(null); setUserMenu(false); setMobile(false) } }
     document.addEventListener('mousedown', click); document.addEventListener('keydown', key)
     return () => { document.removeEventListener('mousedown', click); document.removeEventListener('keydown', key) }
@@ -126,7 +126,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
       </div>
 
       {mobile && (<Portal>
-        <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
+        <div data-drawer className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobile(false)} />
           <div className="absolute right-0 top-0 h-full w-[86%] max-w-sm bg-white overflow-y-auto">
             <div className="h-[62px] px-4 flex items-center justify-between bg-brand-400">
