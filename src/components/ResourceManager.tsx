@@ -76,7 +76,7 @@ export function Tile({ icon: Icon, label, color, onClick, disabled, title }: {
 }) {
   return (
     <button type="button" onClick={onClick} disabled={disabled} title={title ?? label}
-      className={`flex flex-col items-center justify-center gap-1 min-w-[78px] h-[62px] px-2 rounded-[9px] bg-white border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] text-[12.5px] font-bold text-navy-900 transition hover:-translate-y-px hover:shadow-md disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:cursor-not-allowed ${TILE_COLORS[color]}`}>
+      className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] h-[56px] px-1.5 rounded-[9px] bg-white border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] text-[12px] font-bold text-navy-900 transition hover:-translate-y-px hover:shadow-md disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:cursor-not-allowed ${TILE_COLORS[color]}`}>
       <Icon className="h-5 w-5" />
       <span className="whitespace-nowrap">{label}</span>
     </button>
@@ -103,7 +103,7 @@ function MonthCalendar({ month, setMonth, counts, day, setDay, unit, fields, fie
   for (let i = 1; i <= daysIn; i++) cells.push({ d: new Date(y, m, i), inMonth: true })
   for (let i = 1; cells.length % 7; i++) cells.push({ d: new Date(y, m + 1, i), inMonth: false })
   return (
-    <div className="card overflow-hidden">
+    <div className="card overflow-hidden shrink-0">
       <div className="flex items-center justify-between bg-[#2189e6] text-white px-2 py-1.5">
         <button className="grid place-items-center h-7 w-7 rounded bg-white/15 hover:bg-white/25" onClick={() => setMonth(new Date(y, m - 1, 1))} aria-label="Tháng trước"><ChevronLeft className="h-4 w-4" /></button>
         <span className="text-[13px] font-extrabold">Tháng {m + 1} / {y}</span>
@@ -299,7 +299,7 @@ export default function ResourceManager({
 
   /* ── table (shared by full and compact views) ── */
   const table = (
-    <div className={`overflow-auto ${compact ? 'max-h-[360px]' : 'max-h-[calc(100vh-300px)] min-h-[320px]'}`}>
+    <div className={`overflow-auto print:max-h-none print:overflow-visible ${compact ? 'max-h-[360px]' : 'max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0'}`}>
       <table className="w-full text-[13.5px] border-separate border-spacing-0">
         <thead>
           <tr className="text-[13px] font-extrabold text-navy-900">
@@ -422,15 +422,15 @@ export default function ResourceManager({
   /* ── full page, laid out like V191 ── */
   const sideList = sideField ? ['', ...[...sideValues].sort((a, b) => String(refLabel(sideField, a)).localeCompare(String(refLabel(sideField, b)), 'vi'))] : []
   return (
-    <div className="-mx-4 lg:-mx-5 -mt-5">
+    <div className="flex flex-col flex-1 lg:min-h-0">
       {/* breadcrumb + red title */}
-      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-3 bg-white border-b border-navy-200">
+      <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">{title ?? res.title}</b></span>
         <h1 className="text-[22px] font-black text-brand-400">{title ?? res.title}</h1>
       </div>
 
       {/* tile toolbar + status tabs */}
-      <div className="flex flex-wrap items-center gap-2 px-4 lg:px-5 py-3 bg-white border-b border-navy-200 print:hidden">
+      <div className="shrink-0 flex flex-wrap items-center gap-2 px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setSearchOpen((o) => !o)} />
         {canCreate && <Tile icon={Plus} label="Thêm" color="green" onClick={() => setEditing({})} />}
         <Tile icon={Eye} label="Xem" color="teal" disabled={!selected} onClick={withRow((r) => setViewing(r))} />
@@ -452,7 +452,7 @@ export default function ResourceManager({
               const on = status === o
               return (
                 <button key={o} onClick={() => setStatus(on ? '' : o)}
-                  className={`min-w-[132px] h-[62px] px-3 rounded-[9px] border-2 text-center transition ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
+                  className={`min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
                   <div className="text-[12px] font-black uppercase">{o}</div>
                   <div className="text-[12px] font-semibold opacity-80">{(statusCounts[o] ?? 0).toLocaleString('vi-VN')} {res.singular}</div>
                 </button>
@@ -470,7 +470,7 @@ export default function ResourceManager({
         </div>
       )}
 
-      <div className="px-4 lg:px-5 py-4 space-y-3">
+      <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 print:block">
         {message}
         {(day || side || status || query) && (
           <div className="flex flex-wrap items-center gap-2 text-[12.5px] print:hidden">
@@ -482,16 +482,16 @@ export default function ResourceManager({
           </div>
         )}
 
-        <div className={hasCalendar || sideField ? 'grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-4 items-start' : ''}>
+        <div className={`grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)] ${hasCalendar || sideField ? 'lg:grid-cols-[230px_minmax(0,1fr)]' : ''}`}>
           {(hasCalendar || sideField) && (
-            <aside className="order-2 lg:order-none space-y-3 print:hidden">
+            <aside className="order-2 lg:order-none flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto print:hidden">
               {hasCalendar && <MonthCalendar month={month} setMonth={setMonth} counts={dayCounts} day={day} setDay={setDay}
                 unit={res.singular} fields={res.calendarFields} field={calField} loading={calLoading}
                 setField={(f) => { setCalField(f); setDay(null) }} onLatest={jumpLatest} />}
               {sideField && (
-                <div className="card overflow-hidden">
-                  <div className="px-3 py-2 bg-navy-50 border-b border-navy-200 text-[13px] font-extrabold text-navy-900">{sideField.label}</div>
-                  <div className="max-h-[360px] overflow-y-auto">
+                <div className="card overflow-hidden flex flex-col lg:flex-1 lg:min-h-[168px]">
+                  <div className="shrink-0 px-3 py-2 bg-navy-50 border-b border-navy-200 text-[13px] font-extrabold text-navy-900">{sideField.label}</div>
+                  <div className="max-h-[320px] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto">
                     {sideList.map((v) => {
                       const on = side === v
                       return (
@@ -507,9 +507,9 @@ export default function ResourceManager({
             </aside>
           )}
 
-          <div className="card overflow-hidden min-w-0">
+          <div className="card overflow-hidden min-w-0 flex flex-col lg:min-h-0">
             {table}
-            <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-t border-navy-200 bg-navy-50 text-[13px] text-ink-soft">
+            <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-t border-navy-200 bg-navy-50 text-[13px] text-ink-soft">
               <span className="tabular-nums">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> :
                 <>Hiển thị {total ? `${from}–${to}` : '0'} / <b className="text-ink">{total.toLocaleString('vi-VN')}</b> {res.singular}{selected ? <> · đang chọn <b className="text-select-accent">{selected.id}</b></> : ' · bấm để chọn, bấm đúp để xem'}</>}</span>
               {pages > 1 && <div className="flex items-center gap-1 print:hidden">

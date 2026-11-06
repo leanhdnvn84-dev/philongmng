@@ -15,12 +15,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .filter((g) => g.items.length)
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden flex flex-col print:h-auto print:overflow-visible">
       <Suspense fallback={<div className="h-16 bg-navy-900" />}>
         <TopNav groups={groups} name={auth.name} role={auth.roleName} />
       </Suspense>
-      <main className="flex-1 w-full px-4 lg:px-5 py-5">{children}</main>
-      <footer className="py-4 text-center text-xs text-ink-mute print:hidden">© Phi Long Technology · Hệ thống quản lý vận hành tòa nhà</footer>
+      <main className="flex-1 lg:min-h-0 w-full flex flex-col">{children}</main>
+      <footer className="shrink-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5 px-4 lg:px-5 py-1.5 bg-white border-t border-navy-200 text-[12px] text-ink-mute print:hidden">
+        <span>© Phi Long Technology · Hệ thống quản lý vận hành tòa nhà</span>
+        <span>Người dùng: <b className="text-navy-800">{auth.name}</b> · {auth.roleName}</span>
+      </footer>
     </div>
   )
 }

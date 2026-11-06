@@ -50,9 +50,9 @@ export default function Dashboard() {
   useEffect(() => {
     fetch('/api/dashboard').then((r) => r.json()).then((j) => (j.success ? setD(j) : setErr(j.error))).catch(() => setErr('Không tải được dữ liệu'))
   }, [])
-  if (err) return <p className="text-red-600">{err}</p>
+  if (err) return <p className="px-5 py-4 text-red-600">{err}</p>
   if (!d) return (
-    <div className="space-y-6">
+    <div className="px-4 lg:px-5 py-4 space-y-6">
       <div className="h-16 w-72 rounded-xl bg-white animate-pulse" />
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">{[...Array(12)].map((_, i) => <div key={i} className="h-32 rounded-xl bg-white animate-pulse" />)}</div>
     </div>
@@ -63,7 +63,7 @@ export default function Dashboard() {
   const weekday = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
 
   return (
-    <div className="space-y-5">
+    <div className="flex-1 lg:min-h-0 lg:overflow-y-auto px-4 lg:px-5 py-4 space-y-4">
       {/* heading + alert strip (V191 style: plain white card, red accent) */}
       <div className="card px-5 py-4 flex flex-wrap items-center gap-4 border-l-4 border-l-brand-400">
         <div className="flex-1 min-w-[220px]">

@@ -179,9 +179,9 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
 
   const stat = (key: TabKey, label: string, value: React.ReactNode, sub?: string, tone = 'text-navy-900', ring = 'border-b-blue-600', long = false) => (
     <button type="button" onClick={() => { setTab(key); setOnly4h(long) }}
-      className={`min-w-[150px] text-left rounded-[9px] bg-white px-3.5 py-2.5 border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-px transition ${ring} ${tab === key && only4h === long ? 'ring-2 ring-green-600/60' : ''}`}>
+      className={`min-w-[132px] text-left rounded-[9px] bg-white px-3 py-1.5 border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-px transition ${ring} ${tab === key && only4h === long ? 'ring-2 ring-green-600/60' : ''}`}>
       <div className="text-[11px] font-black uppercase tracking-wide text-navy-700">{label}</div>
-      <div className={`text-[22px] leading-tight font-extrabold tabular-nums ${tone}`}>{value}{sub && <span className="ml-2 text-[11.5px] font-medium text-ink-mute">{sub}</span>}</div>
+      <div className={`text-[20px] leading-tight font-extrabold tabular-nums ${tone}`}>{value}{sub && <span className="ml-2 text-[11.5px] font-medium text-ink-mute">{sub}</span>}</div>
     </button>
   )
 
@@ -197,13 +197,13 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
   const req = <span className="text-brand-400"> *</span>
 
   return (
-    <div className="-mx-4 lg:-mx-5 -mt-5">
-      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-3 bg-white border-b border-navy-200">
+    <div className="flex flex-col flex-1 lg:min-h-0">
+      <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Khách ra/vào tòa nhà</b></span>
         <h1 className="text-[22px] font-black text-brand-400">Khách ra/vào tòa nhà</h1>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 px-4 lg:px-5 py-3 bg-white border-b border-navy-200 print:hidden">
+      <div className="shrink-0 flex flex-wrap items-center gap-2 px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setTab('history')} />
         {perms.create && <Tile icon={Plus} label="Khách vào" color="green" onClick={() => { resetForm(); formRef.current?.scrollIntoView({ behavior: 'smooth' }); (formRef.current?.elements.namedItem('ho_ten') as HTMLInputElement | null)?.focus() }} />}
         <Tile icon={Eye} label="Xem" color="teal" disabled={!sel} onClick={() => sel && setViewing(sel)} />
@@ -222,16 +222,16 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         </div>
       </div>
 
-      <div className="px-4 lg:px-5 py-4 space-y-3">
+      <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto xl:overflow-hidden">
         {msg && (
           <div role="status" className={`flex items-start justify-between gap-3 rounded-[9px] border px-4 py-2.5 text-sm font-semibold ${msg.type === 'ok' ? 'bg-green-50 text-green-800 border-green-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
             <span>{msg.text}</span><button onClick={() => setMsg(null)} aria-label="Đóng" className="opacity-60 hover:opacity-100"><X className="h-4 w-4" /></button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-4 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-4 xl:flex-1 xl:min-h-0 xl:grid-rows-[minmax(0,1fr)]">
           {/* registration form */}
-          <form ref={formRef} onSubmit={submit} className="card p-4 print:hidden">
+          <form ref={formRef} onSubmit={submit} className="card p-4 xl:h-full xl:overflow-y-auto print:hidden">
             <div className="flex items-baseline justify-between">
               <h2 className="text-[13px] font-black uppercase tracking-wide text-brand-400">{editId ? `Sửa ${editId}` : 'Đăng ký khách'}</h2>
               <span className="text-[11px] text-ink-mute">{editId ? 'Đang chỉnh sửa' : 'Giờ vào: tự lấy giờ máy chủ'}</span>
@@ -287,7 +287,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               <div><label className={label} htmlFor="v-ghichu">Ghi chú</label><input id="v-ghichu" className={inp} value={form.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)} /></div>
             </div>
 
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex gap-2 sticky -bottom-4 -mx-4 -mb-4 px-4 py-3 bg-white border-t border-navy-200">
               <button disabled={busy || !(editId ? perms.edit : perms.create)}
                 className={`flex-1 h-11 rounded-[9px] text-white text-[14px] font-extrabold flex items-center justify-center gap-2 disabled:opacity-50 ${mode === 'in' || editId ? 'bg-green-700 hover:bg-green-800' : 'bg-blue-700 hover:bg-blue-800'}`}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : editId ? 'LƯU THAY ĐỔI' : mode === 'in' ? '→ CHECK-IN' : 'ĐĂNG KÝ TRƯỚC'}
@@ -297,15 +297,15 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
           </form>
 
           {/* list */}
-          <div className="card overflow-hidden min-w-0">
-            <div role="tablist" aria-label="Danh sách khách" className="flex overflow-x-auto px-3 border-b border-navy-200">
+          <div className="card overflow-hidden min-w-0 flex flex-col xl:min-h-0">
+            <div role="tablist" aria-label="Danh sách khách" className="shrink-0 flex overflow-x-auto px-3 border-b border-navy-200">
               {tabBtn('in', 'Đang trong tòa nhà', inside.length)}
               {tabBtn('book', 'Hẹn trước', booked.length)}
               {tabBtn('out', 'Đã ra hôm nay', outToday.length)}
               {tabBtn('today', 'Tất cả hôm nay', allToday.length)}
               {tabBtn('history', 'Tìm lịch sử')}
             </div>
-            <div className="px-3 pt-3">
+            <div className="shrink-0 px-3 pt-3">
               <label className="flex items-center gap-2 h-10 px-3 rounded-[9px] border border-navy-200 bg-white focus-within:border-select-accent">
                 <Search className="h-4 w-4 text-[#2189e6]" />
                 <input aria-label="Tìm khách" className="flex-1 bg-transparent outline-none text-[13.5px]" value={tab === 'history' ? histQuery : filter}
@@ -314,7 +314,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               </label>
             </div>
 
-            <div className="overflow-auto max-h-[calc(100vh-330px)] min-h-[300px] p-2.5">
+            <div className="overflow-auto max-h-[70vh] min-h-[260px] xl:max-h-none xl:flex-1 xl:min-h-0 p-2.5">
               <table className="w-full text-[12.5px] border-separate border-spacing-0 rounded-[9px] overflow-hidden border border-navy-200">
                 <thead>
                   <tr className="text-[12.5px] font-extrabold text-navy-900">
@@ -366,7 +366,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-[9px] bg-white border border-navy-200 px-4 py-2 text-[12.5px] print:hidden" data-tick={tick}>
+        <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 rounded-[9px] bg-white border border-navy-200 px-4 py-2 text-[12.5px] print:hidden" data-tick={tick}>
           <span className="font-bold text-green-700">● Đã đồng bộ lúc {synced || '--:--'}</span>
           <span className="font-bold text-navy-900">{inside.length} khách đang trong tòa nhà · {booked.length} hẹn trước · {outToday.length} đã ra hôm nay</span>
           <span className="text-ink-mute">Tự cập nhật mỗi phút · Người trực: <b className="text-navy-900">{userName}</b></span>

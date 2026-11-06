@@ -62,15 +62,18 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
   if (err) return <p className="text-red-600">{err}</p>
 
   return (
-    <div className="space-y-3">
-      <div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-600 mb-1">Công việc</p><h1 className="text-2xl md:text-[28px] font-bold tracking-tight text-navy-900">Báo cáo tiến độ</h1></div>
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_1fr] gap-4">
-        <div className="card flex flex-col overflow-hidden lg:h-[calc(100vh-8rem)]">
-          <div className="p-3 border-b space-y-2">
+    <div className="flex flex-col flex-1 lg:min-h-0">
+      <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-3 bg-white border-b border-navy-200">
+        <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Báo cáo tiến độ</b></span>
+        <h1 className="text-[22px] font-black text-brand-400">Báo cáo tiến độ</h1>
+      </div>
+      <div className="px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] gap-4">
+        <div className="card flex flex-col overflow-hidden lg:min-h-0">
+          <div className="shrink-0 p-3 border-b space-y-2">
             <input className="input" type="search" placeholder="Tìm công việc…" value={q} onChange={(e) => setQ(e.target.value)} />
             <label className="text-sm flex items-center gap-2"><input type="checkbox" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} /> Hiện cả việc đã hoàn thành</label>
           </div>
-          <ul className="overflow-y-auto divide-y text-sm max-h-80 lg:max-h-none">
+          <ul className="overflow-y-auto divide-y text-sm max-h-80 lg:max-h-none lg:flex-1 lg:min-h-0">
             {list.map((w) => (
               <li key={w.id}>
                 <button onClick={() => { setSel(w.id); setFilter(null) }} className={`w-full text-left px-3 py-2 hover:bg-brand-50/60 ${sel === w.id ? "bg-navy-50 border-l-2 border-brand-400" : "border-l-2 border-transparent"}`}>
@@ -85,7 +88,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
         </div>
 
         {!work ? <div className="card p-10 text-center text-ink-mute">Chọn một công việc để xem phân tích tiến độ.</div> : (
-          <div className="card p-6 space-y-5 min-w-0">
+          <div className="card p-6 space-y-5 min-w-0 lg:min-h-0 lg:overflow-y-auto">
             <div className="flex flex-wrap justify-between gap-2 items-start">
               <div className="min-w-0">
                 <span className={`inline-block text-xs font-bold px-2 py-1 rounded mb-1 ${isDone(work) ? 'bg-green-100 text-green-800' : latest?.stage === 'Chờ' ? 'bg-gray-200 text-gray-800' : 'bg-orange-100 text-orange-800'}`}>
