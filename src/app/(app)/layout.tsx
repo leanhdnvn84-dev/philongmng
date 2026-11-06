@@ -11,7 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!auth) redirect('/login?error=no-access')
 
   const groups: NavGroup[] = NAV
-    .map((g) => ({ group: g.group, items: g.items.filter((i) => can(auth, i.module, 'view')).map(({ label, href }) => ({ label, href })) }))
+    .map((g) => ({ group: g.group, items: g.items.filter((i) => i.module === '*' || can(auth, i.module, 'view')).map(({ label, href }) => ({ label, href })) }))
     .filter((g) => g.items.length)
 
   return (

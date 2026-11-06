@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowUp, ChevronDown, LogOut, Menu, Search, X } from 'lucide-react'
+import { ArrowUp, ChevronDown, LogOut, Menu, MessageCircle, Search, X } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import Portal from '@/components/Portal'
 import Logo from '@/components/Logo'
@@ -55,6 +55,13 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   const ref = useRef<HTMLDivElement>(null)
   const [pageSearch, setPageSearch] = useState('')
   const [showTop, setShowTop] = useState(false)
+  const [unread, setUnread] = useState(0)
+  useEffect(() => {
+    let dead = false
+    const tick = () => { if (document.hidden) return; fetch('/api/chat/unread', { cache: 'no-store' }).then((r) => r.json()).then((j) => !dead && j.success && setUnread(j.unread)).catch(() => {}) }
+    tick(); const t = setInterval(tick, 20000)
+    return () => { dead = true; clearInterval(t) }
+  }, [pathname])
   const onPageSearch = (v: string) => { setPageSearch(v); window.dispatchEvent(new CustomEvent('pl-search', { detail: v })) }
 
   const here = decodeURIComponent(pathname + (search.toString() ? '?' + search.toString() : ''))
@@ -121,6 +128,10 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
 
         <div className="ml-auto relative flex items-center gap-3 shrink-0">
           <TodayTile />
+          <Link href="/chat" aria-label="Trao đổi nội bộ" title="Trao đổi nội bộ" className="relative hidden lg:grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25">
+            <MessageCircle className="h-5 w-5" />
+            {unread > 0 && <span className="absolute -right-1 -top-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-white px-1 text-[10px] font-black text-brand-500">{unread > 99 ? '99+' : unread}</span>}
+          </Link>
           <button type="button" onClick={() => setUserMenu(!userMenu)} aria-expanded={userMenu} className="flex items-center gap-2 text-left text-white">
             <span className="grid place-items-center h-9 w-9 rounded-full bg-white text-brand-400 text-[12px] font-black ring-2 ring-white/60">{initials || 'U'}</span>
             <span className="hidden 2xl:block leading-tight">
@@ -148,6 +159,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
           <button type="button" onClick={() => setMobile(true)} aria-label="Mở menu"
             className="fixed left-4 bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-brand-400 text-white shadow-[0_6px_18px_rgba(237,50,55,.45)] active:scale-95">
             <Menu className="h-6 w-6" />
+            {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-white px-1 text-[11px] font-black text-brand-500 ring-2 ring-brand-400">{unread > 99 ? '99+' : unread}</span>}
           </button>
           {showTop && (
             <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Lên đầu trang"
@@ -172,6 +184,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
             </div>
             <nav className="overflow-y-auto overscroll-contain px-3 py-2">
               <Link href="/" className={`flex items-center gap-3 rounded-[10px] px-3 py-3.5 text-[16px] font-extrabold uppercase ${pathname === '/' ? 'bg-brand-50 text-brand-500' : 'text-navy-900'}`}><span className="w-7 text-center text-[22px]">📊</span>Tổng quan</Link>
+              <Link href="/chat" className={`flex items-center gap-3 rounded-[10px] px-3 py-3.5 text-[16px] font-extrabold uppercase ${pathname === '/chat' ? 'bg-brand-50 text-brand-500' : 'text-navy-900'}`}><span className="w-7 text-center text-[22px]">💬</span><span className="flex-1">Trao đổi</span>{unread > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-brand-400 px-1.5 text-[12px] font-black text-white">{unread}</span>}</Link>
               {groups.map((g) => {
                 const expanded = open === g.group || (open === null && groupActive(g))
                 return (

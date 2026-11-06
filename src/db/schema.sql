@@ -502,3 +502,20 @@ CREATE TABLE IF NOT EXISTS public.legacy_auth (
   salt TEXT NOT NULL, iter INT NOT NULL DEFAULT 100000, hash TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT now());
 ALTER TABLE public.legacy_auth ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.legacy_auth FROM anon, authenticated;
+
+-- internal chat (V191 CHATNOIBO): direct + whole-team messages, per-user read cursors
+CREATE TABLE IF NOT EXISTS public.tin_nhan (
+  id TEXT PRIMARY KEY DEFAULT public.next_id('MSG', 6),
+  thoi_gian TIMESTAMPTZ NOT NULL DEFAULT now(),
+  id_nguoi_gui TEXT NOT NULL,
+  id_nguoi_nhan TEXT NOT NULL,
+  noi_dung TEXT NOT NULL CHECK (length(noi_dung) BETWEEN 1 AND 2000),
+  extra JSONB NOT NULL DEFAULT '{}');
+CREATE INDEX IF NOT EXISTS tin_nhan_nhan_tg ON public.tin_nhan (id_nguoi_nhan, thoi_gian DESC);
+CREATE INDEX IF NOT EXISTS tin_nhan_gui_tg ON public.tin_nhan (id_nguoi_gui, thoi_gian DESC);
+CREATE TABLE IF NOT EXISTS public.chat_doc (
+  user_key TEXT NOT NULL, conv TEXT NOT NULL, doc_den TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_key, conv));
+ALTER TABLE public.tin_nhan ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chat_doc ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.tin_nhan, public.chat_doc FROM anon, authenticated;
