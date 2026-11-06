@@ -47,7 +47,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(160deg,#0b1830_0%,#13274a_60%,#0b1830_100%)] px-4 py-8 text-white lg:px-14 lg:py-12">
+    <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(160deg,#0b1830_0%,#13274a_60%,#0b1830_100%)] px-4 pb-14 pt-8 text-white lg:px-14 lg:py-12">
       <div aria-hidden className="pointer-events-none absolute -left-32 -top-36 h-[560px] w-[560px] rounded-full bg-[#ED3237] opacity-35 blur-[120px]" />
       <div aria-hidden className="pointer-events-none absolute -bottom-40 -right-36 h-[520px] w-[520px] rounded-full bg-blue-500 opacity-20 blur-[130px]" />
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.04)_1px,transparent_1px)] bg-[size:48px_48px]" />
@@ -63,8 +63,7 @@ export default function LoginPage() {
             <p className="mt-1 text-[38px] font-extrabold tabular-nums leading-none tracking-wide sm:text-[48px]" aria-label="Giờ hiện tại">{clock || '--:--:--'}</p>
           </div>
 
-          <p className="mt-14 hidden text-[12.5px] text-[#8fa3c7] lg:block">Designed &amp; Developed by <b className="text-[#c9d5ec]">Phi Long Technology</b> © 2026</p>
-        </section>
+                  </section>
 
         {/* right: sign in */}
         <div className="mx-auto w-full max-w-[440px]">
@@ -96,9 +95,9 @@ export default function LoginPage() {
             </button>
             <p className="mt-4 text-center text-[12.5px] text-[#8fa3c7]">Quên mật khẩu? Liên hệ quản trị để cấp lại.</p>
           </form>
-          <p className="mt-6 text-center text-[12.5px] text-[#8fa3c7] lg:hidden">Designed &amp; Developed by <b className="text-[#c9d5ec]">Phi Long Technology</b> © 2026</p>
-        </div>
+                  </div>
       </div>
+      <p className="absolute bottom-4 right-5 text-right text-[12.5px] text-[#8fa3c7] lg:bottom-6 lg:right-10">Designed &amp; Developed by <b className="text-[#c9d5ec]">Phi Long Technology</b> © 2026</p>
     </main>
   )
 }
