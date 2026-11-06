@@ -9,14 +9,18 @@
 -- ---------- ID sequences (replaces SYS_ID_SEQUENCE + LockService) ----------
 CREATE TABLE IF NOT EXISTS public.sys_id_sequence (prefix TEXT PRIMARY KEY, last_value BIGINT NOT NULL DEFAULT 0);
 
-CREATE OR REPLACE FUNCTION public.next_id(p_prefix TEXT) RETURNS TEXT LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION public.next_id(p_prefix TEXT, p_width INT) RETURNS TEXT LANGUAGE plpgsql AS $$
 DECLARE n BIGINT;
 BEGIN
   INSERT INTO public.sys_id_sequence(prefix, last_value) VALUES (p_prefix, 1)
   ON CONFLICT (prefix) DO UPDATE SET last_value = public.sys_id_sequence.last_value + 1
   RETURNING last_value INTO n;
-  RETURN p_prefix || lpad(n::TEXT, 4, '0');
+  RETURN p_prefix || lpad(n::TEXT, p_width, '0');
 END $$;
+
+-- most codes are prefix + 4 digits (CV0001); visitors keep V191's K000097 (6 digits)
+CREATE OR REPLACE FUNCTION public.next_id(p_prefix TEXT) RETURNS TEXT LANGUAGE sql AS
+$$ SELECT public.next_id(p_prefix, 4) $$;
 
 CREATE OR REPLACE FUNCTION public.today_vn() RETURNS DATE LANGUAGE sql STABLE AS
 $$ SELECT (now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date $$;
@@ -135,7 +139,7 @@ CREATE TABLE IF NOT EXISTS public.cong_viec_hang_ngay ( -- CVHN_2026
   extra JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ DEFAULT now(), updated_at TIMESTAMPTZ DEFAULT now());
 
 CREATE TABLE IF NOT EXISTS public.khach_ra_vao (
-  id TEXT PRIMARY KEY DEFAULT public.next_id('KRV'),
+  id TEXT PRIMARY KEY DEFAULT public.next_id('K', 6),
   ngay DATE, gio_vao TEXT, ngay_hen DATE, gio_hen TEXT,
   ho_ten TEXT NOT NULL, sdt TEXT, giay_to TEXT, nguoi_di_cung TEXT, dia_chi TEXT, cong_ty TEXT,
   nguoi_can_gap TEXT, phong_ban TEXT, tang TEXT, cong_ty_lien_he TEXT, noi_dung TEXT, muc_dich TEXT,
@@ -430,7 +434,7 @@ BEGIN
   FOR r IN SELECT * FROM (VALUES
     ('vai_tro','VR'),('phan_quyen','PQ'),('nhan_vien','NV'),('nha_thau','NT'),('nha_cung_cap','NCC'),('khu_vuc','KV'),
     ('hang_muc_bao_tri','HM'),('chi_tiet_van_hanh','VH'),('lich_bao_tri','LB'),('nhat_ky_bao_tri','NB'),('cong_viec','CV'),
-    ('cong_viec_hang_ngay','HN'),('khach_ra_vao','KRV'),('vat_tu','VT'),('nhap_xuat_kho','NX'),('thiet_bi','TB'),
+    ('cong_viec_hang_ngay','HN'),('khach_ra_vao','K'),('vat_tu','VT'),('nhap_xuat_kho','NX'),('thiet_bi','TB'),
     ('thu_hoi','TH'),('lich_su_chuyen_thiet_bi','CTB'),('de_xuat','DX'),('de_xuat_chi_tiet','DXCT'),('toa_nha','TN'),
     ('tang','TANG'),('khach_thue','KT'),('khach_hang_tiem_nang','KHTN'),('tien_dien','TD')) AS t(tbl, prefix)
   LOOP
