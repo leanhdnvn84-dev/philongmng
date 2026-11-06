@@ -41,10 +41,10 @@ function TodayTile() {
   )
 }
 
-// V191 menu button: translucent white outline on the red bar; the open/active one turns white
+// Menu style 3 ("Đỏ thương hiệu cao cấp"): frosted pills on a red gradient bar; the open/active one lifts to white
 const navBtn = (on: boolean) =>
-  `flex items-center gap-1 h-[38px] px-2 2xl:px-3 rounded-[7px] border text-[12px] 2xl:text-[13px] font-extrabold uppercase whitespace-nowrap transition-colors ${
-    on ? 'bg-white text-brand-400 border-white shadow-[0_2px_8px_rgba(0,0,0,.18)]' : 'bg-[#25324a] text-white border-white/20 shadow-[0_2px_4px_rgba(0,0,0,.18)] hover:bg-[#34445f] hover:border-white/35'}`
+  `flex items-center gap-1 h-[40px] px-3 2xl:px-4 rounded-full border text-[12px] 2xl:text-[12.5px] font-extrabold uppercase tracking-[.05em] whitespace-nowrap transition active:translate-y-px ${
+    on ? 'bg-white text-brand-600 border-white shadow-[0_6px_16px_rgba(0,0,0,.2),inset_0_-2px_0_rgba(237,50,55,.18)]' : 'bg-white/[.14] text-white border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,.28),0_2px_6px_rgba(120,10,14,.22)] hover:bg-white/25 hover:border-white/40'}`
 
 export default function TopNav({ groups, name, role }: { groups: NavGroup[]; name: string; role: string }) {
   const pathname = usePathname()
@@ -91,14 +91,14 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   }
 
   return (
-    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-white lg:bg-brand-400 border-b border-navy-200 lg:border-brand-500 shadow-[0_1px_4px_rgba(16,24,40,.08)] lg:shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_4px_13px_rgba(237,50,55,.25)]">
-      {/* phone: white bar with logo + page search (menu and filters live in the floating buttons) */}
+    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-[linear-gradient(135deg,#f5565b_0%,#ED3237_45%,#c4161b_100%)] border-b border-brand-600/40 shadow-[inset_0_1px_0_rgba(255,255,255,.35),0_10px_26px_rgba(196,22,27,.3)]">
+      {/* phone: red bar with logo + page search (menu and filters live in the floating buttons) */}
       <div className="lg:hidden flex items-center gap-3 px-3 py-2">
-        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="color" height={40} /></Link>
+        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="white" height={40} /></Link>
         <label className="relative flex-1 min-w-0">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-mute" />
           <input type="search" value={pageSearch} onChange={(e) => onPageSearch(e.target.value)} placeholder="Tìm trang này…" aria-label="Tìm trang này"
-            className="h-11 w-full rounded-[10px] border border-navy-200 bg-navy-50 pl-9 pr-3 text-[16px] outline-none focus:border-[#2189e6] focus:bg-white" />
+            className="h-11 w-full rounded-full border border-white/30 bg-white/95 pl-9 pr-3 text-[16px] shadow-[0_2px_8px_rgba(120,10,14,.2)] outline-none focus:ring-2 focus:ring-white/70" />
         </label>
       </div>
       <div className="hidden lg:flex h-[62px] px-4 lg:px-5 items-center gap-3 2xl:gap-5">
@@ -113,14 +113,20 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
                 {g.group} <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open === g.group ? 'rotate-180' : ''}`} />
               </button>
               {open === g.group && (
-                <div className="absolute left-0 top-full pt-2 min-w-[230px]">
-                  <div className="rounded-[9px] bg-white border border-navy-200 shadow-pop p-[7px]">
-                    {g.items.map((i) => (
-                      <Link key={i.href} href={i.href}
-                        className={`block rounded-md px-3 py-2 text-[13.5px] font-semibold transition-colors ${isActive(i.href) ? 'bg-brand-50 text-brand-500' : 'text-ink hover:bg-navy-100'}`}>
-                        {i.label}
-                      </Link>
-                    ))}
+                <div className="absolute left-0 top-full pt-2 min-w-[280px]">
+                  <div className="overflow-hidden rounded-[18px] bg-white shadow-[0_26px_60px_rgba(16,26,45,.28),0_0_0_1px_rgba(16,26,45,.05)]">
+                    <div className="border-b border-[#ffd5d5] bg-gradient-to-br from-[#fff1f1] to-[#ffe4e4] px-4 py-3">
+                      <div className="text-[11px] font-extrabold uppercase tracking-[.12em] text-brand-600">{g.group}</div>
+                      <div className="text-[12.5px] text-ink-mute">{g.items.length} mục</div>
+                    </div>
+                    <div className="p-2">
+                      {g.items.map((i) => (
+                        <Link key={i.href} href={i.href}
+                          className={`flex items-center rounded-xl px-3.5 py-2.5 text-[14px] font-bold transition-colors ${isActive(i.href) ? 'bg-brand-50 text-brand-600' : 'text-navy-900 hover:bg-navy-100'}`}>
+                          {i.label}<span className={`ml-auto text-[19px] leading-none ${isActive(i.href) ? 'text-brand-500' : 'text-navy-300'}`}>›</span>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -130,18 +136,18 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
 
         <div className="ml-auto relative flex items-center gap-3 shrink-0">
           <TodayTile />
-          <button type="button" onClick={() => setChatOpen((o) => !o)} aria-label="Trao đổi nội bộ" title="Trao đổi nội bộ" aria-expanded={chatOpen} className="relative hidden lg:grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25">
+          <button type="button" onClick={() => setChatOpen((o) => !o)} aria-label="Trao đổi nội bộ" title="Trao đổi nội bộ" aria-expanded={chatOpen} className="relative hidden lg:grid h-10 w-10 place-items-center rounded-full border border-white/35 bg-white/[.16] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)] hover:bg-white/25">
             <MessageCircle className="h-5 w-5" />
             {unread > 0 && <span className="absolute -right-1 -top-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-white px-1 text-[10px] font-black text-brand-500">{unread > 99 ? '99+' : unread}</span>}
           </button>
           <button type="button" onClick={() => setUserMenu(!userMenu)} aria-expanded={userMenu} className="flex items-center gap-2 text-left text-white">
-            <span className="grid place-items-center h-9 w-9 rounded-full bg-white text-brand-400 text-[12px] font-black ring-2 ring-white/60">{initials || 'U'}</span>
+            <span className="grid place-items-center h-10 w-10 rounded-full bg-white text-brand-500 text-[12px] font-black shadow-[0_0_0_3px_rgba(255,255,255,.4)]">{initials || 'U'}</span>
             <span className="hidden 2xl:block leading-tight">
               <span className="block text-[13px] font-extrabold max-w-[150px] truncate">{name}</span>
               <span className="block text-[11px] font-semibold text-white/85">{role}</span>
             </span>
           </button>
-          <button onClick={logout} className="hidden lg:inline-flex h-[34px] items-center px-3 rounded-[7px] bg-white text-[12.5px] font-extrabold text-navy-900 shadow-[0_2px_6px_rgba(0,0,0,.12)] hover:bg-navy-50">Đăng xuất</button>
+          <button onClick={logout} className="hidden lg:inline-flex h-[38px] items-center px-4 rounded-full bg-white text-[12.5px] font-extrabold text-navy-900 shadow-[0_4px_12px_rgba(0,0,0,.16)] transition hover:bg-navy-50 active:translate-y-px">Đăng xuất</button>
           {userMenu && (
             <div className="absolute right-0 top-full mt-2 w-60 rounded-[9px] bg-white border border-navy-200 shadow-pop p-[7px]">
               <div className="px-3 py-2 border-b border-navy-200 mb-1">
