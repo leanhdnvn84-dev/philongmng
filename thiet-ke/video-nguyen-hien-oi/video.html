@@ -40,11 +40,16 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#FBF3E4}
 #ke{margin-top:26px;font:400 44px/1.3 'Charm',cursive;color:rgba(36,48,110,.5);white-space:nowrap}
 #tag{left:50%;top:380px;transform:translateX(-50%);font:700 22px 'Be Vietnam Pro';letter-spacing:.18em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);border-radius:30px;padding:8px 26px;box-shadow:0 4px 12px rgba(179,38,30,.3);white-space:nowrap}
 .toi .dong .nen{color:rgba(255,240,215,.45)}.toi .dong .phu{color:#FFE6A6;text-shadow:0 0 18px rgba(255,190,90,.6)}.toi #ke{color:rgba(255,240,215,.6)}
+/* hình mở đầu */
+#hinh{inset:0;opacity:0;background:#2A1A12}
+#hinh .mo{position:absolute;inset:-60px;background:url(../../assets/giay-moi-nen.webp) center/cover;filter:blur(28px) brightness(.8)}
+#hinh img{position:absolute;left:50%;top:50%;height:1000px;transform-origin:50% 50%;box-shadow:0 20px 60px rgba(0,0,0,.45);border:10px solid #FFF8EC;border-radius:6px}
 /* kết */
 #ket{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0}
 #ket img{width:140px;height:140px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 24px rgba(120,60,30,.25)}
 #ket h2{font:400 120px/1.1 'Great Vibes',cursive;color:#B3261E;margin-top:14px}
 #ket p{font:600 32px 'Noto Serif';letter-spacing:.1em;color:#5B2A12;margin-top:10px}
+#ket .tg{margin-top:34px;font:400 46px 'Charm',cursive;color:#24306E}#ket .tg b{font-weight:700;color:#A3221A}
 #ket .nk{display:inline-block;margin-top:20px;font:700 26px 'Be Vietnam Pro';letter-spacing:.14em;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);border-radius:40px;padding:10px 34px}
 </style></head><body><div class="k" id="k">
 <div class="ab" id="tia"></div><div class="ab" id="nang"></div><div class="ab" id="san"></div><div class="ab" id="mo"></div>
@@ -52,13 +57,15 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#FBF3E4}
 <div class="ab" id="toi"></div><div class="ab" id="nen"><b></b><i></i></div>
 <div class="ab" id="dau"><img src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><div><p>TRƯỜNG THPT NGUYỄN HIỀN</p><span>NIÊN KHOÁ 2000 – 2003 · NGÀY TRỞ VỀ 14.11.2026</span></div></div>
 <div class="ab" id="tieu"><img src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><p class="e">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</p><h1>Nguyễn Hiền ơi, ta về</h1><div class="v"></div><p class="p">Ca khúc Gala “Ngày trở về” · Niên khoá 2000 – 2003</p></div>
+<div class="ab" id="hinh"><div class="mo"></div><img src="../../assets/giay-moi-nen.webp" alt=""></div>
 <div class="ab" id="tag"></div>
 <div class="ab" id="loi"><div class="dong"><span class="nen" id="n"></span><span class="phu" id="f"></span></div><div id="ke"></div></div>
-<div class="ab" id="ket"><img src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><h2>Nguyễn Hiền ơi, ta về</h2><p>Hẹn gặp nhau dưới gốc phượng xưa</p><span class="nk">NIÊN KHOÁ 2000 – 2003 · 14.11.2026</span></div>
+<div class="ab" id="ket"><img src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><h2>Nguyễn Hiền ơi, ta về</h2><p>Hẹn gặp nhau dưới gốc phượng xưa</p><span class="nk">NIÊN KHOÁ 2000 – 2003 · 14.11.2026</span><p class="tg" id="tg"></p></div>
 </div>
 <script>
 /* mốc: 76 BPM → 1 ô nhịp = 3,158 giây; mỗi câu 2 ô nhịp */
 const NB=60/76*4,C=NB*2;
+const SANG_TAC='Mr. Anh',HINH_HET=6; /* tên người sáng tác ở cuối · hình mở đầu hiện 0 → HINH_HET giây */
 const DOAN=[ /* [tên nhóm giọng, các câu, số ô nhịp nghỉ trước] */
  ['Nữ',['Hai mươi ba năm, một chiều tháng mười một','Tin nhắn ai gửi: “Về Nguyễn Hiền đi bạn ơi”','Bỏ lại sau lưng bộn bề cơm áo','Ta về Nguyễn Hiền dưới gốc phượng xưa'],4],
  ['Nam',['Nguyễn Hiền còn đó dãy lớp hai tầng','Mùa mưa nước ngập lội ngang Phan Đăng Lưu','Thầy cô Nguyễn Hiền phấn bay bạc tóc','Dạy ta thành người, dạy ta thương nhau'],0],
@@ -69,11 +76,12 @@ const DOAN=[ /* [tên nhóm giọng, các câu, số ô nhịp nghỉ trước] 
  ['Cả hội trường',['Nguyễn Hiền! Nguyễn Hiền!','Ta lại về…'],0]
 ];
 const L=[];let t0=0;DOAN.forEach(([g,ds,nghi],di)=>{t0+=nghi*NB;ds.forEach(c=>{L.push({a:t0,b:t0+C,c,g,di});t0+=C})});
-const T_KET=t0,TONG=t0+8,BRIDGE=[L.find(x=>x.di===4).a-2,L.filter(x=>x.di===4).pop().b+1];
+const T_KET=t0,TONG=t0+11,BRIDGE=[L.find(x=>x.di===4).a-2,L.filter(x=>x.di===4).pop().b+1];
 window.LOI=L;window.TONG=TONG;
 const $=i=>document.getElementById(i),cl=(x,a,b)=>Math.max(a,Math.min(b,x)),ss=x=>x*x*(3-2*x);
 /* cánh rơi cố định */
 const R=Array.from({length:34},(_,i)=>({x:(i*173+37)%1920,v:60+(i%5)*22,d:i*1.37,w:30+(i%4)*14,s:.7+(i%4)*.15,r:i*47}));
+$('tg').innerHTML='Sáng tác: <b>'+SANG_TAC+'</b>';
 $('roi').innerHTML=R.map(()=>'<i></i>').join('');const RI=[...$('roi').children];
 function ve(t){
  $('tia').style.transform='rotate('+(t*1.2)+'deg)';$('nang').style.opacity=.75+.25*Math.sin(t*1.2);
@@ -84,9 +92,10 @@ function ve(t){
  const bt=ss(cl((t-BRIDGE[0])/2,0,1))*(1-ss(cl((t-BRIDGE[1])/2,0,1)));$('toi').style.opacity=bt;$('nen').style.opacity=bt;$('nen').querySelector('b').style.transform='scale('+(1+.06*Math.sin(t*9))+','+(1+.1*Math.sin(t*7))+')';
  $('k').classList.toggle('toi',bt>.5);$('san').style.opacity=1-.6*bt;
  /* tiêu đề đầu */
- const ti=t<L[0].a?ss(cl(t/1.5,0,1))*(1-ss(cl((t-(L[0].a-1.4))/1.2,0,1))):0;$('tieu').style.opacity=ti;$('tieu').style.transform='scale('+(.96+.04*ti)+')';
+ const hi=t<HINH_HET+1.5?ss(cl(t/1,0,1))*(1-ss(cl((t-HINH_HET)/1.5,0,1))):0;$('hinh').style.opacity=hi;$('hinh').querySelector('img').style.transform='translate(-50%,-50%) scale('+(1+.05*t/HINH_HET)+')';
+ const ti=t<L[0].a?ss(cl((t-HINH_HET+.5)/1.5,0,1))*(1-ss(cl((t-(L[0].a-1.4))/1.2,0,1))):0;$('tieu').style.opacity=ti;$('tieu').style.transform='scale('+(.96+.04*ti)+')';
  /* kết */
- const kt=ss(cl((t-T_KET-.3)/1.5,0,1));$('ket').style.opacity=kt;
+ const kt=ss(cl((t-T_KET-.3)/1.5,0,1));$('ket').style.opacity=kt;$('tg').style.opacity=ss(cl((t-T_KET-2.5)/1.5,0,1));
  $('dau').style.opacity=(1-ti)*(1-kt)*(1-.85*bt);
  /* lời */
  const i=L.findIndex(x=>t>=x.a-.4&&t<x.b);const l=L[i];
