@@ -585,6 +585,7 @@ export const RESOURCES: Resource[] = [
     searchFields: ['ho_ten', 'email'], orderBy: { column: 'ho_ten', ascending: true },
     fields: [
       { name: 'ho_ten', label: 'Họ tên', type: 'text', required: true },
+      { name: 'ten_dang_nhap', label: 'Tên đăng nhập (tùy chọn)', type: 'text' },
       { name: 'email', label: 'Email đăng nhập', type: 'email', required: true },
       { name: 'password', label: 'Mật khẩu (tối thiểu 8 ký tự)', type: 'password', required: true, createOnly: true },
       { name: 'id_nhan_vien', label: 'Nhân viên', type: 'ref', ref: 'nhan_vien' },

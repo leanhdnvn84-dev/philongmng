@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, Lock, Mail, ShieldCheck, Wrench, ClipboardList } from 'lucide-react'
-import { supabaseBrowser } from '@/lib/supabase/browser'
 import Logo from '@/components/Logo'
 
 export default function LoginPage() {
@@ -17,9 +16,13 @@ export default function LoginPage() {
     e.preventDefault()
     setBusy(true)
     setError('')
-    const { error } = await supabaseBrowser().auth.signInWithPassword({ email, password })
-    if (error) {
-      setError('Email hoặc mật khẩu không đúng')
+    const res = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier: email, password }),
+    })
+    const j = await res.json().catch(() => ({}))
+    if (!res.ok || !j.success) {
+      setError(j.error || 'Tên đăng nhập / email hoặc mật khẩu không đúng')
       setBusy(false)
       return
     }
@@ -59,10 +62,10 @@ export default function LoginPage() {
 
           <div className="mt-8 space-y-4">
             <div>
-              <label htmlFor="email" className="label">Email</label>
+              <label htmlFor="email" className="label">Tên đăng nhập hoặc email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-mute" />
-                <input id="email" className="input pl-9 h-11" type="email" required autoFocus autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input id="email" className="input pl-9 h-11" type="text" required autoFocus autoCapitalize="none" spellCheck={false} autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
             </div>
             <div>

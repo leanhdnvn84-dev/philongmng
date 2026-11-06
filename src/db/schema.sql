@@ -493,3 +493,12 @@ WHERE NOT EXISTS (SELECT 1 FROM public.phan_quyen)
 ON CONFLICT (id_vai_tro, module) DO NOTHING;
 
 SELECT public.sync_id_sequences();
+
+-- login by username OR email; V191 password hashes carried over (verified once, then moved to Supabase Auth)
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS ten_dang_nhap TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS users_ten_dang_nhap_uq ON public.users (lower(ten_dang_nhap)) WHERE ten_dang_nhap IS NOT NULL;
+CREATE TABLE IF NOT EXISTS public.legacy_auth (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  salt TEXT NOT NULL, iter INT NOT NULL DEFAULT 100000, hash TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT now());
+ALTER TABLE public.legacy_auth ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.legacy_auth FROM anon, authenticated;
