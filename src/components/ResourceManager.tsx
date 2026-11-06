@@ -476,8 +476,8 @@ export default function ResourceManager({
           const edge = t === 'red' ? 'border-l-red-500' : t === 'amber' ? 'border-l-amber-400' : t === 'green' ? 'border-l-emerald-500' : t === 'blue' ? 'border-l-blue-500' : 'border-l-navy-300'
           const shown = bodyFields.filter((f) => r[f.name] !== null && r[f.name] !== undefined && r[f.name] !== '')
           return (
-            <button key={r.id} type="button" onClick={() => setViewing(r)}
-              className={`block w-full rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white px-3 py-2.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50 ${loading ? 'opacity-60' : ''}`}>
+            <div key={r.id} className={`rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white shadow-[0_1px_2px_rgba(16,24,40,.06)] ${loading ? 'opacity-60' : ''}`}>
+            <button type="button" onClick={() => setViewing(r)} className="block w-full rounded-2xl px-3 py-2.5 text-left active:bg-navy-50">
               <div className="flex items-center gap-2">
                 {res.key !== 'users' && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-blue-700">{r.id}</span>}
                 <span className="ml-auto flex flex-wrap justify-end gap-1">{statusFields.filter((f, i) => r[f.name] && !statusFields.slice(0, i).some((g) => String(r[g.name] ?? '').toLowerCase() === String(r[f.name]).toLowerCase())).map((f) => <span key={f.name}>{display(f, r[f.name], labels)}</span>)}</span>
@@ -495,6 +495,14 @@ export default function ResourceManager({
                 </dl>
               )}
             </button>
+            {res.key === 'de_xuat' && (
+              <div className="flex gap-2 border-t border-navy-100 px-3 py-2">
+                <button type="button" className="btn-secondary h-9 flex-1 whitespace-nowrap px-1.5 text-[12.5px]" onClick={() => phieu(r, 'print')}><Printer className="h-4 w-4" />In</button>
+                <button type="button" className="btn-secondary h-9 flex-1 whitespace-nowrap px-1.5 text-[12.5px]" onClick={() => phieu(r, 'pdf')}><FileDown className="h-4 w-4" />In PDF</button>
+                <button type="button" className="btn-secondary h-9 flex-1 whitespace-nowrap px-1.5 text-[12.5px]" onClick={() => phieu(r, 'word')}><FileText className="h-4 w-4" />In Word</button>
+              </div>
+            )}
+            </div>
           )
         })}
     </div>
@@ -583,9 +591,9 @@ export default function ResourceManager({
               <button key={a.key} className="btn-primary" onClick={() => doAction(a, viewing)}><Zap className="h-4 w-4" />{a.label}</button>
             ))}
             {res.key === 'de_xuat' && <>
-              <button className="btn-secondary" onClick={() => phieu(viewing, 'print')}><Printer className="h-4 w-4" />In phiếu</button>
-              <button className="btn-secondary" onClick={() => phieu(viewing, 'pdf')}><FileDown className="h-4 w-4" />PDF</button>
-              <button className="btn-secondary" onClick={() => phieu(viewing, 'word')}><FileText className="h-4 w-4" />Word</button>
+              <button className="btn-secondary" onClick={() => phieu(viewing, 'print')}><Printer className="h-4 w-4" />In</button>
+              <button className="btn-secondary" onClick={() => phieu(viewing, 'pdf')}><FileDown className="h-4 w-4" />In PDF</button>
+              <button className="btn-secondary" onClick={() => phieu(viewing, 'word')}><FileText className="h-4 w-4" />In Word</button>
             </>}
             {canEdit && !res.locked?.(viewing) && <button className="btn-secondary" onClick={() => setEditing(viewing)}><Pencil className="h-4 w-4" />Sửa</button>}
             {canDelete && !res.locked?.(viewing) && <button className="btn-danger ml-auto" onClick={() => remove(viewing)}><Trash2 className="h-4 w-4" />Xóa</button>}
@@ -660,9 +668,9 @@ export default function ResourceManager({
         {pageActions.map((a) => <Tile key={a.key} icon={Zap} label={a.label} color="violet" onClick={() => doAction(a, null)} />)}
         {isDev && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={() => selected && (window.location.href = `/lich_su_chuyen_thiet_bi?id_thiet_bi=${selected.id}`)} />}
         {res.key === 'de_xuat' && <>
-          <Tile icon={Printer} label="In phiếu" color="slate" disabled={!selected} onClick={withRow((r) => phieu(r, 'print'))} />
-          <Tile icon={FileDown} label="PDF" color="red" disabled={!selected} onClick={withRow((r) => phieu(r, 'pdf'))} />
-          <Tile icon={FileText} label="Word" color="blue" disabled={!selected} onClick={withRow((r) => phieu(r, 'word'))} />
+          <Tile icon={Printer} label="In" color="slate" disabled={!selected} onClick={withRow((r) => phieu(r, 'print'))} />
+          <Tile icon={FileDown} label="In PDF" color="red" disabled={!selected} onClick={withRow((r) => phieu(r, 'pdf'))} />
+          <Tile icon={FileText} label="In Word" color="blue" disabled={!selected} onClick={withRow((r) => phieu(r, 'word'))} />
         </>}
         {!isDev && res.key !== 'de_xuat' && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
