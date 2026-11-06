@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
-  FileSpreadsheet, RotateCw, CheckCircle2,
+  RotateCw, CheckCircle2,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
@@ -271,24 +271,6 @@ export default function ResourceManager({
       if (row && viewing) refreshViewing(row.id)
     } catch (e: any) { if (!action.fields?.length) flash(e.message, 'err'); throw e }
   }
-  async function exportCsv() {
-    try {
-      const sp = baseParams(); sp.set('pageSize', '2000')
-      const j = await api(`/api/${res.key}?${sp}`)
-      const cols = res.fields.filter((f) => f.type !== 'password')
-      const esc = (s: unknown) => {
-        let t = String(s ?? '')
-        if (/^[=+\-@\t\r]/.test(t)) t = "'" + t // neutralise formula injection in Excel/Sheets
-        return `"${t.replace(/"/g, '""')}"`
-      }
-      const body = (j.data as Row[]).map((r) => ['id', ...cols.map((f) => f.name)].map((n) => {
-        const f = cols.find((c) => c.name === n); const v = r[n]
-        return esc(f?.type === 'ref' ? labels[f.ref!]?.get(v) ?? v : v)
-      }).join(','))
-      const blob = new Blob(['﻿' + ['Mã', ...cols.map((f) => f.label)].map(esc).join(',') + '\n' + body.join('\n')], { type: 'text/csv;charset=utf-8' })
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${res.key}.csv`; a.click(); URL.revokeObjectURL(a.href)
-    } catch (e: any) { flash(e.message, 'err') }
-  }
   function resetAll() { setStatus(''); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
@@ -450,7 +432,6 @@ export default function ResourceManager({
         ))}
         {pageActions.map((a) => <Tile key={a.key} icon={Zap} label={a.label} color="violet" onClick={() => doAction(a, null)} />)}
         <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />
-        <Tile icon={FileSpreadsheet} label="Xuất Excel" color="green" onClick={exportCsv} />
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
         </div>
 
