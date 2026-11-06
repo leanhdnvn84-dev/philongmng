@@ -791,7 +791,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Lịch sử đăng nhập', href: '/lich_su_dang_nhap', resource: 'lich_su_dang_nhap', module: 'NGUOI_SU_DUNG' },
     { label: 'Cấu hình email cảnh báo', href: '/cau_hinh_email_canh_bao', resource: 'cau_hinh_email_canh_bao', module: 'NGUOI_SU_DUNG' },
     { label: 'Nhật ký email cảnh báo', href: '/nhat_ky_email_canh_bao', resource: 'nhat_ky_email_canh_bao', module: 'NGUOI_SU_DUNG' },
-    { label: 'Kiểm tra dữ liệu', href: '/data_audit_archive', resource: 'data_audit_archive', module: 'NGUOI_SU_DUNG' },
+    { label: 'Kiểm tra & sao lưu', href: '/kiem-tra-du-lieu', module: 'NGUOI_SU_DUNG' },
   ] },
 ]
 

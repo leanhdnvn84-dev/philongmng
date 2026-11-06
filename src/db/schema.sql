@@ -579,3 +579,13 @@ ALTER TABLE public.data_audit_archive ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hinh_anh_tien_do ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.lich_su_in, public.lich_su_dang_nhap, public.danh_muc, public.cau_hinh_email_canh_bao,
   public.nhat_ky_email_canh_bao, public.data_audit_archive, public.hinh_anh_tien_do FROM anon, authenticated;
+
+-- data backups (snapshot of every table as gzip+base64 JSON; created/restored from "Kiểm tra & sao lưu dữ liệu")
+CREATE TABLE IF NOT EXISTS public.sao_luu (
+  id TEXT PRIMARY KEY DEFAULT public.next_id('SL', 4),
+  thoi_gian TIMESTAMPTZ NOT NULL DEFAULT now(),
+  nguoi_tao TEXT, loai TEXT NOT NULL DEFAULT 'Thủ công', ghi_chu TEXT,
+  so_bang INT NOT NULL DEFAULT 0, so_dong INT NOT NULL DEFAULT 0, kich_thuoc INT NOT NULL DEFAULT 0,
+  chi_tiet JSONB NOT NULL DEFAULT '{}', du_lieu TEXT NOT NULL);
+ALTER TABLE public.sao_luu ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.sao_luu FROM anon, authenticated;
