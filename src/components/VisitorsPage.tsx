@@ -216,7 +216,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         <Tile icon={RotateCw} label="Tải lại" color="violet" onClick={() => { setLoading(true); load() }} />
 
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:ml-auto lg:flex-wrap lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
+        <div className="hidden lg:flex gap-2 lg:ml-auto lg:flex-wrap">
           {stat('in', 'Đang trong tòa nhà', inside.length, `lượt · ${insidePeople} người`, 'text-green-700', 'border-b-green-600')}
           {stat('book', 'Hẹn trước', booked.length, undefined, 'text-blue-700', 'border-b-blue-600')}
           {stat('out', 'Đã ra hôm nay', outToday.length, undefined, 'text-navy-900', 'border-b-navy-500')}

@@ -434,7 +434,7 @@ export default function ResourceManager({
       </div>
 
       {/* tile toolbar + status tabs */}
-      <div className={`shrink-0 flex-col gap-2 lg:flex lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden ${statusField ? 'flex' : 'hidden'}`}>
+      <div className={`shrink-0 flex-col gap-2 lg:flex lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden hidden lg:flex`}>
         <div className="hidden lg:contents">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setSearchOpen((o) => !o)} />
         {canCreate && <Tile icon={Plus} label="Thêm" color="green" onClick={() => setEditing({})} />}
