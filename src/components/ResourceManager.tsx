@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
-  RotateCw, CheckCircle2,
+  RotateCw, CheckCircle2, Filter,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
@@ -162,6 +162,7 @@ export default function ResourceManager({
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
   const [status, setStatus] = useState('')
   const [side, setSide] = useState('')
   const [day, setDay] = useState<string | null>(null)
@@ -249,6 +250,13 @@ export default function ResourceManager({
     api(`/api/${res.key}?distinct=${sideName}`).then((j) => setSideValues(j.data)).catch(() => {})
   }, [res.key, sideName])
 
+  // phone header's "Tìm trang này…" box
+  useEffect(() => {
+    if (compact) return
+    const on = (e: Event) => setSearch(String((e as CustomEvent).detail ?? ''))
+    window.addEventListener('pl-search', on)
+    return () => window.removeEventListener('pl-search', on)
+  }, [compact])
   useEffect(() => { const t = setTimeout(() => { setPage(1); setQuery(search.trim()) }, 350); return () => clearTimeout(t) }, [search])
   useEffect(() => { if (msg?.type === 'ok') { const t = setTimeout(() => setMsg(null), 3500); return () => clearTimeout(t) } }, [msg])
   useEffect(() => { setPage(1) }, [status, side, day])
@@ -308,7 +316,7 @@ export default function ResourceManager({
             const bg = sel ? 'bg-select' : t === 'amber' ? 'bg-[#fff6d9]' : t === 'red' && r.canh_bao ? 'bg-red-50/70' : 'bg-white'
             return (
               <tr key={r.id} tabIndex={0} aria-selected={sel}
-                onClick={() => setSelectedId(sel ? null : r.id)} onDoubleClick={() => setViewing(r)}
+                onClick={() => (window.matchMedia('(max-width: 1023px)').matches ? setViewing(r) : setSelectedId(sel ? null : r.id))} onDoubleClick={() => setViewing(r)}
                 onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
                 className={`cursor-pointer outline-none ${bg} ${sel ? '' : 'hover:brightness-[.97]'} ${loading ? 'opacity-60' : ''}`}>
                 {res.key !== 'users' && <td className={`px-3 py-2 border-b border-navy-200/70 text-center whitespace-nowrap tabular-nums ${sel ? 'text-select-accent font-extrabold shadow-[inset_3px_0_0_#2189e6]' : 'text-navy-800 font-semibold'}`}>{r.id}</td>}
@@ -418,8 +426,8 @@ export default function ResourceManager({
       </div>
 
       {/* tile toolbar + status tabs */}
-      <div className="shrink-0 flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:contents lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
+      <div className={`shrink-0 flex-col gap-2 lg:flex lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden ${statusField ? 'flex' : 'hidden'}`}>
+        <div className="hidden lg:contents">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setSearchOpen((o) => !o)} />
         {canCreate && <Tile icon={Plus} label="Thêm" color="green" onClick={() => setEditing({})} />}
         <Tile icon={Eye} label="Xem" color="teal" disabled={!selected} onClick={withRow((r) => setViewing(r))} />
@@ -473,7 +481,7 @@ export default function ResourceManager({
 
         <div className={`grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)] ${hasCalendar || sideField ? 'lg:grid-cols-[230px_minmax(0,1fr)]' : ''}`}>
           {(hasCalendar || sideField) && (
-            <aside className="order-2 lg:order-none flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto print:hidden">
+            <aside className="hidden lg:flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto print:hidden">
               {hasCalendar && <MonthCalendar month={month} setMonth={setMonth} counts={dayCounts} day={day} setDay={setDay}
                 unit={res.singular} fields={res.calendarFields} field={calField} loading={calLoading}
                 setField={(f) => { setCalField(f); setDay(null) }} onLatest={jumpLatest} />}
@@ -510,7 +518,105 @@ export default function ResourceManager({
           </div>
         </div>
       </div>
+      {(hasCalendar || sideField) && (
+        <Portal>
+          <button type="button" onClick={() => setFilterOpen(true)} aria-label="Mở bộ lọc"
+            className="lg:hidden print:hidden fixed left-0 top-[55%] z-30 grid h-16 w-11 place-items-center rounded-r-2xl bg-brand-400 text-white shadow-[0_4px_14px_rgba(237,50,55,.4)] active:brightness-90">
+            <Filter className="h-5 w-5" />
+            {(day || side) && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-white ring-2 ring-brand-400" />}
+          </button>
+        </Portal>
+      )}
+      {filterOpen && (
+        <FilterSheet onClose={() => setFilterOpen(false)}>
+          <div className="grid grid-cols-4 gap-2 p-3">
+            <Tile icon={Search} label="Tìm" color="blue" onClick={() => { setFilterOpen(false); setSearchOpen(true) }} />
+            {canCreate ? <Tile icon={Plus} label={`Thêm`} color="green" onClick={() => { setFilterOpen(false); setEditing({}) }} /> : <span />}
+            <Tile icon={List} label="Tất cả" color="teal" onClick={() => { resetAll(); setFilterOpen(false) }} />
+            <Tile icon={RotateCw} label="Làm mới" color="violet" onClick={() => { load(); setFilterOpen(false) }} />
+            {pageActions.map((a) => <Tile key={a.key} icon={Zap} label={a.label} color="violet" onClick={() => { setFilterOpen(false); doAction(a, null) }} />)}
+          </div>
+          {hasCalendar && <DatePick month={month} setMonth={setMonth} day={day} setDay={setDay} fields={res.calendarFields} field={calField} setField={(f) => { setCalField(f); setDay(null) }} />}
+          {sideField && (
+            <div className="mx-3 mb-3 overflow-hidden rounded-[9px] border border-navy-200">
+              <div className="bg-navy-50 px-3 py-2 text-[14px] font-extrabold text-navy-900">{sideField.label}</div>
+              {sideList.map((v) => {
+                const on = side === v
+                return (
+                  <button key={v || 'all'} onClick={() => { setSide(v); setFilterOpen(false) }}
+                    className={`block w-full border-b border-navy-100 px-3 py-3.5 text-left text-[16px] last:border-0 ${on ? 'border-l-4 border-l-[#2189e6] bg-select font-extrabold text-navy-900' : 'text-navy-800 active:bg-navy-50'}`}>
+                    {v === '' ? `Tất cả ${sideField.label.toLowerCase()}`.replace('người thực hiện', 'nhân viên') : refLabel(sideField, v)}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </FilterSheet>
+      )}
       {overlays}
+    </div>
+  )
+}
+
+const todayVn = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
+
+function FilterSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  useEscape(onClose)
+  return (<Portal>
+    <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+      <div className="absolute inset-0 bg-black/45" onClick={onClose} />
+      <div className="absolute inset-x-3 bottom-3 flex max-h-[82vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
+        <div className="flex shrink-0 items-center justify-between bg-brand-400 px-4 py-3 text-white">
+          <h2 className="text-[19px] font-extrabold">Bộ lọc</h2>
+          <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center"><X className="h-6 w-6" /></button>
+        </div>
+        <div className="overflow-y-auto overscroll-contain">{children}</div>
+      </div>
+    </div>
+  </Portal>)
+}
+
+/** Ngày / Tháng / Năm selectors + Hôm nay / Tất cả, as in V191's phone filter. */
+function DatePick({ month, setMonth, day, setDay, fields, field, setField }: {
+  month: Date; setMonth: (d: Date) => void; day: string | null; setDay: (d: string | null) => void
+  fields?: { name: string; label: string }[]; field: string; setField: (f: string) => void
+}) {
+  const y = month.getFullYear(), m = month.getMonth() + 1
+  const dim = new Date(y, m, 0).getDate()
+  const d = day ? Number(day.slice(8, 10)) : 0
+  const iso = (yy: number, mm: number, dd: number) => `${yy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`
+  const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - 4 + i)
+  const apply = (dd: number, mm: number, yy: number) => {
+    setMonth(new Date(yy, mm - 1, 1))
+    setDay(dd ? iso(yy, mm, Math.min(dd, new Date(yy, mm, 0).getDate())) : null)
+  }
+  const sel = 'h-11 w-full rounded-[8px] border border-navy-200 bg-white px-1 text-[15px] font-semibold text-navy-900'
+  return (
+    <div className="mx-3 mb-3 rounded-[9px] border border-navy-200 bg-white p-3">
+      <div className="grid grid-cols-3 gap-2">
+        <label className="text-[12px] font-extrabold uppercase text-ink-mute">Ngày
+          <select className={sel} value={d} onChange={(e) => apply(Number(e.target.value), m, y)}>
+            <option value={0}>Tất cả</option>{Array.from({ length: dim }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
+          </select></label>
+        <label className="text-[12px] font-extrabold uppercase text-ink-mute">Tháng
+          <select className={sel} value={m} onChange={(e) => apply(d, Number(e.target.value), y)}>
+            {Array.from({ length: 12 }, (_, i) => <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>)}
+          </select></label>
+        <label className="text-[12px] font-extrabold uppercase text-ink-mute">Năm
+          <select className={sel} value={y} onChange={(e) => apply(d, m, Number(e.target.value))}>
+            {years.map((v) => <option key={v} value={v}>{v}</option>)}
+          </select></label>
+      </div>
+      {fields && fields.length > 1 && (
+        <label className="mt-2 block text-[12px] font-extrabold uppercase text-ink-mute">Lọc theo
+          <select className={sel} value={field} onChange={(e) => setField(e.target.value)}>
+            {fields.map((f) => <option key={f.name} value={f.name}>{f.label}</option>)}
+          </select></label>
+      )}
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <button className="h-11 rounded-[8px] border border-[#9cc7ee] bg-[#eef6ff] text-[15px] font-extrabold text-[#1769b8]" onClick={() => { const t = todayVn(); apply(Number(t.slice(8, 10)), Number(t.slice(5, 7)), Number(t.slice(0, 4))) }}>Hôm nay</button>
+        <button className="h-11 rounded-[8px] border border-[#9ad7c9] bg-[#effaf6] text-[15px] font-extrabold text-[#0f766e]" onClick={() => setDay(null)}>Tất cả</button>
+      </div>
     </div>
   )
 }

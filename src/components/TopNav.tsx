@@ -3,12 +3,16 @@
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, LogOut, Menu, X } from 'lucide-react'
+import { ArrowUp, ChevronDown, LogOut, Menu, Search, X } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import Portal from '@/components/Portal'
 import Logo from '@/components/Logo'
 
 export interface NavGroup { group: string; items: { label: string; href: string }[] }
+
+const ICONS: Record<string, string> = {
+  'Công việc': '🗂️', 'Bảo trì': '🔧', 'Đề xuất': '📝', 'Thiết bị & kho': '📦', 'Cho thuê': '🏠', 'Danh mục': '📁', 'Hệ thống': '🔒',
+}
 
 function Brand() {
   return (
@@ -49,13 +53,21 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   const [mobile, setMobile] = useState(false)
   const [userMenu, setUserMenu] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const [pageSearch, setPageSearch] = useState('')
+  const [showTop, setShowTop] = useState(false)
+  const onPageSearch = (v: string) => { setPageSearch(v); window.dispatchEvent(new CustomEvent('pl-search', { detail: v })) }
 
   const here = decodeURIComponent(pathname + (search.toString() ? '?' + search.toString() : ''))
   const isActive = (href: string) => here === decodeURIComponent(href)
   const groupActive = (g: NavGroup) => g.items.some((i) => isActive(i.href))
   const initials = name.split(/\s+/).filter(Boolean).slice(-2).map((w) => w[0]).join('').toUpperCase()
 
-  useEffect(() => { setOpen(null); setMobile(false); setUserMenu(false) }, [here])
+  useEffect(() => { setOpen(null); setMobile(false); setUserMenu(false); setPageSearch('') }, [here])
+  useEffect(() => {
+    const on = () => setShowTop(window.scrollY > 240)
+    on(); window.addEventListener('scroll', on, { passive: true })
+    return () => window.removeEventListener('scroll', on)
+  }, [])
   useEffect(() => {
     const click = (e: MouseEvent) => { if ((e.target as Element | null)?.closest?.('[data-drawer]')) return; if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(null); setUserMenu(false) } }
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpen(null); setUserMenu(false); setMobile(false) } }
@@ -70,8 +82,17 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   }
 
   return (
-    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-brand-400 border-b border-brand-500 shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_4px_13px_rgba(237,50,55,.25)]">
-      <div className="h-[62px] px-4 lg:px-5 flex items-center gap-3 2xl:gap-5">
+    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-white lg:bg-brand-400 border-b border-navy-200 lg:border-brand-500 shadow-[0_1px_4px_rgba(16,24,40,.08)] lg:shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_4px_13px_rgba(237,50,55,.25)]">
+      {/* phone: white bar with logo + page search (menu and filters live in the floating buttons) */}
+      <div className="lg:hidden flex items-center gap-3 px-3 py-2">
+        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="color" height={40} /></Link>
+        <label className="relative flex-1 min-w-0">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-mute" />
+          <input type="search" value={pageSearch} onChange={(e) => onPageSearch(e.target.value)} placeholder="Tìm trang này…" aria-label="Tìm trang này"
+            className="h-11 w-full rounded-[10px] border border-navy-200 bg-navy-50 pl-9 pr-3 text-[16px] outline-none focus:border-[#2189e6] focus:bg-white" />
+        </label>
+      </div>
+      <div className="hidden lg:flex h-[62px] px-4 lg:px-5 items-center gap-3 2xl:gap-5">
         <Brand />
 
         <nav className="hidden lg:flex items-center gap-1 2xl:gap-1.5 flex-1 min-w-0" aria-label="Menu chính">
@@ -119,45 +140,61 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
               </button>
             </div>
           )}
-          <button type="button" className="lg:hidden grid place-items-center h-9 w-9 rounded-[7px] border border-white/25 bg-white/10 text-white" onClick={() => setMobile(true)} aria-label="Mở menu">
-            <Menu className="h-5 w-5" />
-          </button>
         </div>
       </div>
 
+      <Portal>
+        <div className="lg:hidden print:hidden">
+          <button type="button" onClick={() => setMobile(true)} aria-label="Mở menu"
+            className="fixed left-4 bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-brand-400 text-white shadow-[0_6px_18px_rgba(237,50,55,.45)] active:scale-95">
+            <Menu className="h-6 w-6" />
+          </button>
+          {showTop && (
+            <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Lên đầu trang"
+              className="fixed right-4 bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full border border-navy-200 bg-white text-navy-900 shadow-[0_6px_18px_rgba(16,24,40,.2)] active:scale-95">
+              <ArrowUp className="h-6 w-6" />
+            </button>
+          )}
+        </div>
+      </Portal>
+
       {mobile && (<Portal>
         <div data-drawer className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobile(false)} />
-          <div className="absolute right-0 top-0 h-full w-[86%] max-w-sm bg-white overflow-y-auto">
-            <div className="h-[62px] px-4 flex items-center justify-between bg-brand-400">
-              <Brand />
-              <button onClick={() => setMobile(false)} className="grid place-items-center h-9 w-9 rounded-[7px] text-white hover:bg-white/15" aria-label="Đóng menu"><X className="h-5 w-5" /></button>
+          <div className="absolute inset-0 bg-black/45" onClick={() => setMobile(false)} />
+          <div className="absolute inset-x-3 bottom-3 flex max-h-[84vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
+            <div className="flex shrink-0 items-center gap-3 bg-brand-50 px-4 py-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-400 text-sm font-black text-white">{initials || 'U'}</span>
+              <div className="min-w-0 flex-1 leading-tight">
+                <div className="truncate text-[17px] font-extrabold text-navy-900">{name}</div>
+                <div className="text-[13px] text-ink-mute">{role}</div>
+              </div>
+              <button onClick={() => setMobile(false)} className="grid h-10 w-10 place-items-center rounded-full bg-white text-navy-900 shadow-sm" aria-label="Đóng menu"><X className="h-5 w-5" /></button>
             </div>
-            <nav className="p-3 space-y-1">
-              <Link href="/" className={`block rounded-[7px] px-3 py-2.5 text-sm font-bold uppercase ${pathname === '/' ? 'bg-brand-50 text-brand-500' : 'text-ink'}`}>Tổng quan</Link>
+            <nav className="overflow-y-auto overscroll-contain px-3 py-2">
+              <Link href="/" className={`flex items-center gap-3 rounded-[10px] px-3 py-3.5 text-[16px] font-extrabold uppercase ${pathname === '/' ? 'bg-brand-50 text-brand-500' : 'text-navy-900'}`}><span className="w-7 text-center text-[22px]">📊</span>Tổng quan</Link>
               {groups.map((g) => {
                 const expanded = open === g.group || (open === null && groupActive(g))
                 return (
-                  <div key={g.group}>
-                    <button onClick={() => setOpen(expanded ? '' : g.group)} className="w-full flex items-center justify-between rounded-[7px] px-3 py-2.5 text-sm font-bold uppercase text-ink hover:bg-navy-100">
-                      {g.group} <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                  <div key={g.group} className="border-t border-navy-100">
+                    <button onClick={() => setOpen(expanded ? '' : g.group)} aria-expanded={expanded} className="flex w-full items-center gap-3 rounded-[10px] px-3 py-3.5 text-left text-[16px] font-extrabold uppercase text-navy-900 active:bg-navy-50">
+                      <span className="w-7 text-center text-[22px]">{ICONS[g.group] ?? '📁'}</span>
+                      <span className="flex-1">{g.group}</span>
+                      <span className={`text-[12px] text-ink-mute transition-transform ${expanded ? 'rotate-180' : ''}`}>▼</span>
                     </button>
                     {expanded && (
-                      <div className="ml-3 border-l-2 border-brand-200 pl-2 py-1">
+                      <div className="mb-2 ml-6 border-l-2 border-brand-200 pl-2">
                         {g.items.map((i) => (
-                          <Link key={i.href} href={i.href} className={`block rounded-md px-3 py-2 text-sm font-semibold ${isActive(i.href) ? 'bg-brand-50 text-brand-500' : 'text-ink-soft hover:bg-navy-100'}`}>{i.label}</Link>
+                          <Link key={i.href} href={i.href} className={`block rounded-lg px-3 py-3 text-[15px] font-semibold ${isActive(i.href) ? 'bg-brand-50 text-brand-500' : 'text-ink-soft active:bg-navy-50'}`}>{i.label}</Link>
                         ))}
                       </div>
                     )}
                   </div>
                 )
               })}
+              <div className="border-t border-navy-100 px-1 py-3">
+                <button onClick={logout} className="btn-danger w-full h-12 text-[15px]"><LogOut className="h-4 w-4" />Đăng xuất</button>
+              </div>
             </nav>
-            <div className="m-3 mt-4 rounded-[9px] border border-navy-200 p-3">
-              <div className="text-sm font-bold text-ink">{name}</div>
-              <div className="text-xs text-ink-mute mb-2">{role}</div>
-              <button onClick={logout} className="btn-danger w-full"><LogOut className="h-4 w-4" />Đăng xuất</button>
-            </div>
           </div>
         </div>
       </Portal>)}
