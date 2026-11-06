@@ -745,7 +745,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Khách ra/vào', href: '/khach_ra_vao', resource: 'khach_ra_vao', module: 'KHACH_RA_VAO' },
     { label: 'Báo cáo tiến độ', href: '/bao-cao-tien-do', module: 'CONG_VIEC' },
     { label: 'Báo cáo công việc', href: '/bao-cao-cong-viec', module: 'CONG_VIEC' },
-    { label: 'Hình ảnh tiến độ', href: '/hinh_anh_tien_do', resource: 'hinh_anh_tien_do', module: 'CONG_VIEC' },
+    { label: 'Hình ảnh tiến độ', href: '/hinh-anh-tien-do', module: 'CONG_VIEC' },
   ] },
   { group: 'Bảo trì', items: [
     { label: 'Nhật ký bảo trì', href: '/nhat_ky_bao_tri', resource: 'nhat_ky_bao_tri', module: 'BAO_TRI' },
