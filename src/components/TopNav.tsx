@@ -8,6 +8,7 @@ import { supabaseBrowser } from '@/lib/supabase/browser'
 import Portal from '@/components/Portal'
 import Logo from '@/components/Logo'
 import ChatPanel from '@/components/ChatPanel'
+import { useDockSide } from '@/lib/dock'
 
 export interface NavGroup { group: string; items: { label: string; href: string }[] }
 
@@ -58,6 +59,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   const [showTop, setShowTop] = useState(false)
   const [unread, setUnread] = useState(0)
   const [chatOpen, setChatOpen] = useState(false)
+  const [dock, setDock] = useDockSide()
   useEffect(() => {
     let dead = false
     const tick = () => { if (document.hidden) return; fetch('/api/chat/unread', { cache: 'no-store' }).then((r) => r.json()).then((j) => !dead && j.success && setUnread(j.unread)).catch(() => {}) }
@@ -165,13 +167,13 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
       <Portal>
         <div className="lg:hidden print:hidden">
           <button type="button" onClick={() => setMobile(true)} aria-label="Mở menu"
-            className="fixed left-4 bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-b from-blue-500 to-blue-700 text-white shadow-[0_6px_18px_rgba(37,99,235,.45)] active:scale-95">
+            className={`fixed ${dock === 'left' ? 'left-4' : 'right-4'} bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-b from-blue-500 to-blue-700 text-white shadow-[0_6px_18px_rgba(37,99,235,.45)] active:scale-95`}>
             <Menu className="h-6 w-6" />
             {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-400 px-1 text-[11px] font-black text-white ring-2 ring-white">{unread > 99 ? '99+' : unread}</span>}
           </button>
           {showTop && (
             <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Lên đầu trang"
-              className="fixed right-4 bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full border border-navy-200 bg-white text-navy-900 shadow-[0_6px_18px_rgba(16,24,40,.2)] active:scale-95">
+              className={`fixed ${dock === 'left' ? 'right-4' : 'left-4'} bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full border border-navy-200 bg-white text-navy-900 shadow-[0_6px_18px_rgba(16,24,40,.2)] active:scale-95`}>
               <ArrowUp className="h-6 w-6" />
             </button>
           )}
@@ -219,6 +221,15 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
                 )
               })}
               <div className="border-t border-navy-100 px-1 py-3">
+                <div className="mb-3 flex items-center gap-3 px-2">
+                  <span className="flex-1 text-[13.5px] font-bold text-navy-900">Vị trí nút menu</span>
+                  <div className="inline-flex rounded-full bg-navy-100 p-0.5" role="group" aria-label="Vị trí nút menu">
+                    {(['left', 'right'] as const).map((sd) => (
+                      <button key={sd} type="button" aria-pressed={dock === sd} onClick={() => setDock(sd)}
+                        className={`h-8 rounded-full px-4 text-[13px] font-bold ${dock === sd ? 'bg-blue-600 text-white shadow' : 'text-ink-soft'}`}>{sd === 'left' ? 'Trái' : 'Phải'}</button>
+                    ))}
+                  </div>
+                </div>
                 <button onClick={logout} className="btn-danger w-full h-12 text-[15px]"><LogOut className="h-4 w-4" />Đăng xuất</button>
               </div>
             </nav>

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
+import { useDockSide } from '@/lib/dock'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
 
 type Row = Record<string, any>
@@ -164,6 +165,7 @@ export default function ResourceManager({
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
+  const [dock] = useDockSide()
   const [tuck, setTuck] = useState(false) // phone: the filter tab slides into the edge while scrolling down / idle, and back out on scroll up
   useEffect(() => {
     let last = window.scrollY, idle: ReturnType<typeof setTimeout>
@@ -759,9 +761,9 @@ export default function ResourceManager({
       {(hasCalendar || sideField) && (
         <Portal>
           <button type="button" onClick={() => { setTuck(false); setFilterOpen(true) }} aria-label="Mở bộ lọc"
-            className={`lg:hidden print:hidden fixed left-0 top-[55%] z-30 grid h-16 w-11 place-items-center rounded-r-2xl bg-blue-600 text-white shadow-[0_4px_14px_rgba(37,99,235,.4)] transition-transform duration-300 active:brightness-90 ${tuck ? '-translate-x-6' : ''}`}>
-            <Filter className="h-5 w-5" />
-            {(day || side) && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-white ring-2 ring-blue-600" />}
+            className={`lg:hidden print:hidden fixed top-[48%] z-30 grid h-28 w-7 place-items-center border border-white/40 bg-gradient-to-b from-blue-500/90 to-blue-700/90 text-white shadow-[0_2px_8px_rgba(37,99,235,.28)] backdrop-blur transition-transform duration-300 active:brightness-90 ${dock === 'left' ? `left-0 rounded-r-full border-l-0 ${tuck ? '-translate-x-3.5' : ''}` : `right-0 rounded-l-full border-r-0 ${tuck ? 'translate-x-3.5' : ''}`}`}>
+            <Filter className="h-4 w-4" strokeWidth={2.2} />
+            {(day || side) && <span className="absolute top-2 h-2 w-2 rounded-full bg-white ring-2 ring-blue-700" />}
           </button>
         </Portal>
       )}
