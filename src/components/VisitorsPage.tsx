@@ -428,23 +428,23 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         <Portal>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Chi tiết lượt khách">
             <div className="absolute inset-0 bg-navy-950/45" onClick={() => setViewing(null)} />
-            <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-pop">
+            <div className="relative w-full max-w-xl lg:max-w-xl sm:max-w-3xl max-h-[92dvh] overflow-y-auto rounded-xl bg-white shadow-pop">
               <div className="flex items-center justify-between px-5 py-3 bg-blue-700 text-white">
                 <div><div className="text-[11px] font-black uppercase tracking-widest text-white/80">Lượt khách</div><h2 className="text-lg font-extrabold">{viewing.id} · {viewing.ho_ten}</h2></div>
                 <button onClick={() => setViewing(null)} className="grid place-items-center h-8 w-8 rounded-md hover:bg-white/15" aria-label="Đóng"><X className="h-5 w-5" /></button>
               </div>
-              <dl className="grid grid-cols-2 gap-x-5 gap-y-3 p-5 text-sm">
+              <dl className="grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-2 gap-x-3 gap-y-2 p-4 text-[13px] leading-snug lg:gap-x-5 lg:gap-y-3 lg:p-5">
                 {([['Ngày vào', formatDate(viewing.ngay)], ['Giờ vào', viewing.gio_vao], ['Giờ ra', viewing.gio_ra], ['Trạng thái', viewing.trang_thai], ['SĐT', viewing.sdt], ['CCCD / Giấy tờ', viewing.giay_to],
                   ['Công ty', viewing.cong_ty], ['Địa chỉ', viewing.dia_chi], ['Người đi cùng', viewing.nguoi_di_cung], ['Biển số xe', viewing.bien_so_xe], ['Người cần gặp', viewing.nguoi_can_gap], ['Phòng ban', viewing.phong_ban],
                   ['Tầng', viewing.tang], ['Công ty liên hệ', viewing.cong_ty_lien_he], ['Mục đích', viewing.muc_dich], ['Ngày hẹn', formatDate(viewing.ngay_hen)], ['Giờ hẹn', viewing.gio_hen],
                   ['Người đăng ký', viewing.nguoi_dang_ky], ['Người check-out', viewing.nguoi_checkout]] as [string, any][]).map(([k, v]) => (
-                  <div key={k}><dt className="label">{k}</dt><dd className="text-ink">{v || <span className="text-navy-300">—</span>}</dd></div>
+                  <div key={k} className="flex min-w-0 flex-wrap items-baseline gap-x-1"><dt className="shrink-0 text-ink-mute">{k}:</dt><dd className="min-w-0 break-words font-semibold text-ink">{v || <span className="text-navy-300">—</span>}</dd></div>
                 ))}
-                <div className="col-span-2"><dt className="label">Nội dung công việc</dt><dd className="whitespace-pre-wrap">{viewing.noi_dung || <span className="text-navy-300">—</span>}</dd></div>
-                <div className="col-span-2"><dt className="label">Ghi chú</dt><dd className="whitespace-pre-wrap">{viewing.ghi_chu || <span className="text-navy-300">—</span>}</dd></div>
+                <div className="col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-2"><dt className="label !mb-0.5">Nội dung công việc</dt><dd className="whitespace-pre-wrap">{viewing.noi_dung || <span className="text-navy-300">—</span>}</dd></div>
+                <div className="col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-2"><dt className="label !mb-0.5">Ghi chú</dt><dd className="whitespace-pre-wrap">{viewing.ghi_chu || <span className="text-navy-300">—</span>}</dd></div>
               </dl>
-              <div className="flex gap-2 px-5 py-3 border-t border-navy-200 bg-navy-50">
-                <button className="btn-secondary" onClick={() => printSlip(viewing)}><Printer className="h-4 w-4" />In phiếu</button>
+              <div className="flex gap-2 px-4 py-2.5 lg:px-5 lg:py-3 border-t border-navy-200 bg-navy-50">
+                <button className="btn-secondary h-10 lg:h-9" onClick={() => printSlip(viewing)}><Printer className="h-4 w-4" />In phiếu</button>
                 <button className="btn-secondary ml-auto" onClick={() => setViewing(null)}>Đóng</button>
               </div>
             </div>

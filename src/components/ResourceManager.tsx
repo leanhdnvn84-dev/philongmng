@@ -542,21 +542,27 @@ export default function ResourceManager({
       {confirmDialog}
       {viewing && (
         <Drawer onClose={() => setViewing(null)}>
-          <div className="sticky top-0 z-10 bg-white border-b border-navy-200 px-6 py-4 flex items-start justify-between gap-3">
+          <div className="sticky top-0 z-10 bg-white border-b border-navy-200 px-4 py-3 lg:px-6 lg:py-4 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">{res.singular}</p>
               <h2 className="text-lg font-extrabold text-navy-900 truncate">{res.key === 'users' ? viewing.ho_ten : viewing.id}</h2>
             </div>
             <button onClick={() => setViewing(null)} className="btn-ghost h-9 w-9 px-0" aria-label="Đóng"><X className="h-5 w-5" /></button>
           </div>
-          <div className="px-6 py-5">
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-              {res.fields.filter((f) => f.type !== 'password' && !f.name.startsWith('ds_')).map((f) => (
-                <div key={f.name} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
-                  <dt className="label">{f.label}</dt>
-                  <dd className={f.type === 'textarea' && viewing[f.name] ? 'whitespace-pre-wrap text-sm leading-relaxed bg-canvas rounded-[7px] border border-navy-200 p-3 max-h-80 overflow-y-auto' : 'text-sm text-ink'}>{display(f, viewing[f.name], labels)}</dd>
-                </div>
-              ))}
+          <div className="px-4 py-3 lg:px-6 lg:py-5">
+            {/* 2 columns on a phone, 4 from 640px, 6 from 768px; desktop keeps the 2-column sheet. Label and value share a line. */}
+            <dl className="grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-2 gap-x-3 gap-y-2 lg:gap-x-6 lg:gap-y-3.5">
+              {res.fields.filter((f) => f.type !== 'password' && !f.name.startsWith('ds_')).map((f) => {
+                const long = f.type === 'textarea' || f.name === 'noi_dung'
+                const half = f.type === 'ref' || /^(ten|dia_chi|cong_ty|nguoi_)/.test(f.name)
+                return (
+                  <div key={f.name} className={`min-w-0 text-[13px] leading-snug ${long ? 'col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-2' : half ? 'col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-1' : ''}`}>
+                    {long && viewing[f.name]
+                      ? <><dt className="label !mb-0.5">{f.label}</dt><dd className="whitespace-pre-wrap text-[13px] leading-relaxed bg-canvas rounded-[7px] border border-navy-200 p-2.5 max-h-72 overflow-y-auto">{display(f, viewing[f.name], labels)}</dd></>
+                      : <div className="flex flex-wrap items-baseline gap-x-1"><dt className="shrink-0 text-ink-mute">{f.label}:</dt><dd className="min-w-0 font-semibold text-ink break-words">{display(f, viewing[f.name], labels)}</dd></div>}
+                  </div>
+                )
+              })}
             </dl>
             {res.key === 'de_xuat' && (
               <div className="mt-6 pt-5 border-t border-navy-200">
@@ -565,7 +571,7 @@ export default function ResourceManager({
               </div>
             )}
           </div>
-          <div className="sticky bottom-0 mt-auto bg-white border-t border-navy-200 px-6 py-3 flex flex-wrap items-center gap-2">
+          <div className="sticky bottom-0 mt-auto bg-white border-t border-navy-200 px-4 py-2.5 lg:px-6 lg:py-3 flex flex-wrap items-center gap-2">
             {rowActions.filter((a) => !a.show || a.show(viewing)).map((a) => (
               <button key={a.key} className="btn-primary" onClick={() => doAction(a, viewing)}><Zap className="h-4 w-4" />{a.label}</button>
             ))}
@@ -892,7 +898,11 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
   })
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const wide = (f: Field) => f.type === 'textarea' || f.name === 'noi_dung' || f.type === 'bool'
+  // phone/tablet grid: 2 columns, 4 from 640px, 6 from 768px; desktop keeps its 2-column form
+  const FULL = 'col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-2'
+  const HALF = 'col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-1'
+  const span = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' || f.type === 'bool' || f.type === 'password' ? FULL
+    : f.type === 'ref' || f.type === 'email' || /^(ten|dia_chi|cong_ty|nguoi_)/.test(f.name) ? HALF : 'col-span-1')
 
   return (<Portal>
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6" role="dialog" aria-modal="true">
@@ -900,29 +910,29 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
       <form onSubmit={async (e) => {
         e.preventDefault(); setBusy(true); setError('')
         try { await onSubmit({ ...form }) } catch (err: any) { setError(err.message); setBusy(false) }
-      }} className="relative w-full sm:max-w-2xl max-h-[92vh] flex flex-col bg-white rounded-t-2xl sm:rounded-xl shadow-pop overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-5 py-3 bg-blue-700 text-white">
+      }} className="relative w-full sm:max-w-3xl lg:max-w-2xl max-h-[94dvh] flex flex-col bg-white rounded-t-2xl sm:rounded-xl shadow-pop overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-5 lg:py-3 bg-blue-700 text-white">
           <div>
             <h2 className="text-[16px] font-extrabold">{title}</h2>
             {subtitle && <p className="text-xs font-semibold text-white/80">{subtitle}</p>}
           </div>
           <button type="button" onClick={onClose} className="grid place-items-center h-8 w-8 rounded-md hover:bg-white/15" aria-label="Đóng"><X className="h-5 w-5" /></button>
         </div>
-        <div className="px-5 py-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5">
+        <div className="px-4 py-3 lg:px-5 lg:py-4 overflow-y-auto grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-2 gap-x-3 gap-y-2.5 lg:gap-x-4 lg:gap-y-3.5 content-start">
           {fields.map((f) => {
             const required = !!f.required && !(f.type === 'password' && !isNew)
             const set = (v: any) => setForm((s) => ({ ...s, [f.name]: v }))
-            const common = { id: `f-${f.name}`, className: 'input', required, value: form[f.name] ?? '', onChange: (e: React.ChangeEvent<any>) => set(e.target.value) }
+            const common = { id: `f-${f.name}`, className: 'input h-11 text-[16px] lg:h-9 lg:text-sm', required, value: form[f.name] ?? '', onChange: (e: React.ChangeEvent<any>) => set(e.target.value) }
             if (f.type === 'bool') return (
-              <label key={f.name} className="sm:col-span-2 flex items-center gap-3 rounded-[7px] border border-navy-200 px-3 py-2.5 cursor-pointer hover:bg-navy-50">
+              <label key={f.name} className={`${FULL} flex items-center gap-3 rounded-[7px] border border-navy-200 px-3 py-2.5 cursor-pointer hover:bg-navy-50`}>
                 <input type="checkbox" className="h-4 w-4 accent-blue-600" checked={!!form[f.name]} onChange={(e) => set(e.target.checked)} />
                 <span className="text-sm font-bold text-ink">{f.label}</span>
               </label>
             )
             return (
-              <div key={f.name} className={wide(f) ? 'sm:col-span-2' : ''}>
-                <label htmlFor={`f-${f.name}`} className="label">{f.label}{required && <span className="text-brand-400"> *</span>}</label>
-                {f.type === 'textarea' ? <textarea rows={4} {...common} />
+              <div key={f.name} className={`min-w-0 ${span(f)}`}>
+                <label htmlFor={`f-${f.name}`} className="label !mb-0.5 truncate">{f.label}{required && <span className="text-brand-400"> *</span>}</label>
+                {f.type === 'textarea' ? <textarea rows={3} {...common} />
                   : f.type === 'select' ? (
                     <select {...common}>
                       {!required && <option value="">—</option>}
@@ -945,9 +955,9 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
           })}
         </div>
         {error && <p className="mx-5 mb-2 rounded-[7px] bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 border border-red-200" role="alert">{error}</p>}
-        <div className="flex justify-end gap-2 px-5 py-3 border-t border-navy-200 bg-navy-50">
-          <button type="button" className="btn-secondary" onClick={onClose}>Hủy</button>
-          <button className="btn-primary min-w-[96px]" disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : submitLabel}</button>
+        <div className="flex justify-end gap-2 px-4 py-2.5 lg:px-5 lg:py-3 border-t border-navy-200 bg-navy-50">
+          <button type="button" className="btn-secondary h-11 flex-1 sm:flex-none lg:h-9" onClick={onClose}>Hủy</button>
+          <button className="btn-primary h-11 flex-1 sm:min-w-[96px] sm:flex-none lg:h-9" disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : submitLabel}</button>
         </div>
       </form>
     </div>
