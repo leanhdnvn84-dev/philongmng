@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
-import { useDockSide } from '@/lib/dock'
+import FilterTab from '@/components/FilterTab'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
 
 type Row = Record<string, any>
@@ -165,15 +165,6 @@ export default function ResourceManager({
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
-  const [dock] = useDockSide()
-  const [tuck, setTuck] = useState(false) // phone: the filter tab slides into the edge while scrolling down / idle, and back out on scroll up
-  useEffect(() => {
-    let last = window.scrollY, idle: ReturnType<typeof setTimeout>
-    const arm = () => { clearTimeout(idle); idle = setTimeout(() => setTuck(true), 3000) }
-    const on = () => { const y = window.scrollY; setTuck(y > last + 6 ? true : y < last - 6 ? false : (t) => t); last = y; arm() }
-    window.addEventListener('scroll', on, { passive: true }); arm()
-    return () => { window.removeEventListener('scroll', on); clearTimeout(idle) }
-  }, [])
   const [status, setStatus] = useState('')
   const [side, setSide] = useState('')
   const [day, setDay] = useState<string | null>(null)
@@ -765,13 +756,7 @@ export default function ResourceManager({
         </div>
       </div>
       {(hasCalendar || sideField) && (
-        <Portal>
-          <button type="button" onClick={() => { setTuck(false); setFilterOpen(true) }} aria-label="Mở bộ lọc"
-            className={`lg:hidden print:hidden fixed top-[48%] z-30 grid h-28 w-7 place-items-center border border-white/40 bg-gradient-to-b from-blue-500/90 to-blue-700/90 text-white shadow-[0_2px_8px_rgba(37,99,235,.28)] backdrop-blur transition-transform duration-300 active:brightness-90 ${dock === 'left' ? `left-0 rounded-r-full border-l-0 ${tuck ? '-translate-x-3.5' : ''}` : `right-0 rounded-l-full border-r-0 ${tuck ? 'translate-x-3.5' : ''}`}`}>
-            <Filter className="h-4 w-4" strokeWidth={2.2} />
-            {(day || side) && <span className="absolute top-2 h-2 w-2 rounded-full bg-white ring-2 ring-blue-700" />}
-          </button>
-        </Portal>
+        <FilterTab onOpen={() => setFilterOpen(true)} active={!!(day || side)} />
       )}
       {filterOpen && (
         <FilterSheet onClose={() => setFilterOpen(false)}>
@@ -806,7 +791,7 @@ export default function ResourceManager({
 
 const todayVn = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
 
-function FilterSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+export function FilterSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   useEscape(onClose)
   return (<Portal>
     <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">

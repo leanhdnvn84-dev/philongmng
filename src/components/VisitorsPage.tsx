@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Plus, Eye, Pencil, LogOut, Printer, Ban, RotateCw, X, Loader2, UserCheck, CalendarClock, Inbox } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
-import { Tile } from '@/components/ResourceManager'
+import { Tile, FilterSheet } from '@/components/ResourceManager'
+import FilterTab from '@/components/FilterTab'
 import { formatDate } from '@/lib/resources'
 
 type Row = Record<string, any>
@@ -60,6 +61,9 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
   const [form, setForm] = useState<Record<string, string>>(EMPTY)
   const [editId, setEditId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false)
+  const listRef = useRef<HTMLDivElement>(null)
+  const goList = () => setTimeout(() => listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120) // phone: the list sits below the form
   const [confirm, confirmDialog] = useConfirm()
   const [loading, setLoading] = useState(true)
   const [synced, setSynced] = useState('')
@@ -214,7 +218,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         <h1 className="text-[22px] font-black text-navy-900">Khách ra/vào tòa nhà</h1>
       </div>
 
-      <div className="shrink-0 flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
+      <div className="shrink-0 hidden lg:flex lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:contents lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setTab('history')} />
         {perms.create && <Tile icon={Plus} label="Khách vào" color="green" onClick={() => { resetForm(); formRef.current?.scrollIntoView({ behavior: 'smooth' }); (formRef.current?.elements.namedItem('ho_ten') as HTMLInputElement | null)?.focus() }} />}
@@ -310,15 +314,15 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
           </form>
 
           {/* list */}
-          <div className="card overflow-hidden min-w-0 flex flex-col xl:min-h-0">
-            <div role="tablist" aria-label="Danh sách khách" className="shrink-0 flex overflow-x-auto px-3 border-b border-navy-200">
+          <div ref={listRef} className="card overflow-hidden min-w-0 flex flex-col xl:min-h-0 scroll-mt-20">
+            <div role="tablist" aria-label="Danh sách khách" className="shrink-0 hidden lg:flex overflow-x-auto px-3 border-b border-navy-200">
               {tabBtn('in', 'Đang trong tòa nhà', inside.length)}
               {tabBtn('book', 'Hẹn trước', booked.length)}
               {tabBtn('out', 'Đã ra hôm nay', outToday.length)}
               {tabBtn('today', 'Tất cả hôm nay', allToday.length)}
               {tabBtn('history', 'Tìm lịch sử')}
             </div>
-            <div className="shrink-0 px-3 pt-3">
+            <div className="shrink-0 hidden lg:block px-3 pt-3">
               <label className="flex items-center gap-2 h-10 px-3 rounded-[9px] border border-navy-200 bg-white focus-within:border-select-accent">
                 <Search className="h-4 w-4 text-[#2189e6]" />
                 <input aria-label="Tìm khách" className="flex-1 bg-transparent outline-none text-[13.5px]" value={tab === 'history' ? histQuery : filter}
@@ -424,6 +428,37 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         </div>
       </div>
 
+
+      {/* phone: toolbar + list filters live behind the edge tab */}
+      <FilterTab onOpen={() => setFilterOpen(true)} active={tab !== 'in' || !!filter || only4h} />
+      {filterOpen && (
+        <FilterSheet onClose={() => setFilterOpen(false)}>
+          <div className="grid grid-cols-4 gap-2 p-3">
+            {perms.create ? <Tile icon={Plus} label="Khách vào" color="green" onClick={() => { setFilterOpen(false); resetForm(); formRef.current?.scrollIntoView({ behavior: 'smooth' }); (formRef.current?.elements.namedItem('ho_ten') as HTMLInputElement | null)?.focus() }} /> : <span />}
+            <Tile icon={Search} label="Tìm" color="blue" onClick={() => { setTab('history'); setFilterOpen(false); goList() }} />
+            <Tile icon={RotateCw} label="Tải lại" color="violet" onClick={() => { setLoading(true); load(); setFilterOpen(false) }} />
+          </div>
+          <div className="px-3 pb-2">
+            <div className="mb-1.5 text-[12px] font-extrabold uppercase tracking-wide text-ink-mute">Danh sách</div>
+            <div className="grid grid-cols-2 gap-2">
+              {([['in', 'Đang trong tòa nhà', inside.length], ['book', 'Hẹn trước', booked.length], ['out', 'Đã ra hôm nay', outToday.length], ['today', 'Tất cả hôm nay', allToday.length], ['history', 'Tìm lịch sử', undefined]] as [TabKey, string, number | undefined][]).map(([k, l, n]) => (
+                <button key={k} type="button" aria-pressed={tab === k} onClick={() => { setTab(k); setOnly4h(false); setFilterOpen(false); goList() }}
+                  className={`h-11 rounded-xl border px-3 text-left text-[13.5px] font-bold ${tab === k ? 'border-blue-600 bg-blue-600 text-white' : 'border-navy-200 bg-white text-navy-800'}`}>{l}{n !== undefined ? ` (${n})` : ''}</button>
+              ))}
+              <button type="button" aria-pressed={only4h} onClick={() => { setTab('in'); setOnly4h(true); setFilterOpen(false); goList() }}
+                className={`h-11 rounded-xl border px-3 text-left text-[13.5px] font-bold ${only4h ? 'border-red-600 bg-red-600 text-white' : 'border-red-200 bg-white text-red-600'}`}>Ở quá 4 giờ ({over4h.length})</button>
+            </div>
+          </div>
+          <div className="px-3 pb-4">
+            <label className="flex h-11 items-center gap-2 rounded-xl border border-navy-200 bg-white px-3 focus-within:border-blue-600">
+              <Search className="h-4 w-4 text-blue-600" />
+              <input aria-label="Tìm khách" className="flex-1 bg-transparent text-[16px] outline-none" value={tab === 'history' ? histQuery : filter}
+                onChange={(e) => (tab === 'history' ? setHistQuery(e.target.value) : setFilter(e.target.value))} placeholder="Tìm tên, SĐT, công ty…" />
+            </label>
+            <p className="mt-2 text-[12px] text-ink-mute">{inside.length} lượt đang trong tòa nhà · {insidePeople} người</p>
+          </div>
+        </FilterSheet>
+      )}
       {viewing && (
         <Portal>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Chi tiết lượt khách">
