@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search, Plus, Eye, Pencil, LogOut, Printer, Ban, RotateCw, X, Loader2, UserCheck, CalendarClock, Inbox } from 'lucide-react'
 import Portal from '@/components/Portal'
+import { useConfirm } from '@/components/ConfirmDialog'
 import { Tile } from '@/components/ResourceManager'
 import { formatDate } from '@/lib/resources'
 
@@ -59,6 +60,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
   const [form, setForm] = useState<Record<string, string>>(EMPTY)
   const [editId, setEditId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [confirm, confirmDialog] = useConfirm()
   const [loading, setLoading] = useState(true)
   const [synced, setSynced] = useState('')
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
@@ -147,7 +149,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
   }
 
   async function act(action: 'checkout' | 'check_in' | 'huy', r: Row, ask: string) {
-    if (!confirm(ask)) return
+    if (!(await confirm(ask, { title: action === 'huy' ? 'Hủy lượt khách' : action === 'check_in' ? 'Cho khách vào' : 'Check-out', danger: action === 'huy', okLabel: action === 'huy' ? 'Hủy lượt' : 'Đồng ý' }))) return
     try {
       await api(`/api/khach_ra_vao/${r.id}/${action}`, { method: 'POST', body: '{}' })
       flash(action === 'checkout' ? `${r.ho_ten} đã ra` : action === 'check_in' ? `${r.ho_ten} đã vào` : 'Đã hủy lượt')
@@ -162,10 +164,8 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
   }
 
   function printSlip(r: Row) {
-    const w = window.open('', '_blank', 'width=420,height=620')
-    if (!w) { flash('Trình duyệt đang chặn cửa sổ in. Hãy cho phép cửa sổ bật lên.', 'err'); return }
     const line = (k: string, v: unknown) => (v ? `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>` : '')
-    w.document.write(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Phiếu khách ${esc(r.id)}</title><style>
+    const html = (`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Phiếu khách ${esc(r.id)}</title><style>
       body{font:14px/1.5 Arial,sans-serif;margin:18px;color:#111}img{height:42px;display:block;margin:0 auto 8px}h1{font-size:17px;text-align:center;margin:4px 0 12px}
       table{width:100%;border-collapse:collapse}th{text-align:left;width:34%;padding:5px 6px;color:#555;font-weight:600;vertical-align:top}td{padding:5px 6px;font-weight:700}
       tr{border-bottom:1px dashed #ccc}.id{text-align:center;font-size:20px;font-weight:800;letter-spacing:2px;margin:8px 0}.foot{margin-top:14px;font-size:12px;color:#555;text-align:center}</style></head><body>
@@ -173,8 +173,18 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
       ${line('Họ tên', r.ho_ten)}${line('Công ty', r.cong_ty)}${line('Người cần gặp', r.nguoi_can_gap)}${line('Phòng ban', r.phong_ban)}${line('Tầng', r.tang)}
       ${line('Mục đích', r.muc_dich)}${line('Ngày vào', formatDate(r.ngay))}${line('Giờ vào', r.gio_vao)}${line('Người đi cùng', r.nguoi_di_cung)}${line('Biển số xe', r.bien_so_xe)}</table>
       <div class="foot">Vui lòng trả phiếu khi ra về · Người trực: ${esc(r.nguoi_dang_ky || userName)}</div>
-      <script>window.onload=function(){window.print()}<\/script></body></html>`)
-    w.document.close()
+      </body></html>`)
+    // print from a hidden frame inside the page: no new window, nothing for a popup blocker to stop
+    const f = document.createElement('iframe')
+    f.setAttribute('aria-hidden', 'true')
+    f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'
+    f.srcdoc = html
+    f.onload = () => {
+      const w = f.contentWindow
+      if (!w) return
+      setTimeout(() => { w.focus(); w.print(); setTimeout(() => f.remove(), 2000) }, 300)
+    }
+    document.body.appendChild(f)
   }
 
   const stat = (key: TabKey, label: string, value: React.ReactNode, sub?: string, tone = 'text-navy-900', ring = 'border-b-blue-600', long = false) => (
@@ -198,6 +208,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
 
   return (
     <div className="flex flex-col flex-1 lg:min-h-0">
+      {confirmDialog}
       <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
         <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Khách ra/vào tòa nhà</b></span>
         <h1 className="text-[22px] font-black text-brand-400">Khách ra/vào tòa nhà</h1>

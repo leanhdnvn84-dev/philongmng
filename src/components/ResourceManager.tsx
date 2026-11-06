@@ -6,6 +6,7 @@ import {
   RotateCw, CheckCircle2, Filter, History, Monitor,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
+import { useConfirm } from '@/components/ConfirmDialog'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
 
 type Row = Record<string, any>
@@ -188,6 +189,7 @@ export default function ResourceManager({
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
   const [dayCounts, setDayCounts] = useState<Record<string, number>>({})
   const [sideValues, setSideValues] = useState<string[]>([])
+  const [confirm, confirmDialog] = useConfirm()
   // V191 "Thiết bị" screen: custom table, summary strip, filter panel and a detail pane
   const isDev = res.key === 'thiet_bi' && !compact
   const [devF, setDevF] = useState({ nql: '', loai: '' })
@@ -291,12 +293,12 @@ export default function ResourceManager({
     try { const j = await api(`/api/${res.key}/${id}`); setViewing(j.data) } catch { setViewing(null) }
   }
   async function remove(row: Row) {
-    if (!confirm(`Xóa ${res.singular} ${row.id}? Bản sao dữ liệu được lưu trong nhật ký hệ thống.`)) return
+    if (!(await confirm(`Xóa ${res.singular} ${row.id}? Bản sao dữ liệu được lưu trong nhật ký hệ thống.`, { danger: true }))) return
     try { await api(`/api/${res.key}/${row.id}`, { method: 'DELETE' }); flash('Đã xóa'); setViewing(null); setSelectedId(null); load() }
     catch (e: any) { flash(e.message, 'err') }
   }
   async function run(action: Action, row: Row | null, input: Row = {}) {
-    if (!action.fields?.length && action.confirm && !confirm(action.confirm)) return
+    if (!action.fields?.length && action.confirm && !(await confirm(action.confirm, { title: action.label }))) return
     try {
       const j = await api(`/api/${res.key}/${row?.id ?? '_'}/${action.key}`, { method: 'POST', body: JSON.stringify(input) })
       flash(j.data?.message ?? `${action.label}: đã xong`)
@@ -469,6 +471,7 @@ export default function ResourceManager({
 
   const overlays = (
     <>
+      {confirmDialog}
       {viewing && (
         <Drawer onClose={() => setViewing(null)}>
           <div className="sticky top-0 z-10 bg-white border-b border-navy-200 px-6 py-4 flex items-start justify-between gap-3">
