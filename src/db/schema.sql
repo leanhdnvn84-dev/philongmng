@@ -519,3 +519,10 @@ CREATE TABLE IF NOT EXISTS public.chat_doc (
 ALTER TABLE public.tin_nhan ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_doc ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.tin_nhan, public.chat_doc FROM anon, authenticated;
+
+-- devices: quantity + handover info (V191 THIET_BI)
+ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS so_luong INT NOT NULL DEFAULT 1;
+ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS ngay_ban_giao DATE;
+ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS ngay_du_kien_thu_hoi DATE;
+ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS so_bien_ban TEXT;
+ALTER TABLE public.thiet_bi ADD COLUMN IF NOT EXISTS link_bien_ban TEXT;

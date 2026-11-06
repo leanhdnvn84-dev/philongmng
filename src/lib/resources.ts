@@ -318,6 +318,7 @@ export const RESOURCES: Resource[] = [
     fields: [
       { name: 'ten_thiet_bi', label: 'Tên thiết bị', type: 'text', required: true },
       { name: 'loai_thiet_bi', label: 'Loại', type: 'text' },
+      { name: 'so_luong', label: 'Số lượng', type: 'number', default: 1 },
       { name: 'hang', label: 'Hãng', type: 'text', inList: false },
       { name: 'model', label: 'Model', type: 'text', inList: false },
       { name: 'serial', label: 'Serial', type: 'text' },
@@ -329,6 +330,10 @@ export const RESOURCES: Resource[] = [
       { name: 'id_nguoi_quan_ly', label: 'Người quản lý', type: 'ref', ref: 'nhan_vien', inList: false },
       { name: 'tinh_trang', label: 'Tình trạng', type: 'text', inList: false },
       { name: 'trang_thai', label: 'Trạng thái', type: 'select', options: ASSET_STATES, default: 'Trong kho' },
+      { name: 'ngay_ban_giao', label: 'Ngày bàn giao', type: 'date', inList: false },
+      { name: 'ngay_du_kien_thu_hoi', label: 'Ngày dự kiến thu hồi', type: 'date', inList: false },
+      { name: 'so_bien_ban', label: 'Số biên bản', type: 'text', inList: false },
+      { name: 'link_bien_ban', label: 'Link biên bản', type: 'text', inList: false },
       { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: false },
     ],
     optionLabel: (r) => `${r.ten_thiet_bi}${r.serial ? ` · ${r.serial}` : ''}`,

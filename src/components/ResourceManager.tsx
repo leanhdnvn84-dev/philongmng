@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
-  RotateCw, CheckCircle2, Filter,
+  RotateCw, CheckCircle2, Filter, History, Monitor,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
@@ -188,6 +188,13 @@ export default function ResourceManager({
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
   const [dayCounts, setDayCounts] = useState<Record<string, number>>({})
   const [sideValues, setSideValues] = useState<string[]>([])
+  // V191 "Thiết bị" screen: custom table, summary strip, filter panel and a detail pane
+  const isDev = res.key === 'thiet_bi' && !compact
+  const [devF, setDevF] = useState({ nql: '', loai: '' })
+  const [devFilterOpen, setDevFilterOpen] = useState(false)
+  const [devAll, setDevAll] = useState<Row[]>([])
+  const [areas, setAreas] = useState<Record<string, Row>>({})
+  const [staff, setStaff] = useState<Record<string, Row>>({})
   const pageSize = compact ? 200 : 50
 
   const statusField = res.fields.find((f) => f.name === 'trang_thai' && f.type === 'select' && !filters.trang_thai)
@@ -206,10 +213,12 @@ export default function ResourceManager({
     const sp = new URLSearchParams(JSON.parse(filterKey))
     if (query) sp.set('search', query)
     if (status && !omit.status) sp.set('trang_thai', status)
+    if (isDev && devF.nql) sp.set('id_nguoi_quan_ly', devF.nql)
+    if (isDev && devF.loai) sp.set('loai_thiet_bi', devF.loai)
     if (side && sideName) sp.set(sideName, side)
     if (day && !omit.day) { sp.set('from', day); sp.set('to', day); sp.set('dateField', calField) }
     return sp
-  }, [filterKey, query, status, side, sideName, day, calField])
+  }, [filterKey, query, status, side, sideName, day, calField, isDev, devF])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -254,6 +263,14 @@ export default function ResourceManager({
   }
 
   useEffect(() => {
+    if (!isDev) return
+    const grab = (u: string) => fetch(u).then((r) => r.json()).then((j) => (j.success ? (j.data as Row[]) : []))
+    Promise.all([grab('/api/thiet_bi?pageSize=2000'), grab('/api/khu_vuc?pageSize=500'), grab('/api/nhan_vien?pageSize=500')]).then(([d, a, n]) => {
+      setDevAll(d); setAreas(Object.fromEntries(a.map((x) => [x.id, x]))); setStaff(Object.fromEntries(n.map((x) => [x.id, x])))
+    }).catch(() => {})
+  }, [isDev, version]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     if (!sideName) return
     api(`/api/${res.key}?distinct=${sideName}`).then((j) => setSideValues(j.data)).catch(() => {})
   }, [res.key, sideName])
@@ -287,7 +304,7 @@ export default function ResourceManager({
       if (row && viewing) refreshViewing(row.id)
     } catch (e: any) { if (!action.fields?.length) flash(e.message, 'err'); throw e }
   }
-  function resetAll() { setStatus(''); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
+  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const canCreate = perms.create && !res.noCreate
@@ -300,6 +317,111 @@ export default function ResourceManager({
   const withRow = (fn: (r: Row) => void) => () => { if (selected) fn(selected) }
   const doAction = (a: Action, r: Row | null) => (a.fields?.length ? setActing({ action: a, row: r }) : run(a, r).catch(() => {}))
   const refLabel = (f: Field | undefined, v: string) => (f?.type === 'ref' ? labels[f.ref!]?.get(v) ?? v : v)
+
+
+  /* ── V191 "Thiết bị" layout: device table, summary strip, filter panel and detail pane ── */
+  const initialsOf = (n: string) => n.split(/\s+/).filter(Boolean).slice(-2).map((w) => w[0]).join('').toUpperCase()
+  const Avatar = ({ name, size = 'h-8 w-8 text-[11px]' }: { name: string; size?: string }) => <span className={`grid shrink-0 place-items-center rounded-full bg-brand-400 font-black text-white ${size}`}>{initialsOf(name) || '?'}</span>
+  const devState = (r: Row) => (r.trang_thai ? String(r.trang_thai) : 'Chưa cập nhật')
+  const devStats = useMemo(() => {
+    const by = (x: string) => devAll.filter((r) => r.trang_thai === x).length
+    return { total: devAll.length, sl: devAll.reduce((a, r) => a + (Number(r.so_luong) || 1), 0), use: by('Đang sử dụng'), kho: by('Trong kho'), todo: devAll.filter((r) => !r.trang_thai).length }
+  }, [devAll])
+  const devTypes = useMemo(() => Array.from(new Set(devAll.map((r) => r.loai_thiet_bi).filter(Boolean))).sort() as string[], [devAll])
+  const devManagers = useMemo(() => Array.from(new Set(devAll.map((r) => r.id_nguoi_quan_ly).filter(Boolean))).map((id) => ({ id: id as string, name: staff[id as string]?.ho_ten ?? (id as string) })).sort((a, b) => a.name.localeCompare(b.name, 'vi')), [devAll, staff])
+  const devTable = (
+    <div className="overflow-auto print:max-h-none print:overflow-visible max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0">
+      <table className="w-full text-[13.5px] border-separate border-spacing-0">
+        <thead>
+          <tr className="text-[12.5px] font-extrabold uppercase tracking-wide text-navy-800">
+            {['Thiết bị', 'Hãng', 'Người quản lý', 'Tầng', 'Vị trí', 'Số lượng', 'Tình trạng', 'Trạng thái'].map((h, i) => (
+              <th key={h} className={`sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-3 py-3 whitespace-nowrap ${i === 0 || i === 2 ? 'text-left' : 'text-center'}`}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {loading && rows.length === 0 ? [...Array(8)].map((_, i) => <tr key={i}><td colSpan={8} className="px-3 py-3 border-b border-navy-100"><div className="h-3.5 rounded bg-navy-100 animate-pulse" style={{ width: `${60 + ((i * 13) % 35)}%` }} /></td></tr>)
+            : rows.length === 0 ? <tr><td colSpan={8} className="px-4 py-16 text-center text-ink-mute"><Inbox className="h-8 w-8 mx-auto mb-2 text-navy-300" />Không có thiết bị</td></tr>
+            : rows.map((r) => {
+              const sel = r.id === selectedId, a = areas[r.id_khu_vuc], m = staff[r.id_nguoi_quan_ly]
+              return (
+                <tr key={r.id} tabIndex={0} aria-selected={sel}
+                  onClick={() => (window.matchMedia('(max-width: 1023px)').matches ? setViewing(r) : setSelectedId(sel ? null : r.id))} onDoubleClick={() => setViewing(r)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
+                  className={`cursor-pointer outline-none ${sel ? 'bg-select shadow-[inset_3px_0_0_#2189e6]' : 'bg-white hover:bg-navy-50'} ${loading ? 'opacity-60' : ''}`}>
+                  <td className="px-3 py-2.5 border-b border-navy-100 min-w-[240px]">
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600"><Monitor className="h-4 w-4" /></span>
+                      <div className="min-w-0">
+                        <div className="font-extrabold text-navy-900 truncate max-w-[260px]">{r.ten_thiet_bi}</div>
+                        <div className="flex items-center gap-1.5 text-[12px] text-ink-mute"><span className="rounded bg-red-50 px-1.5 py-px font-bold text-red-600">{r.id}</span><span className="truncate max-w-[200px]">{r.thong_so || r.loai_thiet_bi || ''}</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 py-2.5 border-b border-navy-100 text-center text-ink-mute">{r.hang || '—'}</td>
+                  <td className="px-3 py-2.5 border-b border-navy-100">
+                    {m ? <div className="flex items-center gap-2"><Avatar name={m.ho_ten} /><div className="leading-tight"><div className="font-bold text-navy-900 whitespace-nowrap">{m.ho_ten}</div><div className="text-[12px] text-ink-mute">{m.phong_ban || r.phong_ban || ''}</div></div></div> : <span className="text-ink-mute">—</span>}
+                  </td>
+                  <td className="px-3 py-2.5 border-b border-navy-100 whitespace-nowrap">{a?.tang || '—'}</td>
+                  <td className="px-3 py-2.5 border-b border-navy-100 whitespace-nowrap">{a?.ten_khu_vuc || '—'}</td>
+                  <td className="px-3 py-2.5 border-b border-navy-100 text-center font-extrabold tabular-nums">{r.so_luong ?? 1}</td>
+                  <td className="px-3 py-2.5 border-b border-navy-100 text-center">{r.tinh_trang ? <span className={pill(String(r.tinh_trang))}>{r.tinh_trang}</span> : <span className="text-ink-mute">—</span>}</td>
+                  <td className="px-3 py-2.5 border-b border-navy-100 text-center"><span className={r.trang_thai ? pill(String(r.trang_thai)) : 'pill-amber'}>{devState(r)}</span></td>
+                </tr>
+              )
+            })}
+        </tbody>
+      </table>
+    </div>
+  )
+  const devPanel = (() => {
+    if (!isDev) return null
+    const r = selected
+    if (!r) return <aside className="hidden lg:flex card items-center justify-center p-6 text-center text-ink-mute print:hidden">Chọn một thiết bị để xem chi tiết.</aside>
+    const a = areas[r.id_khu_vuc], user = staff[r.id_nguoi_su_dung], mgrRow = staff[r.id_nguoi_quan_ly]
+    const mine = user ? devAll.filter((x) => x.id_nguoi_su_dung === user.id) : []
+    const missing = [['Hãng', r.hang], ['Model', r.model], ['Serial', r.serial], ['Ngày bàn giao', r.ngay_ban_giao]].filter(([, v]) => !v).map(([k]) => k)
+    const Info = ({ l, v }: { l: string; v: React.ReactNode }) => <div><div className="text-[11.5px] text-ink-mute">{l}</div><div className="text-[14px] font-bold text-navy-900">{v || '—'}</div></div>
+    return (
+      <aside className="hidden lg:flex card min-h-0 flex-col overflow-y-auto p-4 print:hidden">
+        <div className="flex items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600"><Monitor className="h-5 w-5" /></span>
+          <div className="min-w-0">
+            <div className="text-[16px] font-extrabold text-navy-900">{r.ten_thiet_bi}</div>
+            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[12px]">
+              <span className="rounded bg-red-50 px-1.5 py-px font-bold text-red-600">{r.id}</span>
+              {r.loai_thiet_bi && <span className="text-ink-mute">{r.loai_thiet_bi}</span>}
+              {r.tinh_trang && <span className={pill(String(r.tinh_trang))}>{r.tinh_trang}</span>}
+              <span className={r.trang_thai ? pill(String(r.trang_thai)) : 'pill-amber'}>{devState(r)}</span>
+            </div>
+          </div>
+        </div>
+        <div className="my-3 border-t" />
+        <div className="text-[11.5px] font-black uppercase tracking-wide text-ink-mute">Người sử dụng</div>
+        {user ? (
+          <div className="mt-2">
+            <div className="flex items-center gap-3">
+              <Avatar name={user.ho_ten} size="h-10 w-10 text-[13px]" />
+              <div className="min-w-0 flex-1 leading-tight"><div className="font-extrabold text-navy-900">{user.ho_ten}</div><div className="text-[12.5px] text-ink-mute">{user.phong_ban || r.phong_ban || ''}</div></div>
+              <div className="rounded-lg border border-red-200 px-3 py-1 text-center text-red-600"><div className="text-[18px] font-black leading-none">{mine.length}</div><div className="text-[10.5px]">thiết bị</div></div>
+            </div>
+            <div className="mt-2 text-[12px] text-ink-mute">Tổng SL {mine.reduce((x, d) => x + (Number(d.so_luong) || 1), 0)} · {mine.filter((d) => !d.trang_thai).length} chưa cập nhật · {mine.filter((d) => d.trang_thai === 'Đang sử dụng').length} đang sử dụng</div>
+          </div>
+        ) : <p className="mt-2 text-sm text-ink-mute">Chưa gán người sử dụng.</p>}
+        <div className="my-3 border-t" />
+        <div className="text-[11.5px] font-black uppercase tracking-wide text-ink-mute">Thông tin kỹ thuật</div>
+        {r.thong_so && <div className="mt-2 rounded-lg bg-canvas px-3 py-2 text-[13.5px]">{r.thong_so}</div>}
+        <div className="mt-3 grid gap-3">
+          <Info l="Tầng" v={a?.tang} /><Info l="Vị trí" v={a?.ten_khu_vuc} /><Info l="Số lượng" v={r.so_luong ?? 1} />
+          <Info l="Người quản lý" v={mgrRow?.ho_ten} />
+          {r.hang && <Info l="Hãng" v={r.hang} />}{r.model && <Info l="Model" v={r.model} />}{r.serial && <Info l="Serial" v={r.serial} />}
+          {r.ngay_ban_giao && <Info l="Ngày bàn giao" v={formatDate(r.ngay_ban_giao)} />}
+        </div>
+        {missing.length > 0 && <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-[12.5px] text-amber-800"><b>Chưa cập nhật:</b> {missing.join(', ')}</div>}
+        <a href={`/lich_su_chuyen_thiet_bi?id_thiet_bi=${r.id}`} className="btn-secondary mt-auto w-full justify-center">Lịch sử chuyển thiết bị ›</a>
+      </aside>
+    )
+  })()
 
   /* ── table (shared by full and compact views) ── */
   const table = (
@@ -437,7 +559,7 @@ export default function ResourceManager({
       <div className={`shrink-0 flex-col gap-2 lg:flex lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden hidden lg:flex`}>
         <div className="hidden lg:contents">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setSearchOpen((o) => !o)} />
-        {canCreate && <Tile icon={Plus} label="Thêm" color="green" onClick={() => setEditing({})} />}
+        {canCreate && <Tile icon={Plus} label={isDev ? 'Thêm TB' : 'Thêm'} color="green" onClick={() => setEditing({})} />}
         <Tile icon={Eye} label="Xem" color="teal" disabled={!selected} onClick={withRow((r) => setViewing(r))} />
         {canEdit && <Tile icon={Pencil} label="Sửa" color="orange" disabled={!selected || !!lockedMsg} title={lockedMsg ?? 'Sửa'} onClick={withRow((r) => setEditing(r))} />}
         {canDelete && <Tile icon={Trash2} label="Xóa" color="red" disabled={!selected || !!lockedMsg} title={lockedMsg ?? 'Xóa'} onClick={withRow((r) => remove(r))} />}
@@ -447,11 +569,19 @@ export default function ResourceManager({
             disabled={!selected || (a.show ? !a.show(selected) : false)} onClick={withRow((r) => doAction(a, r))} />
         ))}
         {pageActions.map((a) => <Tile key={a.key} icon={Zap} label={a.label} color="violet" onClick={() => doAction(a, null)} />)}
-        <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />
+        {isDev && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={() => selected && (window.location.href = `/lich_su_chuyen_thiet_bi?id_thiet_bi=${selected.id}`)} />}
+        {!isDev && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
         </div>
 
-        {statusField && (
+        {isDev && (
+          <div className="ml-auto hidden text-right text-[12.5px] leading-snug text-ink-soft lg:block">
+            <div className="text-[15px] font-extrabold text-navy-900">{devStats.total} thiết bị · tổng SL {devStats.sl}</div>
+            <div>{devStats.use} đang sử dụng · {devStats.kho} trong kho · {devStats.todo} cần xử lý</div>
+          </div>
+        )}
+
+        {statusField && !isDev && (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:ml-auto lg:flex-wrap lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
             {statusField.options!.map((o) => {
               const on = status === o
@@ -487,8 +617,37 @@ export default function ResourceManager({
           </div>
         )}
 
-        <div className={`grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)] ${hasCalendar || sideField ? 'lg:grid-cols-[230px_minmax(0,1fr)]' : ''}`}>
-          {(hasCalendar || sideField) && (
+        {isDev && (
+          <div className="card shrink-0 print:hidden">
+            <button className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] font-extrabold text-navy-900" onClick={() => setDevFilterOpen((o) => !o)} aria-expanded={devFilterOpen}>
+              <span className={`text-[10px] transition-transform ${devFilterOpen ? 'rotate-90' : ''}`}>▶</span> Bộ lọc thiết bị
+              {(status || side || devF.nql || devF.loai) && <span className="pill-blue">đang lọc</span>}
+            </button>
+            {devFilterOpen && (
+              <div className="grid grid-cols-1 gap-3 border-t px-3 py-3 sm:grid-cols-2 xl:grid-cols-4">
+                <label className="text-[12px] font-bold text-ink-mute">Trạng thái
+                  <select className="input mt-1" value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <option value="">Tất cả</option>{['Đang sử dụng', 'Trong kho', 'Bảo trì', 'Chờ thanh lý', 'Đã thanh lý'].map((o) => <option key={o}>{o}</option>)}<option value="__NULL__">Chưa cập nhật (cần xử lý)</option>
+                  </select></label>
+                <label className="text-[12px] font-bold text-ink-mute">Tầng · Khu vực
+                  <select className="input mt-1" value={side} onChange={(e) => setSide(e.target.value)}>
+                    <option value="">Tất cả</option>{Object.values(areas).sort((a, b) => String(a.tang).localeCompare(String(b.tang), 'vi', { numeric: true })).map((a) => <option key={a.id} value={a.id}>{a.tang} · {a.ten_khu_vuc}</option>)}
+                  </select></label>
+                <label className="text-[12px] font-bold text-ink-mute">Người quản lý
+                  <select className="input mt-1" value={devF.nql} onChange={(e) => setDevF((f) => ({ ...f, nql: e.target.value }))}>
+                    <option value="">Tất cả</option>{devManagers.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  </select></label>
+                <label className="text-[12px] font-bold text-ink-mute">Loại thiết bị
+                  <select className="input mt-1" value={devF.loai} onChange={(e) => setDevF((f) => ({ ...f, loai: e.target.value }))}>
+                    <option value="">Tất cả</option>{devTypes.map((t) => <option key={t}>{t}</option>)}
+                  </select></label>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className={`grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)] ${isDev ? 'lg:grid-cols-[minmax(0,1fr)_340px]' : hasCalendar || sideField ? 'lg:grid-cols-[230px_minmax(0,1fr)]' : ''}`}>
+          {(hasCalendar || sideField) && !isDev && (
             <aside className="hidden lg:flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto print:hidden">
               {hasCalendar && <MonthCalendar month={month} setMonth={setMonth} counts={dayCounts} day={day} setDay={setDay}
                 unit={res.singular} fields={res.calendarFields} field={calField} loading={calLoading}
@@ -513,7 +672,7 @@ export default function ResourceManager({
           )}
 
           <div className="card overflow-hidden min-w-0 flex flex-col lg:min-h-0">
-            {table}
+            {isDev ? devTable : table}
             <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-t border-navy-200 bg-navy-50 text-[13px] text-ink-soft">
               <span className="tabular-nums">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> :
                 <>Hiển thị {total ? `${from}–${to}` : '0'} / <b className="text-ink">{total.toLocaleString('vi-VN')}</b> {res.singular}{selected ? <> · đang chọn <b className="text-select-accent">{selected.id}</b></> : ' · bấm để chọn, bấm đúp để xem'}</>}</span>
@@ -524,6 +683,7 @@ export default function ResourceManager({
               </div>}
             </div>
           </div>
+          {devPanel}
         </div>
       </div>
       {(hasCalendar || sideField) && (

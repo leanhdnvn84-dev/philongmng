@@ -43,7 +43,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   for (const f of res.fields) {
     const v = url.searchParams.get(f.name)
     if (v === null || v === '' || f.type === 'password') continue
-    query = f.type === 'bool' ? query.eq(f.name, v === 'true') : query.eq(f.name, v)
+    query = v === '__NULL__' ? query.is(f.name, null) : f.type === 'bool' ? query.eq(f.name, v === 'true') : query.eq(f.name, v)
   }
   // date range on a calendar column (from/to = YYYY-MM-DD); dateField picks one of the declared ones
   const dateCols = [res.dateField, ...(res.calendarFields ?? []).map((c) => c.name)].filter(Boolean) as string[]

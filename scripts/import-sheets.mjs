@@ -7,6 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const file = process.argv.find((a) => a.endsWith('.xlsx'))
 const DRY = process.argv.includes('--dry-run')
+const ONLY = (process.argv.find((a) => a.startsWith('--only=')) ?? '').slice(7).split(',').filter(Boolean) // e.g. --only=THIET_BI,LICH_SU_CHUYEN_THIET_BI
 const { NEXT_PUBLIC_SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!file) { console.error('Dùng: npm run import -- duong_dan/file.xlsx [--dry-run]'); process.exit(1) }
 if (!url || !key) { console.error('Thiếu NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY trong .env.local'); process.exit(1) }
@@ -102,7 +103,7 @@ for (const table of ORDER) {
     for (const r of data ?? []) ids.add(String(r.id))
   }
   for (const m of MAP.filter((x) => x.table === table)) {
-    const sheets = wb.worksheets.filter((ws) => (m.sheet instanceof RegExp ? m.sheet.test(ws.name) : ws.name === m.sheet))
+    const sheets = wb.worksheets.filter((ws) => (m.sheet instanceof RegExp ? m.sheet.test(ws.name) : ws.name === m.sheet) && (!ONLY.length || ONLY.includes(ws.name)))
     for (const ws of sheets) {
       const header = (ws.getRow(1).values ?? []).map((h) => norm(cellValue(h)))
       const rows = []
@@ -146,6 +147,8 @@ for (const table of ORDER) {
           rec.id_nha_thau ??= rec.id_nguoi_thuc_hien // V191 sometimes stored a contractor code as the performer
           rec.id_nguoi_thuc_hien = null
         }
+        // V191 leaves the status blank on devices still to be sorted out: keep that ("cần xử lý") instead of the 'Trong kho' default
+        if (table === 'thiet_bi' && rec.trang_thai === undefined) rec.trang_thai = null
         if (table === 'nhap_xuat_kho' && rec.loai_giao_dich) rec.loai_giao_dich = norm(rec.loai_giao_dich).startsWith('NHAP') ? 'NHAP' : 'XUAT'
         if (table === 'de_xuat' && rec.loai_de_xuat) rec.loai_de_xuat = norm(rec.loai_de_xuat).replace(/^DE_XUAT_/, '').replace(/^MUA$/, 'MUA_THIET_BI')
         // dangling references (deleted employee, area…) → keep the value in extra instead of failing
