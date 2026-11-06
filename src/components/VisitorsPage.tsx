@@ -179,7 +179,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
 
   const stat = (key: TabKey, label: string, value: React.ReactNode, sub?: string, tone = 'text-navy-900', ring = 'border-b-blue-600', long = false) => (
     <button type="button" onClick={() => { setTab(key); setOnly4h(long) }}
-      className={`min-w-[132px] text-left rounded-[9px] bg-white px-3 py-1.5 border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-px transition ${ring} ${tab === key && only4h === long ? 'ring-2 ring-green-600/60' : ''}`}>
+      className={`shrink-0 min-w-[132px] text-left rounded-[9px] bg-white px-3 py-1.5 border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-px transition ${ring} ${tab === key && only4h === long ? 'ring-2 ring-green-600/60' : ''}`}>
       <div className="text-[11px] font-black uppercase tracking-wide text-navy-700">{label}</div>
       <div className={`text-[20px] leading-tight font-extrabold tabular-nums ${tone}`}>{value}{sub && <span className="ml-2 text-[11.5px] font-medium text-ink-mute">{sub}</span>}</div>
     </button>
@@ -203,7 +203,8 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         <h1 className="text-[22px] font-black text-brand-400">Khách ra/vào tòa nhà</h1>
       </div>
 
-      <div className="shrink-0 flex flex-wrap items-center gap-2 px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
+      <div className="shrink-0 flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:contents lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setTab('history')} />
         {perms.create && <Tile icon={Plus} label="Khách vào" color="green" onClick={() => { resetForm(); formRef.current?.scrollIntoView({ behavior: 'smooth' }); (formRef.current?.elements.namedItem('ho_ten') as HTMLInputElement | null)?.focus() }} />}
         <Tile icon={Eye} label="Xem" color="teal" disabled={!sel} onClick={() => sel && setViewing(sel)} />
@@ -214,7 +215,8 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         {perms.edit && <Tile icon={Ban} label="Hủy lượt" color="red" disabled={!sel || ![IN, BOOK].includes(sel.trang_thai)} onClick={() => sel && act('huy', sel, `Hủy lượt của ${sel.ho_ten}?`)} />}
         <Tile icon={RotateCw} label="Tải lại" color="violet" onClick={() => { setLoading(true); load() }} />
 
-        <div className="ml-auto flex flex-wrap gap-2">
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:ml-auto lg:flex-wrap lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
           {stat('in', 'Đang trong tòa nhà', inside.length, `lượt · ${insidePeople} người`, 'text-green-700', 'border-b-green-600')}
           {stat('book', 'Hẹn trước', booked.length, undefined, 'text-blue-700', 'border-b-blue-600')}
           {stat('out', 'Đã ra hôm nay', outToday.length, undefined, 'text-navy-900', 'border-b-navy-500')}

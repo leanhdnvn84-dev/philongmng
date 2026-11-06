@@ -21,9 +21,18 @@ const pill = (v: string) => `pill-${tone(v)}`
 const STATUS_FIELDS = new Set(['canh_bao', 'trang_thai', 'trang_thai_su_dung', 'muc_do', 'muc_do_tiem_nang'])
 const RIGHT = /don_gia|so_luong|thanh_tien|tong_tien|so_kwh|chi_so|ton_|tong_nhap|tong_xuat|dien_tich|so_ngay/
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function api(url: string, init?: RequestInit) {
-  const r = await fetch(url, { ...init, headers: { 'Content-Type': 'application/json' } })
-  const j = await r.json().catch(() => ({ success: false, error: 'Phản hồi không hợp lệ' }))
+  // reads retry on flaky mobile networks / busy server; writes are never repeated automatically
+  const safe = !init?.method || init.method === 'GET'
+  let r: Response | null = null
+  for (let i = 0; i < (safe ? 3 : 1); i++) {
+    try { r = await fetch(url, { ...init, headers: { 'Content-Type': 'application/json' } }) } catch { r = null }
+    if (r && r.status < 500 && r.status !== 429) break
+    if (i < 2 && safe) await sleep(500 * (i + 1))
+  }
+  if (!r) throw new Error('Mất kết nối mạng. Kiểm tra sóng rồi bấm Làm mới.')
+  const j = await r.json().catch(() => ({ success: false, error: r!.status >= 500 ? 'Máy chủ đang bận, bấm Làm mới để thử lại' : 'Phản hồi không hợp lệ' }))
   if (r.status === 401) { window.location.href = '/login'; throw new Error('Phiên đăng nhập đã hết') }
   if (!j.success) throw new Error(j.error || 'Có lỗi xảy ra')
   return j
@@ -76,7 +85,7 @@ export function Tile({ icon: Icon, label, color, onClick, disabled, title }: {
 }) {
   return (
     <button type="button" onClick={onClick} disabled={disabled} title={title ?? label}
-      className={`flex flex-col items-center justify-center gap-0.5 min-w-[70px] h-[56px] px-1.5 rounded-[9px] bg-white border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] text-[12px] font-bold text-navy-900 transition hover:-translate-y-px hover:shadow-md disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:cursor-not-allowed ${TILE_COLORS[color]}`}>
+      className={`shrink-0 flex flex-col items-center justify-center gap-0.5 min-w-[70px] h-[56px] px-1.5 rounded-[9px] bg-white border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] text-[12px] font-bold text-navy-900 transition hover:-translate-y-px hover:shadow-md disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:cursor-not-allowed ${TILE_COLORS[color]}`}>
       <Icon className="h-5 w-5" />
       <span className="whitespace-nowrap">{label}</span>
     </button>
@@ -206,10 +215,8 @@ export default function ResourceManager({
   // status tab counts
   useEffect(() => {
     if (compact || !statusField) return
-    statusField.options!.forEach((o) => {
-      const sp = baseParams({ status: true }); sp.set('trang_thai', o); sp.set('pageSize', '1')
-      api(`/api/${res.key}?${sp}`).then((j) => setStatusCounts((c) => ({ ...c, [o]: j.total }))).catch(() => {})
-    })
+    const sp = baseParams({ status: true }); sp.set('countBy', 'trang_thai')
+    api(`/api/${res.key}?${sp}`).then((j) => setStatusCounts(j.data)).catch(() => {})
   }, [version]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // calendar badges for the visible month
@@ -218,14 +225,13 @@ export default function ResourceManager({
     const y = month.getFullYear(), m = month.getMonth(), mm = String(m + 1).padStart(2, '0')
     const sp = baseParams({ day: true })
     sp.set('dateField', calField)
-    sp.set('from', `${y}-${mm}-01`); sp.set('to', `${y}-${mm}-${new Date(y, m + 1, 0).getDate()}`); sp.set('pageSize', '2000')
+    sp.set('from', `${y}-${mm}-01`); sp.set('to', `${y}-${mm}-${new Date(y, m + 1, 0).getDate()}`); sp.set('countBy', calField)
     setCalLoading(true)
     api(`/api/${res.key}?${sp}`).then((j) => {
-      const c: Record<string, number> = {}
-      for (const r of j.data as Row[]) { const k = String(r[calField] ?? '').slice(0, 10); if (k) c[k] = (c[k] ?? 0) + 1 }
+      const c = j.data as Record<string, number>
       setDayCounts(c)
       // first open on an empty month: show the latest month that has records instead of a blank calendar
-      if (!autoJumped.current) { autoJumped.current = true; if (!j.data.length) jumpLatest() }
+      if (!autoJumped.current) { autoJumped.current = true; if (!Object.keys(c).length) jumpLatest() }
     }).catch(() => {}).finally(() => setCalLoading(false))
   }, [version, month, calField]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -430,7 +436,8 @@ export default function ResourceManager({
       </div>
 
       {/* tile toolbar + status tabs */}
-      <div className="shrink-0 flex flex-wrap items-center gap-2 px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
+      <div className="shrink-0 flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center px-4 lg:px-5 py-2 bg-white border-b border-navy-200 print:hidden">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:contents lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
         <Tile icon={Search} label="Tìm" color="blue" onClick={() => setSearchOpen((o) => !o)} />
         {canCreate && <Tile icon={Plus} label="Thêm" color="green" onClick={() => setEditing({})} />}
         <Tile icon={Eye} label="Xem" color="teal" disabled={!selected} onClick={withRow((r) => setViewing(r))} />
@@ -445,14 +452,15 @@ export default function ResourceManager({
         <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />
         <Tile icon={FileSpreadsheet} label="Xuất Excel" color="green" onClick={exportCsv} />
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
+        </div>
 
         {statusField && (
-          <div className="ml-auto flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:ml-auto lg:flex-wrap lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
             {statusField.options!.map((o) => {
               const on = status === o
               return (
                 <button key={o} onClick={() => setStatus(on ? '' : o)}
-                  className={`min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
+                  className={`shrink-0 min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
                   <div className="text-[12px] font-black uppercase">{o}</div>
                   <div className="text-[12px] font-semibold opacity-80">{(statusCounts[o] ?? 0).toLocaleString('vi-VN')} {res.singular}</div>
                 </button>

@@ -1,6 +1,6 @@
 import 'server-only'
 import { NextResponse } from 'next/server'
-import { getAuth, can, AuthContext } from '@/lib/auth'
+import { getAuth, can, AuthContext, TransientAuthError } from '@/lib/auth'
 import { getResource, Resource, Perm } from '@/lib/resources'
 
 export const fail = (error: string, status = 400) => NextResponse.json({ success: false, error }, { status })
@@ -38,7 +38,11 @@ export async function guard(
 ): Promise<{ auth: AuthContext; res: Resource } | NextResponse> {
   const res = getResource(resourceKey)
   if (!res) return fail('Không tìm thấy', 404)
-  const auth = await getAuth()
+  let auth: AuthContext | null
+  try { auth = await getAuth() } catch (e) {
+    if (e instanceof TransientAuthError) return fail('Máy chủ đang bận, đang thử lại…', 503)
+    throw e
+  }
   if (!auth) return fail('Chưa đăng nhập hoặc tài khoản bị khóa', 401)
   if (!opts.skipPermission && !can(auth, res.module, perm)) return fail('Bạn không có quyền thực hiện thao tác này', 403)
   if ((perm === 'create' && res.noCreate) || (perm === 'edit' && res.noEdit) || (perm === 'delete' && res.noDelete))

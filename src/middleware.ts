@@ -18,7 +18,9 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data } = await supabase.auth.getUser()
+  const { data, error } = await supabase.auth.getUser()
+  // a network blip while checking the session is not a logout: let the page load and show its own retry instead of bouncing to /login
+  if (!data.user && error && (error.status === undefined || error.status === 0 || error.status >= 500 || /fetch|network|timeout/i.test(error.message))) return response
   const isLogin = request.nextUrl.pathname === '/login'
 
   if (!data.user && !isLogin) {

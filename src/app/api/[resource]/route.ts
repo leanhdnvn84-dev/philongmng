@@ -34,7 +34,10 @@ export async function GET(req: NextRequest, { params }: Ctx) {
 
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1') || 1)
   const pageSize = Math.min(2000, Math.max(1, parseInt(url.searchParams.get('pageSize') || '50') || 50))
-  let query = db.from(res.view ?? res.table).select('*', { count: 'exact' })
+  const countBy = url.searchParams.get('countBy')
+  const countField = countBy ? res.fields.find((x) => x.name === countBy && ['date', 'select', 'ref', 'bool'].includes(x.type)) : undefined
+  if (countBy && !countField) return fail('Cột không hợp lệ')
+  let query: any = db.from(res.view ?? res.table).select(countField ? countField.name : '*', countField ? undefined : { count: 'exact' })
 
   // equality filters on declared fields only (column names never come from the client)
   for (const f of res.fields) {
@@ -56,6 +59,14 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   const search = (url.searchParams.get('search') || '').replace(/[,()%*\\"]/g, ' ').trim().slice(0, 100)
   if (search && res.searchFields.length) {
     query = query.or(res.searchFields.map((f) => `${f}.ilike.%${search}%`).join(','))
+  }
+  if (countField) {
+    // grouped counts for the status tabs / calendar badges: one small request instead of one per tab or 2000 rows
+    const { data, error } = await query.limit(20000)
+    if (error) return dbError(error)
+    const counts: Record<string, number> = {}
+    for (const r of data as any[]) { const k = String(r[countField.name] ?? '').slice(0, 10 + (countField.type === 'date' ? 0 : 190)); if (k) counts[k] = (counts[k] ?? 0) + 1 }
+    return ok({ data: counts })
   }
   const { data, error, count } = await query
     .order(res.orderBy.column, { ascending: res.orderBy.ascending, nullsFirst: false })
