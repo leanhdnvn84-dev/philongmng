@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Loader2, Send, Users } from 'lucide-react'
+import { ArrowLeft, Loader2, Send, Users, X } from 'lucide-react'
 
 interface Conv { key: string; name: string; role: string; unread: number; last: { text: string; at: string; mine: boolean; from: string } | null }
 interface Msg { id: string; at: string; mine: boolean; from: string; text: string }
@@ -23,7 +23,7 @@ async function get(url: string) {
   return j
 }
 
-export default function ChatPanel() {
+export default function ChatPanel({ popup = false, onClose }: { popup?: boolean; onClose?: () => void }) {
   const [group, setGroup] = useState<Conv | null>(null)
   const [people, setPeople] = useState<Conv[]>([])
   const [active, setActive] = useState<string | null>(null) // phone: null = conversation list
@@ -108,15 +108,23 @@ export default function ChatPanel() {
 
   let prevDay = ''
   return (
-    <div className="flex flex-col flex-1 lg:min-h-0">
-      <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
-        <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Trao đổi nội bộ</b></span>
-        <h1 className="text-[22px] font-black text-brand-400">Trao đổi nội bộ</h1>
-      </div>
-      <div className="px-3 lg:px-5 py-3 lg:flex-1 lg:min-h-0">
-        <div className="card flex h-[calc(100dvh-230px)] min-h-[420px] overflow-hidden lg:h-full">
+    <div className={popup ? 'flex h-full flex-col' : 'flex flex-col flex-1 lg:min-h-0'}>
+      {!popup && (
+        <div className="shrink-0 flex flex-wrap items-baseline gap-x-5 gap-y-1 px-4 lg:px-5 py-2 bg-white border-b border-navy-200">
+          <span className="text-[12.5px] text-ink-mute">PHI LONG / <b className="text-navy-800">Trao đổi nội bộ</b></span>
+          <h1 className="text-[22px] font-black text-brand-400">Trao đổi nội bộ</h1>
+        </div>
+      )}
+      <div className={popup ? 'min-h-0 flex-1' : 'px-3 lg:px-5 py-3 lg:flex-1 lg:min-h-0'}>
+        <div className={popup ? 'flex h-full overflow-hidden' : 'card flex h-[calc(100dvh-230px)] min-h-[420px] overflow-hidden lg:h-full'}>
           {/* conversations */}
-          <aside className={`${active ? 'hidden' : 'flex'} w-full flex-col lg:flex lg:w-[320px] lg:shrink-0 lg:border-r border-navy-200`}>
+          <aside className={popup ? `${active ? 'hidden' : 'flex'} w-full flex-col` : `${active ? 'hidden' : 'flex'} w-full flex-col lg:flex lg:w-[320px] lg:shrink-0 lg:border-r border-navy-200`}>
+            {popup && (
+              <div className="flex shrink-0 items-center justify-between bg-brand-400 px-4 py-3 text-white">
+                <h2 className="text-[17px] font-extrabold">Trao đổi nội bộ</h2>
+                <button onClick={onClose} aria-label="Đóng" className="grid h-8 w-8 place-items-center rounded-full hover:bg-white/15"><X className="h-5 w-5" /></button>
+              </div>
+            )}
             <div className="shrink-0 border-b p-2"><input className="input" type="search" placeholder="Tìm người…" value={q} onChange={(e) => setQ(e.target.value)} /></div>
             <div className="min-h-0 flex-1 overflow-y-auto">
               {list.map(Row)}
@@ -125,15 +133,16 @@ export default function ChatPanel() {
           </aside>
 
           {/* thread */}
-          <section className={`${active ? 'flex' : 'hidden'} min-w-0 flex-1 flex-col lg:flex`}>
+          <section className={popup ? `${active ? 'flex' : 'hidden'} min-w-0 flex-1 flex-col` : `${active ? 'flex' : 'hidden'} min-w-0 flex-1 flex-col lg:flex`}>
             {!current ? (
               <div className="m-auto p-6 text-center text-ink-mute">Chọn một cuộc trò chuyện để bắt đầu.</div>
             ) : (<>
               <header className="flex shrink-0 items-center gap-3 border-b px-3 py-2.5">
-                <button className="lg:hidden grid h-9 w-9 place-items-center rounded-full hover:bg-navy-50" onClick={() => setActive(null)} aria-label="Quay lại"><ArrowLeft className="h-5 w-5" /></button>
+                <button className={`${popup ? '' : 'lg:hidden '}grid h-9 w-9 place-items-center rounded-full hover:bg-navy-50`} onClick={() => setActive(null)} aria-label="Quay lại"><ArrowLeft className="h-5 w-5" /></button>
                 <span className={`grid h-10 w-10 place-items-center rounded-full text-sm font-black ${current.key === GROUP ? 'bg-navy-900 text-white' : 'bg-brand-50 text-brand-500'}`}>
                   {current.key === GROUP ? <Users className="h-5 w-5" /> : initials(current.name)}</span>
-                <div className="leading-tight"><div className="font-extrabold text-navy-900">{current.name}</div><div className="text-xs text-ink-mute">{current.key === GROUP ? 'Tất cả mọi người trong hệ thống' : current.role}</div></div>
+                <div className="min-w-0 flex-1 leading-tight"><div className="truncate font-extrabold text-navy-900">{current.name}</div><div className="truncate text-xs text-ink-mute">{current.key === GROUP ? 'Tất cả mọi người trong hệ thống' : current.role}</div></div>
+                {popup && <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full hover:bg-navy-50"><X className="h-5 w-5" /></button>}
               </header>
               <div className="min-h-0 flex-1 space-y-1 overflow-y-auto bg-canvas px-3 py-3">
                 {loadingMsgs && <div className="py-6 text-center text-ink-mute"><Loader2 className="mx-auto h-5 w-5 animate-spin" /></div>}
