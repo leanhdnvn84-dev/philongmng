@@ -331,12 +331,12 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               </label>
             </div>
 
-            <div className="overflow-auto max-h-[70vh] min-h-[260px] xl:max-h-none xl:flex-1 xl:min-h-0 p-2.5">
+            <div className="overflow-y-auto overflow-x-hidden max-h-[70vh] min-h-[260px] xl:max-h-none xl:flex-1 xl:min-h-0 p-2.5">
               <table className="hidden w-full text-[12.5px] border-separate border-spacing-0 rounded-[9px] overflow-hidden border border-navy-200 lg:table">
                 <thead>
                   <tr className="text-[12.5px] font-extrabold text-navy-900">
                     {['Ngày vào', 'Giờ', 'Họ tên', 'Đi cùng', 'Công ty', 'SĐT', 'CCCD', 'Địa chỉ', 'Người cần gặp', 'Tầng', 'Mục đích', 'Nội dung', 'Đã ở', 'Trạng thái'].map((h) => (
-                      <th key={h} className="sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-2 py-2 text-left whitespace-nowrap">{h}</th>
+                      <th key={h} className={`sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-2 py-2 text-left whitespace-nowrap ${['Đi cùng', 'CCCD', 'Địa chỉ', 'Tầng', 'Mục đích'].includes(h) ? 'hidden 2xl:table-cell' : h === 'Nội dung' ? 'hidden min-[1340px]:table-cell' : ''}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -357,15 +357,15 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
                         <td className={`px-2 py-2 border-b border-navy-100 whitespace-nowrap tabular-nums ${on ? 'shadow-[inset_3px_0_0_#2189e6]' : ''}`}>{formatDate(r.trang_thai === BOOK && r.ngay_hen ? r.ngay_hen : r.ngay)}</td>
                         <td className="px-2 py-2 border-b border-navy-100 tabular-nums">{r.trang_thai === BOOK ? r.gio_hen || '—' : r.gio_vao || '—'}</td>
                         <td className="px-2 py-2 border-b border-navy-100 font-extrabold whitespace-nowrap">{r.ho_ten}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.nguoi_di_cung || '—'}</td>
+                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.nguoi_di_cung || '—'}</td>
                         <td className="px-2 py-2 border-b border-navy-100 max-w-[110px] truncate">{r.cong_ty || '—'}</td>
                         <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap tabular-nums">{r.sdt || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 font-mono text-xs text-ink-mute">{mask(r.giay_to) || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.dia_chi || '—'}</td>
+                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 font-mono text-xs text-ink-mute">{mask(r.giay_to) || '—'}</td>
+                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.dia_chi || '—'}</td>
                         <td className="px-2 py-2 border-b border-navy-100 max-w-[110px] truncate">{r.nguoi_can_gap || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 max-w-[70px] truncate">{r.tang || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap">{r.muc_dich || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 max-w-[150px] truncate">{r.noi_dung || '—'}</td>
+                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 max-w-[70px] truncate">{r.tang || '—'}</td>
+                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 whitespace-nowrap">{r.muc_dich || '—'}</td>
+                        <td className="hidden min-[1340px]:table-cell px-2 py-2 border-b border-navy-100 max-w-[120px] xl:max-w-[150px] truncate">{r.noi_dung || '—'}</td>
                         <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap">
                           {r.trang_thai === BOOK ? <span className="text-ink-mute">—</span> : <span className={long ? 'pill-red' : 'pill-green'}>{fmtMin(mins)}</span>}
                         </td>

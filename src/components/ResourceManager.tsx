@@ -44,9 +44,26 @@ function soNgay(r: any): { n: number; tone: 'red' | 'green' | 'blue'; lines: str
   if (dl) { const left = dayDiff(today, dl); lines.push(left === 0 ? `Đến hạn hôm nay (${dm(dl)})` : `Còn ${left} ngày đến hạn ${dm(dl)}`) } else lines.push('Chưa đặt hạn hoàn thành')
   return { n: used, tone: 'blue', lines }
 }
+/** estimated minimum width of a list column (px) and how important it is to keep it when the screen is narrow */
+const colMin = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' ? (f.name === 'tien_do' || f.name === 'cach_thuc_hien' ? 190 : 230) : f.type === 'date' ? 92 : f.type === 'datetime' ? 128 : f.type === 'money' ? 96 : f.type === 'number' ? 70 : f.type === 'bool' ? 64
+  : f.type === 'email' ? 150 : STATUS_FIELDS_SET.has(f.name) ? 108 : f.type === 'ref' ? 118 : 110)
+const colPri = (f: Field) => (f.name === 'noi_dung' || /^(ten|ho_ten)/.test(f.name) ? 100 : f.name === 'canh_bao' ? 45 : f.name === 'muc_do' ? 47 : f.name === 'tien_do' ? 62 : STATUS_FIELDS_SET.has(f.name) ? 90 : f.name === 'so_ngay' ? 85 : f.type === 'date' ? 70 : f.type === 'money' || f.type === 'number' ? 60 : f.type === 'ref' ? 55
+  : f.name === 'tien_do' || f.name === 'cach_thuc_hien' ? 30 : f.type === 'textarea' ? 35 : 50)
+/** keep the most important columns that fit the available width: no horizontal scrolling; the rest stay in the detail popup */
+function fitColumns(fields: Field[], avail: number, idCol: boolean): Field[] {
+  if (!avail || avail < 320) return fields
+  let total = (idCol ? 84 : 0) + fields.reduce((a, f) => a + colMin(f), 0)
+  const drop = new Set<Field>()
+  for (const f of [...fields].sort((a, b) => colPri(a) - colPri(b))) {
+    if (total <= avail - 16 || fields.length - drop.size <= 3) break
+    drop.add(f); total -= colMin(f)
+  }
+  return fields.filter((f) => !drop.has(f))
+}
 const SOFT_TIP = new Set(['tien_do', 'cach_thuc_hien', 'noi_dung'])
 
 const STATUS_FIELDS = new Set(['canh_bao', 'trang_thai', 'trang_thai_su_dung', 'muc_do', 'muc_do_tiem_nang'])
+const STATUS_FIELDS_SET = STATUS_FIELDS
 const RIGHT = /don_gia|so_luong|thanh_tien|tong_tien|so_kwh|chi_so|ton_|tong_nhap|tong_xuat|dien_tich|so_ngay/
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -230,6 +247,14 @@ export default function ResourceManager({
   const statusField = res.fields.find((f) => f.name === 'trang_thai' && f.type === 'select' && !filters.trang_thai)
   const sideField = !compact && res.sideFilter && !(res.sideFilter in filters) ? res.fields.find((f) => f.name === res.sideFilter) : undefined
   const hasCalendar = !compact && !!res.dateField
+  const [wrapW, setWrapW] = useState(0)
+  const roRef = useRef<ResizeObserver | null>(null)
+  const wrapRef = useCallback((el: HTMLDivElement | null) => {
+    roRef.current?.disconnect()
+    if (!el) return
+    setWrapW(el.clientWidth)
+    roRef.current = new ResizeObserver(() => setWrapW(el.clientWidth)); roRef.current.observe(el)
+  }, [])
   const listFields = res.listOrder
     ? res.listOrder.map((n) => res.fields.find((f) => f.name === n)).filter((f): f is Field => !!f && !(f.name in filters))
     : res.fields.filter((f) => visibleInList(f) && !(f.name in filters))
@@ -420,12 +445,12 @@ export default function ResourceManager({
   const devTypes = useMemo(() => Array.from(new Set(devAll.map((r) => r.loai_thiet_bi).filter(Boolean))).sort() as string[], [devAll])
   const devManagers = useMemo(() => Array.from(new Set(devAll.map((r) => r.id_nguoi_quan_ly).filter(Boolean))).map((id) => ({ id: id as string, name: staff[id as string]?.ho_ten ?? (id as string) })).sort((a, b) => a.name.localeCompare(b.name, 'vi')), [devAll, staff])
   const devTable = (
-    <div className="overflow-auto print:max-h-none print:overflow-visible max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0">
-      <table className="w-full text-[13.5px] border-separate border-spacing-0">
+    <div className="overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0">
+      <table className="w-full text-[13px] border-separate border-spacing-0">
         <thead>
-          <tr className="text-[12.5px] font-extrabold uppercase tracking-wide text-navy-800">
+          <tr className="text-[12px] font-extrabold uppercase tracking-wide text-navy-800">
             {['Thiết bị', 'Hãng', 'Người quản lý', 'Tầng', 'Vị trí', 'Số lượng', 'Tình trạng', 'Trạng thái'].map((h, i) => (
-              <th key={h} className={`sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-3 py-3 whitespace-nowrap ${i === 0 || i === 2 ? 'text-left' : 'text-center'}`}>{h}</th>
+              <th key={h} className={`sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-2.5 py-3 ${i === 0 || i === 2 ? 'text-left' : 'text-center'} ${i === 1 || i === 4 ? 'hidden 2xl:table-cell' : ''}`}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -439,21 +464,21 @@ export default function ResourceManager({
                   onClick={() => (window.matchMedia('(max-width: 1023px)').matches ? setViewing(r) : setSelectedId(sel ? null : r.id))} onDoubleClick={() => setViewing(r)}
                   onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
                   className={`cursor-pointer outline-none ${sel ? 'bg-select shadow-[inset_3px_0_0_#2189e6]' : 'bg-white hover:bg-navy-50'} ${loading ? 'opacity-60' : ''}`}>
-                  <td className="px-3 py-2.5 border-b border-navy-100 min-w-[240px]">
+                  <td className="px-2.5 py-2.5 border-b border-navy-100 min-w-[190px]">
                     <div className="flex items-center gap-3">
                       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-50 text-blue-600"><Monitor className="h-4 w-4" /></span>
                       <div className="min-w-0">
-                        <div className="font-extrabold text-navy-900 truncate max-w-[260px]">{r.ten_thiet_bi}</div>
-                        <div className="flex items-center gap-1.5 text-[12px] text-ink-mute"><span className="rounded bg-red-50 px-1.5 py-px font-bold text-red-600">{r.id}</span><span className="truncate max-w-[200px]">{r.thong_so || r.loai_thiet_bi || ''}</span></div>
+                        <div className="font-extrabold text-navy-900 truncate max-w-[220px]">{r.ten_thiet_bi}</div>
+                        <div className="flex items-center gap-1.5 text-[12px] text-ink-mute"><span className="rounded bg-red-50 px-1.5 py-px font-bold text-red-600">{r.id}</span><span className="truncate max-w-[150px]">{r.thong_so || r.loai_thiet_bi || ''}</span></div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 border-b border-navy-100 text-center text-ink-mute">{r.hang || '—'}</td>
+                  <td className="hidden 2xl:table-cell px-2.5 py-2.5 border-b border-navy-100 text-center text-ink-mute">{r.hang || '—'}</td>
                   <td className="px-3 py-2.5 border-b border-navy-100">
                     {m ? <div className="flex items-center gap-2"><Avatar name={m.ho_ten} /><div className="leading-tight"><div className="font-bold text-navy-900 whitespace-nowrap">{m.ho_ten}</div><div className="text-[12px] text-ink-mute">{m.phong_ban || r.phong_ban || ''}</div></div></div> : <span className="text-ink-mute">—</span>}
                   </td>
                   <td className="px-3 py-2.5 border-b border-navy-100 whitespace-nowrap">{a?.tang || '—'}</td>
-                  <td className="px-3 py-2.5 border-b border-navy-100 whitespace-nowrap">{a?.ten_khu_vuc || '—'}</td>
+                  <td className="hidden 2xl:table-cell px-2.5 py-2.5 border-b border-navy-100 whitespace-nowrap">{a?.ten_khu_vuc || '—'}</td>
                   <td className="px-3 py-2.5 border-b border-navy-100 text-center font-extrabold tabular-nums">{r.so_luong ?? 1}</td>
                   <td className="px-3 py-2.5 border-b border-navy-100 text-center">{r.tinh_trang ? <span className={pill(String(r.tinh_trang))}>{r.tinh_trang}</span> : <span className="text-ink-mute">—</span>}</td>
                   <td className="px-3 py-2.5 border-b border-navy-100 text-center"><span className={r.trang_thai ? pill(String(r.trang_thai)) : 'pill-amber'}>{devState(r)}</span></td>
@@ -605,38 +630,39 @@ export default function ResourceManager({
   )
 
   /* ── table (shared by full and compact views) ── */
+  const tableFields = fitColumns(listFields, wrapW, res.key !== 'users')
   const table = (
-    <div className={`overflow-auto print:max-h-none print:overflow-visible ${compact ? 'max-h-[360px]' : 'max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0'}`}>
-      <table className="w-full text-[13.5px] border-separate border-spacing-0">
+    <div ref={wrapRef} className={`overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible ${compact ? 'max-h-[360px]' : 'max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0'}`}>
+      <table className="w-full table-auto text-[13px] border-separate border-spacing-0">
         <thead>
           <tr className="text-[13px] font-extrabold text-navy-900">
             {res.key !== 'users' && <th className="sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-3 py-2.5 whitespace-nowrap text-center">Mã</th>}
-            {listFields.map((f) => <th key={f.name} className="sticky top-0 z-[1] bg-navy-50 border-b border-l border-navy-200 px-3 py-2.5 whitespace-nowrap text-center">{f.label}</th>)}
+            {tableFields.map((f) => <th key={f.name} className="sticky top-0 z-[1] bg-navy-50 border-b border-l border-navy-200 px-2.5 py-2.5 text-center leading-tight">{f.label}</th>)}
           </tr>
         </thead>
         <tbody>
           {loading && rows.length === 0 ? (
             [...Array(compact ? 2 : 10)].map((_, i) => (
-              <tr key={i}><td colSpan={listFields.length + 1} className="px-3 py-3 border-b border-navy-100"><div className="h-3.5 rounded bg-navy-100 animate-pulse" style={{ width: `${60 + ((i * 13) % 35)}%` }} /></td></tr>
+              <tr key={i}><td colSpan={tableFields.length + 1} className="px-3 py-3 border-b border-navy-100"><div className="h-3.5 rounded bg-navy-100 animate-pulse" style={{ width: `${60 + ((i * 13) % 35)}%` }} /></td></tr>
             ))
           ) : rows.length === 0 ? (
-            <tr><td colSpan={listFields.length + 1} className="px-4 py-16 text-center text-ink-mute"><Inbox className="h-8 w-8 mx-auto mb-2 text-navy-300" />Không có dữ liệu</td></tr>
+            <tr><td colSpan={tableFields.length + 1} className="px-4 py-16 text-center text-ink-mute"><Inbox className="h-8 w-8 mx-auto mb-2 text-navy-300" />Không có dữ liệu</td></tr>
           ) : rows.map((r, i) => {
             const sel = r.id === selectedId
             const t = tone(String(r.canh_bao || r.trang_thai || ''))
             const bg = sel ? 'bg-select' : t === 'amber' ? 'bg-[#fff6d9]' : t === 'red' && r.canh_bao ? 'bg-red-50/70' : 'bg-white'
             return (<Fragment key={r.id}>
-              {groupHead(r, i, listFields.length + 1)}
+              {groupHead(r, i, tableFields.length + 1)}
               <tr tabIndex={0} aria-selected={sel}
                 onClick={() => (window.matchMedia('(max-width: 1023px)').matches ? setViewing(r) : setSelectedId(sel ? null : r.id))} onDoubleClick={() => setViewing(r)}
                 onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
                 className={`cursor-pointer outline-none ${bg} ${sel ? '' : 'hover:brightness-[.97]'} ${loading ? 'opacity-60' : ''}`}>
                 {res.key !== 'users' && <td className={`px-3 py-2 border-b border-navy-200/70 text-center whitespace-nowrap tabular-nums ${sel ? 'text-select-accent font-extrabold shadow-[inset_3px_0_0_#2189e6]' : 'text-navy-800 font-semibold'}`}>{r.id}</td>}
-                {listFields.map((f) => {
+                {tableFields.map((f) => {
                   const right = RIGHT.test(f.name) || f.type === 'money' || f.type === 'number'
                   const wide = f.type === 'textarea' || f.name === 'noi_dung' || f.name === 'ghi_chu' || f.name === 'ds_ten'
                   return (
-                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`px-3 py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${wide ? 'min-w-[16rem] max-w-md' : 'whitespace-nowrap'}`}>
+                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`px-2.5 py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${wide ? 'min-w-[9rem]' : f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || STATUS_FIELDS.has(f.name) ? 'whitespace-nowrap' : 'break-words'}`}>
                       <div className={f.multiline ? 'whitespace-pre-line leading-snug' : f.name === 'tien_do' ? 'line-clamp-3' : wide ? 'line-clamp-2' : ''}>{cellNode(f, r)}</div>
                     </td>
                   )

@@ -147,10 +147,10 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
         <div className="grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,25rem)] lg:grid-rows-[minmax(0,1fr)]">
           <div className="card flex flex-col overflow-hidden lg:min-h-0">
             <div className="shrink-0 px-4 py-2.5 text-[13px] font-black uppercase text-blue-700 border-b">Danh sách theo dõi · {list.length} việc</div>
-            <div className="overflow-auto max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
+            <div className="overflow-y-auto overflow-x-hidden max-h-[70vh] lg:max-h-none lg:flex-1 lg:min-h-0">
               <table className="hidden w-full text-sm lg:table">
                 <thead className="sticky top-0 bg-navy-50 text-left text-[12.5px] font-bold text-navy-800 z-10">
-                  <tr>{['Mức độ', 'Nội dung / tiến độ', 'Người thực hiện', 'Ngày giao', 'Hạn', 'Còn lại', 'Thời gian đã dùng', 'Trạng thái'].map((h) => <th key={h} className="px-3 py-2 whitespace-nowrap">{h}</th>)}</tr>
+                  <tr>{['Mức độ', 'Nội dung / tiến độ', 'Người thực hiện', 'Ngày giao', 'Hạn', 'Còn lại', 'Thời gian đã dùng', 'Trạng thái'].map((h) => <th key={h} className="px-2 py-2">{h}</th>)}</tr>
                 </thead>
                 <tbody className="divide-y">
                   {list.map((w) => {
@@ -161,25 +161,25 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
                     const left = w.so_ngay_con_lai
                     return (
                       <tr key={w.id} onClick={() => setSel(w.id)} className="cursor-pointer hover:bg-select">
-                        <td className={`px-3 py-2 text-xs font-semibold ${levelCls(w.muc_do)}`}>{w.muc_do ?? ''}</td>
-                        <td className="px-3 py-2 min-w-[260px] max-w-[460px]">
+                        <td className={`px-2 py-2 text-xs font-semibold ${levelCls(w.muc_do)}`}>{w.muc_do ?? ''}</td>
+                        <td className="px-2 py-2 min-w-[180px]">
                           <div className="font-bold line-clamp-2">{w.noi_dung}</div>
                           {last && <div className="text-[11.5px] text-ink-mute line-clamp-2">Tiến độ: {last.day && `${last.day} `}{last.stage ? `[${last.stage}] ` : ''}{last.text}</div>}
                         </td>
-                        <td className="px-3 py-2">{name(w)}</td>
-                        <td className="px-3 py-2 whitespace-nowrap">{dmy(w.ngay_giao)}</td>
-                        <td className="px-3 py-2 whitespace-nowrap">{dmy(w.deadline)}</td>
-                        <td className="px-3 py-2 whitespace-nowrap">
+                        <td className="px-2 py-2 break-words">{name(w)}</td>
+                        <td className="px-2 py-2 whitespace-nowrap">{dmy(w.ngay_giao)}</td>
+                        <td className="px-2 py-2 whitespace-nowrap">{dmy(w.deadline)}</td>
+                        <td className="px-2 py-2 whitespace-nowrap">
                           {isDone(w) ? <span className="text-green-700 text-xs font-semibold">Xong</span>
                             : left == null ? '' : left < 0 ? <span className="rounded bg-red-50 px-1.5 py-0.5 text-xs font-semibold text-red-600">Trễ {-left} ngày</span>
                             : <span className="rounded bg-sky-50 px-1.5 py-0.5 text-xs font-semibold text-sky-700">Còn {left} ngày</span>}
                         </td>
-                        <td className="px-3 py-2 min-w-[130px]">
+                        <td className="px-2 py-2 min-w-[96px]">
                           {tot > 0 && <>
                             <div className="h-2 rounded-full bg-gray-200 overflow-hidden"><div className={`h-full ${pct > 100 ? 'bg-brand-400' : pct > 80 ? 'bg-amber-500' : 'bg-green-600'}`} style={{ width: `${Math.min(100, pct)}%` }} /></div>
                             <div className="text-[11px] text-ink-mute mt-0.5">{pct}% thời gian</div></>}
                         </td>
-                        <td className={`px-3 py-2 whitespace-nowrap text-xs font-semibold ${stateCls(w)}`}>{w.trang_thai}</td>
+                        <td className={`px-2 py-2 whitespace-nowrap text-xs font-semibold ${stateCls(w)}`}>{w.trang_thai}</td>
                       </tr>
                     )
                   })}

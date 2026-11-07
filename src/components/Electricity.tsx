@@ -255,7 +255,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
       </div>
       {msg && <p role="status" className={`shrink-0 border-b px-4 py-2 text-sm font-semibold lg:px-5 ${msg.ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-700'}`}>{msg.text}</p>}
 
-      <div className="grid flex-1 grid-cols-1 gap-3 p-3 lg:min-h-0 lg:grid-cols-[210px_minmax(0,1fr)_320px] lg:px-5">
+      <div className="grid flex-1 grid-cols-1 gap-3 p-3 lg:min-h-0 lg:grid-cols-[190px_minmax(0,1fr)_280px] lg:px-5 2xl:grid-cols-[210px_minmax(0,1fr)_320px]">
         {/* period list */}
         <aside className="rounded-xl border border-navy-200 bg-white lg:flex lg:min-h-0 lg:flex-col">
           <div className="hidden px-3 pb-1 pt-3 text-[11px] font-extrabold uppercase tracking-[.12em] text-ink-soft lg:block">Kỳ tính tiền</div>
@@ -287,9 +287,9 @@ export default function Electricity({ perms }: { perms: Perms }) {
             {loaded && !invoices.length && <p className="p-6 text-center text-sm text-ink-mute">Chọn một kỳ để xem công tơ.</p>}
             {invoices.length > 0 && (
               <div className="min-h-0 flex-1 overflow-auto">
-                <table className="w-full min-w-[760px] border-collapse text-[13.5px] max-lg:hidden">
+                <table className="w-full min-w-[620px] border-collapse text-[13px] max-lg:hidden">
                   <thead className="sticky top-0 z-10 bg-navy-100 text-[11.5px] font-extrabold uppercase tracking-wide text-ink-soft">
-                    <tr><th className="px-3 py-2 text-left">Công tơ</th><th className="px-3 py-2 text-right">Chỉ số cũ</th><th className="w-44 px-3 py-2 text-right">Chỉ số mới</th><th className="px-3 py-2 text-right">Số kWh</th><th className="px-3 py-2 text-right">Đơn giá</th><th className="px-3 py-2 text-right">Thành tiền</th><th className="px-3 py-2 text-left">Kiểm tra</th></tr>
+                    <tr><th className="px-2 py-2 text-left">Công tơ</th><th className="px-2 py-2 text-right">Chỉ số cũ</th><th className="w-32 px-2 py-2 text-right">Chỉ số mới</th><th className="px-2 py-2 text-right">Số kWh</th><th className="px-2 py-2 text-right">Đơn giá</th><th className="px-2 py-2 text-right">Thành tiền</th><th className="px-2 py-2 text-left">Kiểm tra</th></tr>
                   </thead>
                   <tbody>
                     {invoices.map((inv) => (
@@ -394,15 +394,15 @@ function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit
   return (
     <>
       <tr onClick={onSelect} className={`cursor-pointer border-y border-navy-200 ${active ? 'bg-brand-50' : 'bg-navy-50'}`}>
-        <td colSpan={5} className="px-3 py-2"><span className="font-extrabold text-navy-900">{inv.name}</span> <span className="text-[12px] text-ink-mute">· {inv.khach} · {inv.lines.length} công tơ</span>
+        <td colSpan={5} className="px-2 py-2"><span className="font-extrabold text-navy-900">{inv.name}</span> <span className="text-[12px] text-ink-mute">· {inv.khach} · {inv.lines.length} công tơ</span>
           {!locked && perms.create && <button onClick={(e) => { e.stopPropagation(); onAdd() }} className="ml-2 rounded-full border border-amber-400 px-2.5 py-0.5 text-[12px] font-bold text-amber-700 hover:bg-amber-50">+ Công tơ</button>}</td>
-        <td className="px-3 py-2 text-right font-extrabold tabular-nums">{vnd(inv.total)}</td>
-        <td className="px-3 py-2 text-[12px] text-ink-mute">gồm VAT {Math.round(inv.vatRate * 100)}%</td>
+        <td className="px-2 py-2 text-right font-extrabold tabular-nums">{vnd(inv.total)}</td>
+        <td className="px-2 py-2 text-[12px] text-ink-mute">gồm VAT {Math.round(inv.vatRate * 100)}%</td>
       </tr>
       {inv.lines.map(({ r, c }, i) => { const k = check(r); return (
         <tr key={r.id} onClick={onSelect} className="border-b border-navy-100 hover:bg-navy-50/60">
-          <td className="px-3 py-2"><span className="font-semibold">{[r.tang, r.ten_cong_to].filter(Boolean).join(' · ')}</span> <span className="font-mono text-[11.5px] text-ink-mute">{r.ma_cong_to}</span></td>
-          <td className="px-3 py-2 text-right tabular-nums">{c.old == null ? '—' : num3(c.old)}</td>
+          <td className="px-2 py-2"><span className="font-semibold">{[r.tang, r.ten_cong_to].filter(Boolean).join(' · ')}</span> <span className="font-mono text-[11.5px] text-ink-mute">{r.ma_cong_to}</span></td>
+          <td className="px-2 py-2 text-right tabular-nums">{c.old == null ? '—' : num3(c.old)}</td>
           <td className="px-2 py-1.5 text-right">
             {locked ? <span className="tabular-nums">{c.now == null ? '—' : num3(c.now)}</span> : (
               <input ref={(el) => { inputs.current[r.id] = el }} aria-label={`Chỉ số mới ${r.ma_cong_to}`} inputMode="decimal" placeholder="Nhập…" value={edits[r.id] ?? (r.chi_so_moi ?? '')} disabled={!perms.edit}
@@ -410,10 +410,10 @@ function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit
                 className={`h-9 w-full rounded-lg border px-2.5 text-right font-semibold tabular-nums text-navy-900 focus:border-blue-500 focus:outline-none ${edits[r.id] !== undefined ? 'border-blue-400 bg-blue-50' : 'border-navy-200 bg-white'}`} />
             )}
           </td>
-          <td className="px-3 py-2 text-right tabular-nums">{c.now == null ? '–' : num3(c.kwh)}</td>
-          <td className="px-3 py-2 text-right tabular-nums">{vnd(c.price)}</td>
-          <td className="px-3 py-2 text-right tabular-nums">{c.now == null ? '–' : vnd(c.amount)}</td>
-          <td className="px-3 py-2"><span className="inline-flex items-center gap-1.5"><span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${k.cls}`}>{k.text}</span>
+          <td className="px-2 py-2 text-right tabular-nums">{c.now == null ? '–' : num3(c.kwh)}</td>
+          <td className="px-2 py-2 text-right tabular-nums">{vnd(c.price)}</td>
+          <td className="px-2 py-2 text-right tabular-nums">{c.now == null ? '–' : vnd(c.amount)}</td>
+          <td className="px-2 py-2"><span className="inline-flex items-center gap-1.5"><span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${k.cls}`}>{k.text}</span>
             {!locked && perms.delete && <button onClick={(e) => { e.stopPropagation(); remove(r) }} aria-label={`Xóa công tơ ${r.ma_cong_to}`} title="Xóa công tơ khỏi kỳ" className="grid h-6 w-6 place-items-center rounded-full border border-navy-200 text-ink-mute hover:bg-red-50 hover:text-red-600"><X className="h-3 w-3" /></button>}</span></td>
         </tr>
       ) })}
