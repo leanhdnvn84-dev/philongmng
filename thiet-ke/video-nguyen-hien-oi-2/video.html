@@ -1,0 +1,104 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Video lời – Nguyễn Hiền ơi</title>
+<!-- Lyric video 1920×1080 cho bài "Nguyễn Hiền ơi, ta về" (Suno). Vẽ theo thời gian ve(t) (không dùng CSS animation) để render.js chụp từng khung.
+     Mốc thời gian ở mảng L (giây) – ước theo 76 BPM; có MP3 thật thì sửa L cho khớp rồi render lại. ?t=giây để xem 1 khung. -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Charm:wght@400;700&family=Noto+Serif:wght@500;600;700&family=Be+Vietnam+Pro:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#FBF3E4}
+.k{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Noto Serif',serif;background:radial-gradient(80% 75% at 50% 25%,#FFFDF7 0%,#FBF0DC 55%,#F3DFC0 100%)}
+.ab{position:absolute}
+#tia{left:50%;top:-1500px;width:3400px;height:3400px;margin-left:-1700px;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,220,140,.30) 0 5deg,transparent 5deg 15deg);-webkit-mask-image:radial-gradient(closest-side,#000 22%,transparent 70%)}
+#nang{left:50%;top:-260px;width:1300px;height:900px;margin-left:-650px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,240,190,.95),rgba(255,236,180,.35) 55%,transparent)}
+#san{left:-60px;right:-60px;bottom:-30px;height:560px;background:url(../backdrop-gala-mau-nuoc/san-truong.jpg) no-repeat 50% 100%/2200px auto;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 45%);transform-origin:50% 100%}
+#mo{left:260px;right:260px;top:300px;height:640px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,250,238,.94),rgba(255,250,238,.75) 55%,transparent)}
+.canh{width:620px;height:413px;background:url(../backdrop-gala-mau-nuoc/canh.webp) center/contain no-repeat}
+#c1{left:-90px;top:-80px;transform-origin:10% 10%}#c2{right:-90px;top:-80px;transform-origin:90% 10%}
+#roi i{position:absolute;width:26px;height:20px;border-radius:60% 0 60% 0;background:radial-gradient(circle at 30% 30%,#ff7a62,#c8102e);opacity:.85}
+#toi{inset:0;background:radial-gradient(70% 70% at 50% 55%,rgba(40,20,10,.15),rgba(25,12,6,.72));opacity:0}
+#nen{left:50%;top:760px;width:30px;height:60px;margin-left:-15px;opacity:0}
+#nen:before{content:'';position:absolute;left:-150px;top:-170px;width:330px;height:330px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,200,110,.55),transparent)}
+#nen b{position:absolute;left:5px;top:0;width:20px;height:38px;border-radius:50% 50% 45% 45%;background:radial-gradient(circle at 50% 70%,#FFF4C8,#FFB33B 55%,#E8641B);filter:blur(.5px)}
+#nen i{position:absolute;left:2px;top:36px;width:26px;height:90px;border-radius:4px;background:linear-gradient(90deg,#F4E6CF,#FFF8EC,#E9D6B6)}
+/* đầu trang nhỏ */
+#dau{left:0;right:0;top:34px;display:flex;justify-content:center;align-items:center;gap:16px}
+#dau img{width:74px;height:74px;border-radius:50%;background:#fff;padding:6px;box-shadow:0 4px 14px rgba(120,60,30,.25)}
+#dau p{font:700 26px 'Be Vietnam Pro',sans-serif;letter-spacing:.22em;color:#9E1B22}
+#dau span{display:block;font:600 19px 'Noto Serif',serif;letter-spacing:.12em;color:#5B2A12;margin-top:4px}
+/* màn tiêu đề */
+#tieu{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#tieu img{width:150px;height:150px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 24px rgba(120,60,30,.25)}
+#tieu .e{font:700 26px 'Be Vietnam Pro';letter-spacing:.3em;color:#9E1B22;margin-top:26px}
+#tieu h1{font:400 150px/1.05 'Great Vibes',cursive;color:#B3261E;margin-top:10px;text-shadow:0 4px 20px rgba(179,38,30,.15)}
+#tieu .p{font:600 30px 'Noto Serif';letter-spacing:.08em;color:#5B2A12;margin-top:14px}
+#tieu .v{width:520px;height:3px;margin:22px auto 0;background:linear-gradient(90deg,transparent,#C9A24A,transparent)}
+/* lời */
+#loi{left:120px;right:120px;top:470px;text-align:center}
+.dong{position:relative;display:inline-block;font:700 72px/1.3 'Charm',cursive;white-space:nowrap}
+.dong .nen{color:rgba(36,48,110,.38)}
+.dong .phu{position:absolute;left:0;top:0;color:#A3221A;text-shadow:0 2px 14px rgba(255,248,234,.9)}
+#ke{margin-top:26px;font:400 44px/1.3 'Charm',cursive;color:rgba(36,48,110,.5);white-space:nowrap}
+#tag{left:50%;top:380px;transform:translateX(-50%);font:700 22px 'Be Vietnam Pro';letter-spacing:.18em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);border-radius:30px;padding:8px 26px;box-shadow:0 4px 12px rgba(179,38,30,.3);white-space:nowrap}
+.toi .dong .nen{color:rgba(255,240,215,.45)}.toi .dong .phu{color:#FFE6A6;text-shadow:0 0 18px rgba(255,190,90,.6)}.toi #ke{color:rgba(255,240,215,.6)}
+/* hình mở đầu */
+#hinh{inset:0;opacity:0;background:#2A1A12}
+#hinh .mo{position:absolute;inset:-60px;background:url(../../assets/giay-moi-nen.webp) center/cover;filter:blur(28px) brightness(.8)}
+#hinh img{position:absolute;left:50%;top:50%;height:1000px;transform-origin:50% 50%;box-shadow:0 20px 60px rgba(0,0,0,.45);border:10px solid #FFF8EC;border-radius:6px}
+/* kết */
+#ket{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0}
+#ket img{width:140px;height:140px;border-radius:50%;background:#fff;padding:10px;box-shadow:0 8px 24px rgba(120,60,30,.25)}
+#ket h2{font:400 120px/1.1 'Great Vibes',cursive;color:#B3261E;margin-top:14px}
+#ket p{font:600 32px 'Noto Serif';letter-spacing:.1em;color:#5B2A12;margin-top:10px}
+#ket .tg{margin-top:34px;font:400 46px 'Charm',cursive;color:#24306E}#ket .tg b{font-weight:700;color:#A3221A}
+#ket .nk{display:inline-block;margin-top:20px;font:700 26px 'Be Vietnam Pro';letter-spacing:.14em;color:#fff;background:linear-gradient(135deg,#C8102E,#9C1E2A);border-radius:40px;padding:10px 34px}
+</style></head><body><div class="k" id="k">
+<div class="ab" id="tia"></div><div class="ab" id="nang"></div><div class="ab" id="san"></div><div class="ab" id="mo"></div>
+<div class="ab" id="roi"></div><div class="ab canh" id="c1"></div><div class="ab canh" id="c2" style="transform:scaleX(-1)"></div>
+<div class="ab" id="toi"></div><div class="ab" id="nen"><b></b><i></i></div>
+<div class="ab" id="dau"><img src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><div><p>TRƯỜNG THPT NGUYỄN HIỀN</p><span>NIÊN KHOÁ 2000 – 2003 · NGÀY TRỞ VỀ 14.11.2026</span></div></div>
+<div class="ab" id="tieu"><img src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><p class="e">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</p><h1>Nguyễn Hiền ơi</h1><div class="v"></div><p class="p">Ca khúc “Ngày trở về” · Niên khoá 2000 – 2003</p></div>
+<div class="ab" id="hinh"><div class="mo"></div><img src="../../assets/giay-moi-nen.webp" alt=""></div>
+<div class="ab" id="tag"></div>
+<div class="ab" id="loi"><div class="dong"><span class="nen" id="n"></span><span class="phu" id="f"></span></div><div id="ke"></div></div>
+<div class="ab" id="ket"><img src="../backdrop-gala-mau-nuoc/logo-1600.png" alt=""><h2>Nguyễn Hiền ơi</h2><p>Hẹn gặp nhau dưới gốc phượng xưa</p><span class="nk">NIÊN KHOÁ 2000 – 2003 · 14.11.2026</span><p class="tg" id="tg"></p></div>
+</div>
+<script src="loi.js"></script>
+<script>
+/* mốc: 76 BPM → 1 ô nhịp = 3,158 giây; mỗi câu 2 ô nhịp */
+const SANG_TAC='Mr. Anh',HINH_HET=6; /* tên người sáng tác ở cuối · hình mở đầu hiện 0 → HINH_HET giây */
+/* LOI_T, TONG_NHAC ở loi.js (tạo bằng canh-loi.py từ giọng hát thật): {a,b giây, c câu, g nhóm, di số đoạn, lang: đoạn tối + nến} */
+const L=window.LOI_T;const T_KET=L[L.length-1].b,TONG=Math.max(window.TONG_NHAC||0,T_KET+11);
+const LANG=L.filter(x=>x.lang),BRIDGE=LANG.length?[LANG[0].a-2,LANG[LANG.length-1].b+1]:[-99,-99];
+window.LOI=L;window.TONG=TONG;
+const $=i=>document.getElementById(i),cl=(x,a,b)=>Math.max(a,Math.min(b,x)),ss=x=>x*x*(3-2*x);
+/* cánh rơi cố định */
+const R=Array.from({length:34},(_,i)=>({x:(i*173+37)%1920,v:60+(i%5)*22,d:i*1.37,w:30+(i%4)*14,s:.7+(i%4)*.15,r:i*47}));
+$('tg').innerHTML='Sáng tác: <b>'+SANG_TAC+'</b>';
+$('roi').innerHTML=R.map(()=>'<i></i>').join('');const RI=[...$('roi').children];
+function ve(t){
+ $('tia').style.transform='rotate('+(t*1.2)+'deg)';$('nang').style.opacity=.75+.25*Math.sin(t*1.2);
+ $('san').style.transform='scale('+(1.02+.02*Math.sin(t*.12))+')';
+ $('c1').style.transform='rotate('+(8+2.2*Math.sin(t*.9))+'deg)';$('c2').style.transform='scaleX(-1) rotate('+(8+2.2*Math.sin(t*.9+1.4))+'deg)';
+ RI.forEach((e,i)=>{const p=R[i],y=((t+p.d)*p.v)%1240-80;e.style.transform='translate('+(p.x+p.w*Math.sin((t+p.d)*.8))+'px,'+y+'px) rotate('+(p.r+t*60)+'deg) scale('+p.s+')'});
+ /* lặng: tối + nến */
+ const bt=ss(cl((t-BRIDGE[0])/2,0,1))*(1-ss(cl((t-BRIDGE[1])/2,0,1)));$('toi').style.opacity=bt;$('nen').style.opacity=bt;$('nen').querySelector('b').style.transform='scale('+(1+.06*Math.sin(t*9))+','+(1+.1*Math.sin(t*7))+')';
+ $('k').classList.toggle('toi',bt>.5);$('san').style.opacity=1-.6*bt;
+ /* tiêu đề đầu */
+ const hi=t<HINH_HET+1.5?ss(cl(t/1,0,1))*(1-ss(cl((t-HINH_HET)/1.5,0,1))):0;$('hinh').style.opacity=hi;$('hinh').querySelector('img').style.transform='translate(-50%,-50%) scale('+(1+.05*t/HINH_HET)+')';
+ const ti=t<L[0].a?ss(cl((t-HINH_HET+.5)/1.5,0,1))*(1-ss(cl((t-(L[0].a-1.4))/1.2,0,1))):0;$('tieu').style.opacity=ti;$('tieu').style.transform='scale('+(.96+.04*ti)+')';
+ /* kết */
+ const kt=ss(cl((t-T_KET-.3)/1.5,0,1));$('ket').style.opacity=kt;$('tg').style.opacity=ss(cl((t-T_KET-2.5)/1.5,0,1));
+ $('dau').style.opacity=(1-ti)*(1-kt)*(1-.85*bt);
+ /* lời */
+ const i=L.findIndex(x=>t>=x.a-.4&&t<x.b);const l=L[i];
+ if(!l||kt>.05){$('loi').style.opacity=0;$('tag').style.opacity=0;return}
+ const vao=ss(cl((t-(l.a-.4))/.6,0,1)),ra=1-ss(cl((t-(l.b-.45))/.45,0,1));
+ $('loi').style.opacity=vao*ra;$('loi').style.transform='translateY('+(14*(1-vao))+'px)';
+ if($('n').textContent!==l.c){$('n').textContent=l.c;$('f').textContent=l.c;const n=L[i+1];$('ke').textContent=n&&n.di===l.di?n.c:''}
+ const p=cl((t-l.a)/((l.b-l.a)*.85),0,1);$('f').style.clipPath='inset(0 '+(100-p*100)+'% 0 0)';
+ const dong=$('loi').querySelector('.dong'),w=dong.scrollWidth,mx=1680;dong.style.transform=w>mx?'scale('+(mx/w)+')':'';
+ const g=l.g,dau=L.findIndex(x=>x.di===l.di);$('tag').textContent='♪ '+g;$('tag').style.opacity=(i-dau<2?1:.0)*vao*ra;
+}
+window.ve=ve;
+const q=new URLSearchParams(location.search).get('t');document.fonts.ready.then(()=>ve(q?+q:0));
+</script></body></html>
