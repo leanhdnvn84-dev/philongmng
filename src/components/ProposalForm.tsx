@@ -20,8 +20,8 @@ async function get(url: string) {
 }
 
 /** type-ahead picker: click to open, type to filter, arrows + Enter to choose */
-function Picker({ options, value, text, onPick, onText, placeholder, ariaLabel, invalid }: {
-  options: Opt[]; value: string | null; text: string; onPick: (o: Opt | null) => void; onText?: (t: string) => void; placeholder: string; ariaLabel: string; invalid?: boolean
+function Picker({ options, value, text, onPick, onText, onCreate, placeholder, ariaLabel, invalid }: {
+  options: Opt[]; value: string | null; text: string; onPick: (o: Opt | null) => void; onText?: (t: string) => void; onCreate?: (name: string) => void; placeholder: string; ariaLabel: string; invalid?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
@@ -31,7 +31,9 @@ function Picker({ options, value, text, onPick, onText, placeholder, ariaLabel, 
     return list.slice(0, 60)
   }, [options, q])
   const label = value ? options.find((o) => o.value === value)?.label ?? text : text
+  const canCreate = !!onCreate && q.trim().length > 0
   const choose = (o: Opt) => { onPick(o); setQ(''); setOpen(false) }
+  const create = () => { onCreate?.(q.trim()); setQ(''); setOpen(false) }
   return (
     <div className="relative">
       <input aria-label={ariaLabel} className={`input w-full ${invalid ? '!border-red-400' : ''}`} placeholder={placeholder} value={open ? q : label}
@@ -39,12 +41,13 @@ function Picker({ options, value, text, onPick, onText, placeholder, ariaLabel, 
         onChange={(e) => { setQ(e.target.value); setOpen(true); setHi(0); if (onText) { onText(e.target.value); if (value) onPick(null) } }}
         onBlur={() => setTimeout(() => setOpen(false), 120)}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowDown') { e.preventDefault(); setHi((h) => Math.min(shown.length - 1, h + 1)) }
+          if (e.key === 'ArrowDown') { e.preventDefault(); setHi((h) => Math.min(shown.length - 1 + (canCreate ? 1 : 0), h + 1)) }
           else if (e.key === 'ArrowUp') { e.preventDefault(); setHi((h) => Math.max(0, h - 1)) }
           else if (e.key === 'Enter' && open && shown[hi]) { e.preventDefault(); choose(shown[hi]) }
+          else if (e.key === 'Enter' && open && canCreate && hi === shown.length) { e.preventDefault(); create() }
           else if (e.key === 'Escape' && open) { e.stopPropagation(); setOpen(false) }
         }} />
-      {open && shown.length > 0 && (
+      {open && (shown.length > 0 || canCreate) && (
         <ul role="listbox" className="absolute left-0 top-full z-20 mt-1 max-h-56 w-full min-w-[220px] overflow-y-auto rounded-lg border border-navy-200 bg-white py-1 shadow-pop">
           {shown.map((o, i) => (
             <li key={o.value} role="option" aria-selected={i === hi} onMouseDown={(e) => { e.preventDefault(); choose(o) }} onMouseEnter={() => setHi(i)}
@@ -52,6 +55,12 @@ function Picker({ options, value, text, onPick, onText, placeholder, ariaLabel, 
               <div className="font-semibold text-navy-900">{o.label}</div>{o.sub && <div className="text-[11.5px] text-ink-mute">{o.sub}</div>}
             </li>
           ))}
+          {canCreate && (
+            <li role="option" aria-selected={hi === shown.length} onMouseDown={(e) => { e.preventDefault(); create() }} onMouseEnter={() => setHi(shown.length)}
+              className={`cursor-pointer border-t border-navy-100 px-3 py-1.5 text-[13px] font-bold text-blue-700 ${hi === shown.length ? 'bg-blue-50' : ''}`}>
+              + Thêm vật tư “{q.trim()}” vào danh mục{shown.length === 0 ? ' (chưa có trong kho)' : ''}
+            </li>
+          )}
         </ul>
       )}
     </div>
@@ -73,6 +82,7 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
   const [loading, setLoading] = useState(isEdit)
   const [error, setError] = useState('')
   const bodyRef = useRef<HTMLDivElement>(null)
+  const [fresh, setFresh] = useState<null | { line: number; ten: string; dvt: string; nhom: string; busy: boolean; err: string }>(null)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -114,6 +124,30 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
   const title = `${isEdit ? 'Sửa' : 'Thêm'} đề xuất ${(PROPOSAL_KINDS[kind] ?? '').toLowerCase()}`
   const upd = (i: number, p: Partial<Line>) => setLines((ls) => ls.map((l, x) => (x === i ? { ...l, ...p } : l)))
   const addLine = () => { setLines((ls) => [...ls, blank()]); setTimeout(() => bodyRef.current?.scrollTo({ top: 99999, behavior: 'smooth' }), 50) }
+
+  const openNew = (line: number, ten = '') => setFresh({ line, ten, dvt: '', nhom: '', busy: false, err: '' })
+  const saveNew = async () => {
+    if (!fresh) return
+    const name = fresh.ten.trim(), dvt = fresh.dvt.trim()
+    if (!name) return setFresh({ ...fresh, err: 'Nhập tên vật tư' })
+    if (!dvt) return setFresh({ ...fresh, err: 'Nhập đơn vị tính' })
+    const dup = items.find((o) => fold(o.label) === fold(name))
+    const apply = (o: Opt) => {
+      setLines((ls) => { const copy = [...ls]; const at = fresh.line >= 0 && fresh.line < copy.length ? fresh.line : copy.findIndex((l) => !l.id_vat_tu && !l.ten.trim()); const row = { ...blank(), id_vat_tu: o.value, ten: o.label, dvt: o.dvt ?? '' }
+        if (at >= 0) copy[at] = { ...copy[at], id_vat_tu: o.value, ten: o.label, dvt: o.dvt ?? '' }; else copy.push(row); return copy })
+      setFresh(null)
+    }
+    if (dup) return apply(dup) // already in the catalogue: just select it
+    setFresh({ ...fresh, busy: true, err: '' })
+    try {
+      const r = await fetch('/api/vat_tu', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ten_vat_tu: name, dvt, nhom: fresh.nhom.trim() || undefined, ton_dau: 0, trang_thai: 'Hoạt động' }) })
+      const j = await r.json().catch(() => ({ success: false, error: 'Lỗi mạng' }))
+      if (!j.success) throw new Error(r.status === 403 ? 'Bạn không có quyền thêm vật tư vào danh mục kho' : j.error || 'Không thêm được vật tư')
+      const o: Opt = { value: j.data.id, label: name, dvt, sub: `${j.data.id} · ${dvt} · tồn 0` }
+      setItems((list) => [...list, o].sort((a, b) => a.label.localeCompare(b.label, 'vi')))
+      apply(o)
+    } catch (e: any) { setFresh((f) => (f ? { ...f, busy: false, err: e.message } : f)) }
+  }
 
   const save = async () => {
     setError('')
@@ -174,7 +208,7 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
                         <td className="border-t border-navy-100 px-2 py-2 text-center font-semibold">{i + 1}</td>
                         <td className="border-t border-navy-100 px-2 py-2">
                           {kind === 'MUA_VAT_TU'
-                            ? <Picker options={items} value={l.id_vat_tu} text={l.ten} onPick={(o) => upd(i, o ? { id_vat_tu: o.value, ten: o.label, dvt: o.dvt ?? '' } : { id_vat_tu: null })} placeholder="Gõ mã hoặc tên vật tư…" ariaLabel={`Vật tư dòng ${i + 1}`} />
+                            ? <Picker options={items} value={l.id_vat_tu} text={l.ten} onPick={(o) => upd(i, o ? { id_vat_tu: o.value, ten: o.label, dvt: o.dvt ?? '' } : { id_vat_tu: null })} onCreate={(t) => openNew(i, t)} placeholder="Chọn vật tư trong danh mục kho…" ariaLabel={`Vật tư dòng ${i + 1}`} />
                             : kind === 'MUA_THIET_BI'
                               ? <input className="input" aria-label={`Thiết bị dòng ${i + 1}`} placeholder="Tên thiết bị cần mua…" value={l.ten} onChange={(e) => upd(i, { ten: e.target.value })} />
                               : <Picker options={devices} value={l.id_thiet_bi} text={l.ten} onPick={(o) => upd(i, o ? { id_thiet_bi: o.value, ten: o.label } : { id_thiet_bi: null })} onText={(t) => upd(i, { ten: t })} placeholder="Gõ mã hoặc tên thiết bị…" ariaLabel={`Thiết bị dòng ${i + 1}`} />}
@@ -193,6 +227,7 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
             )}
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <button type="button" className="btn-secondary" onClick={addLine}><Plus className="h-4 w-4" />Thêm {word}</button>
+              {kind === 'MUA_VAT_TU' && <button type="button" className="btn-secondary !border-blue-300 !text-blue-700" onClick={() => openNew(-1)} title="Vật tư chưa có trong danh mục kho"><Plus className="h-4 w-4" />Vật tư mới (chưa có trong kho)</button>}
               <span className="ml-auto text-[14px] text-ink-soft">Tổng cộng: <b className="text-[18px] text-[#e11d2e] tabular-nums">{vnd(total)} đ</b></span>
             </div>
             {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p>}
@@ -204,6 +239,23 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
           </div>
         </div>
       </div>
+      {fresh && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3" role="dialog" aria-modal="true" aria-label="Thêm vật tư mới vào danh mục">
+          <div className="absolute inset-0 bg-navy-950/50" onClick={() => setFresh(null)} />
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-5 shadow-pop">
+            <div className="mb-3 flex items-center"><h2 className="flex-1 text-[17px] font-extrabold text-navy-900">Thêm vật tư vào danh mục</h2>
+              <button onClick={() => setFresh(null)} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full bg-navy-100"><X className="h-4 w-4" /></button></div>
+            <p className="mb-3 text-[12.5px] text-ink-mute">Vật tư mới được thêm vào Kho vật tư với tồn 0; khi đề xuất được duyệt sẽ tự nhập kho.</p>
+            <label className="mb-3 block"><span className="label">Tên vật tư <b className="text-red-500">*</b></span><input className="input" autoFocus value={fresh.ten} maxLength={150} onChange={(e) => setFresh({ ...fresh, ten: e.target.value })} /></label>
+            <div className="mb-3 grid grid-cols-2 gap-3">
+              <label className="block"><span className="label">Đơn vị tính <b className="text-red-500">*</b></span><input className="input" placeholder="Cái, Cuộn, Mét…" value={fresh.dvt} maxLength={30} onChange={(e) => setFresh({ ...fresh, dvt: e.target.value })} /></label>
+              <label className="block"><span className="label">Nhóm</span><input className="input" placeholder="Điện, Nước, PCCC…" value={fresh.nhom} maxLength={60} onChange={(e) => setFresh({ ...fresh, nhom: e.target.value })} /></label>
+            </div>
+            {fresh.err && <p role="alert" className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{fresh.err}</p>}
+            <div className="flex justify-end gap-2"><button className="btn-secondary" onClick={() => setFresh(null)}>Hủy</button><button className="btn-primary" disabled={fresh.busy} onClick={saveNew}>{fresh.busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Thêm vào danh mục'}</button></div>
+          </div>
+        </div>
+      )}
     </Portal>
   )
 }

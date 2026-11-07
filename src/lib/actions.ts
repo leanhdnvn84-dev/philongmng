@@ -72,14 +72,21 @@ const duyet: Handler = async ({ auth, id, row }) => {
   if (!done?.length) bad('Đề xuất đã được duyệt trước đó', 409)
   let stocked = 0
   if (row.loai_de_xuat === 'MUA_VAT_TU') {
-    for (const l of lines!) {
-      if (!l.id_vat_tu) continue
-      const { error } = await db.rpc('kho_giao_dich', {
-        p_vat_tu: l.id_vat_tu, p_loai: 'NHAP', p_so_luong: l.so_luong, p_ngay: todayVN(),
-        p_noi_dung: `Nhập theo đề xuất ${id}`, p_nguon: 'DE_XUAT', p_chung_tu: id, p_nguoi_tao: auth.name,
-      })
-      if (error) throw error
-      stocked++
+    try {
+      for (const l of lines!) {
+        if (!l.id_vat_tu) continue
+        const { error } = await db.rpc('kho_giao_dich', {
+          p_vat_tu: l.id_vat_tu, p_loai: 'NHAP', p_so_luong: l.so_luong, p_ngay: todayVN(),
+          p_noi_dung: `Nhập theo đề xuất ${id}`, p_nguon: 'DE_XUAT', p_chung_tu: id, p_nguoi_tao: auth.name,
+        })
+        if (error) throw error
+        stocked++
+      }
+    } catch (e) {
+      // never leave a half-approved proposal: undo the stock entries and the approval
+      await db.from('nhap_xuat_kho').delete().eq('id_chung_tu', id).eq('nguon_giao_dich', 'DE_XUAT')
+      await db.from('de_xuat').update({ trang_thai: row.trang_thai ?? 'Chờ duyệt', nguoi_duyet: null, ngay_duyet: null }).eq('id', id)
+      throw e
     }
   }
   await audit(auth, 'de_xuat', id, 'approve', { stocked })
@@ -96,12 +103,20 @@ const tuChoi: Handler = async ({ auth, id, row, input }) => {
 }
 
 // ── Kho ──
-const nhapXuat: Handler = async ({ auth, id, input }) => {
-  const loai = String(input.loai_giao_dich ?? '')
+const nhapXuat = (fixed?: 'NHAP' | 'XUAT'): Handler => async ({ auth, id: rowId, input }) => {
+  const id = fixed ? String(input.id_vat_tu ?? '') : rowId
+  const loai = fixed ?? String(input.loai_giao_dich ?? '')
   const qty = Number(input.so_luong)
+  if (fixed && !id) bad('Chọn vật tư trong danh mục')
   if (!['NHAP', 'XUAT'].includes(loai)) bad('Chọn Nhập hoặc Xuất')
   if (!(qty > 0)) bad('Số lượng phải lớn hơn 0')
   if (input.ngay && !/^\d{4}-\d{2}-\d{2}$/.test(input.ngay)) bad('Ngày không hợp lệ')
+  if (loai === 'XUAT') { // issue only what is in stock
+    const { data: st } = await supabaseAdmin().from('v_vat_tu').select('ton_hien_tai, ten_vat_tu').eq('id', id).maybeSingle()
+    if (!st) bad('Vật tư không tồn tại', 404)
+    if (!(Number(st!.ton_hien_tai) > 0)) bad(`${st!.ten_vat_tu} đã hết hàng, không thể xuất`, 409)
+    if (qty > Number(st!.ton_hien_tai)) bad(`Tồn kho không đủ để xuất (còn ${st!.ton_hien_tai})`, 409)
+  }
   const { data, error } = await supabaseAdmin().rpc('kho_giao_dich', {
     p_vat_tu: id, p_loai: loai, p_so_luong: qty, p_ngay: input.ngay || todayVN(),
     p_noi_dung: one(input.noi_dung) || null, p_nguon: 'THU_CONG', p_chung_tu: null, p_nguoi_tao: auth.name,
@@ -240,7 +255,7 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
   cong_viec_hang_ngay: { tien_do: ghiTienDo },
   khach_ra_vao: { checkout, check_in: checkIn, huy: huyLuot },
   de_xuat: { duyet, tu_choi: tuChoi },
-  vat_tu: { nhap_xuat: nhapXuat },
+  vat_tu: { nhap_xuat: nhapXuat(), nhap_kho: nhapXuat('NHAP'), xuat_kho: nhapXuat('XUAT') },
   thiet_bi: { chuyen, thu_hoi: thuHoi },
   tien_dien: { tao_ky: taoKy, chot_ky: chotKy },
   lich_bao_tri: { ghi_nhan: ghiNhanBaoTri },

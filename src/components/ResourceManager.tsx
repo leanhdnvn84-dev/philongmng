@@ -74,16 +74,26 @@ async function api(url: string, init?: RequestInit) {
 }
 
 /** Loads dropdown options for every ref field in the given field lists. */
+const rk = (f: Field) => (f.refQuery ? `${f.ref}?${f.refQuery}` : f.ref!)
 function useRefOptions(fieldLists: Field[][]) {
   const [refs, setRefs] = useState<Record<string, Option[]>>({})
   const keys = useMemo(
-    () => Array.from(new Set(fieldLists.flat().filter((f) => f.type === 'ref').map((f) => f.ref!))).sort().join(','),
+    () => Array.from(new Set(fieldLists.flat().filter((f) => f.type === 'ref').map((f) => rk(f)))).sort().join(','),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [fieldLists.map((l) => l.map((f) => f.name).join()).join('|')]
   )
   useEffect(() => {
-    keys.split(',').filter(Boolean).forEach((k) =>
-      api(`/api/${k}?options=1`).then((j) => setRefs((r) => ({ ...r, [k]: j.data }))).catch(() => {}))
+    keys.split(',').filter(Boolean).forEach((k) => {
+      const [name, q] = k.split('?')
+      if (!q) { api(`/api/${name}?options=1`).then((j) => setRefs((r) => ({ ...r, [k]: j.data }))).catch(() => {}); return }
+      // filtered picker (e.g. only in-stock items): label shows the stock level
+      const rs = getResource(name)
+      api(`/api/${name}?pageSize=2000&${q}`).then((j) => {
+        const list = (j.data as any[]).map((x) => ({ value: x.id as string, label: `${rs?.optionLabel(x) ?? x.id}${x.ton_hien_tai != null ? ` — tồn ${x.ton_hien_tai}` : ''}` }))
+          .sort((p, q2) => p.label.localeCompare(q2.label, 'vi'))
+        setRefs((r) => ({ ...r, [k]: list }))
+      }).catch(() => {})
+    })
   }, [keys])
   const labels = useMemo(() => {
     const m: Record<string, Map<string, string>> = {}
@@ -1132,7 +1142,7 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
                   ) : f.type === 'ref' ? (
                     <select {...common}>
                       <option value="">— Chọn —</option>
-                      {(refs[f.ref!] ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      {(refs[rk(f)] ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   ) : f.type === 'password' ? (
                     <input type="password" autoComplete="new-password" minLength={8} placeholder={isNew ? '' : 'Để trống nếu không đổi'} {...common} />

@@ -17,6 +17,7 @@ export interface Field {
   inList?: boolean // force show/hide as a column
   inForm?: boolean // false = never in the edit form
   multiline?: boolean // keep line breaks in table cells (proposal line lists)
+  refQuery?: string // for 'ref': extra list filter, e.g. 'gt_ton_hien_tai=0' (only in-stock items)
 }
 
 export type Perm = 'view' | 'create' | 'edit' | 'delete' | 'approve'
@@ -318,15 +319,23 @@ export const RESOURCES: Resource[] = [
       { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: false },
     ],
     optionLabel: (r) => `${r.ten_vat_tu}${r.dvt ? ` (${r.dvt})` : ''}`,
-    actions: [{
-      key: 'nhap_xuat', label: 'Nhập / Xuất', perm: 'edit',
-      fields: [
-        { name: 'loai_giao_dich', label: 'Loại', type: 'select', options: ['NHAP', 'XUAT'], required: true },
-        { name: 'so_luong', label: 'Số lượng', type: 'number', required: true },
-        { name: 'ngay', label: 'Ngày', type: 'date' },
-        { name: 'noi_dung', label: 'Nội dung', type: 'text' },
-      ],
-    }],
+    actions: [
+      { key: 'nhap_kho', label: 'Nhập kho', perm: 'edit', scope: 'page',
+        fields: [
+          { name: 'id_vat_tu', label: 'Vật tư (trong danh mục)', type: 'ref', ref: 'vat_tu', required: true },
+          { name: 'so_luong', label: 'Số lượng nhập', type: 'number', required: true },
+          { name: 'ngay', label: 'Ngày (để trống = hôm nay)', type: 'date' },
+          { name: 'noi_dung', label: 'Nội dung', type: 'text' },
+        ] },
+      // only items that are still in stock can be issued
+      { key: 'xuat_kho', label: 'Xuất kho', perm: 'edit', scope: 'page',
+        fields: [
+          { name: 'id_vat_tu', label: 'Vật tư (chỉ hàng còn tồn)', type: 'ref', ref: 'vat_tu', refQuery: 'gt_ton_hien_tai=0', required: true },
+          { name: 'so_luong', label: 'Số lượng xuất', type: 'number', required: true },
+          { name: 'ngay', label: 'Ngày (để trống = hôm nay)', type: 'date' },
+          { name: 'noi_dung', label: 'Nội dung', type: 'text' },
+        ] },
+    ],
   },
   {
     key: 'nhap_xuat_kho', table: 'nhap_xuat_kho', module: 'KHO', title: 'Lịch sử nhập xuất', singular: 'giao dịch kho',
