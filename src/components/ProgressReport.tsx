@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { STAGES, formatDate } from '@/lib/resources'
 
 interface Work {
@@ -43,6 +43,39 @@ function withDates(entries: Entry[], start: string | null): (Entry & { iso: stri
 }
 const levelCls = (l?: string | null) => /quan trọng|gấp/i.test(l ?? '') ? 'text-red-600' : 'text-ink-soft'
 const stateCls = (w: Work) => isDone(w) ? 'text-green-700' : /đang/i.test(w.trang_thai ?? '') ? 'text-orange-600' : 'text-red-600'
+
+interface Photo { id: string; ngay: string | null; gio: string | null; giai_doan: string | null; dong_tien_do: string | null; file_id: string | null; thumb_id: string | null; nguoi_tai: string | null }
+const thumbUrl = (p: Photo, w = 240) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(p.thumb_id || p.file_id || '')}&sz=w${w}`
+const fullUrl = (p: Photo) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(p.file_id || '')}&sz=w1600`
+const driveUrl = (p: Photo) => `https://drive.google.com/file/d/${encodeURIComponent(p.file_id || '')}/view`
+const batchOf = (id: string) => id.replace(/-\d+$/, '')
+const plain = (t: string | null | undefined) => String(t ?? '').toLowerCase().replace(/^\s*-?\s*\d{1,2}\/\d{1,2}\s*(\[[^\]]*\])?\s*:?\s*/, '').replace(/\(\s*\d+\s*ảnh\s*\)/g, '').replace(/\s+/g, ' ').trim()
+
+function Lightbox({ list, index, onClose, onGo }: { list: Photo[]; index: number; onClose: () => void; onGo: (i: number) => void }) {
+  const p = list[index]
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); if (e.key === 'ArrowRight') onGo((index + 1) % list.length); if (e.key === 'ArrowLeft') onGo((index - 1 + list.length) % list.length) }
+    document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k)
+  }, [index, list.length, onClose, onGo])
+  if (!p) return null
+  return (
+    <div className="fixed inset-0 z-[80] flex flex-col bg-black/90" role="dialog" aria-modal="true" aria-label="Xem ảnh">
+      <div className="flex shrink-0 items-center gap-3 px-4 py-3 text-white">
+        <div className="min-w-0 flex-1 text-sm"><b>{index + 1} / {list.length}</b> · {p.giai_doan ?? 'Cập nhật'} · {formatDate(p.ngay)}{p.gio ? ` ${p.gio}` : ''}<div className="truncate text-xs opacity-80">{plain(p.dong_tien_do)}</div></div>
+        <a href={driveUrl(p)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-white/40 px-3 py-1.5 text-xs font-bold">Mở trên Drive</a>
+        <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-xl">×</button>
+      </div>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={fullUrl(p)} alt={p.giai_doan ?? 'Ảnh công trình'} referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain" />
+        {list.length > 1 && <>
+          <button onClick={() => onGo((index - 1 + list.length) % list.length)} aria-label="Ảnh trước" className="absolute left-3 grid h-11 w-11 place-items-center rounded-full bg-white/20 text-2xl text-white">‹</button>
+          <button onClick={() => onGo((index + 1) % list.length)} aria-label="Ảnh sau" className="absolute right-3 grid h-11 w-11 place-items-center rounded-full bg-white/20 text-2xl text-white">›</button>
+        </>}
+      </div>
+    </div>
+  )
+}
 
 export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
   const [works, setWorks] = useState<Work[]>([])
@@ -219,6 +252,15 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
   const [filter, setFilter] = useState<string | null>(null)
   const [sheet, setSheet] = useState(false)
   const [fold, setFold] = useState(false)
+  const [photos, setPhotos] = useState<Photo[]>([])
+  const [pf, setPf] = useState<string | null>(null)
+  const [view, setView] = useState<{ list: Photo[]; i: number } | null>(null)
+  useEffect(() => {
+    let dead = false
+    fetch(`/api/hinh_anh_tien_do?id_cong_viec=${encodeURIComponent(work.id)}&pageSize=1000`, { cache: 'no-store' }).then((r) => r.json())
+      .then((j) => { if (!dead && j.success) setPhotos((j.data as (Photo & { an?: boolean })[]).filter((p) => !p.an && p.file_id)) }).catch(() => {})
+    return () => { dead = true }
+  }, [work.id])
   const entries = useMemo(() => withDates(parse(work.tien_do), work.ngay_giao), [work])
   const counts = useMemo(() => { const c: Record<string, number> = {}; for (const e of entries) if (e.stage) c[e.stage] = (c[e.stage] ?? 0) + 1; return c }, [entries])
   const latest = [...entries].reverse().find((e) => e.stage)
@@ -240,6 +282,24 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
   const rows = entries.filter((e) => !filter || e.stage === filter)
   const pos = tot ? Math.min(100, (used / Math.max(used, tot * 1.0)) * 100) : 0
   const duePos = tot && used > tot ? (tot / used) * 100 : 100
+  const photoStages = useMemo(() => { const c: Record<string, number> = {}; for (const p of photos) { const k = p.giai_doan && STAGES.includes(p.giai_doan) ? p.giai_doan : 'Khác'; c[k] = (c[k] ?? 0) + 1 } return c }, [photos])
+  const shown = useMemo(() => photos.filter((p) => !pf || (pf === 'Khác' ? !(p.giai_doan && STAGES.includes(p.giai_doan)) : p.giai_doan === pf)), [photos, pf])
+  const batches = useMemo(() => {
+    const m = new Map<string, Photo[]>()
+    for (const p of [...shown].sort((a, b) => `${b.ngay}${b.gio}${b.id}`.localeCompare(`${a.ngay}${a.gio}${a.id}`))) m.set(batchOf(p.id), [...(m.get(batchOf(p.id)) ?? []), p])
+    for (const l of m.values()) l.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }))
+    return [...m.values()]
+  }, [shown])
+  // thumbnails under the timeline line they belong to (same day, same text)
+  const byEntry = useMemo(() => {
+    const out = new Map<number, Photo[]>()
+    entries.forEach((e, i) => {
+      const key = plain(e.text).slice(0, 28); if (!e.iso || key.length < 4) return
+      const hit = photos.filter((p) => p.ngay === e.iso && plain(p.dong_tien_do).startsWith(key))
+      if (hit.length) out.set(i, hit.slice(0, 8))
+    })
+    return out
+  }, [entries, photos])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
@@ -304,6 +364,10 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
                     <div className="flex gap-2"><span className="w-12 shrink-0 text-xs font-semibold tabular-nums">{e.day}</span>
                       <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${e.stage ? 'bg-blue-500' : 'bg-gray-400'}`} />
                       <span className="whitespace-pre-wrap">{e.stage && <span className={`mr-2 rounded-full px-2 py-0.5 text-[11px] ${COLORS[e.stage]}`}>{e.stage} lần {e.n}</span>}{e.text}</span></div>
+                    {(() => { const ph = byEntry.get(entries.indexOf(e)); return ph ? (
+                      <div className="ml-16 mt-1 flex flex-wrap gap-1.5">{ph.map((p) => (
+                        <button key={p.id} onClick={() => setView({ list: ph, i: ph.indexOf(p) })} aria-label="Xem ảnh" className="h-[54px] w-[72px] overflow-hidden rounded-md border bg-gray-100">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}<img src={thumbUrl(p, 160)} alt="" loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" /></button>))}</div>) : null })()}
                   </li>
                 )
               })}
@@ -316,6 +380,31 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
               <ul className="mt-2 list-disc space-y-1 rounded-lg border bg-canvas py-3 pl-8 pr-3 text-sm">
                 {insights(work, counts, late, pct, sinceUpd, latest).map((t, i) => <li key={i}>{t}</li>)}
               </ul>
+            </section>
+            <section>
+              <div className="text-[12px] font-black uppercase text-blue-700">Hình ảnh công trình <span className="font-normal normal-case text-ink-mute">· {photos.length} ảnh</span></div>
+              {photos.length === 0 ? <p className="mt-2 rounded-lg border border-dashed bg-canvas p-3 text-xs text-ink-mute">Chưa có ảnh cho công việc này.</p> : (
+                <div className="mt-2 rounded-lg border">
+                  <div className="flex flex-wrap gap-1.5 border-b p-2">
+                    {[['', 'Tất cả', photos.length] as const, ...Object.entries(photoStages).map(([k, n]) => [k, k, n] as const)].map(([k, label, n]) => (
+                      <button key={k || 'all'} onClick={() => setPf(k || null)} className={`rounded-full border px-3 py-0.5 text-xs font-semibold ${(pf ?? '') === k ? 'border-gray-700 bg-gray-100' : 'border-gray-300 bg-white'}`}>{label} {n}</button>
+                    ))}
+                  </div>
+                  <div className="max-h-[300px] space-y-2 overflow-y-auto p-2">
+                    {batches.map((b) => (
+                      <div key={batchOf(b[0].id)}>
+                        <div className="mb-1 text-xs font-bold">{b[0].giai_doan ?? 'Cập nhật'} · {b[0].ngay ? `${b[0].ngay.slice(8, 10)}/${b[0].ngay.slice(5, 7)}` : '—'} · {b.length} ảnh</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {b.map((p) => (
+                            <button key={p.id} onClick={() => setView({ list: shown, i: shown.indexOf(p) })} aria-label="Xem ảnh" className="h-[70px] w-[76px] overflow-hidden rounded-md border bg-gray-100">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}<img src={thumbUrl(p)} alt={p.giai_doan ?? 'Ảnh công trình'} loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" /></button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
             <section>
               <div className="flex items-center justify-between">
@@ -336,6 +425,7 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
           <button className="btn-primary" onClick={onClose}>Đóng</button>
         </div>
       </div>
+      {view && <Lightbox list={view.list} index={view.i} onClose={() => setView(null)} onGo={(i) => setView((v) => (v ? { ...v, i } : v))} />}
       {sheet && <RecordSheet work={work} counts={counts} onClose={() => setSheet(false)} onSaved={() => { setSheet(false); onChanged() }} />}
     </div>
   )

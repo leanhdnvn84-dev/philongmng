@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeftRight, ArrowUp, BadgeCheck, BarChart3, Boxes, Building2, CalendarClock, CalendarDays, ChevronDown, ClipboardCheck, Contact, Database, FileText, FolderOpen, Hammer, HardHat, Image as ImageIcon, KeyRound, Layers, LayoutGrid, ListChecks, Lock, LogIn, LogOut, Mail, MailCheck, MapPin, Menu, MessageCircle, Monitor, MonitorSmartphone, Printer, RefreshCw, Repeat, Search, ShieldAlert, ShoppingCart, Tags, Trash2, Truck, Undo2, User, UserPlus, Users, Warehouse, Wrench, X, Zap, type LucideIcon } from 'lucide-react'
+import { ArrowLeftRight, ArrowUp, BadgeCheck, BarChart3, Boxes, Building2, CalendarClock, CalendarDays, ChevronDown, ClipboardCheck, Contact, Database, FileText, FolderOpen, Hammer, HardHat, KeyRound, Layers, LayoutGrid, ListChecks, Lock, LogIn, LogOut, Mail, MailCheck, MapPin, Menu, MessageCircle, Monitor, MonitorSmartphone, Printer, RefreshCw, Repeat, Search, ShieldAlert, ShoppingCart, Tags, Trash2, Truck, Undo2, User, UserPlus, Users, Warehouse, Wrench, X, Zap, type LucideIcon } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import Portal from '@/components/Portal'
 import Logo from '@/components/Logo'
@@ -19,7 +19,7 @@ const ICONS: Record<string, string> = {
 // icon + one-line hint for each menu entry (shown in the dropdown cards)
 const META: Record<string, [LucideIcon, string]> = {
   'Công việc': [ClipboardCheck, 'Giao việc, theo dõi hạn'], 'Công việc hằng ngày': [CalendarClock, 'Việc lặp lại mỗi ngày'], 'Khách ra/vào': [Users, 'Đăng ký và theo dõi khách'],
-  'Báo cáo tiến độ': [BarChart3, 'Tiến độ theo giai đoạn'], 'Báo cáo công việc': [FileText, 'Thống kê theo nhân sự'], 'Hình ảnh tiến độ': [ImageIcon, 'Ảnh thi công từ Drive'],
+  'Báo cáo tiến độ': [BarChart3, 'Tiến độ theo giai đoạn'], 'Báo cáo công việc': [FileText, 'Thống kê theo nhân sự'],
   'Nhật ký bảo trì': [Wrench, 'Việc đã bảo trì'], 'Kế hoạch bảo trì': [CalendarDays, 'Lịch và chu kỳ sắp tới'],
   'Đề xuất mua vật tư': [ShoppingCart, 'Phiếu mua vật tư'], 'Đề xuất mua thiết bị': [MonitorSmartphone, 'Phiếu mua thiết bị'], 'Đề xuất bảo trì': [Hammer, 'Phiếu sửa chữa, bảo trì'],
   'Đề xuất thanh lý': [Trash2, 'Phiếu thanh lý thiết bị'], 'Lịch sử in phiếu': [Printer, 'Các lần in phiếu đề xuất'],
