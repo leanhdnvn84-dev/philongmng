@@ -1,0 +1,149 @@
+  0    5.20   0.41 Hey! Hey! Hey!
+  1    7.20 * 0.88 Nguyễn Hiền ơi!
+  2    8.40 * 0.80 Hội khóa hai nghìn – hai nghìn lẻ ba!
+  3   10.80   0.38 Hai mươi ba năm!
+  4   13.20 * 0.90 HÔM NAY CHÚNG TA ĐÃ TRỞ VỀ!
+  5   21.20 * 0.87 Và bây giờ!
+  6   22.80   0.58 Mười hai lớp Nguyễn Hiền!
+  7   24.40 * 0.88 TẤT CẢ ĐÃ SẴN SÀNG CHƯA?
+  8   26.40   0.20 12/1! HEY! HEY!
+  9   28.40   0.20 12/2! HEY! HEY!
+ 10   30.40   0.32 12/3! LET'S GO!
+ 11   32.80   0.32 12/4! LET'S GO!
+ 12   34.80   0.29 12/5! BÙNG NỔ!
+ 13   36.80   0.50 12/6! CHÁY LÊN!
+ 14   38.80   0.31 12/7! HEY! HEY!
+ 15   41.20   0.38 12/8! HEY! HEY!
+ 16   43.20   0.40 12/9! LET'S GO!
+ 17   45.20   0.35 12/10! LET'S GO!
+ 18   47.20   0.48 12/11! GIƠ TAY!
+ 19   49.60   0.30 12/10! LET'S GO!
+ 20   51.60   0.56 12/11! GIƠ TAY!
+ 21   53.60   0.38 12/12! NHẢY LÊN!
+ 22   55.60   0.64 MƯỜI HAI LỚP!
+ 23   57.60   0.55 MỘT MÁI TRƯỜNG!
+ 24   60.00   0.55 MỘT THỜI ÁO TRẮNG!
+ 25   62.00   0.40 MỘT ĐỜI YÊU THƯƠNG!
+ 26   64.00   0.41 NGUYỄN HIỀN ƠI!
+ 27   66.00   0.29 Five! Four! Three! Two! One! DROP THE BASS!
+ 28   68.40   0.55 BOOM! BOOM! BOOM!
+ 29   70.40   0.42 Nguyễn Hiền! Nguyễn Hiền!
+ 30   72.40   0.34 Bùng lên nào!
+ 31   74.40   0.51 Nguyễn Hiền! Nguyễn Hiền!
+ 32   76.80   0.18 Cháy lên nào!
+ 33   78.80   0.55 Nguyễn Hiền! Nguyễn Hiền!
+ 34   80.80   0.36 Bùng lên nào!
+ 35   82.80   0.33 Nguyễn Hiền! Nguyễn Hiền!
+ 36   85.20   0.30 Cháy lên nào!
+ 37   87.20   0.46 Tay đâu! Tay đâu!
+ 38   89.20   0.42 Đưa lên cao!
+ 39   91.20 * 0.73 Bạn đâu! Bạn đâu!
+ 40   92.80   0.22 Nhảy lên nào!
+ 41   94.80   0.18 HEY! HEY! HEY! HEY!
+ 42   96.40   0.32 EVERYBODY JUMP!
+ 43   98.00   0.47 Ngày xưa đạp xe tới lớp,
+ 44   99.60   0.45 Nắng mưa vẫn cứ đến trường.
+ 45  101.20 * 0.71 Đứa chăm ghi bài, đứa nghịch,
+ 46  102.80   0.38 Đứa ngồi cuối lớp vấn vương.
+ 47  104.40 * 0.90 Ngày xưa ai hay đi trễ?
+ 48  106.00   0.45 Ai thường bị gọi lên bảng?
+ 49  107.60   0.31 Giờ đây gặp nhau một cái,
+ 50  109.20   0.33 Cười vang như thuở học trò!
+ 51  110.80   0.38 Có đứa nay thành ông bố,
+ 52  112.80   0.34 Có đứa đã lên chức bà.
+ 53  114.40 * 0.90 Mà sao vừa nghe gọi bạn,
+ 54  116.40   0.59 Lại như mười tám hôm qua!
+ 55  118.40 * 0.93 Bao nhiêu năm rồi bạn ơi!
+ 56  120.40 * 0.90 Hôm nay gặp lại vui quá trời!
+ 57  124.40 * 0.86 Không cần biết ai già ai trẻ!
+ 58  127.20 * 0.86 Cứ bên nhau là thấy tuyệt vời!
+ 59  131.20 * 1.00 DJ! TURN IT UP!
+ 60  132.80   0.40 Gặp nhau là phải quẩy!
+ 61  134.80   0.41 Cho niềm vui đong đầy!
+ 62  136.40 * 0.89 Bạn bè bao năm ấy,
+ 63  137.20 * 0.90 Hôm nay về nơi đây!
+ 64  139.20   0.52 Gặp nhau là phải hát!
+ 65  140.80   0.45 Cho tiếng cười ngân vang!
+ 66  142.80   0.47 Nguyễn Hiền mình hội ngộ,
+ 67  144.40   0.51 Tình thân mãi chứa chan!
+ 68  146.40 * 0.90 La la la! La la la!
+ 69  147.60   0.31 Hát vang cùng chúng ta!
+ 70  149.20 * 0.90 La la la! La la la!
+ 71  152.40   0.47 Nguyễn Hiền mãi một nhà!
+ 72  155.20 * 0.86 Nào bên trái! HEY!
+ 73  159.20   0.50 Nào bên phải! HEY!
+ 74  163.20   0.46 Giơ tay cao! HEY!
+ 75  167.20   0.32 Nguyễn Hiền! HEY! HEY!
+ 76  171.20   0.47 Mười hai lớp! CHUNG MỘT NHỊP!
+ 77  175.20   0.47 Mười hai lớp! CHUNG MỘT NHỊP!
+ 78  179.20   0.64 CẢ HỘI KHÓA!
+ 79  183.20   0.62 BÙNG NỔ NÀO!
+ 80  187.20   0.42 Ngày xưa chung nhau trang vở,
+ 81  191.20   0.64 Chung sân trường lúc tan trường.
+ 82  195.20   0.42 Giờ đây mỗi người một ngả,
+ 83  199.20   0.23 Gặp nhau vẫn cứ thân thương.
+ 84  203.20 * 0.91 Nhớ thầy cô ngày năm ấy,
+ 85  204.40 * 0.89 Nhớ từng lời dạy thân thương.
+ 86  206.00   0.50 Dẫu đi xa bao nhiêu nữa,
+ 87  207.60   0.00 Vẫn mong ngày về mái trường.
+ 88  209.60   0.64 Hòa Xuân, Hòa Châu, Hòa Tiến,
+ 89  211.20   0.35 Bao con đường đến trường xưa.
+ 90  212.80   0.42 Bạn bè đi qua gian khó,
+ 91  214.40   0.43 Mà tình vẫn đẹp như mơ!
+ 92  216.40 * 0.89 Ngày mai khi mình xa nhau,
+ 93  217.20   0.30 Xin đừng quên buổi hôm nay.
+ 94  218.40 * 0.91 Một lời hỏi thăm nho nhỏ,
+ 95  220.40   0.39 Cũng đủ ấm lòng bao ngày.
+ 96  222.40 * 0.93 Nguyễn Hiền ơi, thương biết mấy,
+ 97  223.20 * 0.90 Một thời chẳng thể nào quên.
+ 98  225.20   0.30 Dẫu thời gian trôi mãi mãi,
+ 99  227.20 * 0.85 Tình bạn vẫn còn vẹn nguyên.
+100  229.20   0.49 HỌC TRÒ NGUYỄN HIỀN ƠI!
+101  230.80   0.17 SẴN SÀNG CHƯA NÀO?
+102  232.80   0.43 Từ mười hai trên một!
+103  234.40   0.15 Đến mười hai trên mười hai!
+104  236.40   0.44 Tất cả cùng giơ tay!
+105  238.00   0.41 Không ai ngồi yên!
+106  240.00   0.21 ARE YOU READY?
+107  241.60   0.32 FIVE! FOUR! THREE! TWO! ONE! LET'S GO!
+108  243.60   0.47 Gặp nhau là phải quẩy!
+109  245.20   0.00 Cho niềm vui đong đầy!
+110  247.20   0.46 Bạn bè bao năm ấy,
+111  248.80   0.43 Hôm nay về nơi đây!
+112  250.80   0.28 Gặp nhau là phải hát!
+113  252.40   0.43 Cho tiếng cười ngân vang!
+114  254.40 * 0.83 Nguyễn Hiền mình hội ngộ,
+115  256.00   0.35 Tình thân mãi chứa chan!
+116  257.60   0.43 Gặp nhau là phải quẩy!
+117  259.60   0.33 Cho niềm vui đong đầy!
+118  261.20 * 0.77 Bạn bè bao năm ấy,
+119  262.40 * 0.90 Hôm nay về nơi đây!
+120  264.00   0.52 Gặp nhau là phải hát!
+121  266.00   0.42 Cho tiếng cười ngân vang!
+122  267.60   0.42 Nguyễn Hiền mình hội ngộ,
+123  269.60   0.50 Tình thân mãi chứa chan!
+124  271.20   0.43 Gặp nhau! Gặp nhau!
+125  273.20   0.40 LÀ PHẢI QUẨY!
+126  274.80   0.38 Nguyễn Hiền! Nguyễn Hiền!
+127  276.80   0.50 LÀ PHẢI CHÁY!
+128  278.40   0.35 Tay đâu! Tay đâu!
+129  280.40   0.40 ĐƯA LÊN TRỜI!
+130  282.00   0.40 Bạn ơi! Bạn ơi!
+131  284.00   0.33 CƯỜI THẬT TƯƠI!
+132  285.60   0.68 HEY! HEY! HEY! HEY!
+133  287.60   0.42 Mười hai lớp!
+134  289.20   0.47 Chung một nhà!
+135  291.20   0.31 Hai mươi ba năm!
+136  292.80   0.44 Tình không phai!
+137  294.80   0.29 NGUYỄN HIỀN!
+138  296.40   0.40 HEY! HEY!
+139  298.40   0.27 NGUYỄN HIỀN!
+140  300.00   0.32 HEY! HEY!
+141  302.00   0.18 EVERYBODY JUMP!
+142  303.60   0.19 BOOM! BOOM! BOOM!
+143  305.60   0.33 Bên trái đâu? HEY! HEY!
+144  307.20   0.53 Bên phải đâu? HEY! HEY!
+145  309.20   0.41 Cả hội trường! HEY! HEY!
+146  310.80   0.46 NGUYỄN HIỀN ƠI!
+147  312.80   0.50 Quẩy lên nào!
+148  314.40   0.50 Quẩy lên nào!
