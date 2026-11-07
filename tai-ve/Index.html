@@ -2153,12 +2153,12 @@ function snDs(lopId){const t=new Date(),t0=new Date(t.getFullYear(),t.getMonth()
  return r.sort((a,b)=>a.con-b.con||String(a.s.hoTen).localeCompare(String(b.s.hoTen),'vi'))}
 const snDd=n=>String(n.d).padStart(2,'0')+'/'+String(n.m).padStart(2,'0');
 function snNut(x,coLop){const hn=x.con===0,qua=x.n.m===new Date().getMonth()+1&&x.con>31;
- return `<button class="sn-ten${hn?' hn':''}${qua?' qua':''}" onclick="moSn('${esc(x.s.id)}')"><span class="ng"><b>${x.n.d}</b><small>th${x.n.m}</small></span><span class="tt"><b>${esc(x.s.hoTen)}</b><span>${coLop?'Lớp '+esc(x.c.ten)+' · ':''}${x.ngay.toLocaleDateString('vi-VN',{weekday:'long'})}${x.tuoi?' · '+x.tuoi+' tuổi':''}</span></span><span class="con">${hn?'🎉 Hôm nay':qua?'Đã qua':x.con===1?'Ngày mai':'Còn '+x.con+' ngày'}</span></button>`}
+ return `<button class="sn-ten${hn?' hn':''}${qua?' qua':''}" onclick="moSn('${esc(x.s.id)}')"><span class="ng"><b>${x.n.d}</b><small>th${x.n.m}</small></span><span class="tt"><b>${esc(x.s.hoTen)}</b><span>${coLop?'Lớp '+esc(x.c.ten)+' · ':''}${x.ngay.toLocaleDateString('vi-VN',{weekday:'long'})}</span></span><span class="con">${hn?'🎉 Hôm nay':qua?'Đã qua':x.con===1?'Ngày mai':'Còn '+x.con+' ngày'}</span></button>`}
 /* Khối sinh nhật dùng chung cho tab lớp và trang toàn khoá: hôm nay · 30 ngày tới · chọn tháng 1–12 */
 function snKhoi(ds,coLop,lai){if(!ds.length)return `<p class="sn-trong">Chưa có ngày sinh của bạn nào${coLop?'':' trong lớp này'}. Admin lớp thêm cột “Ngày tháng năm sinh” ở Quản trị → Học sinh (hoặc dán từ Excel) là thiệp sinh nhật tự hiện.</p>`;
  const nay=ds.filter(x=>x.con===0),sap=ds.filter(x=>x.con>0&&x.con<=30),thNay=new Date().getMonth()+1,dem=Array(13).fill(0);ds.forEach(x=>dem[x.n.m]++);
  const thang=ds.filter(x=>x.n.m===snThang).sort((a,b)=>a.n.d-b.n.d||String(a.s.hoTen).localeCompare(String(b.s.hoTen),'vi'));
- return `<div class="sn-khoi"><h3>🎉 Sinh nhật hôm nay <small>${new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit'})}</small></h3>${nay.length?`<div class="sn-nay">${nay.map(x=>`<button onclick="moSn('${esc(x.s.id)}')"><b>${esc(x.s.hoTen)}</b><span>${coLop?'Lớp '+esc(x.c.ten)+' · ':''}${x.tuoi?'Tròn '+x.tuoi+' tuổi':snDd(x.n)}</span><em>💌 Mở thiệp chúc mừng</em></button>`).join('')}</div>`:'<p class="sn-trong">Hôm nay chưa có bạn nào thổi nến. Xem ai sắp tới ở dưới nhé.</p>'}</div>
+ return `<div class="sn-khoi"><h3>🎉 Sinh nhật hôm nay <small>${new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit'})}</small></h3>${nay.length?`<div class="sn-nay">${nay.map(x=>`<button onclick="moSn('${esc(x.s.id)}')"><b>${esc(x.s.hoTen)}</b><span>${coLop?'Lớp '+esc(x.c.ten)+' · ':''}Sinh nhật ${snDd(x.n)}</span><em>💌 Mở thiệp chúc mừng</em></button>`).join('')}</div>`:'<p class="sn-trong">Hôm nay chưa có bạn nào thổi nến. Xem ai sắp tới ở dưới nhé.</p>'}</div>
  <div class="sn-khoi"><h3>⏳ Sắp tới <small>30 ngày nữa${sap.length?' · '+sap.length+' bạn':''}</small></h3>${sap.length?`<div class="sn-ds">${sap.slice(0,coLop?24:60).map(x=>snNut(x,coLop)).join('')}</div>`:'<p class="sn-trong">Không có sinh nhật nào trong 30 ngày tới.</p>'}</div>
  <div class="sn-khoi"><h3>📅 Theo tháng <small>bấm chọn tháng</small></h3><div class="sn-thang" role="tablist">${Array.from({length:12},(_,k)=>k+1).map(m=>`<button role="tab" aria-selected="${m===snThang}" class="${m===snThang?'on':''}${m===thNay?' nay':''}" onclick="snThang=${m};${lai}">Th ${m}<small>${dem[m]} bạn</small></button>`).join('')}</div>
  ${thang.length?`<div class="sn-ds">${thang.map(x=>snNut(x,coLop)).join('')}</div>`:`<p class="sn-trong">Tháng ${snThang} chưa có bạn nào sinh nhật.</p>`}</div>`}
@@ -2177,7 +2177,7 @@ function moSn(id,doi){const x=snDs('').find(y=>String(y.s.id)===String(id));if(!
  $('snThiep').innerHTML=`<div class="ph-n" aria-hidden="true">${Array.from({length:18},(_,k)=>`<i style="left:${(k*53+7)%100}%;background:${mau[k%5]};animation-duration:${3.5+k%5*.7}s;animation-delay:-${(k*.43).toFixed(1)}s"></i>`).join('')}</div>
  <button class="x" onclick="dongSn()" aria-label="Đóng">×</button><div class="banh" aria-hidden="true">🎂</div><div class="ey">${hn?'Chúc mừng sinh nhật':'Sinh nhật '+snDd(x.n)}</div><h3>${esc(x.s.hoTen)}</h3>
  <div class="lp">Lớp ${esc(x.c.ten)} · ${esc(D.cfg.tenTruong||'')} · Khoá ${esc(D.cfg.nienKhoa||'')}</div>
- <div class="tuoi">${hn?'🎉 Hôm nay':x.con===1?'Ngày mai':'Còn '+x.con+' ngày'}${x.tuoi?' · tròn '+x.tuoi+' tuổi':''}</div>
+ <div class="tuoi">${hn?'🎉 Hôm nay · '+snDd(x.n):x.con===1?'Ngày mai':'Còn '+x.con+' ngày'}</div>
  <div class="loi" id="snLoi">${esc(snLoi_(x))}</div>
  <div class="nut"><button onclick="SN_I++;moSn(SN_ID,1)">🔁 Lời chúc khác</button><button class="chinh" onclick="chep($('snLoi').textContent,'Đã sao chép lời chúc, dán vào Zalo gửi bạn nhé')">📋 Sao chép lời chúc</button><button onclick="dongSn();ybT=3;wLop='${esc(x.c.id)}';go('yearbook')">✍️ Viết lưu bút lớp ${esc(x.c.ten)}</button><button class="inb" onclick="xemInSn()">🖨️ In thiệp sinh nhật</button></div>`;
  $('snNen').classList.add('on')}
@@ -2196,7 +2196,7 @@ function snTrangIn_(x){const lop=esc(x.c.ten),mau=['#D63A6E','#F7B731','#8E3FB8'
  <div class="hb">Happy Birthday</div><div class="cm">Chúc mừng sinh nhật</div>
  <div class="ten">${esc(x.s.hoTen)}</div>
  <div class="bang">Lớp ${lop} · Ngày ${x.n.d} tháng ${x.n.m}</div>
- <div class="loi"><p>${(t=>`<span class="dau">${esc(t.charAt(0))}</span>${esc(t.slice(1))}`)(($('snLoi')?$('snLoi').textContent:snLoi_(x)).trim())}</p>${x.tuoi?`<div class="tuoi"><span>Tròn</span><b>${x.tuoi}</b><span>tuổi</span></div>`:''}</div>
+ <div class="loi"><p>${(t=>`<span class="dau">${esc(t.charAt(0))}</span>${esc(t.slice(1))}`)(($('snLoi')?$('snLoi').textContent:snLoi_(x)).trim())}</p><div class="tuoi"><span>Ngày</span><b>${String(x.n.d).padStart(2,'0')}</b><span>tháng ${x.n.m}</span></div></div>
  <div class="ky"><small>Thân thương,</small><b>Các bạn lớp ${lop}</b><small>Ban liên lạc khoá ${esc(D.cfg.nienKhoa||'2000 – 2003')}</small></div></div>
  <div class="chan">✿ ${esc(D.cfg.tenTruong||'THPT Nguyễn Hiền')} · ${new Date().getFullYear()} ✿</div></div></div>`}
 function xemInSn(){const x=snDs('').find(y=>String(y.s.id)===String(SN_ID));if(!x)return;const t=snTrangIn_(x);$('snIn').innerHTML=t;
