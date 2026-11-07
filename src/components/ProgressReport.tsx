@@ -303,8 +303,8 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
-      <div className="flex max-h-[94vh] w-full max-w-[1500px] flex-col overflow-hidden rounded-xl bg-white shadow-pop">
-        <div className="shrink-0 bg-blue-700 px-5 py-3 text-white">
+      <div className="flex max-h-[94dvh] w-full max-w-[1500px] flex-col overflow-y-auto rounded-xl bg-white shadow-pop md:overflow-hidden">
+        <div className="bg-blue-700 px-4 py-3 text-white md:shrink-0 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -317,7 +317,7 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
           </div>
         </div>
 
-        <div className="shrink-0 grid grid-cols-2 gap-2 px-5 pt-3 md:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 px-4 pt-3 md:shrink-0 md:grid-cols-5 md:px-5">
           <Kpi big={String(entries.length)} sub={`lần cập nhật (${dated.length} có ngày)`} />
           <Kpi big={sinceUpd == null ? '—' : `${sinceUpd} ngày`} sub={lastUpd ? `từ lần cập nhật cuối (${dmy2(lastUpd)})` : 'chưa có cập nhật'} cls={sinceUpd != null && sinceUpd > 7 ? 'text-amber-600' : 'text-amber-600'} />
           <Kpi big={latest ? `${latest.stage} lần ${latest.n}` : '—'} sub={latest?.iso ? `hoạt động gần nhất · ${dmy2(latest.iso)}` : 'hoạt động gần nhất'} cls="text-blue-600" />
@@ -325,11 +325,11 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
           <Kpi big={isDone(work) ? 'Xong' : late ? `Trễ ${late} ngày` : `Còn ${Math.max(0, tot - used)} ngày`} sub={`đã dùng ${pct}% thời gian`} cls={late ? 'text-red-600' : 'text-green-700'} />
         </div>
 
-        <div className="shrink-0 px-5 pt-3">
-          <div className="flex items-center gap-3">
+        <div className="px-4 pt-3 md:shrink-0 md:px-5">
+          <div className="flex flex-wrap items-center gap-3 md:flex-nowrap">
             <span className={`rounded-full px-3 py-1 text-xs font-bold ${isDone(work) ? 'bg-green-100 text-green-800' : latest?.stage === 'Chờ' ? 'bg-gray-200 text-gray-800' : 'bg-green-100 text-green-800'}`}>
               {isDone(work) ? 'HOÀN THÀNH' : latest?.stage === 'Chờ' ? 'ĐANG CHỜ' : 'ĐANG THI CÔNG'}</span>
-            {tot > 0 && <div className="relative flex-1 pt-4 pb-4">
+            {tot > 0 && <div className="relative flex-1 pt-4 pb-4 max-md:hidden">
               <div className="h-2 overflow-hidden rounded-full bg-gray-200 flex">
                 <div className="h-full bg-green-600" style={{ width: `${duePos}%` }} />
                 {used > tot && <div className="h-full flex-1 bg-brand-400" />}
@@ -338,7 +338,11 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
               <span className="absolute left-0 bottom-0 text-[11px] text-ink-mute">Giao {dmy2(work.ngay_giao!)}</span>
               <span className="absolute right-0 bottom-0 text-[11px] text-ink-mute">{isDone(work) ? 'Xong' : 'Hôm nay'} <b>{dmy2(today)}</b> · ngày {used}</span>
             </div>}
-            {tot > 0 && <div className={`text-right text-sm font-bold ${tone}`}>{pct}%<div className="text-[11px] font-normal text-ink-mute">thời gian</div></div>}
+            {tot > 0 && <div className={`text-right text-sm font-bold max-md:ml-auto ${tone}`}>{pct}%<div className="text-[11px] font-normal text-ink-mute">thời gian</div></div>}
+            {tot > 0 && <div className="w-full md:hidden">
+              <div className="h-2 overflow-hidden rounded-full bg-gray-200 flex"><div className="h-full bg-green-600" style={{ width: `${duePos}%` }} />{used > tot && <div className="h-full flex-1 bg-brand-400" />}</div>
+              <div className="mt-1 text-[11.5px] text-ink-mute">Giao <b>{dmy2(work.ngay_giao!)}</b> · Hạn <b>{dmy2(work.deadline!)}</b> · {isDone(work) ? 'Xong' : 'Hôm nay'} <b>{dmy2(today)}</b> · ngày {used}</div>
+            </div>}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2 pb-2">
             <span className="text-[11px] font-bold uppercase text-ink-mute">Các đợt hoạt động</span>
@@ -351,8 +355,8 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-0 overflow-y-auto border-t md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:overflow-hidden">
-          <div className="flex min-h-[260px] flex-col px-5 py-3 md:min-h-0 md:border-r">
+        <div className="grid grid-cols-1 gap-0 border-t md:min-h-0 md:flex-1 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:overflow-hidden">
+          <div className="flex flex-col px-4 py-3 md:min-h-0 md:border-r md:px-5">
             <div className="shrink-0 text-[12px] font-black uppercase text-blue-700">Diễn biến theo ngày <span className="font-normal normal-case text-ink-mute">{entries.length} dòng</span></div>
             <ol className="mt-2 space-y-1 text-sm md:min-h-0 md:flex-1 md:overflow-y-auto">
               {rows.map((e, i) => {
@@ -374,7 +378,7 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
               {!entries.length && <li className="text-ink-mute">Chưa có tiến độ.</li>}
             </ol>
           </div>
-          <div className="space-y-4 px-5 py-3 md:min-h-0 md:overflow-y-auto">
+          <div className="space-y-4 border-t px-4 py-3 md:min-h-0 md:overflow-y-auto md:border-t-0 md:px-5">
             <section>
               <div className="text-[12px] font-black uppercase text-blue-700">Nhận xét tự động</div>
               <ul className="mt-2 list-disc space-y-1 rounded-lg border bg-canvas py-3 pl-8 pr-3 text-sm">
@@ -419,10 +423,10 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
           </div>
         </div>
 
-        <div className="shrink-0 flex justify-end gap-2 border-t px-5 py-3">
-          {canEdit && !isDone(work) && <button className="btn-secondary" onClick={() => setSheet(true)}>+ Cập nhật tiến độ</button>}
-          <a className="btn-secondary" href="/cong_viec">Mở công việc</a>
-          <button className="btn-primary" onClick={onClose}>Đóng</button>
+        <div className="sticky bottom-0 flex justify-end gap-2 border-t bg-white px-4 py-3 md:shrink-0 md:px-5">
+          {canEdit && !isDone(work) && <button className="btn-secondary max-md:flex-1 max-md:px-2 max-md:text-[13px]" onClick={() => setSheet(true)}>+ Cập nhật<span className="max-md:hidden">&nbsp;tiến độ</span></button>}
+          <a className="btn-secondary max-md:flex-1 max-md:px-2 max-md:text-[13px]" href="/cong_viec">Mở<span className="max-md:hidden">&nbsp;công</span>&nbsp;việc</a>
+          <button className="btn-primary max-md:flex-1 max-md:px-2 max-md:text-[13px]" onClick={onClose}>Đóng</button>
         </div>
       </div>
       {view && <Lightbox list={view.list} index={view.i} onClose={() => setView(null)} onGo={(i) => setView((v) => (v ? { ...v, i } : v))} />}
@@ -432,7 +436,7 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
 }
 
 function Kpi({ big, sub, cls = '' }: { big: string; sub: string; cls?: string }) {
-  return <div className="rounded-lg border px-4 py-2"><div className={`text-[22px] font-bold leading-tight ${cls}`}>{big}</div><div className="text-[11.5px] text-ink-mute">{sub}</div></div>
+  return <div className="rounded-lg border px-3 py-1.5 md:px-4 md:py-2"><div className={`text-[18px] font-bold leading-tight md:text-[22px] ${cls}`}>{big}</div><div className="text-[11.5px] text-ink-mute">{sub}</div></div>
 }
 
 function insights(w: Work, counts: Record<string, number>, late: number, pct: number, since: number | null, latest?: { stage: string | null; n: number | null; day: string }) {
