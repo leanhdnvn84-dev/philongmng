@@ -332,11 +332,12 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
             </div>
 
             <div className="overflow-y-auto overflow-x-hidden max-h-[70vh] min-h-[260px] xl:max-h-none xl:flex-1 xl:min-h-0 p-2.5">
-              <table className="hidden w-full text-[12.5px] border-separate border-spacing-0 rounded-[9px] overflow-hidden border border-navy-200 lg:table">
+              <table className="hidden w-full table-fixed text-[11.5px] border-separate border-spacing-0 rounded-[9px] overflow-hidden border border-navy-200 lg:table">
+                <colgroup>{[6.6, 4.2, 9.5, 6, 8.5, 8.4, 7.2, 7.8, 8, 4.4, 5.8, 6.8, 6.4, 10.4].map((w, i) => <col key={i} style={{ width: `${w}%` }} />)}</colgroup>
                 <thead>
-                  <tr className="text-[12.5px] font-extrabold text-navy-900">
+                  <tr className="text-[11.5px] font-extrabold text-navy-900">
                     {['Ngày vào', 'Giờ', 'Họ tên', 'Đi cùng', 'Công ty', 'SĐT', 'CCCD', 'Địa chỉ', 'Người cần gặp', 'Tầng', 'Mục đích', 'Nội dung', 'Đã ở', 'Trạng thái'].map((h) => (
-                      <th key={h} className={`sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-2 py-2 text-left whitespace-nowrap ${['Đi cùng', 'CCCD', 'Địa chỉ', 'Tầng', 'Mục đích'].includes(h) ? 'hidden 2xl:table-cell' : h === 'Nội dung' ? 'hidden min-[1340px]:table-cell' : ''}`}>{h}</th>
+                      <th key={h} className={`sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-1.5 py-2 text-left leading-tight`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -354,22 +355,22 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
                       <tr key={r.id} tabIndex={0} aria-selected={on} onClick={() => setSelected(on ? null : r.id)} onDoubleClick={() => setViewing(r)}
                         onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
                         className={`cursor-pointer outline-none ${on ? 'bg-select' : long ? 'bg-red-50' : r.trang_thai === BOOK ? 'bg-[#f3f8ff]' : 'bg-white hover:bg-navy-50'}`}>
-                        <td className={`px-2 py-2 border-b border-navy-100 whitespace-nowrap tabular-nums ${on ? 'shadow-[inset_3px_0_0_#2189e6]' : ''}`}>{formatDate(r.trang_thai === BOOK && r.ngay_hen ? r.ngay_hen : r.ngay)}</td>
+                        <td className={`px-2 py-2 border-b border-navy-100 whitespace-nowrap overflow-hidden text-ellipsis tabular-nums ${on ? 'shadow-[inset_3px_0_0_#2189e6]' : ''}`}>{(() => { const d = String((r.trang_thai === BOOK && r.ngay_hen ? r.ngay_hen : r.ngay) ?? ''); return d.length >= 10 ? `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(2, 4)}` : d })()}</td>
                         <td className="px-2 py-2 border-b border-navy-100 tabular-nums">{r.trang_thai === BOOK ? r.gio_hen || '—' : r.gio_vao || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 font-extrabold whitespace-nowrap">{r.ho_ten}</td>
-                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.nguoi_di_cung || '—'}</td>
+                        <td className="px-2 py-2 border-b border-navy-100 font-extrabold whitespace-nowrap overflow-hidden text-ellipsis">{r.ho_ten}</td>
+                        <td className="px-1.5 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.nguoi_di_cung || '—'}</td>
                         <td className="px-2 py-2 border-b border-navy-100 max-w-[110px] truncate">{r.cong_ty || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap tabular-nums">{r.sdt || '—'}</td>
-                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 font-mono text-xs text-ink-mute">{mask(r.giay_to) || '—'}</td>
-                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.dia_chi || '—'}</td>
+                        <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap overflow-hidden text-ellipsis tabular-nums">{r.sdt || '—'}</td>
+                        <td className="px-1.5 py-2 border-b border-navy-100 font-mono text-[11px] text-ink-mute overflow-hidden text-ellipsis">{mask(r.giay_to) || '—'}</td>
+                        <td className="px-1.5 py-2 border-b border-navy-100 max-w-[90px] truncate">{r.dia_chi || '—'}</td>
                         <td className="px-2 py-2 border-b border-navy-100 max-w-[110px] truncate">{r.nguoi_can_gap || '—'}</td>
-                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 max-w-[70px] truncate">{r.tang || '—'}</td>
-                        <td className="hidden 2xl:table-cell px-2 py-2 border-b border-navy-100 whitespace-nowrap">{r.muc_dich || '—'}</td>
-                        <td className="hidden min-[1340px]:table-cell px-2 py-2 border-b border-navy-100 max-w-[120px] xl:max-w-[150px] truncate">{r.noi_dung || '—'}</td>
-                        <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap">
+                        <td className="px-1.5 py-2 border-b border-navy-100 max-w-[70px] truncate">{r.tang || '—'}</td>
+                        <td className="px-1.5 py-2 border-b border-navy-100 whitespace-nowrap overflow-hidden text-ellipsis">{r.muc_dich || '—'}</td>
+                        <td className="px-1.5 py-2 border-b border-navy-100 max-w-[120px] xl:max-w-[150px] truncate">{r.noi_dung || '—'}</td>
+                        <td className="px-1 py-2 border-b border-navy-100 leading-tight [&_span]:!whitespace-normal [&_span]:!px-1">
                           {r.trang_thai === BOOK ? <span className="text-ink-mute">—</span> : <span className={long ? 'pill-red' : 'pill-green'}>{fmtMin(mins)}</span>}
                         </td>
-                        <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap">
+                        <td className="px-2 py-2 border-b border-navy-100 whitespace-nowrap overflow-hidden text-ellipsis">
                           <span className={r.trang_thai === IN ? 'pill-green' : r.trang_thai === BOOK ? 'pill-blue' : r.trang_thai === CANCEL ? 'pill-red' : 'pill-gray'}>
                             {r.trang_thai === IN ? 'Đang ở' : r.trang_thai === OUT ? `Đã ra${r.gio_ra ? ` ${r.gio_ra}` : ''}` : r.trang_thai}
                           </span>
