@@ -96,7 +96,7 @@ export default function LoginPage() {
           </form>
                   </div>
       </div>
-      <div className="absolute left-5 top-5 lg:left-10 lg:top-8"><Logo variant="white" height={48} /></div>
+      <div className="absolute left-5 top-5 lg:left-10 lg:top-8"><Logo variant="redwhite" height={48} /></div>
       <p className="absolute bottom-4 right-5 text-right text-[12.5px] text-[#8fa3c7] lg:bottom-6 lg:right-10">Designed &amp; Developed by <b className="text-[#c9d5ec]">Phi Long Technology</b> © 2026</p>
     </main>
   )

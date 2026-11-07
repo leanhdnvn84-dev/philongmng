@@ -35,7 +35,7 @@ const META: Record<string, [LucideIcon, string]> = {
 function Brand() {
   return (
     <Link href="/" className="shrink-0" aria-label="Trang tổng quan">
-      <Logo variant="white" height={40} />
+      <Logo variant="redwhite" height={40} />
     </Link>
   )
 }
@@ -112,7 +112,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
     <header ref={ref} className="print:hidden sticky top-0 z-40 bg-[linear-gradient(135deg,#17386b_0%,#0b1f45_100%)] border-b border-black/20 shadow-[0_10px_26px_rgba(11,31,69,.3)]">
       {/* phone: red bar with logo + page search (menu and filters live in the floating buttons) */}
       <div className="lg:hidden flex items-center gap-3 px-3 py-2">
-        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="white" height={40} /></Link>
+        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="redwhite" height={40} /></Link>
         <label className="relative flex-1 min-w-0">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-mute" />
           <input type="search" value={pageSearch} onChange={(e) => onPageSearch(e.target.value)} placeholder="Tìm trang này…" aria-label="Tìm trang này"
