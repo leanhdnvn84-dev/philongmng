@@ -273,12 +273,12 @@ export default function Electricity({ perms }: { perms: Perms }) {
 
         {/* center */}
         <section className="flex min-w-0 flex-col gap-3 lg:min-h-0">
-          <div className="grid shrink-0 grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
+          <div className="grid shrink-0 grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-5">
             {[
               ['Tổng điện năng', `${num3(totals.kwh)} kWh`, ''], ['Chưa VAT', vnd(totals.sub), ''], [`VAT ${Math.round(totals.vatRate * 100)}%`, vnd(totals.vat), ''],
-              ['Tổng tiền', vnd(totals.total), ''], ['Cần kiểm tra', `${totals.bad} / ${totals.n} công tơ`, totals.bad ? 'text-[#c4121f]' : 'text-green-700'],
+              ['Tổng tiền', vnd(totals.total), ''], ['Cần kiểm tra (công tơ)', `${totals.bad} / ${totals.n}`, totals.bad ? 'text-[#c4121f]' : 'text-green-700'],
             ].map(([l, v, c]) => (
-              <div key={l} className="rounded-xl border border-navy-200 border-l-[3px] border-l-[#e11d2e] bg-white px-3.5 py-2.5"><div className="text-[12px] text-ink-mute">{l}</div><div className={`text-[19px] font-extrabold tabular-nums text-navy-900 ${c}`}>{v}</div></div>
+              <div key={l} className="min-w-0 rounded-lg border border-navy-200 border-l-[3px] border-l-[#e11d2e] bg-white px-2.5 py-1"><div className="truncate text-[11px] leading-tight text-ink-mute">{l}</div><div className={`truncate text-[14px] font-extrabold leading-tight tabular-nums text-navy-900 ${c}`}>{v}</div></div>
             ))}
           </div>
 
