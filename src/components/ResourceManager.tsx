@@ -21,6 +21,31 @@ const GREEN = /HOÀN THÀNH|CÒN LỊCH|Hoàn thành|Đã duyệt|Đã chốt|Ho
 const BLUE = /CHỜ NGÀY GỐC|CHƯA BẮT ĐẦU|Chưa thực hiện|Đang trong tòa nhà|Mới/i
 const tone = (v: string) => (RED.test(v) ? 'red' : AMBER.test(v) ? 'amber' : BLUE.test(v) ? 'blue' : GREEN.test(v) ? 'green' : 'gray')
 const pill = (v: string) => `pill-${tone(v)}`
+const vnDay = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
+const dayDiff = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5)
+const dm = (iso: string | null | undefined) => (iso ? `${String(iso).slice(8, 10)}/${String(iso).slice(5, 7)}` : '')
+/** V191 "Số ngày": days late when overdue (red), days taken when done (green), days elapsed since assignment otherwise (blue). Only positive numbers show. */
+function soNgay(r: any): { n: number; tone: 'red' | 'green' | 'blue'; lines: string[] } {
+  const today = vnDay(), giao: string | null = r.ngay_giao ?? r.ngay ?? null, dl: string | null = r.deadline ?? null
+  const done = r.canh_bao === 'HOÀN THÀNH', end = done ? (r.ngay_hoan_thanh ?? today) : today
+  const used = giao ? Math.max(0, dayDiff(giao, end)) : 0
+  const lines: string[] = []
+  if (done) {
+    lines.push(`Hoàn thành sau ${used} ngày (giao ${dm(giao)} → xong ${dm(end)})`)
+    if (dl) { const late = dayDiff(dl, end); lines.push(late > 0 ? `Trễ ${late} ngày so với hạn ${dm(dl)}` : 'Đúng hạn') }
+    return { n: used, tone: 'green', lines }
+  }
+  if (dl && dl < today) {
+    const late = dayDiff(dl, today)
+    lines.push(`Trễ ${late} ngày (hạn ${dm(dl)})`, `Đã thực hiện ${used} ngày kể từ ngày giao ${dm(giao)}`)
+    return { n: late, tone: 'red', lines }
+  }
+  lines.push(`Đã thực hiện ${used} ngày (giao ${dm(giao)})`)
+  if (dl) { const left = dayDiff(today, dl); lines.push(left === 0 ? `Đến hạn hôm nay (${dm(dl)})` : `Còn ${left} ngày đến hạn ${dm(dl)}`) } else lines.push('Chưa đặt hạn hoàn thành')
+  return { n: used, tone: 'blue', lines }
+}
+const SOFT_TIP = new Set(['tien_do', 'cach_thuc_hien', 'noi_dung'])
+
 const STATUS_FIELDS = new Set(['canh_bao', 'trang_thai', 'trang_thai_su_dung', 'muc_do', 'muc_do_tiem_nang'])
 const RIGHT = /don_gia|so_luong|thanh_tien|tong_tien|so_kwh|chi_so|ton_|tong_nhap|tong_xuat|dien_tich|so_ngay/
 
@@ -172,6 +197,7 @@ export default function ResourceManager({
   const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
   const [status, setStatus] = useState('')
   const [alertSel, setAlertSel] = useState('')
+  const [tip, setTip] = useState<{ x: number; y: number; up: boolean; text: string } | null>(null)
   const [quickSel, setQuickSel] = useState(res.quick?.def ?? '')
   const [quickCounts, setQuickCounts] = useState<Record<string, number>>({})
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
@@ -204,8 +230,32 @@ export default function ResourceManager({
   const statusField = res.fields.find((f) => f.name === 'trang_thai' && f.type === 'select' && !filters.trang_thai)
   const sideField = !compact && res.sideFilter && !(res.sideFilter in filters) ? res.fields.find((f) => f.name === res.sideFilter) : undefined
   const hasCalendar = !compact && !!res.dateField
-  const listFields = res.fields.filter((f) => visibleInList(f) && !(f.name in filters))
+  const listFields = res.listOrder
+    ? res.listOrder.map((n) => res.fields.find((f) => f.name === n)).filter((f): f is Field => !!f && !(f.name in filters))
+    : res.fields.filter((f) => visibleInList(f) && !(f.name in filters))
   const { refs, labels } = useRefOptions([res.fields, ...(res.actions ?? []).map((a) => a.fields ?? [])])
+  const isWork = res.key === 'cong_viec' || res.key === 'cong_viec_hang_ngay'
+  // cell renderer: "Số ngày" is computed from the row; everything else uses the shared formatter
+  const cellNode = (f: Field, r: any) => {
+    if (f.name === 'so_ngay' && res.key === 'cong_viec') {
+      const s = soNgay(r)
+      if (s.n <= 0) return <span className="text-navy-300">—</span>
+      const cls = s.tone === 'red' ? 'bg-red-600 text-white' : s.tone === 'green' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+      return <span className={`inline-flex min-w-[30px] justify-center rounded-md px-2 py-0.5 text-[13px] font-extrabold tabular-nums ${cls}`}>{s.n}</span>
+    }
+    return display(f, r[f.name], labels)
+  }
+  const cellTip = (f: Field, r: any): string | null => {
+    if (!isWork) return null
+    if (f.name === 'so_ngay' && res.key === 'cong_viec') return soNgay(r).lines.join('\n')
+    if (SOFT_TIP.has(f.name)) { const t = String(r[f.name] ?? '').trim(); return t && (f.name === 'tien_do' || t.length > 70) ? t : null }
+    return null
+  }
+  const showTip = (e: React.MouseEvent<HTMLElement>, f: Field, r: any) => {
+    const text = cellTip(f, r); if (!text) return
+    const b = e.currentTarget.getBoundingClientRect(), up = b.bottom > window.innerHeight - 300
+    setTip({ x: Math.max(8, Math.min(b.left, window.innerWidth - 448)), y: up ? b.top - 6 : b.bottom + 6, up, text })
+  }
   const allowed = (a: Action) => a.perm === 'view' || perms[a.perm as keyof UiPerms]
   const rowActions = (res.actions ?? []).filter((a) => (a.scope ?? 'row') === 'row' && allowed(a))
   const pageActions = (res.actions ?? []).filter((a) => a.scope === 'page' && allowed(a))
@@ -515,7 +565,7 @@ export default function ResourceManager({
         : rows.map((r, i) => {
           const t = tone(String(r.canh_bao || r.trang_thai || ''))
           const edge = t === 'red' ? 'border-l-red-500' : t === 'amber' ? 'border-l-amber-400' : t === 'green' ? 'border-l-emerald-500' : t === 'blue' ? 'border-l-blue-500' : 'border-l-navy-300'
-          const shown = bodyFields.filter((f) => r[f.name] !== null && r[f.name] !== undefined && r[f.name] !== '')
+          const shown = bodyFields.filter((f) => f.name === 'so_ngay' || (r[f.name] !== null && r[f.name] !== undefined && r[f.name] !== ''))
           return (
             <Fragment key={r.id}>
             {groupHead(r, i)}
@@ -532,7 +582,7 @@ export default function ResourceManager({
                   {shown.map((f) => (
                     <div key={f.name} className={`flex min-w-0 items-baseline gap-1 text-[12.5px] ${f.type === 'textarea' ? 'col-span-2 sm:col-span-4 md:col-span-6' : ''}`}>
                       <dt className="shrink-0 text-ink-mute">{f.label}:</dt>
-                      <dd className={`min-w-0 font-semibold text-ink ${f.type === 'textarea' ? 'line-clamp-2' : 'truncate'}`}>{display(f, r[f.name], labels)}</dd>
+                      <dd className={`min-w-0 font-semibold text-ink ${f.type === 'textarea' ? 'line-clamp-2' : 'truncate'}`}>{cellNode(f, r)}</dd>
                     </div>
                   ))}
                 </dl>
@@ -584,8 +634,8 @@ export default function ResourceManager({
                   const right = RIGHT.test(f.name) || f.type === 'money' || f.type === 'number'
                   const wide = f.type === 'textarea' || f.name === 'noi_dung' || f.name === 'ghi_chu' || f.name === 'ds_ten'
                   return (
-                    <td key={f.name} className={`px-3 py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${wide ? 'min-w-[16rem] max-w-md' : 'whitespace-nowrap'}`}>
-                      <div className={f.multiline ? 'whitespace-pre-line leading-snug' : wide ? 'line-clamp-2' : ''}>{display(f, r[f.name], labels)}</div>
+                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`px-3 py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${wide ? 'min-w-[16rem] max-w-md' : 'whitespace-nowrap'}`}>
+                      <div className={f.multiline ? 'whitespace-pre-line leading-snug' : f.name === 'tien_do' ? 'line-clamp-3' : wide ? 'line-clamp-2' : ''}>{cellNode(f, r)}</div>
                     </td>
                   )
                 })}
@@ -599,6 +649,12 @@ export default function ResourceManager({
 
   const overlays = (
     <>
+      {tip && (
+        <Portal>
+          <div className="pointer-events-none fixed z-[95] max-h-72 w-[min(440px,calc(100vw-16px))] overflow-hidden whitespace-pre-wrap rounded-lg border border-navy-200 bg-white p-3 text-[13px] leading-relaxed text-navy-900 shadow-pop print:hidden"
+            style={{ left: tip.x, top: tip.y, transform: tip.up ? 'translateY(-100%)' : undefined }} role="tooltip">{tip.text}</div>
+        </Portal>
+      )}
       {confirmDialog}
       {viewing && (
         <Drawer onClose={() => setViewing(null)}>
@@ -619,7 +675,7 @@ export default function ResourceManager({
                   <div key={f.name} className={`min-w-0 text-[13px] leading-snug ${long ? 'col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-2' : half ? 'col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-1' : ''}`}>
                     {long && viewing[f.name]
                       ? <><dt className="label !mb-0.5">{f.label}</dt><dd className="whitespace-pre-wrap text-[13px] leading-relaxed bg-canvas rounded-[7px] border border-navy-200 p-2.5 max-h-72 overflow-y-auto">{display(f, viewing[f.name], labels)}</dd></>
-                      : <div className="flex flex-wrap items-baseline gap-x-1"><dt className="shrink-0 text-ink-mute">{f.label}:</dt><dd className="min-w-0 font-semibold text-ink break-words">{display(f, viewing[f.name], labels)}</dd></div>}
+                      : <div className="flex flex-wrap items-baseline gap-x-1"><dt className="shrink-0 text-ink-mute">{f.label}:</dt><dd className="min-w-0 font-semibold text-ink break-words">{cellNode(f, viewing)}</dd></div>}
                   </div>
                 )
               })}
@@ -734,7 +790,7 @@ export default function ResourceManager({
               const on = status === o
               return (
                 <button key={o} onClick={() => setStatus(on ? '' : o)}
-                  className={`shrink-0 min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
+                  className={`shrink-0 min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${res.urgency && (statusCounts[o] ?? 0) > 0 && !/hoàn thành/i.test(o) ? 'pl-blink' : ''} ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
                   <div className="text-[12px] font-black uppercase">{o}</div>
                   <div className="text-[12px] font-semibold opacity-80">{(statusCounts[o] ?? 0).toLocaleString('vi-VN')} {res.singular}</div>
                 </button>
@@ -771,7 +827,7 @@ export default function ResourceManager({
               const on = alertSel === o
               return (
                 <button key={o} type="button" aria-pressed={on} onClick={() => setAlertSel(on ? '' : o)}
-                  className={`shrink-0 rounded-full border-2 px-3.5 py-1.5 text-[12.5px] font-extrabold transition ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'border-navy-200 bg-white text-navy-900 hover:border-navy-300'}`}>
+                  className={`shrink-0 rounded-full border-2 px-3.5 py-1.5 text-[12.5px] font-extrabold transition ${(alertCounts[o] ?? 0) > 0 && o !== 'HOÀN THÀNH' ? 'pl-blink' : ''} ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'border-navy-200 bg-white text-navy-900 hover:border-navy-300'}`}>
                   {pretty(o)} <span className="font-semibold opacity-80">{(alertCounts[o] ?? 0).toLocaleString('vi-VN')}</span></button>
               )
             })}

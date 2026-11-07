@@ -42,6 +42,8 @@ export interface Resource {
   orderBy: { column: string; ascending: boolean; thenBy?: { column: string; ascending: boolean }[] }
   /** list is grouped/filtered by an alert column (e.g. overdue first): chips with counts + group headers */
   urgency?: { field: string; order: string[] }
+  /** exact columns (and order) of the list when it differs from the form order */
+  listOrder?: string[]
   /** quick filter chips (query params per chip); `def` is the chip applied when the page opens */
   quick?: { chips: { key: string; label: string; params: Record<string, string> }[]; def: string }
   fields: Field[]
@@ -109,7 +111,7 @@ const workFields = (dateField: Field): Field[] => [
   { name: 'trang_thai', label: 'Trạng thái', type: 'select', options: WORK_STATES, default: 'Chưa thực hiện' },
   { name: 'giai_doan_hien_tai', label: 'Giai đoạn', type: 'text', ro: true },
   { name: 'ngay_hoan_thanh', label: 'Ngày hoàn thành', type: 'date', inList: false },
-  { name: 'tien_do', label: 'Tiến độ', type: 'textarea', ro: true, inList: false },
+  { name: 'tien_do', label: 'Tiến độ', type: 'textarea', ro: true },
   { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea' },
 ]
 
@@ -123,6 +125,8 @@ export const RESOURCES: Resource[] = [
     // open with what needs attention: overdue → due today → soon → … → done (nearest deadline first inside each group)
     orderBy: { column: 'thu_tu_canh_bao', ascending: true, thenBy: [{ column: 'deadline', ascending: true }, { column: 'ngay_giao', ascending: false }] },
     urgency: { field: 'canh_bao', order: URGENCY },
+    // V191 column order
+    listOrder: ['ngay_giao', 'id_nguoi_thuc_hien', 'noi_dung', 'tien_do', 'cach_thuc_hien', 'deadline', 'so_ngay', 'muc_do', 'trang_thai', 'canh_bao'],
     fields: [
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(0, 2),
       { name: 'khu_vuc', label: 'Khu vực', type: 'text' },
@@ -130,7 +134,8 @@ export const RESOURCES: Resource[] = [
       { name: 'deadline', label: 'Hạn hoàn thành', type: 'date' },
       { name: 'muc_do', label: 'Mức độ', type: 'select', options: ['Bình thường', 'Gấp', 'Rất gấp'] },
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(2),
-      { name: 'so_ngay_con_lai', label: 'Còn (ngày)', type: 'number', ro: true },
+      { name: 'so_ngay_con_lai', label: 'Còn (ngày)', type: 'number', ro: true, inList: false },
+      { name: 'so_ngay', label: 'Số ngày', type: 'number', ro: true, inList: false },
       { name: 'canh_bao', label: 'Cảnh báo', type: 'select', options: URGENCY, ro: true },
     ],
     optionLabel: (r) => `${r.id} · ${String(r.noi_dung ?? '').slice(0, 60)}`,
