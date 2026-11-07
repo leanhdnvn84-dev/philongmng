@@ -63,25 +63,27 @@ export interface Resource {
   locked?: (row: any) => string | null
 }
 
-export const MODULES: { key: string; label: string }[] = [
-  { key: 'CONG_VIEC', label: 'Công việc' },
-  { key: 'CVHN', label: 'Công việc hằng ngày' },
-  { key: 'KHACH_RA_VAO', label: 'Khách ra/vào' },
-  { key: 'BAO_TRI', label: 'Bảo trì' },
-  { key: 'DE_XUAT', label: 'Đề xuất' },
-  { key: 'THIET_BI', label: 'Thiết bị' },
-  { key: 'KHO', label: 'Kho vật tư' },
-  { key: 'THU_HOI', label: 'Thu hồi / thanh lý' },
-  { key: 'QUAN_LY_TANG', label: 'Tòa nhà, tầng' },
-  { key: 'KHACH_THUE', label: 'Khách thuê' },
-  { key: 'KHACH_HANG_TIEM_NANG', label: 'Khách hàng tiềm năng' },
-  { key: 'TIEN_DIEN', label: 'Tiền điện' },
-  { key: 'DANH_MUC', label: 'Danh mục' },
-  { key: 'BAO_CAO', label: 'Báo cáo' },
-  { key: 'NGUOI_SU_DUNG', label: 'Người dùng' },
-  { key: 'VAI_TRO', label: 'Vai trò' },
-  { key: 'PHAN_QUYEN', label: 'Phân quyền' },
+/** Permission modules, named after the menu so the matrix reads like the app. `approve` = the module has an approve-type action. */
+export const MODULE_INFO: { key: string; label: string; group: string; pages: string; approve?: string }[] = [
+  { key: 'CONG_VIEC', label: 'Công việc', group: 'Công việc', pages: 'Danh sách công việc, ghi nhận tiến độ' },
+  { key: 'CVHN', label: 'Công việc hằng ngày', group: 'Công việc', pages: 'Công việc hằng ngày' },
+  { key: 'KHACH_RA_VAO', label: 'Khách ra/vào', group: 'Công việc', pages: 'Đăng ký khách, check-in/out' },
+  { key: 'BAO_CAO', label: 'Báo cáo', group: 'Công việc', pages: 'Báo cáo tiến độ, báo cáo công việc' },
+  { key: 'BAO_TRI', label: 'Bảo trì', group: 'Bảo trì', pages: 'Nhật ký bảo trì, kế hoạch bảo trì' },
+  { key: 'DE_XUAT', label: 'Đề xuất', group: 'Đề xuất', pages: 'Mua vật tư, mua thiết bị, bảo trì, thanh lý, lịch sử in', approve: 'Duyệt / từ chối đề xuất' },
+  { key: 'THIET_BI', label: 'Thiết bị', group: 'Thiết bị & kho', pages: 'Đang dùng, kho thiết bị, tất cả, lịch sử chuyển' },
+  { key: 'KHO', label: 'Kho vật tư', group: 'Thiết bị & kho', pages: 'Kho vật tư, lịch sử nhập xuất' },
+  { key: 'THU_HOI', label: 'Thu hồi / thanh lý', group: 'Thiết bị & kho', pages: 'Thu hồi / thanh lý' },
+  { key: 'QUAN_LY_TANG', label: 'Toà nhà, tầng cho thuê', group: 'Cho thuê', pages: 'Toà nhà, tầng / khu cho thuê' },
+  { key: 'KHACH_THUE', label: 'Khách đang thuê', group: 'Cho thuê', pages: 'Khách đang thuê' },
+  { key: 'KHACH_HANG_TIEM_NANG', label: 'Khách hàng tiềm năng', group: 'Cho thuê', pages: 'Khách hàng tiềm năng' },
+  { key: 'TIEN_DIEN', label: 'Tiền điện', group: 'Cho thuê', pages: 'Kỳ tính tiền, nhập chỉ số, in giấy báo', approve: 'Chốt kỳ / mở lại kỳ' },
+  { key: 'DANH_MUC', label: 'Danh mục', group: 'Danh mục', pages: 'Nhân viên, Đội PCCC, nhà thầu, nhà cung cấp, chu kỳ bảo trì, khu vực, chi tiết vận hành, danh mục giá trị' },
+  { key: 'NGUOI_SU_DUNG', label: 'Người dùng & nhật ký hệ thống', group: 'Hệ thống', pages: 'Người dùng, lịch sử đăng nhập, email cảnh báo, kiểm tra & sao lưu' },
+  { key: 'VAI_TRO', label: 'Vai trò', group: 'Hệ thống', pages: 'Thêm / sửa / xóa vai trò' },
+  { key: 'PHAN_QUYEN', label: 'Phân quyền', group: 'Hệ thống', pages: 'Bảng phân quyền theo vai trò' },
 ]
+export const MODULES: { key: string; label: string }[] = MODULE_INFO.map(({ key, label }) => ({ key, label }))
 
 const ACTIVE = ['Hoạt động', 'Ngưng hoạt động']
 export const URGENCY = ['QUÁ HẠN', 'ĐẾN HẠN HÔM NAY', 'SẮP ĐẾN HẠN', 'CẦN LÀM NGAY', 'ĐANG LÀM', 'CHƯA BẮT ĐẦU', 'HOÀN THÀNH']
@@ -775,8 +777,8 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Công việc', href: '/cong_viec', resource: 'cong_viec', module: 'CONG_VIEC' },
     { label: 'Công việc hằng ngày', href: '/cong_viec_hang_ngay', resource: 'cong_viec_hang_ngay', module: 'CVHN' },
     { label: 'Khách ra/vào', href: '/khach_ra_vao', resource: 'khach_ra_vao', module: 'KHACH_RA_VAO' },
-    { label: 'Báo cáo tiến độ', href: '/bao-cao-tien-do', module: 'CONG_VIEC' },
-    { label: 'Báo cáo công việc', href: '/bao-cao-cong-viec', module: 'CONG_VIEC' },
+    { label: 'Báo cáo tiến độ', href: '/bao-cao-tien-do', module: 'BAO_CAO' },
+    { label: 'Báo cáo công việc', href: '/bao-cao-cong-viec', module: 'BAO_CAO' },
   ] },
   { group: 'Bảo trì', items: [
     { label: 'Nhật ký bảo trì', href: '/nhat_ky_bao_tri', resource: 'nhat_ky_bao_tri', module: 'BAO_TRI' },
@@ -817,8 +819,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
   ] },
   { group: 'Hệ thống', items: [
     { label: 'Người dùng', href: '/users', resource: 'users', module: 'NGUOI_SU_DUNG' },
-    { label: 'Vai trò', href: '/vai_tro', resource: 'vai_tro', module: 'VAI_TRO' },
-    { label: 'Phân quyền', href: '/phan_quyen', resource: 'phan_quyen', module: 'PHAN_QUYEN' },
+    { label: 'Vai trò & phân quyền', href: '/vai-tro-phan-quyen', module: 'PHAN_QUYEN' },
     { label: 'Lịch sử đăng nhập', href: '/lich_su_dang_nhap', resource: 'lich_su_dang_nhap', module: 'NGUOI_SU_DUNG' },
     { label: 'Cấu hình email cảnh báo', href: '/cau_hinh_email_canh_bao', resource: 'cau_hinh_email_canh_bao', module: 'NGUOI_SU_DUNG' },
     { label: 'Nhật ký email cảnh báo', href: '/nhat_ky_email_canh_bao', resource: 'nhat_ky_email_canh_bao', module: 'NGUOI_SU_DUNG' },
