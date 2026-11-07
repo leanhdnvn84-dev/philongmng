@@ -37,12 +37,12 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#07021A}
 #logo{left:50%;top:205px;width:240px;height:240px;margin-left:-120px;border-radius:50%;background:#fff;padding:14px;box-shadow:0 0 50px rgba(255,255,255,.6)}
 /* tiêu đề đầu / kết */
 .tde{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;opacity:0}
-.tde .e{font:800 30px 'Be Vietnam Pro';letter-spacing:.4em;color:#9CF6FF;text-shadow:0 0 16px #00E5FF;margin-top:300px;margin-bottom:-40px}
-.tde h1{font:italic 900 150px/1.25 'Be Vietnam Pro';padding:.3em 20px 0;letter-spacing:-.01em;text-transform:uppercase;margin-top:10px;
+.tde .e{font:800 30px 'Be Vietnam Pro';letter-spacing:.4em;color:#9CF6FF;text-shadow:0 0 16px #00E5FF;margin-top:250px;margin-bottom:-10px}
+.tde h1{font:italic 900 150px/1.25 'Be Vietnam Pro';padding:.32em 20px 0;letter-spacing:-.01em;text-transform:uppercase;margin-top:10px;
  background:linear-gradient(90deg,#00F0FF,#FF3EA5,#FFD23F);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(255,62,165,.7))}
 .tde h1 small{display:block;font-size:.62em;line-height:1.2}
 .tde .p{font:700 30px 'Be Vietnam Pro';letter-spacing:.14em;color:#FFE6F6;margin-top:18px}
-.tde .tg{margin-top:26px;font:400 58px 'Great Vibes',cursive;color:#FFD23F;text-shadow:0 0 16px #FF8A00}
+.tde .tg{margin-top:24px;font:700 30px 'Be Vietnam Pro';letter-spacing:.08em;color:#FFE27A;text-shadow:0 0 14px #FF8A00}
 .tde .nk{display:inline-block;margin-top:18px;font:800 26px 'Be Vietnam Pro';letter-spacing:.16em;color:#12053A;background:linear-gradient(90deg,#00F0FF,#FFD23F);border-radius:40px;padding:10px 34px}
 /* lời */
 #loi{left:60px;right:60px;top:560px;text-align:center}
@@ -102,7 +102,7 @@ function ve(t){
  const ti=t<L[0].a+3?ss(cl(t/1.2,0,1))*(1-ss(cl((t-L[0].a+1)/1,0,1))):0;$('tieu').style.opacity=ti;$('tieu').style.transform='scale('+(1+.03*k)+')';
  const kt=ss(cl((t-T_KET-.3)/1.2,0,1));$('ket').style.opacity=kt;$('ket').style.transform='scale('+(1+.03*k)+')';
  $('dau').style.opacity=(1-ti)*(1-kt);
- ['vong','vong2','logo','mt'].forEach(x=>$(x).style.opacity=x==='mt'?.28*(1-.6*kt):(1-.75*kt));
+ ['vong','vong2','logo','mt'].forEach(x=>$(x).style.opacity=x==='mt'?.28*(1-.6*kt):(1-.75*kt)*(1-.8*ti));
  /* lời */
  if(i<0||kt>.05){$('loi').style.opacity=0;$('tag').style.opacity=0;return}
  const vao=ss(cl((t-(l.a-.25))/.3,0,1)),ra=1-ss(cl((t-(l.b-.3))/.3,0,1));
