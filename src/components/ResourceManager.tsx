@@ -246,10 +246,12 @@ export default function ResourceManager({
     return display(f, r[f.name], labels)
   }
   const cellTip = (f: Field, r: any): string | null => {
-    if (!isWork) return null
     if (f.name === 'so_ngay' && res.key === 'cong_viec') return soNgay(r).lines.join('\n')
-    if (SOFT_TIP.has(f.name)) { const t = String(r[f.name] ?? '').trim(); return t && (f.name === 'tien_do' || t.length > 70) ? t : null }
-    return null
+    // any long text cell (clamped to 2-3 lines in the table) shows its full content on hover
+    const long = f.type === 'textarea' || SOFT_TIP.has(f.name) || f.multiline
+    if (!long) return null
+    const t = String(r[f.name] ?? '').trim()
+    return t && (f.name === 'tien_do' || t.length > 60) ? t : null
   }
   const showTip = (e: React.MouseEvent<HTMLElement>, f: Field, r: any) => {
     const text = cellTip(f, r); if (!text) return
@@ -790,7 +792,7 @@ export default function ResourceManager({
               const on = status === o
               return (
                 <button key={o} onClick={() => setStatus(on ? '' : o)}
-                  className={`shrink-0 min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${res.urgency && (statusCounts[o] ?? 0) > 0 && !/hoàn thành/i.test(o) ? 'pl-blink' : ''} ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
+                  className={`shrink-0 min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${(statusCounts[o] ?? 0) > 0 && (tone(o) === 'red' || tone(o) === 'amber') ? 'pl-blink' : ''} ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
                   <div className="text-[12px] font-black uppercase">{o}</div>
                   <div className="text-[12px] font-semibold opacity-80">{(statusCounts[o] ?? 0).toLocaleString('vi-VN')} {res.singular}</div>
                 </button>

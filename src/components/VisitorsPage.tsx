@@ -193,7 +193,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
 
   const stat = (key: TabKey, label: string, value: React.ReactNode, sub?: string, tone = 'text-navy-900', ring = 'border-b-blue-600', long = false) => (
     <button type="button" onClick={() => { setTab(key); setOnly4h(long) }}
-      className={`shrink-0 min-w-[132px] text-left rounded-[9px] bg-white px-3 py-1.5 border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-px transition ${ring} ${tab === key && only4h === long ? 'ring-2 ring-green-600/60' : ''}`}>
+      className={`shrink-0 min-w-[132px] text-left rounded-[9px] bg-white px-3 py-1.5 border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-px transition ${ring} ${long && Number(value) > 0 ? 'pl-blink' : ''} ${tab === key && only4h === long ? 'ring-2 ring-green-600/60' : ''}`}>
       <div className="text-[11px] font-black uppercase tracking-wide text-navy-700">{label}</div>
       <div className={`text-[20px] leading-tight font-extrabold tabular-nums ${tone}`}>{value}{sub && <span className="ml-2 text-[11.5px] font-medium text-ink-mute">{sub}</span>}</div>
     </button>

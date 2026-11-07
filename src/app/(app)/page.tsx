@@ -18,7 +18,7 @@ function Hero({ label, value, icon: Icon, tone, href, chips }: {
   chips: { text: string; hot?: boolean }[]
 }) {
   return (
-    <Link href={href} className="group relative block overflow-hidden rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(16,24,40,.12)]">
+    <Link href={href} className={`group relative block overflow-hidden rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(16,24,40,.12)] ${(tone === 'red' || tone === 'amber') && Number(value) > 0 ? 'pl-blink' : ''}`}>
       <span className={`absolute inset-x-0 top-0 h-1 ${BAR[tone]}`} />
       <div className="flex items-center justify-between">
         <span className={`grid h-9 w-9 place-items-center rounded-xl ${ICON[tone]}`}><Icon className="h-[18px] w-[18px]" /></span>
