@@ -28,7 +28,7 @@ function Picker({ options, value, text, onPick, onText, placeholder, ariaLabel, 
   const [hi, setHi] = useState(0)
   const shown = useMemo(() => {
     const k = fold(q); const list = k ? options.filter((o) => fold(`${o.value} ${o.label} ${o.sub ?? ''}`).includes(k)) : options
-    return list.slice(0, 8)
+    return list.slice(0, 60)
   }, [options, q])
   const label = value ? options.find((o) => o.value === value)?.label ?? text : text
   const choose = (o: Opt) => { onPick(o); setQ(''); setOpen(false) }
@@ -86,7 +86,7 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
     ;(async () => {
       const [nv, vt, tb] = await Promise.all([get('/api/nhan_vien?pageSize=1000'), get('/api/vat_tu?pageSize=2000'), get('/api/thiet_bi?pageSize=1500')])
       if (dead) return
-      if (nv) setStaff((nv.data as Row[]).filter((r) => r.trang_thai !== 'Ngưng hoạt động').map((r) => ({ value: r.id, label: r.ho_ten, sub: [r.phong_ban, r.chuc_vu].filter(Boolean).join(' · '), phong_ban: r.phong_ban })))
+      if (nv) setStaff((nv.data as Row[]).map((r) => ({ value: r.id, label: r.ho_ten, sub: [r.phong_ban, r.chuc_vu, r.trang_thai === 'Ngưng hoạt động' ? 'ngưng hoạt động' : ''].filter(Boolean).join(' · '), phong_ban: r.phong_ban })))
       else { const o = await get('/api/nhan_vien?options=1'); if (o && !dead) setStaff(o.data) }
       if (vt) setItems((vt.data as Row[]).map((r) => ({ value: r.id, label: r.ten_vat_tu, dvt: r.dvt ?? '', sub: `${r.id}${r.dvt ? ` · ${r.dvt}` : ''}${r.ton_hien_tai != null ? ` · tồn ${r.ton_hien_tai}` : ''}` })))
       else { const o = await get('/api/vat_tu?options=1'); if (o && !dead) setItems(o.data) }
