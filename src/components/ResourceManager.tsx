@@ -823,18 +823,6 @@ export default function ResourceManager({
             })}
           </div>
         )}
-        {res.urgency && !compact && (
-          <div className="flex shrink-0 gap-2 overflow-x-auto pb-1 print:hidden" role="group" aria-label="Lọc theo cảnh báo">
-            {res.urgency.order.filter((o) => alertCounts[o] || alertSel === o).map((o) => {
-              const on = alertSel === o
-              return (
-                <button key={o} type="button" aria-pressed={on} onClick={() => setAlertSel(on ? '' : o)}
-                  className={`shrink-0 rounded-full border-2 px-3.5 py-1.5 text-[12.5px] font-extrabold transition ${(alertCounts[o] ?? 0) > 0 && o !== 'HOÀN THÀNH' ? 'pl-blink' : ''} ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'border-navy-200 bg-white text-navy-900 hover:border-navy-300'}`}>
-                  {pretty(o)} <span className="font-semibold opacity-80">{(alertCounts[o] ?? 0).toLocaleString('vi-VN')}</span></button>
-              )
-            })}
-          </div>
-        )}
         {message}
         {(day || side || status || query) && (
           <div className="flex flex-wrap items-center gap-2 text-[12.5px] print:hidden">
