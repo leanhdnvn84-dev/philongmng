@@ -7,12 +7,12 @@ export interface Phieu { code: string; kind: string; date: string | null; reques
 export const KIND_LABEL: Record<string, string> = {
   MUA_VAT_TU: 'Đề xuất mua vật tư', MUA_THIET_BI: 'Đề xuất mua thiết bị', BAO_TRI: 'Đề xuất bảo trì', THANH_LY: 'Đề xuất thanh lý',
 }
-const COMPANY = { address: '52 Nguyễn Văn Linh, Đà Nẵng', phone: '(0236) 3 888 000', email: 'philong@philong.com.vn', web: 'www.philong.com.vn' }
+export const COMPANY = { address: '52 Nguyễn Văn Linh, Đà Nẵng', phone: '(0236) 3 888 000', email: 'philong@philong.com.vn', web: 'www.philong.com.vn' }
 
-const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
-const nl = (v: unknown) => esc(v).replace(/\n/g, '<br>')
-const money = (v: unknown) => { const n = Number(v ?? 0); return Number.isFinite(n) && n !== 0 ? String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '' }
-const dmy = (iso: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : '')
+export const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
+export const nl = (v: unknown) => esc(v).replace(/\n/g, '<br>')
+export const money = (v: unknown) => { const n = Number(v ?? 0); return Number.isFinite(n) && n !== 0 ? String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '' }
+export const dmy = (iso: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : '')
 
 /** Vietnamese amount in words, e.g. 1.250.000 → "Một triệu hai trăm năm mươi nghìn đồng". */
 export function moneyWords(value: unknown) {
@@ -42,7 +42,7 @@ export function fileName(p: Phieu) {
   return name.length > 150 ? name.slice(0, 150).trim() : name
 }
 
-const CSS = `
+export const CSS = `
 @page{size:A4;margin:11mm 12mm}
 *{box-sizing:border-box}
 body{font-family:"Times New Roman",Times,serif;color:#111;font-size:11pt;margin:0}

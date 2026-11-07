@@ -186,9 +186,14 @@ const taoKy: Handler = async ({ auth, input }) => {
   }
   const { data: existing } = await db.from('tien_dien').select('ma_cong_to').eq('ky', ky)
   const have = new Set((existing ?? []).map((r) => r.ma_cong_to))
+  // invoice groups of the new period: same day of month as the previous one, same order (V191: yyyymmdd-KTxxxx-seq)
+  const seqOf = (n: string | null) => Number(/-(\d+)$/.exec(n ?? '')?.[1] ?? 0)
+  const prevGroups = [...new Set([...latest.values()].map((p) => String(p.nhom_hoa_don ?? '')).filter(Boolean))].sort((a, b) => seqOf(a) - seqOf(b))
+  const dayPart = /^\d{6}(\d{2})-/.exec(prevGroups[0] ?? '')?.[1] ?? '22'
+  const newGroup = new Map(prevGroups.map((g, i) => [g, `${ky.replace('-', '')}${dayPart}-${g.split('-')[1] ?? 'KT'}-${i + 1}`]))
   const rows = [...latest.values()].filter((p) => !have.has(p.ma_cong_to)).map((p) => ({
     ky, id_khach_thue: p.id_khach_thue, ten_khach_thue: p.ten_khach_thue, id_tang: p.id_tang, tang: p.tang,
-    ma_cong_to: p.ma_cong_to, ten_cong_to: p.ten_cong_to, nhom_hoa_don: p.nhom_hoa_don,
+    ma_cong_to: p.ma_cong_to, ten_cong_to: p.ten_cong_to, nhom_hoa_don: newGroup.get(String(p.nhom_hoa_don ?? '')) ?? p.nhom_hoa_don,
     chi_so_cu: p.chi_so_moi, chi_so_moi: null, don_gia: price ?? p.don_gia, vat: p.vat, chu_ky_thang: p.chu_ky_thang,
     trang_thai: 'Nháp', nguon: `Tạo từ kỳ ${p.ky}`, nguoi_cap_nhat: auth.name,
   }))
