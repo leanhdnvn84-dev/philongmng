@@ -172,6 +172,8 @@ export default function ResourceManager({
   const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
   const [status, setStatus] = useState('')
   const [alertSel, setAlertSel] = useState('')
+  const [quickSel, setQuickSel] = useState(res.quick?.def ?? '')
+  const [quickCounts, setQuickCounts] = useState<Record<string, number>>({})
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const [side, setSide] = useState('')
   const [day, setDay] = useState<string | null>(null)
@@ -211,17 +213,18 @@ export default function ResourceManager({
   const sideName = sideField?.name
 
   // every active filter, optionally leaving out the one being counted
-  const baseParams = useCallback((omit: { status?: boolean; day?: boolean; alert?: boolean } = {}) => {
+  const baseParams = useCallback((omit: { status?: boolean; day?: boolean; alert?: boolean; quick?: boolean } = {}) => {
     const sp = new URLSearchParams(JSON.parse(filterKey))
     if (query) sp.set('search', query)
     if (status && !omit.status) sp.set('trang_thai', status)
     if (alertSel && res.urgency && !omit.alert) sp.set(res.urgency.field, alertSel)
+    if (res.quick && !compact && !omit.quick) for (const [k, v] of Object.entries(res.quick.chips.find((c) => c.key === quickSel)?.params ?? {})) sp.set(k, v)
     if (isDev && devF.nql) sp.set('id_nguoi_quan_ly', devF.nql)
     if (isDev && devF.loai) sp.set('loai_thiet_bi', devF.loai)
     if (side && sideName) sp.set(sideName, side)
     if (day && !omit.day) { sp.set('from', day); sp.set('to', day); sp.set('dateField', calField) }
     return sp
-  }, [filterKey, query, status, alertSel, res.urgency, side, sideName, day, calField, isDev, devF])
+  }, [filterKey, query, status, alertSel, res.urgency, res.quick, quickSel, compact, side, sideName, day, calField, isDev, devF])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -245,6 +248,16 @@ export default function ResourceManager({
     if (compact || !res.urgency) return
     const sp = baseParams({ alert: true }); sp.set('countBy', res.urgency.field)
     api(`/api/${res.key}?${sp}`).then((j) => setAlertCounts(j.data)).catch(() => {})
+  }, [version]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // quick chip counts (e.g. in stock / out of stock / all)
+  useEffect(() => {
+    if (compact || !res.quick) return
+    let dead = false
+    Promise.all(res.quick.chips.map((c) => { const sp = baseParams({ quick: true }); for (const [k, v] of Object.entries(c.params)) sp.set(k, v); sp.set('page', '1'); sp.set('pageSize', '1')
+      return api(`/api/${res.key}?${sp}`).then((j) => [c.key, j.total as number] as const).catch(() => [c.key, 0] as const) }))
+      .then((e) => { if (!dead) setQuickCounts(Object.fromEntries(e)) })
+    return () => { dead = true }
   }, [version]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // calendar badges for the visible month
@@ -329,7 +342,7 @@ export default function ResourceManager({
       }
     } catch (e: any) { flash(e.message, 'err') }
   }
-  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setAlertSel(''); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
+  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setAlertSel(''); if (res.quick) setQuickSel('all'); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const canCreate = perms.create && !res.noCreate
@@ -740,6 +753,18 @@ export default function ResourceManager({
       )}
 
       <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 print:block">
+        {res.quick && !compact && (
+          <div className="flex shrink-0 gap-2 overflow-x-auto pb-1 print:hidden" role="group" aria-label="Lọc nhanh">
+            {res.quick.chips.map((c) => {
+              const on = quickSel === c.key
+              return (
+                <button key={c.key} type="button" aria-pressed={on} onClick={() => setQuickSel(c.key)}
+                  className={`shrink-0 rounded-full border-2 px-3.5 py-1.5 text-[12.5px] font-extrabold transition ${on ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'border-navy-200 bg-white text-navy-900 hover:border-navy-300'}`}>
+                  {c.label} <span className="font-semibold opacity-80">{quickCounts[c.key] == null ? '' : quickCounts[c.key].toLocaleString('vi-VN')}</span></button>
+              )
+            })}
+          </div>
+        )}
         {res.urgency && !compact && (
           <div className="flex shrink-0 gap-2 overflow-x-auto pb-1 print:hidden" role="group" aria-label="Lọc theo cảnh báo">
             {res.urgency.order.filter((o) => alertCounts[o] || alertSel === o).map((o) => {
@@ -942,9 +967,9 @@ function useEscape(onClose: () => void) {
 function Drawer({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   useEscape(onClose)
   return (<Portal>
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-navy-950/40" onClick={onClose} />
-      <div className="absolute right-0 top-0 h-full w-full sm:max-w-2xl bg-white shadow-pop overflow-y-auto flex flex-col">{children}</div>
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 print:hidden" role="dialog" aria-modal="true">
+      <div className="pl-fade absolute inset-0 bg-navy-950/50" onClick={onClose} />
+      <div className="pl-sheet relative flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-y-auto rounded-2xl bg-white shadow-pop">{children}</div>
     </div>
   </Portal>)
 }
@@ -968,12 +993,12 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
     : f.type === 'ref' || f.type === 'email' || /^(ten|dia_chi|cong_ty|nguoi_)/.test(f.name) ? HALF : 'col-span-1')
 
   return (<Portal>
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-6" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-navy-950/50" onClick={onClose} />
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 print:hidden" role="dialog" aria-modal="true">
+      <div className="pl-fade absolute inset-0 bg-navy-950/50" onClick={onClose} />
       <form onSubmit={async (e) => {
         e.preventDefault(); setBusy(true); setError('')
         try { await onSubmit({ ...form }) } catch (err: any) { setError(err.message); setBusy(false) }
-      }} className="relative w-full sm:max-w-3xl lg:max-w-2xl max-h-[94dvh] flex flex-col bg-white rounded-t-2xl sm:rounded-xl shadow-pop overflow-hidden">
+      }} className="pl-sheet relative w-full sm:max-w-3xl lg:max-w-2xl max-h-[92dvh] flex flex-col bg-white rounded-2xl shadow-pop overflow-hidden">
         <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-5 lg:py-3 bg-blue-700 text-white">
           <div>
             <h2 className="text-[16px] font-extrabold">{title}</h2>

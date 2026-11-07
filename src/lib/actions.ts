@@ -165,6 +165,23 @@ const thuHoi: Handler = async ({ auth, id, row, input }) => {
   return { id: data.id }
 }
 
+// ── Kế hoạch bảo trì: ghi nhận một lần bảo trì ──
+const ghiNhanBaoTri: Handler = async ({ auth, id, row, input }) => {
+  if (row.trang_thai === 'Tạm ngưng') bad('Lịch này đang tạm ngưng')
+  const day = one(input.ngay_thuc_hien) || todayVN()
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) bad('Ngày thực hiện không đúng định dạng')
+  if (day > todayVN()) bad('Ngày thực hiện không được ở tương lai')
+  const rec = {
+    id_lich: id, id_khu_vuc: row.id_khu_vuc, id_hang_muc: row.id_hang_muc, ngay_thuc_hien: day,
+    id_nguoi_thuc_hien: one(input.id_nguoi_thuc_hien) || row.id_nguoi_phu_trach || null, id_nha_thau: one(input.id_nha_thau) || null,
+    noi_dung_thuc_hien: one(input.noi_dung_thuc_hien) || null, ket_qua: one(input.ket_qua) || null, ghi_chu: one(input.ghi_chu) || null, trang_thai: 'Hoàn thành',
+  }
+  const { data, error } = await supabaseAdmin().from('nhat_ky_bao_tri').insert(rec).select('id').single()
+  if (error) throw error
+  await audit(auth, 'nhat_ky_bao_tri', data.id, 'create', rec)
+  return { id: data.id, message: `Đã ghi nhận bảo trì ${data.id} ngày ${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}` }
+}
+
 // ── Tiền điện ──
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
 const taoKy: Handler = async ({ auth, input }) => {
@@ -226,6 +243,7 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
   vat_tu: { nhap_xuat: nhapXuat },
   thiet_bi: { chuyen, thu_hoi: thuHoi },
   tien_dien: { tao_ky: taoKy, chot_ky: chotKy },
+  lich_bao_tri: { ghi_nhan: ghiNhanBaoTri },
 }
 
 export async function runAction(res: Resource, actionKey: string, id: string, auth: AuthContext, input: Record<string, any>) {

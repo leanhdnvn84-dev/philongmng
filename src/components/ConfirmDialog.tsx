@@ -31,7 +31,7 @@ function ConfirmDialog({ ask, onClose }: { ask: Ask; onClose: (v: boolean) => vo
   }, [onClose])
   return (
     <Portal>
-      <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 p-4 pl-fade print:hidden" role="alertdialog" aria-modal="true" aria-label={ask.title ?? 'Xác nhận'}
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 pl-fade print:hidden" role="alertdialog" aria-modal="true" aria-label={ask.title ?? 'Xác nhận'}
         onMouseDown={(e) => e.target === e.currentTarget && onClose(false)}>
         <div className="pl-sheet w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-pop">
           <div className="px-5 pt-5 pb-3">

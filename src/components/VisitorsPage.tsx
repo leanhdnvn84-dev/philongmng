@@ -461,7 +461,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
       )}
       {viewing && (
         <Portal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Chi tiết lượt khách">
+          <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Chi tiết lượt khách">
             <div className="absolute inset-0 bg-navy-950/45" onClick={() => setViewing(null)} />
             <div className="relative w-full max-w-xl lg:max-w-xl sm:max-w-3xl max-h-[92dvh] overflow-y-auto rounded-xl bg-white shadow-pop">
               <div className="flex items-center justify-between px-5 py-3 bg-blue-700 text-white">

@@ -45,6 +45,14 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     if (v === null || v === '' || f.type === 'password') continue
     query = v === '__NULL__' ? query.is(f.name, null) : f.type === 'bool' ? query.eq(f.name, v === 'true') : query.eq(f.name, v)
   }
+  // numeric range filters on declared number/money fields: gt_<field>, gte_<field>, lt_<field>, lte_<field>
+  for (const f of res.fields) {
+    if (f.type !== 'number' && f.type !== 'money') continue
+    for (const op of ['gt', 'gte', 'lt', 'lte'] as const) {
+      const v = url.searchParams.get(`${op}_${f.name}`)
+      if (v !== null && v !== '' && Number.isFinite(Number(v))) query = query[op](f.name, Number(v))
+    }
+  }
   // date range on a calendar column (from/to = YYYY-MM-DD); dateField picks one of the declared ones
   const dateCols = [res.dateField, ...(res.calendarFields ?? []).map((c) => c.name)].filter(Boolean) as string[]
   const reqCol = url.searchParams.get('dateField')

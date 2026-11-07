@@ -42,6 +42,8 @@ export interface Resource {
   orderBy: { column: string; ascending: boolean; thenBy?: { column: string; ascending: boolean }[] }
   /** list is grouped/filtered by an alert column (e.g. overdue first): chips with counts + group headers */
   urgency?: { field: string; order: string[] }
+  /** quick filter chips (query params per chip); `def` is the chip applied when the page opens */
+  quick?: { chips: { key: string; label: string; params: Record<string, string> }[]; def: string }
   fields: Field[]
   optionSelect?: string
   optionLabel: (row: any) => string
@@ -219,6 +221,19 @@ export const RESOURCES: Resource[] = [
     ],
     optionSelect: 'id, khu_vuc(tang, ten_khu_vuc), hang_muc_bao_tri(ten_hang_muc)',
     optionLabel: (r) => `${r.khu_vuc?.tang ?? ''} · ${r.khu_vuc?.ten_khu_vuc ?? '?'} — ${r.hang_muc_bao_tri?.ten_hang_muc ?? '?'}`,
+    // V191 "Ghi nhận bảo trì": writes a log for this area + item; the next due date is recomputed from it
+    actions: [{
+      key: 'ghi_nhan', label: 'Ghi nhận bảo trì', perm: 'create',
+      show: (r) => r?.trang_thai !== 'Tạm ngưng',
+      fields: [
+        { name: 'ngay_thuc_hien', label: 'Ngày thực hiện (để trống = hôm nay)', type: 'date' },
+        { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện/theo dõi', type: 'ref', ref: 'nhan_vien' },
+        { name: 'id_nha_thau', label: 'Đơn vị bảo trì', type: 'ref', ref: 'nha_thau' },
+        { name: 'noi_dung_thuc_hien', label: 'Nội dung thực hiện', type: 'textarea' },
+        { name: 'ket_qua', label: 'Kết quả', type: 'text' },
+        { name: 'ghi_chu', label: 'Ghi chú', type: 'text' },
+      ],
+    }],
   },
 
   // ───────── ĐỀ XUẤT ─────────
@@ -274,6 +289,12 @@ export const RESOURCES: Resource[] = [
   {
     key: 'vat_tu', table: 'vat_tu', view: 'v_vat_tu', module: 'KHO', title: 'Kho vật tư', singular: 'vật tư',
     searchFields: ['id', 'ten_vat_tu', 'nhom', 'thong_so'], orderBy: { column: 'ten_vat_tu', ascending: true },
+    // opens with the items that are in stock; "Hết hàng" / "Tất cả" one tap away
+    quick: { def: 'con', chips: [
+      { key: 'con', label: 'Còn hàng', params: { gt_ton_hien_tai: '0' } },
+      { key: 'het', label: 'Hết hàng', params: { lte_ton_hien_tai: '0' } },
+      { key: 'all', label: 'Tất cả', params: {} },
+    ] },
     fields: [
       { name: 'ten_vat_tu', label: 'Tên vật tư', type: 'text', required: true },
       { name: 'nhom', label: 'Nhóm', type: 'text' },

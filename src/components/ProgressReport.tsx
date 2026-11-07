@@ -59,7 +59,7 @@ function Lightbox({ list, index, onClose, onGo }: { list: Photo[]; index: number
   }, [index, list.length, onClose, onGo])
   if (!p) return null
   return (
-    <div className="fixed inset-0 z-[80] flex flex-col bg-black/90" role="dialog" aria-modal="true" aria-label="Xem ảnh">
+    <div className="fixed inset-0 z-[110] flex flex-col bg-black/90" role="dialog" aria-modal="true" aria-label="Xem ảnh">
       <div className="flex shrink-0 items-center gap-3 px-4 py-3 text-white">
         <div className="min-w-0 flex-1 text-sm"><b>{index + 1} / {list.length}</b> · {p.giai_doan ?? 'Cập nhật'} · {formatDate(p.ngay)}{p.gio ? ` ${p.gio}` : ''}<div className="truncate text-xs opacity-80">{plain(p.dong_tien_do)}</div></div>
         <a href={driveUrl(p)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-white/40 px-3 py-1.5 text-xs font-bold">Mở trên Drive</a>
@@ -302,7 +302,7 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
   }, [entries, photos])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
       <div className="flex max-h-[94vh] w-full max-w-[1500px] flex-col overflow-hidden rounded-xl bg-white shadow-pop">
         <div className="shrink-0 bg-blue-700 px-5 py-3 text-white">
           <div className="flex items-start justify-between gap-3">
@@ -463,8 +463,8 @@ function RecordSheet({ work, counts, onClose, onSaved }: { work: Work; counts: R
     onSaved()
   }
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
-      <div className="bg-white w-full max-w-2xl rounded-t-2xl p-6 space-y-4 shadow-pop">
+    <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
+      <div className="bg-white w-full max-w-2xl rounded-2xl p-6 space-y-4 shadow-pop max-h-[90dvh] overflow-y-auto">
         <h2 className="font-bold">Ghi nhận tiến độ · {work.id}</h2>
         <div className="flex flex-wrap gap-2">
           {STAGES.map((s) => (

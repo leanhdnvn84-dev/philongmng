@@ -38,9 +38,9 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   useEffect(() => { const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose(); document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k) }, [onClose])
   return (
     <Portal>
-      <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="fixed inset-0 z-[90] flex items-center justify-center p-3" role="dialog" aria-modal="true" aria-label={title}>
         <div className="absolute inset-0 bg-black/45" onClick={onClose} />
-        <div className="relative z-10 w-full max-w-md max-h-[88dvh] overflow-y-auto rounded-t-2xl bg-white p-5 shadow-pop sm:rounded-2xl">
+        <div className="relative z-10 w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-pop">
           <div className="mb-3 flex items-center"><h2 className="flex-1 text-[17px] font-extrabold text-navy-900">{title}</h2>
             <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full bg-navy-100"><X className="h-4 w-4" /></button></div>
           {children}
