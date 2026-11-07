@@ -81,7 +81,7 @@ window.LOI=L;window.TONG=TONG;
 const $=i=>document.getElementById(i),cl=(x,a,b)=>Math.max(a,Math.min(b,x)),ss=x=>x*x*(3-2*x);
 /* cánh rơi cố định */
 const R=Array.from({length:34},(_,i)=>({x:(i*173+37)%1920,v:60+(i%5)*22,d:i*1.37,w:30+(i%4)*14,s:.7+(i%4)*.15,r:i*47}));
-$('tg').innerHTML='Sáng tác: <b>'+SANG_TAC+'</b>';
+$('tg').innerHTML='Ý tưởng &amp; thực hiện: <b>'+SANG_TAC+'</b>';
 $('roi').innerHTML=R.map(()=>'<i></i>').join('');const RI=[...$('roi').children];
 function ve(t){
  $('tia').style.transform='rotate('+(t*1.2)+'deg)';$('nang').style.opacity=.75+.25*Math.sin(t*1.2);
