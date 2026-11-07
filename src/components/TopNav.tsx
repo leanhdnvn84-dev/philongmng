@@ -32,6 +32,12 @@ const META: Record<string, [LucideIcon, string]> = {
   'Cấu hình email cảnh báo': [Mail, 'Bật tắt, giờ gửi, người nhận'], 'Nhật ký email cảnh báo': [MailCheck, 'Email đã gửi'], 'Kiểm tra & sao lưu': [Database, 'Kiểm tra và sao lưu dữ liệu'],
 }
 
+// icon tile colours, cycled per entry so every dropdown reads at a glance
+const TILE = [
+  'bg-blue-50 text-blue-600', 'bg-emerald-50 text-emerald-600', 'bg-amber-50 text-amber-600', 'bg-violet-50 text-violet-600',
+  'bg-rose-50 text-rose-600', 'bg-sky-50 text-sky-600', 'bg-teal-50 text-teal-600', 'bg-orange-50 text-orange-600',
+]
+
 function Brand() {
   return (
     <Link href="/" className="shrink-0" aria-label="Trang tổng quan">
@@ -132,16 +138,16 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
               </button>
               {open === g.group && (
                 <div className={`absolute top-full pt-3 ${gi >= groups.length - 3 ? 'right-0' : 'left-0'}`}>
-                  <div className={`${g.items.length > 3 ? 'grid w-[min(560px,calc(100vw-2rem))] grid-cols-2' : 'w-[300px]'} gap-1 rounded-2xl border border-navy-200 bg-white p-2.5 shadow-[0_18px_40px_rgba(11,31,69,.2)]`}>
-                    {g.items.map((i) => {
+                  <div className="max-h-[calc(100dvh-84px)] w-[320px] space-y-0.5 overflow-y-auto rounded-2xl border border-navy-200 bg-white p-2 shadow-[0_18px_40px_rgba(11,31,69,.2)]">
+                    {g.items.map((i, idx) => {
                       const [Icon, sub] = META[i.label] ?? [FolderOpen, '']
                       const on = isActive(i.href)
                       return (
-                        <Link key={i.href} href={i.href} className={`flex items-center gap-3 rounded-xl p-3 transition-colors ${on ? 'bg-navy-50' : 'hover:bg-navy-50'}`}>
-                          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] ${on ? 'bg-[#fde7e9] text-[#c4121f]' : 'bg-navy-100 text-navy-800'}`}><Icon className="h-[18px] w-[18px]" strokeWidth={1.9} /></span>
-                          <span className="min-w-0">
+                        <Link key={i.href} href={i.href} className={`flex items-center gap-3 rounded-xl px-2.5 py-2 transition-colors ${on ? 'bg-brand-50' : 'hover:bg-navy-50'}`}>
+                          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] ${on ? 'bg-[#fde7e9] text-[#c4121f]' : TILE[idx % TILE.length]}`}><Icon className="h-[18px] w-[18px]" strokeWidth={1.9} /></span>
+                          <span className="min-w-0 flex-1">
                             <span className={`block truncate text-[14px] font-semibold ${on ? 'text-[#c4121f]' : 'text-navy-900'}`}>{i.label}</span>
-                            {sub && <span className="block truncate text-[12.5px] text-ink-soft">{sub}</span>}
+                            {sub && <span className="block truncate text-[12px] text-ink-soft">{sub}</span>}
                           </span>
                         </Link>
                       )
