@@ -46,7 +46,7 @@ function soNgay(r: any): { n: number; tone: 'red' | 'green' | 'blue'; lines: str
 }
 /** estimated minimum width of a list column (px) and how important it is to keep it when the screen is narrow */
 const colMin = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' ? (f.name === 'tien_do' || f.name === 'cach_thuc_hien' ? 190 : 230) : f.type === 'date' ? 92 : f.type === 'datetime' ? 128 : f.type === 'money' ? 96 : f.type === 'number' ? 70 : f.type === 'bool' ? 64
-  : f.type === 'email' ? 150 : STATUS_FIELDS_SET.has(f.name) ? 108 : f.type === 'ref' ? 118 : 110)
+  : f.type === 'email' ? 150 : STATUS_FIELDS_SET.has(f.name) ? 108 : /^id_nguoi/.test(f.name) ? 150 : f.type === 'ref' ? 118 : 110)
 const colPri = (f: Field) => (f.name === 'noi_dung' || /^(ten|ho_ten)/.test(f.name) ? 100 : f.name === 'canh_bao' ? 45 : f.name === 'muc_do' ? 47 : f.name === 'tien_do' ? 62 : STATUS_FIELDS_SET.has(f.name) ? 90 : f.name === 'so_ngay' ? 85 : f.type === 'date' ? 70 : f.type === 'money' || f.type === 'number' ? 60 : f.type === 'ref' ? 55
   : f.name === 'tien_do' || f.name === 'cach_thuc_hien' ? 30 : f.type === 'textarea' ? 35 : 50)
 /** keep the most important columns that fit the available width: no horizontal scrolling; the rest stay in the detail popup */
@@ -662,7 +662,7 @@ export default function ResourceManager({
                   const right = RIGHT.test(f.name) || f.type === 'money' || f.type === 'number'
                   const wide = f.type === 'textarea' || f.name === 'noi_dung' || f.name === 'ghi_chu' || f.name === 'ds_ten'
                   return (
-                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`px-2.5 py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${wide ? 'min-w-[9rem]' : f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || STATUS_FIELDS.has(f.name) ? 'whitespace-nowrap' : 'break-words'}`}>
+                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`px-2.5 py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${wide ? 'min-w-[9rem]' : f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || STATUS_FIELDS.has(f.name) || /^id_nguoi/.test(f.name) ? 'whitespace-nowrap' : 'break-words'}`}>
                       <div className={f.multiline ? 'whitespace-pre-line leading-snug' : f.name === 'tien_do' ? 'line-clamp-3' : wide ? 'line-clamp-2' : ''}>{cellNode(f, r)}</div>
                     </td>
                   )
