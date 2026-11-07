@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
   RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown,
@@ -171,6 +171,8 @@ export default function ResourceManager({
   const [searchOpen, setSearchOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
   const [status, setStatus] = useState('')
+  const [alertSel, setAlertSel] = useState('')
+  const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const [side, setSide] = useState('')
   const [day, setDay] = useState<string | null>(null)
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
@@ -209,16 +211,17 @@ export default function ResourceManager({
   const sideName = sideField?.name
 
   // every active filter, optionally leaving out the one being counted
-  const baseParams = useCallback((omit: { status?: boolean; day?: boolean } = {}) => {
+  const baseParams = useCallback((omit: { status?: boolean; day?: boolean; alert?: boolean } = {}) => {
     const sp = new URLSearchParams(JSON.parse(filterKey))
     if (query) sp.set('search', query)
     if (status && !omit.status) sp.set('trang_thai', status)
+    if (alertSel && res.urgency && !omit.alert) sp.set(res.urgency.field, alertSel)
     if (isDev && devF.nql) sp.set('id_nguoi_quan_ly', devF.nql)
     if (isDev && devF.loai) sp.set('loai_thiet_bi', devF.loai)
     if (side && sideName) sp.set(sideName, side)
     if (day && !omit.day) { sp.set('from', day); sp.set('to', day); sp.set('dateField', calField) }
     return sp
-  }, [filterKey, query, status, side, sideName, day, calField, isDev, devF])
+  }, [filterKey, query, status, alertSel, res.urgency, side, sideName, day, calField, isDev, devF])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -235,6 +238,13 @@ export default function ResourceManager({
     if (compact || !statusField) return
     const sp = baseParams({ status: true }); sp.set('countBy', 'trang_thai')
     api(`/api/${res.key}?${sp}`).then((j) => setStatusCounts(j.data)).catch(() => {})
+  }, [version]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // alert chip counts (overdue / due today / soon …) respecting the other filters
+  useEffect(() => {
+    if (compact || !res.urgency) return
+    const sp = baseParams({ alert: true }); sp.set('countBy', res.urgency.field)
+    api(`/api/${res.key}?${sp}`).then((j) => setAlertCounts(j.data)).catch(() => {})
   }, [version]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // calendar badges for the visible month
@@ -319,7 +329,7 @@ export default function ResourceManager({
       }
     } catch (e: any) { flash(e.message, 'err') }
   }
-  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
+  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setAlertSel(''); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const canCreate = perms.create && !res.noCreate
@@ -471,16 +481,32 @@ export default function ResourceManager({
   const allStatus = listFields.filter((f) => STATUS_FIELDS.has(f.name))
   const statusFields = [...allStatus].sort((a, b) => (a.name === 'canh_bao' ? 0 : a.name === 'trang_thai' ? 1 : 2) - (b.name === 'canh_bao' ? 0 : b.name === 'trang_thai' ? 1 : 2)).slice(0, 2)
   const bodyFields = listFields.filter((f) => f !== titleField && !statusFields.includes(f)).slice(0, 8)
+  // urgency groups: header whenever the alert value changes in the (already sorted) list
+  const urg = res.urgency && !alertSel && !compact ? res.urgency : null
+  const pretty = (v: string) => v.charAt(0) + v.slice(1).toLowerCase()
+  const groupHead = (r: any, i: number, cols?: number) => {
+    if (!urg) return null
+    const v = String(r[urg.field] ?? '')
+    if (i > 0 && String(rows[i - 1][urg.field] ?? '') === v) return null
+    const t = tone(v)
+    const cls = t === 'red' ? 'bg-red-50 text-red-700' : t === 'amber' ? 'bg-amber-50 text-amber-800' : t === 'green' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'
+    const inner = <><span className="font-extrabold uppercase tracking-wide">{v || 'Khác'}</span><span className="ml-2 font-semibold opacity-80">{(alertCounts[v] ?? 0).toLocaleString('vi-VN')} {res.singular}</span></>
+    return cols
+      ? <tr key={`g-${v}`}><td colSpan={cols} className={`border-y border-navy-200 px-3 py-1.5 text-[12.5px] ${cls}`}>{inner}</td></tr>
+      : <div key={`g-${v}`} className={`rounded-lg px-3 py-1.5 text-[12.5px] ${cls}`}>{inner}</div>
+  }
   const cardList = (
     <div className="lg:hidden space-y-2 p-2.5">
       {loading && rows.length === 0 ? [...Array(5)].map((_, i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-navy-100" />)
         : rows.length === 0 ? <div className="px-4 py-14 text-center text-ink-mute"><Inbox className="mx-auto mb-2 h-8 w-8 text-navy-300" />Không có dữ liệu</div>
-        : rows.map((r) => {
+        : rows.map((r, i) => {
           const t = tone(String(r.canh_bao || r.trang_thai || ''))
           const edge = t === 'red' ? 'border-l-red-500' : t === 'amber' ? 'border-l-amber-400' : t === 'green' ? 'border-l-emerald-500' : t === 'blue' ? 'border-l-blue-500' : 'border-l-navy-300'
           const shown = bodyFields.filter((f) => r[f.name] !== null && r[f.name] !== undefined && r[f.name] !== '')
           return (
-            <div key={r.id} className={`rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white shadow-[0_1px_2px_rgba(16,24,40,.06)] ${loading ? 'opacity-60' : ''}`}>
+            <Fragment key={r.id}>
+            {groupHead(r, i)}
+            <div className={`rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white shadow-[0_1px_2px_rgba(16,24,40,.06)] ${loading ? 'opacity-60' : ''}`}>
             <button type="button" onClick={() => setViewing(r)} className="block w-full rounded-2xl px-3 py-2.5 text-left active:bg-navy-50">
               <div className="flex items-center gap-2">
                 {res.key !== 'users' && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-blue-700">{r.id}</span>}
@@ -507,6 +533,7 @@ export default function ResourceManager({
               </div>
             )}
             </div>
+            </Fragment>
           )
         })}
     </div>
@@ -529,12 +556,13 @@ export default function ResourceManager({
             ))
           ) : rows.length === 0 ? (
             <tr><td colSpan={listFields.length + 1} className="px-4 py-16 text-center text-ink-mute"><Inbox className="h-8 w-8 mx-auto mb-2 text-navy-300" />Không có dữ liệu</td></tr>
-          ) : rows.map((r) => {
+          ) : rows.map((r, i) => {
             const sel = r.id === selectedId
             const t = tone(String(r.canh_bao || r.trang_thai || ''))
             const bg = sel ? 'bg-select' : t === 'amber' ? 'bg-[#fff6d9]' : t === 'red' && r.canh_bao ? 'bg-red-50/70' : 'bg-white'
-            return (
-              <tr key={r.id} tabIndex={0} aria-selected={sel}
+            return (<Fragment key={r.id}>
+              {groupHead(r, i, listFields.length + 1)}
+              <tr tabIndex={0} aria-selected={sel}
                 onClick={() => (window.matchMedia('(max-width: 1023px)').matches ? setViewing(r) : setSelectedId(sel ? null : r.id))} onDoubleClick={() => setViewing(r)}
                 onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
                 className={`cursor-pointer outline-none ${bg} ${sel ? '' : 'hover:brightness-[.97]'} ${loading ? 'opacity-60' : ''}`}>
@@ -549,7 +577,7 @@ export default function ResourceManager({
                   )
                 })}
               </tr>
-            )
+            </Fragment>)
           })}
         </tbody>
       </table>
@@ -712,6 +740,18 @@ export default function ResourceManager({
       )}
 
       <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 print:block">
+        {res.urgency && !compact && (
+          <div className="flex shrink-0 gap-2 overflow-x-auto pb-1 print:hidden" role="group" aria-label="Lọc theo cảnh báo">
+            {res.urgency.order.filter((o) => alertCounts[o] || alertSel === o).map((o) => {
+              const on = alertSel === o
+              return (
+                <button key={o} type="button" aria-pressed={on} onClick={() => setAlertSel(on ? '' : o)}
+                  className={`shrink-0 rounded-full border-2 px-3.5 py-1.5 text-[12.5px] font-extrabold transition ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'border-navy-200 bg-white text-navy-900 hover:border-navy-300'}`}>
+                  {pretty(o)} <span className="font-semibold opacity-80">{(alertCounts[o] ?? 0).toLocaleString('vi-VN')}</span></button>
+              )
+            })}
+          </div>
+        )}
         {message}
         {(day || side || status || query) && (
           <div className="flex flex-wrap items-center gap-2 text-[12.5px] print:hidden">

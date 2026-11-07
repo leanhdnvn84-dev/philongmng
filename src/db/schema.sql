@@ -342,6 +342,20 @@ SELECT w.*, (w.deadline - public.today_vn()) AS so_ngay_con_lai, CASE
   ELSE 'ĐANG LÀM' END AS canh_bao
 FROM public.cong_viec w;
 
+-- sort key so the list opens with what needs attention (overdue → due today → soon → … → done)
+CREATE OR REPLACE VIEW public.v_cong_viec WITH (security_invoker = true) AS
+SELECT x.*, CASE x.canh_bao WHEN 'QUÁ HẠN' THEN 0 WHEN 'ĐẾN HẠN HÔM NAY' THEN 1 WHEN 'SẮP ĐẾN HẠN' THEN 2
+  WHEN 'CẦN LÀM NGAY' THEN 3 WHEN 'ĐANG LÀM' THEN 4 WHEN 'CHƯA BẮT ĐẦU' THEN 5 ELSE 6 END AS thu_tu_canh_bao
+FROM (SELECT w.*, (w.deadline - public.today_vn()) AS so_ngay_con_lai, CASE
+  WHEN public.cv_is_done(w.trang_thai, w.ket_qua) THEN 'HOÀN THÀNH'
+  WHEN w.deadline IS NOT NULL AND w.deadline < public.today_vn() THEN 'QUÁ HẠN'
+  WHEN w.deadline = public.today_vn() THEN 'ĐẾN HẠN HÔM NAY'
+  WHEN coalesce(trim(w.trang_thai),'') = '' OR lower(w.trang_thai) IN ('chưa thực hiện','tạm hoãn')
+    THEN CASE WHEN w.deadline - public.today_vn() <= 7 THEN 'CẦN LÀM NGAY' ELSE 'CHƯA BẮT ĐẦU' END
+  WHEN w.deadline - public.today_vn() <= 3 THEN 'SẮP ĐẾN HẠN'
+  ELSE 'ĐANG LÀM' END AS canh_bao
+FROM public.cong_viec w) x;
+
 CREATE OR REPLACE VIEW public.v_vat_tu WITH (security_invoker = true) AS
 SELECT v.*, coalesce(s.tong_nhap,0) AS tong_nhap, coalesce(s.tong_xuat,0) AS tong_xuat,
   v.ton_dau + coalesce(s.tong_nhap,0) - coalesce(s.tong_xuat,0) AS ton_hien_tai,

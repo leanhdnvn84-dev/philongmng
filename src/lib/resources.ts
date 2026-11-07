@@ -39,7 +39,9 @@ export interface Resource {
   title: string
   singular: string
   searchFields: string[]
-  orderBy: { column: string; ascending: boolean }
+  orderBy: { column: string; ascending: boolean; thenBy?: { column: string; ascending: boolean }[] }
+  /** list is grouped/filtered by an alert column (e.g. overdue first): chips with counts + group headers */
+  urgency?: { field: string; order: string[] }
   fields: Field[]
   optionSelect?: string
   optionLabel: (row: any) => string
@@ -78,6 +80,7 @@ export const MODULES: { key: string; label: string }[] = [
 ]
 
 const ACTIVE = ['Hoạt động', 'Ngưng hoạt động']
+export const URGENCY = ['QUÁ HẠN', 'ĐẾN HẠN HÔM NAY', 'SẮP ĐẾN HẠN', 'CẦN LÀM NGAY', 'ĐANG LÀM', 'CHƯA BẮT ĐẦU', 'HOÀN THÀNH']
 const WORK_STATES = ['Chưa thực hiện', 'Đang thực hiện', 'Hoàn thành', 'Tạm hoãn']
 export const STAGES = ['Khảo sát', 'Báo giá', 'Duyệt', 'Thi công', 'Chờ', 'Hoàn thành']
 const ASSET_STATES = ['Trong kho', 'Đang sử dụng', 'Bảo trì', 'Chờ thanh lý', 'Đã thanh lý']
@@ -114,7 +117,10 @@ export const RESOURCES: Resource[] = [
     key: 'cong_viec', table: 'cong_viec', view: 'v_cong_viec', module: 'CONG_VIEC', title: 'Công việc', singular: 'công việc',
     dateField: 'ngay_giao', sideFilter: 'id_nguoi_thuc_hien',
     calendarFields: [{ name: 'ngay_giao', label: 'Ngày giao' }, { name: 'deadline', label: 'Hạn' }, { name: 'ngay_hoan_thanh', label: 'Hoàn thành' }],
-    searchFields: ['id', 'noi_dung', 'khu_vuc', 'tien_do'], orderBy: { column: 'ngay_giao', ascending: false },
+    searchFields: ['id', 'noi_dung', 'khu_vuc', 'tien_do'],
+    // open with what needs attention: overdue → due today → soon → … → done (nearest deadline first inside each group)
+    orderBy: { column: 'thu_tu_canh_bao', ascending: true, thenBy: [{ column: 'deadline', ascending: true }, { column: 'ngay_giao', ascending: false }] },
+    urgency: { field: 'canh_bao', order: URGENCY },
     fields: [
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(0, 2),
       { name: 'khu_vuc', label: 'Khu vực', type: 'text' },
@@ -123,7 +129,7 @@ export const RESOURCES: Resource[] = [
       { name: 'muc_do', label: 'Mức độ', type: 'select', options: ['Bình thường', 'Gấp', 'Rất gấp'] },
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(2),
       { name: 'so_ngay_con_lai', label: 'Còn (ngày)', type: 'number', ro: true },
-      { name: 'canh_bao', label: 'Cảnh báo', type: 'text', ro: true },
+      { name: 'canh_bao', label: 'Cảnh báo', type: 'select', options: URGENCY, ro: true },
     ],
     optionLabel: (r) => `${r.id} · ${String(r.noi_dung ?? '').slice(0, 60)}`,
     actions: [progressAction],

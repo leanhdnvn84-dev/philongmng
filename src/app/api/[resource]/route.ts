@@ -68,8 +68,9 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     for (const r of data as any[]) { const k = String(r[countField.name] ?? '').slice(0, 10 + (countField.type === 'date' ? 0 : 190)); if (k) counts[k] = (counts[k] ?? 0) + 1 }
     return ok({ data: counts })
   }
-  const { data, error, count } = await query
-    .order(res.orderBy.column, { ascending: res.orderBy.ascending, nullsFirst: false })
+  let ordered = query.order(res.orderBy.column, { ascending: res.orderBy.ascending, nullsFirst: false })
+  for (const o of res.orderBy.thenBy ?? []) ordered = ordered.order(o.column, { ascending: o.ascending, nullsFirst: false })
+  const { data, error, count } = await ordered
     .order('id', { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1)
   if (error) return dbError(error)
