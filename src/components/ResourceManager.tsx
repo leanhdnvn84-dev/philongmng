@@ -6,6 +6,7 @@ import {
   RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown, PackageCheck, PackageX, Boxes,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
+import ProposalForm from '@/components/ProposalForm'
 import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
 import { phieuHtml, printHtml, downloadWord, fileName, type Phieu } from '@/lib/proposalDoc'
@@ -739,7 +740,11 @@ export default function ResourceManager({
           </div>
         </Drawer>
       )}
-      {editing && (
+      {editing && res.key === 'de_xuat' && (
+        <ProposalForm kind={filters.loai_de_xuat} row={editing.id ? editing : null} onClose={() => setEditing(null)}
+          onSaved={(id) => { setEditing(null); flash('Đã lưu đề xuất'); load(); if (viewing) refreshViewing(id) }} />
+      )}
+      {editing && res.key !== 'de_xuat' && (
         <FormModal title={`${editing.id ? 'Sửa' : 'Thêm'} ${res.singular}`} subtitle={editing.id && res.key !== 'users' ? editing.id : undefined}
           fields={res.fields.filter((f) => !f.ro && f.inForm !== false && (!editing.id || !f.createOnly || f.type === 'password'))}
           initial={editing.id ? editing : { ...filters }} isNew={!editing.id} refs={refs} onClose={() => setEditing(null)}
