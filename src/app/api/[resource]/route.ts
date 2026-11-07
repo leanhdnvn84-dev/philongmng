@@ -5,6 +5,20 @@ import { sanitize, validate, audit } from '@/lib/crud'
 
 type Ctx = { params: { resource: string } }
 
+/** PostgREST returns at most 1000 rows per request: read larger ranges in pages so counts and long lists are never silently cut. */
+async function rangeAll(q: any, from: number, to: number) {
+  const out: any[] = []; let count: number | null = null
+  for (let s = from; s <= to; s += 1000) {
+    const e = Math.min(to, s + 999)
+    const { data, error, count: c } = await q.range(s, e)
+    if (error) return { data: null, error, count: null }
+    if (count === null) count = c ?? null
+    out.push(...(data ?? []))
+    if ((data?.length ?? 0) < e - s + 1) break
+  }
+  return { data: out, error: null, count }
+}
+
 export async function GET(req: NextRequest, { params }: Ctx) {
   const url = new URL(req.url)
   const optionsMode = url.searchParams.get('options') === '1'
@@ -15,7 +29,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   const db = supabaseAdmin()
 
   if (optionsMode) {
-    const { data, error } = await db.from(res.table).select(res.optionSelect ?? '*').limit(5000)
+    const { data, error } = await rangeAll(db.from(res.table).select(res.optionSelect ?? '*').order('id'), 0, 4999)
     if (error) return dbError(error)
     const options = (data as any[]).map((r) => ({ value: r.id, label: res.optionLabel(r) }))
       .sort((a, b) => String(a.label).localeCompare(String(b.label), 'vi'))
@@ -27,7 +41,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   if (distinct) {
     const f = res.fields.find((x) => x.name === distinct && (x.type === 'ref' || x.type === 'select'))
     if (!f) return fail('Cột không hợp lệ')
-    const { data, error } = await db.from(res.view ?? res.table).select(f.name).not(f.name, 'is', null).limit(20000)
+    const { data, error } = await rangeAll(db.from(res.view ?? res.table).select(f.name).not(f.name, 'is', null).order('id'), 0, 19999)
     if (error) return dbError(error)
     return ok({ data: Array.from(new Set((data as any[]).map((r) => r[f.name]))) })
   }
@@ -70,7 +84,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   }
   if (countField) {
     // grouped counts for the status tabs / calendar badges: one small request instead of one per tab or 2000 rows
-    const { data, error } = await query.limit(20000)
+    const { data, error } = await rangeAll(query.order('id'), 0, 19999)
     if (error) return dbError(error)
     const counts: Record<string, number> = {}
     for (const r of data as any[]) { const k = String(r[countField.name] ?? '').slice(0, 10 + (countField.type === 'date' ? 0 : 190)); if (k) counts[k] = (counts[k] ?? 0) + 1 }
@@ -78,9 +92,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   }
   let ordered = query.order(res.orderBy.column, { ascending: res.orderBy.ascending, nullsFirst: false })
   for (const o of res.orderBy.thenBy ?? []) ordered = ordered.order(o.column, { ascending: o.ascending, nullsFirst: false })
-  const { data, error, count } = await ordered
-    .order('id', { ascending: false })
-    .range((page - 1) * pageSize, page * pageSize - 1)
+  const { data, error, count } = await rangeAll(ordered.order('id', { ascending: false }), (page - 1) * pageSize, page * pageSize - 1)
   if (error) return dbError(error)
   return ok({ data, total: count ?? 0, page, pageSize })
 }
