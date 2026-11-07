@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowUp, ChevronDown, LogOut, Menu, MessageCircle, Search, X } from 'lucide-react'
+import { ArrowLeftRight, ArrowUp, BadgeCheck, BarChart3, Boxes, Building2, CalendarClock, CalendarDays, ChevronDown, ClipboardCheck, Contact, Database, FileText, FolderOpen, Hammer, HardHat, Image as ImageIcon, KeyRound, Layers, LayoutGrid, ListChecks, Lock, LogIn, LogOut, Mail, MailCheck, MapPin, Menu, MessageCircle, Monitor, MonitorSmartphone, Printer, RefreshCw, Repeat, Search, ShieldAlert, ShoppingCart, Tags, Trash2, Truck, Undo2, User, UserPlus, Users, Warehouse, Wrench, X, Zap, type LucideIcon } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import Portal from '@/components/Portal'
 import Logo from '@/components/Logo'
@@ -14,6 +14,22 @@ export interface NavGroup { group: string; items: { label: string; href: string 
 
 const ICONS: Record<string, string> = {
   'Công việc': '🗂️', 'Bảo trì': '🔧', 'Đề xuất': '📝', 'Thiết bị & kho': '📦', 'Cho thuê': '🏠', 'Danh mục': '📁', 'Hệ thống': '🔒',
+}
+
+// icon + one-line hint for each menu entry (shown in the dropdown cards)
+const META: Record<string, [LucideIcon, string]> = {
+  'Công việc': [ClipboardCheck, 'Giao việc, theo dõi hạn'], 'Công việc hằng ngày': [CalendarClock, 'Việc lặp lại mỗi ngày'], 'Khách ra/vào': [Users, 'Đăng ký và theo dõi khách'],
+  'Báo cáo tiến độ': [BarChart3, 'Tiến độ theo giai đoạn'], 'Báo cáo công việc': [FileText, 'Thống kê theo nhân sự'], 'Hình ảnh tiến độ': [ImageIcon, 'Ảnh thi công từ Drive'],
+  'Nhật ký bảo trì': [Wrench, 'Việc đã bảo trì'], 'Kế hoạch bảo trì': [CalendarDays, 'Lịch và chu kỳ sắp tới'],
+  'Đề xuất mua vật tư': [ShoppingCart, 'Phiếu mua vật tư'], 'Đề xuất mua thiết bị': [MonitorSmartphone, 'Phiếu mua thiết bị'], 'Đề xuất bảo trì': [Hammer, 'Phiếu sửa chữa, bảo trì'],
+  'Đề xuất thanh lý': [Trash2, 'Phiếu thanh lý thiết bị'], 'Lịch sử in phiếu': [Printer, 'Các lần in phiếu đề xuất'],
+  'Kho vật tư': [Boxes, 'Tồn kho và cảnh báo'], 'Lịch sử nhập xuất': [ArrowLeftRight, 'Phiếu nhập, xuất kho'], 'Thiết bị đang dùng': [Monitor, 'Thiết bị đã bàn giao'],
+  'Kho thiết bị': [Warehouse, 'Thiết bị trong kho'], 'Tất cả thiết bị': [LayoutGrid, 'Toàn bộ thiết bị'], 'Thu hồi / thanh lý': [Undo2, 'Thu hồi và thanh lý'], 'Lịch sử chuyển': [Repeat, 'Chuyển khu vực, người dùng'],
+  'Toà nhà': [Building2, 'Thông tin toà nhà'], 'Tầng / khu cho thuê': [Layers, 'Diện tích và tình trạng'], 'Khách đang thuê': [KeyRound, 'Hợp đồng đang hiệu lực'], 'Khách hàng tiềm năng': [UserPlus, 'Khách quan tâm thuê'], 'Tiền điện': [Zap, 'Chốt điện theo kỳ'],
+  'Đội PCCC': [ShieldAlert, 'Nhân sự phòng cháy'], 'Danh bạ nhân viên': [Contact, 'Thông tin nhân viên'], 'Danh bạ nhà thầu': [HardHat, 'Nhà thầu thi công'], 'Danh bạ nhà cung cấp': [Truck, 'Nhà cung cấp'],
+  'Chu kỳ bảo trì': [RefreshCw, 'Hạng mục và chu kỳ'], 'Khu vực tòa nhà': [MapPin, 'Danh sách khu vực'], 'Chi tiết vận hành': [ListChecks, 'Nội dung kiểm tra'], 'Danh mục giá trị': [Tags, 'Trạng thái, mức độ, loại'],
+  'Người dùng': [User, 'Tài khoản đăng nhập'], 'Vai trò': [BadgeCheck, 'Nhóm quyền'], 'Phân quyền': [Lock, 'Quyền theo module'], 'Lịch sử đăng nhập': [LogIn, 'Ai đăng nhập, khi nào'],
+  'Cấu hình email cảnh báo': [Mail, 'Bật tắt, giờ gửi, người nhận'], 'Nhật ký email cảnh báo': [MailCheck, 'Email đã gửi'], 'Kiểm tra & sao lưu': [Database, 'Kiểm tra và sao lưu dữ liệu'],
 }
 
 function Brand() {
@@ -42,10 +58,10 @@ function TodayTile() {
   )
 }
 
-// Menu style 3 ("Đỏ thương hiệu cao cấp"): frosted pills on a red gradient bar; the open/active one lifts to white
+// Menu style B: navy bar, buttons sit in a dark tray, the open/active one is a red pill
 const navBtn = (on: boolean) =>
-  `flex items-center gap-1 h-[40px] px-3 2xl:px-4 rounded-full border text-[12px] 2xl:text-[12.5px] font-extrabold uppercase tracking-[.05em] whitespace-nowrap transition active:translate-y-px ${
-    on ? 'bg-white text-brand-600 border-white shadow-[0_6px_16px_rgba(0,0,0,.2),inset_0_-2px_0_rgba(237,50,55,.18)]' : 'bg-white/[.14] text-white border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,.28),0_2px_6px_rgba(120,10,14,.22)] hover:bg-white/25 hover:border-white/40'}`
+  `flex items-center gap-1 h-9 px-3 2xl:px-3.5 rounded-[10px] text-[12.5px] 2xl:text-[13px] font-semibold whitespace-nowrap transition active:translate-y-px ${
+    on ? 'bg-[#e11d2e] text-white shadow-[0_4px_10px_rgba(225,29,46,.4)]' : 'text-white/90 hover:bg-white/10 hover:text-white'}`
 
 export default function TopNav({ groups, name, role }: { groups: NavGroup[]; name: string; role: string }) {
   const pathname = usePathname()
@@ -93,42 +109,43 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   }
 
   return (
-    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-[linear-gradient(135deg,#f5565b_0%,#ED3237_45%,#c4161b_100%)] border-b border-brand-600/40 shadow-[inset_0_1px_0_rgba(255,255,255,.35),0_10px_26px_rgba(196,22,27,.3)]">
+    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-[linear-gradient(135deg,#17386b_0%,#0b1f45_100%)] border-b border-black/20 shadow-[0_10px_26px_rgba(11,31,69,.3)]">
       {/* phone: red bar with logo + page search (menu and filters live in the floating buttons) */}
       <div className="lg:hidden flex items-center gap-3 px-3 py-2">
         <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="white" height={40} /></Link>
         <label className="relative flex-1 min-w-0">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-mute" />
           <input type="search" value={pageSearch} onChange={(e) => onPageSearch(e.target.value)} placeholder="Tìm trang này…" aria-label="Tìm trang này"
-            className="h-11 w-full rounded-full border border-white/30 bg-white/95 pl-9 pr-3 text-[16px] shadow-[0_2px_8px_rgba(120,10,14,.2)] outline-none focus:ring-2 focus:ring-white/70" />
+            className="h-11 w-full rounded-full border border-white/30 bg-white/95 pl-9 pr-3 text-[16px] shadow-[0_2px_8px_rgba(0,0,0,.2)] outline-none focus:ring-2 focus:ring-white/70" />
         </label>
       </div>
       <div className="hidden lg:flex h-[62px] px-4 lg:px-5 items-center gap-3 2xl:gap-5">
         <Brand />
 
-        <nav className="hidden lg:flex items-center gap-1 2xl:gap-1.5 flex-1 min-w-0" aria-label="Menu chính">
-          <Link href="/" className={navBtn(pathname === '/')}>Tổng quan</Link>
-          {groups.map((g) => (
+        <nav className="hidden lg:flex items-center gap-0.5 rounded-[14px] bg-black/20 p-1 min-w-0" aria-label="Menu chính">
+          <Link href="/" className={navBtn(pathname === '/' && !open)}>Tổng quan</Link>
+          {groups.map((g, gi) => (
             <div key={g.group} className="relative" onMouseEnter={() => setOpen(g.group)} onMouseLeave={() => setOpen((o) => (o === g.group ? null : o))}>
               <button type="button" aria-expanded={open === g.group} onClick={() => setOpen(open === g.group ? null : g.group)}
-                className={navBtn(open === g.group || groupActive(g))}>
+                className={navBtn(open === g.group || (!open && groupActive(g)))}>
                 {g.group} <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open === g.group ? 'rotate-180' : ''}`} />
               </button>
               {open === g.group && (
-                <div className="absolute left-0 top-full pt-2 min-w-[280px]">
-                  <div className="overflow-hidden rounded-[18px] bg-white shadow-[0_26px_60px_rgba(16,26,45,.28),0_0_0_1px_rgba(16,26,45,.05)]">
-                    <div className="border-b border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
-                      <div className="text-[11px] font-extrabold uppercase tracking-[.12em] text-blue-700">{g.group}</div>
-                      <div className="text-[12.5px] text-ink-mute">{g.items.length} mục</div>
-                    </div>
-                    <div className="p-2">
-                      {g.items.map((i) => (
-                        <Link key={i.href} href={i.href}
-                          className={`flex items-center rounded-xl px-3.5 py-2.5 text-[14px] font-bold transition-colors ${isActive(i.href) ? 'bg-blue-50 text-blue-700' : 'text-navy-900 hover:bg-navy-100'}`}>
-                          {i.label}<span className={`ml-auto text-[19px] leading-none ${isActive(i.href) ? 'text-blue-600' : 'text-navy-300'}`}>›</span>
+                <div className={`absolute top-full pt-3 ${gi >= groups.length - 3 ? 'right-0' : 'left-0'}`}>
+                  <div className={`${g.items.length > 3 ? 'grid w-[min(560px,calc(100vw-2rem))] grid-cols-2' : 'w-[300px]'} gap-1 rounded-2xl border border-navy-200 bg-white p-2.5 shadow-[0_18px_40px_rgba(11,31,69,.2)]`}>
+                    {g.items.map((i) => {
+                      const [Icon, sub] = META[i.label] ?? [FolderOpen, '']
+                      const on = isActive(i.href)
+                      return (
+                        <Link key={i.href} href={i.href} className={`flex items-center gap-3 rounded-xl p-3 transition-colors ${on ? 'bg-navy-50' : 'hover:bg-navy-50'}`}>
+                          <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] ${on ? 'bg-[#fde7e9] text-[#c4121f]' : 'bg-navy-100 text-navy-800'}`}><Icon className="h-[18px] w-[18px]" strokeWidth={1.9} /></span>
+                          <span className="min-w-0">
+                            <span className={`block truncate text-[14px] font-semibold ${on ? 'text-[#c4121f]' : 'text-navy-900'}`}>{i.label}</span>
+                            {sub && <span className="block truncate text-[12.5px] text-ink-soft">{sub}</span>}
+                          </span>
                         </Link>
-                      ))}
-                    </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -138,12 +155,12 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
 
         <div className="ml-auto relative flex items-center gap-3 shrink-0">
           <TodayTile />
-          <button type="button" onClick={() => setChatOpen((o) => !o)} aria-label="Trao đổi nội bộ" title="Trao đổi nội bộ" aria-expanded={chatOpen} className="relative hidden lg:grid h-10 w-10 place-items-center rounded-full border border-white/35 bg-white/[.16] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.3)] hover:bg-white/25">
+          <button type="button" onClick={() => setChatOpen((o) => !o)} aria-label="Trao đổi nội bộ" title="Trao đổi nội bộ" aria-expanded={chatOpen} className="relative hidden lg:grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20">
             <MessageCircle className="h-5 w-5" />
-            {unread > 0 && <span className="absolute -right-1 -top-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-white px-1 text-[10px] font-black text-brand-500">{unread > 99 ? '99+' : unread}</span>}
+            {unread > 0 && <span className="absolute -right-1 -top-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-[#e11d2e] px-1 text-[10px] font-black text-white">{unread > 99 ? '99+' : unread}</span>}
           </button>
           <button type="button" onClick={() => setUserMenu(!userMenu)} aria-expanded={userMenu} className="flex items-center gap-2 text-left text-white">
-            <span className="grid place-items-center h-10 w-10 rounded-full bg-white text-brand-500 text-[12px] font-black shadow-[0_0_0_3px_rgba(255,255,255,.4)]">{initials || 'U'}</span>
+            <span className="grid place-items-center h-10 w-10 rounded-full bg-white text-navy-900 text-[12px] font-black shadow-[0_0_0_3px_rgba(255,255,255,.25)]">{initials || 'U'}</span>
             <span className="hidden 2xl:block leading-tight">
               <span className="block text-[13px] font-extrabold max-w-[150px] truncate">{name}</span>
               <span className="block text-[11px] font-semibold text-white/85">{role}</span>
@@ -167,9 +184,9 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
       <Portal>
         <div className="lg:hidden print:hidden">
           <button type="button" onClick={() => setMobile(true)} aria-label="Mở menu"
-            className={`fixed ${dock === 'left' ? 'left-4' : 'right-4'} bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-b from-blue-500 to-blue-700 text-white shadow-[0_6px_18px_rgba(37,99,235,.45)] active:scale-95`}>
+            className={`fixed ${dock === 'left' ? 'left-4' : 'right-4'} bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-b from-[#17386b] to-[#0b1f45] text-white shadow-[0_6px_18px_rgba(11,31,69,.5)] active:scale-95`}>
             <Menu className="h-6 w-6" />
-            {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-400 px-1 text-[11px] font-black text-white ring-2 ring-white">{unread > 99 ? '99+' : unread}</span>}
+            {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-[#e11d2e] px-1 text-[11px] font-black text-white ring-2 ring-white">{unread > 99 ? '99+' : unread}</span>}
           </button>
           {showTop && (
             <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Lên đầu trang"
