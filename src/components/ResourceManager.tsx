@@ -3,7 +3,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
-  RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown,
+  RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown, PackageCheck, PackageX, Boxes,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
@@ -821,7 +821,22 @@ export default function ResourceManager({
           </div>
         )}
 
-        {statusField && !isDev && (
+        {res.quick && !compact && (
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:ml-auto lg:flex-wrap lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0" role="group" aria-label="Lọc nhanh">
+            {res.quick.chips.map((c) => {
+              const on = quickSel === c.key, Icon = c.key === 'con' ? PackageCheck : c.key === 'het' ? PackageX : Boxes
+              const tn = c.key === 'con' ? 'green' : c.key === 'het' ? 'red' : 'blue'
+              return (
+                <button key={c.key} type="button" aria-pressed={on} onClick={() => setQuickSel(c.key)}
+                  className={`shrink-0 min-w-[124px] h-[56px] px-3 rounded-[9px] border-2 flex items-center gap-2.5 text-left transition ${on ? TAB_TONES[tn] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
+                  <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${tn === 'green' ? 'bg-green-100 text-green-700' : tn === 'red' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-700'}`}><Icon className="h-[18px] w-[18px]" /></span>
+                  <span className="leading-tight"><span className="block text-[12px] font-black uppercase">{c.label}</span><span className="block text-[12px] font-semibold opacity-80">{quickCounts[c.key] == null ? '…' : quickCounts[c.key].toLocaleString('vi-VN')} {res.singular}</span></span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+        {statusField && !isDev && !res.quick && (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:ml-auto lg:flex-wrap lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
             {statusField.options!.map((o) => {
               const on = status === o
@@ -847,7 +862,7 @@ export default function ResourceManager({
 
       <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 print:block">
         {res.quick && !compact && (
-          <div className="flex shrink-0 gap-2 overflow-x-auto pb-1 print:hidden" role="group" aria-label="Lọc nhanh">
+          <div className="flex shrink-0 gap-2 overflow-x-auto pb-1 print:hidden lg:hidden" role="group" aria-label="Lọc nhanh">
             {res.quick.chips.map((c) => {
               const on = quickSel === c.key
               return (
