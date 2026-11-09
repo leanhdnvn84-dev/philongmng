@@ -129,6 +129,33 @@ const nhapXuat = (fixed?: 'NHAP' | 'XUAT'): Handler => async ({ auth, id: rowId,
   await audit(auth, 'nhap_xuat_kho', data as string, 'create', { id_vat_tu: id, loai, qty, don_gia: price })
 }
 
+// V191 "Điều chỉnh kho": giảm / tăng / kiểm kê with a mandatory reason, written as a normal stock movement
+const dieuChinh: Handler = async ({ auth, id, input }) => {
+  const kind = String(input.loai ?? 'Giảm kho')
+  const qty = Number(input.so_luong)
+  const reason = one(input.ly_do)
+  if (!reason) bad('Nhập lý do điều chỉnh')
+  if (!(qty >= 0) || (kind !== 'Kiểm kê' && !(qty > 0))) bad('Số lượng phải lớn hơn 0')
+  if (input.ngay && !/^\d{4}-\d{2}-\d{2}$/.test(input.ngay)) bad('Ngày không hợp lệ')
+  const { data: st } = await supabaseAdmin().from('v_vat_tu').select('ton_hien_tai').eq('id', id).maybeSingle()
+  if (!st) bad('Vật tư không tồn tại', 404)
+  const ton = Number(st!.ton_hien_tai) || 0
+  let loai: 'NHAP' | 'XUAT', amount = qty
+  if (kind === 'Tăng kho') loai = 'NHAP'
+  else if (kind === 'Giảm kho') { loai = 'XUAT'; if (qty > ton) bad(`Tồn kho không đủ để giảm (còn ${ton})`, 409) }
+  else if (kind === 'Kiểm kê') {
+    if (qty === ton) bad('Số kiểm kê bằng tồn hiện tại, không cần điều chỉnh')
+    loai = qty > ton ? 'NHAP' : 'XUAT'; amount = Math.abs(qty - ton)
+  } else bad('Chọn loại điều chỉnh')
+  const { data, error } = await supabaseAdmin().rpc('kho_giao_dich', {
+    p_vat_tu: id, p_loai: loai!, p_so_luong: amount, p_ngay: input.ngay || todayVN(),
+    p_noi_dung: `${kind === 'Kiểm kê' ? `Kiểm kê (tồn ${ton} → ${qty})` : kind}: ${reason}`, p_nguon: 'DIEU_CHINH', p_chung_tu: null, p_nguoi_tao: auth.name,
+    p_don_gia: 0, p_ghi_chu: reason,
+  })
+  if (error) throw error
+  await audit(auth, 'nhap_xuat_kho', data as string, 'create', { id_vat_tu: id, kind, from: ton, amount })
+}
+
 // ── Thiết bị ──
 async function names(khuVucId?: string | null, nhanVienId?: string | null) {
   const db = supabaseAdmin()
@@ -259,7 +286,7 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
   cong_viec_hang_ngay: { tien_do: ghiTienDo },
   khach_ra_vao: { checkout, check_in: checkIn, huy: huyLuot },
   de_xuat: { duyet, tu_choi: tuChoi },
-  vat_tu: { nhap_xuat: nhapXuat(), nhap_kho: nhapXuat('NHAP'), xuat_kho: nhapXuat('XUAT') },
+  vat_tu: { dieu_chinh: dieuChinh, nhap_xuat: nhapXuat(), nhap_kho: nhapXuat('NHAP'), xuat_kho: nhapXuat('XUAT') },
   thiet_bi: { chuyen, thu_hoi: thuHoi },
   tien_dien: { tao_ky: taoKy, chot_ky: chotKy },
   lich_bao_tri: { ghi_nhan: ghiNhanBaoTri },

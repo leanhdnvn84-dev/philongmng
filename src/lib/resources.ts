@@ -327,6 +327,13 @@ export const RESOURCES: Resource[] = [
     ],
     optionLabel: (r) => `${r.ten_vat_tu}${r.dvt ? ` (${r.dvt})` : ''}`,
     actions: [
+      { key: 'dieu_chinh', label: 'Điều chỉnh', perm: 'edit',
+        fields: [
+          { name: 'loai', label: 'Loại điều chỉnh', type: 'select', options: ['Giảm kho', 'Tăng kho', 'Kiểm kê'], default: 'Giảm kho', required: true },
+          { name: 'so_luong', label: 'Số lượng (Kiểm kê: nhập số tồn thực tế)', type: 'number', required: true },
+          { name: 'ngay', label: 'Ngày điều chỉnh (để trống = hôm nay)', type: 'date' },
+          { name: 'ly_do', label: 'Lý do điều chỉnh (hư hỏng, mất, kiểm kê lệch, nhập sai số liệu…)', type: 'textarea', required: true },
+        ] },
       { key: 'nhap_kho', label: 'Nhập kho', perm: 'edit', scope: 'page',
         fields: [
           { name: 'id_vat_tu', label: 'Vật tư (trong danh mục)', type: 'ref', ref: 'vat_tu', required: true },

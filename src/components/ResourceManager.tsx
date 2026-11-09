@@ -8,6 +8,7 @@ import {
 import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
 import { ProposalStats, ShortageDialog } from '@/components/ProposalExtras'
+import StockSide from '@/components/StockSide'
 import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
 import { phieuHtml, printHtml, downloadWord, fileName, type Phieu } from '@/lib/proposalDoc'
@@ -221,6 +222,7 @@ export default function ResourceManager({
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const [side, setSide] = useState('')
   const [shortOpen, setShortOpen] = useState(false)
+  const [histOpen, setHistOpen] = useState<Row | null>(null) // stock page: movements of the selected item
   const [pf, setPf] = useState<Record<string, string>>({}) // V191 "Bộ lọc" box: Tầng·Khu vực, Hạng mục…
   const [day, setDay] = useState<string | null>(null)
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
@@ -250,6 +252,7 @@ export default function ResourceManager({
   const statusField = res.fields.find((f) => f.name === 'trang_thai' && f.type === 'select' && !filters.trang_thai)
   const sideField = !compact && res.sideFilter && !(res.sideFilter in filters) ? res.fields.find((f) => f.name === res.sideFilter) : undefined
   const hasCalendar = !compact && !!res.dateField
+  const vtSide = !compact && res.key === 'vat_tu'
   const [wrapW, setWrapW] = useState(0)
   const roRef = useRef<ResizeObserver | null>(null)
   const wrapRef = useCallback((el: HTMLDivElement | null) => {
@@ -871,6 +874,7 @@ export default function ResourceManager({
         </>}
         {!isDev && res.key !== 'de_xuat' && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
+        {vtSide && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={withRow((r) => setHistOpen(r))} />}
         {res.key === 'de_xuat' && filters.loai_de_xuat === 'MUA_VAT_TU' && <Tile icon={AlertTriangle} label="Vật tư thiếu" color="amber" onClick={() => setShortOpen(true)} />}
         </div>
 
@@ -975,13 +979,14 @@ export default function ResourceManager({
           </div>
         )}
 
-        <div className={`grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)] ${isDev ? 'lg:grid-cols-[minmax(0,1fr)_340px]' : hasCalendar || sideField ? 'lg:grid-cols-[230px_minmax(0,1fr)]' : ''}`}>
-          {(hasCalendar || sideField) && !isDev && (
+        <div className={`grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)] ${isDev ? 'lg:grid-cols-[minmax(0,1fr)_340px]' : hasCalendar || sideField || vtSide ? 'lg:grid-cols-[230px_minmax(0,1fr)]' : ''}`}>
+          {(hasCalendar || sideField || vtSide) && !isDev && (
             <aside className="hidden lg:flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto print:hidden">
               {hasCalendar && <MonthCalendar month={month} setMonth={setMonth} counts={dayCounts} day={day} setDay={setDay}
                 unit={res.singular} fields={res.calendarFields} field={calField} loading={calLoading}
                 setField={(f) => { setCalField(f); setDay(null) }} onLatest={jumpLatest} />}
               {filterBox}
+              {vtSide && <StockSide params={baseParams().toString()} version={version} pf={pf} setPf={setPf} search={search} setSearch={setSearch} />}
               {sideField && (
                 <div className="card overflow-hidden flex flex-col lg:flex-1 lg:min-h-[168px]">
                   <div className="shrink-0 px-3 py-2 bg-navy-50 border-b border-navy-200 text-[13px] font-extrabold text-navy-900">{sideField.label}</div>
@@ -1048,6 +1053,18 @@ export default function ResourceManager({
         </FilterSheet>
       )}
       {overlays}
+      {histOpen && (
+        <Drawer onClose={() => setHistOpen(null)}>
+          <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-navy-200 bg-white px-4 py-3">
+            <div className="min-w-0"><p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">Lịch sử nhập xuất</p>
+              <h2 className="truncate text-lg font-extrabold text-navy-900">{histOpen.ten_vat_tu} <span className="text-[13px] font-semibold text-ink-mute">· {histOpen.id} · tồn {histOpen.ton_hien_tai}</span></h2></div>
+            <button onClick={() => setHistOpen(null)} className="btn-ghost h-9 w-9 px-0" aria-label="Đóng"><X className="h-5 w-5" /></button>
+          </div>
+          <div className="px-4 py-3">
+            <ResourceManager compact resourceKey="nhap_xuat_kho" title="Lịch sử nhập xuất" filters={{ id_vat_tu: histOpen.id }} perms={{ create: false, edit: false, delete: false, approve: false }} />
+          </div>
+        </Drawer>
+      )}
       {shortOpen && <ShortageDialog onClose={() => setShortOpen(false)} />}
     </div>
   )
