@@ -18,8 +18,10 @@ async function loadRow(res: Resource, id: string) {
 
 // ── Công việc: append "- dd/mm [Giai đoạn]: nội dung" (same format as the V191 sheet) ──
 const ghiTienDo: Handler = async ({ res, auth, id, row, input }) => {
-  const stage = one(input.giai_doan), text = one(input.noi_dung)
-  if (!stage && !text) bad('Nhập nội dung hoặc chọn giai đoạn')
+  const stage = one(input.giai_doan)
+  const photoIds: string[] = (Array.isArray(input.anh) ? input.anh : []).map((x: unknown) => String(x)).filter((x: string) => /^[A-Za-z0-9_-]{10,100}$/.test(x)).slice(0, 12)
+  const text = one(input.noi_dung) || (photoIds.length ? `Cập nhật ${photoIds.length} hình ảnh` : '')
+  if (!stage && !text) bad('Nhập nội dung, chọn giai đoạn hoặc thêm ảnh')
   const day = dayMonthVN()
   const line = `- ${day}${stage ? ` [${stage}]` : ''}${text ? `: ${text}` : ''}`
   const prev = row.giai_doan_hien_tai || ''
@@ -33,7 +35,14 @@ const ghiTienDo: Handler = async ({ res, auth, id, row, input }) => {
   if (stage === 'Hoàn thành') { patch.trang_thai = 'Hoàn thành'; if (!row.ngay_hoan_thanh) patch.ngay_hoan_thanh = todayVN() }
   else if (stage && (!row.trang_thai || row.trang_thai === 'Chưa thực hiện')) patch.trang_thai = 'Đang thực hiện'
   if (Object.keys(patch).length) await db.from(res.table).update(patch).eq('id', id)
-  await audit(auth, res.table, id, 'progress', { line, ...patch })
+  if (photoIds.length) {
+    const { error: pe } = await db.from('hinh_anh_tien_do').insert(photoIds.map((fid) => ({
+      nguon: 'WEB', id_cong_viec: id, ngay: todayVN(), gio: timeVN(), giai_doan: stage || row.giai_doan_hien_tai || null,
+      dong_tien_do: line, file_id: fid, thumb_id: fid, nguoi_tai: auth.name,
+    })))
+    if (pe) throw pe
+  }
+  await audit(auth, res.table, id, 'progress', { line, photos: photoIds.length, ...patch })
   return { line }
 }
 

@@ -806,7 +806,12 @@ export default function ResourceManager({
       {acting && (
         <FormModal title={acting.action.label} subtitle={acting.row?.id} fields={acting.action.fields ?? []} initial={{}} isNew refs={refs}
           submitLabel={acting.action.label} onClose={() => setActing(null)}
-          onSubmit={async (payload) => { await run(acting.action, acting.row, payload) }} />
+          onSubmit={async (payload) => {
+            const picked: File[] = Array.isArray(payload.anh) ? payload.anh : []
+            if (picked.length && acting.row) payload.anh = await uploadPhotos(picked, res.key, acting.row.id)
+            else delete payload.anh
+            await run(acting.action, acting.row, payload)
+          }} />
       )}
     </>
   )
@@ -1199,6 +1204,12 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
             const required = !!f.required && !(f.type === 'password' && !isNew)
             const set = (v: any) => setForm((s) => ({ ...s, [f.name]: v }))
             const common = { id: `f-${f.name}`, className: 'input h-11 text-[16px] lg:h-9 lg:text-sm', required, value: form[f.name] ?? '', onChange: (e: React.ChangeEvent<any>) => set(e.target.value) }
+            if (f.type === 'files') return (
+              <div key={f.name} className={FULL}>
+                <label className="label !mb-1">{f.label}</label>
+                <PhotoPicker files={Array.isArray(form[f.name]) ? form[f.name] : []} onChange={(v) => set(v)} />
+              </div>
+            )
             if (f.type === 'bool') return (
               <label key={f.name} className={`${FULL} flex items-center gap-3 rounded-[7px] border border-navy-200 px-3 py-2.5 cursor-pointer hover:bg-navy-50`}>
                 <input type="checkbox" className="h-4 w-4 accent-blue-600" checked={!!form[f.name]} onChange={(e) => set(e.target.checked)} />
@@ -1244,4 +1255,52 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
       </form>
     </div>
   </Portal>)
+}
+
+/* ── progress photos: pick / shoot, shrink in the browser, upload to Google Drive through the server ── */
+async function shrink(file: File, max = 1600): Promise<Blob> {
+  const bmp = await createImageBitmap(file).catch(() => null)
+  if (!bmp) return file
+  const k = Math.min(1, max / Math.max(bmp.width, bmp.height))
+  const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k)
+  c.getContext('2d')!.drawImage(bmp, 0, 0, c.width, c.height)
+  return await new Promise<Blob>((res) => c.toBlob((b) => res(b ?? file), 'image/jpeg', 0.82))
+}
+async function uploadPhotos(files: File[], bang: string, id: string): Promise<string[]> {
+  const ids: string[] = []
+  for (const f of files) {
+    const fd = new FormData()
+    fd.append('file', new File([await shrink(f)], 'anh.jpg', { type: 'image/jpeg' })); fd.append('bang', bang); fd.append('id', id)
+    const r = await fetch('/api/anh_tien_do', { method: 'POST', body: fd })
+    const j = await r.json().catch(() => null)
+    if (!r.ok || !j?.success) throw new Error(j?.error || j?.message || 'Không tải được ảnh lên')
+    ids.push(j.data.file_id)
+  }
+  return ids
+}
+function PhotoPicker({ files, onChange }: { files: File[]; onChange: (f: File[]) => void }) {
+  const urls = useMemo(() => files.map((f) => URL.createObjectURL(f)), [files])
+  useEffect(() => () => urls.forEach((u) => URL.revokeObjectURL(u)), [urls])
+  return (
+    <div>
+      <label className="btn-secondary h-10 cursor-pointer">
+        <span>+ Thêm ảnh</span>
+        <input type="file" accept="image/*" multiple className="hidden"
+          onChange={(e) => { const add = Array.from(e.target.files ?? []); e.target.value = ''; onChange([...files, ...add].slice(0, 12)) }} />
+      </label>
+      {files.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {urls.map((u, i) => (
+            <div key={u} className="relative h-20 w-20 overflow-hidden rounded-lg border border-navy-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={u} alt={`Ảnh ${i + 1}`} className="h-full w-full object-cover" />
+              <button type="button" aria-label="Bỏ ảnh" onClick={() => onChange(files.filter((_, k) => k !== i))}
+                className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-black/60 text-[12px] leading-none text-white">×</button>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className="mt-1 text-[11.5px] text-ink-mute">Tối đa 12 ảnh, tự thu nhỏ trước khi tải lên Google Drive.</p>
+    </div>
+  )
 }

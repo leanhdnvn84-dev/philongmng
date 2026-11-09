@@ -2,7 +2,7 @@
 // permissions), the tables, the forms and the sidebar. Mirrors the V191 menu.
 
 export type FieldType =
-  | 'text' | 'email' | 'number' | 'money' | 'date' | 'datetime' | 'textarea' | 'select' | 'ref' | 'password' | 'bool' | 'month'
+  | 'text' | 'email' | 'number' | 'money' | 'date' | 'datetime' | 'textarea' | 'select' | 'ref' | 'password' | 'bool' | 'month' | 'files'
 
 export interface Field {
   name: string
@@ -110,6 +110,7 @@ const progressAction: Action = {
   fields: [
     { name: 'giai_doan', label: 'Giai đoạn', type: 'select', options: STAGES },
     { name: 'noi_dung', label: 'Nội dung', type: 'textarea' },
+    { name: 'anh', label: 'Hình ảnh (chụp hoặc chọn từ máy)', type: 'files' },
   ],
 }
 const workFields = (dateField: Field): Field[] => [
