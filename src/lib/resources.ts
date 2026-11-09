@@ -788,7 +788,6 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'audit_logs', table: 'audit_logs', module: 'NGUOI_SU_DUNG', title: 'Nhật ký thao tác', singular: 'thao tác',
-    dateField: 'created_at',
     searchFields: ['user_email', 'table_name', 'record_id', 'action'], orderBy: { column: 'created_at', ascending: false },
     noCreate: true, noEdit: true, noDelete: true,
     fields: [
