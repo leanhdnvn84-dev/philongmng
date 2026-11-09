@@ -209,7 +209,7 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
     <Portal>
       <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 print:hidden" role="dialog" aria-modal="true" aria-label={title}>
         <div className="pl-fade absolute inset-0 bg-navy-950/50" onClick={onClose} />
-        <div className="pl-sheet relative flex max-h-[92dvh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
+        <div className="pl-sheet relative flex max-h-[92dvh] w-full max-w-4xl lg:w-[80vw] lg:max-w-none flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
           <div className="flex items-center gap-3 bg-blue-700 px-4 py-3 text-white lg:px-5">
             <div className="min-w-0 flex-1"><h2 className="truncate text-[17px] font-extrabold">{title}</h2>{isEdit && <div className="text-xs opacity-80">{row!.id}</div>}</div>
             <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full bg-white/15 hover:bg-white/25"><X className="h-5 w-5" /></button>

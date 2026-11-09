@@ -109,6 +109,10 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   if (v === null || v === undefined || v === '') return <span className="text-navy-300">—</span>
   if (f.type === 'ref') return labels[f.ref!]?.get(v) ?? v
   if (f.name === 'loai_de_xuat') return PROPOSAL_KINDS[v] ?? v
+  if (f.name === 'nguon_giao_dich') {
+    const L: Record<string, string> = { NHAP_THU_CONG: 'Nhập thủ công', XUAT_SU_DUNG: 'Xuất sử dụng', THU_CONG: 'Thủ công', DE_XUAT: 'Theo đề xuất', DIEU_CHINH: 'Điều chỉnh', DE_XUAT_MUA_VAT_TU: 'Đề xuất mua vật tư', NHAP_KHO: 'Nhập kho', XUAT_KHO: 'Xuất kho' }
+    return L[String(v).toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9]+/g, '_')] ?? String(v).replace(/_/g, ' ').toLowerCase().replace(/^./, (c) => c.toUpperCase())
+  }
   if (f.name === 'loai_giao_dich') return <span className={v === 'NHAP' ? 'pill-green' : 'pill-amber'}>{v === 'NHAP' ? 'Nhập' : v === 'XUAT' ? 'Xuất' : v}</span>
   if (f.type === 'bool') return v ? <span className="pill-green">Có</span> : <span className="text-navy-300">—</span>
   if (f.type === 'date') return <span className="tabular-nums">{formatDate(v)}</span>
@@ -705,7 +709,7 @@ export default function ResourceManager({
                   const right = RIGHT.test(f.name) || f.type === 'money' || f.type === 'number'
                   const wide = f.type === 'textarea' || f.name === 'noi_dung' || f.name === 'ghi_chu' || f.name === 'ds_ten'
                   return (
-                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`${pad} py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || /^id_nguoi/.test(f.name) ? 'whitespace-nowrap overflow-hidden text-ellipsis' : 'break-words'}`}>
+                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`${pad} py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || /^id_nguoi/.test(f.name) || res.noWrap ? 'whitespace-nowrap overflow-hidden text-ellipsis' : 'break-words'}`}>
                       <div className={f.multiline ? 'whitespace-pre-line leading-snug' : f.name === 'tien_do' ? 'line-clamp-3' : wide ? 'line-clamp-2' : ''}>{cellNode(f, r)}</div>
                     </td>
                   )
@@ -738,12 +742,12 @@ export default function ResourceManager({
           </div>
           <div className="px-4 py-3 lg:px-6 lg:py-5">
             {/* 2 columns on a phone, 4 from 640px, 6 from 768px; desktop keeps the 2-column sheet. Label and value share a line. */}
-            <dl className="grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-2 gap-x-3 gap-y-2 lg:gap-x-6 lg:gap-y-3.5">
+            <dl className="grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-4 gap-x-3 gap-y-2 lg:gap-x-6 lg:gap-y-3.5">
               {res.fields.filter((f) => f.type !== 'password' && !f.name.startsWith('ds_')).map((f) => {
                 const long = f.type === 'textarea' || f.name === 'noi_dung'
                 const half = f.type === 'ref' || /^(ten|dia_chi|cong_ty|nguoi_)/.test(f.name)
                 return (
-                  <div key={f.name} className={`min-w-0 text-[13px] leading-snug ${long ? 'col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-2' : half ? 'col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-1' : ''}`}>
+                  <div key={f.name} className={`min-w-0 text-[13px] leading-snug ${long ? 'col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-4' : half ? 'col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-2' : ''}`}>
                     {long && viewing[f.name]
                       ? <><dt className="label !mb-0.5">{f.label}</dt><dd className="whitespace-pre-wrap text-[13px] leading-relaxed bg-canvas rounded-[7px] border border-navy-200 p-2.5 max-h-72 overflow-y-auto">{display(f, viewing[f.name], labels)}</dd></>
                       : <div className="flex flex-wrap items-baseline gap-x-1"><dt className="shrink-0 text-ink-mute">{f.label}:</dt><dd className="min-w-0 font-semibold text-ink break-words">{cellNode(f, viewing)}</dd></div>}
@@ -1054,7 +1058,7 @@ export default function ResourceManager({
       )}
       {overlays}
       {histOpen && (
-        <Drawer onClose={() => setHistOpen(null)}>
+        <Drawer wide onClose={() => setHistOpen(null)}>
           <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-navy-200 bg-white px-4 py-3">
             <div className="min-w-0"><p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">Lịch sử nhập xuất</p>
               <h2 className="truncate text-lg font-extrabold text-navy-900">{histOpen.ten_vat_tu} <span className="text-[13px] font-semibold text-ink-mute">· {histOpen.id} · tồn {histOpen.ton_hien_tai}</span></h2></div>
@@ -1142,12 +1146,12 @@ function useEscape(onClose: () => void) {
   }, [onClose])
 }
 
-function Drawer({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function Drawer({ children, onClose, wide }: { children: React.ReactNode; onClose: () => void; wide?: boolean }) {
   useEscape(onClose)
   return (<Portal>
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 print:hidden" role="dialog" aria-modal="true">
       <div className="pl-fade absolute inset-0 bg-navy-950/50" onClick={onClose} />
-      <div className="pl-sheet relative flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-y-auto rounded-2xl bg-white shadow-pop">{children}</div>
+      <div className={`pl-sheet relative flex max-h-[92dvh] w-full flex-col overflow-y-auto rounded-2xl bg-white shadow-pop lg:w-[80vw] lg:max-w-none ${wide ? "" : "max-w-3xl"}`}>{children}</div>
     </div>
   </Portal>)
 }
@@ -1165,8 +1169,8 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   // phone/tablet grid: 2 columns, 4 from 640px, 6 from 768px; desktop keeps its 2-column form
-  const FULL = 'col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-2'
-  const HALF = 'col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-1'
+  const FULL = 'col-span-2 sm:col-span-4 md:col-span-6 lg:col-span-4'
+  const HALF = 'col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-2'
   const span = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' || f.type === 'bool' || f.type === 'password' ? FULL
     : f.type === 'ref' || f.type === 'email' || /^(ten|dia_chi|cong_ty|nguoi_)/.test(f.name) ? HALF : 'col-span-1')
 
@@ -1176,7 +1180,7 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
       <form onSubmit={async (e) => {
         e.preventDefault(); setBusy(true); setError('')
         try { await onSubmit({ ...form }) } catch (err: any) { setError(err.message); setBusy(false) }
-      }} className="pl-sheet relative w-full sm:max-w-3xl lg:max-w-2xl max-h-[92dvh] flex flex-col bg-white rounded-2xl shadow-pop overflow-hidden">
+      }} className="pl-sheet relative w-full sm:max-w-3xl lg:w-[80vw] lg:max-w-none max-h-[92dvh] flex flex-col bg-white rounded-2xl shadow-pop overflow-hidden">
         <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-5 lg:py-3 bg-blue-700 text-white">
           <div>
             <h2 className="text-[16px] font-extrabold">{title}</h2>
@@ -1184,7 +1188,7 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
           </div>
           <button type="button" onClick={onClose} className="grid place-items-center h-8 w-8 rounded-md hover:bg-white/15" aria-label="Đóng"><X className="h-5 w-5" /></button>
         </div>
-        <div className="px-4 py-3 lg:px-5 lg:py-4 overflow-y-auto grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-2 gap-x-3 gap-y-2.5 lg:gap-x-4 lg:gap-y-3.5 content-start">
+        <div className="px-4 py-3 lg:px-5 lg:py-4 overflow-y-auto grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-4 gap-x-3 gap-y-2.5 lg:gap-x-4 lg:gap-y-3.5 content-start">
           {fields.map((f) => {
             const required = !!f.required && !(f.type === 'password' && !isNew)
             const set = (v: any) => setForm((s) => ({ ...s, [f.name]: v }))

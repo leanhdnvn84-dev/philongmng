@@ -234,7 +234,7 @@ function StaffPopup({ name, model, from, to, onClose }: { name: string; model: a
   )
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-3 print:hidden" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
-      <div className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-pop">
+      <div className="flex max-h-[94vh] w-full max-w-5xl lg:w-[80vw] lg:max-w-none flex-col overflow-hidden rounded-xl bg-white shadow-pop">
         <header className="flex shrink-0 items-start justify-between bg-blue-700 px-5 py-3 text-white">
           <div><div className="text-xs">Thống kê công việc · {show(from)} – {show(to)}</div><h2 className="text-[19px] font-bold">{name}</h2></div>
           <button onClick={onClose} aria-label="Đóng"><X className="h-6 w-6" /></button>

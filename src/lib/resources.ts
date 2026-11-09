@@ -62,6 +62,8 @@ export interface Resource {
   calendarFields?: { name: string; label: string }[]
   /** ref/select column listed as quick filters in the left panel */
   sideFilter?: string
+  /** cells never wrap: one line with an ellipsis (hover shows the full text) */
+  noWrap?: boolean
   /** label for rows with no value in the side column (V191 "Chưa phân công") */
   sideNone?: string
   /** ref columns shown as drop-downs in a "Bộ lọc" box under the calendar (V191) */
@@ -356,7 +358,7 @@ export const RESOURCES: Resource[] = [
     ],
   },
   {
-    key: 'nhap_xuat_kho', table: 'nhap_xuat_kho', module: 'KHO', title: 'Lịch sử nhập xuất', singular: 'giao dịch kho',
+    key: 'nhap_xuat_kho', table: 'nhap_xuat_kho', module: 'KHO', title: 'Lịch sử nhập xuất', singular: 'giao dịch kho', noWrap: true,
     dateField: 'ngay',
     searchFields: ['id', 'noi_dung', 'id_chung_tu'], orderBy: { column: 'created_at', ascending: false },
     noCreate: true, noEdit: true, noDelete: true, // append-only ledger: correct with a new movement

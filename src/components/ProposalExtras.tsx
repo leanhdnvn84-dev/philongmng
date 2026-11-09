@@ -76,7 +76,7 @@ export function ShortageDialog({ onClose }: { onClose: () => void }) {
   return (
     <Portal>
       <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-3" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-        <div className="flex max-h-[88vh] w-full max-w-[860px] flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+        <div className="flex max-h-[88vh] w-full max-w-[860px] lg:w-[80vw] lg:max-w-none flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
           <div className="flex items-center justify-between border-b border-navy-200 bg-navy-50 px-4 py-3">
             <div className="text-[16px] font-extrabold text-navy-900">Vật tư thiếu <span className="ml-1 text-[13px] font-semibold text-ink-mute">(tồn dưới mức tối thiểu)</span></div>
             <button className="btn-ghost btn-sm" onClick={onClose} aria-label="Đóng"><X className="h-4 w-4" /></button>
