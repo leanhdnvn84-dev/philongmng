@@ -78,6 +78,7 @@ const duyet: Handler = async ({ auth, id, row }) => {
         const { error } = await db.rpc('kho_giao_dich', {
           p_vat_tu: l.id_vat_tu, p_loai: 'NHAP', p_so_luong: l.so_luong, p_ngay: todayVN(),
           p_noi_dung: `Nhập theo đề xuất ${id}`, p_nguon: 'DE_XUAT', p_chung_tu: id, p_nguoi_tao: auth.name,
+          p_don_gia: Number(l.don_gia) || 0, p_ghi_chu: null,
         })
         if (error) throw error
         stocked++
@@ -111,6 +112,8 @@ const nhapXuat = (fixed?: 'NHAP' | 'XUAT'): Handler => async ({ auth, id: rowId,
   if (!['NHAP', 'XUAT'].includes(loai)) bad('Chọn Nhập hoặc Xuất')
   if (!(qty > 0)) bad('Số lượng phải lớn hơn 0')
   if (input.ngay && !/^\d{4}-\d{2}-\d{2}$/.test(input.ngay)) bad('Ngày không hợp lệ')
+  const price = loai === 'NHAP' && input.don_gia !== undefined && input.don_gia !== '' ? Number(input.don_gia) : 0
+  if (!(price >= 0)) bad('Đơn giá không hợp lệ')
   if (loai === 'XUAT') { // issue only what is in stock
     const { data: st } = await supabaseAdmin().from('v_vat_tu').select('ton_hien_tai, ten_vat_tu').eq('id', id).maybeSingle()
     if (!st) bad('Vật tư không tồn tại', 404)
@@ -120,9 +123,10 @@ const nhapXuat = (fixed?: 'NHAP' | 'XUAT'): Handler => async ({ auth, id: rowId,
   const { data, error } = await supabaseAdmin().rpc('kho_giao_dich', {
     p_vat_tu: id, p_loai: loai, p_so_luong: qty, p_ngay: input.ngay || todayVN(),
     p_noi_dung: one(input.noi_dung) || null, p_nguon: 'THU_CONG', p_chung_tu: null, p_nguoi_tao: auth.name,
+    p_don_gia: price, p_ghi_chu: one(input.ghi_chu) || null,
   })
   if (error) throw error
-  await audit(auth, 'nhap_xuat_kho', data as string, 'create', { id_vat_tu: id, loai, qty })
+  await audit(auth, 'nhap_xuat_kho', data as string, 'create', { id_vat_tu: id, loai, qty, don_gia: price })
 }
 
 // ── Thiết bị ──

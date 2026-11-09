@@ -748,6 +748,12 @@ export default function ResourceManager({
                 )
               })}
             </dl>
+            {res.key === 'vat_tu' && (
+              <div className="mt-6 pt-5 border-t border-navy-200">
+                <ResourceManager compact resourceKey="nhap_xuat_kho" title="Lịch sử nhập từng đợt" filters={{ id_vat_tu: viewing.id, loai_giao_dich: 'NHAP' }}
+                  perms={{ create: false, edit: false, delete: false, approve: false }} />
+              </div>
+            )}
             {res.key === 'de_xuat' && (
               <div className="mt-6 pt-5 border-t border-navy-200">
                 <ResourceManager compact resourceKey="de_xuat_chi_tiet" title="Chi tiết đề xuất" filters={{ id_de_xuat: viewing.id }}
@@ -1171,6 +1177,12 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
                 <input type="checkbox" className="h-4 w-4 accent-blue-600" checked={!!form[f.name]} onChange={(e) => set(e.target.checked)} />
                 <span className="text-sm font-bold text-ink">{f.label}</span>
               </label>
+            )
+            if (f.calc) return (
+              <div key={f.name} className={`min-w-0 ${span(f)}`}>
+                <label className="label !mb-0.5 truncate">{f.label}</label>
+                <input readOnly tabIndex={-1} className="input h-11 text-[16px] lg:h-9 lg:text-sm bg-navy-50 font-bold tabular-nums" value={new Intl.NumberFormat('vi-VN').format((Number(form[f.calc[0]]) || 0) * (Number(form[f.calc[1]]) || 0))} />
+              </div>
             )
             return (
               <div key={f.name} className={`min-w-0 ${span(f)}`}>

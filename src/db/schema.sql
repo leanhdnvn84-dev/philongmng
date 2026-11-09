@@ -165,7 +165,11 @@ CREATE TABLE IF NOT EXISTS public.nhap_xuat_kho (
   nguon_giao_dich TEXT, id_chung_tu TEXT,
   id_nguoi_thuc_hien TEXT REFERENCES public.nhan_vien(id) ON DELETE SET NULL,
   noi_dung TEXT, ghi_chu TEXT, nguoi_tao TEXT,
+  don_gia NUMERIC NOT NULL DEFAULT 0,
+  thanh_tien NUMERIC GENERATED ALWAYS AS (so_luong * don_gia) STORED,
   extra JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ DEFAULT now());
+ALTER TABLE public.nhap_xuat_kho ADD COLUMN IF NOT EXISTS don_gia NUMERIC NOT NULL DEFAULT 0;
+ALTER TABLE public.nhap_xuat_kho ADD COLUMN IF NOT EXISTS thanh_tien NUMERIC GENERATED ALWAYS AS (so_luong * don_gia) STORED;
 
 CREATE TABLE IF NOT EXISTS public.thiet_bi (
   id TEXT PRIMARY KEY DEFAULT public.next_id('TB'),
@@ -400,8 +404,9 @@ LEFT JOIN (
 
 -- ---------- atomic business operations ----------
 -- stock movement with a per-item lock: XUAT never drives stock below zero, even under concurrency
+DROP FUNCTION IF EXISTS public.kho_giao_dich(TEXT, TEXT, NUMERIC, DATE, TEXT, TEXT, TEXT, TEXT);
 CREATE OR REPLACE FUNCTION public.kho_giao_dich(p_vat_tu TEXT, p_loai TEXT, p_so_luong NUMERIC, p_ngay DATE,
-  p_noi_dung TEXT, p_nguon TEXT, p_chung_tu TEXT, p_nguoi_tao TEXT) RETURNS TEXT LANGUAGE plpgsql AS $$
+  p_noi_dung TEXT, p_nguon TEXT, p_chung_tu TEXT, p_nguoi_tao TEXT, p_don_gia NUMERIC DEFAULT 0, p_ghi_chu TEXT DEFAULT NULL) RETURNS TEXT LANGUAGE plpgsql AS $$
 DECLARE ton NUMERIC; new_id TEXT;
 BEGIN
   PERFORM pg_advisory_xact_lock(hashtext('kho:' || p_vat_tu));
@@ -410,8 +415,8 @@ BEGIN
   SELECT ton_hien_tai INTO ton FROM public.v_vat_tu WHERE id = p_vat_tu;
   IF NOT FOUND THEN RAISE EXCEPTION 'VAT_TU_KHONG_TON_TAI'; END IF;
   IF p_loai = 'XUAT' AND ton < p_so_luong THEN RAISE EXCEPTION 'TON_KHO_KHONG_DU:%', ton; END IF;
-  INSERT INTO public.nhap_xuat_kho (ngay, id_vat_tu, loai_giao_dich, so_luong, noi_dung, nguon_giao_dich, id_chung_tu, nguoi_tao)
-  VALUES (coalesce(p_ngay, public.today_vn()), p_vat_tu, p_loai, p_so_luong, p_noi_dung, p_nguon, p_chung_tu, p_nguoi_tao)
+  INSERT INTO public.nhap_xuat_kho (ngay, id_vat_tu, loai_giao_dich, so_luong, noi_dung, nguon_giao_dich, id_chung_tu, nguoi_tao, don_gia, ghi_chu)
+  VALUES (coalesce(p_ngay, public.today_vn()), p_vat_tu, p_loai, p_so_luong, p_noi_dung, p_nguon, p_chung_tu, p_nguoi_tao, greatest(coalesce(p_don_gia, 0), 0), p_ghi_chu)
   RETURNING id INTO new_id;
   RETURN new_id;
 END $$;

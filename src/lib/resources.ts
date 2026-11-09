@@ -17,6 +17,8 @@ export interface Field {
   inList?: boolean // force show/hide as a column
   inForm?: boolean // false = never in the edit form
   multiline?: boolean // keep line breaks in table cells (proposal line lists)
+  /** read-only live product of two other fields in a form (Thành tiền = Số lượng × Đơn giá) */
+  calc?: [string, string]
   refQuery?: string // for 'ref': extra list filter, e.g. 'gt_ton_hien_tai=0' (only in-stock items)
 }
 
@@ -329,8 +331,11 @@ export const RESOURCES: Resource[] = [
         fields: [
           { name: 'id_vat_tu', label: 'Vật tư (trong danh mục)', type: 'ref', ref: 'vat_tu', required: true },
           { name: 'so_luong', label: 'Số lượng nhập', type: 'number', required: true },
+          { name: 'don_gia', label: 'Đơn giá', type: 'money', default: 0 },
+          { name: 'thanh_tien', label: 'Thành tiền', type: 'money', calc: ['so_luong', 'don_gia'] },
           { name: 'ngay', label: 'Ngày (để trống = hôm nay)', type: 'date' },
           { name: 'noi_dung', label: 'Nội dung', type: 'text' },
+          { name: 'ghi_chu', label: 'Ghi nhận', type: 'textarea' },
         ] },
       // only items that are still in stock can be issued
       { key: 'xuat_kho', label: 'Xuất kho', perm: 'edit', scope: 'page',
@@ -339,6 +344,7 @@ export const RESOURCES: Resource[] = [
           { name: 'so_luong', label: 'Số lượng xuất', type: 'number', required: true },
           { name: 'ngay', label: 'Ngày (để trống = hôm nay)', type: 'date' },
           { name: 'noi_dung', label: 'Nội dung', type: 'text' },
+          { name: 'ghi_chu', label: 'Ghi nhận', type: 'textarea' },
         ] },
     ],
   },
@@ -352,7 +358,10 @@ export const RESOURCES: Resource[] = [
       { name: 'id_vat_tu', label: 'Vật tư', type: 'ref', ref: 'vat_tu' },
       { name: 'loai_giao_dich', label: 'Loại', type: 'select', options: ['NHAP', 'XUAT'] },
       { name: 'so_luong', label: 'Số lượng', type: 'number' },
+      { name: 'don_gia', label: 'Đơn giá', type: 'money' },
+      { name: 'thanh_tien', label: 'Thành tiền', type: 'money', ro: true },
       { name: 'noi_dung', label: 'Nội dung', type: 'text' },
+      { name: 'ghi_chu', label: 'Ghi nhận', type: 'text' },
       { name: 'nguon_giao_dich', label: 'Nguồn', type: 'text' },
       { name: 'id_chung_tu', label: 'Chứng từ', type: 'text' },
       { name: 'nguoi_tao', label: 'Người tạo', type: 'text' },
