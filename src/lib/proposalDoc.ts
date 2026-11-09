@@ -68,7 +68,7 @@ hr{border:0;border-top:1.5px solid #111;margin:6px 0 8px}
 `
 
 // print: the footer sits at the bottom of every page; pdf: the page is exactly A4 with the footer at its bottom edge
-const PRINT_CSS = `.pfoot{position:fixed;left:0;right:0;bottom:0}body{padding-bottom:9mm}`
+export const PRINT_CSS = `.pfoot{position:fixed;left:0;right:0;bottom:0}body{padding-bottom:9mm}`
 const PDF_CSS = `td,th{line-height:1.35;box-sizing:content-box}.grid td,.grid th{padding:3px 6px 9px}body{width:794px;margin:0;background:#fff}.WordSection1{position:relative;min-height:1122px;padding:42px 45px 64px}.pfoot{position:absolute;left:0;right:0;bottom:24px}`
 
 /** Full HTML document of the proposal form (one template per kind, as in V191). */
