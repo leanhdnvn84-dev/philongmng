@@ -44,6 +44,8 @@ export function fileName(p: Phieu) {
 
 export const CSS = `
 @page{size:A4;margin:11mm 12mm}
+@page WordSection1{size:21cm 29.7cm;margin:1.1cm 1.2cm;mso-header-margin:0;mso-footer-margin:0}
+div.WordSection1{page:WordSection1}
 *{box-sizing:border-box}
 body{font-family:"Times New Roman",Times,serif;color:#111;font-size:11pt;margin:0}
 table{border-collapse:collapse;width:100%}
@@ -77,7 +79,7 @@ export function phieuHtml(p: Phieu, origin = '') {
       total += amount
       return `<tr><td class="ctr">${i + 1}</td><td>${esc(l.name)}${l.supplier ? `<br><span style="font-size:8.5pt;color:#555">NCC: ${esc(l.supplier)}</span>` : ''}</td><td class="ctr">${esc(l.unit)}</td><td class="ctr">${esc(l.qty)}</td><td class="num">${money(l.price)}</td><td class="num">${money(amount)}</td></tr>`
     }).join('')
-    detail = `<table class="grid"><tr class="head"><th style="width:6%">TT</th><th>Nội dung / Mặt hàng</th><th style="width:9%">ĐVT</th><th style="width:11%">Số lượng</th><th style="width:15%">Đơn giá</th><th style="width:17%">Thành tiền</th></tr>${rows}
+    detail = `<table class="grid" width="100%"><tr class="head"><th style="width:6%">TT</th><th>Nội dung / Mặt hàng</th><th style="width:9%">ĐVT</th><th style="width:11%">Số lượng</th><th style="width:15%">Đơn giá</th><th style="width:17%">Thành tiền</th></tr>${rows}
       <tr><td colspan="4" style="border:0"></td><th class="num">TỔNG CỘNG</th><th class="num">${money(total)}</th></tr></table>
       <div class="words"><b>Tổng cộng bằng chữ:</b> ${esc(moneyWords(total))}</div>`
   } else {
@@ -86,21 +88,21 @@ export function phieuHtml(p: Phieu, origin = '') {
     const rows: [string, unknown][] = p.kind === 'BAO_TRI'
       ? [['Thiết bị', l.name], ['Khu vực', pick('KHU_VUC', 'ID_KHU_VUC')], ['Hiện trạng', pick('HIEN_TRANG', 'TINH_TRANG')], ['Phương án đề xuất', pick('PHUONG_AN_DE_XUAT') || l.reason], ['Chi phí dự kiến', money(pick('CHI_PHI_DU_KIEN') || l.amount)]]
       : [['Thiết bị', l.name], ['Tình trạng', pick('TINH_TRANG', 'HIEN_TRANG')], ['Lý do thanh lý', pick('LY_DO') || l.reason], ['Chi phí sửa dự kiến', money(pick('CHI_PHI_SUA_DU_KIEN'))], ['Giá trị còn lại', money(pick('GIA_TRI_CON_LAI'))], ['Giá đề xuất thanh lý', money(pick('GIA_DE_XUAT_THANH_LY') || l.price)]]
-    detail = `<table class="grid">${rows.map(([k, v]) => `<tr><td class="lab" style="width:32%">${esc(k)}</td><td>${nl(v)}</td></tr>`).join('')}</table>`
+    detail = `<table class="grid" width="100%">${rows.map(([k, v]) => `<tr><td class="lab" style="width:32%">${esc(k)}</td><td>${nl(v)}</td></tr>`).join('')}</table>`
   }
-  const logo = origin ? `<img src="${origin}/brand/philong-logo.png" alt="Phi Long Technology" style="height:44px;display:block;margin-bottom:4px">` : '<b style="color:#d71920;font-size:15pt">PHI LONG TECHNOLOGY</b>'
-  return `<!doctype html><html lang="vi" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${esc(fileName(p))}</title><style>${CSS}</style></head><body>
-  <table class="hd"><tr><td style="width:62%;vertical-align:bottom"><h1>PHIẾU ĐỀ XUẤT</h1><div class="code">Mã phiếu: ${esc(p.code)}</div></td>
-    <td>${logo}<table class="contact"><tr><td style="width:24%"><b>Địa chỉ</b></td><td>: ${esc(COMPANY.address)}</td></tr><tr><td><b>Điện thoại</b></td><td>: ${esc(COMPANY.phone)}</td></tr><tr><td><b>Email</b></td><td>: ${esc(COMPANY.email)}</td></tr><tr><td><b>Website</b></td><td>: ${esc(COMPANY.web)}</td></tr></table></td></tr></table>
+  const logo = origin ? `<img src="${origin}/brand/philong-logo.png" alt="Phi Long Technology" width="141" height="44" style="width:141px;height:44px;display:block;margin-bottom:4px">` : '<b style="color:#d71920;font-size:15pt">PHI LONG TECHNOLOGY</b>'
+  return `<!doctype html><html lang="vi" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${esc(fileName(p))}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]--><style>${CSS}</style></head><body><div class="WordSection1">
+  <table class="hd" width="100%"><tr><td width="60%" style="width:60%;vertical-align:bottom"><h1>PHIẾU ĐỀ XUẤT</h1><div class="code">Mã phiếu: ${esc(p.code)}</div></td>
+    <td width="40%">${logo}<table class="contact" width="100%"><tr><td width="26%" style="width:26%"><b>Địa chỉ</b></td><td>: ${esc(COMPANY.address)}</td></tr><tr><td><b>Điện thoại</b></td><td>: ${esc(COMPANY.phone)}</td></tr><tr><td><b>Email</b></td><td>: ${esc(COMPANY.email)}</td></tr><tr><td><b>Website</b></td><td>: ${esc(COMPANY.web)}</td></tr></table></td></tr></table>
   <hr>
-  <table class="to"><tr><td style="width:12%">Kính gửi:</td><td>- Giám đốc Công ty TNHH Công Nghệ Tin Học Phi Long<br>- Bộ phận quản lý</td></tr></table>
-  <table class="grid" style="margin-top:6px"><tr><td class="lab">Ngày lập</td><td>${esc(dmy(p.date))}</td><td class="lab">Người đề xuất</td><td>${esc(p.requester)}</td></tr>
+  <table class="to" width="100%"><tr><td width="12%" style="width:12%">Kính gửi:</td><td>- Giám đốc Công ty TNHH Công Nghệ Tin Học Phi Long<br>- Bộ phận quản lý</td></tr></table>
+  <table class="grid" width="100%" style="margin-top:6px"><tr><td class="lab">Ngày lập</td><td>${esc(dmy(p.date))}</td><td class="lab">Người đề xuất</td><td>${esc(p.requester)}</td></tr>
     <tr><td class="lab">Phòng ban</td><td>${esc(p.department)}</td><td class="lab">Loại đề xuất</td><td>${esc(label)}</td></tr></table>
   <div class="sec">NỘI DUNG</div><div style="font-size:9.5pt">${nl(p.content)}${p.reason && p.reason !== p.content ? `<br><br><b>Mục đích / lý do:</b> ${nl(p.reason)}` : ''}</div>
   <div class="sec">CHI TIẾT ĐỀ XUẤT</div>${detail}
   <div class="note"><b>Ghi chú:</b> ${nl(p.note)}</div>
-  <table class="sign"><tr><td>NGƯỜI ĐỀ XUẤT<br><br><br><br><br>${esc(p.requester)}</td><td>TRƯỞNG BỘ PHẬN</td><td>PHÊ DUYỆT</td></tr></table>
-  <div class="foot">Biểu mẫu có giá trị khi được ký duyệt đầy đủ.</div></body></html>`
+  <table class="sign" width="100%"><tr><td width="33%">NGƯỜI ĐỀ XUẤT<br><br><br><br><br>${esc(p.requester)}</td><td width="34%">TRƯỞNG BỘ PHẬN</td><td width="33%">PHÊ DUYỆT</td></tr></table>
+  <div class="foot">Biểu mẫu có giá trị khi được ký duyệt đầy đủ.</div></div></body></html>`
 }
 
 /** Print from a hidden frame (no popup window). Used for both "In phiếu" and "PDF" (Save as PDF in the dialog). */
