@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeftRight, ArrowUp, BadgeCheck, BarChart3, Boxes, Building2, CalendarClock, CalendarDays, ChevronDown, ClipboardCheck, Contact, Database, FileText, FolderOpen, Hammer, HardHat, KeyRound, Layers, LayoutGrid, ListChecks, Lock, LogIn, LogOut, Mail, MailCheck, MapPin, Menu, MessageCircle, Monitor, MonitorSmartphone, Printer, RefreshCw, Repeat, Search, ShieldAlert, ShoppingCart, Tags, Trash2, Truck, Undo2, User, UserPlus, Users, Warehouse, Wrench, X, Zap, type LucideIcon } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
+import GlobalSearch from '@/components/GlobalSearch'
 import Portal from '@/components/Portal'
 import Logo from '@/components/Logo'
 import ChatPanel from '@/components/ChatPanel'
@@ -160,6 +161,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
         </nav>
 
         <div className="ml-auto relative flex items-center gap-3 shrink-0">
+          <GlobalSearch />
           <TodayTile />
           <button type="button" onClick={() => setChatOpen((o) => !o)} aria-label="Trao đổi nội bộ" title="Trao đổi nội bộ" aria-expanded={chatOpen} className="relative hidden lg:grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20">
             <MessageCircle className="h-5 w-5" />

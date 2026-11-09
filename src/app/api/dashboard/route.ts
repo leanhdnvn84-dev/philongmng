@@ -28,10 +28,19 @@ export async function GET() {
     ]).then(([overdue, dueToday, soon, open, list]) => ({ overdue, dueToday, soon, open, list: list.data ?? [] }))
   }
   if (can(auth, 'CVHN', 'view')) {
+    const from = new Date(today + 'T00:00:00Z'); from.setUTCDate(from.getUTCDate() - 6)
+    const d0 = from.toISOString().slice(0, 10)
     tasks.hn = Promise.all([
       count('cong_viec_hang_ngay', (q) => q.eq('ngay', today)),
       count('cong_viec_hang_ngay', (q) => q.eq('ngay', today).ilike('trang_thai', '%hoàn thành%')),
-    ]).then(([total, done]) => ({ total, done }))
+      db.from('cong_viec_hang_ngay').select('ngay').gte('ngay', d0).lte('ngay', today).limit(5000),
+      count('cong_viec_hang_ngay', (q) => q.gte('ngay', today.slice(0, 8) + '01').lte('ngay', today)),
+    ]).then(([total, done, wk, month]) => {
+      const by: Record<string, number> = {}
+      for (const r of wk.data ?? []) by[r.ngay] = (by[r.ngay] ?? 0) + 1
+      const week = Array.from({ length: 7 }, (_, i) => { const d = new Date(d0 + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + i); const k = d.toISOString().slice(0, 10); return { day: k, n: by[k] ?? 0 } })
+      return { total, done, week, month }
+    })
   }
   if (can(auth, 'KHACH_RA_VAO', 'view')) {
     tasks.krv = Promise.all([
@@ -50,8 +59,14 @@ export async function GET() {
     ]).then(([late, dueToday, soon, waiting, list]) => ({ late, dueToday, soon, waiting, list: list.data ?? [] }))
   }
   if (can(auth, 'DE_XUAT', 'view')) {
-    tasks.dx = db.from('v_de_xuat').select('tong_tien').eq('trang_thai', 'Chờ duyệt').limit(5000)
-      .then(({ data }) => ({ pending: data?.length ?? 0, amount: (data ?? []).reduce((s, r) => s + Number(r.tong_tien || 0), 0) }))
+    tasks.dx = Promise.all([
+      db.from('v_de_xuat').select('id, noi_dung, ngay_de_xuat, tong_tien, loai_de_xuat').eq('trang_thai', 'Chờ duyệt').order('ngay_de_xuat', { ascending: false }).limit(5000),
+      db.from('v_de_xuat').select('tong_tien, so_dong, trang_thai').gte('ngay_de_xuat', today.slice(0, 8) + '01').lte('ngay_de_xuat', today).limit(5000),
+    ]).then(([p, m]) => {
+      const mon = (m.data ?? []).filter((r: any) => r.trang_thai !== 'Từ chối' && Number(r.so_dong || 0) > 0)
+      return { pending: p.data?.length ?? 0, amount: (p.data ?? []).reduce((s, r: any) => s + Number(r.tong_tien || 0), 0), list: (p.data ?? []).slice(0, 8),
+        monthAmount: mon.reduce((s, r: any) => s + Number(r.tong_tien || 0), 0), monthCount: mon.length }
+    })
   }
   if (can(auth, 'KHO', 'view')) {
     tasks.kho = db.from('v_vat_tu').select('id, ten_vat_tu, dvt, ton_hien_tai, ton_toi_thieu').neq('canh_bao', '').order('ten_vat_tu').limit(50)
@@ -78,5 +93,5 @@ export async function GET() {
 
   const keys = Object.keys(tasks)
   const values = await Promise.all(Object.values(tasks))
-  return ok({ data: Object.fromEntries(keys.map((k, i) => [k, values[i]])), today })
+  return ok({ data: Object.fromEntries(keys.map((k, i) => [k, values[i]])), today, name: auth.name })
 }

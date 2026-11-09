@@ -54,8 +54,9 @@ export default function Dashboard() {
     cv && { key: 'cv', label: 'Công việc', n: cv.list.length, href: '/cong_viec' },
     bt && { key: 'bt', label: 'Bảo trì', n: bt.list.length, href: '/lich_bao_tri' },
     kt && { key: 'kt', label: 'Hợp đồng thuê', n: kt.expiring.length, href: '/khach_thue' },
+    dx && { key: 'dx', label: 'Đề xuất', n: dx.pending, href: '/de_xuat?loai_de_xuat=MUA_VAT_TU' },
     kho && { key: 'kho', label: 'Vật tư', n: kho.low.length, href: '/vat_tu' },
-  ].filter(Boolean) as { key: string; label: string; n: number; href: string }[], [cv, bt, kt, kho])
+  ].filter(Boolean) as { key: string; label: string; n: number; href: string }[], [cv, bt, kt, kho, dx])
   const active = tabs.find((t) => t.key === tab) ?? tabs.find((t) => t.n > 0) ?? tabs[0]
 
   if (err) return <p className="px-5 py-4 text-red-600">{err}</p>
@@ -71,6 +72,14 @@ export default function Dashboard() {
   const greet = hour < 11 ? 'Chào buổi sáng' : hour < 14 ? 'Chào buổi trưa' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối'
   const weekday = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
   const urgent = (cv?.overdue ?? 0) + (bt?.late ?? 0)
+  const summary = [
+    cv?.overdue ? { text: `${cv.overdue} công việc quá hạn`, hot: true } : null,
+    bt && bt.late + bt.dueToday ? { text: `${bt.late + bt.dueToday} hạng mục bảo trì cần làm` } : null,
+    dx?.pending ? { text: `${dx.pending} đề xuất chờ duyệt` } : null,
+  ].filter(Boolean) as { text: string; hot?: boolean }[]
+  const week: { day: string; n: number }[] = hn?.week ?? []
+  const weekMax = Math.max(1, ...week.map((w) => w.n)), weekSum = week.reduce((s, w) => s + w.n, 0)
+  const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
   const dailyPct = hn?.total ? Math.round((hn.done / hn.total) * 100) : 0
   const tbColors = ['#ffffff', '#ff8a8e', '#93c5fd', '#fcd34d', '#6ee7b7', '#cbd5e1']
   const tbEntries = tb ? Object.entries(tb.by as Record<string, number>).sort((a, b) => b[1] - a[1]) : []
@@ -80,8 +89,8 @@ export default function Dashboard() {
       {/* greeting + alert + shortcuts */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="min-w-[200px] flex-1">
-          <h1 className="text-[22px] font-black leading-tight text-navy-900">{greet}</h1>
-          <p className="text-[13px] text-ink-mute first-letter:uppercase">{weekday}, {formatDate(d.today)}</p>
+          <h1 className="text-[24px] font-black leading-tight tracking-tight text-navy-900 lg:text-[28px]">{greet}{d.name ? `, ${String(d.name).trim().split(/\s+/).slice(-2).join(' ')}` : ''}</h1>
+          <p className="mt-0.5 text-[13.5px] text-ink-soft"><span className="first-letter:uppercase inline-block">{weekday}, {formatDate(d.today)}</span>{summary.length > 0 && <> · Hôm nay có {summary.map((s, i) => <span key={s.text}>{i > 0 && (i === summary.length - 1 ? ' và ' : ', ')}<b className={s.hot ? 'text-red-600' : 'text-navy-900'}>{s.text}</b></span>)}.</>}</p>
         </div>
         {urgent > 0
           ? <span className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3.5 py-1.5 text-[13px] font-bold text-red-600"><AlertTriangle className="h-4 w-4" />{urgent} việc cần xử lý ngay</span>
@@ -135,6 +144,11 @@ export default function Dashboard() {
               <Row key={r.id} mid={<span className="block truncate text-[13.5px] font-semibold text-ink">{r.ten_khach_thue}</span>}
                 right={<span className={r.so_ngay_con_lai < 0 ? 'pill-red' : 'pill-amber'}>{formatDate(r.ngay_ket_thuc)}</span>} />
             )))}
+            {active?.key === 'dx' && (dx.list.length === 0 ? <Empty text="Không có đề xuất nào chờ duyệt." /> : dx.list.map((r: any) => (
+              <Row key={r.id} left={<span className="w-14 shrink-0 font-mono text-[11px] text-ink-mute">{r.id}</span>}
+                mid={<><span className="block truncate text-[13.5px] font-semibold text-ink">{r.noi_dung}</span><span className="block truncate text-xs text-ink-mute">{formatDate(r.ngay_de_xuat)}{Number(r.tong_tien) ? ` · ${formatMoney(r.tong_tien)}` : ''}</span></>}
+                right={<Link href={`/de_xuat?loai_de_xuat=${r.loai_de_xuat}&q=${r.id}`} className="btn-secondary btn-sm">Mở</Link>} />
+            )))}
             {active?.key === 'kho' && (kho.low.length === 0 ? <Empty text="Kho đủ vật tư." /> : kho.low.slice(0, 20).map((r: any) => (
               <Row key={r.id} mid={<span className="block truncate text-[13.5px] font-semibold text-ink">{r.ten_vat_tu}</span>}
                 right={<span className="pill-red">tồn {r.ton_hien_tai}{r.dvt ? ` ${r.dvt}` : ''} / {r.ton_toi_thieu}</span>} />
@@ -159,6 +173,28 @@ export default function Dashboard() {
                 <div><div className="text-[26px] font-black leading-none tabular-nums text-navy-900">{hn.done}<span className="text-[16px] font-bold text-ink-mute">/{hn.total}</span></div>
                   <div className="mt-1 flex items-center gap-1.5 text-[12.5px] text-ink-mute"><ListChecks className="h-4 w-4" />việc đã xong</div></div>
               </div>
+            </div>
+          )}
+          {hn && week.length > 0 && (
+            <div className="rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)]">
+              <div className="flex items-baseline justify-between"><h2 className="text-[14px] font-extrabold text-navy-900">Công việc hằng ngày · 7 ngày</h2><span className="text-[12px] text-ink-mute">{hn.month} trong tháng</span></div>
+              <div className="mt-0.5 text-[24px] font-black leading-tight tabular-nums text-navy-900">{weekSum} <span className="text-[12.5px] font-semibold text-ink-mute">việc</span></div>
+              <div className="mt-2 grid h-[104px] grid-cols-7 items-end gap-2" role="img" aria-label={`Số công việc hằng ngày 7 ngày gần nhất: ${week.map((w) => w.n).join(', ')}`}>
+                {week.map((w) => (
+                  <div key={w.day} className="flex h-full flex-col items-center justify-end gap-1">
+                    <span className="text-[11px] font-bold tabular-nums text-ink-soft">{w.n}</span>
+                    <span className={`w-full rounded-t-md rounded-b-sm ${w.n === weekMax && w.n > 0 ? 'bg-brand-500' : 'bg-blue-600'}`} style={{ height: `${Math.max(3, (w.n / weekMax) * 62)}px` }} />
+                    <span className={`text-[11px] font-semibold ${w.day === d.today ? 'text-navy-900' : 'text-ink-mute'}`}>{DOW[new Date(w.day + 'T00:00:00Z').getUTCDay()]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {dx && (
+            <div className="rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)]">
+              <div className="text-[12.5px] font-bold text-ink-mute">Đề xuất trong tháng</div>
+              <div className="text-[24px] font-black leading-tight tabular-nums text-navy-900">{formatMoney(dx.monthAmount)}</div>
+              <div className="mt-0.5 flex items-center justify-between gap-2 text-[12.5px] text-ink-mute"><span>{dx.monthCount} phiếu</span>{dx.pending > 0 && <Link href="/de_xuat?loai_de_xuat=MUA_VAT_TU" className="font-bold text-blue-600">Duyệt {dx.pending} phiếu đang chờ →</Link>}</div>
             </div>
           )}
           <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-navy-900 px-4 py-3 text-white shadow-[0_10px_24px_rgba(29,78,216,.25)]">

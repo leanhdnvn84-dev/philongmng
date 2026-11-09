@@ -218,20 +218,20 @@ function MonthCalendar({ month, setMonth, counts, day, setDay, unit, fields, fie
 
 /* ── main ──────────────────────────────────────────────────────────── */
 export default function ResourceManager({
-  resourceKey, title, filters = {}, perms, compact = false,
-}: { resourceKey: string; title?: string; filters?: Record<string, string>; perms: UiPerms; compact?: boolean }) {
+  resourceKey, title, filters = {}, perms, compact = false, initialSearch,
+}: { resourceKey: string; title?: string; filters?: Record<string, string>; perms: UiPerms; compact?: boolean; initialSearch?: string }) {
   const res = getResource(resourceKey)!
   const [rows, setRows] = useState<Row[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [query, setQuery] = useState('')
+  const [search, setSearch] = useState(initialSearch ?? '')
+  const [query, setQuery] = useState(initialSearch ?? '')
   const [searchOpen, setSearchOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false) // phone: V191-style filter sheet
   const [status, setStatus] = useState('')
   const [alertSel, setAlertSel] = useState('')
   const [tip, setTip] = useState<{ x: number; y: number; up: boolean; text: string } | null>(null)
-  const [quickSel, setQuickSel] = useState(res.quick?.def ?? '')
+  const [quickSel, setQuickSel] = useState(initialSearch && res.quick ? 'all' : res.quick?.def ?? '')
   const [quickCounts, setQuickCounts] = useState<Record<string, number>>({})
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const [side, setSide] = useState('')
