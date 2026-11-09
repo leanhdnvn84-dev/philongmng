@@ -44,7 +44,7 @@ export function fileName(p: Phieu) {
 
 export const CSS = `
 @page{size:A4;margin:11mm 12mm}
-@page WordSection1{size:21cm 29.7cm;margin:1.1cm 1.2cm 1.6cm 1.2cm;mso-header-margin:0;mso-footer-margin:.6cm;mso-footer:f1}
+@page WordSection1{size:21cm 29.7cm;margin:1.1cm 1.2cm 1.6cm 1.2cm;mso-header-margin:0;mso-footer-margin:.6cm}
 div.WordSection1{page:WordSection1}
 *{box-sizing:border-box}
 body{font-family:"Times New Roman",Times,serif;color:#111;font-size:11pt;margin:0}
@@ -106,9 +106,7 @@ export function phieuHtml(p: Phieu, origin = '', mode: 'print' | 'word' | 'pdf' 
   <div class="sec">CHI TIẾT ĐỀ XUẤT</div>${detail}
   <div class="note"><b>Ghi chú:</b> ${nl(p.note)}</div>
   <table class="sign" width="100%"><tr><td width="33%">NGƯỜI ĐỀ XUẤT<br><br><br><br><br>${esc(p.requester)}</td><td width="34%">TRƯỞNG BỘ PHẬN</td><td width="33%">PHÊ DUYỆT</td></tr></table>
-  ${mode === 'word'
-    ? '</div><div style="mso-element:footer" id="f1"><p class="MsoFooter" align="center" style="text-align:center;font-size:8pt;color:#444">Biểu mẫu có giá trị khi được ký duyệt đầy đủ.</p></div>'
-    : '<div class="foot pfoot">Biểu mẫu có giá trị khi được ký duyệt đầy đủ.</div></div>'}</body></html>`
+  </div></body></html>`
 }
 
 /** Print from a hidden frame (no popup window). Used for both "In phiếu" and "PDF" (Save as PDF in the dialog). */
