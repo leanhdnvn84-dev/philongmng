@@ -3,10 +3,11 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
-  RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown, PackageCheck, PackageX, Boxes,
+  RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown, PackageCheck, PackageX, Boxes, AlertTriangle,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
+import { ProposalStats, ShortageDialog } from '@/components/ProposalExtras'
 import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
 import { phieuHtml, printHtml, downloadWord, fileName, type Phieu } from '@/lib/proposalDoc'
@@ -219,6 +220,7 @@ export default function ResourceManager({
   const [quickCounts, setQuickCounts] = useState<Record<string, number>>({})
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const [side, setSide] = useState('')
+  const [shortOpen, setShortOpen] = useState(false)
   const [pf, setPf] = useState<Record<string, string>>({}) // V191 "Bộ lọc" box: Tầng·Khu vực, Hạng mục…
   const [day, setDay] = useState<string | null>(null)
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
@@ -847,6 +849,7 @@ export default function ResourceManager({
         </>}
         {!isDev && res.key !== 'de_xuat' && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
+        {res.key === 'de_xuat' && filters.loai_de_xuat === 'MUA_VAT_TU' && <Tile icon={AlertTriangle} label="Vật tư thiếu" color="amber" onClick={() => setShortOpen(true)} />}
         </div>
 
         {isDev && (
@@ -908,6 +911,7 @@ export default function ResourceManager({
             })}
           </div>
         )}
+        {res.key === 'de_xuat' && filters.loai_de_xuat && !compact && <ProposalStats kind={filters.loai_de_xuat} title={title ?? res.title} version={version} />}
         {message}
         {(day || side || status || query || pfActive) && (
           <div className="flex flex-wrap items-center gap-2 text-[12.5px] print:hidden">
@@ -1022,6 +1026,7 @@ export default function ResourceManager({
         </FilterSheet>
       )}
       {overlays}
+      {shortOpen && <ShortageDialog onClose={() => setShortOpen(false)} />}
     </div>
   )
 }
