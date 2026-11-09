@@ -51,7 +51,7 @@ function soNgay(r: any): { n: number; tone: 'red' | 'green' | 'blue'; lines: str
 const isFixedCol = (f: Field) => f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool'
 const fixedW = (f: Field, shortDate: boolean) => (f.type === 'date' ? (shortDate ? 64 : 88) : f.type === 'datetime' ? 124 : f.type === 'money' ? 88 : f.name === 'so_ngay' || f.name === 'so_ngay_con_lai' ? 58 : f.type === 'bool' ? 54 : 66)
 const flexWeight = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' ? (f.name === 'tien_do' ? 140 : f.name === 'cach_thuc_hien' ? 120 : 170)
-  : f.type === 'email' ? 140 : STATUS_FIELDS_SET.has(f.name) ? 104 : /^id_nguoi/.test(f.name) ? 152 : f.type === 'ref' ? 108 : 100)
+  : f.name === 'nguoi_lam_cung' ? 160 : f.type === 'email' ? 140 : STATUS_FIELDS_SET.has(f.name) ? 104 : /^id_nguoi/.test(f.name) ? 152 : f.type === 'ref' ? 108 : 100)
 const SOFT_TIP = new Set(['tien_do', 'cach_thuc_hien', 'noi_dung'])
 
 const STATUS_FIELDS = new Set(['canh_bao', 'trang_thai', 'trang_thai_su_dung', 'muc_do', 'muc_do_tiem_nang'])
@@ -109,6 +109,8 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   if (v === null || v === undefined || v === '') return <span className="text-navy-300">—</span>
   if (f.type === 'ref') return labels[f.ref!]?.get(v) ?? v
   if (f.name === 'loai_de_xuat') return PROPOSAL_KINDS[v] ?? v
+  // co-workers are stored as a list of staff / contractor codes (NV0010, NT0012…) or plain names: show names
+  if (f.name === 'nguoi_lam_cung') return String(v).split(/\s*,\s*/).filter(Boolean).map((t) => labels.nhan_vien?.get(t) ?? labels.nha_thau?.get(t) ?? t).join(', ')
   if (f.name === 'nguon_giao_dich') {
     const L: Record<string, string> = { NHAP_THU_CONG: 'Nhập thủ công', XUAT_SU_DUNG: 'Xuất sử dụng', THU_CONG: 'Thủ công', DE_XUAT: 'Theo đề xuất', DIEU_CHINH: 'Điều chỉnh', DE_XUAT_MUA_VAT_TU: 'Đề xuất mua vật tư', NHAP_KHO: 'Nhập kho', XUAT_KHO: 'Xuất kho' }
     return L[String(v).toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9]+/g, '_')] ?? String(v).replace(/_/g, ' ').toLowerCase().replace(/^./, (c) => c.toUpperCase())

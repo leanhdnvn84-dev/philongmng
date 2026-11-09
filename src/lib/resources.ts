@@ -156,6 +156,8 @@ export const RESOURCES: Resource[] = [
   {
     key: 'cong_viec_hang_ngay', table: 'cong_viec_hang_ngay', module: 'CVHN', title: 'Công việc hằng ngày', singular: 'công việc',
     dateField: 'ngay', sideFilter: 'id_nguoi_thuc_hien',
+    // same columns as V191, in the same order
+    listOrder: ['ngay', 'noi_dung', 'cach_thuc_hien', 'id_nguoi_giao', 'id_nguoi_thuc_hien', 'nguoi_lam_cung', 'don_vi_thuc_hien', 'trang_thai'],
     searchFields: ['id', 'noi_dung', 'cach_thuc_hien', 'tien_do'], orderBy: { column: 'ngay', ascending: false },
     fields: [
       ...workFields({ name: 'ngay', label: 'Ngày', type: 'date', required: true }).slice(0, 2),
