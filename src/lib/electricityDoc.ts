@@ -13,7 +13,7 @@ function page(inv: Invoice, ky: string, closeDate: string | null, logo: string) 
   const d = (closeDate || today)
   return `<section style="page-break-after:always">
   <table class="hd" width="100%"><tr><td style="vertical-align:bottom"><h1>GIẤY BÁO TIỀN ĐIỆN</h1><div class="code">${esc(kyLabel(ky))} · Mã hoá đơn: ${esc(inv.id)}</div></td>
-    <td width="255" style="width:255px"><table width="100%"><tr><td align="left" style="text-align:left;border:0;padding:0">${logo}</td></tr></table><table class="contact" width="100%"><tr><td width="26%" style="width:26%"><b>Địa chỉ</b></td><td>: ${esc(COMPANY.address)}</td></tr><tr><td><b>Điện thoại</b></td><td>: ${esc(COMPANY.phone)}</td></tr><tr><td><b>Email</b></td><td>: ${esc(COMPANY.email)}</td></tr></table></td></tr></table>
+    <td width="200" style="width:200px"><table width="100%"><tr><td align="left" style="text-align:left;border:0;padding:0">${logo}</td></tr></table><table class="contact" width="100%"><tr><td width="26%" style="width:26%"><b>Địa chỉ</b></td><td>: ${esc(COMPANY.address)}</td></tr><tr><td><b>Điện thoại</b></td><td>: ${esc(COMPANY.phone)}</td></tr><tr><td><b>Email</b></td><td>: ${esc(COMPANY.email)}</td></tr></table></td></tr></table>
   <hr>
   <table class="to" width="100%"><tr><td width="12%" style="width:12%">Kính gửi:</td><td>${esc(inv.customer)}</td></tr></table>
   <p style="font-size:10pt;margin:8px 0">Công ty TNHH Công Nghệ Tin Học Phi Long xin thông báo tiền điện ${esc(kyLabel(ky).toLowerCase())} của Quý khách như sau:</p>
@@ -28,7 +28,7 @@ function page(inv: Invoice, ky: string, closeDate: string | null, logo: string) 
 }
 
 export function giayBaoHtml(invoices: Invoice[], ky: string, closeDate: string | null, origin = '') {
-  const logo = origin ? `<img src="${origin}/brand/philong-logo.png" alt="Phi Long Technology" width="255" height="80" style="width:255px;height:80px;margin-bottom:2px">` : '<b style="color:#d71920;font-size:15pt">PHI LONG TECHNOLOGY</b>'
+  const logo = origin ? `<img src="${origin}/brand/philong-logo.png" alt="Phi Long Technology" width="200" height="62" style="width:200px;height:62px;margin-bottom:2px">` : '<b style="color:#d71920;font-size:15pt">PHI LONG TECHNOLOGY</b>'
   const title = invoices.length === 1 ? `Giấy báo tiền điện ${kyLabel(ky)} - ${invoices[0].customer}` : `Giấy báo tiền điện ${kyLabel(ky)}`
   return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${CSS}${PRINT_CSS}section:last-of-type{page-break-after:auto!important}</style></head><body>${invoices.map((i) => page(i, ky, closeDate, logo)).join('')}<div class="foot pfoot">Giấy báo có giá trị khi có xác nhận.</div></body></html>`
 }
