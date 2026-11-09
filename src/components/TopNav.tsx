@@ -66,6 +66,22 @@ function TodayTile() {
 }
 
 // Menu style B: navy bar, buttons sit in a dark tray, the open/active one is a red pill
+/** Short two-tone chime for a new message (silently skipped when the browser blocks audio before the first click). */
+function ping() {
+  try {
+    const AC = window.AudioContext || (window as any).webkitAudioContext
+    if (!AC) return
+    const ctx = new AC(), now = ctx.currentTime
+    for (const [f, at] of [[880, 0], [1175, 0.14]] as const) {
+      const o = ctx.createOscillator(), g = ctx.createGain()
+      o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(ctx.destination)
+      g.gain.setValueAtTime(0.0001, now + at); g.gain.exponentialRampToValueAtTime(0.18, now + at + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, now + at + 0.22)
+      o.start(now + at); o.stop(now + at + 0.25)
+    }
+    setTimeout(() => ctx.close().catch(() => {}), 800)
+  } catch { /* no audio */ }
+}
+
 const navBtn = (on: boolean) =>
   `flex items-center gap-1 h-9 px-3 2xl:px-3.5 rounded-[10px] text-[12.5px] 2xl:text-[13px] font-semibold whitespace-nowrap transition active:translate-y-px ${
     on ? 'bg-white text-[#b4121f] font-extrabold shadow-[0_3px_0_#6e0a12]' : 'text-white hover:bg-white/15'}`
@@ -82,13 +98,28 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   const [showTop, setShowTop] = useState(false)
   const [unread, setUnread] = useState(0)
   const [chatOpen, setChatOpen] = useState(false)
+  const [toast, setToast] = useState<{ id: string; from: string; group: boolean; text: string } | null>(null)
+  const seen = useRef<string | null | undefined>(undefined) // id of the newest unread message already announced
+  const chatOpenRef = useRef(false)
+  useEffect(() => { chatOpenRef.current = chatOpen; if (chatOpen) setToast(null) }, [chatOpen])
   const [dock, setDock] = useDockSide()
   useEffect(() => {
     let dead = false
-    const tick = () => { if (document.hidden) return; fetch('/api/chat/unread', { cache: 'no-store' }).then((r) => r.json()).then((j) => !dead && j.success && setUnread(j.unread)).catch(() => {}) }
-    tick(); const t = setInterval(tick, 20000)
+    const tick = () => {
+      fetch('/api/chat/unread', { cache: 'no-store' }).then((r) => r.json()).then((j) => {
+        if (dead || !j.success) return
+        setUnread(j.unread)
+        const id: string | null = j.last?.id ?? null
+        // announce only messages that arrive after the page was opened, and never while the chat is open
+        if (seen.current !== undefined && id && id !== seen.current && !chatOpenRef.current) { setToast({ id, from: j.last.from, group: j.last.group, text: j.last.text }); ping() }
+        seen.current = id
+      }).catch(() => {})
+    }
+    tick(); const t = setInterval(tick, 10000)
     return () => { dead = true; clearInterval(t) }
   }, [pathname, chatOpen])
+  // unread count in the browser tab title
+  useEffect(() => { const base = document.title.replace(/^\(\d+\+?\)\s*/, ''); document.title = unread > 0 ? `(${unread > 99 ? '99+' : unread}) ${base}` : base }, [unread, pathname])
   const onPageSearch = (v: string) => { setPageSearch(v); window.dispatchEvent(new CustomEvent('pl-search', { detail: v })) }
 
   const here = decodeURIComponent(pathname + (search.toString() ? '?' + search.toString() : ''))
@@ -197,13 +228,39 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
           <button type="button" onClick={() => setMobile(true)} aria-label="Mở menu"
             className={`fixed ${dock === 'left' ? 'left-4' : 'right-4'} bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-b from-[#17386b] to-[#0b1f45] text-white shadow-[0_6px_18px_rgba(11,31,69,.5)] active:scale-95`}>
             <Menu className="h-6 w-6" />
-            {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-[#e11d2e] px-1 text-[11px] font-black text-white ring-2 ring-white">{unread > 99 ? '99+' : unread}</span>}
           </button>
           {showTop && (
             <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Lên đầu trang"
               className={`fixed ${dock === 'left' ? 'right-4' : 'left-4'} bottom-4 z-30 grid h-14 w-14 place-items-center rounded-full border border-navy-200 bg-white text-navy-900 shadow-[0_6px_18px_rgba(16,24,40,.2)] active:scale-95`}>
               <ArrowUp className="h-6 w-6" />
             </button>
+          )}
+        </div>
+      </Portal>
+
+      {/* always-on chat bubble + "new message" popup */}
+      <Portal>
+        <div className="print:hidden">
+          {!chatOpen && (
+            <button type="button" onClick={() => setChatOpen(true)} aria-label={unread > 0 ? `Trao đổi nội bộ, ${unread} tin nhắn chưa đọc` : 'Trao đổi nội bộ'} title="Trao đổi nội bộ"
+              className={`fixed z-[55] grid h-14 w-14 place-items-center rounded-full bg-[#0b1b40] text-white shadow-[0_5px_0_#071230,0_14px_24px_rgba(7,18,48,.35)] transition duration-100 hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_1px_0_#071230] bottom-[84px] lg:bottom-5 ${dock === 'left' ? 'left-4 lg:left-auto' : 'right-4'} lg:right-5 ${unread > 0 ? 'pl-blink' : ''}`}>
+              <MessageCircle className="h-6 w-6" />
+              {unread > 0 && <span className="absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-[#e11d2e] px-1 text-[12px] font-black text-white ring-2 ring-white">{unread > 99 ? '99+' : unread}</span>}
+            </button>
+          )}
+          {toast && !chatOpen && (
+            <div role="alert" aria-live="assertive" className={`pl-sheet fixed z-[56] w-[min(340px,calc(100vw-2rem))] rounded-[18px] bg-white p-3.5 shadow-[0_6px_0_#c5cfe3,0_18px_34px_rgba(11,27,64,.28)] bottom-[152px] lg:bottom-[88px] ${dock === 'left' ? 'left-4 lg:left-auto' : 'right-4'} lg:right-5`}>
+              <div className="flex items-start gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[#e11d2e] text-white shadow-[0_3px_0_#8f0f1b]"><MessageCircle className="h-5 w-5" /></span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13.5px] font-extrabold text-navy-900">Bạn có tin nhắn mới</div>
+                  <div className="truncate text-[12.5px] font-bold text-ink-soft">{toast.from}{toast.group ? ' · Nhóm chung' : ''}</div>
+                  <div className="mt-0.5 line-clamp-2 break-words text-[13px] text-ink">{toast.text}</div>
+                </div>
+                <button type="button" onClick={() => setToast(null)} aria-label="Đóng thông báo" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-ink-mute hover:bg-navy-100"><X className="h-4 w-4" /></button>
+              </div>
+              <button type="button" onClick={() => { setToast(null); setChatOpen(true) }} className="btn-primary mt-3 h-10 w-full">Xem tin nhắn</button>
+            </div>
           )}
         </div>
       </Portal>

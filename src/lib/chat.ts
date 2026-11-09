@@ -54,11 +54,11 @@ export async function summary(me: string) {
     db.from('chat_doc').select('conv, doc_den').eq('user_key', me),
   ])
   const read = new Map((docs ?? []).map((d: any) => [d.conv, Date.parse(d.doc_den)]))
-  const conv = new Map<string, { last: any; unread: number }>()
+  const conv = new Map<string, { last: any; unread: number; lastIn?: any }>()
   for (const m of msgs ?? []) {
     const c = m.id_nguoi_nhan === GROUP ? GROUP : m.id_nguoi_gui === me ? m.id_nguoi_nhan : m.id_nguoi_gui
-    const o = conv.get(c) ?? { last: m, unread: 0 }
-    if (m.id_nguoi_gui !== me && Date.parse(m.thoi_gian) > (read.get(c) ?? 0)) o.unread++
+    const o: { last: any; unread: number; lastIn?: any } = conv.get(c) ?? { last: m, unread: 0 }
+    if (m.id_nguoi_gui !== me && Date.parse(m.thoi_gian) > (read.get(c) ?? 0)) { o.unread++; if (!o.lastIn) o.lastIn = m } // rows come newest first
     conv.set(c, o)
   }
   return conv
