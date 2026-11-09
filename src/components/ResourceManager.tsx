@@ -634,6 +634,22 @@ export default function ResourceManager({
                 </dl>
               )}
             </button>
+            {res.key === 'de_xuat' && (() => {
+              const lk = res.locked?.(r) ?? null
+              const acts = rowActions.filter((a) => !a.show || a.show(r))
+              if (!canEdit && !canDelete && !acts.length) return null
+              return (
+                <div className="flex flex-wrap gap-2 border-t border-navy-100 px-3 py-2">
+                  {acts.map((a) => (
+                    <button key={a.key} type="button" onClick={() => doAction(a, r)}
+                      className={`h-9 flex-1 whitespace-nowrap rounded-lg border px-2 text-[12.5px] font-bold ${a.perm === 'approve' && a.key === 'duyet' ? 'border-green-600 bg-green-600 text-white' : 'border-navy-200 bg-white text-navy-900'}`}>
+                      {a.key === 'duyet' ? '✓ ' : ''}{a.label}</button>
+                  ))}
+                  {canEdit && !lk && <button type="button" className="btn-secondary h-9 flex-1 whitespace-nowrap px-2 text-[12.5px]" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" />Sửa</button>}
+                  {canDelete && !lk && <button type="button" className="h-9 flex-1 whitespace-nowrap rounded-lg border border-red-300 bg-red-50 px-2 text-[12.5px] font-bold text-red-700" onClick={() => remove(r)}><Trash2 className="mr-1 inline h-4 w-4" />Xóa</button>}
+                </div>
+              )
+            })()}
             {res.key === 'de_xuat' && (
               <div className="flex gap-2 border-t border-navy-100 px-3 py-2">
                 <button type="button" className="btn-secondary h-9 flex-1 whitespace-nowrap px-1.5 text-[12.5px]" onClick={() => phieu(r, 'print')}><Printer className="h-4 w-4" />In</button>
