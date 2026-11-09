@@ -248,7 +248,7 @@ export default function ResourceManager({
   const [confirm, confirmDialog] = useConfirm()
   // V191 "Thiết bị" screen: custom table, summary strip, filter panel and a detail pane
   const isDev = res.key === 'thiet_bi' && !compact
-  const [devF, setDevF] = useState({ nql: '', loai: '' })
+  const [devF, setDevF] = useState({ nql: '', loai: '', nsd: '' })
   const [devFilterOpen, setDevFilterOpen] = useState(false)
   const [devAll, setDevAll] = useState<Row[]>([])
   const [areas, setAreas] = useState<Record<string, Row>>({})
@@ -324,6 +324,7 @@ export default function ResourceManager({
     if (res.quick && !compact && !omit.quick) for (const [k, v] of Object.entries(res.quick.chips.find((c) => c.key === quickSel)?.params ?? {})) sp.set(k, v)
     if (isDev && devF.nql) sp.set('id_nguoi_quan_ly', devF.nql)
     if (isDev && devF.loai) sp.set('loai_thiet_bi', devF.loai)
+    if (isDev && devF.nsd) sp.set('id_nguoi_su_dung', devF.nsd)
     if (side && sideName) sp.set(sideName, side)
     for (const [k, v] of Object.entries(pf)) if (v) sp.set(k, v)
     if (day && !omit.day) { sp.set('from', day); sp.set('to', day); sp.set('dateField', calField) }
@@ -446,7 +447,7 @@ export default function ResourceManager({
       }
     } catch (e: any) { flash(e.message, 'err') }
   }
-  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setAlertSel(''); if (res.quick) setQuickSel('all'); setSide(''); setPf({}); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
+  function resetAll() { setDevF({ nql: '', loai: '', nsd: '' }); setStatus(''); setAlertSel(''); if (res.quick) setQuickSel('all'); setSide(''); setPf({}); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const canCreate = perms.create && !res.noCreate
@@ -472,7 +473,7 @@ export default function ResourceManager({
   const devTypes = useMemo(() => Array.from(new Set(devAll.map((r) => r.loai_thiet_bi).filter(Boolean))).sort() as string[], [devAll])
   const devManagers = useMemo(() => Array.from(new Set(devAll.map((r) => r.id_nguoi_quan_ly).filter(Boolean))).map((id) => ({ id: id as string, name: staff[id as string]?.ho_ten ?? (id as string) })).sort((a, b) => a.name.localeCompare(b.name, 'vi')), [devAll, staff])
   const devTable = (
-    <div className="overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0">
+    <div data-dev-scroll className="overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0">
       <table className="w-full table-fixed text-[12.5px] border-separate border-spacing-0">
         <colgroup>{[24, 9, 17, 8, 11, 7, 10, 14].map((w, i) => <col key={i} style={{ width: `${w}%` }} />)}</colgroup>
         <thead>
@@ -572,7 +573,9 @@ export default function ResourceManager({
             <div className="flex items-center gap-3">
               <Avatar name={user.ho_ten} size="h-10 w-10 text-[13px]" />
               <div className="min-w-0 flex-1 leading-tight"><div className="font-extrabold text-navy-900">{user.ho_ten}</div><div className="text-[12.5px] text-ink-mute">{user.phong_ban || r.phong_ban || ''}</div></div>
-              <div className="rounded-lg border border-red-200 px-3 py-1 text-center text-red-600"><div className="text-[18px] font-black leading-none">{mine.filter((d) => d.trang_thai === 'Đang sử dụng').length}</div><div className="text-[10.5px]">đang dùng</div></div>
+              <button type="button" title="Bấm để xem danh sách thiết bị đang dùng của người này"
+                onClick={() => { setDevF((f) => ({ ...f, nsd: user.id })); if (!filters.trang_thai) setStatus('Đang sử dụng'); setPage(1); document.querySelector('[data-dev-scroll]')?.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                className={`rounded-lg border px-3 py-1 text-center text-red-600 transition hover:bg-red-50 ${devF.nsd === user.id ? 'border-red-500 bg-red-50' : 'border-red-200'}`}><div className="text-[18px] font-black leading-none">{mine.filter((d) => d.trang_thai === 'Đang sử dụng').length}</div><div className="text-[10.5px]">đang dùng</div></button>
             </div>
             <div className="mt-2 text-[12px] text-ink-mute">Tổng {mine.length} thiết bị (SL {mine.reduce((x, d) => x + (Number(d.so_luong) || 1), 0)}) · {mine.filter((d) => d.trang_thai === 'Đang sử dụng').length} đang sử dụng · {mine.filter((d) => !d.trang_thai).length} chưa cập nhật</div>
           </div>
@@ -945,12 +948,13 @@ export default function ResourceManager({
         )}
         {res.key === 'de_xuat' && filters.loai_de_xuat && !compact && <ProposalStats kind={filters.loai_de_xuat} title={title ?? res.title} version={version} />}
         {message}
-        {(day || side || status || query || pfActive) && (
+        {(day || side || status || query || pfActive || devF.nsd) && (
           <div className="flex flex-wrap items-center gap-2 text-[12.5px] print:hidden">
             <span className="text-ink-mute font-semibold">Đang lọc:</span>
             {day && <button className="pill-blue" onClick={() => setDay(null)}>Ngày {formatDate(day)} <X className="h-3 w-3" /></button>}
             {side && sideField && <button className="pill-blue" onClick={() => setSide('')}>{sideField.label}: {refLabel(sideField, side)} <X className="h-3 w-3" /></button>}
             {pfFields.map((f) => pf[f.name] ? <button key={f.name} className="pill-blue" onClick={() => setPf((o) => ({ ...o, [f.name]: '' }))}>{f.label}: {refLabel(f, pf[f.name])} <X className="h-3 w-3" /></button> : null)}
+            {devF.nsd && <button className="pill-blue" onClick={() => setDevF((f) => ({ ...f, nsd: '' }))}>Người sử dụng: {staff[devF.nsd]?.ho_ten ?? devF.nsd} <X className="h-3 w-3" /></button>}
             {status && <button className="pill-blue" onClick={() => setStatus('')}>{status} <X className="h-3 w-3" /></button>}
             {query && <button className="pill-blue" onClick={() => { setSearch(''); setQuery('') }}>“{query}” <X className="h-3 w-3" /></button>}
           </div>
