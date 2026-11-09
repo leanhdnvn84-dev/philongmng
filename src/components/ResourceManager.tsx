@@ -11,7 +11,7 @@ import { ProposalStats, ShortageDialog } from '@/components/ProposalExtras'
 import StockSide from '@/components/StockSide'
 import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
-import { phieuHtml, printHtml, downloadWord, fileName, type Phieu } from '@/lib/proposalDoc'
+import { phieuHtml, printHtml, downloadWord, downloadPdf, fileName, type Phieu } from '@/lib/proposalDoc'
 import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
 
 type Row = Record<string, any>
@@ -431,18 +431,18 @@ export default function ResourceManager({
       if (row && viewing) refreshViewing(row.id)
     } catch (e: any) { if (!action.fields?.length) flash(e.message, 'err'); throw e }
   }
-  /** V191 "Phiếu đề xuất": print, PDF (Save as PDF in the print dialog) or Word. */
+  /** V191 "Phiếu đề xuất": print, PDF file (created directly) or Word. */
   async function phieu(row: Row, mode: 'print' | 'pdf' | 'word') {
     try {
       const j = await api(`/api/de_xuat/${row.id}/phieu`)
       const p = j.data as Phieu
-      const html = phieuHtml(p, window.location.origin), name = fileName(p)
-      if (mode === 'word') { downloadWord(html, name); flash(`Đã tải ${name}.doc`) }
+      const name = fileName(p), origin = window.location.origin
+      if (mode === 'word') { downloadWord(phieuHtml(p, origin, 'word'), name); flash(`Đã tải ${name}.doc`) }
+      else if (mode === 'pdf') { flash('Đang tạo file PDF…'); await downloadPdf(phieuHtml(p, origin, 'pdf'), name); flash(`Đã tải ${name}.pdf`) }
       else {
         const old = document.title; document.title = name
-        printHtml(html); setTimeout(() => { document.title = old }, 5000)
-        if (mode === 'pdf') flash('Chọn "Lưu dưới dạng PDF" trong hộp thoại in')
-        else if (p.printedBefore > 0) flash(`Phiếu đã in ${p.printedBefore} lần trước đó`)
+        printHtml(phieuHtml(p, origin, 'print')); setTimeout(() => { document.title = old }, 5000)
+        if (p.printedBefore > 0) flash(`Phiếu đã in ${p.printedBefore} lần trước đó`)
       }
     } catch (e: any) { flash(e.message, 'err') }
   }
