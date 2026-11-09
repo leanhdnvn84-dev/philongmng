@@ -11,7 +11,7 @@ export const BACKUP_TABLES = [
   'data_audit_archive', 'hinh_anh_tien_do', 'tin_nhan', 'audit_logs',
 ]
 const NO_RESTORE = new Set(['users'])
-export const KEEP_BACKUPS = 20
+export const KEEP_BACKUPS = 30
 
 async function fetchAll(table: string) {
   const db = supabaseAdmin(), rows: any[] = []

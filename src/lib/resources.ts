@@ -105,6 +105,18 @@ export const PROPOSAL_KINDS: Record<string, string> = {
 }
 const APPROVED = 'Đã duyệt'
 
+/** Alert codes (V191) in plain Vietnamese – used by the email-alert pages and the sender. */
+export const ALERT_CODES: Record<string, string> = {
+  CONG_VIEC_QUA_HAN: 'Công việc quá hạn', CONG_VIEC_CU_CHUA_XONG: 'Công việc cũ chưa xong', CVHN_CHUA_XONG: 'Công việc hằng ngày chưa xong',
+  BAO_TRI_SAP_HAN: 'Bảo trì sắp đến hạn (trong 7 ngày)', BAO_TRI_DEN_HAN: 'Bảo trì đến hạn hoặc trễ hạn', NHAT_KY_BAO_TRI: 'Nhật ký bảo trì có ngày kế tiếp cảnh báo',
+  DE_XUAT_CHO_DUYET: 'Đề xuất đang chờ duyệt', KHO_VAT_TU_SAP_HET: 'Vật tư sắp hết hoặc dưới tồn tối thiểu', DU_LIEU_LOI: 'Lỗi liên kết hoặc thiếu dữ liệu',
+  KHACH_THUE_SAP_HET_HAN: 'Khách đang thuê sắp hết hạn', KHACH_TIEM_NANG_DEN_HAN_LIEN_HE: 'Khách tiềm năng đến hạn liên hệ', KHACH_TIEM_NANG_QUA_HAN_LIEN_HE: 'Khách tiềm năng quá hạn liên hệ',
+}
+export const ALERT_MODULES: Record<string, string> = {
+  CONG_VIEC: 'Công việc', CVHN: 'Công việc hằng ngày', DM_LICH_BAO_TRI: 'Kế hoạch bảo trì', NHAT_KY_BAO_TRI: 'Nhật ký bảo trì', DE_XUAT: 'Đề xuất',
+  VAT_TU: 'Kho vật tư', KHACH_THUE: 'Khách đang thuê', KHACH_HANG_TIEM_NANG: 'Khách hàng tiềm năng',
+}
+
 const progressAction: Action = {
   key: 'tien_do', label: 'Ghi nhận', perm: 'edit',
   fields: [
@@ -738,7 +750,7 @@ export const RESOURCES: Resource[] = [
     key: 'cau_hinh_email_canh_bao', table: 'cau_hinh_email_canh_bao', module: 'NGUOI_SU_DUNG', title: 'Cấu hình email cảnh báo', singular: 'cảnh báo',
     searchFields: ['ma_canh_bao', 'ten_canh_bao', 'email_nhan'], orderBy: { column: 'id', ascending: true }, noCreate: true, noDelete: true,
     fields: [
-      { name: 'ma_canh_bao', label: 'Mã cảnh báo', type: 'text', ro: true },
+      { name: 'ma_canh_bao', label: 'Loại cảnh báo', type: 'text', ro: true },
       { name: 'ten_canh_bao', label: 'Tên cảnh báo', type: 'text', required: true },
       { name: 'bat', label: 'Bật', type: 'bool', default: true },
       { name: 'so_ngay_bao_truoc', label: 'Báo trước (ngày)', type: 'number' },
@@ -752,6 +764,10 @@ export const RESOURCES: Resource[] = [
       { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: false },
     ],
     optionLabel: (r) => r.ten_canh_bao || r.id,
+    actions: [{
+      key: 'chay_ngay', label: 'Chạy ngay', perm: 'edit', scope: 'page',
+      fields: [{ name: 'che_do', label: 'Chế độ', type: 'select', options: ['Xem trước (không gửi mail)', 'Gửi thật ngay bây giờ'], default: 'Xem trước (không gửi mail)', required: true }],
+    }],
   },
   {
     key: 'nhat_ky_email_canh_bao', table: 'nhat_ky_email_canh_bao', module: 'NGUOI_SU_DUNG', title: 'Nhật ký email cảnh báo', singular: 'email cảnh báo',
@@ -759,14 +775,29 @@ export const RESOURCES: Resource[] = [
     noCreate: true, noEdit: true, noDelete: true,
     fields: [
       { name: 'ngay_gui', label: 'Ngày gửi', type: 'datetime', ro: true },
-      { name: 'ma_canh_bao', label: 'Cảnh báo', type: 'text', ro: true },
-      { name: 'module', label: 'Module', type: 'text', ro: true },
+      { name: 'ma_canh_bao', label: 'Loại cảnh báo', type: 'text', ro: true },
+      { name: 'module', label: 'Mục', type: 'text', ro: true },
       { name: 'id_ban_ghi', label: 'Bản ghi', type: 'text', ro: true },
       { name: 'tieu_de', label: 'Tiêu đề', type: 'text', ro: true },
       { name: 'trang_thai', label: 'Trạng thái', type: 'text', ro: true },
       { name: 'so_ngay_con_lai', label: 'Ngày còn lại', type: 'number', ro: true, inList: false },
       { name: 'nguoi_nhan', label: 'Người nhận', type: 'textarea', ro: true, inList: false },
       { name: 'noi_dung', label: 'Nội dung', type: 'textarea', ro: true, inList: false },
+    ],
+    optionLabel: (r) => r.id,
+  },
+  {
+    key: 'audit_logs', table: 'audit_logs', module: 'NGUOI_SU_DUNG', title: 'Nhật ký thao tác', singular: 'thao tác',
+    dateField: 'created_at',
+    searchFields: ['user_email', 'table_name', 'record_id', 'action'], orderBy: { column: 'created_at', ascending: false },
+    noCreate: true, noEdit: true, noDelete: true,
+    fields: [
+      { name: 'created_at', label: 'Thời gian', type: 'datetime', ro: true },
+      { name: 'user_email', label: 'Người thao tác', type: 'text', ro: true },
+      { name: 'table_name', label: 'Mục', type: 'text', ro: true },
+      { name: 'record_id', label: 'Bản ghi', type: 'text', ro: true },
+      { name: 'action', label: 'Thao tác', type: 'text', ro: true },
+      { name: 'changes', label: 'Chi tiết', type: 'textarea', ro: true },
     ],
     optionLabel: (r) => r.id,
   },
@@ -858,6 +889,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Lịch sử đăng nhập', href: '/lich_su_dang_nhap', resource: 'lich_su_dang_nhap', module: 'NGUOI_SU_DUNG' },
     { label: 'Cấu hình email cảnh báo', href: '/cau_hinh_email_canh_bao', resource: 'cau_hinh_email_canh_bao', module: 'NGUOI_SU_DUNG' },
     { label: 'Nhật ký email cảnh báo', href: '/nhat_ky_email_canh_bao', resource: 'nhat_ky_email_canh_bao', module: 'NGUOI_SU_DUNG' },
+    { label: 'Nhật ký thao tác', href: '/audit_logs', resource: 'audit_logs', module: 'NGUOI_SU_DUNG' },
     { label: 'Kiểm tra & sao lưu', href: '/kiem-tra-du-lieu', module: 'NGUOI_SU_DUNG' },
   ] },
 ]

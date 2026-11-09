@@ -9,7 +9,8 @@
     "lint": "next lint",
     "create-admin": "node --env-file=.env.local scripts/create-admin.mjs",
     "typecheck": "tsc --noEmit",
-    "import": "node --env-file=.env.local scripts/import-sheets.mjs"
+    "import": "node --env-file=.env.local scripts/import-sheets.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.7.0",
@@ -34,7 +35,8 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.3.1",
-    "typescript": "^5.2.0"
+    "typescript": "^5.2.0",
+    "vitest": "^2.1.8"
   },
   "engines": {
     "node": ">=20"

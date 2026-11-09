@@ -12,7 +12,8 @@ export default function StockSide({ params, version, pf, setPf, search, setSearc
 }) {
   const [all, setAll] = useState<any[]>([])
   const [shown, setShown] = useState<any[]>([])
-  useEffect(() => { getJson('/api/vat_tu?pageSize=2000').then(setAll).catch(() => {}) }, [version])
+  const [moves, setMoves] = useState<any[]>([])
+  useEffect(() => { getJson('/api/vat_tu?pageSize=2000').then(setAll).catch(() => {}); getJson('/api/nhap_xuat_kho?loai_giao_dich=NHAP&pageSize=2000').then(setMoves).catch(() => {}) }, [version])
   useEffect(() => {
     let alive = true
     getJson(`/api/vat_tu?${params}&pageSize=2000`).then((d) => { if (alive) setShown(d) }).catch(() => {})
@@ -24,6 +25,8 @@ export default function StockSide({ params, version, pf, setPf, search, setSearc
   const sum = (k: string) => shown.reduce((s, r) => s + (Number(r[k]) || 0), 0)
   const low = shown.filter((r) => Number(r.ton_hien_tai) > 0 && Number(r.ton_toi_thieu) > 0 && Number(r.ton_hien_tai) <= Number(r.ton_toi_thieu)).length
   const out = shown.filter((r) => !(Number(r.ton_hien_tai) > 0)).length
+  const ids = new Set(shown.map((r) => r.id))
+  const value = moves.filter((m) => ids.has(m.id_vat_tu)).reduce((s, m) => s + (Number(m.thanh_tien) || 0), 0)
   const active = !!(pf.nhom || pf.dvt || search)
   const Sel = ({ k, label, opts, all: allLabel }: { k: string; label: string; opts: string[]; all: string }) => (
     <label className="text-[11.5px] font-bold text-ink-mute">{label}
@@ -63,6 +66,7 @@ export default function StockSide({ params, version, pf, setPf, search, setSearc
           <T label="Tổng nhập" value={sum('tong_nhap')} /><T label="Tổng xuất" value={sum('tong_xuat')} />
           <T label="Sắp hết" value={low} tone="amber" /><T label="Hết hàng" value={out} tone="red" />
         </div>
+        <div className="mt-1.5 rounded-lg border border-navy-200 bg-white px-2 py-1.5 text-center"><div className="text-[10.5px] font-semibold text-ink-mute">Giá trị đã nhập (đ)</div><div className="text-[16px] font-extrabold tabular-nums text-navy-900">{n0(Math.round(value))}</div></div>
       </div>
     </>
   )

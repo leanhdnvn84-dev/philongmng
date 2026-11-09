@@ -9,10 +9,11 @@ import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
 import { ProposalStats, ShortageDialog } from '@/components/ProposalExtras'
 import StockSide from '@/components/StockSide'
+import { DailyWorkSummary } from '@/components/ProposalExtras'
 import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
 import { phieuHtml, printHtml, downloadWord, downloadPdf, fileName, type Phieu } from '@/lib/proposalDoc'
-import { Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
+import { ALERT_CODES, ALERT_MODULES, Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
 
 type Row = Record<string, any>
 type Option = { value: string; label: string }
@@ -111,6 +112,11 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   if (f.name === 'loai_de_xuat') return PROPOSAL_KINDS[v] ?? v
   // co-workers are stored as a list of staff / contractor codes (NV0010, NT0012…) or plain names: show names
   if (f.name === 'nguoi_lam_cung') return String(v).split(/\s*,\s*/).filter(Boolean).map((t) => labels.nhan_vien?.get(t) ?? labels.nha_thau?.get(t) ?? t).join(', ')
+  if (f.name === 'action' && AUDIT_ACTIONS[String(v)]) return AUDIT_ACTIONS[String(v)]
+  if (f.name === 'changes' && typeof v === 'object') return <span className="font-mono text-[11.5px]">{JSON.stringify(v)}</span>
+  if (f.name === 'ma_canh_bao') return ALERT_CODES[String(v)] ?? String(v)
+  if (f.name === 'module' && ALERT_MODULES[String(v)]) return ALERT_MODULES[String(v)]
+  if (f.name === 'trang_thai' && (v === 'DA_GUI' || v === 'LOI' || v === 'CHO_GUI')) return <span className={v === 'DA_GUI' ? 'pill-green' : v === 'LOI' ? 'pill-red' : 'pill-amber'}>{v === 'DA_GUI' ? 'Đã gửi' : v === 'LOI' ? 'Lỗi gửi' : 'Chờ gửi'}</span>
   if (f.name === 'nguon_giao_dich') {
     const L: Record<string, string> = { NHAP_THU_CONG: 'Nhập thủ công', XUAT_SU_DUNG: 'Xuất sử dụng', THU_CONG: 'Thủ công', DE_XUAT: 'Theo đề xuất', DIEU_CHINH: 'Điều chỉnh', DE_XUAT_MUA_VAT_TU: 'Đề xuất mua vật tư', NHAP_KHO: 'Nhập kho', XUAT_KHO: 'Xuất kho' }
     return L[String(v).toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9]+/g, '_')] ?? String(v).replace(/_/g, ' ').toLowerCase().replace(/^./, (c) => c.toUpperCase())
@@ -130,6 +136,8 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   if (STATUS_FIELDS.has(f.name)) return <span className={pill(String(v))}>{String(v)}</span>
   return String(v)
 }
+
+const AUDIT_ACTIONS: Record<string, string> = { create: 'Thêm', update: 'Sửa', delete: 'Xóa', approve: 'Duyệt', progress: 'Ghi nhận tiến độ', cancel: 'Hủy', checkout: 'Check-out', password: 'Đổi mật khẩu' }
 
 /* ── V191 building blocks ──────────────────────────────────────────── */
 const TILE_COLORS = {
@@ -274,7 +282,7 @@ export default function ResourceManager({
   const ID_W = Math.round(Math.min(116, Math.max(60, rows.reduce((m, r) => Math.max(m, String(r.id ?? '').length), 0) * 8.4 + 14)))
   const availW = Math.max(0, wrapW - 18)
   const layoutFor = (shortDate: boolean) => {
-    const fixed = (res.key !== 'users' ? ID_W : 0) + listFields.filter(isFixedCol).reduce((a, f) => a + fixedW(f, shortDate), 0)
+    const fixed = (res.key !== 'users' && res.key !== 'audit_logs' ? ID_W : 0) + listFields.filter(isFixedCol).reduce((a, f) => a + fixedW(f, shortDate), 0)
     const flex = listFields.filter((f) => !isFixedCol(f)), fw = flex.reduce((a, f) => a + flexWeight(f), 0)
     return { fixed, fw, per: fw ? (availW - fixed) / fw : 1 }
   }
@@ -630,7 +638,7 @@ export default function ResourceManager({
             <div className={`rounded-2xl border border-navy-200 border-l-4 ${edge} bg-white shadow-[0_1px_2px_rgba(16,24,40,.06)] ${loading ? 'opacity-60' : ''}`}>
             <button type="button" onClick={() => setViewing(r)} className="block w-full rounded-2xl px-3 py-2.5 text-left active:bg-navy-50">
               <div className="flex items-center gap-2">
-                {res.key !== 'users' && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-blue-700">{r.id}</span>}
+                {res.key !== 'users' && res.key !== 'audit_logs' && <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-blue-700">{r.id}</span>}
                 <span className="ml-auto flex flex-wrap justify-end gap-1">{statusFields.filter((f, i) => r[f.name] && !statusFields.slice(0, i).some((g) => String(r[g.name] ?? '').toLowerCase() === String(r[f.name]).toLowerCase())).map((f) => <span key={f.name}>{display(f, r[f.name], labels)}</span>)}</span>
               </div>
               {titleField && <div className={`mt-1.5 text-[14.5px] font-extrabold leading-snug text-navy-900 ${titleField.type === 'textarea' || titleField.name === 'noi_dung' ? 'line-clamp-2' : 'truncate'}`}>{display(titleField, r[titleField.name], labels)}</div>}
@@ -683,12 +691,12 @@ export default function ResourceManager({
     <div ref={wrapRef} className={`overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible ${compact ? 'max-h-[360px]' : 'max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0'}`}>
       <table className={`w-full table-fixed border-separate border-spacing-0 ${dense === 2 ? 'text-[12px]' : dense === 1 ? 'text-[12.5px]' : 'text-[13px]'} ${dense > 0 ? '[&_[class*=pill]]:!whitespace-normal [&_[class*=pill]]:text-center [&_[class*=pill]]:!leading-tight' : ''}`}>
         <colgroup>
-          {res.key !== 'users' && <col style={{ width: ID_W }} />}
+          {res.key !== 'users' && res.key !== 'audit_logs' && <col style={{ width: ID_W }} />}
           {tableFields.map((f) => <col key={f.name} style={{ width: colPx(f) }} />)}
         </colgroup>
         <thead>
           <tr className="text-[13px] font-extrabold text-navy-900">
-            {res.key !== 'users' && <th className="sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-1 py-2.5 text-center">Mã</th>}
+            {res.key !== 'users' && res.key !== 'audit_logs' && <th className="sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-1 py-2.5 text-center">Mã</th>}
             {tableFields.map((f) => <th key={f.name} className={`sticky top-0 z-[1] bg-navy-50 border-b border-l border-navy-200 ${pad} py-2.5 text-center leading-tight`}>{f.label}</th>)}
           </tr>
         </thead>
@@ -709,7 +717,7 @@ export default function ResourceManager({
                 onClick={() => (window.matchMedia('(max-width: 1023px)').matches ? setViewing(r) : setSelectedId(sel ? null : r.id))} onDoubleClick={() => setViewing(r)}
                 onKeyDown={(e) => { if (e.key === 'Enter') setViewing(r) }}
                 className={`cursor-pointer outline-none ${bg} ${sel ? '' : 'hover:brightness-[.97]'} ${loading ? 'opacity-60' : ''}`}>
-                {res.key !== 'users' && <td className={`px-1 py-2 border-b border-navy-200/70 text-center break-all tabular-nums ${sel ? 'text-select-accent font-extrabold shadow-[inset_3px_0_0_#2189e6]' : 'text-navy-800 font-semibold'}`}>{r.id}</td>}
+                {res.key !== 'users' && res.key !== 'audit_logs' && <td className={`px-1 py-2 border-b border-navy-200/70 text-center break-all tabular-nums ${sel ? 'text-select-accent font-extrabold shadow-[inset_3px_0_0_#2189e6]' : 'text-navy-800 font-semibold'}`}>{r.id}</td>}
                 {tableFields.map((f) => {
                   const right = RIGHT.test(f.name) || f.type === 'money' || f.type === 'number'
                   const wide = f.type === 'textarea' || f.name === 'noi_dung' || f.name === 'ghi_chu' || f.name === 'ds_ten'
@@ -892,6 +900,7 @@ export default function ResourceManager({
         {res.key === 'de_xuat' && filters.loai_de_xuat === 'MUA_VAT_TU' && <Tile icon={AlertTriangle} label="Vật tư thiếu" color="amber" onClick={() => setShortOpen(true)} />}
         </div>
 
+        {res.key === 'cong_viec_hang_ngay' && !compact && <DailyWorkSummary version={version} />}
         {isDev && (
           <div className="ml-auto hidden text-right text-[12.5px] leading-snug text-ink-soft lg:block">
             <div className="text-[15px] font-extrabold text-navy-900">{devStats.total} thiết bị · tổng SL {devStats.sl}</div>
@@ -1037,8 +1046,8 @@ export default function ResourceManager({
           {devPanel}
         </div>
       </div>
-      {(hasCalendar || sideField) && (
-        <FilterTab onOpen={() => setFilterOpen(true)} active={!!(day || side || pfActive)} />
+      {(hasCalendar || sideField || vtSide) && (
+        <FilterTab onOpen={() => setFilterOpen(true)} active={!!(day || side || pfActive || (vtSide && (search || pf.nhom || pf.dvt)))} />
       )}
       {filterOpen && (
         <FilterSheet onClose={() => setFilterOpen(false)}>
@@ -1051,6 +1060,7 @@ export default function ResourceManager({
           </div>
           {hasCalendar && <DatePick month={month} setMonth={setMonth} day={day} setDay={setDay} fields={res.calendarFields} field={calField} setField={(f) => { setCalField(f); setDay(null) }} />}
           {pfFields.length > 0 && <div className="mx-3 mb-3 [&>.card]:shadow-none">{filterBox}</div>}
+          {vtSide && <div className="mx-3 mb-3 flex flex-col gap-3"><StockSide params={baseParams().toString()} version={version} pf={pf} setPf={setPf} search={search} setSearch={setSearch} /></div>}
           {sideField && (
             <div className="mx-3 mb-3 overflow-hidden rounded-[9px] border border-navy-200">
               <div className="bg-navy-50 px-3 py-2 text-[14px] font-extrabold text-navy-900">{sideField.label}</div>

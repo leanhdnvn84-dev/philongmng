@@ -179,6 +179,9 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
                 <div className="text-sm font-bold text-ink truncate">{name}</div>
                 <div className="text-xs text-ink-mute">{role}</div>
               </div>
+              <Link href="/tai-khoan" onClick={() => setUserMenu(false)} className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-navy-900 hover:bg-navy-50">
+                <KeyRound className="h-4 w-4" /> Tài khoản &amp; đổi mật khẩu
+              </Link>
               <button onClick={logout} className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-brand-500 hover:bg-brand-50">
                 <LogOut className="h-4 w-4" /> Đăng xuất
               </button>
@@ -253,6 +256,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
                     ))}
                   </div>
                 </div>
+                <Link href="/tai-khoan" className="btn-secondary mb-2 w-full h-12 text-[15px]"><KeyRound className="h-4 w-4" />Tài khoản &amp; đổi mật khẩu</Link>
                 <button onClick={logout} className="btn-danger w-full h-12 text-[15px]"><LogOut className="h-4 w-4" />Đăng xuất</button>
               </div>
             </nav>

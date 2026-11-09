@@ -109,3 +109,24 @@ export function ShortageDialog({ onClose }: { onClose: () => void }) {
     </Portal>
   )
 }
+
+/** V191 daily-work summary shown top right: records dated today / this month / this year. */
+export function DailyWorkSummary({ version }: { version: number }) {
+  const [n, setN] = useState<{ d: number; m: number; y: number } | null>(null)
+  const now = new Date()
+  useEffect(() => {
+    let alive = true
+    const vn = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
+    const y = vn.slice(0, 4), m = vn.slice(5, 7), last = new Date(+y, +m, 0).getDate()
+    const total = (from: string, to: string) => fetch(`/api/cong_viec_hang_ngay?dateField=ngay&from=${from}&to=${to}&pageSize=1`).then((r) => r.json()).then((j) => Number(j.total ?? 0))
+    Promise.all([total(vn, vn), total(`${y}-${m}-01`, `${y}-${m}-${last}`), total(`${y}-01-01`, `${y}-12-31`)]).then(([d, mo, yr]) => { if (alive) setN({ d, m: mo, y: yr }) }).catch(() => {})
+    return () => { alive = false }
+  }, [version])
+  if (!n) return null
+  return (
+    <div className="ml-auto hidden text-right text-[12.5px] leading-snug text-ink-soft lg:block print:hidden">
+      <div>Hôm nay đã ghi nhận <b className="text-[17px] text-navy-900">{n.d}</b> công việc</div>
+      <div>Trong tháng {now.getMonth() + 1}: <b className="text-[15px] text-navy-900">{n.m}</b> · Trong năm {now.getFullYear()}: <b className="text-[15px] text-navy-900">{n.y}</b></div>
+    </div>
+  )
+}

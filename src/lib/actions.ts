@@ -2,6 +2,7 @@ import 'server-only'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import type { AuthContext } from '@/lib/auth'
 import type { Resource } from '@/lib/resources'
+import { runAlerts, summarize } from '@/lib/alerts'
 import { audit, dayMonthVN, timeVN, todayVN } from '@/lib/crud'
 
 export class ActionError extends Error { constructor(msg: string, public status = 400) { super(msg) } }
@@ -165,6 +166,13 @@ const dieuChinh: Handler = async ({ auth, id, input }) => {
   await audit(auth, 'nhap_xuat_kho', data as string, 'create', { id_vat_tu: id, kind, from: ton, amount })
 }
 
+// ── Email cảnh báo: xem trước / gửi ngay ──
+const chayCanhBao: Handler = async ({ input }) => {
+  const send = String(input.che_do ?? '').startsWith('Gửi')
+  const r = await runAlerts({ send })
+  return { message: summarize(r, send) }
+}
+
 // ── Thiết bị ──
 async function names(khuVucId?: string | null, nhanVienId?: string | null) {
   const db = supabaseAdmin()
@@ -299,6 +307,7 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
   thiet_bi: { chuyen, thu_hoi: thuHoi },
   tien_dien: { tao_ky: taoKy, chot_ky: chotKy },
   lich_bao_tri: { ghi_nhan: ghiNhanBaoTri },
+  cau_hinh_email_canh_bao: { chay_ngay: chayCanhBao },
 }
 
 export async function runAction(res: Resource, actionKey: string, id: string, auth: AuthContext, input: Record<string, any>) {

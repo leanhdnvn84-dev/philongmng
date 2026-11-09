@@ -18,3 +18,16 @@ export async function uploadToDrive(name: string, mime: string, bytes: Buffer): 
   if (!res.ok || !j?.ok || !j.id) throw new Error(j?.error ? `Google Drive: ${j.error}` : 'Không tải được ảnh lên Google Drive')
   return String(j.id)
 }
+
+/** Sends an e-mail through the same Apps Script web app (MailApp, from the owner's Gmail). */
+export async function sendMailViaScript(to: string[], subject: string, html: string): Promise<void> {
+  const url = process.env.DRIVE_UPLOAD_URL, token = process.env.DRIVE_UPLOAD_TOKEN
+  if (!url || !token) throw new Error('Chưa cấu hình gửi email (DRIVE_UPLOAD_URL / DRIVE_UPLOAD_TOKEN)')
+  const res = await fetch(url, {
+    method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ token, action: 'mail', to, subject, html }), signal: AbortSignal.timeout(45000),
+  })
+  let j: any = null
+  try { j = JSON.parse(await res.text()) } catch { /* html error page */ }
+  if (!res.ok || !j?.ok) throw new Error(j?.error ? `Gửi mail: ${j.error}` : 'Script gửi email chưa được cập nhật hoặc không phản hồi')
+}
