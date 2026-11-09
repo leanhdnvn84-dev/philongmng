@@ -60,6 +60,11 @@ export interface Resource {
   calendarFields?: { name: string; label: string }[]
   /** ref/select column listed as quick filters in the left panel */
   sideFilter?: string
+  /** label for rows with no value in the side column (V191 "Chưa phân công") */
+  sideNone?: string
+  /** ref columns shown as drop-downs in a "Bộ lọc" box under the calendar (V191) */
+  panelFilters?: string[]
+  panelTitle?: string
   /** rows matching this cannot be edited/deleted (approved proposal, locked period…) */
   locked?: (row: any) => string | null
 }
@@ -193,7 +198,7 @@ export const RESOURCES: Resource[] = [
   // ───────── BẢO TRÌ ─────────
   {
     key: 'nhat_ky_bao_tri', table: 'nhat_ky_bao_tri', module: 'BAO_TRI', title: 'Nhật ký bảo trì', singular: 'nhật ký',
-    dateField: 'ngay_thuc_hien', sideFilter: 'id_hang_muc',
+    dateField: 'ngay_thuc_hien', sideFilter: 'id_nguoi_thuc_hien', panelFilters: ['id_khu_vuc', 'id_hang_muc'], panelTitle: 'Bộ lọc nhật ký',
     searchFields: ['id', 'noi_dung_thuc_hien', 'ket_qua'], orderBy: { column: 'ngay_thuc_hien', ascending: false },
     fields: [
       { name: 'ngay_thuc_hien', label: 'Ngày thực hiện', type: 'date', required: true },
@@ -210,7 +215,7 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'lich_bao_tri', table: 'lich_bao_tri', view: 'v_lich_bao_tri', module: 'BAO_TRI', title: 'Kế hoạch bảo trì', singular: 'lịch bảo trì',
-    sideFilter: 'id_hang_muc',
+    dateField: 'ngay_ke_tiep', sideFilter: 'id_nguoi_phu_trach', sideNone: 'Chưa phân công', panelFilters: ['id_khu_vuc'], panelTitle: 'Bộ lọc lịch bảo trì',
     searchFields: ['ten_khu_vuc', 'ten_hang_muc', 'tang', 'nhom'], orderBy: { column: 'ngay_ke_tiep', ascending: true },
     noDelete: true, // generated per area + item; pause it instead (as in V191)
     fields: [

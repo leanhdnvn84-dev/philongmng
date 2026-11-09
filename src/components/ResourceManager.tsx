@@ -219,6 +219,7 @@ export default function ResourceManager({
   const [quickCounts, setQuickCounts] = useState<Record<string, number>>({})
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const [side, setSide] = useState('')
+  const [pf, setPf] = useState<Record<string, string>>({}) // V191 "Bộ lọc" box: Tầng·Khu vực, Hạng mục…
   const [day, setDay] = useState<string | null>(null)
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
   const [calField, setCalField] = useState(res.dateField ?? '')
@@ -313,9 +314,10 @@ export default function ResourceManager({
     if (isDev && devF.nql) sp.set('id_nguoi_quan_ly', devF.nql)
     if (isDev && devF.loai) sp.set('loai_thiet_bi', devF.loai)
     if (side && sideName) sp.set(sideName, side)
+    for (const [k, v] of Object.entries(pf)) if (v) sp.set(k, v)
     if (day && !omit.day) { sp.set('from', day); sp.set('to', day); sp.set('dateField', calField) }
     return sp
-  }, [filterKey, query, status, alertSel, res.urgency, res.quick, quickSel, compact, side, sideName, day, calField, isDev, devF])
+  }, [filterKey, query, status, alertSel, res.urgency, res.quick, quickSel, compact, side, sideName, pf, day, calField, isDev, devF])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -398,7 +400,7 @@ export default function ResourceManager({
   }, [compact])
   useEffect(() => { const t = setTimeout(() => { setPage(1); setQuery(search.trim()) }, 350); return () => clearTimeout(t) }, [search])
   useEffect(() => { if (msg?.type === 'ok') { const t = setTimeout(() => setMsg(null), 3500); return () => clearTimeout(t) } }, [msg])
-  useEffect(() => { setPage(1) }, [status, side, day])
+  useEffect(() => { setPage(1) }, [status, side, day, pf])
   const flash = (text: string, type: 'ok' | 'err' = 'ok') => setMsg({ type, text })
 
   async function refreshViewing(id: string) {
@@ -433,7 +435,7 @@ export default function ResourceManager({
       }
     } catch (e: any) { flash(e.message, 'err') }
   }
-  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setAlertSel(''); if (res.quick) setQuickSel('all'); setSide(''); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
+  function resetAll() { setDevF({ nql: '', loai: '' }); setStatus(''); setAlertSel(''); if (res.quick) setQuickSel('all'); setSide(''); setPf({}); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const canCreate = perms.create && !res.noCreate
@@ -445,7 +447,7 @@ export default function ResourceManager({
   const lockedMsg = selected ? res.locked?.(selected) ?? null : null
   const withRow = (fn: (r: Row) => void) => () => { if (selected) fn(selected) }
   const doAction = (a: Action, r: Row | null) => (a.fields?.length ? setActing({ action: a, row: r }) : run(a, r).catch(() => {}))
-  const refLabel = (f: Field | undefined, v: string) => (f?.type === 'ref' ? labels[f.ref!]?.get(v) ?? v : v)
+  const refLabel = (f: Field | undefined, v: string) => v === '__NULL__' ? (res.sideNone ?? 'Chưa cập nhật') : (f?.type === 'ref' ? labels[f.ref!]?.get(v) ?? v : v)
 
 
   /* ── V191 "Thiết bị" layout: device table, summary strip, filter panel and detail pane ── */
@@ -796,7 +798,25 @@ export default function ResourceManager({
   )
 
   /* ── full page, laid out like V191 ── */
-  const sideList = sideField ? ['', ...[...sideValues].sort((a, b) => String(refLabel(sideField, a)).localeCompare(String(refLabel(sideField, b)), 'vi'))] : []
+  const pfFields = (res.panelFilters ?? []).map((n) => res.fields.find((f) => f.name === n)).filter((f): f is Field => !!f && !(f.name in filters))
+  const pfActive = Object.values(pf).some(Boolean)
+  const filterBox = pfFields.length > 0 && (
+    <div className="card shrink-0 overflow-hidden">
+      <div className="px-3 pt-2.5 text-[12.5px] font-extrabold uppercase tracking-wide text-navy-900">{res.panelTitle ?? 'Bộ lọc'}</div>
+      <div className="flex flex-col gap-1.5 px-3 pb-2.5 pt-1">
+        {pfFields.map((f) => (
+          <label key={f.name} className="text-[12px] font-bold text-ink-mute">{f.label}
+            <select className="input mt-0.5 !h-8 !py-0 !text-[13px]" value={pf[f.name] ?? ''} onChange={(e) => setPf((o) => ({ ...o, [f.name]: e.target.value }))}>
+              <option value="">{f.name === 'id_khu_vuc' ? 'Tất cả khu vực' : `Tất cả ${f.label.toLowerCase()}`}</option>
+              {(refs[f.ref!] ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+        ))}
+        <button className="btn-ghost btn-sm w-full !h-8" disabled={!pfActive} onClick={() => setPf({})}>Xóa bộ lọc</button>
+      </div>
+    </div>
+  )
+  const sideList = sideField ? ['', ...(res.sideNone ? ['__NULL__'] : []), ...[...sideValues].sort((a, b) => String(refLabel(sideField, a)).localeCompare(String(refLabel(sideField, b)), 'vi'))] : []
   return (
     <div className="flex flex-col flex-1 lg:min-h-0">
       {/* breadcrumb + red title */}
@@ -889,11 +909,12 @@ export default function ResourceManager({
           </div>
         )}
         {message}
-        {(day || side || status || query) && (
+        {(day || side || status || query || pfActive) && (
           <div className="flex flex-wrap items-center gap-2 text-[12.5px] print:hidden">
             <span className="text-ink-mute font-semibold">Đang lọc:</span>
             {day && <button className="pill-blue" onClick={() => setDay(null)}>Ngày {formatDate(day)} <X className="h-3 w-3" /></button>}
             {side && sideField && <button className="pill-blue" onClick={() => setSide('')}>{sideField.label}: {refLabel(sideField, side)} <X className="h-3 w-3" /></button>}
+            {pfFields.map((f) => pf[f.name] ? <button key={f.name} className="pill-blue" onClick={() => setPf((o) => ({ ...o, [f.name]: '' }))}>{f.label}: {refLabel(f, pf[f.name])} <X className="h-3 w-3" /></button> : null)}
             {status && <button className="pill-blue" onClick={() => setStatus('')}>{status} <X className="h-3 w-3" /></button>}
             {query && <button className="pill-blue" onClick={() => { setSearch(''); setQuery('') }}>“{query}” <X className="h-3 w-3" /></button>}
           </div>
@@ -934,6 +955,7 @@ export default function ResourceManager({
               {hasCalendar && <MonthCalendar month={month} setMonth={setMonth} counts={dayCounts} day={day} setDay={setDay}
                 unit={res.singular} fields={res.calendarFields} field={calField} loading={calLoading}
                 setField={(f) => { setCalField(f); setDay(null) }} onLatest={jumpLatest} />}
+              {filterBox}
               {sideField && (
                 <div className="card overflow-hidden flex flex-col lg:flex-1 lg:min-h-[168px]">
                   <div className="shrink-0 px-3 py-2 bg-navy-50 border-b border-navy-200 text-[13px] font-extrabold text-navy-900">{sideField.label}</div>
@@ -970,7 +992,7 @@ export default function ResourceManager({
         </div>
       </div>
       {(hasCalendar || sideField) && (
-        <FilterTab onOpen={() => setFilterOpen(true)} active={!!(day || side)} />
+        <FilterTab onOpen={() => setFilterOpen(true)} active={!!(day || side || pfActive)} />
       )}
       {filterOpen && (
         <FilterSheet onClose={() => setFilterOpen(false)}>
@@ -982,6 +1004,7 @@ export default function ResourceManager({
             {pageActions.map((a) => <Tile key={a.key} icon={Zap} label={a.label} color="violet" onClick={() => { setFilterOpen(false); doAction(a, null) }} />)}
           </div>
           {hasCalendar && <DatePick month={month} setMonth={setMonth} day={day} setDay={setDay} fields={res.calendarFields} field={calField} setField={(f) => { setCalField(f); setDay(null) }} />}
+          {pfFields.length > 0 && <div className="mx-3 mb-3 [&>.card]:shadow-none">{filterBox}</div>}
           {sideField && (
             <div className="mx-3 mb-3 overflow-hidden rounded-[9px] border border-navy-200">
               <div className="bg-navy-50 px-3 py-2 text-[14px] font-extrabold text-navy-900">{sideField.label}</div>
