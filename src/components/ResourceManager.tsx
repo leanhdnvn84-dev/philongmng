@@ -572,9 +572,9 @@ export default function ResourceManager({
             <div className="flex items-center gap-3">
               <Avatar name={user.ho_ten} size="h-10 w-10 text-[13px]" />
               <div className="min-w-0 flex-1 leading-tight"><div className="font-extrabold text-navy-900">{user.ho_ten}</div><div className="text-[12.5px] text-ink-mute">{user.phong_ban || r.phong_ban || ''}</div></div>
-              <div className="rounded-lg border border-red-200 px-3 py-1 text-center text-red-600"><div className="text-[18px] font-black leading-none">{mine.length}</div><div className="text-[10.5px]">thiết bị</div></div>
+              <div className="rounded-lg border border-red-200 px-3 py-1 text-center text-red-600"><div className="text-[18px] font-black leading-none">{mine.filter((d) => d.trang_thai === 'Đang sử dụng').length}</div><div className="text-[10.5px]">đang dùng</div></div>
             </div>
-            <div className="mt-2 text-[12px] text-ink-mute">Tổng SL {mine.reduce((x, d) => x + (Number(d.so_luong) || 1), 0)} · {mine.filter((d) => !d.trang_thai).length} chưa cập nhật · {mine.filter((d) => d.trang_thai === 'Đang sử dụng').length} đang sử dụng</div>
+            <div className="mt-2 text-[12px] text-ink-mute">Tổng {mine.length} thiết bị (SL {mine.reduce((x, d) => x + (Number(d.so_luong) || 1), 0)}) · {mine.filter((d) => d.trang_thai === 'Đang sử dụng').length} đang sử dụng · {mine.filter((d) => !d.trang_thai).length} chưa cập nhật</div>
           </div>
         ) : <p className="mt-2 text-sm text-ink-mute">Chưa gán người sử dụng.</p>}
         <div className="my-3 border-t" />
