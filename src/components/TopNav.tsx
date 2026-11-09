@@ -42,7 +42,7 @@ const TILE = [
 function Brand() {
   return (
     <Link href="/" className="shrink-0" aria-label="Trang tổng quan">
-      <Logo variant="redwhite" height={40} />
+      <Logo variant="white" height={40} />
     </Link>
   )
 }
@@ -68,7 +68,7 @@ function TodayTile() {
 // Menu style B: navy bar, buttons sit in a dark tray, the open/active one is a red pill
 const navBtn = (on: boolean) =>
   `flex items-center gap-1 h-9 px-3 2xl:px-3.5 rounded-[10px] text-[12.5px] 2xl:text-[13px] font-semibold whitespace-nowrap transition active:translate-y-px ${
-    on ? 'bg-[#e11d2e] text-white shadow-[0_4px_10px_rgba(225,29,46,.4)]' : 'text-white/90 hover:bg-white/10 hover:text-white'}`
+    on ? 'bg-white text-[#b4121f] font-extrabold shadow-[0_3px_0_#6e0a12]' : 'text-white hover:bg-white/15'}`
 
 export default function TopNav({ groups, name, role }: { groups: NavGroup[]; name: string; role: string }) {
   const pathname = usePathname()
@@ -116,10 +116,10 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
   }
 
   return (
-    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-[linear-gradient(135deg,#17386b_0%,#0b1f45_100%)] border-b border-black/20 shadow-[0_10px_26px_rgba(11,31,69,.3)]">
+    <header ref={ref} className="print:hidden sticky top-0 z-40 bg-[#d91828] shadow-[0_5px_0_#8f0f1b,0_14px_26px_rgba(143,15,27,.28)]">
       {/* phone: red bar with logo + page search (menu and filters live in the floating buttons) */}
       <div className="lg:hidden flex items-center gap-3 px-3 py-2">
-        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="redwhite" height={40} /></Link>
+        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="white" height={40} /></Link>
         <label className="relative flex-1 min-w-0">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-mute" />
           <input type="search" value={pageSearch} onChange={(e) => onPageSearch(e.target.value)} placeholder="Tìm trang này…" aria-label="Tìm trang này"
@@ -129,7 +129,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
       <div className="hidden lg:flex h-[62px] px-4 lg:px-5 items-center gap-3 2xl:gap-5">
         <Brand />
 
-        <nav className="hidden lg:flex items-center gap-0.5 rounded-[14px] bg-black/20 p-1 min-w-0" aria-label="Menu chính">
+        <nav className="hidden lg:flex items-center gap-0.5 rounded-[14px] bg-[#6e0a12]/55 p-1 min-w-0 shadow-[inset_0_2px_4px_rgba(0,0,0,.28)]" aria-label="Menu chính">
           <Link href="/" className={navBtn(pathname === '/' && !open)}>Tổng quan</Link>
           {groups.map((g, gi) => (
             <div key={g.group} className="relative" onMouseEnter={() => setOpen(g.group)} onMouseLeave={() => setOpen((o) => (o === g.group ? null : o))}>

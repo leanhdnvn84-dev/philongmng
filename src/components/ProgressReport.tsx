@@ -304,7 +304,7 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-3" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true">
       <div className="flex max-h-[94dvh] w-full max-w-[1500px] lg:w-[80vw] lg:max-w-none flex-col overflow-y-auto rounded-xl bg-white shadow-pop md:overflow-hidden">
-        <div className="bg-blue-700 px-4 py-3 text-white md:shrink-0 md:px-5">
+        <div className="bg-[#0b1b40] px-4 py-3 text-white md:shrink-0 md:px-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-xs">

@@ -465,7 +465,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
           <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Chi tiết lượt khách">
             <div className="absolute inset-0 bg-navy-950/45" onClick={() => setViewing(null)} />
             <div className="relative w-full max-w-xl sm:max-w-3xl lg:w-[80vw] lg:max-w-none max-h-[92dvh] overflow-y-auto rounded-xl bg-white shadow-pop">
-              <div className="flex items-center justify-between px-5 py-3 bg-blue-700 text-white">
+              <div className="flex items-center justify-between px-5 py-3 bg-[#0b1b40] text-white">
                 <div><div className="text-[11px] font-black uppercase tracking-widest text-white/80">Lượt khách</div><h2 className="text-lg font-extrabold">{viewing.id} · {viewing.ho_ten}</h2></div>
                 <button onClick={() => setViewing(null)} className="grid place-items-center h-8 w-8 rounded-md hover:bg-white/15" aria-label="Đóng"><X className="h-5 w-5" /></button>
               </div>

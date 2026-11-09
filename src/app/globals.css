@@ -11,20 +11,23 @@
 }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-[7px] border text-[13px] font-bold transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300; }
-  .btn-primary { @apply btn bg-blue-600 border-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,.28)] hover:bg-blue-700 hover:border-blue-700; }
+  .btn { @apply inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-[11px] border text-[13px] font-bold transition duration-100 active:translate-y-[3px] disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300; }
+  .btn-primary { @apply btn bg-[#e11d2e] border-[#e11d2e] text-white shadow-[0_4px_0_#8f0f1b] hover:bg-[#c8141f] hover:border-[#c8141f] active:shadow-[0_1px_0_#8f0f1b]; }
   .btn-brand { @apply btn-primary; }
-  .btn-secondary { @apply btn bg-white border-navy-200 text-navy-900 hover:bg-navy-50 hover:border-navy-300; }
-  .btn-ghost { @apply btn border-transparent text-ink-soft hover:bg-navy-100 hover:text-ink; }
-  .btn-danger { @apply btn bg-white border-red-200 text-red-600 hover:bg-red-50; }
+  .btn-secondary { @apply btn bg-white border-transparent text-navy-900 shadow-[0_4px_0_#c5cfe3] hover:bg-navy-50 active:shadow-[0_1px_0_#c5cfe3]; }
+  .btn-ghost { @apply btn border-transparent text-ink-soft hover:bg-navy-100 hover:text-ink active:translate-y-0; }
+  .btn-danger { @apply btn bg-white border-transparent text-red-600 shadow-[0_4px_0_#f3b6bd] hover:bg-red-50 active:shadow-[0_1px_0_#f3b6bd]; }
   .btn-sm { @apply h-8 px-2.5 text-xs; }
 
-  .input { @apply w-full h-9 px-3 rounded-[7px] border border-navy-200 bg-white text-sm text-ink placeholder:text-ink-mute transition focus:outline-none focus:border-select-accent focus:ring-2 focus:ring-select; }
+  .input { @apply w-full h-9 px-3 rounded-[10px] border border-navy-200 bg-white text-sm text-ink placeholder:text-ink-mute transition focus:outline-none focus:border-select-accent focus:ring-2 focus:ring-select; }
   textarea.input { @apply h-auto py-2; }
   .label { @apply block text-xs font-bold text-ink-soft mb-1; }
 
-  .card { @apply bg-white rounded-xl border border-navy-200 shadow-card; }
-  .pill { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold whitespace-nowrap; }
+  .card { @apply bg-white rounded-[18px] shadow-card; }
+  /* Bento / 3D blocks: a solid lower edge plus a soft ambient shadow */
+  .bento { @apply bg-white rounded-[22px] shadow-[0_7px_0_#c5cfe3,0_18px_30px_rgba(11,27,64,.12)]; }
+  .th3d { @apply bg-[#0b1b40] text-white border-[#0b1b40]; }
+  .pill { @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold whitespace-nowrap; }
   .pill-red { @apply pill bg-red-50 text-red-700; }
   .pill-amber { @apply pill bg-orange-50 text-orange-700; }
   .pill-green { @apply pill bg-green-50 text-green-700; }
@@ -37,8 +40,8 @@
 
 /* phone sheets slide up, floating tabs tuck in and out */
 @keyframes pl-sheet-up { from { transform: translateY(24px); opacity: 0 } to { transform: none; opacity: 1 } }
-@keyframes pl-blink { 0%, 100% { box-shadow: 0 0 0 0 rgba(225,29,46,0) } 50% { box-shadow: 0 0 0 5px rgba(225,29,46,.35) } }
-.pl-blink { animation: pl-blink 1.5s ease-in-out infinite }
+@keyframes pl-blink { 0%, 100% { outline-color: rgba(225,29,46,0) } 50% { outline-color: rgba(225,29,46,.55) } }
+.pl-blink { outline: 3px solid rgba(225,29,46,0); outline-offset: 2px; animation: pl-blink 1.5s ease-in-out infinite }
 @keyframes pl-fade { from { opacity: 0 } to { opacity: 1 } }
 .pl-sheet { animation: pl-sheet-up .22s ease-out both }
 .pl-fade { animation: pl-fade .2s ease-out both }

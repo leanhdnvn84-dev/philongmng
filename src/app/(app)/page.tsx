@@ -13,21 +13,23 @@ const BAR: Record<Tone, string> = { red: 'bg-red-500', amber: 'bg-amber-500', bl
 const NUM: Record<Tone, string> = { red: 'text-red-700', amber: 'text-amber-700', blue: 'text-blue-700', green: 'text-emerald-700' }
 const ICON: Record<Tone, string> = { red: 'bg-red-50 text-red-600', amber: 'bg-amber-50 text-amber-600', blue: 'bg-blue-50 text-blue-600', green: 'bg-emerald-50 text-emerald-600' }
 
-function Hero({ label, value, icon: Icon, tone, href, chips }: {
-  label: string; value: React.ReactNode; icon: React.ComponentType<{ className?: string }>; tone: Tone; href: string
-  chips: { text: string; hot?: boolean }[]
+const TILE: Record<Tone, { box: string; num: string; sub: string; chip: string; hot: string }> = {
+  red: { box: 'bg-[#e11d2e] text-white shadow-[0_8px_0_#8f0f1b,0_20px_32px_rgba(225,29,46,.26)]', num: 'text-white [text-shadow:0_4px_0_#8f0f1b]', sub: 'text-[#ffe3e6]', chip: 'bg-white/18 text-white', hot: 'bg-white text-[#a40f1c]' },
+  amber: { box: 'bg-[#ffd98a] text-[#3d2a00] shadow-[0_8px_0_#d9a13a,0_20px_32px_rgba(217,161,58,.26)]', num: 'text-[#3d2a00]', sub: 'text-[#5a3f00]', chip: 'bg-[#fff7e3] text-[#3d2a00]', hot: 'bg-[#a40f1c] text-white' },
+  blue: { box: 'bg-white text-navy-900 shadow-[0_8px_0_#c5cfe3,0_20px_32px_rgba(11,27,64,.12)]', num: 'text-[#1d4ed8] [text-shadow:0_4px_0_#c7d7fb]', sub: 'text-ink-soft', chip: 'bg-navy-100 text-ink-soft', hot: 'bg-red-50 text-red-600' },
+  green: { box: 'bg-[#bfe8cf] text-[#0c3b20] shadow-[0_8px_0_#7cc49a,0_20px_32px_rgba(60,150,100,.22)]', num: 'text-[#0c3b20]', sub: 'text-[#14532d]', chip: 'bg-white/70 text-[#0c3b20]', hot: 'bg-[#a40f1c] text-white' },
+}
+function Hero({ label, value, tone, href, chips, className = '' }: {
+  label: string; value: React.ReactNode; icon?: React.ComponentType<{ className?: string }>; tone: Tone; href: string
+  chips: { text: string; hot?: boolean }[]; className?: string
 }) {
+  const t = TILE[tone]
   return (
-    <Link href={href} className={`group relative block overflow-hidden rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(16,24,40,.12)] ${(tone === 'red' || tone === 'amber') && Number(value) > 0 ? 'pl-blink' : ''}`}>
-      <span className={`absolute inset-x-0 top-0 h-1 ${BAR[tone]}`} />
-      <div className="flex items-center justify-between">
-        <span className={`grid h-9 w-9 place-items-center rounded-xl ${ICON[tone]}`}><Icon className="h-[18px] w-[18px]" /></span>
-        <ArrowUpRight className="h-4 w-4 text-navy-300 transition group-hover:text-blue-600" />
-      </div>
-      <div className={`mt-2 text-[32px] font-black leading-none tabular-nums ${NUM[tone]}`}>{value}</div>
-      <div className="mt-1 text-[13px] font-bold text-ink-soft">{label}</div>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {chips.map((c) => <span key={c.text} className={`rounded-md px-2 py-0.5 text-[11.5px] font-bold ${c.hot ? 'bg-red-50 text-red-600' : 'bg-navy-100 text-ink-soft'}`}>{c.text}</span>)}
+    <Link href={href} className={`group flex flex-col rounded-[24px] px-5 py-4 transition duration-150 hover:-translate-y-1 ${t.box} ${className}`}>
+      <div className={`flex items-center justify-between text-[13px] font-extrabold ${t.sub}`}>{label}<ArrowUpRight className="h-4 w-4 opacity-70" /></div>
+      <div className={`mt-1 text-[56px] font-black leading-none tracking-tight tabular-nums lg:text-[64px] ${t.num}`}>{value}</div>
+      <div className="mt-auto flex flex-wrap gap-1.5 pt-3">
+        {chips.map((c) => <span key={c.text} className={`rounded-lg px-2 py-0.5 text-[11.5px] font-bold ${c.hot ? t.hot : t.chip}`}>{c.text}</span>)}
       </div>
     </Link>
   )
@@ -85,44 +87,38 @@ export default function Dashboard() {
   const tbEntries = tb ? Object.entries(tb.by as Record<string, number>).sort((a, b) => b[1] - a[1]) : []
 
   return (
-    <div className="flex-1 lg:min-h-0 flex flex-col gap-4 px-4 lg:px-5 py-4 lg:overflow-y-auto">
-      {/* greeting + alert + shortcuts */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <div className="min-w-[200px] flex-1">
-          <h1 className="text-[24px] font-black leading-tight tracking-tight text-navy-900 lg:text-[28px]">{greet}{d.name ? `, ${String(d.name).trim().split(/\s+/).slice(-2).join(' ')}` : ''}</h1>
-          <p className="mt-0.5 text-[13.5px] text-ink-soft"><span className="first-letter:uppercase inline-block">{weekday}, {formatDate(d.today)}</span>{summary.length > 0 && <> · Hôm nay có {summary.map((s, i) => <span key={s.text}>{i > 0 && (i === summary.length - 1 ? ' và ' : ', ')}<b className={s.hot ? 'text-red-600' : 'text-navy-900'}>{s.text}</b></span>)}.</>}</p>
-        </div>
-        {urgent > 0
-          ? <span className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3.5 py-1.5 text-[13px] font-bold text-red-600"><AlertTriangle className="h-4 w-4" />{urgent} việc cần xử lý ngay</span>
-          : <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-[13px] font-bold text-emerald-700">Mọi việc đang đúng tiến độ</span>}
-        <div className="flex gap-2">
-          {cv && <Link href="/cong_viec" className="btn-primary !rounded-full"><Plus className="h-4 w-4" />Công việc</Link>}
-          {krv && <Link href="/khach_ra_vao" className="btn-secondary !rounded-full"><UserPlus className="h-4 w-4" />Khách vào</Link>}
-          {cv && <Link href="/bao-cao-cong-viec" className="btn-secondary !rounded-full hidden sm:inline-flex"><BarChart3 className="h-4 w-4" />Báo cáo</Link>}
-        </div>
-      </div>
-
-      {/* four headline numbers */}
-      <div className="grid shrink-0 grid-cols-2 gap-3 xl:grid-cols-4 lg:gap-4">
-        {cv && <Hero label="Công việc cần xử lý" value={cv.overdue + cv.dueToday} icon={ClipboardList} tone={cv.overdue ? 'red' : cv.dueToday ? 'amber' : 'green'} href="/cong_viec"
-          chips={[{ text: `${cv.overdue} quá hạn`, hot: cv.overdue > 0 }, { text: `${cv.dueToday} hôm nay` }, { text: `${cv.open} đang mở` }]} />}
-        {bt && <Hero label="Bảo trì cần chú ý" value={bt.late + bt.dueToday + bt.soon} icon={Wrench} tone={bt.late ? 'red' : bt.soon + bt.dueToday ? 'amber' : 'green'} href="/lich_bao_tri"
-          chips={[{ text: `${bt.late} trễ lịch`, hot: bt.late > 0 }, { text: `${bt.soon + bt.dueToday} sắp đến hạn` }, { text: `${bt.waiting} chờ ngày gốc` }]} />}
-        {krv && <Hero label="Khách trong tòa nhà" value={krv.inside} icon={Users} tone="blue" href="/khach_ra_vao"
-          chips={[{ text: `${krv.today} lượt hôm nay` }]} />}
-        {dx && <Hero label="Đề xuất chờ duyệt" value={dx.pending} icon={FileSignature} tone="blue" href="/de_xuat?loai_de_xuat=MUA_VAT_TU"
+    <div className="flex-1 lg:min-h-0 flex flex-col gap-5 px-4 lg:px-6 py-5 lg:overflow-y-auto">
+      {/* bento row: greeting block + headline numbers */}
+      <div className="grid shrink-0 grid-cols-2 gap-4 lg:grid-cols-12 lg:gap-5">
+        <section className="col-span-2 flex flex-col gap-3 rounded-[24px] bg-[#0b1b40] px-6 py-5 text-white shadow-[0_8px_0_#071230,0_20px_32px_rgba(7,18,48,.26)] lg:col-span-4">
+          <span className="text-[12px] font-bold uppercase tracking-wide text-[#c3cde3]">{weekday} · {formatDate(d.today)}</span>
+          <h1 className="text-[26px] font-black leading-tight tracking-tight lg:text-[30px]">{greet}{d.name ? <>,<br />{String(d.name).trim().split(/\s+/).slice(-2).join(' ')}</> : ''}</h1>
+          <p className="text-[13.5px] leading-relaxed text-[#dbe3f5]">{summary.length > 0 ? <>Hôm nay có {summary.map((x, i) => <span key={x.text}>{i > 0 && (i === summary.length - 1 ? ' và ' : ', ')}<b className={x.hot ? 'text-[#ff8a93]' : 'text-white'}>{x.text}</b></span>)}.</> : 'Mọi việc đang đúng tiến độ.'}</p>
+          <div className="mt-auto flex flex-wrap gap-2.5 pt-1">
+            {cv && <Link href="/cong_viec" className="inline-flex h-11 items-center gap-1.5 rounded-[13px] bg-[#e11d2e] px-4 text-[13.5px] font-extrabold text-white shadow-[0_5px_0_#8f0f1b] transition duration-100 active:translate-y-1 active:shadow-[0_1px_0_#8f0f1b]"><Plus className="h-4 w-4" />Công việc</Link>}
+            {krv && <Link href="/khach_ra_vao" className="inline-flex h-11 items-center gap-1.5 rounded-[13px] bg-white px-4 text-[13.5px] font-extrabold text-[#0b1b40] shadow-[0_5px_0_#b9c4dc] transition duration-100 active:translate-y-1 active:shadow-[0_1px_0_#b9c4dc]"><UserPlus className="h-4 w-4" />Khách vào</Link>}
+            {cv && <Link href="/bao-cao-cong-viec" className="inline-flex h-11 items-center gap-1.5 rounded-[13px] bg-[#1a2f63] px-4 text-[13.5px] font-extrabold text-white shadow-[0_5px_0_#071230] transition duration-100 active:translate-y-1 active:shadow-[0_1px_0_#071230]"><BarChart3 className="h-4 w-4" />Báo cáo</Link>}
+          </div>
+        </section>
+        {cv && <Hero className="lg:col-span-2" label="Công việc quá hạn" value={cv.overdue} tone={cv.overdue ? 'red' : 'green'} href="/cong_viec"
+          chips={[{ text: `${cv.dueToday} hôm nay` }, { text: `${cv.open} đang mở` }]} />}
+        {dx && <Hero className="lg:col-span-2" label="Đề xuất chờ duyệt" value={dx.pending} tone="blue" href="/de_xuat?loai_de_xuat=MUA_VAT_TU"
           chips={[{ text: dx.amount ? formatMoney(dx.amount) : 'Không có khoản chờ' }]} />}
+        {bt && <Hero className="lg:col-span-2" label="Bảo trì cần chú ý" value={bt.late + bt.dueToday + bt.soon} tone={bt.late + bt.dueToday + bt.soon ? 'amber' : 'green'} href="/lich_bao_tri"
+          chips={[{ text: `${bt.late} trễ lịch`, hot: bt.late > 0 }, { text: `${bt.soon + bt.dueToday} sắp đến hạn` }]} />}
+        {krv && <Hero className="lg:col-span-2" label="Khách trong tòa nhà" value={krv.inside} tone="blue" href="/khach_ra_vao"
+          chips={[{ text: `${krv.today} lượt hôm nay` }]} />}
       </div>
 
       {/* attention list + today at a glance */}
-      <div className="grid grid-cols-1 gap-4 lg:min-h-[300px] lg:flex-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-        <section className="flex flex-col overflow-hidden rounded-2xl border border-navy-200 bg-white shadow-[0_1px_2px_rgba(16,24,40,.05)] lg:min-h-0">
+      <div className="grid grid-cols-1 gap-5 pb-3 lg:min-h-[300px] lg:flex-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+        <section className="flex flex-col overflow-hidden bento lg:min-h-0">
           <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-navy-100 px-3 py-2.5">
             <h2 className="px-1 text-[14px] font-extrabold text-navy-900">Cần xử lý</h2>
             <div className="flex flex-wrap gap-1" role="tablist">
               {tabs.map((t) => (
                 <button key={t.key} role="tab" aria-selected={active?.key === t.key} onClick={() => setTab(t.key)}
-                  className={`rounded-full px-3 py-1 text-[12.5px] font-bold transition ${active?.key === t.key ? 'bg-blue-600 text-white shadow-[0_3px_8px_rgba(37,99,235,.3)]' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}`}>
+                  className={`rounded-full px-3 py-1 text-[12.5px] font-bold transition ${active?.key === t.key ? 'bg-[#0b1b40] text-white shadow-[0_3px_0_#071230]' : 'bg-navy-100 text-navy-800 shadow-[0_3px_0_#c5cfe3] hover:bg-navy-200'}`}>
                   {t.label}{t.n > 0 && <span className={`ml-1.5 rounded-full px-1.5 text-[11px] ${active?.key === t.key ? 'bg-white/20' : 'bg-white'}`}>{t.n}</span>}
                 </button>
               ))}
@@ -157,9 +153,9 @@ export default function Dashboard() {
           </ul>
         </section>
 
-        <section className="flex flex-col gap-4 lg:min-h-0 lg:overflow-y-auto">
+        <section className="flex flex-col gap-5 lg:min-h-0 lg:overflow-y-auto lg:pb-3 lg:pr-1">
           {hn && (
-            <div className="rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)]">
+            <div className="bento px-5 py-4">
               <div className="mb-2 flex items-center justify-between"><h2 className="text-[14px] font-extrabold text-navy-900">Việc hằng ngày hôm nay</h2>
                 <Link href="/cong_viec_hang_ngay" className="text-[12.5px] font-bold text-blue-600">Mở →</Link></div>
               <div className="flex items-center gap-4">
@@ -176,14 +172,14 @@ export default function Dashboard() {
             </div>
           )}
           {hn && week.length > 0 && (
-            <div className="rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)]">
+            <div className="bento px-5 py-4">
               <div className="flex items-baseline justify-between"><h2 className="text-[14px] font-extrabold text-navy-900">Công việc hằng ngày · 7 ngày</h2><span className="text-[12px] text-ink-mute">{hn.month} trong tháng</span></div>
               <div className="mt-0.5 text-[24px] font-black leading-tight tabular-nums text-navy-900">{weekSum} <span className="text-[12.5px] font-semibold text-ink-mute">việc</span></div>
               <div className="mt-2 grid h-[104px] grid-cols-7 items-end gap-2" role="img" aria-label={`Số công việc hằng ngày 7 ngày gần nhất: ${week.map((w) => w.n).join(', ')}`}>
                 {week.map((w) => (
                   <div key={w.day} className="flex h-full flex-col items-center justify-end gap-1">
                     <span className="text-[11px] font-bold tabular-nums text-ink-soft">{w.n}</span>
-                    <span className={`w-full rounded-t-md rounded-b-sm ${w.n === weekMax && w.n > 0 ? 'bg-brand-500' : 'bg-blue-600'}`} style={{ height: `${Math.max(3, (w.n / weekMax) * 62)}px` }} />
+                    <span className={`w-full rounded-lg ${w.n === weekMax && w.n > 0 ? 'bg-[#e11d2e] shadow-[0_5px_0_#8f0f1b]' : 'bg-blue-700 shadow-[0_5px_0_#12318f]'}`} style={{ height: `${Math.max(3, (w.n / weekMax) * 62)}px` }} />
                     <span className={`text-[11px] font-semibold ${w.day === d.today ? 'text-navy-900' : 'text-ink-mute'}`}>{DOW[new Date(w.day + 'T00:00:00Z').getUTCDay()]}</span>
                   </div>
                 ))}
@@ -191,13 +187,13 @@ export default function Dashboard() {
             </div>
           )}
           {dx && (
-            <div className="rounded-2xl border border-navy-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,.05)]">
+            <div className="bento px-5 py-4">
               <div className="text-[12.5px] font-bold text-ink-mute">Đề xuất trong tháng</div>
               <div className="text-[24px] font-black leading-tight tabular-nums text-navy-900">{formatMoney(dx.monthAmount)}</div>
               <div className="mt-0.5 flex items-center justify-between gap-2 text-[12.5px] text-ink-mute"><span>{dx.monthCount} phiếu</span>{dx.pending > 0 && <Link href="/de_xuat?loai_de_xuat=MUA_VAT_TU" className="font-bold text-blue-600">Duyệt {dx.pending} phiếu đang chờ →</Link>}</div>
             </div>
           )}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-700 to-navy-900 px-4 py-3 text-white shadow-[0_10px_24px_rgba(29,78,216,.25)]">
+          <div className="rounded-[22px] bg-[#0b1b40] px-5 py-4 text-white shadow-[0_7px_0_#071230,0_18px_30px_rgba(7,18,48,.22)]">
             <h2 className="mb-1 text-[12px] font-extrabold uppercase tracking-[.12em] text-blue-200">Tòa nhà</h2>
             <ul className="divide-y divide-white/15 text-[13.5px]">
               {kt && <li className="flex items-center gap-3 py-1.5"><Building2 className="h-4 w-4 text-blue-200" /><span className="flex-1 text-blue-100">Khách đang thuê</span><b className="tabular-nums">{kt.renting}</b></li>}

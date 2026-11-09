@@ -12,10 +12,10 @@ const config: Config = {
         brand: { 50: '#fef2f2', 100: '#fde3e3', 200: '#fbc5c6', 300: '#f6979a', 400: '#ED3237', 500: '#d92a2f', 600: '#b82227', 700: '#941c20' },
         select: { DEFAULT: '#eaf4ff', accent: '#2189e6' }, // selected table row, as in V191
         ink: { DEFAULT: '#1f2937', soft: '#475569', mute: '#667085' },
-        canvas: '#f4f6f8',
+        canvas: '#e9eef7',
       },
       boxShadow: {
-        card: '0 8px 24px rgba(16,24,40,.06)',
+        card: '0 5px 0 #c5cfe3, 0 14px 24px rgba(11,27,64,.10)',
         pop: '0 12px 30px rgba(16,24,40,.16)',
       },
       borderRadius: { xl: '12px', '2xl': '16px' },

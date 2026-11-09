@@ -120,7 +120,7 @@ export default function ChatPanel({ popup = false, onClose }: { popup?: boolean;
           {/* conversations */}
           <aside className={popup ? `${active ? 'hidden' : 'flex'} w-full flex-col` : `${active ? 'hidden' : 'flex'} w-full flex-col lg:flex lg:w-[320px] lg:shrink-0 lg:border-r border-navy-200`}>
             {popup && (
-              <div className="flex shrink-0 items-center justify-between bg-blue-700 px-4 py-3 text-white">
+              <div className="flex shrink-0 items-center justify-between bg-[#0b1b40] px-4 py-3 text-white">
                 <h2 className="text-[17px] font-extrabold">Trao đổi nội bộ</h2>
                 <button onClick={onClose} aria-label="Đóng" className="grid h-8 w-8 place-items-center rounded-full hover:bg-white/15"><X className="h-5 w-5" /></button>
               </div>

@@ -150,7 +150,7 @@ export function Tile({ icon: Icon, label, color, onClick, disabled, title }: {
 }) {
   return (
     <button type="button" onClick={onClick} disabled={disabled} title={title ?? label}
-      className={`shrink-0 flex flex-col items-center justify-center gap-0.5 min-w-[70px] h-[56px] px-1.5 rounded-[9px] bg-white border border-navy-200 border-b-[3px] shadow-[0_1px_2px_rgba(16,24,40,.06)] text-[12px] font-bold text-navy-900 transition hover:-translate-y-px hover:shadow-md disabled:opacity-35 disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:cursor-not-allowed ${TILE_COLORS[color]}`}>
+      className={`shrink-0 flex flex-col items-center justify-center gap-0.5 min-w-[70px] h-[56px] px-1.5 rounded-[13px] bg-white shadow-[0_5px_0_#c5cfe3,0_10px_16px_rgba(11,27,64,.08)] text-[12px] font-bold text-navy-900 transition duration-100 hover:-translate-y-0.5 active:translate-y-[4px] active:shadow-[0_1px_0_#c5cfe3] disabled:opacity-40 disabled:hover:translate-y-0 disabled:active:translate-y-0 disabled:cursor-not-allowed ${TILE_COLORS[color]}`}>
       <Icon className="h-5 w-5" />
       <span className="whitespace-nowrap">{label}</span>
     </button>
@@ -158,8 +158,8 @@ export function Tile({ icon: Icon, label, color, onClick, disabled, title }: {
 }
 
 const TAB_TONES: Record<string, string> = {
-  amber: 'bg-orange-50 border-orange-300 text-orange-800', red: 'bg-red-50 border-red-300 text-red-700', green: 'bg-green-50 border-green-300 text-green-800',
-  blue: 'bg-blue-50 border-blue-300 text-blue-800', gray: 'bg-navy-50 border-navy-300 text-navy-800',
+  amber: 'bg-[#ffd98a] text-[#3d2a00] shadow-[0_5px_0_#d9a13a]', red: 'bg-[#e11d2e] text-white shadow-[0_5px_0_#8f0f1b]', green: 'bg-[#bfe8cf] text-[#0c3b20] shadow-[0_5px_0_#7cc49a]',
+  blue: 'bg-[#cfe0ff] text-[#0b1b40] shadow-[0_5px_0_#93b1ee]', gray: 'bg-[#0b1b40] text-white shadow-[0_5px_0_#071230]',
 }
 
 function MonthCalendar({ month, setMonth, counts, day, setDay, unit, fields, field, setField, onLatest, loading }: {
@@ -178,7 +178,7 @@ function MonthCalendar({ month, setMonth, counts, day, setDay, unit, fields, fie
   for (let i = 1; cells.length % 7; i++) cells.push({ d: new Date(y, m + 1, i), inMonth: false })
   return (
     <div className="card overflow-hidden shrink-0">
-      <div className="flex items-center justify-between bg-[#2189e6] text-white px-2 py-1.5">
+      <div className="flex items-center justify-between bg-[#0b1b40] text-white px-2 py-1.5">
         <button className="grid place-items-center h-7 w-7 rounded bg-white/15 hover:bg-white/25" onClick={() => setMonth(new Date(y, m - 1, 1))} aria-label="Tháng trước"><ChevronLeft className="h-4 w-4" /></button>
         <span className="text-[13px] font-extrabold">Tháng {m + 1} / {y}</span>
         <button className="grid place-items-center h-7 w-7 rounded bg-white/15 hover:bg-white/25" onClick={() => setMonth(new Date(y, m + 1, 1))} aria-label="Tháng sau"><ChevronRight className="h-4 w-4" /></button>
@@ -487,7 +487,7 @@ export default function ResourceManager({
         <thead>
           <tr className="text-[11.5px] font-extrabold uppercase tracking-wide text-navy-800">
             {['Thiết bị', 'Hãng', 'Người quản lý', 'Tầng', 'Vị trí', 'Số lượng', 'Tình trạng', 'Trạng thái'].map((h, i) => (
-              <th key={h} className={`sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-2.5 py-3 ${i === 0 || i === 2 ? 'text-left' : 'text-center'}`}>{h}</th>
+              <th key={h} className={`sticky top-0 z-[1] th3d border-b px-2.5 py-3 ${i === 0 || i === 2 ? 'text-left' : 'text-center'}`}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -696,8 +696,8 @@ export default function ResourceManager({
         </colgroup>
         <thead>
           <tr className="text-[13px] font-extrabold text-navy-900">
-            {res.key !== 'users' && res.key !== 'audit_logs' && <th className="sticky top-0 z-[1] bg-navy-50 border-b border-navy-200 px-1 py-2.5 text-center">Mã</th>}
-            {tableFields.map((f) => <th key={f.name} className={`sticky top-0 z-[1] bg-navy-50 border-b border-l border-navy-200 ${pad} py-2.5 text-center leading-tight`}>{f.label}</th>)}
+            {res.key !== 'users' && res.key !== 'audit_logs' && <th className="sticky top-0 z-[1] th3d border-b px-1 py-2.5 text-center">Mã</th>}
+            {tableFields.map((f) => <th key={f.name} className={`sticky top-0 z-[1] th3d border-b border-l !border-l-white/15 ${pad} py-2.5 text-center leading-tight`}>{f.label}</th>)}
           </tr>
         </thead>
         <tbody>
@@ -915,7 +915,7 @@ export default function ResourceManager({
               const tn = c.key === 'con' ? 'green' : c.key === 'het' ? 'red' : 'blue'
               return (
                 <button key={c.key} type="button" aria-pressed={on} onClick={() => setQuickSel(c.key)}
-                  className={`shrink-0 min-w-[124px] h-[56px] px-3 rounded-[9px] border-2 flex items-center gap-2.5 text-left transition ${on ? TAB_TONES[tn] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
+                  className={`shrink-0 min-w-[124px] h-[56px] px-3 rounded-[13px] flex items-center gap-2.5 text-left transition duration-100 active:translate-y-[3px] ${on ? TAB_TONES[tn] : 'bg-white text-navy-900 shadow-[0_5px_0_#c5cfe3] hover:-translate-y-0.5'}`}>
                   <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${tn === 'green' ? 'bg-green-100 text-green-700' : tn === 'red' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-700'}`}><Icon className="h-[18px] w-[18px]" /></span>
                   <span className="leading-tight"><span className="block text-[12px] font-black uppercase">{c.label}</span><span className="block text-[12px] font-semibold opacity-80">{quickCounts[c.key] == null ? '…' : quickCounts[c.key].toLocaleString('vi-VN')} {res.singular}</span></span>
                 </button>
@@ -929,7 +929,7 @@ export default function ResourceManager({
               const on = status === o
               return (
                 <button key={o} onClick={() => setStatus(on ? '' : o)}
-                  className={`shrink-0 min-w-[112px] h-[56px] px-2.5 rounded-[9px] border-2 text-center transition ${(statusCounts[o] ?? 0) > 0 && (tone(o) === 'red' || tone(o) === 'amber') ? 'pl-blink' : ''} ${on ? TAB_TONES[tone(o)] + ' shadow-[0_4px_12px_rgba(16,24,40,.12)]' : 'bg-white border-navy-200 text-navy-900 hover:border-navy-300'}`}>
+                  className={`shrink-0 min-w-[112px] h-[56px] px-2.5 rounded-[13px] text-center transition duration-100 active:translate-y-[3px] ${(statusCounts[o] ?? 0) > 0 && (tone(o) === 'red' || tone(o) === 'amber') ? 'pl-blink' : ''} ${on ? TAB_TONES[tone(o)] : 'bg-white text-navy-900 shadow-[0_5px_0_#c5cfe3] hover:-translate-y-0.5'}`}>
                   <div className="text-[12px] font-black uppercase">{o}</div>
                   <div className="text-[12px] font-semibold opacity-80">{(statusCounts[o] ?? 0).toLocaleString('vi-VN')} {res.singular}</div>
                 </button>
@@ -1103,7 +1103,7 @@ export function FilterSheet({ children, onClose }: { children: React.ReactNode; 
     <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
       <div className="pl-fade absolute inset-0 bg-black/45" onClick={onClose} />
       <div className="pl-sheet absolute inset-x-3 bottom-3 flex max-h-[82vh] flex-col overflow-hidden rounded-2xl bg-white shadow-pop">
-        <div className="flex shrink-0 items-center justify-between bg-blue-700 px-4 py-3 text-white">
+        <div className="flex shrink-0 items-center justify-between bg-[#0b1b40] px-4 py-3 text-white">
           <h2 className="text-[19px] font-extrabold">Bộ lọc</h2>
           <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center"><X className="h-6 w-6" /></button>
         </div>
@@ -1202,7 +1202,7 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
         e.preventDefault(); setBusy(true); setError('')
         try { await onSubmit({ ...form }) } catch (err: any) { setError(err.message); setBusy(false) }
       }} className="pl-sheet relative w-full sm:max-w-3xl lg:w-[80vw] lg:max-w-none max-h-[92dvh] flex flex-col bg-white rounded-2xl shadow-pop overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-5 lg:py-3 bg-blue-700 text-white">
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-5 lg:py-3 bg-[#0b1b40] text-white">
           <div>
             <h2 className="text-[16px] font-extrabold">{title}</h2>
             {subtitle && <p className="text-xs font-semibold text-white/80">{subtitle}</p>}
