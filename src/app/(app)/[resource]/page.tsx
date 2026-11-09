@@ -33,7 +33,7 @@ export default async function ResourcePage({ params, searchParams }: {
     if (typeof v === 'string' && v) filters[f.name] = v
   }
   const qs = new URLSearchParams(filters).toString()
-  const navLabel = NAV.flatMap((g) => g.items).find((i) => decodeURIComponent(i.href) === `/${res.key}${qs ? '?' + decodeURIComponent(qs) : ''}`)?.label
+  const navLabel = NAV.flatMap((g) => g.items).find((i) => decodeURIComponent(i.href) === `/${res.key}${qs ? '?' + decodeURIComponent(qs.replace(/\+/g, ' ')) : ''}`)?.label
   const title = navLabel ?? (filters.loai_de_xuat ? `Đề xuất ${PROPOSAL_KINDS[filters.loai_de_xuat]?.toLowerCase() ?? ''}` : res.title)
 
   return (
