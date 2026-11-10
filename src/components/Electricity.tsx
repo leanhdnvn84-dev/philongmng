@@ -65,7 +65,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' } | { kind: 'pay' }>(null)
+  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' } | { kind: 'pay' } | { kind: 'payhist' }>(null)
   const [hist, setHist] = useState<any[] | null>(null)
   const [form, setForm] = useState<Record<string, string>>({})
   const [confirm, dialog] = useConfirm()
@@ -222,7 +222,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
     if (modal.kind === 'ky') return run(async () => { const j = await post({ op: 'tao_ky', ky: form.ky, don_gia: form.don_gia ?? '' }); setModal(null); const k = form.ky; setTimeout(() => setKy(k), 400); return j.data?.message })
     if (modal.kind === 'meter') return run(async () => { await post({ op: 'add_meter', ky, nhom_hoa_don: form.nhom, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); return 'Đã thêm công tơ' })
     if (modal.kind === 'customer') return run(async () => { const j = await post({ op: 'add_customer', ky, id_khach_thue: form.khach, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); if (j.data?.nhom_hoa_don) setTimeout(() => setSel(j.data.nhom_hoa_don), 600); return `Đã thêm khách và công tơ ${j.data?.ma_cong_to ?? ''}` })
-    if (modal.kind === 'pay') return run(async () => { await post({ op: 'pay', ky, nhom_hoa_don: cur?.id, so_tien: form.tien, ngay: form.ngay, hinh_thuc: form.hinh_thuc, ghi_chu: form.ghi_chu }); setModal(null); return 'Đã ghi nhận thanh toán' })
+    if (modal.kind === 'pay') return run(async () => { await post({ op: 'pay', ky, nhom_hoa_don: cur?.id, so_tien: form.tien, ngay: form.ngay, hinh_thuc: form.hinh_thuc, ghi_chu: form.ghi_chu }); setModal({ kind: 'payhist' }); return 'Đã ghi nhận thanh toán' })
     if (modal.kind === 'price') return run(async () => { const j = await post({ op: 'set_price', ky, don_gia: form.gia, nhom_hoa_don: form.pham_vi === 'hd' ? cur?.id : '', ly_do: form.ly_do }); setModal(null); return j.data?.message })
   }
   const open = (m: NonNullable<typeof modal>, init: Record<string, string> = {}) => { setForm(init); setModal(m); setMsg(null) }
@@ -251,34 +251,11 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <div key={x.ky} title={`${kyText(x.ky)}: ${num3(x.kwh)} kWh`} className={`min-h-[2px] flex-1 rounded-t ${x.ky === ky ? 'bg-[#e11d2e]' : 'bg-red-300'}`} style={{ height: `${Math.max(2, (x.kwh / mx) * 100)}%` }} />
         )) })()}
       </div>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1">
-        <span className="flex-1 whitespace-nowrap text-[11px] font-extrabold uppercase tracking-[.12em] text-ink-soft">Lịch sử thanh toán</span>
-        <button disabled={!perms.edit || busy} onClick={() => open({ kind: 'pay' }, { tien: String(Math.max(0, cur.total - curPaid) || ''), ngay: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()), hinh_thuc: 'Chuyển khoản', ghi_chu: '' })}
-          className="inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-lg border border-green-300 bg-white px-2.5 text-[12px] font-bold text-green-700 disabled:opacity-40"><Plus className="h-3.5 w-3.5" />Ghi nhận</button>
-      </div>
-      <ul className="divide-y divide-navy-100 rounded-lg border border-navy-200 text-[13px]">
-        {payHist.length === 0 && <li className="px-3 py-3 text-center text-ink-mute">Chưa có kỳ nào.</li>}
-        {payHist.map((h) => {
-          const rest = h.due - h.paid
-          const st = h.due <= 0 ? { t: 'Chưa có số', c: 'bg-navy-100 text-ink-soft' } : rest <= 0 ? { t: 'Đã thu đủ', c: 'bg-green-100 text-green-700' } : h.paid > 0 ? { t: `Còn ${vnd(rest)}`, c: 'bg-amber-100 text-amber-800' } : { t: 'Chưa thu', c: 'bg-red-100 text-red-700' }
-          return (
-            <li key={h.ky} className="px-3 py-2">
-              <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 whitespace-nowrap"><b className="flex-1 text-navy-900">{kyText(h.ky).replace('Tháng ', 'T')}</b><span className="tabular-nums font-bold">{vnd(h.due)}</span><span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${st.c}`}>{st.t}</span></div>
-              {h.list.map((x) => (
-                <div key={x.id} className="mt-1 flex items-center gap-2 text-[12px] text-ink-soft">
-                  <span className="flex-1 truncate">{x.ngay_thanh_toan.split('-').reverse().join('/')} · {x.hinh_thuc ?? '—'}{x.nguoi_ghi ? ` · ${x.nguoi_ghi}` : ''}{x.ghi_chu ? ` · ${x.ghi_chu}` : ''}</span>
-                  <span className="tabular-nums font-semibold text-green-700">+{vnd(Number(x.so_tien))}</span>
-                  {perms.admin && <button onClick={() => unpay(x)} aria-label="Xóa lần thanh toán" className="grid h-5 w-5 place-items-center rounded-full border border-navy-200 text-ink-mute hover:bg-red-50 hover:text-red-600"><X className="h-3 w-3" /></button>}
-                </div>
-              ))}
-            </li>
-          )
-        })}
-      </ul>
       <div className="flex gap-2 pt-1">
         <button onClick={() => print([cur])} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#e11d2e] text-[13.5px] font-bold text-white shadow-[0_4px_10px_rgba(225,29,46,.3)]"><Printer className="h-4 w-4" />In giấy báo này</button>
         <button onClick={() => print(invoices)} className="inline-flex h-10 items-center rounded-lg border border-[#e11d2e] px-4 text-[13.5px] font-bold text-[#e11d2e]">In cả kỳ</button>
       </div>
+      <button onClick={() => open({ kind: 'payhist' })} className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-green-300 bg-white text-[13.5px] font-bold text-green-700"><History className="h-4 w-4" />Lịch sử thanh toán</button>
     </div>
   )
 
@@ -423,6 +400,32 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <Field label="Chỉ số cũ"><input className="input" inputMode="decimal" value={form.cu ?? ''} onChange={(e) => setForm({ ...form, cu: e.target.value })} /></Field>
           <Field label="Khách hàng của hóa đơn (đổi sẽ áp dụng cho mọi công tơ cùng hóa đơn)"><select className="input" value={form.khach ?? ''} onChange={(e) => setForm({ ...form, khach: e.target.value })}>{!form.khach && <option value="">— chọn —</option>}{customers.map((c) => <option key={c.id} value={c.id}>{c.ten_khach_thue}</option>)}</select></Field>
           <button className="btn-primary w-full" disabled={busy || !form.ma} onClick={submitModal}>Lưu thay đổi</button>
+        </Modal>
+      )}
+      {modal?.kind === 'payhist' && cur && (
+        <Modal title="Lịch sử thanh toán tiền điện" onClose={() => setModal(null)}>
+          <p className="mb-2 text-[13px] text-ink-soft"><b className="text-navy-900">{cur.name}</b> · 12 kỳ gần nhất tính từ {kyText(ky)}</p>
+      <ul className="divide-y divide-navy-100 rounded-lg border border-navy-200 text-[13px]">
+            {payHist.length === 0 && <li className="px-3 py-3 text-center text-ink-mute">Chưa có kỳ nào.</li>}
+            {payHist.map((h) => {
+              const rest = h.due - h.paid
+              const st = h.due <= 0 ? { t: 'Chưa có số', c: 'bg-navy-100 text-ink-soft' } : rest <= 0 ? { t: 'Đã thu đủ', c: 'bg-green-100 text-green-700' } : h.paid > 0 ? { t: `Còn ${vnd(rest)}`, c: 'bg-amber-100 text-amber-800' } : { t: 'Chưa thu', c: 'bg-red-100 text-red-700' }
+              return (
+                <li key={h.ky} className="px-3 py-2">
+                  <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 whitespace-nowrap"><b className="flex-1 text-navy-900">{kyText(h.ky)}</b><span className="tabular-nums font-bold">{vnd(h.due)} đ</span><span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${st.c}`}>{st.t}</span></div>
+                  {h.list.map((x) => (
+                    <div key={x.id} className="mt-1 flex items-center gap-2 text-[12px] text-ink-soft">
+                      <span className="flex-1 truncate">{x.ngay_thanh_toan.split('-').reverse().join('/')} · {x.hinh_thuc ?? '—'}{x.nguoi_ghi ? ` · ${x.nguoi_ghi}` : ''}{x.ghi_chu ? ` · ${x.ghi_chu}` : ''}</span>
+                      <span className="tabular-nums font-semibold text-green-700">+{vnd(Number(x.so_tien))}</span>
+                      {perms.admin && <button onClick={() => unpay(x)} aria-label="Xóa lần thanh toán" className="grid h-5 w-5 place-items-center rounded-full border border-navy-200 text-ink-mute hover:bg-red-50 hover:text-red-600"><X className="h-3 w-3" /></button>}
+                    </div>
+                  ))}
+                </li>
+              )
+            })}
+          </ul>
+          <button disabled={!perms.edit || busy} onClick={() => open({ kind: 'pay' }, { tien: String(Math.max(0, cur.total - curPaid) || ''), ngay: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()), hinh_thuc: 'Chuyển khoản', ghi_chu: '' })}
+            className="btn-primary mt-3 w-full"><Plus className="h-4 w-4" />Ghi nhận thanh toán kỳ {kyText(ky)}</button>
         </Modal>
       )}
       {modal?.kind === 'pay' && cur && (
