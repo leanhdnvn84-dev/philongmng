@@ -238,7 +238,9 @@ export default function ResourceManager({
   const [shortOpen, setShortOpen] = useState(false)
   const [histOpen, setHistOpen] = useState<Row | null>(null) // stock page: movements of the selected item
   const [pf, setPf] = useState<Record<string, string>>({}) // V191 "Bộ lọc" box: Tầng·Khu vực, Hạng mục…
-  const [day, setDay] = useState<string | null>(null)
+  const [day, setDay] = useState<string | null>(() => (res.openToday && !compact && !initialSearch ? todayVn() : null))
+  const todayTried = useRef(false)
+  const [unfinished, setUnfinished] = useState(false) // daily work: "Chưa xong"
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
   const [calField, setCalField] = useState(res.dateField ?? '')
   const [calLoading, setCalLoading] = useState(false)
@@ -295,6 +297,8 @@ export default function ResourceManager({
   const isWork = res.key === 'cong_viec' || res.key === 'cong_viec_hang_ngay'
   // cell renderer: "Số ngày" is computed from the row; everything else uses the shared formatter
   const cellNode = (f: Field, r: any) => {
+    // V191 shows the contractor's company when no unit was typed by hand
+    if (f.name === 'don_vi_thuc_hien' && !r.don_vi_thuc_hien && r.id_nha_thau) return labels.nha_thau?.get(r.id_nha_thau) ?? r.id_nha_thau
     if (f.name === 'so_ngay' && res.key === 'cong_viec') {
       const s = soNgay(r)
       if (s.n <= 0) return <span className="text-navy-300">—</span>
@@ -334,10 +338,11 @@ export default function ResourceManager({
     if (isDev && devF.loai) sp.set('loai_thiet_bi', devF.loai)
     if (isDev && devF.nsd) sp.set('id_nguoi_su_dung', devF.nsd)
     if (side && sideName) sp.set(sideName, side)
+    if (unfinished) sp.set('ne_trang_thai', 'Hoàn thành')
     for (const [k, v] of Object.entries(pf)) if (v) sp.set(k, v)
     if (day && !omit.day) { sp.set('from', day); sp.set('to', day); sp.set('dateField', calField) }
     return sp
-  }, [filterKey, query, status, alertSel, res.urgency, res.quick, quickSel, compact, side, sideName, pf, day, calField, isDev, devF])
+  }, [filterKey, query, status, alertSel, res.urgency, res.quick, quickSel, compact, side, sideName, pf, day, calField, isDev, devF, unfinished])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -345,8 +350,10 @@ export default function ResourceManager({
       const sp = baseParams(); sp.set('page', String(page)); sp.set('pageSize', String(pageSize))
       const j = await api(`/api/${res.key}?${sp}`)
       setRows(j.data); setTotal(j.total); setVersion((v) => v + 1)
+      // opened on today but nothing recorded yet: show the whole list instead of an empty table
+      if (res.openToday && !todayTried.current) { todayTried.current = true; if (!j.total && day === todayVn()) setDay(null) }
     } catch (e: any) { setMsg({ type: 'err', text: e.message }) } finally { setLoading(false) }
-  }, [res.key, baseParams, page, pageSize])
+  }, [res.key, baseParams, page, pageSize]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { load() }, [load])
 
   // status tab counts
@@ -455,7 +462,7 @@ export default function ResourceManager({
       }
     } catch (e: any) { flash(e.message, 'err') }
   }
-  function resetAll() { setDevF({ nql: '', loai: '', nsd: '' }); setStatus(''); setAlertSel(''); if (res.quick) setQuickSel('all'); setSide(''); setPf({}); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
+  function resetAll() { setDevF({ nql: '', loai: '', nsd: '' }); setStatus(''); setAlertSel(''); if (res.quick) setQuickSel('all'); setSide(''); setPf({}); setUnfinished(false); setDay(null); setSearch(''); setQuery(''); setSearchOpen(false); setSelectedId(null) }
 
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const canCreate = perms.create && !res.noCreate
@@ -896,11 +903,12 @@ export default function ResourceManager({
         </>}
         {!isDev && res.key !== 'de_xuat' && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
+        {res.key === 'cong_viec_hang_ngay' && !compact && <Tile icon={AlertTriangle} label="Chưa xong" color="amber" title="Chỉ hiện các việc chưa hoàn thành (mọi ngày)" onClick={() => { setUnfinished((u) => !u); setDay(null); setPage(1) }} />}
         {vtSide && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={withRow((r) => setHistOpen(r))} />}
         {res.key === 'de_xuat' && filters.loai_de_xuat === 'MUA_VAT_TU' && <Tile icon={AlertTriangle} label="Vật tư thiếu" color="amber" onClick={() => setShortOpen(true)} />}
         </div>
 
-        {res.key === 'cong_viec_hang_ngay' && !compact && <DailyWorkSummary version={version} />}
+        {res.key === 'cong_viec_hang_ngay' && !compact && <DailyWorkSummary version={version} who={side} whoName={side && sideField ? String(refLabel(sideField, side)) : ''} />}
         {isDev && (
           <div className="ml-auto hidden text-right text-[12.5px] leading-snug text-ink-soft lg:block">
             <div className="text-[15px] font-extrabold text-navy-900">{devStats.total} thiết bị · tổng SL {devStats.sl}</div>
@@ -962,12 +970,13 @@ export default function ResourceManager({
         )}
         {res.key === 'de_xuat' && filters.loai_de_xuat && !compact && <ProposalStats kind={filters.loai_de_xuat} title={title ?? res.title} version={version} />}
         {message}
-        {(day || side || status || query || pfActive || devF.nsd) && (
+        {(day || side || status || query || pfActive || devF.nsd || unfinished) && (
           <div className="flex flex-wrap items-center gap-2 text-[12.5px] print:hidden">
             <span className="text-ink-mute font-semibold">Đang lọc:</span>
             {day && <button className="pill-blue" onClick={() => setDay(null)}>Ngày {formatDate(day)} <X className="h-3 w-3" /></button>}
             {side && sideField && <button className="pill-blue" onClick={() => setSide('')}>{sideField.label}: {refLabel(sideField, side)} <X className="h-3 w-3" /></button>}
             {pfFields.map((f) => pf[f.name] ? <button key={f.name} className="pill-blue" onClick={() => setPf((o) => ({ ...o, [f.name]: '' }))}>{f.label}: {refLabel(f, pf[f.name])} <X className="h-3 w-3" /></button> : null)}
+            {unfinished && <button className="pill-amber" onClick={() => setUnfinished(false)}>Chưa xong <X className="h-3 w-3" /></button>}
             {devF.nsd && <button className="pill-blue" onClick={() => setDevF((f) => ({ ...f, nsd: '' }))}>Người sử dụng: {staff[devF.nsd]?.ho_ten ?? devF.nsd} <X className="h-3 w-3" /></button>}
             {status && <button className="pill-blue" onClick={() => setStatus('')}>{status} <X className="h-3 w-3" /></button>}
             {query && <button className="pill-blue" onClick={() => { setSearch(''); setQuery('') }}>“{query}” <X className="h-3 w-3" /></button>}

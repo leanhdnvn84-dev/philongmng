@@ -64,6 +64,8 @@ export interface Resource {
   sideFilter?: string
   /** cells never wrap: one line with an ellipsis (hover shows the full text) */
   noWrap?: boolean
+  /** the list opens on today's records (V191 daily work); falls back to everything when today is empty */
+  openToday?: boolean
   /** label for rows with no value in the side column (V191 "Chưa phân công") */
   sideNone?: string
   /** ref columns shown as drop-downs in a "Bộ lọc" box under the calendar (V191) */
@@ -168,12 +170,12 @@ export const RESOURCES: Resource[] = [
   },
   {
     key: 'cong_viec_hang_ngay', table: 'cong_viec_hang_ngay', module: 'CVHN', title: 'Công việc hằng ngày', singular: 'công việc',
-    dateField: 'ngay', sideFilter: 'id_nguoi_thuc_hien',
+    dateField: 'ngay', sideFilter: 'id_nguoi_thuc_hien', openToday: true,
     // same columns as V191, in the same order
     listOrder: ['ngay', 'noi_dung', 'cach_thuc_hien', 'id_nguoi_giao', 'id_nguoi_thuc_hien', 'nguoi_lam_cung', 'don_vi_thuc_hien', 'trang_thai'],
     searchFields: ['id', 'noi_dung', 'cach_thuc_hien', 'tien_do'], orderBy: { column: 'ngay', ascending: false },
     fields: [
-      ...workFields({ name: 'ngay', label: 'Ngày', type: 'date', required: true }).slice(0, 2),
+      ...workFields({ name: 'ngay', label: 'Ngày', type: 'date', required: true }).slice(0, 2).map((f) => (f.name === 'noi_dung' ? { ...f, label: 'Nội dung thực hiện' } : f)),
       { name: 'cach_thuc_hien', label: 'Cách thực hiện', type: 'textarea', inList: false },
       ...workFields({ name: 'ngay', label: 'Ngày', type: 'date' }).slice(2),
     ],
