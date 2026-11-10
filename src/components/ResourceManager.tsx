@@ -901,7 +901,6 @@ export default function ResourceManager({
           <Tile icon={FileDown} label="In PDF" color="red" disabled={!selected} onClick={withRow((r) => phieu(r, 'pdf'))} />
           <Tile icon={FileText} label="In Word" color="blue" disabled={!selected} onClick={withRow((r) => phieu(r, 'word'))} />
         </>}
-        {!isDev && res.key !== 'de_xuat' && <Tile icon={Printer} label="In" color="slate" onClick={() => window.print()} />}
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
         {res.key === 'cong_viec_hang_ngay' && !compact && <Tile icon={AlertTriangle} label="Chưa xong" color="amber" title="Chỉ hiện các việc chưa hoàn thành (mọi ngày)" onClick={() => { setUnfinished((u) => !u); setDay(null); setPage(1) }} />}
         {vtSide && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={withRow((r) => setHistOpen(r))} />}
