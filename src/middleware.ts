@@ -41,5 +41,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // API routes do their own auth and return JSON 401 instead of redirecting
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|brand/).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|manifest.webmanifest|brand/).*)'],
 }
