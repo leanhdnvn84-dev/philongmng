@@ -71,3 +71,52 @@ export default function StockSide({ params, version, pf, setPf, search, setSearc
     </>
   )
 }
+
+/** "Lịch sử nhập từng đợt" inside the item popup: one row per stock-in with unit, quantity, price and amount. */
+export function StockBatches({ id, dvt, version = 0 }: { id: string; dvt?: string | null; version?: number }) {
+  const [rows, setRows] = useState<any[] | null>(null)
+  useEffect(() => {
+    let alive = true; setRows(null)
+    getJson(`/api/nhap_xuat_kho?id_vat_tu=${encodeURIComponent(id)}&loai_giao_dich=NHAP&pageSize=500`).then((d) => { if (alive) setRows(d) }).catch(() => alive && setRows([]))
+    return () => { alive = false }
+  }, [id, version])
+  const dmy = (s?: string | null) => (s ? `${s.slice(8, 10)}/${s.slice(5, 7)}/${s.slice(0, 4)}` : '—')
+  const list = [...(rows ?? [])].sort((a, b) => String(b.ngay ?? '').localeCompare(String(a.ngay ?? '')) || String(b.id).localeCompare(String(a.id)))
+  const qty = list.reduce((s, r) => s + (Number(r.so_luong) || 0), 0), amount = list.reduce((s, r) => s + (Number(r.thanh_tien) || 0), 0)
+  const th = 'th3d px-2.5 py-2.5 text-[12.5px] font-extrabold whitespace-nowrap', td = 'px-2.5 py-2 border-b border-navy-200/70'
+  return (
+    <div>
+      <h3 className="mb-2 text-[15px] font-extrabold text-navy-900">Lịch sử nhập từng đợt</h3>
+      <div className="overflow-x-auto rounded-[14px] border border-navy-200">
+        <table className="w-full min-w-[640px] border-separate border-spacing-0 text-[13px]">
+          <thead><tr>
+            <th className={`${th} text-left`}>Ngày</th><th className={`${th} text-center`}>ĐVT</th><th className={`${th} text-right`}>Số lượng</th>
+            <th className={`${th} text-right`}>Đơn giá</th><th className={`${th} text-right`}>Thành tiền</th><th className={`${th} text-left`}>Nội dung</th><th className={`${th} text-left`}>Chứng từ</th>
+          </tr></thead>
+          <tbody>
+            {rows === null ? <tr><td colSpan={7} className="px-3 py-6 text-center text-ink-mute">Đang tải…</td></tr>
+              : list.length === 0 ? <tr><td colSpan={7} className="px-3 py-6 text-center text-ink-mute">Chưa có lần nhập nào.</td></tr>
+              : list.map((r) => (
+                <tr key={r.id}>
+                  <td className={`${td} whitespace-nowrap tabular-nums`}>{dmy(r.ngay)}</td>
+                  <td className={`${td} text-center`}>{dvt || '—'}</td>
+                  <td className={`${td} text-right font-bold tabular-nums`}>{n0(Number(r.so_luong) || 0)}</td>
+                  <td className={`${td} text-right tabular-nums`}>{Number(r.don_gia) ? n0(Number(r.don_gia)) : <span className="text-navy-300">chưa có</span>}</td>
+                  <td className={`${td} text-right font-bold tabular-nums`}>{Number(r.thanh_tien) ? n0(Number(r.thanh_tien)) : <span className="text-navy-300">—</span>}</td>
+                  <td className={`${td} max-w-[280px] truncate`} title={r.noi_dung ?? ''}>{r.noi_dung || '—'}</td>
+                  <td className={`${td} whitespace-nowrap`}>{r.id_chung_tu || '—'}</td>
+                </tr>
+              ))}
+          </tbody>
+          {list.length > 0 && (
+            <tfoot><tr className="bg-navy-50 font-extrabold text-navy-900">
+              <td className="px-2.5 py-2.5" colSpan={2}>Tổng {list.length} đợt</td>
+              <td className="px-2.5 py-2.5 text-right tabular-nums">{n0(qty)}</td><td />
+              <td className="px-2.5 py-2.5 text-right tabular-nums">{n0(amount)}</td><td colSpan={2} />
+            </tr></tfoot>
+          )}
+        </table>
+      </div>
+    </div>
+  )
+}

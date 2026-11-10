@@ -8,7 +8,7 @@ import {
 import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
 import { ProposalStats, ShortageDialog } from '@/components/ProposalExtras'
-import StockSide from '@/components/StockSide'
+import StockSide, { StockBatches } from '@/components/StockSide'
 import { DailyWorkSummary } from '@/components/ProposalExtras'
 import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
@@ -777,8 +777,7 @@ export default function ResourceManager({
             </dl>
             {res.key === 'vat_tu' && (
               <div className="mt-6 pt-5 border-t border-navy-200">
-                <ResourceManager compact resourceKey="nhap_xuat_kho" title="Lịch sử nhập từng đợt" filters={{ id_vat_tu: viewing.id, loai_giao_dich: 'NHAP' }}
-                  perms={{ create: false, edit: false, delete: false, approve: false }} />
+                <StockBatches id={viewing.id} dvt={viewing.dvt} version={version} />
               </div>
             )}
             {res.key === 'de_xuat' && (
