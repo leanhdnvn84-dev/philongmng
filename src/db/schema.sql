@@ -623,3 +623,22 @@ CREATE TABLE IF NOT EXISTS public.thanh_toan_dien (
 CREATE INDEX IF NOT EXISTS thanh_toan_dien_kh ON public.thanh_toan_dien (id_khach_thue, ky);
 ALTER TABLE public.thanh_toan_dien ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.thanh_toan_dien FROM anon, authenticated;
+
+-- ---------- maintenance log with the next due date and its alert (V191 "Ngày kế tiếp" / "Cảnh báo") ----------
+CREATE OR REPLACE VIEW public.v_nhat_ky_bao_tri WITH (security_invoker = true) AS
+WITH base AS (
+  SELECT n.*,
+    COALESCE(CASE WHEN n.extra->>'NGAY_KE_TIEP' ~ '^\d{4}-\d{2}-\d{2}' THEN left(n.extra->>'NGAY_KE_TIEP', 10)::date END,
+      n.ngay_thuc_hien + (SELECT COALESCE(l.chu_ky_ngay, hm.chu_ky_mac_dinh) FROM public.hang_muc_bao_tri hm
+        LEFT JOIN public.lich_bao_tri l ON l.id_khu_vuc = n.id_khu_vuc AND l.id_hang_muc = n.id_hang_muc WHERE hm.id = n.id_hang_muc LIMIT 1)) AS ngay_ke_tiep,
+    EXISTS (SELECT 1 FROM public.nhat_ky_bao_tri m WHERE m.id_khu_vuc = n.id_khu_vuc AND m.id_hang_muc = n.id_hang_muc AND m.ngay_thuc_hien > n.ngay_thuc_hien) AS da_co_lan_sau
+  FROM public.nhat_ky_bao_tri n)
+SELECT b.*, CASE
+  WHEN b.da_co_lan_sau THEN 'ĐÃ BẢO TRÌ'
+  WHEN b.ngay_ke_tiep IS NULL THEN NULL
+  WHEN b.ngay_ke_tiep < public.today_vn() THEN 'TRỄ HẠN'
+  WHEN b.ngay_ke_tiep = public.today_vn() THEN 'ĐẾN HẠN'
+  WHEN b.ngay_ke_tiep - public.today_vn() <= 7 THEN 'SẮP ĐẾN HẠN'
+  ELSE 'MỚI BẢO TRÌ' END AS canh_bao
+FROM base b;
+REVOKE ALL ON public.v_nhat_ky_bao_tri FROM anon, authenticated;

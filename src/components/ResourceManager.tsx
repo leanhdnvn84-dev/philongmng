@@ -23,7 +23,7 @@ const RED = /QUÁ HẠN|TRỄ|HẾT HẠN|DƯỚI TỒN|Từ chối|Hủy|Đã t
 const AMBER = /SẮP|ĐẾN HẠN|CẦN LÀM|Chờ duyệt|Nháp|Bảo trì|Hẹn|Chờ thanh lý|Đang thực hiện|ĐANG LÀM/i
 const GREEN = /HOÀN THÀNH|CÒN LỊCH|Hoàn thành|Đã duyệt|Đã chốt|Hoạt động|Trong kho|Đã ra|Trống|Đang sử dụng|Đang thuê/i
 const BLUE = /CHỜ NGÀY GỐC|CHƯA BẮT ĐẦU|Chưa thực hiện|Đang trong tòa nhà|Mới/i
-const tone = (v: string) => (RED.test(v) ? 'red' : AMBER.test(v) ? 'amber' : BLUE.test(v) ? 'blue' : GREEN.test(v) ? 'green' : 'gray')
+const tone = (v: string) => (/ĐÃ BẢO TRÌ|MỚI BẢO TRÌ|^Đạt$/i.test(v) ? 'green' : RED.test(v) ? 'red' : AMBER.test(v) ? 'amber' : BLUE.test(v) ? 'blue' : GREEN.test(v) ? 'green' : 'gray')
 const pill = (v: string) => `pill-${tone(v)}`
 const vnDay = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
 const dayDiff = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5)
@@ -297,6 +297,7 @@ export default function ResourceManager({
   const isWork = res.key === 'cong_viec' || res.key === 'cong_viec_hang_ngay'
   // cell renderer: "Số ngày" is computed from the row; everything else uses the shared formatter
   const cellNode = (f: Field, r: any) => {
+    if (f.name === 'ket_qua' && res.key === 'nhat_ky_bao_tri' && r.ket_qua) return <span className={/hoàn thành|đạt/i.test(r.ket_qua) && !/không|chưa/i.test(r.ket_qua) ? 'pill-green' : 'pill-amber'}>{r.ket_qua}</span>
     // V191 shows the contractor's company when no unit was typed by hand
     if (f.name === 'don_vi_thuc_hien' && !r.don_vi_thuc_hien && r.id_nha_thau) return labels.nha_thau?.get(r.id_nha_thau) ?? r.id_nha_thau
     if (f.name === 'so_ngay' && res.key === 'cong_viec') {

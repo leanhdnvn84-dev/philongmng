@@ -218,18 +218,22 @@ export const RESOURCES: Resource[] = [
 
   // ───────── BẢO TRÌ ─────────
   {
-    key: 'nhat_ky_bao_tri', table: 'nhat_ky_bao_tri', module: 'BAO_TRI', title: 'Nhật ký bảo trì', singular: 'nhật ký',
+    key: 'nhat_ky_bao_tri', table: 'nhat_ky_bao_tri', view: 'v_nhat_ky_bao_tri', module: 'BAO_TRI', title: 'Nhật ký bảo trì', singular: 'nhật ký',
+    // same columns as V191, in the same order
+    listOrder: ['ngay_thuc_hien', 'id_khu_vuc', 'id_hang_muc', 'id_nguoi_thuc_hien', 'don_vi_thuc_hien', 'noi_dung_thuc_hien', 'ket_qua', 'ngay_ke_tiep', 'canh_bao'],
     dateField: 'ngay_thuc_hien', sideFilter: 'id_nguoi_thuc_hien', panelFilters: ['id_khu_vuc', 'id_hang_muc'], panelTitle: 'Bộ lọc nhật ký',
-    searchFields: ['id', 'noi_dung_thuc_hien', 'ket_qua'], orderBy: { column: 'ngay_thuc_hien', ascending: false },
+    searchFields: ['id', 'noi_dung_thuc_hien', 'ket_qua', 'don_vi_thuc_hien'], orderBy: { column: 'ngay_thuc_hien', ascending: false, thenBy: [{ column: 'id', ascending: false }] },
     fields: [
       { name: 'ngay_thuc_hien', label: 'Ngày thực hiện', type: 'date', required: true },
       { name: 'id_khu_vuc', label: 'Tầng · Khu vực', type: 'ref', ref: 'khu_vuc', required: true },
       { name: 'id_hang_muc', label: 'Hạng mục', type: 'ref', ref: 'hang_muc_bao_tri', required: true },
-      { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện/theo dõi', type: 'ref', ref: 'nhan_vien' },
-      { name: 'id_nha_thau', label: 'Đơn vị bảo trì', type: 'ref', ref: 'nha_thau' },
-      { name: 'don_vi_thuc_hien', label: 'Đơn vị (ghi tay)', type: 'text', inList: false },
+      { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện', type: 'ref', ref: 'nhan_vien' },
+      { name: 'id_nha_thau', label: 'Nhà thầu bảo trì', type: 'ref', ref: 'nha_thau', inList: false },
+      { name: 'don_vi_thuc_hien', label: 'Đơn vị thực hiện', type: 'text' },
       { name: 'noi_dung_thuc_hien', label: 'Nội dung thực hiện', type: 'textarea' },
       { name: 'ket_qua', label: 'Kết quả', type: 'text' },
+      { name: 'ngay_ke_tiep', label: 'Ngày kế tiếp', type: 'date', ro: true },
+      { name: 'canh_bao', label: 'Cảnh báo', type: 'text', ro: true },
       { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: false },
     ],
     optionLabel: (r) => r.id,
