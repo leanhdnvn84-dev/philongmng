@@ -23,7 +23,7 @@ export default async function ResourcePage({ params, searchParams }: {
 
   // electricity has its own screen (period list | readings by invoice | invoice panel), like V191
   if (res.key === 'tien_dien') {
-    return <Electricity perms={{ create: can(auth, res.module, 'create'), edit: can(auth, res.module, 'edit'), delete: can(auth, res.module, 'delete'), approve: can(auth, res.module, 'approve') }} />
+    return <Electricity perms={{ create: can(auth, res.module, 'create'), edit: can(auth, res.module, 'edit'), delete: can(auth, res.module, 'delete'), approve: can(auth, res.module, 'approve'), admin: auth.superAdmin }} />
   }
 
   // fixed filters from the menu link (e.g. ?loai_de_xuat=MUA_VAT_TU); only declared fields pass

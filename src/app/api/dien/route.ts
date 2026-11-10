@@ -12,6 +12,7 @@ const COLS = 'id, ky, ngay_chot, id_khach_thue, ten_khach_thue, id_tang, tang, m
 const err = (m: string, s = 400) => NextResponse.json({ success: false, error: m }, { status: s })
 const ID = /^[A-Za-z0-9_.-]{1,64}$/
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
+const ADMIN_ONLY = 'Chỉ quản trị viên (Super Admin) mới được thêm, sửa, xóa công tơ và khách hàng của kỳ điện'
 const seqOf = (n: string | null) => Number(/-(\d+)$/.exec(n ?? '')?.[1] ?? 0)
 
 async function who(perm: 'view' | 'create' | 'edit' | 'delete' | 'approve'): Promise<AuthContext | NextResponse> {
@@ -79,6 +80,7 @@ export async function POST(req: NextRequest) {
       case 'add_meter':
       case 'add_customer': {
         const a = await who('create'); if (a instanceof NextResponse) return a
+        if (!a.superAdmin) return err(ADMIN_ONLY, 403)
         const ky = String(body.ky ?? ''); if (!MONTH.test(ky)) return err('Kỳ không hợp lệ')
         let ma = String(body.ma_cong_to ?? '').trim().slice(0, 40)
         const cu = body.chi_so_cu === '' || body.chi_so_cu == null ? 0 : Number(body.chi_so_cu)
@@ -134,8 +136,39 @@ export async function POST(req: NextRequest) {
         await audit(a, 'tien_dien', null, 'set_price', { ky, tu: from.join(', '), den: to, pham_vi: nhom ? `hóa đơn ${nhom}` : 'cả kỳ', so_cong_to: data?.length ?? 0, ly_do: String(body.ly_do ?? '').slice(0, 200) || undefined })
         return NextResponse.json({ success: true, data: { message: `Đã đổi giá điện ${nhom ? 'của hóa đơn' : 'cả kỳ'} thành ${new Intl.NumberFormat('vi-VN').format(to)} đ/kWh (${data?.length ?? 0} công tơ)` } })
       }
+      case 'edit_meter': {
+        const a = await who('edit'); if (a instanceof NextResponse) return a
+        if (!a.superAdmin) return err(ADMIN_ONLY, 403)
+        const id = String(body.id ?? ''); if (!ID.test(id)) return err('Mã không hợp lệ')
+        const { data: r } = await db.from('tien_dien').select('id, ky, ma_cong_to, ten_cong_to, tang, chi_so_cu, chi_so_moi, trang_thai, nhom_hoa_don, id_khach_thue, ten_khach_thue').eq('id', id).maybeSingle()
+        if (!r) return err('Công tơ không tồn tại', 404)
+        if (r.trang_thai === 'Đã chốt') return err('Kỳ đã chốt, hãy mở lại kỳ để sửa')
+        const ma = String(body.ma_cong_to ?? '').trim().slice(0, 40); if (!ma) return err('Nhập mã công tơ')
+        const cu = body.chi_so_cu === '' || body.chi_so_cu == null ? 0 : Number(String(body.chi_so_cu).replace(/\s/g, '').replace(',', '.'))
+        if (!Number.isFinite(cu) || cu < 0) return err('Chỉ số cũ không hợp lệ')
+        if (r.chi_so_moi != null && cu > Number(r.chi_so_moi)) return err('Chỉ số cũ không được lớn hơn chỉ số mới đã nhập')
+        if (ma.toUpperCase() !== String(r.ma_cong_to).toUpperCase() && (await db.from('tien_dien').select('id', { count: 'exact', head: true }).eq('ky', r.ky).ilike('ma_cong_to', ma).neq('id', id)).count) return err(`Công tơ ${ma} đã có trong kỳ ${r.ky}`)
+        const patch = { ma_cong_to: ma, ten_cong_to: String(body.ten_cong_to ?? '').trim().slice(0, 100) || null, tang: String(body.tang ?? '').trim().slice(0, 60) || null, chi_so_cu: cu, nguoi_cap_nhat: a.name, updated_at: new Date().toISOString() }
+        const { error } = await db.from('tien_dien').update(patch).eq('id', id)
+        if (error) return err('Không lưu được công tơ', 500)
+        const changes: Record<string, any> = { ky: r.ky, ma_cong_to: ma }
+        for (const k of ['ma_cong_to', 'ten_cong_to', 'tang', 'chi_so_cu'] as const) if (String((r as any)[k] ?? '') !== String((patch as any)[k] ?? '')) changes[`doi_${k}`] = `${(r as any)[k] ?? '—'} → ${(patch as any)[k] ?? '—'}`
+        // customer of the whole invoice (every meter in the same invoice group moves together)
+        const kid = String(body.id_khach_thue ?? '')
+        if (kid && kid !== r.id_khach_thue) {
+          if (!ID.test(kid)) return err('Khách thuê không hợp lệ')
+          const { data: k } = await db.from('khach_thue').select('id, ten_khach_thue, id_tang').eq('id', kid).maybeSingle()
+          if (!k) return err('Khách thuê không tồn tại')
+          const { error: e2 } = await db.from('tien_dien').update({ id_khach_thue: k.id, ten_khach_thue: k.ten_khach_thue, id_tang: k.id_tang, nguoi_cap_nhat: a.name }).eq('ky', r.ky).eq('nhom_hoa_don', r.nhom_hoa_don)
+          if (e2) return err('Không đổi được khách hàng', 500)
+          changes.doi_khach = `${r.ten_khach_thue ?? '—'} → ${k.ten_khach_thue}`
+        }
+        await audit(a, 'tien_dien', id, 'edit_meter', changes)
+        return NextResponse.json({ success: true })
+      }
       case 'remove_meter': {
         const a = await who('delete'); if (a instanceof NextResponse) return a
+        if (!a.superAdmin) return err(ADMIN_ONLY, 403)
         const id = String(body.id ?? ''); if (!ID.test(id)) return err('Mã không hợp lệ')
         const { data: r } = await db.from('tien_dien').select('id, ky, ma_cong_to, trang_thai').eq('id', id).maybeSingle()
         if (!r) return err('Công tơ không tồn tại', 404)

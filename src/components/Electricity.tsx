@@ -2,7 +2,7 @@
 
 // Tiền điện — layout and workflow follow V191: period list | readings grouped by invoice | selected invoice panel.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Coins, History, Lock, LockOpen, Plus, Printer, RefreshCw, Save, User, X, Zap } from 'lucide-react'
+import { Coins, History, Pencil, Lock, LockOpen, Plus, Printer, RefreshCw, Save, User, X, Zap } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
 import { printHtml } from '@/lib/proposalDoc'
@@ -14,7 +14,7 @@ interface Row {
   so_kwh: number | null; don_gia: number | null; thanh_tien: number | null; vat: number | null; trang_thai: string | null
 }
 interface Customer { id: string; ten_khach_thue: string; id_tang: string | null; trang_thai: string | null }
-interface Perms { create: boolean; edit: boolean; delete: boolean; approve: boolean }
+interface Perms { create: boolean; edit: boolean; delete: boolean; approve: boolean; admin?: boolean }
 
 const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(Math.round(n))
 const num3 = (n: number) => new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 3 }).format(n)
@@ -63,7 +63,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' }>(null)
+  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' }>(null)
   const [hist, setHist] = useState<any[] | null>(null)
   const [form, setForm] = useState<Record<string, string>>({})
   const [confirm, dialog] = useConfirm()
@@ -193,8 +193,10 @@ export default function Electricity({ perms }: { perms: Perms }) {
     printHtml(giayBaoHtml(list.map(toInvoice), ky, closeDateOf(period?.rows ?? []), window.location.origin))
   }
 
+  const editMeter = (r: Row) => open({ kind: 'edit' }, { id: r.id, ma: r.ma_cong_to, ten: r.ten_cong_to ?? '', tang: r.tang ?? '', cu: r.chi_so_cu == null ? '' : String(r.chi_so_cu), khach: r.id_khach_thue ?? '', khach0: r.id_khach_thue ?? '' })
   const submitModal = () => {
     if (!modal) return
+    if (modal.kind === 'edit') return run(async () => { await post({ op: 'edit_meter', id: form.id, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu, id_khach_thue: form.khach !== form.khach0 ? form.khach : '' }); setModal(null); return `Đã lưu công tơ ${form.ma}` })
     if (modal.kind === 'ky') return run(async () => { const j = await post({ op: 'tao_ky', ky: form.ky, don_gia: form.don_gia ?? '' }); setModal(null); const k = form.ky; setTimeout(() => setKy(k), 400); return j.data?.message })
     if (modal.kind === 'meter') return run(async () => { await post({ op: 'add_meter', ky, nhom_hoa_don: form.nhom, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); return 'Đã thêm công tơ' })
     if (modal.kind === 'customer') return run(async () => { const j = await post({ op: 'add_customer', ky, id_khach_thue: form.khach, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); if (j.data?.nhom_hoa_don) setTimeout(() => setSel(j.data.nhom_hoa_don), 600); return `Đã thêm khách và công tơ ${j.data?.ma_cong_to ?? ''}` })
@@ -244,8 +246,8 @@ export default function Electricity({ perms }: { perms: Perms }) {
         </div>
         <div className="-mx-1 flex max-w-full flex-1 gap-1.5 lg:justify-end overflow-x-auto px-1 pb-0.5 lg:flex-none">
           <button className={`${btn} border-navy-200 text-navy-900`} disabled={!canNew || busy} onClick={() => open({ kind: 'ky' }, { ky: nextPeriod, don_gia: '' })}><Plus className="h-4 w-4" />Tạo kỳ mới</button>
-          <button className={`${btn} border-navy-200 text-navy-900`} disabled={locked || !perms.create || busy} onClick={() => open({ kind: 'customer' }, { khach: '', ma: '', ten: '', tang: '', cu: '' })}><User className="h-4 w-4" />Thêm khách</button>
-          <button className={`${btn} border-amber-300 text-amber-700`} disabled={locked || !perms.create || busy} onClick={() => open({ kind: 'meter' }, { nhom: cur?.id ?? '', ma: '', ten: '', tang: '', cu: '' })}><Zap className="h-4 w-4" />Thêm công tơ</button>
+          <button className={`${btn} border-navy-200 text-navy-900`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'customer' }, { khach: '', ma: '', ten: '', tang: '', cu: '' })}><User className="h-4 w-4" />Thêm khách</button>
+          <button className={`${btn} border-amber-300 text-amber-700`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'meter' }, { nhom: cur?.id ?? '', ma: '', ten: '', tang: '', cu: '' })}><Zap className="h-4 w-4" />Thêm công tơ</button>
           <button className={`${btn} border-teal-300 text-teal-700`} disabled={locked || !perms.edit || busy || !period} onClick={() => open({ kind: 'price' }, { gia: price != null ? String(price) : '', pham_vi: 'ky', ly_do: '' })}><Coins className="h-4 w-4" />Giá điện</button>
           <button className={`${btn} ${dirty ? 'border-blue-600 bg-blue-600 text-white' : 'border-navy-200 text-navy-900'}`} disabled={!dirty || busy || !perms.edit} onClick={save}><Save className="h-4 w-4" />Lưu chỉ số{dirty ? ` (${dirty})` : ''}</button>
           <button className={`${btn} border-[#e11d2e] text-[#e11d2e]`} disabled={locked || !perms.approve || busy} onClick={chot}><Lock className="h-4 w-4" />Chốt kỳ</button>
@@ -297,7 +299,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
                     {invoices.map((inv) => (
                       <GroupRows key={inv.id} inv={inv} active={inv.id === sel} onSelect={() => setSel(inv.id)} locked={locked} perms={perms}
                         onAdd={() => open({ kind: 'meter', nhom: inv.id }, { nhom: inv.id, ma: '', ten: '', tang: '', cu: '' })}
-                        edits={edits} setEdit={setEdit} check={check} remove={removeMeter} inputs={inputs} />
+                        edits={edits} setEdit={setEdit} check={check} remove={removeMeter} editMeter={editMeter} inputs={inputs} />
                     ))}
                   </tbody>
                 </table>
@@ -316,7 +318,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
                                 : <input aria-label={`Chỉ số mới ${r.ma_cong_to}`} inputMode="decimal" placeholder="Nhập…" value={edits[r.id] ?? (r.chi_so_moi ?? '')} onChange={(e) => setEdit(r, e.target.value)} className="h-11 w-full rounded-[10px] border-[1.5px] border-navy-200 px-3 text-right text-[17px] font-bold text-navy-900 focus:border-blue-500 focus:outline-none" />}</div>
                           </div>
                           <div className="mt-1.5 flex items-center gap-2 text-[12.5px]"><span className={`rounded-full px-2 py-0.5 font-bold ${k.cls}`}>{k.text}</span><span className="text-ink-mute">{c.now == null ? '' : `${num3(c.kwh)} kWh · ${vnd(c.amount)} đ`}</span>
-                            {!locked && perms.delete && <button onClick={(e) => { e.stopPropagation(); removeMeter(r) }} aria-label={`Xóa ${r.ma_cong_to}`} className="ml-auto grid h-8 w-8 place-items-center rounded-full border border-navy-200 text-ink-mute"><X className="h-3.5 w-3.5" /></button>}</div>
+                            {!locked && perms.admin && <span className="ml-auto flex gap-1.5"><button onClick={(e) => { e.stopPropagation(); editMeter(r) }} aria-label={`Sửa ${r.ma_cong_to}`} className="grid h-8 w-8 place-items-center rounded-full border border-navy-200 text-ink-mute"><Pencil className="h-3.5 w-3.5" /></button><button onClick={(e) => { e.stopPropagation(); removeMeter(r) }} aria-label={`Xóa ${r.ma_cong_to}`} className="grid h-8 w-8 place-items-center rounded-full border border-navy-200 text-ink-mute"><X className="h-3.5 w-3.5" /></button></span>}</div>
                         </div>
                       ) })}
                     </article>
@@ -366,6 +368,16 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <button className="btn-primary w-full" disabled={busy} onClick={submitModal}>Thêm khách</button>
         </Modal>
       )}
+      {modal?.kind === 'edit' && (
+        <Modal title="Sửa công tơ / khách hàng" onClose={() => setModal(null)}>
+          <Field label="Mã công tơ"><input className="input" value={form.ma ?? ''} onChange={(e) => setForm({ ...form, ma: e.target.value })} /></Field>
+          <Field label="Tên công tơ"><input className="input" value={form.ten ?? ''} onChange={(e) => setForm({ ...form, ten: e.target.value })} /></Field>
+          <Field label="Tầng"><input className="input" value={form.tang ?? ''} onChange={(e) => setForm({ ...form, tang: e.target.value })} /></Field>
+          <Field label="Chỉ số cũ"><input className="input" inputMode="decimal" value={form.cu ?? ''} onChange={(e) => setForm({ ...form, cu: e.target.value })} /></Field>
+          <Field label="Khách hàng của hóa đơn (đổi sẽ áp dụng cho mọi công tơ cùng hóa đơn)"><select className="input" value={form.khach ?? ''} onChange={(e) => setForm({ ...form, khach: e.target.value })}>{!form.khach && <option value="">— chọn —</option>}{customers.map((c) => <option key={c.id} value={c.id}>{c.ten_khach_thue}</option>)}</select></Field>
+          <button className="btn-primary w-full" disabled={busy || !form.ma} onClick={submitModal}>Lưu thay đổi</button>
+        </Modal>
+      )}
       {modal?.kind === 'price' && (
         <Modal title={`Giá điện · ${kyText(ky)}`} onClose={() => setModal(null)}>
           <p className="mb-2 text-[13px] text-ink-soft">Giá hiện tại: <b className="text-navy-900">{price != null ? vnd(Number(price)) : '—'} đ/kWh</b>. Tiền điện của các công tơ được tính lại ngay theo giá mới. Mọi lần đổi giá đều được ghi vào Lịch sử.</p>
@@ -382,7 +394,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <ul className="divide-y divide-navy-100">
             {hist?.map((h, i) => (
               <li key={i} className="py-2 text-[13px]"><div className="flex gap-2"><b className="flex-1 text-navy-900">{ACTION_LABEL[h.action] ?? h.action}</b><span className="text-ink-mute">{new Date(h.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span></div>
-                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}{h.action === 'set_price' ? ` · ${h.changes?.tu} → ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.den))} đ/kWh · ${h.changes?.pham_vi}${h.changes?.ly_do ? ` · ${h.changes.ly_do}` : ''}` : ''}</div></li>
+                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}{h.action === 'edit_meter' ? Object.entries(h.changes ?? {}).filter(([k]) => k.startsWith('doi_')).map(([, v]) => ` · ${v}`).join('') : ''}{h.action === 'set_price' ? ` · ${h.changes?.tu} → ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.den))} đ/kWh · ${h.changes?.pham_vi}${h.changes?.ly_do ? ` · ${h.changes.ly_do}` : ''}` : ''}</div></li>
             ))}
           </ul>
         </Modal>
@@ -393,12 +405,12 @@ export default function Electricity({ perms }: { perms: Perms }) {
 
 const ACTION_LABEL: Record<string, string> = {
   create_period: 'Tạo kỳ mới', lock_period: 'Chốt kỳ', reopen_period: 'Mở lại kỳ', save_readings: 'Lưu chỉ số', add_meter: 'Thêm công tơ',
-  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', set_price: 'Đổi giá điện', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
+  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', set_price: 'Đổi giá điện', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
 }
 
-function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, check, remove, inputs }: {
+function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, check, remove, editMeter, inputs }: {
   inv: { id: string; name: string; khach: string; lines: { r: Row; c: { now: number | null; old: number | null; price: number; kwh: number; amount: number } }[]; total: number; vatRate: number }
-  active: boolean; onSelect: () => void; locked: boolean; perms: Perms; onAdd: () => void; edits: Record<string, string>
+  active: boolean; onSelect: () => void; locked: boolean; perms: Perms; onAdd: () => void; editMeter: (r: Row) => void; edits: Record<string, string>
   setEdit: (r: Row, v: string) => void; check: (r: Row) => Check; remove: (r: Row) => void; inputs: React.MutableRefObject<Record<string, HTMLInputElement | null>>
 }) {
   const focusNext = (i: number) => { const nx = inv.lines[i + 1]?.r.id; if (nx) inputs.current[nx]?.focus() }
@@ -406,7 +418,7 @@ function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit
     <>
       <tr onClick={onSelect} className={`cursor-pointer border-y border-navy-200 ${active ? 'bg-brand-50' : 'bg-navy-50'}`}>
         <td colSpan={5} className="px-2 py-2"><span className="font-extrabold text-navy-900">{inv.name}</span> <span className="text-[12px] text-ink-mute">· {inv.khach} · {inv.lines.length} công tơ</span>
-          {!locked && perms.create && <button onClick={(e) => { e.stopPropagation(); onAdd() }} className="ml-2 rounded-full border border-amber-400 px-2.5 py-0.5 text-[12px] font-bold text-amber-700 hover:bg-amber-50">+ Công tơ</button>}</td>
+          {!locked && perms.admin && <button onClick={(e) => { e.stopPropagation(); onAdd() }} className="ml-2 rounded-full border border-amber-400 px-2.5 py-0.5 text-[12px] font-bold text-amber-700 hover:bg-amber-50">+ Công tơ</button>}</td>
         <td className="px-2 py-2 text-right font-extrabold tabular-nums">{vnd(inv.total)}</td>
         <td className="px-2 py-2 text-[12px] text-ink-mute">gồm VAT {Math.round(inv.vatRate * 100)}%</td>
       </tr>
@@ -425,7 +437,8 @@ function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit
           <td className="px-2 py-2 text-right tabular-nums">{vnd(c.price)}</td>
           <td className="px-2 py-2 text-right tabular-nums">{c.now == null ? '–' : vnd(c.amount)}</td>
           <td className="px-2 py-2"><span className="inline-flex items-center gap-1.5"><span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${k.cls}`}>{k.text}</span>
-            {!locked && perms.delete && <button onClick={(e) => { e.stopPropagation(); remove(r) }} aria-label={`Xóa công tơ ${r.ma_cong_to}`} title="Xóa công tơ khỏi kỳ" className="grid h-6 w-6 place-items-center rounded-full border border-navy-200 text-ink-mute hover:bg-red-50 hover:text-red-600"><X className="h-3 w-3" /></button>}</span></td>
+            {!locked && perms.admin && <button onClick={(e) => { e.stopPropagation(); editMeter(r) }} aria-label={`Sửa công tơ ${r.ma_cong_to}`} title="Sửa thông tin công tơ / khách hàng" className="grid h-6 w-6 place-items-center rounded-full border border-navy-200 text-ink-mute hover:bg-blue-50 hover:text-blue-700"><Pencil className="h-3 w-3" /></button>}
+            {!locked && perms.admin && <button onClick={(e) => { e.stopPropagation(); remove(r) }} aria-label={`Xóa công tơ ${r.ma_cong_to}`} title="Xóa công tơ khỏi kỳ" className="grid h-6 w-6 place-items-center rounded-full border border-navy-200 text-ink-mute hover:bg-red-50 hover:text-red-600"><X className="h-3 w-3" /></button>}</span></td>
         </tr>
       ) })}
     </>
