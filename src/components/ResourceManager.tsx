@@ -52,7 +52,7 @@ function soNgay(r: any): { n: number; tone: 'red' | 'green' | 'blue'; lines: str
 const isFixedCol = (f: Field) => f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool'
 const fixedW = (f: Field, shortDate: boolean) => (f.type === 'date' ? (shortDate ? 64 : 88) : f.type === 'datetime' ? 124 : f.type === 'money' ? 88 : f.name === 'so_ngay' || f.name === 'so_ngay_con_lai' ? 58 : f.type === 'bool' ? 54 : 66)
 const flexWeight = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' ? (f.name === 'tien_do' ? 140 : f.name === 'cach_thuc_hien' ? 120 : 170)
-  : f.name === 'nguoi_lam_cung' ? 160 : f.type === 'email' ? 140 : STATUS_FIELDS_SET.has(f.name) ? 104 : /^id_nguoi/.test(f.name) ? 152 : f.type === 'ref' ? 108 : 100)
+  : f.name === 'nguoi_lam_cung' ? 160 : f.name === 'don_vi_thuc_hien' ? 165 : f.type === 'email' ? 140 : STATUS_FIELDS_SET.has(f.name) ? 104 : /^id_nguoi/.test(f.name) ? 152 : f.type === 'ref' ? 108 : 100)
 const SOFT_TIP = new Set(['tien_do', 'cach_thuc_hien', 'noi_dung'])
 
 const STATUS_FIELDS = new Set(['canh_bao', 'trang_thai', 'trang_thai_su_dung', 'muc_do', 'muc_do_tiem_nang'])
@@ -931,7 +931,7 @@ export default function ResourceManager({
             })}
           </div>
         )}
-        {statusField && !isDev && !res.quick && (
+        {statusField && !isDev && !res.quick && res.key !== 'cong_viec_hang_ngay' && (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 lg:ml-auto lg:flex-wrap lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0">
             {statusField.options!.map((o) => {
               const on = status === o
