@@ -80,11 +80,18 @@ export async function POST(req: NextRequest) {
       case 'add_customer': {
         const a = await who('create'); if (a instanceof NextResponse) return a
         const ky = String(body.ky ?? ''); if (!MONTH.test(ky)) return err('Kỳ không hợp lệ')
-        const ma = String(body.ma_cong_to ?? '').trim().slice(0, 40); if (!ma) return err('Nhập mã công tơ')
+        let ma = String(body.ma_cong_to ?? '').trim().slice(0, 40)
         const cu = body.chi_so_cu === '' || body.chi_so_cu == null ? 0 : Number(body.chi_so_cu)
         if (!Number.isFinite(cu) || cu < 0) return err('Chỉ số cũ không hợp lệ')
         const p = await periodOpen(ky); if (p.error) return err(p.error)
-        if ((await db.from('tien_dien').select('id', { count: 'exact', head: true }).eq('ky', ky).eq('ma_cong_to', ma)).count) return err(`Công tơ ${ma} đã có trong kỳ ${ky}`)
+        // meter codes of the period: a blank code gets the next free one for that floor (CT17-03…), a taken one is refused with a suggestion
+        const { data: codes } = await db.from('tien_dien').select('ma_cong_to').eq('ky', ky)
+        const taken = new Set((codes ?? []).map((c: any) => String(c.ma_cong_to).toUpperCase()))
+        const floor = /\d+/.exec(String(body.tang ?? ''))?.[0]
+        const prefix = (/^([A-Za-z]+\d*)-\d+$/.exec(ma)?.[1] ?? (floor ? `CT${floor.padStart(2, '0')}` : 'CT')).toUpperCase()
+        const nextFree = () => { for (let i = 1; i < 500; i++) { const c = `${prefix}-${String(i).padStart(2, '0')}`; if (!taken.has(c)) return c } return `${prefix}-${Date.now() % 100000}` }
+        if (!ma) ma = nextFree()
+        else if (taken.has(ma.toUpperCase())) return err(`Công tơ ${ma} đã có trong kỳ ${ky}. Mã còn trống gần nhất: ${nextFree()} (hoặc để trống ô mã để hệ thống tự tạo)`)
         const price = p.rows[0]?.don_gia ?? null, vat = p.rows[0]?.vat ?? 0.08
         let base: any
         if (op === 'add_meter') {
@@ -108,7 +115,24 @@ export async function POST(req: NextRequest) {
         const { data, error } = await db.from('tien_dien').insert(rec).select('id').single()
         if (error) return err('Không thêm được công tơ', 500)
         await audit(a, 'tien_dien', data.id, op, { ky, ma_cong_to: ma, nhom_hoa_don: rec.nhom_hoa_don })
-        return NextResponse.json({ success: true, data: { id: data.id } })
+        return NextResponse.json({ success: true, data: { id: data.id, ma_cong_to: ma, nhom_hoa_don: rec.nhom_hoa_don } })
+      }
+      case 'set_price': {
+        const a = await who('edit'); if (a instanceof NextResponse) return a
+        const ky = String(body.ky ?? ''); if (!MONTH.test(ky)) return err('Kỳ không hợp lệ')
+        const to = Number(String(body.don_gia ?? '').replace(/[\s.]/g, '').replace(',', '.'))
+        if (!Number.isFinite(to) || to <= 0 || to > 1_000_000) return err('Giá điện không hợp lệ')
+        const p = await periodOpen(ky); if (p.error) return err(p.error)
+        const nhom = body.nhom_hoa_don ? String(body.nhom_hoa_don).slice(0, 80) : null
+        const scope = nhom ? p.rows.filter((r) => r.nhom_hoa_don === nhom) : p.rows
+        if (!scope.length) return err('Không tìm thấy hóa đơn')
+        const from = Array.from(new Set(scope.map((r) => Number(r.don_gia ?? 0))))
+        let q = db.from('tien_dien').update({ don_gia: to, nguoi_cap_nhat: a.name, updated_at: new Date().toISOString() }).eq('ky', ky)
+        if (nhom) q = q.eq('nhom_hoa_don', nhom)
+        const { data, error } = await q.select('id')
+        if (error) return err('Lỗi cơ sở dữ liệu', 500)
+        await audit(a, 'tien_dien', null, 'set_price', { ky, tu: from.join(', '), den: to, pham_vi: nhom ? `hóa đơn ${nhom}` : 'cả kỳ', so_cong_to: data?.length ?? 0, ly_do: String(body.ly_do ?? '').slice(0, 200) || undefined })
+        return NextResponse.json({ success: true, data: { message: `Đã đổi giá điện ${nhom ? 'của hóa đơn' : 'cả kỳ'} thành ${new Intl.NumberFormat('vi-VN').format(to)} đ/kWh (${data?.length ?? 0} công tơ)` } })
       }
       case 'remove_meter': {
         const a = await who('delete'); if (a instanceof NextResponse) return a

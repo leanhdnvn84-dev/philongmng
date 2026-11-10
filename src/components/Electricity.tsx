@@ -2,7 +2,7 @@
 
 // Tiền điện — layout and workflow follow V191: period list | readings grouped by invoice | selected invoice panel.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { History, Lock, LockOpen, Plus, Printer, RefreshCw, Save, User, X, Zap } from 'lucide-react'
+import { Coins, History, Lock, LockOpen, Plus, Printer, RefreshCw, Save, User, X, Zap } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
 import { printHtml } from '@/lib/proposalDoc'
@@ -63,7 +63,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' }>(null)
+  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' }>(null)
   const [hist, setHist] = useState<any[] | null>(null)
   const [form, setForm] = useState<Record<string, string>>({})
   const [confirm, dialog] = useConfirm()
@@ -197,7 +197,8 @@ export default function Electricity({ perms }: { perms: Perms }) {
     if (!modal) return
     if (modal.kind === 'ky') return run(async () => { const j = await post({ op: 'tao_ky', ky: form.ky, don_gia: form.don_gia ?? '' }); setModal(null); const k = form.ky; setTimeout(() => setKy(k), 400); return j.data?.message })
     if (modal.kind === 'meter') return run(async () => { await post({ op: 'add_meter', ky, nhom_hoa_don: form.nhom, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); return 'Đã thêm công tơ' })
-    if (modal.kind === 'customer') return run(async () => { await post({ op: 'add_customer', ky, id_khach_thue: form.khach, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); return 'Đã thêm khách và công tơ' })
+    if (modal.kind === 'customer') return run(async () => { const j = await post({ op: 'add_customer', ky, id_khach_thue: form.khach, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); if (j.data?.nhom_hoa_don) setTimeout(() => setSel(j.data.nhom_hoa_don), 600); return `Đã thêm khách và công tơ ${j.data?.ma_cong_to ?? ''}` })
+    if (modal.kind === 'price') return run(async () => { const j = await post({ op: 'set_price', ky, don_gia: form.gia, nhom_hoa_don: form.pham_vi === 'hd' ? cur?.id : '', ly_do: form.ly_do }); setModal(null); return j.data?.message })
   }
   const open = (m: NonNullable<typeof modal>, init: Record<string, string> = {}) => { setForm(init); setModal(m); setMsg(null) }
 
@@ -245,6 +246,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <button className={`${btn} border-navy-200 text-navy-900`} disabled={!canNew || busy} onClick={() => open({ kind: 'ky' }, { ky: nextPeriod, don_gia: '' })}><Plus className="h-4 w-4" />Tạo kỳ mới</button>
           <button className={`${btn} border-navy-200 text-navy-900`} disabled={locked || !perms.create || busy} onClick={() => open({ kind: 'customer' }, { khach: '', ma: '', ten: '', tang: '', cu: '' })}><User className="h-4 w-4" />Thêm khách</button>
           <button className={`${btn} border-amber-300 text-amber-700`} disabled={locked || !perms.create || busy} onClick={() => open({ kind: 'meter' }, { nhom: cur?.id ?? '', ma: '', ten: '', tang: '', cu: '' })}><Zap className="h-4 w-4" />Thêm công tơ</button>
+          <button className={`${btn} border-teal-300 text-teal-700`} disabled={locked || !perms.edit || busy || !period} onClick={() => open({ kind: 'price' }, { gia: price != null ? String(price) : '', pham_vi: 'ky', ly_do: '' })}><Coins className="h-4 w-4" />Giá điện</button>
           <button className={`${btn} ${dirty ? 'border-blue-600 bg-blue-600 text-white' : 'border-navy-200 text-navy-900'}`} disabled={!dirty || busy || !perms.edit} onClick={save}><Save className="h-4 w-4" />Lưu chỉ số{dirty ? ` (${dirty})` : ''}</button>
           <button className={`${btn} border-[#e11d2e] text-[#e11d2e]`} disabled={locked || !perms.approve || busy} onClick={chot}><Lock className="h-4 w-4" />Chốt kỳ</button>
           <button className={`${btn} border-navy-200 text-navy-900`} disabled={!period?.closed || ky !== latest?.ky || !perms.approve || busy} onClick={reopen}><LockOpen className="h-4 w-4" />Mở lại kỳ</button>
@@ -357,11 +359,20 @@ export default function Electricity({ perms }: { perms: Perms }) {
       {modal?.kind === 'customer' && (
         <Modal title="Thêm khách" onClose={() => setModal(null)}>
           <Field label="Khách thuê"><select className="input" value={form.khach ?? ''} onChange={(e) => setForm({ ...form, khach: e.target.value })}><option value="">— chọn —</option>{customers.map((c) => <option key={c.id} value={c.id}>{c.ten_khach_thue}</option>)}</select></Field>
-          <Field label="Mã công tơ đầu tiên"><input className="input" value={form.ma ?? ''} onChange={(e) => setForm({ ...form, ma: e.target.value })} placeholder="CT10-01" /></Field>
+          <Field label="Mã công tơ đầu tiên (để trống = hệ thống tự tạo)"><input className="input" value={form.ma ?? ''} onChange={(e) => setForm({ ...form, ma: e.target.value })} placeholder="Tự tạo theo tầng, ví dụ CT10-01" /></Field>
           <Field label="Tên công tơ"><input className="input" value={form.ten ?? ''} onChange={(e) => setForm({ ...form, ten: e.target.value })} /></Field>
           <Field label="Tầng"><input className="input" value={form.tang ?? ''} onChange={(e) => setForm({ ...form, tang: e.target.value })} /></Field>
           <Field label="Chỉ số cũ"><input className="input" inputMode="decimal" value={form.cu ?? ''} onChange={(e) => setForm({ ...form, cu: e.target.value })} /></Field>
           <button className="btn-primary w-full" disabled={busy} onClick={submitModal}>Thêm khách</button>
+        </Modal>
+      )}
+      {modal?.kind === 'price' && (
+        <Modal title={`Giá điện · ${kyText(ky)}`} onClose={() => setModal(null)}>
+          <p className="mb-2 text-[13px] text-ink-soft">Giá hiện tại: <b className="text-navy-900">{price != null ? vnd(Number(price)) : '—'} đ/kWh</b>. Tiền điện của các công tơ được tính lại ngay theo giá mới. Mọi lần đổi giá đều được ghi vào Lịch sử.</p>
+          <Field label="Giá mới (đ/kWh, chưa VAT)"><input className="input" inputMode="decimal" autoFocus value={form.gia ?? ''} onChange={(e) => setForm({ ...form, gia: e.target.value })} placeholder="3909" /></Field>
+          <Field label="Áp dụng cho"><select className="input" value={form.pham_vi ?? 'ky'} onChange={(e) => setForm({ ...form, pham_vi: e.target.value })}><option value="ky">Tất cả công tơ của kỳ này</option>{cur && <option value="hd">Chỉ hóa đơn đang chọn: {cur.name}</option>}</select></Field>
+          <Field label="Lý do / ghi chú (không bắt buộc)"><input className="input" value={form.ly_do ?? ''} onChange={(e) => setForm({ ...form, ly_do: e.target.value })} placeholder="Ví dụ: EVN điều chỉnh giá từ 01/11" /></Field>
+          <button className="btn-primary w-full" disabled={busy || !form.gia} onClick={submitModal}>Lưu giá điện</button>
         </Modal>
       )}
       {modal?.kind === 'history' && (
@@ -371,7 +382,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <ul className="divide-y divide-navy-100">
             {hist?.map((h, i) => (
               <li key={i} className="py-2 text-[13px]"><div className="flex gap-2"><b className="flex-1 text-navy-900">{ACTION_LABEL[h.action] ?? h.action}</b><span className="text-ink-mute">{new Date(h.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span></div>
-                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}</div></li>
+                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}{h.action === 'set_price' ? ` · ${h.changes?.tu} → ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.den))} đ/kWh · ${h.changes?.pham_vi}${h.changes?.ly_do ? ` · ${h.changes.ly_do}` : ''}` : ''}</div></li>
             ))}
           </ul>
         </Modal>
@@ -382,7 +393,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
 
 const ACTION_LABEL: Record<string, string> = {
   create_period: 'Tạo kỳ mới', lock_period: 'Chốt kỳ', reopen_period: 'Mở lại kỳ', save_readings: 'Lưu chỉ số', add_meter: 'Thêm công tơ',
-  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
+  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', set_price: 'Đổi giá điện', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
 }
 
 function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, check, remove, inputs }: {
