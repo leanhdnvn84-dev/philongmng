@@ -17,6 +17,8 @@ export interface Field {
   inList?: boolean // force show/hide as a column
   inForm?: boolean // false = never in the edit form
   multiline?: boolean // keep line breaks in table cells (proposal line lists)
+  /** text column holding several codes of another resource, comma separated (NV0002,NV0010): picked from a list in forms */
+  multiRef?: string
   /** read-only live product of two other fields in a form (Thành tiền = Số lượng × Đơn giá) */
   calc?: [string, string]
   refQuery?: string // for 'ref': extra list filter, e.g. 'gt_ton_hien_tai=0' (only in-stock items)
@@ -132,7 +134,7 @@ const workFields = (dateField: Field): Field[] => [
   { name: 'noi_dung', label: 'Nội dung công việc', type: 'textarea', required: true, inList: true },
   { name: 'id_nguoi_giao', label: 'Người giao', type: 'ref', ref: 'nhan_vien' },
   { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện', type: 'ref', ref: 'nhan_vien' },
-  { name: 'nguoi_lam_cung', label: 'Người làm cùng', type: 'text', inList: false },
+  { name: 'nguoi_lam_cung', label: 'Người làm cùng', type: 'text', inList: false, multiRef: 'nhan_vien' },
   { name: 'id_nha_thau', label: 'Nhà thầu', type: 'ref', ref: 'nha_thau', inList: false },
   { name: 'don_vi_thuc_hien', label: 'Đơn vị thực hiện', type: 'text', inList: false },
   { name: 'trang_thai', label: 'Trạng thái', type: 'select', options: WORK_STATES, default: 'Chưa thực hiện' },

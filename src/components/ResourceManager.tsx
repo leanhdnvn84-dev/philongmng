@@ -1222,6 +1222,12 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
             const required = !!f.required && !(f.type === 'password' && !isNew)
             const set = (v: any) => setForm((s) => ({ ...s, [f.name]: v }))
             const common = { id: `f-${f.name}`, className: 'input h-11 text-[16px] lg:h-9 lg:text-sm', required, value: form[f.name] ?? '', onChange: (e: React.ChangeEvent<any>) => set(e.target.value) }
+            if (f.multiRef) return (
+              <div key={f.name} className={FULL}>
+                <label htmlFor={`f-${f.name}`} className="label !mb-1">{f.label} <span className="font-semibold text-ink-mute">(chọn được nhiều người)</span></label>
+                <MultiPick id={`f-${f.name}`} value={String(form[f.name] ?? '')} options={refs[f.multiRef] ?? []} onChange={(v) => set(v)} />
+              </div>
+            )
             if (f.type === 'files') return (
               <div key={f.name} className={FULL}>
                 <label className="label !mb-1">{f.label}</label>
@@ -1319,6 +1325,31 @@ function PhotoPicker({ files, onChange }: { files: File[]; onChange: (f: File[])
         </div>
       )}
       <p className="mt-1 text-[11.5px] text-ink-mute">Tối đa 12 ảnh, tự thu nhỏ trước khi tải lên Google Drive.</p>
+    </div>
+  )
+}
+
+/* ── several people from the staff list, stored as "NV0002,NV0010" (same format as the V191 sheet) ── */
+function MultiPick({ id, value, options, onChange }: { id: string; value: string; options: Option[]; onChange: (v: string) => void }) {
+  const picked = value.split(/\s*,\s*/).map((x) => x.trim()).filter(Boolean)
+  const name = new Map(options.map((o) => [o.value, o.label]))
+  const rest = options.filter((o) => !picked.includes(o.value))
+  const put = (list: string[]) => onChange(Array.from(new Set(list)).join(','))
+  return (
+    <div className="rounded-[10px] border border-navy-200 bg-white p-2">
+      <div className="flex flex-wrap items-center gap-1.5">
+        {picked.map((v) => (
+          <span key={v} className="inline-flex h-8 items-center gap-1 rounded-full bg-blue-50 pl-3 pr-1 text-[13px] font-bold text-blue-800">
+            {name.get(v) ?? v}
+            <button type="button" aria-label={`Bỏ ${name.get(v) ?? v}`} onClick={() => put(picked.filter((x) => x !== v))} className="grid h-6 w-6 place-items-center rounded-full hover:bg-blue-100"><X className="h-3.5 w-3.5" /></button>
+          </span>
+        ))}
+        <select id={id} value="" onChange={(e) => { if (e.target.value) put([...picked, e.target.value]) }} disabled={!rest.length}
+          className="h-9 min-w-[170px] flex-1 rounded-lg border-0 bg-navy-50 px-2 text-[14px] font-semibold text-navy-900 focus:outline-none focus:ring-2 focus:ring-select lg:h-8 lg:text-[13px]">
+          <option value="">{rest.length ? (picked.length ? '+ Thêm người…' : '— Chọn người làm cùng —') : 'Đã chọn hết danh sách'}</option>
+          {rest.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
     </div>
   )
 }
