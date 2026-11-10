@@ -39,7 +39,8 @@ export async function GET(req: NextRequest) {
     if (!data || data.length < 1000) break
   }
   const { data: kt } = await db.from('khach_thue').select('id, ten_khach_thue, id_tang, trang_thai').order('ten_khach_thue')
-  return NextResponse.json({ success: true, data: rows, customers: kt ?? [], at: new Date().toISOString() })
+  const { data: pays } = await db.from('thanh_toan_dien').select('id, ky, nhom_hoa_don, id_khach_thue, ngay_thanh_toan, so_tien, hinh_thuc, ghi_chu, nguoi_ghi').order('ngay_thanh_toan', { ascending: false }).limit(5000)
+  return NextResponse.json({ success: true, data: rows, customers: kt ?? [], payments: pays ?? [], at: new Date().toISOString() })
 }
 
 async function periodOpen(ky: string) {
@@ -135,6 +136,32 @@ export async function POST(req: NextRequest) {
         if (error) return err('Lỗi cơ sở dữ liệu', 500)
         await audit(a, 'tien_dien', null, 'set_price', { ky, tu: from.join(', '), den: to, pham_vi: nhom ? `hóa đơn ${nhom}` : 'cả kỳ', so_cong_to: data?.length ?? 0, ly_do: String(body.ly_do ?? '').slice(0, 200) || undefined })
         return NextResponse.json({ success: true, data: { message: `Đã đổi giá điện ${nhom ? 'của hóa đơn' : 'cả kỳ'} thành ${new Intl.NumberFormat('vi-VN').format(to)} đ/kWh (${data?.length ?? 0} công tơ)` } })
+      }
+      case 'pay': {
+        const a = await who('edit'); if (a instanceof NextResponse) return a
+        const ky = String(body.ky ?? ''); if (!MONTH.test(ky)) return err('Kỳ không hợp lệ')
+        const nhom = String(body.nhom_hoa_don ?? '').slice(0, 80)
+        const { data: g } = await db.from('tien_dien').select('id_khach_thue, ten_khach_thue').eq('ky', ky).eq('nhom_hoa_don', nhom).limit(1)
+        if (!g?.length) return err('Không tìm thấy hóa đơn')
+        const amount = Number(String(body.so_tien ?? '').replace(/[\s.]/g, '').replace(',', '.'))
+        if (!Number.isFinite(amount) || amount <= 0 || amount > 1e11) return err('Số tiền không hợp lệ')
+        const ngay = String(body.ngay ?? ''); if (ngay && !/^\d{4}-\d{2}-\d{2}$/.test(ngay)) return err('Ngày không hợp lệ')
+        const rec: Record<string, any> = { ky, nhom_hoa_don: nhom, id_khach_thue: g[0].id_khach_thue, ten_khach_thue: g[0].ten_khach_thue, so_tien: Math.round(amount),
+          hinh_thuc: String(body.hinh_thuc ?? '').slice(0, 40) || null, ghi_chu: String(body.ghi_chu ?? '').trim().slice(0, 300) || null, nguoi_ghi: a.name }
+        if (ngay) rec.ngay_thanh_toan = ngay
+        const { data, error } = await db.from('thanh_toan_dien').insert(rec).select('id').single()
+        if (error) return err('Không ghi được thanh toán', 500)
+        await audit(a, 'tien_dien', null, 'pay', { ky, khach: g[0].ten_khach_thue, so_tien: Math.round(amount), ngay: ngay || undefined, hinh_thuc: rec.hinh_thuc ?? undefined })
+        return NextResponse.json({ success: true, data: { id: data.id } })
+      }
+      case 'unpay': {
+        const a = await who('edit'); if (a instanceof NextResponse) return a
+        if (!a.superAdmin) return err('Chỉ quản trị viên (Super Admin) mới được xóa một lần thanh toán', 403)
+        const id = String(body.id ?? ''); if (!/^[0-9a-f-]{36}$/.test(id)) return err('Mã không hợp lệ')
+        const { data: r } = await db.from('thanh_toan_dien').delete().eq('id', id).select('ky, ten_khach_thue, so_tien').maybeSingle()
+        if (!r) return err('Không tìm thấy lần thanh toán', 404)
+        await audit(a, 'tien_dien', null, 'unpay', { ky: r.ky, khach: r.ten_khach_thue, so_tien: r.so_tien })
+        return NextResponse.json({ success: true })
       }
       case 'edit_meter': {
         const a = await who('edit'); if (a instanceof NextResponse) return a

@@ -14,6 +14,7 @@ interface Row {
   so_kwh: number | null; don_gia: number | null; thanh_tien: number | null; vat: number | null; trang_thai: string | null
 }
 interface Customer { id: string; ten_khach_thue: string; id_tang: string | null; trang_thai: string | null }
+interface Pay { id: string; ky: string; nhom_hoa_don: string; id_khach_thue: string | null; ngay_thanh_toan: string; so_tien: number; hinh_thuc: string | null; ghi_chu: string | null; nguoi_ghi: string | null }
 interface Perms { create: boolean; edit: boolean; delete: boolean; approve: boolean; admin?: boolean }
 
 const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(Math.round(n))
@@ -56,6 +57,7 @@ type Check = { text: string; cls: string; bad: boolean }
 export default function Electricity({ perms }: { perms: Perms }) {
   const [rows, setRows] = useState<Row[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [payments, setPayments] = useState<Pay[]>([])
   const [loaded, setLoaded] = useState(false)
   const [syncAt, setSyncAt] = useState<Date | null>(null)
   const [ky, setKy] = useState('')
@@ -63,7 +65,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' }>(null)
+  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' } | { kind: 'pay' }>(null)
   const [hist, setHist] = useState<any[] | null>(null)
   const [form, setForm] = useState<Record<string, string>>({})
   const [confirm, dialog] = useConfirm()
@@ -72,7 +74,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const load = useCallback(async (keep = true) => {
     try {
       const j = await api('/api/dien', { cache: 'no-store' })
-      setRows(j.data); setCustomers(j.customers ?? []); setSyncAt(new Date(j.at)); setLoaded(true)
+      setRows(j.data); setCustomers(j.customers ?? []); setPayments(j.payments ?? []); setSyncAt(new Date(j.at)); setLoaded(true)
       setKy((cur) => (keep && cur && j.data.some((r: Row) => r.ky === cur) ? cur : j.data[0]?.ky ?? ''))
     } catch (e: any) { setMsg({ ok: false, text: e.message }); setLoaded(true) }
   }, [])
@@ -142,6 +144,26 @@ export default function Electricity({ perms }: { perms: Perms }) {
   }, [invoices, check])
   const price = period?.rows.find((r) => r.don_gia != null)?.don_gia
 
+  // payment history of the selected customer: amount due per period (all their invoices, VAT per invoice) vs. payments received
+  const payHist = useMemo(() => {
+    if (!cur?.khach) return []
+    const idx = Math.max(0, periods.findIndex((p) => p.ky === ky))
+    return periods.slice(idx, idx + 12).map((p) => {
+      const groups = new Map<string, Row[]>()
+      for (const r of p.rows) if (r.id_khach_thue === cur.khach) { const k = r.nhom_hoa_don ?? r.id; groups.set(k, [...(groups.get(k) ?? []), r]) }
+      let due = 0
+      for (const rs of groups.values()) { const sub = rs.reduce((a, r) => a + (p.ky === ky ? calc(r).amount : Number(r.thanh_tien ?? 0)), 0); due += sub + Math.round(sub * Number(rs.find((r) => r.vat != null)?.vat ?? 0)) }
+      const list = payments.filter((x) => x.ky === p.ky && x.id_khach_thue === cur.khach)
+      const paid = list.reduce((a, x) => a + Number(x.so_tien || 0), 0)
+      return { ky: p.ky, has: groups.size > 0, due, paid, list, closed: p.closed }
+    }).filter((x) => x.has)
+  }, [cur, periods, ky, payments, calc])
+  const curPaid = cur ? payments.filter((x) => x.ky === ky && x.nhom_hoa_don === cur.id).reduce((a, x) => a + Number(x.so_tien || 0), 0) : 0
+  const unpay = async (x: Pay) => {
+    if (!(await confirm(`Xóa lần thanh toán ${vnd(Number(x.so_tien))} đ ngày ${x.ngay_thanh_toan.split('-').reverse().join('/')}?`, { danger: true, okLabel: 'Xóa' }))) return
+    run(async () => { await post({ op: 'unpay', id: x.id }); return 'Đã xóa lần thanh toán' })
+  }
+
   const chart = useMemo(() => {
     if (!cur?.khach) return []
     const idx = periods.findIndex((p) => p.ky === ky)
@@ -200,6 +222,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
     if (modal.kind === 'ky') return run(async () => { const j = await post({ op: 'tao_ky', ky: form.ky, don_gia: form.don_gia ?? '' }); setModal(null); const k = form.ky; setTimeout(() => setKy(k), 400); return j.data?.message })
     if (modal.kind === 'meter') return run(async () => { await post({ op: 'add_meter', ky, nhom_hoa_don: form.nhom, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); return 'Đã thêm công tơ' })
     if (modal.kind === 'customer') return run(async () => { const j = await post({ op: 'add_customer', ky, id_khach_thue: form.khach, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); if (j.data?.nhom_hoa_don) setTimeout(() => setSel(j.data.nhom_hoa_don), 600); return `Đã thêm khách và công tơ ${j.data?.ma_cong_to ?? ''}` })
+    if (modal.kind === 'pay') return run(async () => { await post({ op: 'pay', ky, nhom_hoa_don: cur?.id, so_tien: form.tien, ngay: form.ngay, hinh_thuc: form.hinh_thuc, ghi_chu: form.ghi_chu }); setModal(null); return 'Đã ghi nhận thanh toán' })
     if (modal.kind === 'price') return run(async () => { const j = await post({ op: 'set_price', ky, don_gia: form.gia, nhom_hoa_don: form.pham_vi === 'hd' ? cur?.id : '', ly_do: form.ly_do }); setModal(null); return j.data?.message })
   }
   const open = (m: NonNullable<typeof modal>, init: Record<string, string> = {}) => { setForm(init); setModal(m); setMsg(null) }
@@ -228,6 +251,30 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <div key={x.ky} title={`${kyText(x.ky)}: ${num3(x.kwh)} kWh`} className={`min-h-[2px] flex-1 rounded-t ${x.ky === ky ? 'bg-[#e11d2e]' : 'bg-red-300'}`} style={{ height: `${Math.max(2, (x.kwh / mx) * 100)}%` }} />
         )) })()}
       </div>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1">
+        <span className="flex-1 whitespace-nowrap text-[11px] font-extrabold uppercase tracking-[.12em] text-ink-soft">Lịch sử thanh toán</span>
+        <button disabled={!perms.edit || busy} onClick={() => open({ kind: 'pay' }, { tien: String(Math.max(0, cur.total - curPaid) || ''), ngay: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()), hinh_thuc: 'Chuyển khoản', ghi_chu: '' })}
+          className="inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-lg border border-green-300 bg-white px-2.5 text-[12px] font-bold text-green-700 disabled:opacity-40"><Plus className="h-3.5 w-3.5" />Ghi nhận</button>
+      </div>
+      <ul className="divide-y divide-navy-100 rounded-lg border border-navy-200 text-[13px]">
+        {payHist.length === 0 && <li className="px-3 py-3 text-center text-ink-mute">Chưa có kỳ nào.</li>}
+        {payHist.map((h) => {
+          const rest = h.due - h.paid
+          const st = h.due <= 0 ? { t: 'Chưa có số', c: 'bg-navy-100 text-ink-soft' } : rest <= 0 ? { t: 'Đã thu đủ', c: 'bg-green-100 text-green-700' } : h.paid > 0 ? { t: `Còn ${vnd(rest)}`, c: 'bg-amber-100 text-amber-800' } : { t: 'Chưa thu', c: 'bg-red-100 text-red-700' }
+          return (
+            <li key={h.ky} className="px-3 py-2">
+              <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 whitespace-nowrap"><b className="flex-1 text-navy-900">{kyText(h.ky).replace('Tháng ', 'T')}</b><span className="tabular-nums font-bold">{vnd(h.due)}</span><span className={`rounded-full px-2 py-0.5 text-[11.5px] font-bold ${st.c}`}>{st.t}</span></div>
+              {h.list.map((x) => (
+                <div key={x.id} className="mt-1 flex items-center gap-2 text-[12px] text-ink-soft">
+                  <span className="flex-1 truncate">{x.ngay_thanh_toan.split('-').reverse().join('/')} · {x.hinh_thuc ?? '—'}{x.nguoi_ghi ? ` · ${x.nguoi_ghi}` : ''}{x.ghi_chu ? ` · ${x.ghi_chu}` : ''}</span>
+                  <span className="tabular-nums font-semibold text-green-700">+{vnd(Number(x.so_tien))}</span>
+                  {perms.admin && <button onClick={() => unpay(x)} aria-label="Xóa lần thanh toán" className="grid h-5 w-5 place-items-center rounded-full border border-navy-200 text-ink-mute hover:bg-red-50 hover:text-red-600"><X className="h-3 w-3" /></button>}
+                </div>
+              ))}
+            </li>
+          )
+        })}
+      </ul>
       <div className="flex gap-2 pt-1">
         <button onClick={() => print([cur])} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#e11d2e] text-[13.5px] font-bold text-white shadow-[0_4px_10px_rgba(225,29,46,.3)]"><Printer className="h-4 w-4" />In giấy báo này</button>
         <button onClick={() => print(invoices)} className="inline-flex h-10 items-center rounded-lg border border-[#e11d2e] px-4 text-[13.5px] font-bold text-[#e11d2e]">In cả kỳ</button>
@@ -378,6 +425,16 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <button className="btn-primary w-full" disabled={busy || !form.ma} onClick={submitModal}>Lưu thay đổi</button>
         </Modal>
       )}
+      {modal?.kind === 'pay' && cur && (
+        <Modal title={`Ghi nhận thanh toán · ${kyText(ky)}`} onClose={() => setModal(null)}>
+          <p className="mb-2 text-[13px] text-ink-soft"><b className="text-navy-900">{cur.name}</b><br />Phải thu {vnd(cur.total)} đ · đã thu {vnd(curPaid)} đ · còn <b className="text-[#e11d2e]">{vnd(Math.max(0, cur.total - curPaid))} đ</b></p>
+          <Field label="Số tiền thu (đ)"><input className="input" inputMode="numeric" autoFocus value={form.tien ?? ''} onChange={(e) => setForm({ ...form, tien: e.target.value })} /></Field>
+          <Field label="Ngày thanh toán"><input type="date" className="input" value={form.ngay ?? ''} onChange={(e) => setForm({ ...form, ngay: e.target.value })} /></Field>
+          <Field label="Hình thức"><select className="input" value={form.hinh_thuc ?? ''} onChange={(e) => setForm({ ...form, hinh_thuc: e.target.value })}><option>Chuyển khoản</option><option>Tiền mặt</option><option>Khác</option></select></Field>
+          <Field label="Ghi chú (không bắt buộc)"><input className="input" value={form.ghi_chu ?? ''} onChange={(e) => setForm({ ...form, ghi_chu: e.target.value })} placeholder="Số chứng từ, người nộp…" /></Field>
+          <button className="btn-primary w-full" disabled={busy || !form.tien} onClick={submitModal}>Lưu thanh toán</button>
+        </Modal>
+      )}
       {modal?.kind === 'price' && (
         <Modal title={`Giá điện · ${kyText(ky)}`} onClose={() => setModal(null)}>
           <p className="mb-2 text-[13px] text-ink-soft">Giá hiện tại: <b className="text-navy-900">{price != null ? vnd(Number(price)) : '—'} đ/kWh</b>. Tiền điện của các công tơ được tính lại ngay theo giá mới. Mọi lần đổi giá đều được ghi vào Lịch sử.</p>
@@ -394,7 +451,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <ul className="divide-y divide-navy-100">
             {hist?.map((h, i) => (
               <li key={i} className="py-2 text-[13px]"><div className="flex gap-2"><b className="flex-1 text-navy-900">{ACTION_LABEL[h.action] ?? h.action}</b><span className="text-ink-mute">{new Date(h.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span></div>
-                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}{h.action === 'edit_meter' ? Object.entries(h.changes ?? {}).filter(([k]) => k.startsWith('doi_')).map(([, v]) => ` · ${v}`).join('') : ''}{h.action === 'set_price' ? ` · ${h.changes?.tu} → ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.den))} đ/kWh · ${h.changes?.pham_vi}${h.changes?.ly_do ? ` · ${h.changes.ly_do}` : ''}` : ''}</div></li>
+                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}{h.action === 'edit_meter' ? Object.entries(h.changes ?? {}).filter(([k]) => k.startsWith('doi_')).map(([, v]) => ` · ${v}`).join('') : ''}{h.action === 'pay' || h.action === 'unpay' ? ` · ${h.changes?.khach ?? ''} · ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.so_tien ?? 0))} đ` : ''}{h.action === 'set_price' ? ` · ${h.changes?.tu} → ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.den))} đ/kWh · ${h.changes?.pham_vi}${h.changes?.ly_do ? ` · ${h.changes.ly_do}` : ''}` : ''}</div></li>
             ))}
           </ul>
         </Modal>
@@ -405,7 +462,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
 
 const ACTION_LABEL: Record<string, string> = {
   create_period: 'Tạo kỳ mới', lock_period: 'Chốt kỳ', reopen_period: 'Mở lại kỳ', save_readings: 'Lưu chỉ số', add_meter: 'Thêm công tơ',
-  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', set_price: 'Đổi giá điện', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
+  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', set_price: 'Đổi giá điện', pay: 'Ghi nhận thanh toán', unpay: 'Xóa lần thanh toán', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
 }
 
 function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, check, remove, editMeter, inputs }: {

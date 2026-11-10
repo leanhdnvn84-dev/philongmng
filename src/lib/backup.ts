@@ -7,7 +7,7 @@ export const BACKUP_TABLES = [
   'vai_tro', 'phan_quyen', 'users', 'nhan_vien', 'nha_thau', 'nha_cung_cap', 'khu_vuc', 'hang_muc_bao_tri', 'chi_tiet_van_hanh',
   'lich_bao_tri', 'nhat_ky_bao_tri', 'cong_viec', 'cong_viec_hang_ngay', 'khach_ra_vao', 'vat_tu', 'nhap_xuat_kho', 'thiet_bi',
   'thu_hoi', 'lich_su_chuyen_thiet_bi', 'de_xuat', 'de_xuat_chi_tiet', 'toa_nha', 'tang', 'khach_thue', 'khach_hang_tiem_nang',
-  'tien_dien', 'danh_muc', 'lich_su_in', 'lich_su_dang_nhap', 'cau_hinh_email_canh_bao', 'nhat_ky_email_canh_bao',
+  'tien_dien', 'thanh_toan_dien', 'danh_muc', 'lich_su_in', 'lich_su_dang_nhap', 'cau_hinh_email_canh_bao', 'nhat_ky_email_canh_bao',
   'data_audit_archive', 'hinh_anh_tien_do', 'tin_nhan', 'audit_logs',
 ]
 const NO_RESTORE = new Set(['users'])

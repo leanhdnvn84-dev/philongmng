@@ -608,3 +608,18 @@ CREATE TABLE IF NOT EXISTS public.sao_luu (
   chi_tiet JSONB NOT NULL DEFAULT '{}', du_lieu TEXT NOT NULL);
 ALTER TABLE public.sao_luu ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.sao_luu FROM anon, authenticated;
+
+-- ---------- electricity payments (one row per payment received for an invoice of a period) ----------
+CREATE TABLE IF NOT EXISTS public.thanh_toan_dien (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ky TEXT NOT NULL CHECK (ky ~ '^\d{4}-(0[1-9]|1[0-2])$'),
+  nhom_hoa_don TEXT NOT NULL,
+  id_khach_thue TEXT REFERENCES public.khach_thue(id) ON DELETE SET NULL,
+  ten_khach_thue TEXT,
+  ngay_thanh_toan DATE NOT NULL DEFAULT public.today_vn(),
+  so_tien NUMERIC NOT NULL CHECK (so_tien > 0),
+  hinh_thuc TEXT, ghi_chu TEXT, nguoi_ghi TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS thanh_toan_dien_kh ON public.thanh_toan_dien (id_khach_thue, ky);
+ALTER TABLE public.thanh_toan_dien ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.thanh_toan_dien FROM anon, authenticated;
