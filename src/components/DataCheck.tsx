@@ -61,6 +61,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
     const j = await api('/api/he_thong/sao_luu', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ghi_chu: note }) })
     setNote(''); await loadBackups(); return `Đã tạo bản sao lưu ${j.data.id} (${j.data.so_dong.toLocaleString('vi-VN')} dòng, ${fmtSize(j.data.kich_thuoc)}).`
   })
+  const toDrive = () => run('drive', async () => (await api('/api/he_thong/sao_luu/v27', { method: 'POST' })).data.message)
   const restore = async (b: Backup, tables?: string[]) => {
     const what = tables ? `bảng "${LABEL[tables[0]] ?? tables[0]}"` : 'TẤT CẢ các bảng'
     const okay = await confirm(`Khôi phục ${what} từ bản ${b.id} (${fmtTime(b.thoi_gian)})?\n\nDữ liệu đã sửa hoặc xoá sau thời điểm đó sẽ được đưa về như lúc sao lưu. Dòng mới tạo sau đó được giữ nguyên. Hệ thống tự tạo thêm một bản sao lưu an toàn trước khi khôi phục.`, { danger: true, okLabel: 'Khôi phục' })
@@ -117,7 +118,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
         {/* ── Backup ── */}
         <section className="card">
           <header className="flex items-center gap-2 px-4 py-3 border-b border-navy-100"><Database size={17} className="text-blue-600" /><h2 className="font-extrabold text-navy-900 flex-1">Sao lưu dữ liệu</h2>
-            <span className="text-xs text-ink-mute">Giữ {20} bản mới nhất</span></header>
+            <span className="text-xs text-ink-mute">Giữ 30 bản mới nhất</span></header>
           <div className="p-4 space-y-3">
             {isAdmin ? (
               <div className="flex flex-wrap gap-2">
@@ -125,9 +126,13 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
                 <button className="btn-primary" onClick={create} disabled={busy === 'create'}>
                   {busy === 'create' ? <Loader2 size={15} className="animate-spin" /> : <Database size={15} />}Tạo bản sao lưu
                 </button>
+                <a className="btn-secondary" href="/api/he_thong/sao_luu/v27" download title="Toàn bộ dữ liệu hiện tại, cùng sheet và cột như file Google Sheet V27"><Download size={15} />Tải file V27 (Excel)</a>
+                <button className="btn-secondary" onClick={toDrive} disabled={busy === 'drive'} title="Lưu file V27 vào thư mục Google Drive của hệ thống (việc này cũng tự chạy mỗi đêm)">
+                  {busy === 'drive' ? <Loader2 size={15} className="animate-spin" /> : <Database size={15} />}Lưu file V27 lên Drive
+                </button>
               </div>
             ) : <p className="text-sm text-ink-soft">Chỉ quản trị viên cao nhất được tạo, tải và khôi phục bản sao lưu.</p>}
-            <p className="text-xs text-ink-mute leading-relaxed">Bản sao lưu gồm toàn bộ bảng dữ liệu (không gồm mật khẩu). Khi khôi phục, hệ thống tự tạo thêm một bản an toàn trước đó. Tải về dưới dạng .json.gz để cất giữ riêng.</p>
+            <p className="text-xs text-ink-mute leading-relaxed">Bản sao lưu gồm toàn bộ bảng dữ liệu (không gồm mật khẩu). Khi khôi phục, hệ thống tự tạo thêm một bản an toàn trước đó. Tải về dưới dạng .json.gz để cất giữ riêng. Nút “Tải file V27” xuất dữ liệu hiện tại ra file Excel có cùng sheet và cột như file V27 của hệ thống cũ; mỗi đêm một bản như vậy cũng tự lưu lên Google Drive.</p>
             <ul className="divide-y divide-navy-100 border border-navy-100 rounded-lg">
               {backups.length === 0 && <li className="px-3 py-6 text-center text-sm text-ink-mute">Chưa có bản sao lưu nào.</li>}
               {backups.map((b) => (
