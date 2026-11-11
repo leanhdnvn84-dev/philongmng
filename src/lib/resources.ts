@@ -135,6 +135,10 @@ const progressAction: Action = {
     { name: 'anh', label: 'Hình ảnh (chụp hoặc chọn từ máy)', type: 'files' },
   ],
 }
+const firstProgress: Field[] = [
+  { name: 'noi_dung_tien_do', label: 'Tiến độ hiện tại', type: 'textarea', place: 'Tiến độ ban đầu (nếu có)' },
+  { name: 'giai_doan_tien_do', label: 'Giai đoạn', type: 'select', options: STAGES, chips: true },
+]
 const workFields = (dateField: Field): Field[] => [
   dateField,
   { name: 'noi_dung', label: 'Nội dung công việc', type: 'textarea', required: true, inList: true },
@@ -168,7 +172,7 @@ export const RESOURCES: Resource[] = [
       { name: 'khu_vuc', label: 'Khu vực', type: 'text' },
       { name: 'cach_thuc_hien', label: 'Cách thực hiện', type: 'textarea', inList: false },
       { name: 'deadline', label: 'Hạn hoàn thành', type: 'date' },
-      { name: 'muc_do', label: 'Mức độ', type: 'select', options: ['Bình thường', 'Gấp', 'Rất gấp'] },
+      { name: 'muc_do', label: 'Mức độ', type: 'select', options: ['Bình thường', 'Gấp', 'Rất gấp'], default: 'Bình thường' },
       ...workFields({ name: 'ngay_giao', label: 'Ngày giao', type: 'date' }).slice(2),
       { name: 'so_ngay_con_lai', label: 'Còn (ngày)', type: 'number', ro: true, inList: false },
       { name: 'so_ngay', label: 'Số ngày', type: 'number', ro: true, inList: false },
@@ -176,6 +180,12 @@ export const RESOURCES: Resource[] = [
     ],
     optionLabel: (r) => `${r.id} · ${String(r.noi_dung ?? '').slice(0, 60)}`,
     actions: [progressAction],
+    // V191 "Thêm công việc"
+    formSections: [
+      { title: 'Thông tin giao việc', rows: [['ngay_giao', 'id_nguoi_giao'], ['id_nguoi_thuc_hien', 'khu_vuc'], ['nguoi_lam_cung'], ['don_vi_thuc_hien'], ['muc_do', 'deadline']] },
+      { title: 'Nội dung & tiến độ', rows: [['noi_dung'], ['cach_thuc_hien'], ['noi_dung_tien_do'], ['giai_doan_tien_do'], ['ghi_chu'], ['trang_thai', 'ngay_hoan_thanh']] },
+    ],
+    firstProgress,
   },
   {
     key: 'cong_viec_hang_ngay', table: 'cong_viec_hang_ngay', module: 'CVHN', title: 'Công việc hằng ngày', singular: 'công việc',
@@ -194,10 +204,7 @@ export const RESOURCES: Resource[] = [
       { title: 'Thông tin giao việc', rows: [['ngay', 'id_nguoi_giao', 'id_nguoi_thuc_hien'], ['nguoi_lam_cung'], ['don_vi_thuc_hien'], ['noi_dung']] },
       { title: 'Nội dung & tiến độ', rows: [['cach_thuc_hien'], ['noi_dung_tien_do'], ['giai_doan_tien_do'], ['ghi_chu'], ['trang_thai', 'ngay_hoan_thanh']] },
     ],
-    firstProgress: [
-      { name: 'noi_dung_tien_do', label: 'Tiến độ hiện tại', type: 'textarea', place: 'Tiến độ ban đầu (nếu có)' },
-      { name: 'giai_doan_tien_do', label: 'Giai đoạn', type: 'select', options: STAGES, chips: true },
-    ],
+    firstProgress,
   },
   {
     key: 'khach_ra_vao', table: 'khach_ra_vao', module: 'KHACH_RA_VAO', title: 'Khách ra/vào', singular: 'lượt khách',
