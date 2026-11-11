@@ -50,8 +50,10 @@ function soNgay(r: any): { n: number; tone: 'red' | 'green' | 'blue'; lines: str
 }
 /** list column sizing: short columns (dates, numbers, status…) keep a fixed width, text columns share what is left in proportion to their weight, so ALL columns show and the table never scrolls sideways */
 const isFixedCol = (f: Field) => f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool'
-const fixedW = (f: Field, shortDate: boolean) => (f.type === 'date' ? (shortDate ? 64 : 88) : f.type === 'datetime' ? 124 : f.type === 'money' ? 88 : f.name === 'so_ngay' || f.name === 'so_ngay_con_lai' ? 58 : f.type === 'bool' ? 54 : 66)
-const flexWeight = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' ? (f.name === 'tien_do' ? 140 : f.name === 'cach_thuc_hien' ? 120 : 170)
+const fixedW = (f: Field, shortDate: boolean) => (f.type === 'date' ? (shortDate ? 64 : 96) : f.type === 'datetime' ? 124 : f.type === 'money' ? 88 : f.name === 'so_ngay' || f.name === 'so_ngay_con_lai' ? 58 : f.type === 'bool' ? 54 : 66)
+// proposal list: number columns only as wide as their heading, the room goes to the name, the reason and the note
+const TIGHT_W: Record<string, number> = { ds_ten: 130, ds_nha_cung_cap: 64, ds_don_gia: 88, ds_so_luong: 52, ds_dvt: 48, ds_thanh_tien: 96, id_nguoi_de_xuat: 114, muc_dich_ly_do: 130 }
+const flexWeight = (f: Field) => TIGHT_W[f.name] ?? (f.type === 'textarea' || f.name === 'noi_dung' ? (f.name === 'tien_do' ? 140 : f.name === 'cach_thuc_hien' ? 120 : 170)
   : f.name === 'nguoi_lam_cung' ? 160 : f.name === 'don_vi_thuc_hien' ? 165 : f.type === 'email' ? 140 : STATUS_FIELDS_SET.has(f.name) ? 104 : /^id_nguoi/.test(f.name) ? 152 : f.type === 'ref' ? 108 : 100)
 const SOFT_TIP = new Set(['tien_do', 'cach_thuc_hien', 'noi_dung'])
 
@@ -316,7 +318,7 @@ export default function ResourceManager({
     const long = f.type === 'textarea' || SOFT_TIP.has(f.name) || f.multiline
     if (!long) return null
     const t = String(r[f.name] ?? '').trim()
-    return t && (f.name === 'tien_do' || t.length > 60) ? t : null
+    return t && (f.name === 'tien_do' || t.length > 40 || t.split('\n').length > 3) ? t : null
   }
   const showTip = (e: React.MouseEvent<HTMLElement>, f: Field, r: any) => {
     const text = cellTip(f, r); if (!text) return
@@ -743,8 +745,15 @@ export default function ResourceManager({
                   const right = RIGHT.test(f.name) || f.type === 'money' || f.type === 'number'
                   const wide = f.type === 'textarea' || f.name === 'noi_dung' || f.name === 'ghi_chu' || f.name === 'ds_ten'
                   return (
-                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`${pad} py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || /^id_nguoi/.test(f.name) || res.noWrap ? 'whitespace-nowrap overflow-hidden text-ellipsis' : 'break-words'}`}>
-                      <div className={f.multiline ? 'whitespace-pre-line leading-snug' : f.name === 'tien_do' ? 'line-clamp-3' : wide ? 'line-clamp-2' : ''}>{cellNode(f, r)}</div>
+                    <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`${/^ds_(don_gia|so_luong|thanh_tien|dvt)$/.test(f.name) ? 'px-1.5' : pad} py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || /^id_nguoi/.test(f.name) || res.noWrap ? 'whitespace-nowrap overflow-hidden text-ellipsis' : 'break-words'}`}>
+                      {f.multiline && typeof r[f.name] === 'string' ? (() => {
+                        // one line per item, never wrapped, so the name / price / quantity columns stay side by side; at most three lines, the rest is in the hover box
+                        const ls = String(r[f.name]).split('\n'), show = ls.length > 3 ? ls.slice(0, 2) : ls
+                        return (<div className="leading-snug">
+                          {show.map((l, k) => <div key={k} className={/^ds_(don_gia|so_luong|thanh_tien)$/.test(f.name) ? 'whitespace-nowrap tabular-nums' : 'truncate'}>{l || '—'}</div>)}
+                          {ls.length > 3 && <div className="truncate text-[11.5px] font-semibold text-ink-mute">{f.name === 'ds_ten' ? `+${ls.length - 2} dòng nữa…` : '…'}</div>}
+                        </div>)
+                      })() : <div className={f.name === 'tien_do' || res.key === 'de_xuat' ? 'line-clamp-3' : wide ? 'line-clamp-2' : ''}>{cellNode(f, r)}</div>}
                     </td>
                   )
                 })}

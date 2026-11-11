@@ -315,7 +315,7 @@ export const RESOURCES: Resource[] = [
       { name: 'ds_dvt', label: 'ĐVT', type: 'text', ro: true, multiline: true },
       { name: 'ds_thanh_tien', label: 'Thành tiền', type: 'text', ro: true, multiline: true },
       { name: 'noi_dung', label: 'Nội dung', type: 'textarea', required: true, inList: false },
-      { name: 'muc_dich_ly_do', label: 'Mục đích / lý do', type: 'textarea', inList: false },
+      { name: 'muc_dich_ly_do', label: 'Mục đích / lý do', type: 'textarea', inList: true },
       { name: 'so_dong', label: 'Số dòng', type: 'number', ro: true, inList: false },
       { name: 'tong_tien', label: 'Tổng tiền', type: 'money', ro: true, inList: false },
       { name: 'trang_thai', label: 'Trạng thái', type: 'select', ro: true, options: ['Chờ duyệt', 'Đã duyệt', 'Từ chối'] },
