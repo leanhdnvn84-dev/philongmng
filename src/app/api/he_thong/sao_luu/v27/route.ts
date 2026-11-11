@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { buildV27Workbook } from '@/lib/v27Export'
 import { sysGuard } from '@/lib/sysGuard'
 import { audit } from '@/lib/crud'
-import { driveConfigured, uploadToDrive } from '@/lib/driveUpload'
+import { driveConfigured, saveBackupToDrive } from '@/lib/driveUpload'
 
 const XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
@@ -25,15 +25,15 @@ export async function GET() {
   }
 }
 
-/** Same workbook, saved into the Google Drive folder used for photos (what the nightly job also does). */
+/** Same workbook, saved privately into the owner's backup folder on Google Drive (what the nightly job also does). */
 export async function POST() {
   const a = await sysGuard(true); if (a instanceof NextResponse) return a
   if (!driveConfigured()) return NextResponse.json({ success: false, error: 'Chưa cấu hình Google Drive cho hệ thống' }, { status: 400 })
   try {
     const { buffer, name } = await buildV27Workbook()
-    const id = await uploadToDrive(name, XLSX, buffer)
+    const id = await saveBackupToDrive(name, XLSX, buffer)
     await audit(a, 'sao_luu', null, 'luu_v27_len_drive', { file_id: id, name })
-    return NextResponse.json({ success: true, data: { id, name, message: `Đã lưu ${name} lên Google Drive.` } })
+    return NextResponse.json({ success: true, data: { id, name, message: `Đã lưu ${name} vào thư mục sao lưu trên Google Drive.` } })
   } catch (e: any) {
     console.error('[v27-drive]', e)
     return NextResponse.json({ success: false, error: 'Không lưu được lên Google Drive: ' + String(e.message ?? e).slice(0, 150) }, { status: 500 })

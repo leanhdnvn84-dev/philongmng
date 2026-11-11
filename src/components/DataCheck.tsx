@@ -127,7 +127,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
                   {busy === 'create' ? <Loader2 size={15} className="animate-spin" /> : <Database size={15} />}Tạo bản sao lưu
                 </button>
                 <a className="btn-secondary" href="/api/he_thong/sao_luu/v27" download title="Toàn bộ dữ liệu hiện tại, cùng sheet và cột như file Google Sheet V27"><Download size={15} />Tải file V27 (Excel)</a>
-                <button className="btn-secondary" onClick={toDrive} disabled={busy === 'drive'} title="Lưu file V27 vào thư mục Google Drive của hệ thống (việc này cũng tự chạy mỗi đêm)">
+                <button className="btn-secondary" onClick={toDrive} disabled={busy === 'drive'} title="Lưu file V27 vào thư mục sao lưu trên Google Drive (việc này cũng tự chạy mỗi đêm)">
                   {busy === 'drive' ? <Loader2 size={15} className="animate-spin" /> : <Database size={15} />}Lưu file V27 lên Drive
                 </button>
               </div>

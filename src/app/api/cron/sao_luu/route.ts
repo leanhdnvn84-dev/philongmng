@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createBackup } from '@/lib/backup'
 import { buildV27Workbook } from '@/lib/v27Export'
-import { driveConfigured, uploadToDrive } from '@/lib/driveUpload'
+import { driveConfigured, saveBackupToDrive } from '@/lib/driveUpload'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     // also keep a V27-shaped Excel copy outside the database; a Drive problem must not fail the backup itself
     let v27: string | null = null
     if (driveConfigured()) {
-      try { const w = await buildV27Workbook(); await uploadToDrive(w.name, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', w.buffer); v27 = w.name }
+      try { const w = await buildV27Workbook(); await saveBackupToDrive(w.name, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', w.buffer); v27 = w.name }
       catch (e: any) { console.error('[cron v27]', e); v27 = 'LỖI: ' + String(e.message ?? e).slice(0, 120) }
     }
     return NextResponse.json({ success: true, data: b, v27 })
