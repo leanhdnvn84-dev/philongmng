@@ -915,7 +915,6 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Chu kỳ bảo trì', href: '/hang_muc_bao_tri', resource: 'hang_muc_bao_tri', module: 'DANH_MUC' },
     { label: 'Khu vực tòa nhà', href: '/khu_vuc', resource: 'khu_vuc', module: 'DANH_MUC' },
     { label: 'Chi tiết vận hành', href: '/chi_tiet_van_hanh', resource: 'chi_tiet_van_hanh', module: 'DANH_MUC' },
-    { label: 'Danh mục giá trị', href: '/danh_muc', resource: 'danh_muc', module: 'DANH_MUC' },
   ] },
   { group: 'Hệ thống', items: [
     { label: 'Người dùng', href: '/users', resource: 'users', module: 'NGUOI_SU_DUNG' },
