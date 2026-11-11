@@ -1,3 +1,4 @@
+import { createBackup } from '@/lib/backup'
 import 'server-only'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import type { AuthContext } from '@/lib/auth'
@@ -202,6 +203,42 @@ const chuyen: Handler = async ({ auth, id, row, input }) => {
   await audit(auth, 'thiet_bi', id, 'transfer', { from, to })
 }
 
+// ── Thiết bị: one row per machine ──
+async function splitDevice(row: any): Promise<number> {
+  const n = Math.floor(Number(row.so_luong) || 1)
+  if (n <= 1) return 0
+  if (n > 200) bad(`${row.id}: số lượng ${n} quá lớn để tách tự động`)
+  const db = supabaseAdmin()
+  const base = String(row.ten_thiet_bi ?? '').replace(/\s+–\s+máy\s+\d+\/\d+$/, '')
+  const tag = (k: number) => `${base} – máy ${String(k).padStart(Math.max(2, String(n).length), '0')}/${n}`
+  const { id, created_at, updated_at, ...rest } = row
+  const copies = Array.from({ length: n - 1 }, (_, i) => ({ ...rest, ten_thiet_bi: tag(i + 2), so_luong: 1, extra: { ...(row.extra ?? {}), TACH_TU: id } }))
+  const { error } = await db.from('thiet_bi').insert(copies)
+  if (error) throw error
+  // only after the new rows exist: the original becomes machine 01 (a failure here would leave the quantity too high, never too low)
+  const { error: e2 } = await db.from('thiet_bi').update({ ten_thiet_bi: tag(1), so_luong: 1, extra: { ...(row.extra ?? {}), TACH_SL_CU: n } }).eq('id', id)
+  if (e2) throw e2
+  return n - 1
+}
+const tachMay: Handler = async ({ auth, id, row }) => {
+  const made = await splitDevice(row)
+  if (!made) bad('Dòng này chỉ có 1 máy, không cần tách')
+  await audit(auth, 'thiet_bi', id, 'split', { new_rows: made })
+  return { message: `Đã tách ${row.id} thành ${made + 1} dòng, mỗi máy một dòng.` }
+}
+const tachTatCa: Handler = async ({ auth }) => {
+  if (!auth.superAdmin) bad('Chỉ quản trị viên cao nhất được tách tất cả', 403)
+  const db = supabaseAdmin()
+  const { data, error } = await db.from('thiet_bi').select('*').gt('so_luong', 1).order('id').limit(500)
+  if (error) throw error
+  if (!data?.length) return { message: 'Không còn dòng nào gộp nhiều máy.' }
+  const backup = await createBackup(auth.name, 'Tự động', 'Trước khi tách thiết bị thành từng máy')
+  let rows = 0, made = 0
+  for (const r of data) { made += await splitDevice(r); rows++ }
+  await audit(auth, 'thiet_bi', null, 'split_all', { rows, new_rows: made, backup: backup?.id })
+  return { message: `Đã tách ${rows} dòng gộp thành từng máy, thêm ${made} dòng mới. Bản sao lưu trước khi tách: ${backup?.id}.` }
+}
+
 const RECOVER_STATES = ['Trong kho', 'Bảo trì', 'Chờ thanh lý', 'Đã thanh lý']
 const thuHoi: Handler = async ({ auth, id, row, input }) => {
   const after = String(input.trang_thai_sau_thu_hoi ?? '')
@@ -304,7 +341,7 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
   khach_ra_vao: { checkout, check_in: checkIn, huy: huyLuot },
   de_xuat: { duyet, tu_choi: tuChoi },
   vat_tu: { dieu_chinh: dieuChinh, nhap_xuat: nhapXuat(), nhap_kho: nhapXuat('NHAP'), xuat_kho: nhapXuat('XUAT') },
-  thiet_bi: { chuyen, thu_hoi: thuHoi },
+  thiet_bi: { chuyen, thu_hoi: thuHoi, tach: tachMay, tach_tat_ca: tachTatCa },
   tien_dien: { tao_ky: taoKy, chot_ky: chotKy },
   lich_bao_tri: { ghi_nhan: ghiNhanBaoTri },
   cau_hinh_email_canh_bao: { chay_ngay: chayCanhBao },

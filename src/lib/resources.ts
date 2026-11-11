@@ -469,6 +469,11 @@ export const RESOURCES: Resource[] = [
           { name: 'so_bien_ban', label: 'Số biên bản', type: 'text' },
         ],
       },
+      // a row that stands for several machines (số lượng > 1) becomes one row per machine, so each can be edited on its own
+      { key: 'tach', label: 'Tách máy', perm: 'edit', show: (r) => Number(r.so_luong) > 1,
+        confirm: 'Tách dòng này thành mỗi máy một dòng?\n\nMỗi máy mang số thứ tự (máy 01/11, 02/11…) và giữ nguyên tầng, vị trí, người quản lý, trạng thái, ghi chú. Dòng gốc giữ mã cũ, các máy còn lại nhận mã mới.' },
+      { key: 'tach_tat_ca', label: 'Tách tất cả', perm: 'edit', scope: 'page',
+        confirm: 'Tách TẤT CẢ các dòng đang gộp nhiều máy thành mỗi máy một dòng?\n\nSau khi tách, số dòng bằng tổng số lượng. Chỉ quản trị viên cao nhất làm được. Hệ thống tự tạo một bản sao lưu trước khi tách.' },
     ],
   },
   {
