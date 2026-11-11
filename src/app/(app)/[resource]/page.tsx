@@ -35,6 +35,8 @@ export default async function ResourcePage({ params, searchParams }: {
   for (const f of res.fields) {
     const v = searchParams[f.name]
     if (typeof v === 'string' && v) filters[f.name] = v
+    const ne = f.type === 'select' ? searchParams[`ne_${f.name}`] : undefined // "everything except…" links from the menu
+    if (typeof ne === 'string' && ne) filters[`ne_${f.name}`] = ne
   }
   const qs = new URLSearchParams(filters).toString()
   const navLabel = NAV.flatMap((g) => g.items).find((i) => decodeURIComponent(i.href) === `/${res.key}${qs ? '?' + decodeURIComponent(qs.replace(/\+/g, ' ')) : ''}`)?.label

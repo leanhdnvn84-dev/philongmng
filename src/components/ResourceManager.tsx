@@ -264,7 +264,7 @@ export default function ResourceManager({
   const [devAll, setDevAll] = useState<Row[]>([])
   const [areas, setAreas] = useState<Record<string, Row>>({})
   const [staff, setStaff] = useState<Record<string, Row>>({})
-  const pageSize = compact ? 200 : 50
+  const pageSize = compact || isDev ? 200 : 50
 
   const statusField = res.fields.find((f) => f.name === 'trang_thai' && f.type === 'select' && !filters.trang_thai)
   const sideField = !compact && res.sideFilter && !(res.sideFilter in filters) ? res.fields.find((f) => f.name === res.sideFilter) : undefined
@@ -822,7 +822,7 @@ export default function ResourceManager({
         <FormModal title={`${editing.id ? 'Sửa' : 'Thêm'} ${res.singular}`} subtitle={editing.id && res.key !== 'users' ? editing.id : undefined}
           fields={[...res.fields.filter((f) => !f.ro && f.inForm !== false && (!editing.id || !f.createOnly || f.type === 'password')), ...(editing.id ? [] : res.firstProgress ?? [])]}
           sections={res.formSections}
-          initial={editing.id ? (isWork && !editing.don_vi_thuc_hien && editing.id_nha_thau ? { ...editing, don_vi_thuc_hien: editing.id_nha_thau } : editing) : { ...(res.formSections && res.dateField ? { [res.dateField]: (res.openToday && day) || todayVn() } : {}), ...filters }} isNew={!editing.id} refs={refs} onClose={() => setEditing(null)}
+          initial={editing.id ? (isWork && !editing.don_vi_thuc_hien && editing.id_nha_thau ? { ...editing, don_vi_thuc_hien: editing.id_nha_thau } : editing) : { ...(res.formSections && res.dateField ? { [res.dateField]: (res.openToday && day) || todayVn() } : {}), ...(String(filters.ne_trang_thai ?? '').includes('Trong kho') ? { trang_thai: 'Đang sử dụng' } : {}), ...filters }} isNew={!editing.id} refs={refs} onClose={() => setEditing(null)}
           onSubmit={async (payload) => {
             if (editing.id && !payload.password) delete payload.password // blank = keep password
             const first = { noi_dung: String(payload.noi_dung_tien_do ?? '').trim(), giai_doan: String(payload.giai_doan_tien_do ?? '') }

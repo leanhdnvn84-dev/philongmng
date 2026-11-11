@@ -243,13 +243,13 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
         <div className="print:hidden">
           {!chatOpen && (
             <button type="button" onClick={() => setChatOpen(true)} aria-label={unread > 0 ? `Trao đổi nội bộ, ${unread} tin nhắn chưa đọc` : 'Trao đổi nội bộ'} title="Trao đổi nội bộ"
-              className={`fixed z-[55] grid h-14 w-14 place-items-center rounded-full bg-[#0b1b40] text-white shadow-[0_5px_0_#071230,0_14px_24px_rgba(7,18,48,.35)] transition duration-100 hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_1px_0_#071230] bottom-[84px] lg:bottom-5 ${dock === 'left' ? 'left-4 lg:left-auto' : 'right-4'} lg:right-5 ${unread > 0 ? 'pl-blink' : ''}`}>
+              className={`fixed z-[55] grid h-14 w-14 place-items-center rounded-full bg-[#0b1b40] text-white shadow-[0_5px_0_#071230,0_14px_24px_rgba(7,18,48,.35)] transition duration-100 hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_1px_0_#071230] bottom-[84px] lg:bottom-12 ${dock === 'left' ? 'left-4 lg:left-auto' : 'right-4'} lg:right-5 ${unread > 0 ? 'pl-blink' : ''}`}>
               <MessageCircle className="h-6 w-6" />
               {unread > 0 && <span className="absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-[#e11d2e] px-1 text-[12px] font-black text-white ring-2 ring-white">{unread > 99 ? '99+' : unread}</span>}
             </button>
           )}
           {toast && !chatOpen && (
-            <div role="alert" aria-live="assertive" className={`pl-sheet fixed z-[56] w-[min(340px,calc(100vw-2rem))] rounded-[18px] bg-white p-3.5 shadow-[0_6px_0_#c5cfe3,0_18px_34px_rgba(11,27,64,.28)] bottom-[152px] lg:bottom-[88px] ${dock === 'left' ? 'left-4 lg:left-auto' : 'right-4'} lg:right-5`}>
+            <div role="alert" aria-live="assertive" className={`pl-sheet fixed z-[56] w-[min(340px,calc(100vw-2rem))] rounded-[18px] bg-white p-3.5 shadow-[0_6px_0_#c5cfe3,0_18px_34px_rgba(11,27,64,.28)] bottom-[152px] lg:bottom-[116px] ${dock === 'left' ? 'left-4 lg:left-auto' : 'right-4'} lg:right-5`}>
               <div className="flex items-start gap-3">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[#e11d2e] text-white shadow-[0_3px_0_#8f0f1b]"><MessageCircle className="h-5 w-5" /></span>
                 <div className="min-w-0 flex-1">

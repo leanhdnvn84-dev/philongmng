@@ -889,7 +889,8 @@ export const NAV: { group: string; items: NavItem[] }[] = [
   { group: 'Thiết bị & kho', items: [
     { label: 'Kho vật tư', href: '/vat_tu', resource: 'vat_tu', module: 'KHO' },
     { label: 'Lịch sử nhập xuất', href: '/nhap_xuat_kho', resource: 'nhap_xuat_kho', module: 'KHO' },
-    { label: 'Thiết bị đang dùng', href: '/thiet_bi?trang_thai=Đang sử dụng', resource: 'thiet_bi', module: 'THIET_BI' },
+    // everything not in store and not disposed of, including devices whose status was never filled in (as V191 lists them)
+    { label: 'Thiết bị đang dùng', href: '/thiet_bi?ne_trang_thai=Trong kho|Chờ thanh lý|Đã thanh lý', resource: 'thiet_bi', module: 'THIET_BI' },
     { label: 'Kho thiết bị', href: '/thiet_bi?trang_thai=Trong kho', resource: 'thiet_bi', module: 'THIET_BI' },
     { label: 'Tất cả thiết bị', href: '/thiet_bi', resource: 'thiet_bi', module: 'THIET_BI' },
     { label: 'Thu hồi / thanh lý', href: '/thu_hoi', resource: 'thu_hoi', module: 'THU_HOI' },

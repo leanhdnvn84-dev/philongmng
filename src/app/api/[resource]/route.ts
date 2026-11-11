@@ -63,7 +63,8 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   for (const f of res.fields) {
     if (f.type !== 'select') continue
     const v = url.searchParams.get(`ne_${f.name}`)
-    if (v && /^[^,()"\\]{1,60}$/.test(v)) query = query.or(`${f.name}.is.null,${f.name}.neq."${v}"`)
+    // several values separated by | (e.g. everything that is neither in store nor disposed of)
+    if (v && /^[^,()"\\]{1,120}$/.test(v)) query = query.or(`${f.name}.is.null,${f.name}.not.in.(${v.split('|').map((x) => `"${x.trim()}"`).join(',')})`)
   }
   // numeric range filters on declared number/money fields: gt_<field>, gte_<field>, lt_<field>, lte_<field>
   for (const f of res.fields) {
