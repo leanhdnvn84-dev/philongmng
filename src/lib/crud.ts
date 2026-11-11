@@ -50,6 +50,10 @@ export function sanitize(res: Resource, body: any, creating: boolean) {
     }
     out[f.name] = v
   }
+  // "Đơn vị thực hiện" picked from the contractor list: the single contractor link follows the first one picked
+  if ('don_vi_thuc_hien' in out && res.fields.some((f) => f.name === 'don_vi_thuc_hien' && f.multiRef === 'nha_thau') && res.fields.some((f) => f.name === 'id_nha_thau')) {
+    out.id_nha_thau = String(out.don_vi_thuc_hien ?? '').split(',').map((t) => t.trim()).find((t) => /^NT\d{3,}$/.test(t)) ?? null
+  }
   if (creating) for (const f of res.fields) {
     if (out[f.name] === undefined && f.default !== undefined && !f.ro && !f.createOnly) out[f.name] = f.default
   }

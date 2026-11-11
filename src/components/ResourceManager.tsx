@@ -112,6 +112,7 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   if (f.name === 'loai_de_xuat') return PROPOSAL_KINDS[v] ?? v
   // co-workers are stored as a list of staff / contractor codes (NV0010, NT0012…) or plain names: show names
   if (f.name === 'nguoi_lam_cung') return String(v).split(/\s*,\s*/).filter(Boolean).map((t) => labels.nhan_vien?.get(t) ?? labels.nha_thau?.get(t) ?? t).join(', ')
+  if (f.multiRef) return String(v).split(/\s*,\s*/).filter(Boolean).map((t) => labels[f.multiRef!]?.get(t) ?? t).join(', ')
   if (f.name === 'action' && AUDIT_ACTIONS[String(v)]) return AUDIT_ACTIONS[String(v)]
   if (f.name === 'changes' && typeof v === 'object') return <span className="font-mono text-[11.5px]">{JSON.stringify(v)}</span>
   if (f.name === 'ma_canh_bao') return ALERT_CODES[String(v)] ?? String(v)
@@ -811,7 +812,7 @@ export default function ResourceManager({
         <FormModal title={`${editing.id ? 'Sửa' : 'Thêm'} ${res.singular}`} subtitle={editing.id && res.key !== 'users' ? editing.id : undefined}
           fields={[...res.fields.filter((f) => !f.ro && f.inForm !== false && (!editing.id || !f.createOnly || f.type === 'password')), ...(editing.id ? [] : res.firstProgress ?? [])]}
           sections={res.formSections}
-          initial={editing.id ? editing : { ...(res.openToday && res.dateField ? { [res.dateField]: day ?? todayVn() } : {}), ...filters }} isNew={!editing.id} refs={refs} onClose={() => setEditing(null)}
+          initial={editing.id ? (isWork && !editing.don_vi_thuc_hien && editing.id_nha_thau ? { ...editing, don_vi_thuc_hien: editing.id_nha_thau } : editing) : { ...(res.openToday && res.dateField ? { [res.dateField]: day ?? todayVn() } : {}), ...filters }} isNew={!editing.id} refs={refs} onClose={() => setEditing(null)}
           onSubmit={async (payload) => {
             if (editing.id && !payload.password) delete payload.password // blank = keep password
             const first = { noi_dung: String(payload.noi_dung_tien_do ?? '').trim(), giai_doan: String(payload.giai_doan_tien_do ?? '') }
@@ -1218,8 +1219,8 @@ function FormModal({ title, subtitle, fields, sections, initial, isNew, refs, on
             const common = { id: `f-${f.name}`, className: 'input h-11 text-[16px] lg:h-9 lg:text-sm', required, value: form[f.name] ?? '', onChange: (e: React.ChangeEvent<any>) => set(e.target.value) }
             if (f.multiRef) return (
               <div key={f.name} className={at ?? FULL}>
-                <label htmlFor={`f-${f.name}`} className="label !mb-1">{f.label} <span className="font-semibold text-ink-mute">(chọn được nhiều người)</span></label>
-                <MultiPick id={`f-${f.name}`} value={String(form[f.name] ?? '')} options={refs[f.multiRef] ?? []} onChange={(v) => set(v)} />
+                <label htmlFor={`f-${f.name}`} className="label !mb-1">{f.label} <span className="font-semibold text-ink-mute">({f.multiRef === 'nhan_vien' ? 'chọn được nhiều người' : 'chọn được nhiều đơn vị'})</span></label>
+                <MultiPick id={`f-${f.name}`} what={f.multiRef === 'nhan_vien' ? 'người làm cùng' : f.label.toLowerCase()} value={String(form[f.name] ?? '')} options={refs[f.multiRef] ?? []} onChange={(v) => set(v)} />
               </div>
             )
             if (f.type === 'files') return (
@@ -1368,7 +1369,7 @@ function PhotoPicker({ files, onChange }: { files: File[]; onChange: (f: File[])
 }
 
 /* ── several people from the staff list, stored as "NV0002,NV0010" (same format as the V191 sheet) ── */
-function MultiPick({ id, value, options, onChange }: { id: string; value: string; options: Option[]; onChange: (v: string) => void }) {
+function MultiPick({ id, what, value, options, onChange }: { id: string; what: string; value: string; options: Option[]; onChange: (v: string) => void }) {
   const picked = value.split(/\s*,\s*/).map((x) => x.trim()).filter(Boolean)
   const name = new Map(options.map((o) => [o.value, o.label]))
   const rest = options.filter((o) => !picked.includes(o.value))
@@ -1384,7 +1385,7 @@ function MultiPick({ id, value, options, onChange }: { id: string; value: string
         ))}
         <select id={id} value="" onChange={(e) => { if (e.target.value) put([...picked, e.target.value]) }} disabled={!rest.length}
           className="h-9 min-w-[170px] flex-1 rounded-lg border-0 bg-navy-50 px-2 text-[14px] font-semibold text-navy-900 focus:outline-none focus:ring-2 focus:ring-select lg:h-8 lg:text-[13px]">
-          <option value="">{rest.length ? (picked.length ? '+ Thêm người…' : '— Chọn người làm cùng —') : 'Đã chọn hết danh sách'}</option>
+          <option value="">{rest.length ? (picked.length ? '+ Thêm…' : `— Chọn ${what} —`) : 'Đã chọn hết danh sách'}</option>
           {rest.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>

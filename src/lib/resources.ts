@@ -141,8 +141,9 @@ const workFields = (dateField: Field): Field[] => [
   { name: 'id_nguoi_giao', label: 'Người giao', type: 'ref', ref: 'nhan_vien' },
   { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện', type: 'ref', ref: 'nhan_vien' },
   { name: 'nguoi_lam_cung', label: 'Người làm cùng', type: 'text', inList: false, multiRef: 'nhan_vien' },
-  { name: 'id_nha_thau', label: 'Nhà thầu', type: 'ref', ref: 'nha_thau', inList: false },
-  { name: 'don_vi_thuc_hien', label: 'Đơn vị thực hiện', type: 'text', inList: false },
+  // kept in step with the first contractor picked below (server side); no longer typed in the form
+  { name: 'id_nha_thau', label: 'Nhà thầu', type: 'ref', ref: 'nha_thau', inList: false, inForm: false },
+  { name: 'don_vi_thuc_hien', label: 'Đơn vị thực hiện', type: 'text', inList: false, multiRef: 'nha_thau' },
   { name: 'trang_thai', label: 'Trạng thái', type: 'select', options: WORK_STATES, default: 'Chưa thực hiện' },
   { name: 'giai_doan_hien_tai', label: 'Giai đoạn', type: 'text', ro: true },
   { name: 'ngay_hoan_thanh', label: 'Ngày hoàn thành', type: 'date', inList: false },
@@ -190,7 +191,7 @@ export const RESOURCES: Resource[] = [
     optionLabel: (r) => `${r.id} · ${String(r.noi_dung ?? '').slice(0, 60)}`,
     actions: [progressAction],
     formSections: [
-      { title: 'Thông tin giao việc', rows: [['ngay', 'id_nguoi_giao', 'id_nguoi_thuc_hien'], ['nguoi_lam_cung'], ['id_nha_thau', 'don_vi_thuc_hien'], ['noi_dung']] },
+      { title: 'Thông tin giao việc', rows: [['ngay', 'id_nguoi_giao', 'id_nguoi_thuc_hien'], ['nguoi_lam_cung'], ['don_vi_thuc_hien'], ['noi_dung']] },
       { title: 'Nội dung & tiến độ', rows: [['cach_thuc_hien'], ['noi_dung_tien_do'], ['giai_doan_tien_do'], ['ghi_chu'], ['trang_thai', 'ngay_hoan_thanh']] },
     ],
     firstProgress: [
