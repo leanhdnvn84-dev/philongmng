@@ -890,7 +890,6 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Đề xuất mua thiết bị', href: '/de_xuat?loai_de_xuat=MUA_THIET_BI', resource: 'de_xuat', module: 'DE_XUAT' },
     { label: 'Đề xuất bảo trì', href: '/de_xuat?loai_de_xuat=BAO_TRI', resource: 'de_xuat', module: 'DE_XUAT' },
     { label: 'Đề xuất thanh lý', href: '/de_xuat?loai_de_xuat=THANH_LY', resource: 'de_xuat', module: 'DE_XUAT' },
-    { label: 'Lịch sử in phiếu', href: '/lich_su_in', resource: 'lich_su_in', module: 'DE_XUAT' },
   ] },
   { group: 'Thiết bị & kho', items: [
     { label: 'Kho vật tư', href: '/vat_tu', resource: 'vat_tu', module: 'KHO' },
