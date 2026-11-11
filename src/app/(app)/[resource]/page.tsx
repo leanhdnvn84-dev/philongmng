@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import ResourceManager from '@/components/ResourceManager'
 import VisitorsPage from '@/components/VisitorsPage'
 import Electricity from '@/components/Electricity'
+import EmailAlerts from '@/components/EmailAlerts'
 import { getAuth, can } from '@/lib/auth'
 import { getResource, NAV, PROPOSAL_KINDS } from '@/lib/resources'
 
@@ -25,6 +26,9 @@ export default async function ResourcePage({ params, searchParams }: {
   if (res.key === 'tien_dien') {
     return <Electricity perms={{ create: can(auth, res.module, 'create'), edit: can(auth, res.module, 'edit'), delete: can(auth, res.module, 'delete'), approve: can(auth, res.module, 'approve'), admin: auth.superAdmin }} />
   }
+
+  // e-mail alert settings: one editable grid + recent send log, like V191
+  if (res.key === 'cau_hinh_email_canh_bao') return <EmailAlerts canEdit={can(auth, res.module, 'edit')} />
 
   // fixed filters from the menu link (e.g. ?loai_de_xuat=MUA_VAT_TU); only declared fields pass
   const filters: Record<string, string> = {}

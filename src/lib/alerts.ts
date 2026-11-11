@@ -5,7 +5,7 @@ import { todayVN } from '@/lib/crud'
 import { driveConfigured, sendMailViaScript } from '@/lib/driveUpload'
 
 // Email alerts (V191 "Cảnh báo email"): one digest per enabled rule, one log row per record.
-interface Item { id: string; line: string; days: number | null }
+interface Item { id: string; line: string; days: number | null; staff?: { th?: string | null; lc?: string | null; giao?: string | null } }
 interface Found { module: string; items: Item[] }
 
 const dmy = (iso?: string | null) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : '—')
@@ -17,19 +17,21 @@ async function staffNames() {
   return new Map((data ?? []).map((r: any) => [r.id, r.ho_ten as string]))
 }
 
+const who = (r: any) => ({ th: r.id_nguoi_thuc_hien, lc: r.nguoi_lam_cung, giao: r.id_nguoi_giao })
+
 const RULES: Record<string, (cfg: { days: number }) => Promise<Found>> = {
   async CONG_VIEC_QUA_HAN() {
-    const [{ data }, nv] = await Promise.all([supabaseAdmin().from('v_cong_viec').select('id,noi_dung,deadline,so_ngay_con_lai,id_nguoi_thuc_hien').eq('canh_bao', 'QUÁ HẠN').order('deadline').limit(500), staffNames()])
-    return { module: 'CONG_VIEC', items: (data ?? []).map((r: any) => ({ id: r.id, days: r.so_ngay_con_lai, line: `${r.id} · ${cut(r.noi_dung)} · hạn ${dmy(r.deadline)} (trễ ${Math.abs(r.so_ngay_con_lai ?? 0)} ngày) · ${nv.get(r.id_nguoi_thuc_hien) ?? 'chưa giao'}` })) }
+    const [{ data }, nv] = await Promise.all([supabaseAdmin().from('v_cong_viec').select('id,noi_dung,deadline,so_ngay_con_lai,id_nguoi_thuc_hien,id_nguoi_giao,nguoi_lam_cung').eq('canh_bao', 'QUÁ HẠN').order('deadline').limit(500), staffNames()])
+    return { module: 'CONG_VIEC', items: (data ?? []).map((r: any) => ({ id: r.id, days: r.so_ngay_con_lai, staff: who(r), line: `${r.id} · ${cut(r.noi_dung)} · hạn ${dmy(r.deadline)} (trễ ${Math.abs(r.so_ngay_con_lai ?? 0)} ngày) · ${nv.get(r.id_nguoi_thuc_hien) ?? 'chưa giao'}` })) }
   },
   async CONG_VIEC_CU_CHUA_XONG() {
     const old = addDays(todayVN(), -30)
-    const [{ data }, nv] = await Promise.all([supabaseAdmin().from('v_cong_viec').select('id,noi_dung,ngay_giao,deadline,so_ngay_con_lai,canh_bao,id_nguoi_thuc_hien').not('canh_bao', 'in', '("HOÀN THÀNH","QUÁ HẠN")').lt('ngay_giao', old).order('ngay_giao').limit(500), staffNames()])
-    return { module: 'CONG_VIEC', items: (data ?? []).map((r: any) => ({ id: r.id, days: r.so_ngay_con_lai, line: `${r.id} · ${cut(r.noi_dung)} · giao ${dmy(r.ngay_giao)} · ${nv.get(r.id_nguoi_thuc_hien) ?? 'chưa giao'}` })) }
+    const [{ data }, nv] = await Promise.all([supabaseAdmin().from('v_cong_viec').select('id,noi_dung,ngay_giao,deadline,so_ngay_con_lai,canh_bao,id_nguoi_thuc_hien,id_nguoi_giao,nguoi_lam_cung').not('canh_bao', 'in', '("HOÀN THÀNH","QUÁ HẠN")').lt('ngay_giao', old).order('ngay_giao').limit(500), staffNames()])
+    return { module: 'CONG_VIEC', items: (data ?? []).map((r: any) => ({ id: r.id, days: r.so_ngay_con_lai, staff: who(r), line: `${r.id} · ${cut(r.noi_dung)} · giao ${dmy(r.ngay_giao)} · ${nv.get(r.id_nguoi_thuc_hien) ?? 'chưa giao'}` })) }
   },
   async CVHN_CHUA_XONG() {
-    const [{ data }, nv] = await Promise.all([supabaseAdmin().from('cong_viec_hang_ngay').select('id,ngay,noi_dung,trang_thai,id_nguoi_thuc_hien').or('trang_thai.is.null,trang_thai.neq.Hoàn thành').lt('ngay', todayVN()).order('ngay', { ascending: false }).limit(300), staffNames()])
-    return { module: 'CVHN', items: (data ?? []).map((r: any) => ({ id: r.id, days: null, line: `${r.id} · ${dmy(r.ngay)} · ${cut(r.noi_dung)} · ${r.trang_thai || 'chưa cập nhật'} · ${nv.get(r.id_nguoi_thuc_hien) ?? '—'}` })) }
+    const [{ data }, nv] = await Promise.all([supabaseAdmin().from('cong_viec_hang_ngay').select('id,ngay,noi_dung,trang_thai,id_nguoi_thuc_hien,id_nguoi_giao,nguoi_lam_cung').or('trang_thai.is.null,trang_thai.neq.Hoàn thành').lt('ngay', todayVN()).order('ngay', { ascending: false }).limit(300), staffNames()])
+    return { module: 'CVHN', items: (data ?? []).map((r: any) => ({ id: r.id, days: null, staff: who(r), line: `${r.id} · ${dmy(r.ngay)} · ${cut(r.noi_dung)} · ${r.trang_thai || 'chưa cập nhật'} · ${nv.get(r.id_nguoi_thuc_hien) ?? '—'}` })) }
   },
   async BAO_TRI_SAP_HAN() {
     const { data } = await supabaseAdmin().from('v_lich_bao_tri').select('id,ten_khu_vuc,ten_hang_muc,ngay_ke_tiep,so_ngay_con_lai').eq('trang_thai', 'Hoạt động').gte('so_ngay_con_lai', 1).lte('so_ngay_con_lai', 7).order('ngay_ke_tiep').limit(300)
@@ -58,6 +60,23 @@ const MAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/
 const recipients = (cfg: any) => Array.from(new Set(`${cfg.email_nhan ?? ''};${cfg.email_quan_tri ?? ''}`.split(/[;,\s]+/).map((x) => x.trim().toLowerCase()).filter((x) => MAIL.test(x))))
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!))
 
+/** V191 "Gửi cho nhân viên": the sheet stores BẬT / TẮT */
+export const flagOn = (v: unknown) => /^(bật|bat|true|1|có|co|x)$/i.test(String(v ?? '').trim())
+/** e-mails of the staff involved in the listed records, for the boxes ticked on this alert */
+async function staffMails(cfg: any, items: Item[]) {
+  const th = flagOn(cfg.gui_nguoi_thuc_hien), lc = flagOn(cfg.gui_nguoi_lam_cung), giao = flagOn(cfg.gui_nguoi_giao)
+  if (!th && !lc && !giao) return []
+  const ids = new Set<string>()
+  for (const i of items) {
+    if (th && i.staff?.th) ids.add(i.staff.th)
+    if (giao && i.staff?.giao) ids.add(i.staff.giao)
+    if (lc && i.staff?.lc) String(i.staff.lc).split(/[,;]+/).forEach((x) => x.trim() && ids.add(x.trim()))
+  }
+  if (!ids.size) return []
+  const { data } = await supabaseAdmin().from('nhan_vien').select('id, email').in('id', Array.from(ids))
+  return (data ?? []).map((r: any) => String(r.email ?? '').trim().toLowerCase()).filter((x) => MAIL.test(x))
+}
+
 export interface AlertResult { code: string; name: string; count: number; to: number; status: 'GUI' | 'XEM_TRUOC' | 'DA_GUI_TRUOC' | 'LOI' | 'KHONG_CO' | 'CHUA_HO_TRO'; note?: string }
 
 /** Evaluate every enabled alert; with send=true also mails the digest and writes the log (once per day per alert). */
@@ -72,7 +91,7 @@ export async function runAlerts({ send, onlyCode }: { send: boolean; onlyCode?: 
     if (!rule) { out.push({ code, name, count: 0, to: 0, status: 'CHUA_HO_TRO', note: 'Loại cảnh báo này chưa có bộ kiểm tra' }); continue }
     let found: Found
     try { found = await rule({ days: Number(cfg.so_ngay_bao_truoc) || 7 }) } catch (e: any) { out.push({ code, name, count: 0, to: 0, status: 'LOI', note: e.message }); continue }
-    const to = recipients(cfg)
+    const to = Array.from(new Set([...recipients(cfg), ...(await staffMails(cfg, found.items))]))
     if (!found.items.length) { out.push({ code, name, count: 0, to: to.length, status: 'KHONG_CO' }); continue }
     if (!send) { out.push({ code, name, count: found.items.length, to: to.length, status: 'XEM_TRUOC' }); continue }
     const { count: already } = await db.from('nhat_ky_email_canh_bao').select('*', { count: 'exact', head: true }).eq('ma_canh_bao', code).eq('trang_thai', 'DA_GUI').gte('ngay_gui', startToday)
