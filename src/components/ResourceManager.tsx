@@ -809,12 +809,21 @@ export default function ResourceManager({
       )}
       {editing && res.key !== 'de_xuat' && (
         <FormModal title={`${editing.id ? 'Sửa' : 'Thêm'} ${res.singular}`} subtitle={editing.id && res.key !== 'users' ? editing.id : undefined}
-          fields={res.fields.filter((f) => !f.ro && f.inForm !== false && (!editing.id || !f.createOnly || f.type === 'password'))}
-          initial={editing.id ? editing : { ...filters }} isNew={!editing.id} refs={refs} onClose={() => setEditing(null)}
+          fields={[...res.fields.filter((f) => !f.ro && f.inForm !== false && (!editing.id || !f.createOnly || f.type === 'password')), ...(editing.id ? [] : res.firstProgress ?? [])]}
+          sections={res.formSections}
+          initial={editing.id ? editing : { ...(res.openToday && res.dateField ? { [res.dateField]: day ?? todayVn() } : {}), ...filters }} isNew={!editing.id} refs={refs} onClose={() => setEditing(null)}
           onSubmit={async (payload) => {
             if (editing.id && !payload.password) delete payload.password // blank = keep password
-            await api(editing.id ? `/api/${res.key}/${editing.id}` : `/api/${res.key}`, { method: editing.id ? 'PATCH' : 'POST', body: JSON.stringify({ ...filters, ...payload }) })
-            setEditing(null); flash('Đã lưu'); load()
+            const first = { noi_dung: String(payload.noi_dung_tien_do ?? '').trim(), giai_doan: String(payload.giai_doan_tien_do ?? '') }
+            for (const f of res.firstProgress ?? []) delete payload[f.name]
+            const j = await api(editing.id ? `/api/${res.key}/${editing.id}` : `/api/${res.key}`, { method: editing.id ? 'PATCH' : 'POST', body: JSON.stringify({ ...filters, ...payload }) })
+            let note = 'Đã lưu'
+            if (!editing.id && res.firstProgress && (first.noi_dung || first.giai_doan) && j.data?.id) {
+              // the row is saved; a failed progress line must not make the user save it twice
+              try { await api(`/api/${res.key}/${j.data.id}/tien_do`, { method: 'POST', body: JSON.stringify(first) }) }
+              catch { note = 'Đã lưu công việc, nhưng chưa ghi được tiến độ — bấm Ghi nhận để nhập lại' }
+            }
+            setEditing(null); flash(note); load()
             if (editing.id && viewing) refreshViewing(editing.id)
           }} />
       )}
@@ -1185,8 +1194,8 @@ function Drawer({ children, onClose, wide }: { children: React.ReactNode; onClos
   </Portal>)
 }
 
-function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onSubmit, submitLabel = 'Lưu' }: {
-  title: string; subtitle?: string; fields: Field[]; initial: Row; isNew: boolean; refs: Record<string, Option[]>
+function FormModal({ title, subtitle, fields, sections, initial, isNew, refs, onClose, onSubmit, submitLabel = 'Lưu' }: {
+  title: string; subtitle?: string; fields: Field[]; sections?: { title: string; rows: string[][] }[]; initial: Row; isNew: boolean; refs: Record<string, Option[]>
   onClose: () => void; onSubmit: (payload: Row) => Promise<void>; submitLabel?: string
 }) {
   useEscape(onClose)
@@ -1203,53 +1212,46 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
   const span = (f: Field) => (f.type === 'textarea' || f.name === 'noi_dung' || f.type === 'bool' || f.type === 'password' ? FULL
     : f.type === 'ref' || f.type === 'email' || /^(ten|dia_chi|cong_ty|nguoi_)/.test(f.name) ? HALF : 'col-span-1')
 
-  return (<Portal>
-    <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 print:hidden" role="dialog" aria-modal="true">
-      <div className="pl-fade absolute inset-0 bg-navy-950/50" onClick={onClose} />
-      <form onSubmit={async (e) => {
-        e.preventDefault(); setBusy(true); setError('')
-        try { await onSubmit({ ...form }) } catch (err: any) { setError(err.message); setBusy(false) }
-      }} className="pl-sheet relative w-full sm:max-w-3xl lg:w-[80vw] lg:max-w-none max-h-[92dvh] flex flex-col bg-white rounded-2xl shadow-pop overflow-hidden">
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-5 lg:py-3 bg-[#0b1b40] text-white">
-          <div>
-            <h2 className="text-[16px] font-extrabold">{title}</h2>
-            {subtitle && <p className="text-xs font-semibold text-white/80">{subtitle}</p>}
-          </div>
-          <button type="button" onClick={onClose} className="grid place-items-center h-8 w-8 rounded-md hover:bg-white/15" aria-label="Đóng"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="px-4 py-3 lg:px-5 lg:py-4 overflow-y-auto grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-4 gap-x-3 gap-y-2.5 lg:gap-x-4 lg:gap-y-3.5 content-start">
-          {fields.map((f) => {
+  const cell = (f: Field, at?: string) => {
             const required = !!f.required && !(f.type === 'password' && !isNew)
             const set = (v: any) => setForm((s) => ({ ...s, [f.name]: v }))
             const common = { id: `f-${f.name}`, className: 'input h-11 text-[16px] lg:h-9 lg:text-sm', required, value: form[f.name] ?? '', onChange: (e: React.ChangeEvent<any>) => set(e.target.value) }
             if (f.multiRef) return (
-              <div key={f.name} className={FULL}>
+              <div key={f.name} className={at ?? FULL}>
                 <label htmlFor={`f-${f.name}`} className="label !mb-1">{f.label} <span className="font-semibold text-ink-mute">(chọn được nhiều người)</span></label>
                 <MultiPick id={`f-${f.name}`} value={String(form[f.name] ?? '')} options={refs[f.multiRef] ?? []} onChange={(v) => set(v)} />
               </div>
             )
             if (f.type === 'files') return (
-              <div key={f.name} className={FULL}>
+              <div key={f.name} className={at ?? FULL}>
                 <label className="label !mb-1">{f.label}</label>
                 <PhotoPicker files={Array.isArray(form[f.name]) ? form[f.name] : []} onChange={(v) => set(v)} />
               </div>
             )
             if (f.type === 'bool') return (
-              <label key={f.name} className={`${FULL} flex items-center gap-3 rounded-[7px] border border-navy-200 px-3 py-2.5 cursor-pointer hover:bg-navy-50`}>
+              <label key={f.name} className={`${at ?? FULL} flex items-center gap-3 rounded-[7px] border border-navy-200 px-3 py-2.5 cursor-pointer hover:bg-navy-50`}>
                 <input type="checkbox" className="h-4 w-4 accent-blue-600" checked={!!form[f.name]} onChange={(e) => set(e.target.checked)} />
                 <span className="text-sm font-bold text-ink">{f.label}</span>
               </label>
             )
             if (f.calc) return (
-              <div key={f.name} className={`min-w-0 ${span(f)}`}>
+              <div key={f.name} className={`min-w-0 ${at ?? span(f)}`}>
                 <label className="label !mb-0.5 truncate">{f.label}</label>
                 <input readOnly tabIndex={-1} className="input h-11 text-[16px] lg:h-9 lg:text-sm bg-navy-50 font-bold tabular-nums" value={new Intl.NumberFormat('vi-VN').format((Number(form[f.calc[0]]) || 0) * (Number(form[f.calc[1]]) || 0))} />
               </div>
             )
             return (
-              <div key={f.name} className={`min-w-0 ${span(f)}`}>
+              <div key={f.name} className={`min-w-0 ${at ?? span(f)}`}>
                 <label htmlFor={`f-${f.name}`} className="label !mb-0.5 truncate">{f.label}{required && <span className="text-brand-400"> *</span>}</label>
-                {f.type === 'textarea' ? <textarea rows={3} {...common} />
+                {f.type === 'textarea' ? <textarea rows={3} placeholder={f.place} {...common} />
+                  : f.chips ? (
+                    <div className="flex flex-wrap gap-1.5" role="group" aria-label={f.label}>
+                      {f.options!.map((o) => (
+                        <button key={o} type="button" aria-pressed={form[f.name] === o} onClick={() => set(form[f.name] === o ? '' : o)}
+                          className={`h-9 rounded-full border px-3.5 text-[13px] font-bold transition-colors ${form[f.name] === o ? 'border-[#d91828] bg-[#d91828] text-white' : 'border-navy-200 bg-white text-navy-900 hover:bg-navy-50'}`}>{o}</button>
+                      ))}
+                    </div>
+                  )
                   : f.type === 'select' ? (
                     <select {...common}>
                       {!required && <option value="">—</option>}
@@ -1269,8 +1271,44 @@ function FormModal({ title, subtitle, fields, initial, isNew, refs, onClose, onS
                   )}
               </div>
             )
-          })}
+  }
+  // V191 blocks: only fields present in this form; anything not placed goes to the end of the last block
+  const blocks = (sections ?? []).map((sec) => ({ title: sec.title, rows: sec.rows.map((r) => r.map((n) => fields.find((f) => f.name === n)).filter(Boolean) as Field[]).filter((r) => r.length) }))
+  if (blocks.length) { const placed = new Set((sections ?? []).flatMap((x) => x.rows.flat())); for (const f of fields) if (!placed.has(f.name)) blocks[blocks.length - 1].rows.push([f]) }
+  return (<Portal>
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 print:hidden" role="dialog" aria-modal="true">
+      <div className="pl-fade absolute inset-0 bg-navy-950/50" onClick={onClose} />
+      <form onSubmit={async (e) => {
+        e.preventDefault(); setBusy(true); setError('')
+        try { await onSubmit({ ...form }) } catch (err: any) { setError(err.message); setBusy(false) }
+      }} className="pl-sheet relative w-full sm:max-w-3xl lg:w-[80vw] lg:max-w-none max-h-[92dvh] flex flex-col bg-white rounded-2xl shadow-pop overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 lg:px-5 lg:py-3 bg-[#0b1b40] text-white">
+          <div>
+            <h2 className="text-[16px] font-extrabold">{title}</h2>
+            {subtitle && <p className="text-xs font-semibold text-white/80">{subtitle}</p>}
+          </div>
+          <button type="button" onClick={onClose} className="grid place-items-center h-8 w-8 rounded-md hover:bg-white/15" aria-label="Đóng"><X className="h-5 w-5" /></button>
         </div>
+        {!sections ? (
+          <div className="px-4 py-3 lg:px-5 lg:py-4 overflow-y-auto grid grid-flow-dense grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-4 gap-x-3 gap-y-2.5 lg:gap-x-4 lg:gap-y-3.5 content-start">
+            {fields.map((f) => cell(f))}
+          </div>
+        ) : (
+          <div className="grid content-start gap-x-5 gap-y-4 overflow-y-auto px-4 py-3 lg:grid-cols-2 lg:px-5 lg:py-4">
+            {blocks.map((b) => (
+              <section key={b.title} className="min-w-0">
+                <h3 className="mb-2.5 rounded-[6px] border-l-4 border-[#d91828] bg-navy-50 px-3 py-1.5 text-[12.5px] font-extrabold uppercase tracking-wide text-navy-900">{b.title}</h3>
+                <div className="grid gap-y-2.5 lg:gap-y-3">
+                  {b.rows.map((row) => (
+                    <div key={row[0].name} className="grid grid-cols-1 gap-x-3 gap-y-2.5 sm:[grid-template-columns:repeat(var(--n),minmax(0,1fr))]" style={{ ['--n' as any]: row.length }}>
+                      {row.map((f) => cell(f, ''))}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
         {error && <p className="mx-5 mb-2 rounded-[7px] bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 border border-red-200" role="alert">{error}</p>}
         <div className="flex justify-end gap-2 px-4 py-2.5 lg:px-5 lg:py-3 border-t border-navy-200 bg-navy-50">
           <button type="button" className="btn-secondary h-11 flex-1 sm:flex-none lg:h-9" onClick={onClose}>Hủy</button>

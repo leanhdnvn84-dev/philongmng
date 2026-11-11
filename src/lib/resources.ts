@@ -22,6 +22,8 @@ export interface Field {
   /** read-only live product of two other fields in a form (Thành tiền = Số lượng × Đơn giá) */
   calc?: [string, string]
   refQuery?: string // for 'ref': extra list filter, e.g. 'gt_ton_hien_tai=0' (only in-stock items)
+  place?: string // placeholder
+  chips?: boolean // 'select' drawn as a row of pill buttons (V191 "Giai đoạn")
 }
 
 export type Perm = 'view' | 'create' | 'edit' | 'delete' | 'approve'
@@ -73,6 +75,10 @@ export interface Resource {
   /** ref columns shown as drop-downs in a "Bộ lọc" box under the calendar (V191) */
   panelFilters?: string[]
   panelTitle?: string
+  /** V191 form: titled blocks side by side; each row lists the fields sharing one line */
+  formSections?: { title: string; rows: string[][] }[]
+  /** inputs asked only when adding, sent to the `tien_do` action right after the row is created */
+  firstProgress?: Field[]
   /** rows matching this cannot be edited/deleted (approved proposal, locked period…) */
   locked?: (row: any) => string | null
 }
@@ -183,6 +189,14 @@ export const RESOURCES: Resource[] = [
     ],
     optionLabel: (r) => `${r.id} · ${String(r.noi_dung ?? '').slice(0, 60)}`,
     actions: [progressAction],
+    formSections: [
+      { title: 'Thông tin giao việc', rows: [['ngay', 'id_nguoi_giao', 'id_nguoi_thuc_hien'], ['nguoi_lam_cung'], ['id_nha_thau', 'don_vi_thuc_hien'], ['noi_dung']] },
+      { title: 'Nội dung & tiến độ', rows: [['cach_thuc_hien'], ['noi_dung_tien_do'], ['giai_doan_tien_do'], ['ghi_chu'], ['trang_thai', 'ngay_hoan_thanh']] },
+    ],
+    firstProgress: [
+      { name: 'noi_dung_tien_do', label: 'Tiến độ hiện tại', type: 'textarea', place: 'Tiến độ ban đầu (nếu có)' },
+      { name: 'giai_doan_tien_do', label: 'Giai đoạn', type: 'select', options: STAGES, chips: true },
+    ],
   },
   {
     key: 'khach_ra_vao', table: 'khach_ra_vao', module: 'KHACH_RA_VAO', title: 'Khách ra/vào', singular: 'lượt khách',
