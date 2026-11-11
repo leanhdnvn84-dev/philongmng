@@ -36,6 +36,7 @@ export interface Action {
   confirm?: string
   scope?: 'row' | 'page' // page actions sit in the toolbar
   show?: (row: any) => boolean
+  adminOnly?: boolean // Super Admin only (hidden for everyone else, refused by the server)
 }
 
 export interface Resource {
@@ -450,7 +451,7 @@ export const RESOURCES: Resource[] = [
     optionLabel: (r) => `${r.ten_thiet_bi}${r.serial ? ` · ${r.serial}` : ''}`,
     actions: [
       {
-        key: 'chuyen', label: 'Chuyển', perm: 'edit', show: (r) => r.trang_thai !== 'Đã thanh lý',
+        key: 'chuyen', label: 'Chuyển', perm: 'edit', adminOnly: true, show: (r) => r.trang_thai !== 'Đã thanh lý',
         fields: [
           { name: 'id_khu_vuc', label: 'Đến khu vực', type: 'ref', ref: 'khu_vuc' },
           { name: 'id_nguoi_su_dung', label: 'Đến người dùng', type: 'ref', ref: 'nhan_vien' },
@@ -458,7 +459,7 @@ export const RESOURCES: Resource[] = [
         ],
       },
       {
-        key: 'thu_hoi', label: 'Thu hồi', perm: 'edit', show: (r) => ['Đang sử dụng', 'Bảo trì'].includes(r.trang_thai),
+        key: 'thu_hoi', label: 'Thu hồi', perm: 'edit', adminOnly: true, show: (r) => ['Đang sử dụng', 'Bảo trì'].includes(r.trang_thai),
         fields: [
           { name: 'id_nguoi_tra', label: 'Người trả', type: 'ref', ref: 'nhan_vien' },
           { name: 'id_nguoi_nhan_thu_hoi', label: 'Người nhận thu hồi', type: 'ref', ref: 'nhan_vien' },
@@ -470,10 +471,10 @@ export const RESOURCES: Resource[] = [
         ],
       },
       // a row that stands for several machines (số lượng > 1) becomes one row per machine, so each can be edited on its own
-      { key: 'tach', label: 'Tách máy', perm: 'edit', show: (r) => Number(r.so_luong) > 1,
+      { key: 'tach', label: 'Tách máy', perm: 'edit', adminOnly: true, show: (r) => Number(r.so_luong) > 1,
         confirm: 'Tách dòng này thành mỗi máy một dòng?\n\nMỗi máy mang số thứ tự (máy 01/11, 02/11…) và giữ nguyên tầng, vị trí, người quản lý, trạng thái, ghi chú. Dòng gốc giữ mã cũ, các máy còn lại nhận mã mới.' },
-      { key: 'tach_tat_ca', label: 'Tách tất cả', perm: 'edit', scope: 'page',
-        confirm: 'Tách TẤT CẢ các dòng đang gộp nhiều máy thành mỗi máy một dòng?\n\nSau khi tách, số dòng bằng tổng số lượng. Chỉ quản trị viên cao nhất làm được. Hệ thống tự tạo một bản sao lưu trước khi tách.' },
+      { key: 'tach_tat_ca', label: 'Tách tất cả', perm: 'edit', adminOnly: true, scope: 'page',
+        confirm: 'Tách TẤT CẢ các dòng đang gộp nhiều máy thành mỗi máy một dòng?\n\nSau khi tách, số dòng bằng tổng số lượng. Hệ thống tự tạo một bản sao lưu trước khi tách.' },
     ],
   },
   {

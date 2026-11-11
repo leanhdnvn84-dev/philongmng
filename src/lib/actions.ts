@@ -350,6 +350,7 @@ const HANDLERS: Record<string, Record<string, Handler>> = {
 export async function runAction(res: Resource, actionKey: string, id: string, auth: AuthContext, input: Record<string, any>) {
   const handler = HANDLERS[res.key]?.[actionKey]
   if (!handler) bad('Thao tác không tồn tại', 404)
+  if (res.actions?.find((a) => a.key === actionKey)?.adminOnly && !auth.superAdmin) bad('Chỉ Super Admin được thực hiện thao tác này', 403)
   const scope = res.actions?.find((a) => a.key === actionKey)?.scope ?? 'row'
   const row = scope === 'row' ? await loadRow(res, id) : null
   return handler!({ res, auth, id, row, input })

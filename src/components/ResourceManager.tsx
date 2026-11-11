@@ -17,7 +17,7 @@ import { ALERT_CODES, ALERT_MODULES, Action, Field, getResource, visibleInList, 
 
 type Row = Record<string, any>
 type Option = { value: string; label: string }
-export type UiPerms = { create: boolean; edit: boolean; delete: boolean; approve: boolean }
+export type UiPerms = { create: boolean; edit: boolean; delete: boolean; approve: boolean; admin?: boolean }
 
 const RED = /QUÁ HẠN|TRỄ|HẾT HẠN|DƯỚI TỒN|Từ chối|Hủy|Đã thanh lý|THIẾU/i
 const AMBER = /SẮP|ĐẾN HẠN|CẦN LÀM|Chờ duyệt|Nháp|Bảo trì|Hẹn|Chờ thanh lý|Đang thực hiện|ĐANG LÀM/i
@@ -323,7 +323,7 @@ export default function ResourceManager({
     const b = e.currentTarget.getBoundingClientRect(), up = b.bottom > window.innerHeight - 300
     setTip({ x: Math.max(8, Math.min(b.left, window.innerWidth - 448)), y: up ? b.top - 6 : b.bottom + 6, up, text })
   }
-  const allowed = (a: Action) => a.perm === 'view' || perms[a.perm as keyof UiPerms]
+  const allowed = (a: Action) => (!a.adminOnly || !!perms.admin) && (a.perm === 'view' || perms[a.perm as keyof UiPerms])
   const rowActions = (res.actions ?? []).filter((a) => (a.scope ?? 'row') === 'row' && allowed(a))
   const pageActions = (res.actions ?? []).filter((a) => a.scope === 'page' && allowed(a))
   const filterKey = JSON.stringify(filters)
