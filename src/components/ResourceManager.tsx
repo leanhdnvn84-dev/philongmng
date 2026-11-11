@@ -420,6 +420,16 @@ export default function ResourceManager({
     api(`/api/${res.key}?distinct=${sideName}`).then((j) => setSideValues(j.data)).catch(() => {})
   }, [res.key, sideName])
 
+  // a day is picked on the calendar: the side list only names the people who have records that day
+  const [sideDay, setSideDay] = useState<Record<string, number> | null>(null)
+  useEffect(() => {
+    if (!sideName || !day) { setSideDay(null); return }
+    let dead = false
+    const sp = baseParams(); sp.delete(sideName); sp.set('countBy', sideName)
+    api(`/api/${res.key}?${sp}`).then((j) => { if (!dead) setSideDay(j.data ?? {}) }).catch(() => { if (!dead) setSideDay(null) })
+    return () => { dead = true }
+  }, [version, day, sideName]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // phone header's "Tìm trang này…" box
   useEffect(() => {
     if (compact) return
@@ -882,7 +892,7 @@ export default function ResourceManager({
       </div>
     </div>
   )
-  const sideList = sideField ? ['', ...(res.sideNone ? ['__NULL__'] : []), ...[...sideValues].sort((a, b) => String(refLabel(sideField, a)).localeCompare(String(refLabel(sideField, b)), 'vi'))] : []
+  const sideList = sideField ? ['', ...(res.sideNone ? ['__NULL__'] : []), ...[...sideValues].filter((v) => !sideDay || v === side || sideDay[v] > 0).sort((a, b) => String(refLabel(sideField, a)).localeCompare(String(refLabel(sideField, b)), 'vi'))] : []
   return (
     <div className="flex flex-col flex-1 lg:min-h-0">
       {/* breadcrumb + red title */}
@@ -1039,6 +1049,7 @@ export default function ResourceManager({
                         <button key={v || 'all'} onClick={() => setSide(v)}
                           className={`w-full text-left px-3 py-2.5 text-[14px] border-b border-navy-100 last:border-0 ${on ? 'bg-select border-l-4 border-l-[#2189e6] font-extrabold text-navy-900' : 'text-navy-800 hover:bg-navy-50'}`}>
                           {v === '' ? 'Tất cả' : refLabel(sideField, v)}
+                          {sideDay && v !== '' && sideDay[v] > 0 && <span className="float-right rounded-full bg-navy-100 px-2 text-[12px] font-bold text-navy-700">{sideDay[v]}</span>}
                         </button>
                       )
                     })}
