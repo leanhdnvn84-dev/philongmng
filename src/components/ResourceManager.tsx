@@ -497,6 +497,8 @@ export default function ResourceManager({
     const by = (x: string) => devAll.filter((r) => r.trang_thai === x).length
     return { total: devAll.length, sl: devAll.reduce((a, r) => a + (Number(r.so_luong) || 1), 0), use: by('Đang sử dụng'), kho: by('Trong kho'), todo: devAll.filter((r) => !r.trang_thai).length }
   }, [devAll])
+  // devices that are not in use (in store, under repair, no status yet…) first: they are the ones to deal with
+  const devRows = useMemo(() => (isDev ? [...rows].sort((a, b) => Number(a.trang_thai === 'Đang sử dụng') - Number(b.trang_thai === 'Đang sử dụng')) : rows), [rows, isDev])
   const devTypes = useMemo(() => Array.from(new Set(devAll.map((r) => r.loai_thiet_bi).filter(Boolean))).sort() as string[], [devAll])
   const devManagers = useMemo(() => Array.from(new Set(devAll.map((r) => r.id_nguoi_quan_ly).filter(Boolean))).map((id) => ({ id: id as string, name: staff[id as string]?.ho_ten ?? (id as string) })).sort((a, b) => a.name.localeCompare(b.name, 'vi')), [devAll, staff])
   const devTable = (
@@ -513,7 +515,7 @@ export default function ResourceManager({
         <tbody>
           {loading && rows.length === 0 ? [...Array(8)].map((_, i) => <tr key={i}><td colSpan={8} className="px-3 py-3 border-b border-navy-100"><div className="h-3.5 rounded bg-navy-100 animate-pulse" style={{ width: `${60 + ((i * 13) % 35)}%` }} /></td></tr>)
             : rows.length === 0 ? <tr><td colSpan={8} className="px-4 py-16 text-center text-ink-mute"><Inbox className="h-8 w-8 mx-auto mb-2 text-navy-300" />Không có thiết bị</td></tr>
-            : rows.map((r) => {
+            : devRows.map((r) => {
               const sel = r.id === selectedId, a = areas[r.id_khu_vuc], m = staff[r.id_nguoi_quan_ly]
               return (
                 <tr key={r.id} tabIndex={0} aria-selected={sel}
@@ -549,7 +551,7 @@ export default function ResourceManager({
     <div className="lg:hidden space-y-2.5 p-3">
       {loading && rows.length === 0 ? [...Array(5)].map((_, i) => <div key={i} className="h-28 animate-pulse rounded-2xl bg-navy-100" />)
         : rows.length === 0 ? <div className="px-4 py-14 text-center text-ink-mute"><Inbox className="mx-auto mb-2 h-8 w-8 text-navy-300" />Không có thiết bị</div>
-        : rows.map((r) => {
+        : devRows.map((r) => {
           const a = areas[r.id_khu_vuc], m = staff[r.id_nguoi_quan_ly]
           return (
             <button key={r.id} type="button" onClick={() => setViewing(r)} className={`block w-full rounded-2xl border border-navy-200 bg-white p-3.5 text-left shadow-[0_1px_2px_rgba(16,24,40,.06)] active:bg-navy-50 ${loading ? 'opacity-60' : ''}`}>
@@ -931,7 +933,7 @@ export default function ResourceManager({
         {isDev && (
           <div className="ml-auto hidden text-right text-[12.5px] leading-snug text-ink-soft lg:block">
             <div className="text-[15px] font-extrabold text-navy-900">{devStats.total} thiết bị · tổng SL {devStats.sl}</div>
-            <div>{devStats.use} đang sử dụng · {devStats.kho} trong kho · {devStats.todo} cần xử lý</div>
+            <div>{devStats.use} đang sử dụng · <b className={devStats.total - devStats.use ? 'text-orange-700' : ''}>{devStats.total - devStats.use} chưa sử dụng</b> ({devStats.kho} trong kho · {devStats.todo} chưa có trạng thái)</div>
           </div>
         )}
 
