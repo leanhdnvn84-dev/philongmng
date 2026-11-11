@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Search, Plus, Eye, Pencil, LogOut, Printer, Ban, RotateCw, X, Loader2, UserCheck, CalendarClock, Inbox } from 'lucide-react'
+import { Search, Plus, Eye, Pencil, LogOut, Printer, Ban, RotateCw, X, Loader2, UserCheck, CalendarClock, Inbox, ChevronDown } from 'lucide-react'
 import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
 import { Tile, FilterSheet } from '@/components/ResourceManager'
@@ -85,6 +85,14 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
     } catch (e: any) { flash(e.message, 'err') } finally { setLoading(false) }
   }, [])
   useEffect(() => { load() }, [load])
+  // pick lists (V191): floors come from the building areas, people to meet from the tenant list; typing something else is still allowed
+  const [floors, setFloors] = useState<string[]>([])
+  const [tenants, setTenants] = useState<string[]>([])
+  useEffect(() => {
+    const names = (u: string) => api(u).then((j) => (j.data as { label: string }[]).map((o) => String(o.label)))
+    names('/api/khu_vuc?options=1').then((l) => setFloors(Array.from(new Set(l.filter((x) => /^tầng/i.test(x)))).sort((a, b) => a.localeCompare(b, 'vi', { numeric: true })))).catch(() => {})
+    names('/api/khach_thue?options=1').then((l) => setTenants(Array.from(new Set(l)))).catch(() => {})
+  }, [])
   // refresh every minute (also re-computes the "Đã ở" durations)
   useEffect(() => { const t = setInterval(() => { load(); setTick((n) => n + 1) }, 60000); return () => clearInterval(t) }, [load])
 
@@ -206,8 +214,8 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
     </button>
   )
 
-  const label = 'block text-[10.5px] font-black uppercase tracking-wide text-navy-700 mb-1'
-  const inp = 'input h-9'
+  const label = 'block text-[10.5px] font-black uppercase tracking-wide text-navy-700 mb-1 lg:mb-0.5'
+  const inp = 'input h-9 lg:h-7 lg:!py-0 lg:text-[13px]'
   const req = <span className="text-brand-400"> *</span>
 
   return (
@@ -239,27 +247,27 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto xl:overflow-hidden">
+      <div className="flex flex-col gap-3 px-4 lg:px-5 py-3 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
         {msg && (
           <div role="status" className={`flex items-start justify-between gap-3 rounded-[9px] border px-4 py-2.5 text-sm font-semibold ${msg.type === 'ok' ? 'bg-green-50 text-green-800 border-green-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
             <span>{msg.text}</span><button onClick={() => setMsg(null)} aria-label="Đóng" className="opacity-60 hover:opacity-100"><X className="h-4 w-4" /></button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-4 xl:flex-1 xl:min-h-0 xl:grid-rows-[minmax(0,1fr)]">
+        <div className="grid grid-cols-1 lg:grid-cols-[330px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)] gap-4 lg:flex-1 lg:min-h-0 lg:grid-rows-[minmax(0,1fr)]">
           {/* registration form */}
-          <form ref={formRef} onSubmit={submit} className="card p-4 xl:h-full xl:overflow-y-auto print:hidden">
+          <form ref={formRef} onSubmit={submit} className="card p-4 lg:h-full lg:overflow-y-auto lg:p-3 print:hidden">
             <div className="flex items-baseline justify-between">
               <h2 className="text-[13px] font-black uppercase tracking-wide text-blue-700">{editId ? `Sửa ${editId}` : 'Đăng ký khách'}</h2>
               <span className="text-[11px] text-ink-mute">{editId ? 'Đang chỉnh sửa' : 'Giờ vào: tự lấy giờ máy chủ'}</span>
             </div>
 
             {!editId && (
-              <div className="mt-3 grid grid-cols-2 gap-1 p-1 rounded-[9px] bg-navy-100" role="tablist" aria-label="Kiểu đăng ký">
+              <div className="mt-3 lg:mt-2 grid grid-cols-2 gap-1 p-1 rounded-[9px] bg-navy-100" role="tablist" aria-label="Kiểu đăng ký">
                 <button type="button" role="tab" aria-selected={mode === 'in'} onClick={() => setMode('in')}
-                  className={`h-9 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'in' ? 'bg-blue-600 text-white shadow' : 'text-navy-700'}`}><UserCheck className="h-4 w-4" />Check-in ngay</button>
+                  className={`h-9 lg:h-8 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'in' ? 'bg-blue-600 text-white shadow' : 'text-navy-700'}`}><UserCheck className="h-4 w-4" />Check-in ngay</button>
                 <button type="button" role="tab" aria-selected={mode === 'book'} onClick={() => setMode('book')}
-                  className={`h-9 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'book' ? 'bg-blue-600 text-white shadow' : 'text-navy-700'}`}><CalendarClock className="h-4 w-4" />Đăng ký trước</button>
+                  className={`h-9 lg:h-8 rounded-[7px] text-[13px] font-extrabold flex items-center justify-center gap-1.5 ${mode === 'book' ? 'bg-blue-600 text-white shadow' : 'text-navy-700'}`}><CalendarClock className="h-4 w-4" />Đăng ký trước</button>
               </div>
             )}
 
@@ -270,43 +278,43 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               </div>
             )}
 
-            <h3 className="mt-4 mb-2 pb-1 border-b border-navy-200 text-[12px] font-black uppercase text-blue-700">Thông tin khách</h3>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+            <h3 className="mt-4 mb-2 lg:mt-2 lg:mb-1 pb-0.5 border-b border-navy-200 text-[12px] font-black uppercase text-blue-700">Thông tin khách</h3>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 lg:gap-y-0.5">
               <div><label className={label} htmlFor="v-ho-ten">Họ tên khách{req}</label><input id="v-ho-ten" name="ho_ten" required className={inp} value={form.ho_ten} onChange={(e) => set('ho_ten', e.target.value)} /></div>
               <div><label className={label} htmlFor="v-sdt">Số điện thoại{req}</label><input id="v-sdt" name="sdt" required inputMode="tel" placeholder="Khách quen tự điền" className={inp} value={form.sdt} onChange={(e) => set('sdt', e.target.value)} onBlur={lookupPhone} /></div>
               <div><label className={label} htmlFor="v-giay-to">CCCD / Giấy tờ</label><input id="v-giay-to" className={inp} value={form.giay_to} onChange={(e) => set('giay_to', e.target.value)} /></div>
               <div><label className={label} htmlFor="v-di-cung">Người đi cùng</label><input id="v-di-cung" placeholder="Nhiều người: cách nhau dấu phẩy" className={inp} value={form.nguoi_di_cung} onChange={(e) => set('nguoi_di_cung', e.target.value)} /></div>
-              <div className="col-span-2"><label className={label} htmlFor="v-cong-ty">Công ty</label><input id="v-cong-ty" className={inp} value={form.cong_ty} onChange={(e) => set('cong_ty', e.target.value)} /></div>
-              <div className="col-span-2"><label className={label} htmlFor="v-dia-chi">Địa chỉ</label><input id="v-dia-chi" className={inp} value={form.dia_chi} onChange={(e) => set('dia_chi', e.target.value)} /></div>
+              <div className="col-span-2 lg:col-span-1"><label className={label} htmlFor="v-cong-ty">Công ty</label><input id="v-cong-ty" className={inp} value={form.cong_ty} onChange={(e) => set('cong_ty', e.target.value)} /></div>
+              <div className="col-span-2 lg:col-span-1"><label className={label} htmlFor="v-dia-chi">Địa chỉ</label><input id="v-dia-chi" className={inp} value={form.dia_chi} onChange={(e) => set('dia_chi', e.target.value)} /></div>
             </div>
 
-            <h3 className="mt-4 mb-2 pb-1 border-b border-navy-200 text-[12px] font-black uppercase text-blue-700">Cần liên hệ</h3>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
-              <div><label className={label} htmlFor="v-gap">Người cần gặp</label><input id="v-gap" className={inp} value={form.nguoi_can_gap} onChange={(e) => set('nguoi_can_gap', e.target.value)} /></div>
+            <h3 className="mt-4 mb-2 lg:mt-2 lg:mb-1 pb-0.5 border-b border-navy-200 text-[12px] font-black uppercase text-blue-700">Cần liên hệ</h3>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 lg:gap-y-0.5">
+              <div><label className={label} htmlFor="v-gap">Người cần gặp</label><Combo id="v-gap" className={inp} value={form.nguoi_can_gap} options={tenants} placeholder="Chọn hoặc gõ tên" onChange={(v) => set('nguoi_can_gap', v)} /></div>
               <div><label className={label} htmlFor="v-pb">Phòng ban</label><input id="v-pb" className={inp} value={form.phong_ban} onChange={(e) => set('phong_ban', e.target.value)} /></div>
-              <div><label className={label} htmlFor="v-tang">Tầng</label><input id="v-tang" className={inp} value={form.tang} onChange={(e) => set('tang', e.target.value)} /></div>
+              <div><label className={label} htmlFor="v-tang">Tầng</label><Combo id="v-tang" className={inp} value={form.tang} options={floors} placeholder="Chọn tầng" onChange={(v) => set('tang', v)} /></div>
               <div><label className={label} htmlFor="v-ct-lh">Công ty</label><input id="v-ct-lh" className={inp} value={form.cong_ty_lien_he} onChange={(e) => set('cong_ty_lien_he', e.target.value)} /></div>
-              <div className="col-span-2"><label className={label} htmlFor="v-nd">Nội dung công việc</label><textarea id="v-nd" rows={2} className="input" value={form.noi_dung} onChange={(e) => set('noi_dung', e.target.value)} /></div>
+              <div className="col-span-2"><label className={label} htmlFor="v-nd">Nội dung công việc</label><textarea id="v-nd" rows={2} className="input lg:!h-11 lg:!min-h-0 lg:!py-1 lg:text-[13px]" value={form.noi_dung} onChange={(e) => set('noi_dung', e.target.value)} /></div>
             </div>
 
-            <div className="mt-3">
-              <span className={label}>Mục đích</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div className="mt-3 lg:mt-2 lg:flex lg:items-center lg:gap-2">
+              <span className={`${label} lg:!mb-0 shrink-0`}>Mục đích</span>
+              <div className="flex flex-wrap gap-1.5 lg:gap-1">
                 {PURPOSES.map((p) => (
                   <button key={p} type="button" aria-pressed={form.muc_dich === p} onClick={() => set('muc_dich', p)}
-                    className={`h-7 px-3 rounded-full text-[12px] font-bold border ${form.muc_dich === p ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-navy-300 text-navy-800 hover:bg-navy-50'}`}>{p}</button>
+                    className={`h-7 px-3 lg:h-6 lg:px-1.5 lg:text-[11px] rounded-full text-[12px] font-bold border ${form.muc_dich === p ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-navy-300 text-navy-800 hover:bg-navy-50'}`}>{p}</button>
                 ))}
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-x-3">
+            <div className="mt-3 lg:mt-2 grid grid-cols-2 gap-x-3">
               <div><label className={label} htmlFor="v-tr">Người đăng ký / trực</label><input id="v-tr" readOnly className={`${inp} bg-navy-50`} value={userName} /></div>
               <div><label className={label} htmlFor="v-ghichu">Ghi chú</label><input id="v-ghichu" className={inp} value={form.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)} /></div>
             </div>
 
-            <div className="mt-4 flex gap-2 sticky -bottom-4 -mx-4 -mb-4 px-4 py-3 bg-white border-t border-navy-200">
+            <div className="mt-4 lg:mt-2 flex gap-2 sticky -bottom-4 -mx-4 -mb-4 px-4 py-3 lg:-bottom-3 lg:-mx-3 lg:-mb-3 lg:px-3 lg:py-2 bg-white border-t border-navy-200">
               <button disabled={busy || !(editId ? perms.edit : perms.create)}
-                className={`flex-1 h-11 rounded-[9px] text-white text-[14px] font-extrabold flex items-center justify-center gap-2 disabled:opacity-50 ${mode === 'in' || editId ? 'bg-green-700 hover:bg-green-800' : 'bg-blue-700 hover:bg-blue-800'}`}>
+                className={`flex-1 h-11 lg:h-9 rounded-[9px] text-white text-[14px] font-extrabold flex items-center justify-center gap-2 disabled:opacity-50 ${mode === 'in' || editId ? 'bg-green-700 hover:bg-green-800' : 'bg-blue-700 hover:bg-blue-800'}`}>
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : editId ? 'LƯU THAY ĐỔI' : mode === 'in' ? '→ CHECK-IN' : 'ĐĂNG KÝ TRƯỚC'}
               </button>
               {(editId || form.ho_ten || form.sdt) && <button type="button" onClick={resetForm} className="btn-secondary h-11">{editId ? 'Hủy sửa' : 'Xóa form'}</button>}
@@ -314,7 +322,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
           </form>
 
           {/* list */}
-          <div ref={listRef} className="card overflow-hidden min-w-0 flex flex-col xl:min-h-0 scroll-mt-20">
+          <div ref={listRef} className="card overflow-hidden min-w-0 flex flex-col lg:min-h-0 scroll-mt-20">
             <div role="tablist" aria-label="Danh sách khách" className="shrink-0 hidden lg:flex overflow-x-auto px-3 border-b border-navy-200">
               {tabBtn('in', 'Đang trong tòa nhà', inside.length)}
               {tabBtn('book', 'Hẹn trước', booked.length)}
@@ -331,7 +339,7 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
               </label>
             </div>
 
-            <div className="overflow-y-auto overflow-x-hidden max-h-[70vh] min-h-[260px] xl:max-h-none xl:flex-1 xl:min-h-0 p-2.5">
+            <div className="overflow-y-auto overflow-x-hidden max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0 p-2.5">
               <table className="hidden w-full table-fixed text-[11.5px] border-separate border-spacing-0 rounded-[9px] overflow-hidden border border-navy-200 lg:table">
                 <colgroup>{[6.6, 4.2, 9.5, 6, 8.5, 8.4, 7.2, 7.8, 8, 4.4, 5.8, 6.8, 6.4, 10.4].map((w, i) => <col key={i} style={{ width: `${w}%` }} />)}</colgroup>
                 <thead>
@@ -486,6 +494,47 @@ export default function VisitorsPage({ perms, userName }: { perms: { create: boo
             </div>
           </div>
         </Portal>
+      )}
+    </div>
+  )
+}
+
+/** Text box with a drop-down of suggestions: pick one or keep typing something else. */
+function Combo({ id, value, options, onChange, className, placeholder }: { id: string; value: string; options: string[]; onChange: (v: string) => void; className: string; placeholder?: string }) {
+  const [open, setOpen] = useState(false)
+  const box = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number; width: number; max: number } | null>(null)
+  const [typed, setTyped] = useState(false) // filter only after the user types; opening shows the whole list
+  const q = value.trim().toLowerCase()
+  const list = typed && q ? options.filter((o) => o.toLowerCase().includes(q)) : options
+  useEffect(() => {
+    if (!open) return
+    const place = () => {
+      const r = box.current?.getBoundingClientRect(); if (!r) return
+      const below = innerHeight - r.bottom - 8, above = r.top - 8
+      setPos(below >= 180 || below >= above ? { left: r.left, top: r.bottom + 4, width: r.width, max: Math.max(120, Math.min(300, below)) } : { left: r.left, bottom: innerHeight - r.top + 4, width: r.width, max: Math.min(300, above) })
+    }
+    place()
+    window.addEventListener('resize', place); window.addEventListener('scroll', place, true)
+    return () => { window.removeEventListener('resize', place); window.removeEventListener('scroll', place, true) }
+  }, [open])
+  return (
+    <div ref={box} className="relative" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false) }}>
+      <input id={id} className={`${className} pr-8`} value={value} placeholder={placeholder} autoComplete="off" role="combobox" aria-expanded={open} aria-controls={`${id}-list`}
+        onFocus={() => { setOpen(true); setTyped(false) }} onChange={(e) => { onChange(e.target.value); setOpen(true); setTyped(true) }}
+        onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false) }} />
+      <button type="button" tabIndex={-1} aria-label="Mở danh sách" onClick={() => { setOpen((o) => !o); setTyped(false) }}
+        className="absolute right-0 top-0 grid h-full w-8 place-items-center text-navy-500 hover:text-navy-900"><ChevronDown className="h-4 w-4" /></button>
+      {open && pos && list.length > 0 && (
+        <ul id={`${id}-list`} role="listbox" style={{ left: pos.left, top: pos.top, bottom: pos.bottom, minWidth: pos.width, maxHeight: pos.max }}
+          className="fixed z-[80] w-max max-w-[340px] overflow-y-auto rounded-[9px] border border-navy-200 bg-white py-1 shadow-pop">
+          {list.map((o) => (
+            <li key={o} role="option" aria-selected={o === value}>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { onChange(o); setOpen(false) }}
+                className={`block w-full px-3 py-2 text-left text-[13px] leading-snug hover:bg-navy-50 ${o === value ? 'bg-select font-extrabold' : ''}`}>{o}</button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )
