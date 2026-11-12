@@ -932,6 +932,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Nhật ký email cảnh báo', href: '/nhat_ky_email_canh_bao', resource: 'nhat_ky_email_canh_bao', module: 'NGUOI_SU_DUNG' },
     { label: 'Nhật ký thao tác', href: '/audit_logs', resource: 'audit_logs', module: 'NGUOI_SU_DUNG' },
     { label: 'Kiểm tra & sao lưu', href: '/kiem-tra-du-lieu', module: 'NGUOI_SU_DUNG' },
+    { label: 'Thùng rác', href: '/thung-rac', module: 'NGUOI_SU_DUNG' },
   ] },
 ]
 

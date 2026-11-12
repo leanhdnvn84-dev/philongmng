@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { KeyRound, ShieldCheck, Loader2, Eye, EyeOff } from 'lucide-react'
 
-export default function AccountPage({ name, email, role }: { name: string; email: string; role: string }) {
+export default function AccountPage({ name, email, role, mustChange = false }: { name: string; email: string; role: string; mustChange?: boolean }) {
   const [cur, setCur] = useState(''), [next, setNext] = useState(''), [again, setAgain] = useState('')
   const [show, setShow] = useState(false), [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
@@ -19,6 +19,7 @@ export default function AccountPage({ name, email, role }: { name: string; email
       const j = await r.json().catch(() => ({}))
       if (!r.ok || !j.success) throw new Error(j.error || 'Không đổi được mật khẩu')
       setMsg({ ok: true, text: 'Đã đổi mật khẩu. Lần đăng nhập sau dùng mật khẩu mới.' }); setCur(''); setNext(''); setAgain('')
+      if (mustChange) setTimeout(() => { window.location.href = '/' }, 1200)
     } catch (err: any) { setMsg({ ok: false, text: err.message }) } finally { setBusy(false) }
   }
   const field = 'input h-11 text-[16px] lg:h-10 lg:text-sm'
@@ -29,6 +30,7 @@ export default function AccountPage({ name, email, role }: { name: string; email
         <h1 className="text-[22px] font-black text-navy-900">Tài khoản của tôi</h1>
       </div>
       <div className="p-4 lg:p-5">
+        {mustChange && <p role="alert" className="mx-auto mb-4 max-w-4xl rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[14px] font-semibold text-amber-900">Mật khẩu này do quản trị viên đặt. Hãy đổi sang mật khẩu của riêng bạn để tiếp tục dùng hệ thống.</p>}
     <div className="mx-auto grid max-w-4xl gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
       <div className="card p-5">
         <div className="grid h-16 w-16 place-items-center rounded-full bg-navy-900 text-[20px] font-black text-white">{(name.match(/\S+/g) ?? ['U']).slice(-2).map((w) => w[0]).join('').toUpperCase()}</div>

@@ -120,7 +120,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const db = supabaseAdmin()
   let authUserId: string | null = null
   if (res.key === 'users') {
-    const { data: created, error: e } = await db.auth.admin.createUser({ email: data.email, password: String(body.password), email_confirm: true })
+    const { data: created, error: e } = await db.auth.admin.createUser({ email: data.email, password: String(body.password), email_confirm: true, user_metadata: { doi_mat_khau: true } })
     if (e) return fail(/already|registered|exists/i.test(e.message) ? 'Email đã tồn tại' : 'Không tạo được tài khoản', 409)
     authUserId = created.user.id
     data.id = authUserId

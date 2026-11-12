@@ -32,7 +32,7 @@ const META: Record<string, [LucideIcon, string]> = {
   'Báo cáo tiến độ': [BarChart3, 'Tiến độ theo giai đoạn'], 'Báo cáo công việc': [FileText, 'Thống kê theo nhân sự'],
   'Nhật ký bảo trì': [Wrench, 'Việc đã bảo trì'], 'Kế hoạch bảo trì': [CalendarDays, 'Lịch và chu kỳ sắp tới'],
   'Đề xuất mua vật tư': [ShoppingCart, 'Phiếu mua vật tư'], 'Đề xuất mua thiết bị': [MonitorSmartphone, 'Phiếu mua thiết bị'], 'Đề xuất bảo trì': [Hammer, 'Phiếu sửa chữa, bảo trì'],
-  'Đề xuất thanh lý': [Trash2, 'Phiếu thanh lý thiết bị'], 'Lịch sử in phiếu': [Printer, 'Các lần in phiếu đề xuất'], 'Lịch tổng': [CalendarDays, 'Hạn việc, bảo trì, khách hẹn, hợp đồng'],
+  'Đề xuất thanh lý': [Trash2, 'Phiếu thanh lý thiết bị'], 'Lịch sử in phiếu': [Printer, 'Các lần in phiếu đề xuất'], 'Lịch tổng': [CalendarDays, 'Hạn việc, bảo trì, khách hẹn, hợp đồng'], 'Thùng rác': [Trash2, 'Khôi phục bản ghi đã xóa trong 30 ngày'],
   'Kho vật tư': [Boxes, 'Tồn kho và cảnh báo'], 'Lịch sử nhập xuất': [ArrowLeftRight, 'Phiếu nhập, xuất kho'], 'Thiết bị đang dùng': [Monitor, 'Thiết bị đã bàn giao'],
   'Kho thiết bị': [Warehouse, 'Thiết bị trong kho'], 'Tất cả thiết bị': [LayoutGrid, 'Toàn bộ thiết bị'], 'Thu hồi / thanh lý': [Undo2, 'Thu hồi và thanh lý'], 'Lịch sử chuyển': [Repeat, 'Chuyển khu vực, người dùng'],
   'Toà nhà': [Building2, 'Thông tin toà nhà'], 'Tầng / khu cho thuê': [Layers, 'Diện tích và tình trạng'], 'Khách đang thuê': [KeyRound, 'Hợp đồng đang hiệu lực'], 'Khách hàng tiềm năng': [UserPlus, 'Khách quan tâm thuê'], 'Tiền điện': [Zap, 'Chốt điện theo kỳ'],

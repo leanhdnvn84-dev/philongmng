@@ -7,7 +7,7 @@ import type { Field } from '@/lib/resources'
 type Item = { id: string; at: string; by: string; action: string; changes: any }
 const ACTION: Record<string, string> = {
   create: 'Tạo mới', update: 'Sửa', delete: 'Xóa', approve: 'Duyệt', reject: 'Từ chối', progress: 'Ghi nhận tiến độ', cancel: 'Hủy', checkout: 'Check-out',
-  transfer: 'Chuyển', recover: 'Thu hồi', split: 'Tách máy', in_phieu: 'In phiếu', stock_in: 'Nhập kho', stock_out: 'Xuất kho', adjust: 'Điều chỉnh tồn',
+  transfer: 'Chuyển', recover: 'Thu hồi', split: 'Tách máy', in_phieu: 'In phiếu', restore: 'Khôi phục từ thùng rác', attach: 'Đính kèm tệp', detach: 'Gỡ tệp', password_reset: 'Đặt lại mật khẩu', stock_in: 'Nhập kho', stock_out: 'Xuất kho', adjust: 'Điều chỉnh tồn',
 }
 const when = (iso: string) => new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(iso))
 const SKIP = new Set(['id', 'extra', 'created_at', 'updated_at'])

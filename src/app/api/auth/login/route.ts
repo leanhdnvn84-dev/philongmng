@@ -8,8 +8,8 @@ import { REMEMBER_COOKIE, maxAgeFor } from '@/lib/session'
 export const runtime = 'nodejs'
 const BAD = 'Tên đăng nhập / email hoặc mật khẩu không đúng'
 
-// best-effort throttle (per server instance) on top of Supabase's own rate limits
-const fails = new Map<string, { n: number; until: number }>()
+// account lock: 5 wrong passwords within 15 minutes locks that login name for 15 minutes (kept in the database, so it holds on every server)
+const LIMIT = 5, WINDOW_MIN = 15
 
 const same = (a: string, b: string) => {
   const x = Buffer.from(a), y = Buffer.from(b)
@@ -24,20 +24,23 @@ export async function POST(req: Request) {
   if (!ident || ident.length > 200 || !password || password.length > 256)
     return NextResponse.json({ success: false, error: BAD }, { status: 400 })
 
-  const f = fails.get(ident)
-  if (f && f.until > Date.now())
-    return NextResponse.json({ success: false, error: 'Đăng nhập sai nhiều lần, thử lại sau 5 phút' }, { status: 429 })
-
   const admin = supabaseAdmin()
+  const since = new Date(Date.now() - WINDOW_MIN * 60_000).toISOString()
+  const { data: recent } = await admin.from('dang_nhap_sai').select('at').eq('ident', ident).gte('at', since).order('at', { ascending: false }).limit(LIMIT)
+  if ((recent?.length ?? 0) >= LIMIT) {
+    const left = Math.max(1, Math.ceil((Date.parse(recent![LIMIT - 1].at) + WINDOW_MIN * 60_000 - Date.now()) / 60_000))
+    return NextResponse.json({ success: false, error: `Tài khoản tạm khóa do nhập sai ${LIMIT} lần. Thử lại sau ${left} phút, hoặc dùng “Quên mật khẩu”.` }, { status: 429 })
+  }
+
   const { data: u } = await admin.from('users').select('id, email, trang_thai')
     .or(`email.eq.${ident.replace(/[,()]/g, '')},ten_dang_nhap.eq.${ident.replace(/[,()]/g, '')}`).limit(2)
   const user = u?.length === 1 ? u[0] : null
 
-  const miss = () => {
-    const c = fails.get(ident) ?? { n: 0, until: 0 }
-    c.n += 1; if (c.n >= 8) { c.until = Date.now() + 5 * 60_000; c.n = 0 }
-    fails.set(ident, c)
-    return NextResponse.json({ success: false, error: BAD }, { status: 401 })
+  const miss = async () => {
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || null
+    await admin.from('dang_nhap_sai').insert({ ident, ip }).then(() => {}, () => {})
+    const left = LIMIT - 1 - (recent?.length ?? 0)
+    return NextResponse.json({ success: false, error: left > 0 && left <= 2 ? `${BAD}. Còn ${left} lần thử trước khi tài khoản bị khóa ${WINDOW_MIN} phút.` : left <= 0 ? `${BAD}. Tài khoản tạm khóa ${WINDOW_MIN} phút.` : BAD }, { status: 401 })
   }
   if (!user || user.trang_thai === 'Khóa') { crypto.pbkdf2Sync(password, 'x', 100000, 32, 'sha256'); return miss() }
 
@@ -54,7 +57,7 @@ export async function POST(req: Request) {
   const { error } = await supabaseServer({ remember }).auth.signInWithPassword({ email: user.email, password })
   if (error) return miss()
   cookies().set(REMEMBER_COOKIE, remember ? '1' : '0', { maxAge: maxAgeFor(remember), path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' })
-  fails.delete(ident)
+  await admin.from('dang_nhap_sai').delete().eq('ident', ident).then(() => {}, () => {})
   // login history (V191 LICH_SU_DANG_NHAP): never blocks the sign-in
   try {
     const ua = req.headers.get('user-agent') ?? ''

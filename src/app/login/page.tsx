@@ -92,7 +92,7 @@ export default function LoginPage() {
             <button disabled={busy} className="mt-5 inline-flex h-[54px] w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#f5565b] to-[#ED3237] text-[16px] font-extrabold text-white shadow-[0_14px_28px_rgba(237,50,55,.45),inset_0_1px_0_rgba(255,255,255,.35)] transition active:translate-y-px disabled:opacity-60">
               {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Đăng nhập'}
             </button>
-            <p className="mt-4 text-center text-[12.5px] text-[#8fa3c7]">Quên mật khẩu? Liên hệ quản trị để cấp lại.</p>
+            <p className="mt-4 text-center text-[13px] text-[#8fa3c7]"><a href="/quen-mat-khau" className="font-bold text-[#ffb4b7] underline-offset-2 hover:underline">Quên mật khẩu?</a> Nhận đường dẫn đặt lại qua email.</p>
           </form>
                   </div>
       </div>

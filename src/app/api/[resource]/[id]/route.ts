@@ -46,7 +46,7 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
     }
     if (body.password) {
       if (String(body.password).length < 8) return fail('Mật khẩu tối thiểu 8 ký tự')
-      const { error: e } = await db.auth.admin.updateUserById(params.id, { password: String(body.password) })
+      const { error: e } = await db.auth.admin.updateUserById(params.id, { password: String(body.password), user_metadata: { doi_mat_khau: params.id !== auth.userId } })
       if (e) return fail('Không đổi được mật khẩu')
     }
   }
@@ -71,6 +71,10 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   const bad = await validateDelete(res, existing)
   if (bad) return fail(bad, 409)
 
+  // rows that disappear with this one (cascade) are kept with it, so the recycle bin can bring them back too
+  const CHILDREN: Record<string, [string, string][]> = { de_xuat: [['de_xuat_chi_tiet', 'id_de_xuat']], thiet_bi: [['thu_hoi', 'id_thiet_bi'], ['lich_su_chuyen_thiet_bi', 'id_thiet_bi']], vai_tro: [['phan_quyen', 'id_vai_tro']] }
+  const kids: Record<string, any[]> = {}
+  for (const [t, col] of CHILDREN[res.key] ?? []) { const { data } = await db.from(t).select('*').eq(col, params.id); if (data?.length) kids[t] = data }
   if (res.key === 'users') {
     const { error } = await db.auth.admin.deleteUser(params.id) // cascades to public.users
     if (error) return fail('Không xóa được tài khoản', 409)
@@ -79,6 +83,6 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
     if (error) return dbError(error)
   }
   // the deleted row is kept in the audit log (like DATA_AUDIT_ARCHIVE)
-  await audit(auth, res.table, params.id, 'delete', existing)
+  await audit(auth, res.table, params.id, 'delete', Object.keys(kids).length ? { ...existing, _con: kids } : existing)
   return ok()
 }

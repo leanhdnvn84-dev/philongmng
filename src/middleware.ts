@@ -23,7 +23,10 @@ export async function middleware(request: NextRequest) {
   const { data, error } = await supabase.auth.getUser()
   // a network blip while checking the session is not a logout: let the page load and show its own retry instead of bouncing to /login
   if (!data.user && error && (error.status === undefined || error.status === 0 || error.status >= 500 || /fetch|network|timeout/i.test(error.message))) return response
-  const isLogin = request.nextUrl.pathname === '/login'
+  const path = request.nextUrl.pathname
+  const isLogin = path === '/login'
+  // password pages work without a session (the reset link carries its own one-time token)
+  if (path === '/quen-mat-khau' || path === '/dat-lai-mat-khau') return response
 
   if (!data.user && !isLogin) {
     const url = request.nextUrl.clone()
@@ -36,6 +39,12 @@ export async function middleware(request: NextRequest) {
   if (data.user && isLogin) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
+  // a password given by an administrator must be replaced at first sign-in
+  if (data.user?.user_metadata?.doi_mat_khau === true && path !== '/tai-khoan') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/tai-khoan'; url.search = '?bat_buoc=1'
     return NextResponse.redirect(url)
   }
   return response

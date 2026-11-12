@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     return fail('Mật khẩu hiện tại không đúng', 401)
   }
   wrong.delete(auth.userId)
-  const { error } = await supabaseAdmin().auth.admin.updateUserById(auth.userId, { password: next })
+  const { error } = await supabaseAdmin().auth.admin.updateUserById(auth.userId, { password: next, user_metadata: { doi_mat_khau: false } })
   if (error) return fail('Không đổi được mật khẩu, thử lại sau', 500)
   await audit(auth, 'users', auth.userId, 'password', {}).catch(() => {})
   return NextResponse.json({ success: true })

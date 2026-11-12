@@ -672,3 +672,16 @@ CREATE TABLE IF NOT EXISTS public.tep_dinh_kem (
 CREATE INDEX IF NOT EXISTS ix_tep_ban_ghi ON public.tep_dinh_kem(bang, id_ban_ghi);
 ALTER TABLE public.tep_dinh_kem ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.tep_dinh_kem FROM anon, authenticated;
+
+-- ---------- Nhóm 2: quên mật khẩu, khóa tạm khi đăng nhập sai ----------
+CREATE TABLE IF NOT EXISTS public.dat_lai_mat_khau (
+  token_hash TEXT PRIMARY KEY, user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  expires_at TIMESTAMPTZ NOT NULL, used_at TIMESTAMPTZ, created_at TIMESTAMPTZ DEFAULT now());
+CREATE INDEX IF NOT EXISTS ix_dlmk_user ON public.dat_lai_mat_khau(user_id, created_at DESC);
+ALTER TABLE public.dat_lai_mat_khau ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.dat_lai_mat_khau FROM anon, authenticated;
+CREATE TABLE IF NOT EXISTS public.dang_nhap_sai (
+  id BIGSERIAL PRIMARY KEY, ident TEXT NOT NULL, ip TEXT, at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS ix_dns_ident ON public.dang_nhap_sai(ident, at DESC);
+ALTER TABLE public.dang_nhap_sai ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.dang_nhap_sai FROM anon, authenticated;

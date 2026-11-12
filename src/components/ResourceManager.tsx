@@ -149,7 +149,7 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   return String(v)
 }
 
-const AUDIT_ACTIONS: Record<string, string> = { create: 'Thêm', update: 'Sửa', delete: 'Xóa', approve: 'Duyệt', progress: 'Ghi nhận tiến độ', cancel: 'Hủy', checkout: 'Check-out', password: 'Đổi mật khẩu' }
+const AUDIT_ACTIONS: Record<string, string> = { create: 'Thêm', update: 'Sửa', delete: 'Xóa', approve: 'Duyệt', progress: 'Ghi nhận tiến độ', cancel: 'Hủy', checkout: 'Check-out', password: 'Đổi mật khẩu', password_reset: 'Đặt lại mật khẩu qua email', restore: 'Khôi phục từ thùng rác', attach: 'Đính kèm tệp', detach: 'Gỡ tệp', split: 'Tách máy', split_all: 'Tách tất cả', transfer: 'Chuyển', recover: 'Thu hồi', in_phieu: 'In phiếu' }
 
 /* ── V191 building blocks ──────────────────────────────────────────── */
 const TILE_COLORS = {
