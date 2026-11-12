@@ -51,14 +51,14 @@ tr.tong td{font-weight:800;border-top:2px solid #E6D3B5;border-bottom:0}
   <li><b>12.1 + 12.11</b> ngồi chung 1 bàn (9 người).</li>
   <li><b>12.2 (7 người)</b> ngồi cạnh <b>12.8 (12 người)</b>; <b>12.7 (5 người)</b> cạnh <b>12.12 (12 người)</b>.</li>
   <li><b>12.4</b> (3 bàn) trên cùng bên phải; lớp đông ngồi liền bàn.</li>
-  <li>Hai bên: trái 78 bạn + 20 Thầy Cô · phải 73 bạn + 10 Thầy Cô + bàn chay.</li>
+  <li>Hai bên: trái 78 bạn + 10 Thầy Cô + bàn chay · phải 73 bạn + 20 Thầy Cô (2 bàn Thầy Cô ngay trên 12.4).</li>
   <li>12.5 (11), 12.6 (13), 12.8/12.10/12.12 (12): cần <b>bàn 12 chỗ</b> hoặc kê thêm ghế.</li></ul></div>
 </div></div>
 <script>
 /* [nhãn, số người, loại] – mỗi bên 5 hàng × 2 bàn (cột trong = sát lối đi) */
 const MAU={'12.1':'#6A5ACD','12.2':'#E8862B','12.3':'#2B8FB3','12.4':'#C8102E','12.5':'#8E3FB8','12.6':'#D63A6E','12.7':'#7B8B2E','12.8':'#1F7A6B','12.9':'#B5651D','12.10':'#3B5BA9','12.11':'#6A5ACD','12.12':'#2F8F5B'};
-const TRAI=[[['Thầy Cô',10,'gv'],['Thầy Cô',10,'gv']],[['12.9',10],['12.9',9]],[['12.9',9],['12.5',11]],[['12.3',9],['12.3',9]],[['12.10',12],['12.1 + 12.11',9,'',['(4 + 5)']]]];
-const PHAI=[[['Thầy Cô',10,'gv'],['Bàn chay',10,'chay']],[['12.4',8],['12.4',8]],[['12.4',8],['12.6',13]],[['12.8',12],['12.2',7]],[['12.12',12],['12.7',5]]];
+const TRAI=[[['Thầy Cô',10,'gv'],['Bàn chay',10,'chay']],[['12.9',10],['12.9',9]],[['12.9',9],['12.5',11]],[['12.3',9],['12.3',9]],[['12.10',12],['12.1 + 12.11',9,'',['(4 + 5)']]]];
+const PHAI=[[['Thầy Cô',10,'gv'],['Thầy Cô',10,'gv']],[['12.4',8],['12.4',8]],[['12.4',8],['12.6',13]],[['12.8',12],['12.2',7]],[['12.12',12],['12.7',5]]];
 let so=0;const ban=(x,phai)=>{so++;const [n,ng,l,ghi]=x,c=MAU[n.split(' ')[0]]||'';return `<div class="ban ${l||''}" style="${c?'--c:'+c:''}"><i>${so}</i><b>${n.replace(' + ','<br>+ ')}</b><span>${ng} người${ghi?'<br>'+ghi:''}</span></div>`};
 const ve=(ds,phai)=>ds.map(h=>`<div class="hang">${(phai?h:h.slice().reverse()).map(x=>ban(x,phai)).join('')}</div>`).join('');
 /* đánh số: bên trái 1–10, bên phải 11–20 */
