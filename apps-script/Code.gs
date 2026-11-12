@@ -395,6 +395,15 @@ function saveImage_(dataUrl, name, thuMuc) {
   return f.getId();
 }
 /** Nhận mã ảnh Drive hoặc nguyên đường link (…/file/d/MÃ/view, …?id=MÃ) → trả về mã. */
+/** Logo nhà tài trợ (CauHinh taiTro, mỗi dòng "Hạng | Tên | Lời | Logo | Liên hệ"): lấy mã ảnh Drive ở mọi ô để tự mở quyền xem. */
+function logoTaiTro_(cfg) {
+  const ra = [];
+  String((cfg || {}).taiTro || '').split('\n').forEach(function (x) {
+    if (/^\s*#/.test(x)) return;
+    x.split('|').forEach(function (y) { y = y.trim(); if (/drive\.google|docs\.google|^[\w-]{25,}$/.test(y)) ra.push(idAnh_(y)); });
+  });
+  return ra;
+}
 function idAnh_(v) {
   v = String(v || '').trim();
   const m = v.match(/\/d\/([\w-]{20,})/) || v.match(/[?&]id=([\w-]{20,})/);
@@ -790,7 +799,7 @@ function taoTrinhChieuData_() {
     thayCo: sort_(read_('ThayCo')).map(pubOf_('ThayCo')).map(function (t) { t.anhId = idAnh_(t.anhId); return t; }),
     tinTuc: sortNews_(read_('TinTuc').filter(function (t) { return t.trangThai === 'published'; })).map(pubOf_('TinTuc'))
   };
-  try { moAnh_(r.anh.map(function (a) { return a.fileId; }).concat(r.thayCo.map(function (t) { return t.anhId; })).filter(String), false); } catch (e) { console.log('moAnh trình chiếu: ' + e.message); }
+  try { moAnh_(r.anh.map(function (a) { return a.fileId; }).concat(r.thayCo.map(function (t) { return t.anhId; }), logoTaiTro_(r.cfg)).filter(String), false); } catch (e) { console.log('moAnh trình chiếu: ' + e.message); }
   return r;
 }
 function getSlideRevision() {
@@ -874,7 +883,7 @@ function taoPublicData_() {
   /* ảnh dán tay vào Sheet: tự mở quyền xem (mỗi ảnh một lần) */
   try {
     moAnh_([].concat(r.thayCo.map(function (t) { return t.anhId; }), r.hoatDong.map(function (h) { return h.anhId; }), r.anh.map(function (a) { return a.fileId; }),
-      String((r.cfg || {}).banLienLac || '').split('\n').map(function (x) { const o = x.split('|').map(function (y) { return y.trim(); }).filter(function (y) { return /drive\.google|docs\.google|^[\w-]{25,}$/.test(y); }); return o.length ? idAnh_(o[0]) : ''; }), [idAnh_((r.cfg || {}).anhCong || '')]).filter(String), false);
+      String((r.cfg || {}).banLienLac || '').split('\n').map(function (x) { const o = x.split('|').map(function (y) { return y.trim(); }).filter(function (y) { return /drive\.google|docs\.google|^[\w-]{25,}$/.test(y); }); return o.length ? idAnh_(o[0]) : ''; }), [idAnh_((r.cfg || {}).anhCong || '')], logoTaiTro_(r.cfg)).filter(String), false);
   } catch (e) { console.log('moAnh: ' + e.message); }
   return r;
 }
