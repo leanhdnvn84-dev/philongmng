@@ -297,29 +297,22 @@ muc('15', 'GAME SHOW 2 – BONG BÓNG KHỔNG LỒ', '19:25 – 19:40', [
   ['Hậu cần', '6 bộ bong bóng khổng lồ (2 lớp ghép 1 đội); 06 phần quà; chuẩn bị khu vực chơi an toàn, dọn bàn ghế gần sân khấu.'],
 ], []);
 
-muc('16', 'CHÚC MỪNG SINH NHẬT CÁC BẠN SINH THÁNG 11', '19:40 – 20:00', [
-  ['Màn LED', 'Slide “Happy Birthday – Sinh nhật tháng 11 của Nguyễn Hiền 2000 – 2003” (tên các bạn sinh tháng 11; tên 4 bạn sinh 14/11 to hơn). Có thể chiếu clip bài “Tháng Mười Một Của Tụi Mình” khi các bạn lên sân khấu.'],
-  ['Âm thanh', 'Nhạc dồn trống khi mời lên → tắt nhạc lúc tắt đèn → “Happy Birthday” / Khúc hát mừng sinh nhật cả khán phòng cùng hát → nhạc sôi động khi cắt bánh.'],
-  ['Hậu cần', 'Bánh kem lớn (chữ “Happy Birthday · Tháng 11 · NH 2000 – 2003”), nến số + nến que, bật lửa, dao cắt bánh, đĩa; mũ/băng sinh nhật cho các bạn sinh tháng 11; pháo giấy cầm tay. Báo kỹ thuật tắt đèn khán phòng đúng lúc. Thợ ảnh đứng sẵn trước sân khấu. [[!Danh sách các bạn sinh tháng 11 – BTC chốt trước 13/11!]]'],
+muc('16', 'SINH NHẬT THÁNG 11 – MỜI CÁC BẠN LÊN CHƠI TRÒ CHƠI', '19:40 – 20:00', [
+  ['Màn LED', 'Slide “Happy Birthday – Sinh nhật tháng 11” (tên các bạn sinh tháng 11).'],
+  ['Âm thanh', 'Nhạc sôi động khi mời lên và trong lúc chơi; “Happy Birthday” ngắn khi kết thúc.'],
+  ['Hậu cần', 'Đạo cụ trò chơi + phần quà cho các bạn tham gia. [[!Trò chơi + danh sách các bạn sinh tháng 11 – BTC chốt trước 13/11!]]'],
 ], [
   P('Kính thưa quý thầy cô và các anh chị em!'),
-  P('Tháng 11 – tháng của lòng biết ơn thầy cô, và năm nay còn là tháng chúng ta trở về. Nhưng với một số người bạn của chúng ta, tháng 11 còn có thêm một niềm vui rất riêng: đó là tháng sinh nhật của họ!'),
-  P('Hai mươi ba năm trước, sinh nhật ở trường chỉ là một gói bánh, vài viên kẹo chia nhau giờ ra chơi, một tấm thiệp viết vội hay một dòng chúc trong cuốn lưu bút. Hôm nay, chúng ta muốn bù lại cho những người bạn ấy một sinh nhật thật đặc biệt – có thầy cô, có bạn bè cả khoá cùng hát mừng.'),
-  P('Xin mời tất cả các anh chị em có sinh nhật trong tháng 11 cùng lên sân khấu!'),
-  Moi('MC đọc tên theo danh sách BTC chốt (theo lớp 12/1 → 12/12); mỗi bạn lên được đội mũ/băng sinh nhật.'),
+  P('Tháng 11 năm nay không chỉ là tháng chúng ta trở về, mà còn là tháng sinh nhật của một số người bạn trong khoá. Và để chúc mừng các bạn, chúng ta sẽ có một trò chơi thật vui ngay sau đây!'),
+  P('Xin mời các bạn có tên sau đây lên sân khấu:'),
+  Moi('MC đọc tên theo danh sách BTC chốt (theo lớp 12/1 → 12/12).'),
   P('[[!Danh sách các bạn sinh tháng 11: …………………………………… (BTC bổ sung)!]]'),
-  P('Và đặc biệt, có những người bạn sinh nhật đúng vào ngày hôm nay – 14/11 – trùng với “Ngày trở về” của cả khoá. Đó là: Lê Huy Bình, Huỳnh Thị Tâm Thảo, Lê Thị Thanh Thảo, Trần Thị Thuỳ Dương. Một sinh nhật có tới hơn 150 người bạn và 30 thầy cô cùng chúc mừng – chắc hẳn cả đời mới có một lần! Xin một tràng pháo tay thật lớn!'),
-  Sub('Tắt đèn – thắp nến:'),
-  P('Và bây giờ, xin kỹ thuật cho tắt đèn khán phòng. Xin mời tất cả chúng ta cùng bật đèn flash điện thoại và giơ cao lên – để cả hội trường hôm nay trở thành một bầu trời sao dành tặng những người bạn tháng 11!'),
-  Moi('Đèn tắt – bánh kem nến sáng được đưa lên từ cuối khán phòng, đi giữa lối đi lên sân khấu.'),
-  P('Xin mời cả khán phòng cùng hát vang bài hát mừng sinh nhật!'),
-  Moi('Cả khán phòng hát “Happy Birthday” 2 lượt (lượt 2 bằng tiếng Việt).'),
-  P('Trước khi thổi nến, xin mời các bạn nhắm mắt lại, cùng ước một điều ước thật đẹp – cho bản thân, cho gia đình và cho tình bạn của chúng ta. Một, hai, ba – thổi nến!'),
-  Moi('Thổi nến – bật đèn – bắn pháo giấy – nhạc sôi động – cắt bánh – chụp ảnh chung với thầy cô hàng đầu.'),
-  Sub('Lời chúc:'),
-  P('Thay mặt tập thể niên khoá 2000 – 2003, xin chúc các bạn tuổi mới thật nhiều sức khoẻ, bình an, công việc thuận lợi, gia đình hạnh phúc – và mãi giữ được nụ cười tươi như thời áo trắng!'),
-  ...Tho(['Tháng Mười Một, ta về chung một mái,', 'Thổi nến hồng – thêm tuổi, chẳng thêm xa.', 'Hai mươi ba năm, bạn bè còn mãi,', 'Chúc nhau đời vui, rực rỡ như hoa.']),
-  P('Xin một tràng pháo tay nữa cho các “nhân vật chính” của tháng 11! Bánh kem sẽ được nhà hàng chia về từng bàn để cả khoá cùng chung vui.'),
+  P('Xin một tràng pháo tay chào đón các bạn!'),
+  Sub('Trò chơi:'),
+  P('[[!Tên trò chơi + luật chơi (BTC chọn)!]]'),
+  Moi('MC giới thiệu luật, điều khiển trò chơi, công bố người thắng và trao quà.'),
+  Sub('Kết thúc:'),
+  P('Xin chúc mừng sinh nhật các bạn! Chúc các bạn tuổi mới thật nhiều sức khoẻ, bình an và hạnh phúc. Xin cả khán phòng một tràng pháo tay thật lớn cho các bạn!'),
 ], true);
 
 muc('17', 'VINH DANH TÌNH BẠN – CHỤP ẢNH LƯU NIỆM', '20:00 – 20:15', [
@@ -413,7 +406,7 @@ body.push(...Ds([
   'Mục 08: danh sách nhà tài trợ có mặt, số phần quà kỷ niệm, người trao.',
   'Mục 07: tên người đại diện cựu học sinh tặng quà chú Phan Minh Sinh; báo trước để chú chuẩn bị phát biểu.',
   'Mục 03: đại diện Ban Giám hiệu (Cô Nguyễn Thị Thảo – cập nhật trong ngày 14/11); họ tên đầy đủ của “Thầy Dương”.',
-  'Mục 16: danh sách các bạn sinh tháng 11 (đọc tên); bánh kem, nến, mũ sinh nhật.',
+  'Mục 16: danh sách các bạn sinh tháng 11 (đọc tên mời lên); trò chơi + đạo cụ + phần quà.',
   'Mục 18: có phát gậy phát sáng không; nhà hàng có đèn nháy/laser không; khoảng sàn trống trước sân khấu.',
   'Mục 09: số tiền khoá trao Quỹ khuyến học (đang ghi 10.000.000 đ); danh sách khách mời KHÔNG có Cô Nguyễn Thị Minh Huệ – xác nhận người nhận bảng (Cô Hiệu trưởng hay đại diện BGH có mặt) và có đáp từ hay không.',
   'Mục 03: họ đầy đủ của “Cô Ái Trang”.',
@@ -427,7 +420,7 @@ body.push(...Ds([
   'Bổ sung: mục 00 đón khách – check-in; clip mở đầu 15 giây (mục 02); mục 09 trao Quỹ khuyến học; nhắc lưu bút QR lúc dùng tiệc (mục 11); nhắc 30 năm thành lập trường (mục 02, 09).',
   'Thêm giờ cho từng mục và khung chỉ dẫn Màn LED / Âm thanh / Hậu cần.',
   'Đánh lại số mục 00 – 19.',
-  'Theo bản BTC sửa (12/11): đại biểu xếp lại (GVCN lớp 12 lên trước, nhóm “cựu giáo viên Trường THPT Nguyễn Hiền”); Thầy Phạm Úc phát biểu (mục 05) TRƯỚC nghi thức tri ân (mục 06), phát biểu xong tặng quà luôn; thêm mục 08 tặng quà kỷ niệm nhà tài trợ (dời mục 09 – 11, dùng tiệc vẫn xong 18:20); bỏ mục “Khoảnh khắc lắng đọng – Một phút hoài niệm”, sinh nhật tháng 11 kéo dài tới 20:00.',
+  'Theo bản BTC sửa (12/11): đại biểu xếp lại (GVCN lớp 12 lên trước, nhóm “cựu giáo viên Trường THPT Nguyễn Hiền”); Thầy Phạm Úc phát biểu (mục 05) TRƯỚC nghi thức tri ân (mục 06), phát biểu xong tặng quà luôn; thêm mục 08 tặng quà kỷ niệm nhà tài trợ (dời mục 09 – 11, dùng tiệc vẫn xong 18:20); bỏ mục “Khoảnh khắc lắng đọng – Một phút hoài niệm”, sinh nhật tháng 11 (19:40 – 20:00) chỉ đọc tên các bạn lên sân khấu chơi trò chơi.',
   'Cập nhật 12/11 theo danh sách khách mời: mục 03 đủ 33 khách (thêm Thầy Ngô Ngọc Hoàng Vương, giáo viên khách mời, Cô Kha – giáo vụ, chú Phan Minh Sinh; mỗi lớp 1 GVCN); mục 05 mời toàn bộ thầy cô lên sân khấu (trừ chú Sinh), ghi rõ quà của bạn Quốc Thuyên và bạn Bích Thu 12/4; chia 2 mục: 06 đại diện BGH niên khoá 2000 – 2003 phát biểu, 07 (mới) MC Hải giới thiệu chú Phan Minh Sinh phát biểu + đại diện cựu học sinh tặng quà (dời giờ mục 08 – 10 thêm 3 phút, dùng tiệc vẫn xong 18:20); mục 15 sinh nhật tháng 11 đầy đủ lời dẫn; thêm mục 18 “Quẩy EDM” 20:15 – 20:30; bế mạc (mục 19) 20:30 – 20:35.',
 ]));
 
