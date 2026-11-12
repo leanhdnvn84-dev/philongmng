@@ -42,7 +42,7 @@ export default function LoginPage() {
       setBusy(false)
       return
     }
-    router.replace('/')
+    router.replace((() => { const n = new URLSearchParams(window.location.search).get('next') ?? ''; return /^\/(?!\/)[^\\\s]*$/.test(n) ? n : '/' })())
     router.refresh()
   }
 

@@ -28,7 +28,9 @@ export async function middleware(request: NextRequest) {
   if (!data.user && !isLogin) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
-    url.search = ''
+    // remember where the user was going (e.g. a device QR label) so login can return there; same-site paths only
+    const back = request.nextUrl.pathname + request.nextUrl.search
+    url.search = back !== '/' && back.length < 300 ? `?next=${encodeURIComponent(back)}` : ''
     return NextResponse.redirect(url)
   }
   if (data.user && isLogin) {

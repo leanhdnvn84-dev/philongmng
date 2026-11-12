@@ -9,6 +9,9 @@ import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
 import { ProposalStats } from '@/components/ProposalExtras'
 import RecordHistory from '@/components/RecordHistory'
+import Attachments, { ATTACHABLE } from '@/components/Attachments'
+import { DeviceMaintenance, QrDialog, printQrLabels, type QrDevice } from '@/components/DeviceExtras'
+import { QrCode } from 'lucide-react'
 import { PackagePlus } from 'lucide-react'
 import StockSide, { StockBatches } from '@/components/StockSide'
 import { DailyWorkSummary } from '@/components/ProposalExtras'
@@ -227,8 +230,8 @@ function MonthCalendar({ month, setMonth, counts, day, setDay, unit, fields, fie
 
 /* ── main ──────────────────────────────────────────────────────────── */
 export default function ResourceManager({
-  resourceKey, title, filters = {}, perms, compact = false, initialSearch,
-}: { resourceKey: string; title?: string; filters?: Record<string, string>; perms: UiPerms; compact?: boolean; initialSearch?: string }) {
+  resourceKey, title, filters = {}, perms, compact = false, initialSearch, initialView,
+}: { resourceKey: string; title?: string; filters?: Record<string, string>; perms: UiPerms; compact?: boolean; initialSearch?: string; initialView?: string }) {
   const res = getResource(resourceKey)!
   const [rows, setRows] = useState<Row[]>([])
   const [total, setTotal] = useState(0)
@@ -245,6 +248,12 @@ export default function ResourceManager({
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const [side, setSide] = useState('')
   const [shortOpen, setShortOpen] = useState(false)
+  const [qr, setQr] = useState<QrDevice | null>(null)
+  // a QR label or a link (?xem=TB0001) opens that record straight away
+  useEffect(() => {
+    if (!initialView || compact) return
+    api(`/api/${resourceKey}/${encodeURIComponent(initialView)}`).then((j) => j?.data && setViewing(j.data)).catch(() => {})
+  }, [initialView, resourceKey, compact]) // eslint-disable-line react-hooks/exhaustive-deps
   const [histOpen, setHistOpen] = useState<Row | null>(null) // stock page: movements of the selected item
   const [pf, setPf] = useState<Record<string, string>>({}) // V191 "Bộ lọc" box: Tầng·Khu vực, Hạng mục…
   const [day, setDay] = useState<string | null>(() => (res.openToday && !compact && !initialSearch ? todayVn() : null))
@@ -518,6 +527,7 @@ export default function ResourceManager({
   }, [devAll])
   // devices that are not in use (in store, under repair, no status yet…) first: they are the ones to deal with
   const devRows = useMemo(() => (isDev ? [...rows].sort((a, b) => Number(a.trang_thai === 'Đang sử dụng') - Number(b.trang_thai === 'Đang sử dụng')) : rows), [rows, isDev])
+  const qrOf = (r: Row): QrDevice => { const a = areas[r.id_khu_vuc]; return { id: String(r.id), ten_thiet_bi: String(r.ten_thiet_bi ?? ''), vi_tri: a ? [a.tang, a.ten_khu_vuc].filter(Boolean).join(' · ') : undefined } }
   const devTypes = useMemo(() => Array.from(new Set(devAll.map((r) => r.loai_thiet_bi).filter(Boolean))).sort() as string[], [devAll])
   const devManagers = useMemo(() => Array.from(new Set(devAll.map((r) => r.id_nguoi_quan_ly).filter(Boolean))).map((id) => ({ id: id as string, name: staff[id as string]?.ho_ten ?? (id as string) })).sort((a, b) => a.name.localeCompare(b.name, 'vi')), [devAll, staff])
   const devTable = (
@@ -826,12 +836,15 @@ export default function ResourceManager({
                   perms={viewing.trang_thai === 'Đã duyệt' ? { create: false, edit: false, delete: false, approve: false } : perms} />
               </div>
             )}
+            {!compact && res.key === 'thiet_bi' && viewing.id && <DeviceMaintenance id={String(viewing.id)} names={labels.nhan_vien ?? new Map()} />}
+            {!compact && ATTACHABLE.has(res.key) && viewing.id && <Attachments resource={res.key} id={String(viewing.id)} canEdit={perms.edit} />}
             {!compact && res.key !== 'audit_logs' && res.key !== 'users' && viewing.id && <RecordHistory resource={res.key} id={String(viewing.id)} fields={res.fields} />}
           </div>
           <div className="sticky bottom-0 mt-auto bg-white border-t border-navy-200 px-4 py-2.5 lg:px-6 lg:py-3 flex flex-wrap items-center gap-2">
             {rowActions.filter((a) => !a.show || a.show(viewing)).map((a) => (
               <button key={a.key} className="btn-primary" onClick={() => doAction(a, viewing)}><Zap className="h-4 w-4" />{a.label}</button>
             ))}
+            {res.key === 'thiet_bi' && <button className="btn-secondary" onClick={() => setQr(qrOf(viewing))}><QrCode className="h-4 w-4" />Mã QR</button>}
             {res.key === 'de_xuat' && <>
               <button className="btn-secondary" onClick={() => phieu(viewing, 'print')}><Printer className="h-4 w-4" />In</button>
               <button className="btn-secondary" onClick={() => phieu(viewing, 'pdf')}><FileDown className="h-4 w-4" />In PDF</button>
@@ -944,6 +957,8 @@ export default function ResourceManager({
             disabled={!selected || (a.show ? !a.show(selected) : false)} onClick={withRow((r) => doAction(a, r))} />
         ))}
         {pageActions.map((a) => <Tile key={a.key} icon={Zap} label={a.label} color="violet" onClick={() => doAction(a, null)} />)}
+        {isDev && <Tile icon={QrCode} label="Mã QR" color="slate" disabled={!selected} title="Mã QR của thiết bị đang chọn" onClick={withRow((r) => setQr(qrOf(r)))} />}
+        {isDev && <Tile icon={Printer} label="In nhãn QR" color="slate" disabled={!devRows.length} title="In nhãn QR cho các thiết bị đang hiện trong danh sách" onClick={() => printQrLabels(devRows.map(qrOf))} />}
         {isDev && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={() => selected && (window.location.href = `/lich_su_chuyen_thiet_bi?id_thiet_bi=${selected.id}`)} />}
         {res.key === 'de_xuat' && <>
           <Tile icon={Printer} label="In" color="slate" disabled={!selected} onClick={withRow((r) => phieu(r, 'print'))} />
@@ -1148,6 +1163,7 @@ export default function ResourceManager({
           </div>
         </Drawer>
       )}
+      {qr && <QrDialog device={qr} onClose={() => setQr(null)} />}
       {shortOpen && (
         <FormModal title="Thêm vật tư mới" subtitle="Vật tư chưa có trong danh mục. Lưu xong là chọn được khi lập đề xuất." isNew initial={{}} refs={refs}
           fields={(getResource('vat_tu')?.fields ?? []).filter((f) => !f.ro && f.inForm !== false && !f.createOnly)}

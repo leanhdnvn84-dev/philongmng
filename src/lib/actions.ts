@@ -273,10 +273,14 @@ const ghiNhanBaoTri: Handler = async ({ auth, id, row, input }) => {
   const day = one(input.ngay_thuc_hien) || todayVN()
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) bad('Ngày thực hiện không đúng định dạng')
   if (day > todayVN()) bad('Ngày thực hiện không được ở tương lai')
+  const cost = one(input.chi_phi) === '' ? null : Number(one(input.chi_phi))
+  if (cost !== null && (!Number.isFinite(cost) || cost < 0)) bad('Chi phí phải là số không âm')
+  if (one(input.id_thiet_bi)) { const { data: tb } = await supabaseAdmin().from('thiet_bi').select('id').eq('id', one(input.id_thiet_bi)).maybeSingle(); if (!tb) bad('Thiết bị không tồn tại') }
   const rec = {
     id_lich: id, id_khu_vuc: row.id_khu_vuc, id_hang_muc: row.id_hang_muc, ngay_thuc_hien: day,
     id_nguoi_thuc_hien: one(input.id_nguoi_thuc_hien) || row.id_nguoi_phu_trach || null, id_nha_thau: one(input.id_nha_thau) || null,
     noi_dung_thuc_hien: one(input.noi_dung_thuc_hien) || null, ket_qua: one(input.ket_qua) || null, ghi_chu: one(input.ghi_chu) || null, trang_thai: 'Hoàn thành',
+    id_thiet_bi: one(input.id_thiet_bi) || null, chi_phi: cost,
   }
   const { data, error } = await supabaseAdmin().from('nhat_ky_bao_tri').insert(rec).select('id').single()
   if (error) throw error

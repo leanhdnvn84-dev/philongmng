@@ -45,6 +45,7 @@ export default async function ResourcePage({ params, searchParams }: {
   return (
     <ResourceManager key={res.key + qs + (typeof searchParams.q === 'string' ? `|${searchParams.q}` : '')} resourceKey={res.key} title={title} filters={filters}
       initialSearch={typeof searchParams.q === 'string' ? searchParams.q.slice(0, 100) : undefined}
+      initialView={typeof searchParams.xem === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(searchParams.xem) ? searchParams.xem : undefined}
       perms={{ create: can(auth, res.module, 'create'), edit: can(auth, res.module, 'edit'), delete: can(auth, res.module, 'delete'), approve: can(auth, res.module, 'approve'), admin: auth.superAdmin }} />
   )
 }

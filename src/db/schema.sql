@@ -642,3 +642,33 @@ SELECT b.*, CASE
   ELSE 'MỚI BẢO TRÌ' END AS canh_bao
 FROM base b;
 REVOKE ALL ON public.v_nhat_ky_bao_tri FROM anon, authenticated;
+
+-- ---------- Nhóm 3: chi phí bảo trì, tệp đính kèm ----------
+ALTER TABLE public.nhat_ky_bao_tri ADD COLUMN IF NOT EXISTS chi_phi NUMERIC;
+CREATE INDEX IF NOT EXISTS ix_nkbt_thiet_bi ON public.nhat_ky_bao_tri(id_thiet_bi);
+DROP VIEW IF EXISTS public.v_nhat_ky_bao_tri;
+CREATE OR REPLACE VIEW public.v_nhat_ky_bao_tri WITH (security_invoker = true) AS
+WITH base AS (
+  SELECT n.*,
+    COALESCE(CASE WHEN n.extra->>'NGAY_KE_TIEP' ~ '^\d{4}-\d{2}-\d{2}' THEN left(n.extra->>'NGAY_KE_TIEP', 10)::date END,
+      n.ngay_thuc_hien + (SELECT COALESCE(l.chu_ky_ngay, hm.chu_ky_mac_dinh) FROM public.hang_muc_bao_tri hm
+        LEFT JOIN public.lich_bao_tri l ON l.id_khu_vuc = n.id_khu_vuc AND l.id_hang_muc = n.id_hang_muc WHERE hm.id = n.id_hang_muc LIMIT 1)) AS ngay_ke_tiep,
+    EXISTS (SELECT 1 FROM public.nhat_ky_bao_tri m WHERE m.id_khu_vuc = n.id_khu_vuc AND m.id_hang_muc = n.id_hang_muc AND m.ngay_thuc_hien > n.ngay_thuc_hien) AS da_co_lan_sau
+  FROM public.nhat_ky_bao_tri n)
+SELECT b.*, CASE
+  WHEN b.da_co_lan_sau THEN 'ĐÃ BẢO TRÌ'
+  WHEN b.ngay_ke_tiep IS NULL THEN NULL
+  WHEN b.ngay_ke_tiep < public.today_vn() THEN 'TRỄ HẠN'
+  WHEN b.ngay_ke_tiep = public.today_vn() THEN 'ĐẾN HẠN'
+  WHEN b.ngay_ke_tiep - public.today_vn() <= 7 THEN 'SẮP ĐẾN HẠN'
+  ELSE 'MỚI BẢO TRÌ' END AS canh_bao
+FROM base b;
+REVOKE ALL ON public.v_nhat_ky_bao_tri FROM anon, authenticated;
+CREATE TABLE IF NOT EXISTS public.tep_dinh_kem (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  bang TEXT NOT NULL, id_ban_ghi TEXT NOT NULL,
+  ten TEXT NOT NULL, mime TEXT, kich_thuoc INTEGER, file_id TEXT NOT NULL,
+  nguoi_tai TEXT, created_at TIMESTAMPTZ DEFAULT now());
+CREATE INDEX IF NOT EXISTS ix_tep_ban_ghi ON public.tep_dinh_kem(bang, id_ban_ghi);
+ALTER TABLE public.tep_dinh_kem ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.tep_dinh_kem FROM anon, authenticated;
