@@ -268,6 +268,8 @@ const thuHoi: Handler = async ({ auth, id, row, input }) => {
 // ── Kế hoạch bảo trì: ghi nhận một lần bảo trì ──
 const ghiNhanBaoTri: Handler = async ({ auth, id, row, input }) => {
   if (row.trang_thai === 'Tạm ngưng') bad('Lịch này đang tạm ngưng')
+  const { data: plan } = await supabaseAdmin().from('v_lich_bao_tri').select('canh_bao').eq('id', id).maybeSingle()
+  if (plan?.canh_bao === 'CHỜ NGÀY GỐC') bad('Lịch này đang chờ ngày gốc nên chưa ghi nhận được. Hãy nhập lần bảo trì đầu tiên trong Nhật ký bảo trì để có ngày gốc.')
   const day = one(input.ngay_thuc_hien) || todayVN()
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) bad('Ngày thực hiện không đúng định dạng')
   if (day > todayVN()) bad('Ngày thực hiện không được ở tương lai')

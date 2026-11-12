@@ -287,7 +287,8 @@ export const RESOURCES: Resource[] = [
     // V191 "Ghi nhận bảo trì": writes a log for this area + item; the next due date is recomputed from it
     actions: [{
       key: 'ghi_nhan', label: 'Ghi nhận bảo trì', perm: 'create',
-      show: (r) => r?.trang_thai !== 'Tạm ngưng',
+      // no base date yet (never logged): the first record is entered by hand in Nhật ký bảo trì, not from the plan
+      show: (r) => r?.trang_thai !== 'Tạm ngưng' && r?.canh_bao !== 'CHỜ NGÀY GỐC',
       fields: [
         { name: 'ngay_thuc_hien', label: 'Ngày thực hiện (để trống = hôm nay)', type: 'date' },
         { name: 'id_nguoi_thuc_hien', label: 'Người thực hiện/theo dõi', type: 'ref', ref: 'nhan_vien' },
