@@ -278,7 +278,18 @@ export default function ResourceManager({
     roRef.current?.disconnect()
     if (!el) return
     setWrapW(el.clientWidth)
-    roRef.current = new ResizeObserver(() => setWrapW(el.clientWidth)); roRef.current.observe(el)
+    // --thh = header height: the scrollbar starts under the header and the strip beside the header is painted like it (see .tbl-scroll)
+    const head = () => { const h = el.querySelector('thead'); if (h) el.style.setProperty('--thh', `${h.offsetHeight}px`) }
+    head()
+    roRef.current = new ResizeObserver(() => { setWrapW(el.clientWidth); head() }); roRef.current.observe(el)
+    const th = el.querySelector('thead'); if (th) roRef.current.observe(th)
+  }, [])
+  const devRo = useRef<ResizeObserver | null>(null)
+  const devWrapRef = useCallback((el: HTMLDivElement | null) => {
+    devRo.current?.disconnect()
+    const th = el?.querySelector('thead'); if (!el || !th) return
+    const head = () => el.style.setProperty('--thh', `${th.offsetHeight}px`)
+    head(); devRo.current = new ResizeObserver(head); devRo.current.observe(th)
   }, [])
   const listFields = res.listOrder
     ? res.listOrder.map((n) => res.fields.find((f) => f.name === n)).filter((f): f is Field => !!f && !(f.name in filters))
@@ -504,7 +515,7 @@ export default function ResourceManager({
   const devTypes = useMemo(() => Array.from(new Set(devAll.map((r) => r.loai_thiet_bi).filter(Boolean))).sort() as string[], [devAll])
   const devManagers = useMemo(() => Array.from(new Set(devAll.map((r) => r.id_nguoi_quan_ly).filter(Boolean))).map((id) => ({ id: id as string, name: staff[id as string]?.ho_ten ?? (id as string) })).sort((a, b) => a.name.localeCompare(b.name, 'vi')), [devAll, staff])
   const devTable = (
-    <div data-dev-scroll className="overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0">
+    <div data-dev-scroll ref={devWrapRef} className="tbl-scroll overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0">
       <table className="w-full table-fixed text-[12.5px] border-separate border-spacing-0">
         <colgroup>{[24, 9, 17, 8, 11, 7, 10, 14].map((w, i) => <col key={i} style={{ width: `${w}%` }} />)}</colgroup>
         <thead>
@@ -711,7 +722,7 @@ export default function ResourceManager({
   const tableFields = listFields
   const pad = dense === 2 ? 'px-1.5' : dense === 1 ? 'px-2' : 'px-2.5'
   const table = (
-    <div ref={wrapRef} className={`overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible ${compact ? 'max-h-[360px]' : 'max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0'}`}>
+    <div ref={wrapRef} className={`tbl-scroll overflow-y-auto overflow-x-hidden print:max-h-none print:overflow-visible ${compact ? 'max-h-[360px]' : 'max-h-[70vh] min-h-[260px] lg:max-h-none lg:flex-1 lg:min-h-0'}`}>
       <table className={`w-full table-fixed border-separate border-spacing-0 ${dense === 2 ? 'text-[12px]' : dense === 1 ? 'text-[12.5px]' : 'text-[13px]'} ${dense > 0 ? '[&_[class*=pill]]:!whitespace-normal [&_[class*=pill]]:text-center [&_[class*=pill]]:!leading-tight' : ''}`}>
         <colgroup>
           {res.key !== 'users' && res.key !== 'audit_logs' && <col style={{ width: ID_W }} />}
