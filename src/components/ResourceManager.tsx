@@ -3,12 +3,13 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plus, Search, X, Pencil, Trash2, ChevronLeft, ChevronRight, Inbox, Loader2, Lock, Zap, Eye, List, Printer,
-  RotateCw, CheckCircle2, Filter, History, Monitor, FileText, FileDown, PackageCheck, PackageX, Boxes, AlertTriangle,
+  RotateCw, CheckCircle2, History, Monitor, FileText, FileDown, PackageCheck, PackageX, Boxes, AlertTriangle,
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
 import { ProposalStats } from '@/components/ProposalExtras'
 import RecordHistory from '@/components/RecordHistory'
+import { dedupeGet, clearDedupe } from '@/lib/getDedupe'
 import Attachments, { ATTACHABLE } from '@/components/Attachments'
 import { DeviceMaintenance, QrDialog, printQrLabels, type QrDevice } from '@/components/DeviceExtras'
 import { QrCode, Scale } from 'lucide-react'
@@ -67,7 +68,11 @@ const STATUS_FIELDS_SET = STATUS_FIELDS
 const RIGHT = /don_gia|so_luong|thanh_tien|tong_tien|so_kwh|chi_so|ton_|tong_nhap|tong_xuat|dien_tich|so_ngay/
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-async function api(url: string, init?: RequestInit) {
+function api(url: string, init?: RequestInit): Promise<any> {
+  const safe = !init?.method || init.method === 'GET'
+  return safe ? dedupeGet(url, () => rawApi(url, init)) : rawApi(url, init)
+}
+async function rawApi(url: string, init?: RequestInit) {
   // reads retry on flaky mobile networks / busy server; writes are never repeated automatically
   const safe = !init?.method || init.method === 'GET'
   let r: Response | null = null
@@ -80,11 +85,24 @@ async function api(url: string, init?: RequestInit) {
   const j = await r.json().catch(() => ({ success: false, error: r!.status >= 500 ? 'Máy chủ đang bận, bấm Làm mới để thử lại' : 'Phản hồi không hợp lệ' }))
   if (r.status === 401) { window.location.href = '/login'; throw new Error('Phiên đăng nhập đã hết') }
   if (!j.success) throw new Error(j.error || 'Có lỗi xảy ra')
+  if (!safe) clearDedupe()
+  if (!safe) optCache.clear() // any save may change a pick list (new staff, stock level…): reload them on next use
   return j
 }
 
 /** Loads dropdown options for every ref field in the given field lists. */
 const rk = (f: Field) => (f.refQuery ? `${f.ref}?${f.refQuery}` : f.ref!)
+// option lists (staff, areas, contractors…) are shared by every page and change rarely: keep them 2 minutes in memory,
+// so moving between pages does not reload the same lists; a save on that list drops its entry at once
+const OPT_TTL = 120_000
+const optCache = new Map<string, { at: number; p: Promise<Option[]> }>()
+function cachedOptions(k: string, load: () => Promise<Option[]>) {
+  const hit = optCache.get(k)
+  if (hit && Date.now() - hit.at < OPT_TTL) return hit.p
+  const p = load(); optCache.set(k, { at: Date.now(), p })
+  p.catch(() => optCache.delete(k))
+  return p
+}
 function useRefOptions(fieldLists: Field[][]) {
   const [refs, setRefs] = useState<Record<string, Option[]>>({})
   const keys = useMemo(
@@ -95,14 +113,11 @@ function useRefOptions(fieldLists: Field[][]) {
   useEffect(() => {
     keys.split(',').filter(Boolean).forEach((k) => {
       const [name, q] = k.split('?')
-      if (!q) { api(`/api/${name}?options=1`).then((j) => setRefs((r) => ({ ...r, [k]: j.data }))).catch(() => {}); return }
+      if (!q) { cachedOptions(k, () => api(`/api/${name}?options=1`).then((j) => j.data as Option[])).then((list) => setRefs((r) => ({ ...r, [k]: list }))).catch(() => {}); return }
       // filtered picker (e.g. only in-stock items): label shows the stock level
       const rs = getResource(name)
-      api(`/api/${name}?pageSize=2000&${q}`).then((j) => {
-        const list = (j.data as any[]).map((x) => ({ value: x.id as string, label: `${rs?.optionLabel(x) ?? x.id}${x.ton_hien_tai != null ? ` — tồn ${x.ton_hien_tai}` : ''}` }))
-          .sort((p, q2) => p.label.localeCompare(q2.label, 'vi'))
-        setRefs((r) => ({ ...r, [k]: list }))
-      }).catch(() => {})
+      cachedOptions(k, () => api(`/api/${name}?pageSize=2000&${q}`).then((j) => (j.data as any[]).map((x) => ({ value: x.id as string, label: `${rs?.optionLabel(x) ?? x.id}${x.ton_hien_tai != null ? ` — tồn ${x.ton_hien_tai}` : ''}` }))
+        .sort((p, q2) => p.label.localeCompare(q2.label, 'vi')))).then((list) => setRefs((r) => ({ ...r, [k]: list }))).catch(() => {})
     })
   }, [keys])
   const labels = useMemo(() => {
@@ -389,6 +404,7 @@ export default function ResourceManager({
 
   // status tab counts
   useEffect(() => {
+    if (!version) return // wait for the first list load (it bumps version): counting before and after it doubled every request
     if (compact || !statusField) return
     const sp = baseParams({ status: true }); sp.set('countBy', 'trang_thai')
     api(`/api/${res.key}?${sp}`).then((j) => setStatusCounts(j.data)).catch(() => {})
@@ -396,6 +412,7 @@ export default function ResourceManager({
 
   // alert chip counts (overdue / due today / soon …) respecting the other filters
   useEffect(() => {
+    if (!version) return // wait for the first list load (it bumps version): counting before and after it doubled every request
     if (compact || !res.urgency) return
     const sp = baseParams({ alert: true }); sp.set('countBy', res.urgency.field)
     api(`/api/${res.key}?${sp}`).then((j) => setAlertCounts(j.data)).catch(() => {})
@@ -403,6 +420,7 @@ export default function ResourceManager({
 
   // quick chip counts (e.g. in stock / out of stock / all)
   useEffect(() => {
+    if (!version) return // wait for the first list load (it bumps version): counting before and after it doubled every request
     if (compact || !res.quick) return
     let dead = false
     Promise.all(res.quick.chips.map((c) => { const sp = baseParams({ quick: true }); for (const [k, v] of Object.entries(c.params)) sp.set(k, v); sp.set('page', '1'); sp.set('pageSize', '1')
@@ -413,6 +431,7 @@ export default function ResourceManager({
 
   // calendar badges for the visible month
   useEffect(() => {
+    if (!version) return // wait for the first list load (it bumps version): counting before and after it doubled every request
     if (!hasCalendar) return
     const y = month.getFullYear(), m = month.getMonth(), mm = String(m + 1).padStart(2, '0')
     const sp = baseParams({ day: true })
@@ -452,6 +471,7 @@ export default function ResourceManager({
   // a day is picked on the calendar: the side list only names the people who have records that day
   const [sideDay, setSideDay] = useState<Record<string, number> | null>(null)
   useEffect(() => {
+    if (!version) return // wait for the first list load (it bumps version): counting before and after it doubled every request
     if (!sideName || !day) { setSideDay(null); return }
     let dead = false
     const sp = baseParams(); sp.delete(sideName); sp.set('countBy', sideName)
@@ -663,7 +683,6 @@ export default function ResourceManager({
   const bodyFields = listFields.filter((f) => f !== titleField && !statusFields.includes(f)).slice(0, 8)
   // urgency groups: header whenever the alert value changes in the (already sorted) list
   const urg = res.urgency && !alertSel && !compact ? res.urgency : null
-  const pretty = (v: string) => v.charAt(0) + v.slice(1).toLowerCase()
   const groupHead = (r: any, i: number, cols?: number) => {
     if (!urg) return null
     const v = String(r[urg.field] ?? '')

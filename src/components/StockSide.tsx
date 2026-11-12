@@ -1,9 +1,10 @@
 'use client'
 // V191 "Bộ lọc vật tư" box + "Thống kê đang hiển thị" for the stock page.
+import { dedupeGet } from '@/lib/getDedupe'
 import { useEffect, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 
-const getJson = (u: string) => fetch(u).then((r) => r.json()).then((j) => (j.success ? (j.data as any[]) : []))
+const getJson = (u: string) => dedupeGet(u, () => fetch(u).then((r) => r.json())).then((j) => (j.success ? (j.data as any[]) : []))
 const n0 = (n: number) => new Intl.NumberFormat('vi-VN').format(n)
 
 export default function StockSide({ params, version, pf, setPf, search, setSearch }: {

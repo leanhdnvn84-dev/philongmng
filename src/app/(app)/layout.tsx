@@ -13,8 +13,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!auth) redirect('/login?error=no-access')
 
   // a password given by an administrator must be replaced first: every page shows the change-password form until it is
-  const { data: me } = await supabaseServer().auth.getUser().catch(() => ({ data: { user: null } }))
-  const mustChange = me.user?.user_metadata?.doi_mat_khau === true
+  const sb = supabaseServer()
+  const { data: cl } = await sb.auth.getClaims().catch(() => ({ data: null }))
+  // the token can still carry the flag right after the change: ask the auth server only when it is set
+  const mustChange = (cl?.claims?.user_metadata as any)?.doi_mat_khau === true && (await sb.auth.getUser().catch(() => ({ data: { user: null } }))).data.user?.user_metadata?.doi_mat_khau === true
 
   const groups: NavGroup[] = NAV
     .map((g) => ({ group: g.group, items: g.items.filter((i) => i.module === '*' || can(auth, i.module, 'view')).map(({ label, href }) => ({ label, href })) }))

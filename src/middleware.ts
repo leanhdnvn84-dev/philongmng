@@ -20,7 +20,10 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data, error } = await supabase.auth.getUser()
+  // verifies the session token locally with the public signing key (and refreshes it when expired); no auth-server round trip per page
+  const { data: cl, error } = await supabase.auth.getClaims()
+  const claims = cl?.claims
+  const data = { user: claims?.sub ? { id: claims.sub, user_metadata: (claims.user_metadata ?? {}) as Record<string, unknown> } : null }
   // a network blip while checking the session is not a logout: let the page load and show its own retry instead of bouncing to /login
   if (!data.user && error && (error.status === undefined || error.status === 0 || error.status >= 500 || /fetch|network|timeout/i.test(error.message))) return response
   const path = request.nextUrl.pathname
@@ -42,7 +45,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
   // a password given by an administrator must be replaced at first sign-in
-  if (data.user?.user_metadata?.doi_mat_khau === true && path !== '/tai-khoan') {
+  // the token may still carry an old flag after the password was changed: confirm with the auth server only in that rare case
+  if (data.user?.user_metadata?.doi_mat_khau === true && path !== '/tai-khoan' && (await supabase.auth.getUser()).data.user?.user_metadata?.doi_mat_khau === true) {
     const url = request.nextUrl.clone()
     url.pathname = '/tai-khoan'; url.search = '?bat_buoc=1'
     return NextResponse.redirect(url)

@@ -124,7 +124,9 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
         seen.current = id
       }).catch(() => {})
     }
-    tick(); const t = setInterval(tick, 10000)
+    // every 10 s while the page is visible, every 30 s in a background tab (still enough for the title badge and the chime)
+    let n = 0
+    tick(); const t = setInterval(() => { n++; if (!document.hidden || n % 3 === 0) tick() }, 10000)
     return () => { dead = true; clearInterval(t) }
   }, [pathname, chatOpen])
   // unread count in the browser tab title

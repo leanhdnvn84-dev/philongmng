@@ -25,17 +25,20 @@ const TTL = 15_000
 export class TransientAuthError extends Error {}
 
 export const getAuth = cache(async (): Promise<AuthContext | null> => {
-  const { data, error: authErr } = await supabaseServer().auth.getUser()
-  if (!data.user) {
+  // the session token is checked here, with the project's public signing key (ES256), instead of asking the auth server on every request
+  const { data, error: authErr } = await supabaseServer().auth.getClaims()
+  const userId = typeof data?.claims?.sub === 'string' ? data.claims.sub : null
+  if (!userId) {
     // a network / 5xx failure is not "logged out": surface it as retryable instead of bouncing the user to /login
     if (authErr && ((authErr as any).status === undefined || (authErr as any).status >= 500 || (authErr as any).status === 0 || /fetch|network|timeout/i.test(authErr.message)))
       throw new TransientAuthError(authErr.message)
     return null
   }
-  const hit = memo.get(data.user.id)
+  const hit = memo.get(userId)
   if (hit && Date.now() - hit.at < TTL) return hit.auth
-  const auth = await loadAuth(data.user.id)
-  memo.set(data.user.id, { at: Date.now(), auth })
+  // the users row is still read (cached a few seconds): a locked or deleted account loses access at once
+  const auth = await loadAuth(userId)
+  memo.set(userId, { at: Date.now(), auth })
   if (memo.size > 500) memo.clear()
   return auth
 })

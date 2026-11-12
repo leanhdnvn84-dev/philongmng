@@ -9,6 +9,10 @@ type Note = { key: string; title: string; count: number; tone: 'red' | 'amber' |
 const DOT = { red: 'bg-[#e11d2e]', amber: 'bg-amber-500', blue: 'bg-blue-500' }
 const NUM = { red: 'bg-red-50 text-red-700', amber: 'bg-amber-50 text-amber-800', blue: 'bg-blue-50 text-blue-700' }
 
+// the bell is mounted twice (phone bar and desktop bar): both share one request, reused for 20 s
+let last: { at: number; p: Promise<any> } | null = null
+const shared = () => { if (!last || Date.now() - last.at > 20_000) last = { at: Date.now(), p: fetch('/api/thong_bao').then((r) => r.json()) }; return last.p }
+
 export default function NotificationBell({ className = '' }: { className?: string }) {
   const [notes, setNotes] = useState<Note[]>([])
   const [urgent, setUrgent] = useState(0)
@@ -19,7 +23,7 @@ export default function NotificationBell({ className = '' }: { className?: strin
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null)
 
   const load = useCallback(() => {
-    fetch('/api/thong_bao').then((r) => r.json()).then((j) => { if (j?.success) { setNotes(j.data); setUrgent(j.urgent ?? 0); setLoaded(true) } }).catch(() => {})
+    shared().then((j) => { if (j?.success) { setNotes(j.data); setUrgent(j.urgent ?? 0); setLoaded(true) } }).catch(() => {})
   }, [])
   useEffect(() => {
     load()

@@ -3,16 +3,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
-  AlertTriangle, CalendarClock, ClipboardList, Users, Wrench, FileSignature, Building2, LayoutGrid, Cpu,
+  CalendarClock, Building2, LayoutGrid, Cpu,
   ArrowUpRight, Plus, UserPlus, BarChart3, ListChecks, Inbox,
 } from 'lucide-react'
 import { formatDate, formatMoney } from '@/lib/resources'
 import CostChartCard from '@/components/CostChart'
 
 type Tone = 'red' | 'amber' | 'blue' | 'green'
-const BAR: Record<Tone, string> = { red: 'bg-red-500', amber: 'bg-amber-500', blue: 'bg-blue-500', green: 'bg-emerald-500' }
-const NUM: Record<Tone, string> = { red: 'text-red-700', amber: 'text-amber-700', blue: 'text-blue-700', green: 'text-emerald-700' }
-const ICON: Record<Tone, string> = { red: 'bg-red-50 text-red-600', amber: 'bg-amber-50 text-amber-600', blue: 'bg-blue-50 text-blue-600', green: 'bg-emerald-50 text-emerald-600' }
 
 const TILE: Record<Tone, { box: string; num: string; sub: string; chip: string; hot: string }> = {
   red: { box: 'bg-[#e11d2e] text-white shadow-[0_8px_0_#8f0f1b,0_20px_32px_rgba(225,29,46,.26)]', num: 'text-white [text-shadow:0_4px_0_#8f0f1b]', sub: 'text-[#ffe3e6]', chip: 'bg-white/18 text-white', hot: 'bg-white text-[#a40f1c]' },
@@ -74,7 +71,6 @@ export default function Dashboard() {
   const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()))
   const greet = hour < 11 ? 'Chào buổi sáng' : hour < 14 ? 'Chào buổi trưa' : hour < 18 ? 'Chào buổi chiều' : 'Chào buổi tối'
   const weekday = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date())
-  const urgent = (cv?.overdue ?? 0) + (bt?.late ?? 0)
   const summary = [
     cv?.overdue ? { text: `${cv.overdue} công việc quá hạn`, hot: true } : null,
     bt && bt.late + bt.dueToday ? { text: `${bt.late + bt.dueToday} hạng mục bảo trì cần làm` } : null,

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { STAGES, formatDate } from '@/lib/resources'
 
 interface Work {
@@ -280,7 +280,6 @@ function Detail({ work, who, canEdit, onClose, onChanged }: { work: Work; who: s
   const dmy2 = (iso: string) => iso.slice(8, 10) + '/' + iso.slice(5, 7)
   const tone = isDone(work) ? 'text-green-700' : late ? 'text-red-600' : 'text-ink'
   const rows = entries.filter((e) => !filter || e.stage === filter)
-  const pos = tot ? Math.min(100, (used / Math.max(used, tot * 1.0)) * 100) : 0
   const duePos = tot && used > tot ? (tot / used) * 100 : 100
   const photoStages = useMemo(() => { const c: Record<string, number> = {}; for (const p of photos) { const k = p.giai_doan && STAGES.includes(p.giai_doan) ? p.giai_doan : 'Khác'; c[k] = (c[k] ?? 0) + 1 } return c }, [photos])
   const shown = useMemo(() => photos.filter((p) => !pf || (pf === 'Khác' ? !(p.giai_doan && STAGES.includes(p.giai_doan)) : p.giai_doan === pf)), [photos, pf])
