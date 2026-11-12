@@ -54,8 +54,8 @@ export default function GlobalSearch() {
     <>
       <button type="button" onClick={() => setOpen(true)} title="Tìm kiếm toàn hệ thống (Ctrl K)" aria-label="Tìm kiếm toàn hệ thống"
         className="hidden lg:flex h-10 items-center gap-2 rounded-full bg-white/10 pl-3 pr-2 text-[12.5px] font-semibold text-white/90 hover:bg-white/20">
-        <Search className="h-4 w-4" /><span className="hidden xl:inline">Tìm kiếm</span>
-        <kbd className="rounded-md bg-white/15 px-1.5 py-0.5 text-[10.5px] font-bold">Ctrl K</kbd>
+        <Search className="h-4 w-4" /><span className="hidden 2xl:inline">Tìm kiếm</span>
+        <kbd className="hidden rounded-md bg-white/15 px-1.5 py-0.5 text-[10.5px] font-bold 2xl:inline">Ctrl K</kbd>
       </button>
       {open && (
         <Portal>
