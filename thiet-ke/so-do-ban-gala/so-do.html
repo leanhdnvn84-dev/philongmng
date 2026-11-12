@@ -1,0 +1,68 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<title>Sơ đồ bàn Gala 14.11.2026</title>
+<!-- Sơ đồ xếp 20 bàn Gala "Ngày trở về" theo bảng số lượng người dùng gửi (so-luong-goc.webp).
+     3 bàn Thầy Cô + 1 bàn chay + 16 bàn lớp; 2 bên lối đi giữa 1,2 m (có bục kệ), mỗi bên 10 bàn (5 hàng × 2).
+     12.1 + 12.11 chung 1 bàn; 12.2 (7 người) cạnh 12.8 (12 người); 12.7 (5 người) cạnh 12.12 (12 người).
+     Sửa xếp bàn ở mảng TRAI / PHAI. node render.js → so-do-ban-gala.png (A4 ngang 300 dpi) + so-do-ban-gala.pdf -->
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+@page{size:297mm 210mm;margin:0}
+*{margin:0;box-sizing:border-box}
+body{width:1123px;height:794px;font-family:'Be Vietnam Pro',sans-serif;color:#2A2420;background:#fff}
+.k{width:1123px;height:794px;padding:22px 26px;display:grid;grid-template-columns:1fr 300px;gap:22px;background:linear-gradient(180deg,#FFFDF8,#FBF4E8)}
+.dau{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid #E6D3B5;padding-bottom:8px}
+.dau h1{font:700 38px 'Dancing Script',cursive;color:#A3221A}.dau h1 small{font:700 13px 'Be Vietnam Pro';color:#5B4A3A;letter-spacing:.1em;margin-left:10px}
+.dau p{font:700 14px 'Be Vietnam Pro';color:#6A5A4A;white-space:nowrap;margin-left:16px}
+.so{position:relative;background:#fff;border:1.5px solid #E6D3B5;border-radius:16px;padding:12px 14px 10px}
+.sk{margin:0 auto;width:62%;height:44px;border-radius:0 0 22px 22px;background:linear-gradient(180deg,#A3221A,#7A1611);color:#fff;font:800 15px/44px 'Be Vietnam Pro';text-align:center;letter-spacing:.18em}
+.than{display:grid;grid-template-columns:1fr 92px 1fr;gap:10px;margin-top:14px}
+.ben{display:grid;grid-template-rows:repeat(5,1fr);gap:14px}
+.ben .t{font:800 12px 'Be Vietnam Pro';letter-spacing:.14em;color:#8A7A6A;text-align:center;margin-bottom:-4px}
+.hang{display:grid;grid-template-columns:1fr 1fr;gap:12px;justify-items:center;align-items:center}
+.ban{width:86px;height:86px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;box-shadow:0 0 0 4px #fff,0 0 0 6px var(--c),0 6px 14px rgba(0,0,0,.15);background:var(--c);position:relative}
+.ban b{font:800 18px/1.05 'Be Vietnam Pro'}.ban span{font:600 12px/1.25 'Be Vietnam Pro';opacity:.95}
+.ban i{position:absolute;top:-8px;right:-6px;background:#fff;color:#2A2420;font:800 11px/1 'Be Vietnam Pro';font-style:normal;border-radius:10px;padding:3px 6px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.ban.gv{--c:#C9A24A}.ban.chay{--c:#3E9B5B}
+.loi{position:relative;border-left:2px dashed #C9B48F;border-right:2px dashed #C9B48F;background:repeating-linear-gradient(180deg,#FFF6E6 0 16px,#FBEFD8 16px 32px);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 0}
+.loi .bk{writing-mode:vertical-rl;transform:rotate(180deg);font:800 13px 'Be Vietnam Pro';letter-spacing:.2em;color:#8B5E34}
+.loi .bt{width:58px;height:150px;border-radius:10px;background:#E9D4B0;border:2px solid #C9A57A;display:flex;align-items:center;justify-content:center}
+.loi .bt span{writing-mode:vertical-rl;transform:rotate(180deg);font:800 12px 'Be Vietnam Pro';color:#6B4520;letter-spacing:.12em}
+.cua{margin-top:8px;text-align:center;font:800 13px 'Be Vietnam Pro';letter-spacing:.2em;color:#8A7A6A}
+.ben.p .hang{direction:ltr}
+.phai{display:flex;flex-direction:column;gap:12px}
+.hop{background:#fff;border:1.5px solid #E6D3B5;border-radius:14px;padding:12px 14px}
+.hop h3{font:800 14px 'Be Vietnam Pro';letter-spacing:.08em;color:#A3221A;margin-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}td,th{padding:3px 4px;border-bottom:1px solid #F0E4D2;text-align:left}th{font-size:11.5px;color:#8A7A6A}
+td.n{text-align:center;font-weight:700}td .cham{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c);vertical-align:-1px;margin-right:6px}
+tr.tong td{font-weight:800;border-top:2px solid #E6D3B5;border-bottom:0}
+.hop ul{padding-left:16px}.hop li{font-size:12.5px;line-height:1.45;margin-top:2px}
+.hop li b{color:#7A1E2A}
+</style></head><body><div class="k" id="k">
+<div class="dau"><h1>Sơ đồ bàn Gala “Ngày trở về”<small>14.11.2026 · NHÀ HÀNG QUẢNG ĐẠI 2</small></h1><p>20 bàn · 181 khách (151 bạn + 30 Thầy Cô)</p></div>
+<div class="so"><div class="sk">SÂN KHẤU · MÀN LED</div>
+ <div class="than"><div class="ben" id="trai"></div>
+  <div class="loi"><span class="bk">LỐI ĐI 1,2 M</span><div class="bt"><span>BỤC KỆ</span></div><span class="bk">LỐI ĐI 1,2 M</span></div>
+  <div class="ben p" id="phai"></div></div>
+ <div class="cua">▼ CỬA VÀO · ĐÓN KHÁCH ▼</div></div>
+<div class="phai">
+ <div class="hop"><h3>SỐ BÀN THEO LỚP</h3><table id="bang"></table></div>
+ <div class="hop"><h3>CÁCH XẾP</h3><ul>
+  <li>Hàng đầu sát sân khấu: <b>3 bàn Thầy Cô</b> + <b>bàn chay</b>, gần lối đi để Thầy Cô lên sân khấu nhận quà.</li>
+  <li><b>12.1 + 12.11</b> ngồi chung 1 bàn (9 người).</li>
+  <li><b>12.2 (7 người)</b> ngồi cạnh <b>12.8 (12 người)</b>; <b>12.7 (5 người)</b> cạnh <b>12.12 (12 người)</b>.</li>
+  <li>Lớp đông xếp các bàn liền nhau: 12.9 · 12.4 (3 bàn), 12.3 (2 bàn).</li>
+  <li>Hai bên cân nhau: trái 74 + 20 Thầy Cô · phải 77 + 10 Thầy Cô.</li>
+  <li>12.5 (11), 12.6 (13), 12.8/12.10/12.12 (12): cần <b>bàn 12 chỗ</b> hoặc kê thêm ghế.</li></ul></div>
+</div></div>
+<script>
+/* [nhãn, số người, loại] – mỗi bên 5 hàng × 2 bàn (cột trong = sát lối đi) */
+const MAU={'12.1':'#6A5ACD','12.2':'#E8862B','12.3':'#2B8FB3','12.4':'#C8102E','12.5':'#8E3FB8','12.6':'#D63A6E','12.7':'#7B8B2E','12.8':'#1F7A6B','12.9':'#B5651D','12.10':'#3B5BA9','12.11':'#6A5ACD','12.12':'#2F8F5B'};
+const TRAI=[[['Thầy Cô',10,'gv'],['Thầy Cô',10,'gv']],[['12.9',10],['12.9',9]],[['12.9',9],['12.6',13]],[['12.4',8],['12.4',8]],[['12.4',8],['12.1 + 12.11',9,'',['(4 + 5)']]]];
+const PHAI=[[['Thầy Cô',10,'gv'],['Bàn chay',10,'chay']],[['12.3',9],['12.3',9]],[['12.8',12],['12.2',7]],[['12.10',12],['12.5',11]],[['12.12',12],['12.7',5]]];
+let so=0;const ban=(x,phai)=>{so++;const [n,ng,l,ghi]=x,c=MAU[n.split(' ')[0]]||'';return `<div class="ban ${l||''}" style="${c?'--c:'+c:''}"><i>${so}</i><b>${n.replace(' + ','<br>+ ')}</b><span>${ng} người${ghi?'<br>'+ghi:''}</span></div>`};
+const ve=(ds,phai)=>ds.map(h=>`<div class="hang">${(phai?h:h.slice().reverse()).map(x=>ban(x,phai)).join('')}</div>`).join('');
+/* đánh số: bên trái 1–10, bên phải 11–20 */
+document.getElementById('trai').innerHTML=ve(TRAI,0);document.getElementById('phai').innerHTML=ve(PHAI,1);
+const L=[['12.1 + 12.11',9,1],['12.2',7,1],['12.3',18,2],['12.4',24,3],['12.5',11,1],['12.6',13,1],['12.7',5,1],['12.8',12,1],['12.9',28,3],['12.10',12,1],['12.12',12,1],['Thầy Cô',30,3],['Bàn chay','–',1]];
+document.getElementById('bang').innerHTML='<tr><th>Lớp</th><th class="n">Người</th><th class="n">Bàn</th></tr>'+L.map(r=>`<tr><td><span class="cham" style="--c:${MAU[r[0].split(' ')[0]]||(r[0]==='Thầy Cô'?'#C9A24A':'#3E9B5B')}"></span>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td></tr>`).join('')+'<tr class="tong"><td>Tổng</td><td class="n">181</td><td class="n">20</td></tr>';
+</script></body></html>
