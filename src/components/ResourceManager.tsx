@@ -7,7 +7,8 @@ import {
 } from 'lucide-react'
 import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
-import { ProposalStats, ShortageDialog } from '@/components/ProposalExtras'
+import { ProposalStats } from '@/components/ProposalExtras'
+import { PackagePlus } from 'lucide-react'
 import StockSide, { StockBatches } from '@/components/StockSide'
 import { DailyWorkSummary } from '@/components/ProposalExtras'
 import { useConfirm } from '@/components/ConfirmDialog'
@@ -950,7 +951,7 @@ export default function ResourceManager({
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
         {res.key === 'cong_viec_hang_ngay' && !compact && <Tile icon={AlertTriangle} label="Chưa xong" color="amber" title="Chỉ hiện các việc chưa hoàn thành (mọi ngày)" onClick={() => { setUnfinished((u) => !u); setDay(null); setPage(1) }} />}
         {vtSide && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={withRow((r) => setHistOpen(r))} />}
-        {res.key === 'de_xuat' && filters.loai_de_xuat === 'MUA_VAT_TU' && <Tile icon={AlertTriangle} label="Vật tư thiếu" color="amber" onClick={() => setShortOpen(true)} />}
+        {res.key === 'de_xuat' && filters.loai_de_xuat === 'MUA_VAT_TU' && <Tile icon={PackagePlus} label="Thêm vật tư" color="amber" title="Thêm vật tư chưa có trong danh mục, để chọn được khi lập đề xuất" onClick={() => setShortOpen(true)} />}
         </div>
 
         {res.key === 'cong_viec_hang_ngay' && !compact && <DailyWorkSummary version={version} who={side} whoName={side && sideField ? String(refLabel(sideField, side)) : ''} />}
@@ -1145,7 +1146,15 @@ export default function ResourceManager({
           </div>
         </Drawer>
       )}
-      {shortOpen && <ShortageDialog onClose={() => setShortOpen(false)} />}
+      {shortOpen && (
+        <FormModal title="Thêm vật tư mới" subtitle="Vật tư chưa có trong danh mục. Lưu xong là chọn được khi lập đề xuất." isNew initial={{}} refs={refs}
+          fields={(getResource('vat_tu')?.fields ?? []).filter((f) => !f.ro && f.inForm !== false && !f.createOnly)}
+          onClose={() => setShortOpen(false)}
+          onSubmit={async (payload) => {
+            const j = await api('/api/vat_tu', { method: 'POST', body: JSON.stringify(payload) })
+            setShortOpen(false); flash(`Đã thêm vật tư ${j.data?.id ?? ''} · ${j.data?.ten_vat_tu ?? ''} vào danh mục`)
+          }} />
+      )}
     </div>
   )
 }
