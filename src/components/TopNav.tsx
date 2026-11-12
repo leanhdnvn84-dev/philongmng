@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowLeftRight, ArrowUp, BadgeCheck, BarChart3, Boxes, Building2, CalendarClock, CalendarDays, ChevronDown, ClipboardCheck, Contact, Database, FileText, FolderOpen, Hammer, HardHat, KeyRound, Layers, LayoutGrid, ListChecks, Lock, LogIn, LogOut, Mail, MailCheck, MapPin, Menu, MessageCircle, Monitor, MonitorSmartphone, Printer, RefreshCw, Repeat, Search, ShieldAlert, ShoppingCart, Tags, Trash2, Truck, Undo2, User, UserPlus, Users, Warehouse, Wrench, X, Zap, type LucideIcon } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import GlobalSearch from '@/components/GlobalSearch'
+import NotificationBell from '@/components/NotificationBell'
 import { ExternalLink, Link2 } from 'lucide-react'
 
 /** other Phi Long sites (V191 "Liên kết"): opened in a new tab */
@@ -31,7 +32,7 @@ const META: Record<string, [LucideIcon, string]> = {
   'Báo cáo tiến độ': [BarChart3, 'Tiến độ theo giai đoạn'], 'Báo cáo công việc': [FileText, 'Thống kê theo nhân sự'],
   'Nhật ký bảo trì': [Wrench, 'Việc đã bảo trì'], 'Kế hoạch bảo trì': [CalendarDays, 'Lịch và chu kỳ sắp tới'],
   'Đề xuất mua vật tư': [ShoppingCart, 'Phiếu mua vật tư'], 'Đề xuất mua thiết bị': [MonitorSmartphone, 'Phiếu mua thiết bị'], 'Đề xuất bảo trì': [Hammer, 'Phiếu sửa chữa, bảo trì'],
-  'Đề xuất thanh lý': [Trash2, 'Phiếu thanh lý thiết bị'], 'Lịch sử in phiếu': [Printer, 'Các lần in phiếu đề xuất'],
+  'Đề xuất thanh lý': [Trash2, 'Phiếu thanh lý thiết bị'], 'Lịch sử in phiếu': [Printer, 'Các lần in phiếu đề xuất'], 'Lịch tổng': [CalendarDays, 'Hạn việc, bảo trì, khách hẹn, hợp đồng'],
   'Kho vật tư': [Boxes, 'Tồn kho và cảnh báo'], 'Lịch sử nhập xuất': [ArrowLeftRight, 'Phiếu nhập, xuất kho'], 'Thiết bị đang dùng': [Monitor, 'Thiết bị đã bàn giao'],
   'Kho thiết bị': [Warehouse, 'Thiết bị trong kho'], 'Tất cả thiết bị': [LayoutGrid, 'Toàn bộ thiết bị'], 'Thu hồi / thanh lý': [Undo2, 'Thu hồi và thanh lý'], 'Lịch sử chuyển': [Repeat, 'Chuyển khu vực, người dùng'],
   'Toà nhà': [Building2, 'Thông tin toà nhà'], 'Tầng / khu cho thuê': [Layers, 'Diện tích và tình trạng'], 'Khách đang thuê': [KeyRound, 'Hợp đồng đang hiệu lực'], 'Khách hàng tiềm năng': [UserPlus, 'Khách quan tâm thuê'], 'Tiền điện': [Zap, 'Chốt điện theo kỳ'],
@@ -60,7 +61,7 @@ function TodayTile() {
   const p = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', ...o }).format(now)
   const day = p({ day: '2-digit' }), month = p({ month: 'numeric' }), weekday = p({ weekday: 'long' }), full = p({ day: '2-digit', month: '2-digit', year: 'numeric' })
   return (
-    <div className="hidden 2xl:flex items-center gap-2 h-11 pl-1.5 pr-3 rounded-[9px] bg-white shadow-[0_2px_6px_rgba(0,0,0,.12)]">
+    <div className="hidden min-[1760px]:flex items-center gap-2 h-11 pl-1.5 pr-3 rounded-[9px] bg-white shadow-[0_2px_6px_rgba(0,0,0,.12)]">
       <div className="w-9 overflow-hidden rounded-md border border-brand-200 text-center leading-none">
         <div className="bg-brand-400 text-white text-[9px] font-black py-0.5">T{month}</div>
         <div className="text-[15px] font-black text-navy-900 py-0.5">{day}</div>
@@ -91,7 +92,7 @@ function ping() {
 }
 
 const navBtn = (on: boolean) =>
-  `flex items-center gap-1 h-9 px-3 2xl:px-3.5 rounded-[10px] text-[12.5px] 2xl:text-[13px] font-semibold whitespace-nowrap transition active:translate-y-px ${
+  `flex items-center gap-1 h-9 px-2.5 min-[1440px]:px-3 2xl:px-3.5 rounded-[10px] text-[12.5px] 2xl:text-[13px] font-semibold whitespace-nowrap transition active:translate-y-px ${
     on ? 'bg-white text-[#b4121f] font-extrabold shadow-[0_3px_0_#6e0a12]' : 'text-white hover:bg-white/15'}`
 
 export default function TopNav({ groups, name, role }: { groups: NavGroup[]; name: string; role: string }) {
@@ -164,8 +165,9 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
           <input type="search" value={pageSearch} onChange={(e) => onPageSearch(e.target.value)} placeholder="Tìm trang này…" aria-label="Tìm trang này"
             className="h-11 w-full rounded-full border border-white/30 bg-white/95 pl-9 pr-3 text-[16px] shadow-[0_2px_8px_rgba(0,0,0,.2)] outline-none focus:ring-2 focus:ring-white/70" />
         </label>
+        <NotificationBell className="shrink-0" />
       </div>
-      <div className="hidden lg:flex h-[62px] px-4 lg:px-5 items-center gap-3 2xl:gap-5">
+      <div className="hidden lg:flex h-[62px] px-4 lg:px-5 items-center gap-3 min-[1880px]:gap-5">
         <Brand />
 
         <nav className="hidden lg:flex items-center gap-0.5 rounded-[14px] bg-[#6e0a12]/55 p-1 min-w-0 shadow-[inset_0_2px_4px_rgba(0,0,0,.28)]" aria-label="Menu chính">
@@ -203,7 +205,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
           <div className="relative hidden lg:block" onMouseEnter={() => setOpen('__links')} onMouseLeave={() => setOpen((o) => (o === '__links' ? null : o))}>
             <button type="button" aria-expanded={open === '__links'} aria-label="Liên kết" title="Liên kết" onClick={() => setOpen(open === '__links' ? null : '__links')}
               className="inline-flex h-[38px] items-center gap-1.5 rounded-full bg-[#0b1b40] px-3 text-[12.5px] font-extrabold text-white shadow-[0_4px_12px_rgba(0,0,0,.16)] transition hover:bg-[#12285a]">
-              <Link2 className="h-4 w-4" /><span className="hidden 2xl:inline">Liên kết</span><ChevronDown className={`h-3.5 w-3.5 transition-transform ${open === '__links' ? 'rotate-180' : ''}`} />
+              <Link2 className="h-4 w-4" /><span className="hidden min-[1880px]:inline">Liên kết</span><ChevronDown className={`h-3.5 w-3.5 transition-transform ${open === '__links' ? 'rotate-180' : ''}`} />
             </button>
             {open === '__links' && (
               <div className="absolute right-0 top-full z-50 pt-3">
@@ -220,6 +222,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
           </div>
           <GlobalSearch />
           <TodayTile />
+          <NotificationBell className="hidden lg:block" />
           <button type="button" onClick={() => setChatOpen((o) => !o)} aria-label="Trao đổi nội bộ" title="Trao đổi nội bộ" aria-expanded={chatOpen} className="relative hidden lg:grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20">
             <MessageCircle className="h-5 w-5" />
             {unread > 0 && <span className="absolute -right-1 -top-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-[#e11d2e] px-1 text-[10px] font-black text-white">{unread > 99 ? '99+' : unread}</span>}

@@ -881,6 +881,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Công việc', href: '/cong_viec', resource: 'cong_viec', module: 'CONG_VIEC' },
     { label: 'Công việc hằng ngày', href: '/cong_viec_hang_ngay', resource: 'cong_viec_hang_ngay', module: 'CVHN' },
     { label: 'Khách ra/vào', href: '/khach_ra_vao', resource: 'khach_ra_vao', module: 'KHACH_RA_VAO' },
+    { label: 'Lịch tổng', href: '/lich', module: 'CONG_VIEC' },
     { label: 'Báo cáo tiến độ', href: '/bao-cao-tien-do', module: 'BAO_CAO' },
     { label: 'Báo cáo công việc', href: '/bao-cao-cong-viec', module: 'BAO_CAO' },
   ] },

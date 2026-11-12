@@ -8,6 +8,7 @@ import {
 import Portal from '@/components/Portal'
 import ProposalForm from '@/components/ProposalForm'
 import { ProposalStats } from '@/components/ProposalExtras'
+import RecordHistory from '@/components/RecordHistory'
 import { PackagePlus } from 'lucide-react'
 import StockSide, { StockBatches } from '@/components/StockSide'
 import { DailyWorkSummary } from '@/components/ProposalExtras'
@@ -825,6 +826,7 @@ export default function ResourceManager({
                   perms={viewing.trang_thai === 'Đã duyệt' ? { create: false, edit: false, delete: false, approve: false } : perms} />
               </div>
             )}
+            {!compact && res.key !== 'audit_logs' && res.key !== 'users' && viewing.id && <RecordHistory resource={res.key} id={String(viewing.id)} fields={res.fields} />}
           </div>
           <div className="sticky bottom-0 mt-auto bg-white border-t border-navy-200 px-4 py-2.5 lg:px-6 lg:py-3 flex flex-wrap items-center gap-2">
             {rowActions.filter((a) => !a.show || a.show(viewing)).map((a) => (
