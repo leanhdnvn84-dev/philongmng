@@ -107,14 +107,18 @@ muc('03', 'GIỚI THIỆU ĐẠI BIỂU', '17:15 – 17:25', [
   P('Và ngay sau đây, xin trân trọng giới thiệu sự hiện diện của quý thầy cô giáo cùng các vị đại biểu, khách quý tham dự chương trình hôm nay:'),
   Sub('1. Quý thầy cô nguyên Ban Giám hiệu:'),
   ...Ds(['Thầy Phạm Úc – nguyên Hiệu trưởng nhà trường;', 'Thầy Trần Huy Viêm – nguyên Phó Hiệu trưởng nhà trường;', 'Cô Trần Thị Hường – nguyên Phó Hiệu trưởng nhà trường.']),
-  Sub('2. Đại diện Ban Giám hiệu nhà trường:'),
-  P('[[!Cô Nguyễn Thị Thảo – Phó Hiệu trưởng nhà trường (BTC cập nhật lại trong ngày 14/11)!]].'),
-  Sub('3. Thầy Trần Quốc Phong – nguyên Bí thư Đoàn trường.'),
-  Sub('4. Thầy Ngô Ngọc Hoàng Vương – nguyên giáo viên bộ môn Ngữ văn.'),
-  Sub('5. Quý thầy cô giáo viên khách mời:'),
-  P('Cô Hoàng Thị Vân, Cô Nguyễn Thị Lộc, Cô Nguyễn Thị Phương, Cô Lê Thị Phương Hiền, [[!Thầy … Dương (bổ sung họ tên)!]], Cô Nguyễn Thị Hồng Hạnh, Cô Hoàng Thị Lệ Hằng, Thầy Võ Văn Lộc, Thầy Nguyễn Phi Sơn, Thầy Đoàn Quốc Hùng, Cô Nguyễn Thị Ân, Cô [[!… Ái Trang (bổ sung họ)!]], Thầy Mai Ca;'),
-  P('và Cô Kha – giáo vụ nhà trường từ niên khoá 2000 – 2003 đến nay.'),
-  Sub('6. Quý thầy cô giáo viên chủ nhiệm các lớp 12:'),
+  Sub('2. Đại diện Ban Giám hiệu Trường THPT Nguyễn Hiền:'),
+  ...Ds(['Đại diện: [[!Cô Nguyễn Thị Thảo (cập nhật lại trong ngày 14/11)!]]']),
+  Sub('3. Quý thầy cô giáo viên khách mời:'),
+  ...Ds([
+    'Thầy Trần Quốc Phong – nguyên Bí thư Đoàn trường;',
+    'Thầy Ngô Ngọc Hoàng Vương – nguyên giáo viên bộ môn Văn;',
+    'Cô Hoàng Thị Vân;', 'Cô Nguyễn Thị Lộc;', 'Cô Nguyễn Thị Phương;', 'Cô Lê Thị Phương Hiền;', 'Thầy Dương;',
+    'Cô Nguyễn Thị Hồng Hạnh;', 'Cô Hoàng Thị Lệ Hằng;', 'Thầy Võ Văn Lộc;', 'Thầy Nguyễn Phi Sơn;', 'Thầy Đoàn Quốc Hùng;',
+    'Cô Nguyễn Thị Ân;', 'Cô Ái Trang;', 'Thầy Mai Ca;',
+    'Cô Kha – giáo vụ nhà trường niên khoá 2000 – 2003 (đến nay).',
+  ]),
+  Sub('4. Quý thầy cô giáo viên chủ nhiệm các lớp 12:'),
   ...Ds([
     'Lớp 12/1: Cô Đặng Thị Xuân Tùng;',
     'Lớp 12/2: Cô Lê Thị Thu Sương;',
@@ -129,9 +133,9 @@ muc('03', 'GIỚI THIỆU ĐẠI BIỂU', '17:15 – 17:25', [
     'Lớp 12/11: Cô Tạ Thị Kim Trân;',
     'Lớp 12/12: Thầy Trần Quang Vũ.',
   ]),
-  Sub('7. Chú Phan Minh Sinh – nguyên Trưởng ban Đại diện cha mẹ học sinh niên khoá 2000 – 2003.'),
-  Sub('8. Đại diện Ban liên lạc hội khoá:'),
-  P('Anh Lê Trung Hiếu, chị Hoàng Diệu Thúy, chị Nguyễn Thị Tuyết Mai.'),
+  Sub('5. Chú Phan Minh Sinh – nguyên Trưởng ban Đại diện cha mẹ học sinh niên khoá 2000 – 2003.'),
+  Sub('6. Đại diện Ban liên lạc hội khoá:'),
+  ...Ds(['Anh Lê Trung Hiếu, chị Hoàng Diệu Thúy, chị Nguyễn Thị Tuyết Mai.']),
   P('Cùng sự hiện diện của toàn thể anh chị em cựu học sinh 12 lớp, Trường THPT Nguyễn Hiền, Đà Nẵng, niên khoá 2000 – 2003.'),
   P('Xin quý vị dành một tràng pháo tay thật nồng nhiệt để chào đón và bày tỏ lòng biết ơn đến quý thầy cô!'),
 ]);
@@ -175,16 +179,19 @@ muc('05', 'NGHI THỨC TRI ÂN THẦY CÔ', '17:32 – 17:47', [
   P('Xin cả khán phòng dành một tràng pháo tay thật dài, thật nồng nhiệt gửi đến quý thầy cô kính yêu!'),
 ]);
 
-muc('06', 'ĐẠI DIỆN BGH NK 2000 – 2003 PHÁT BIỂU', '17:47 – 17:53', [
+muc('06', 'ĐẠI DIỆN BGH NK 2000 – 2003 PHÁT BIỂU (TẶNG QUÀ LUÔN)', '17:47 – 17:53', [
   ['Màn LED', 'Backdrop tĩnh.'],
-  ['Hậu cần', 'Báo trước cho thầy/cô phát biểu; mời ngồi hàng đầu để lên nhanh.'],
+  ['Âm thanh', 'Nhạc nền nhẹ khi thầy/cô lên; nhạc ấm khi tặng quà.'],
+  ['Hậu cần', 'Báo trước cho thầy/cô phát biểu; mời ngồi hàng đầu để lên nhanh. Quà + hoa để sẵn; đại diện cựu học sinh tặng quà chờ ngay cạnh sân khấu – thầy/cô phát biểu xong là lên tặng luôn, thầy/cô đứng lại trên sân khấu.'],
 ], [
   P('Kính thưa quý vị!'),
   P('Được gặp lại những người học trò sau 23 năm chắc hẳn cũng mang đến cho thầy cô thật nhiều cảm xúc. Những gương mặt ngày nào nay đã trưởng thành, những cô cậu học trò năm xưa giờ đây đã trở thành những người cha, người mẹ, những người đang tiếp tục viết nên câu chuyện cuộc đời mình.'),
   P('Và có lẽ, niềm vui lớn nhất của người thầy chính là nhìn thấy học trò trưởng thành, sống tử tế và luôn nhớ về cội nguồn.'),
   P('Ngay sau đây, xin trân trọng kính mời [[!Thầy/Cô ……………… (đại diện BGH niên khoá 2000 – 2003, BTC chọn)!]], đại diện quý thầy cô, có đôi lời chia sẻ với tập thể cựu học sinh trong buổi hội ngộ đầy ý nghĩa hôm nay.'),
   P('Xin trân trọng kính mời!'),
-  Sub('Sau phát biểu:'),
+  Sub('Thầy/cô phát biểu xong – tặng quà luôn (thầy/cô đứng lại trên sân khấu):'),
+  P('Xin chân thành cảm ơn [[!thầy/cô!]]! Xin [[!thầy/cô!]] nán lại sân khấu một chút – tập thể cựu học sinh niên khoá 2000 – 2003 có một món quà nhỏ muốn gửi tặng [[!thầy/cô!]]. Xin trân trọng kính mời [[!anh/chị …………… (tên người tặng)!]], đại diện cựu học sinh, lên trao tặng món quà tri ân!'),
+  Moi('Trao quà + hoa – chụp ảnh – MC mời thầy/cô về chỗ ngồi rồi đọc tiếp lời cảm ơn bên dưới.'),
   ...Tho(['Trăm năm Kiều vẫn là Kiều,', 'Giọng thầy ấm áp là điều tất nhiên.']),
   Moi('Nếu người phát biểu là cô, MC đổi câu thứ hai thành: “Lời cô ấm áp là điều tất nhiên.”'),
   P('Chúng em xin trân trọng cảm ơn những lời chia sẻ đầy yêu thương của [[!thầy/cô!]].'),
@@ -195,16 +202,17 @@ muc('06', 'ĐẠI DIỆN BGH NK 2000 – 2003 PHÁT BIỂU', '17:47 – 17:53', 
 muc('07', 'ĐẠI DIỆN HỘI PHỤ HUYNH PHÁT BIỂU & NHẬN QUÀ', '17:53 – 17:58', [
   ['Màn LED', 'Slide “Tri ân Ban Đại diện cha mẹ học sinh niên khoá 2000 – 2003”.'],
   ['Âm thanh', 'Nhạc nền nhẹ khi chú lên/xuống; nhạc ấm khi tặng quà.'],
-  ['Hậu cần', 'MC Hải dẫn. Báo trước cho chú Phan Minh Sinh; mời chú ngồi hàng đầu. Món quà + 1 bó hoa để sẵn sau cánh gà; đại diện cựu học sinh cầm quà + hoa chờ sẵn ngay cạnh sân khấu để chú phát biểu xong là lên tặng luôn.'],
+  ['Hậu cần', 'MC Hải dẫn. Báo trước cho chú Phan Minh Sinh; mời chú ngồi hàng đầu. Món quà + 1 bó hoa để sẵn sau cánh gà; đại diện cựu học sinh tặng quà chờ sẵn cạnh sân khấu.'],
 ], [
   P('Kính thưa quý vị!'),
   P('Hai mươi ba năm trước, phía sau mỗi cô cậu học trò Nguyễn Hiền là những người cha, người mẹ luôn lặng lẽ dõi theo. Và đồng hành cùng nhà trường, cùng thầy cô trong suốt ba năm học ấy là Ban Đại diện cha mẹ học sinh của niên khoá chúng ta.'),
   P('Thật vinh dự, hôm nay chúng ta được đón một vị khách rất đặc biệt: chú Phan Minh Sinh – nguyên Trưởng ban Đại diện cha mẹ học sinh niên khoá 2000 – 2003. Chú là người đã cùng thầy cô chăm lo cho từng phong trào, từng kỳ thi, từng buổi lễ của cả khoá; và hôm nay, chú lại trở về cùng các con trong ngày hội ngộ.'),
   P('Xin cả khán phòng dành một tràng pháo tay thật lớn, trân trọng kính mời chú Phan Minh Sinh lên sân khấu có đôi lời chia sẻ cùng quý thầy cô và các anh chị em!'),
   P('Xin trân trọng kính mời chú!'),
-  Sub('Chú Sinh phát biểu xong – mời tặng quà ngay (chú đứng lại trên sân khấu):'),
-  Moi('Chú Sinh không về chỗ – MC Hải mời người tặng quà lên ngay, nhạc ấm bật lên.'),
-  P('Xin chân thành cảm ơn chú! Xin chú nán lại sân khấu một chút – tập thể cựu học sinh niên khoá 2000 – 2003 có một món quà nhỏ muốn gửi tặng chú. Xin trân trọng kính mời [[!anh/chị …………… (tên người tặng)!]], đại diện cựu học sinh, lên trao tặng món quà tri ân đến chú Phan Minh Sinh!'),
+  Sub('Sau khi chú Sinh phát biểu:'),
+  P('Xin chân thành cảm ơn chú Phan Minh Sinh về những lời chia sẻ đầy tình cảm. Sau 23 năm, được nghe lại lời dặn dò của chú, chúng con như thấy mình lại là những cậu học trò, cô học trò ngày nào.'),
+  P('Để bày tỏ lòng biết ơn đến chú – và qua chú, gửi đến các bậc phụ huynh đã đồng hành cùng niên khoá 2000 – 2003 – tập thể cựu học sinh có một món quà nhỏ muốn gửi tặng chú.'),
+  P('Xin trân trọng kính mời [[!anh/chị …………… (tên người tặng)!]], đại diện cựu học sinh niên khoá 2000 – 2003, lên sân khấu trao tặng món quà tri ân đến chú Phan Minh Sinh!'),
   Moi('Trao quà + hoa – chụp ảnh chú Sinh cùng người tặng và Ban liên lạc – MC mời chú về chỗ ngồi.'),
   P('Xin một tràng pháo tay thật ấm áp gửi đến chú Phan Minh Sinh, và kính chúc chú luôn mạnh khoẻ, an vui, hạnh phúc bên gia đình!'),
 ], true);
@@ -410,7 +418,7 @@ MUC.forEach(m => {
 body.push(...tieuDe('✦', 'GHI CHÚ RÀ SOÁT', ''));
 body.push(Sub('Các mục cần Ban Tổ chức xác nhận:'));
 body.push(...Ds([
-  'Mục 06: thầy/cô đại diện BGH niên khoá 2000 – 2003 phát biểu (đề xuất: Thầy Phạm Úc – nguyên Hiệu trưởng).',
+  'Mục 06: thầy/cô đại diện BGH niên khoá 2000 – 2003 phát biểu (đề xuất: Thầy Phạm Úc – nguyên Hiệu trưởng) và tên người đại diện cựu học sinh tặng quà ngay sau phát biểu.',
   'Mục 07: tên người đại diện cựu học sinh tặng quà chú Phan Minh Sinh; báo trước để chú chuẩn bị phát biểu.',
   'Mục 03: đại diện Ban Giám hiệu (Cô Nguyễn Thị Thảo – cập nhật trong ngày 14/11); họ tên đầy đủ của “Thầy Dương”.',
   'Mục 15: danh sách các bạn sinh tháng 11 (đọc tên); bánh kem, nến, mũ sinh nhật.',
