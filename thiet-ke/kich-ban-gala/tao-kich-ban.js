@@ -105,20 +105,11 @@ muc('03', 'GIỚI THIỆU ĐẠI BIỂU', '17:15 – 17:25', [
   P('Hai mươi ba năm trước, thầy cô đứng trên bục giảng, còn chúng ta ngồi dưới mái lớp thân quen. Thầy cô trao cho chúng ta kiến thức, dạy chúng ta cách sống, cách làm người và cách vững vàng trước những thử thách của cuộc đời.'),
   P('Hôm nay, dù chúng ta đã trưởng thành, đã có những mái ấm, những công việc và những trách nhiệm riêng, nhưng khi đứng trước thầy cô, có lẽ trong trái tim mỗi người vẫn còn nguyên vẹn tình cảm của một cô cậu học trò năm nào.'),
   P('Và ngay sau đây, xin trân trọng giới thiệu sự hiện diện của quý thầy cô giáo cùng các vị đại biểu, khách quý tham dự chương trình hôm nay:'),
-  Sub('1. Quý thầy cô nguyên Ban Giám hiệu:'),
+  Sub('1. Quý thầy cô nguyên Ban Giám hiệu Trường THPT Nguyễn Hiền:'),
   ...Ds(['Thầy Phạm Úc – nguyên Hiệu trưởng nhà trường;', 'Thầy Trần Huy Viêm – nguyên Phó Hiệu trưởng nhà trường;', 'Cô Trần Thị Hường – nguyên Phó Hiệu trưởng nhà trường.']),
   Sub('2. Đại diện Ban Giám hiệu Trường THPT Nguyễn Hiền:'),
-  ...Ds(['Đại diện: [[!Cô Nguyễn Thị Thảo (cập nhật lại trong ngày 14/11)!]]']),
-  Sub('3. Quý thầy cô giáo viên khách mời:'),
-  ...Ds([
-    'Thầy Trần Quốc Phong – nguyên Bí thư Đoàn trường;',
-    'Thầy Ngô Ngọc Hoàng Vương – nguyên giáo viên bộ môn Văn;',
-    'Cô Hoàng Thị Vân;', 'Cô Nguyễn Thị Lộc;', 'Cô Nguyễn Thị Phương;', 'Cô Lê Thị Phương Hiền;', 'Thầy Dương;',
-    'Cô Nguyễn Thị Hồng Hạnh;', 'Cô Hoàng Thị Lệ Hằng;', 'Thầy Võ Văn Lộc;', 'Thầy Nguyễn Phi Sơn;', 'Thầy Đoàn Quốc Hùng;',
-    'Cô Nguyễn Thị Ân;', 'Cô Ái Trang;', 'Thầy Mai Ca;',
-    'Cô Kha – giáo vụ nhà trường niên khoá 2000 – 2003 (đến nay).',
-  ]),
-  Sub('4. Quý thầy cô giáo viên chủ nhiệm các lớp 12:'),
+  ...Ds(['Đại diện: Cô Nguyễn Thị Thảo – Phó Hiệu trưởng Trường THPT Nguyễn Hiền [[!(cập nhật lại trong ngày 14/11)!]]']),
+  Sub('3. Quý thầy cô nguyên là giáo viên chủ nhiệm các lớp 12:'),
   ...Ds([
     'Lớp 12/1: Cô Đặng Thị Xuân Tùng;',
     'Lớp 12/2: Cô Lê Thị Thu Sương;',
@@ -132,6 +123,15 @@ muc('03', 'GIỚI THIỆU ĐẠI BIỂU', '17:15 – 17:25', [
     'Lớp 12/10: Cô Nguyễn Thị Lan;',
     'Lớp 12/11: Cô Tạ Thị Kim Trân;',
     'Lớp 12/12: Thầy Trần Quang Vũ.',
+  ]),
+  Sub('4. Quý thầy cô là cựu giáo viên Trường THPT Nguyễn Hiền:'),
+  ...Ds([
+    'Thầy Trần Quốc Phong – nguyên Bí thư Đoàn trường;',
+    'Thầy Ngô Ngọc Hoàng Vương – nguyên giáo viên bộ môn Văn;',
+    'Cô Hoàng Thị Vân;', 'Cô Nguyễn Thị Lộc;', 'Cô Nguyễn Thị Phương;', 'Cô Lê Thị Phương Hiền;', 'Thầy Dương;',
+    'Cô Nguyễn Thị Hồng Hạnh;', 'Cô Hoàng Thị Lệ Hằng;', 'Thầy Võ Văn Lộc;', 'Thầy Nguyễn Phi Sơn;', 'Thầy Đoàn Quốc Hùng;',
+    'Cô Nguyễn Thị Ân;', 'Cô Ái Trang;', 'Thầy Mai Ca;',
+    'Cô Kha – giáo vụ nhà trường niên khoá 2000 – 2003 (đến nay).',
   ]),
   Sub('5. Chú Phan Minh Sinh – nguyên Trưởng ban Đại diện cha mẹ học sinh niên khoá 2000 – 2003.'),
   Sub('6. Đại diện Ban liên lạc hội khoá:'),
@@ -154,7 +154,26 @@ muc('04', 'ĐẠI DIỆN HỘI KHOÁ PHÁT BIỂU', '17:25 – 17:32', [
   P('Hy vọng rằng, sau cuộc gặp gỡ hôm nay, sợi dây gắn kết của tập thể niên khoá 2000 – 2003 sẽ ngày càng bền chặt; để dù cuộc sống có bận rộn đến đâu, chúng ta vẫn luôn dành cho nhau một chỗ trong trái tim và luôn nhớ rằng mình đã từng có chung một mái trường.'),
 ]);
 
-muc('05', 'NGHI THỨC TRI ÂN THẦY CÔ', '17:32 – 17:47', [
+muc('05', 'ĐẠI DIỆN BGH NK 2000 – 2003 PHÁT BIỂU (TẶNG QUÀ LUÔN)', '17:32 – 17:38', [
+  ['Màn LED', 'Backdrop tĩnh.'],
+  ['Âm thanh', 'Nhạc nền nhẹ khi thầy lên; nhạc ấm khi tặng quà.'],
+  ['Hậu cần', 'Báo trước cho Thầy Phạm Úc; mời ngồi hàng đầu để lên nhanh. Quà + hoa để sẵn; đại diện cựu học sinh tặng quà chờ ngay cạnh sân khấu – thầy phát biểu xong là lên tặng luôn, thầy đứng lại trên sân khấu.'],
+], [
+  P('Kính thưa quý vị!'),
+  P('Được gặp lại những người học trò sau 23 năm chắc hẳn cũng mang đến cho thầy cô thật nhiều cảm xúc. Những gương mặt ngày nào nay đã trưởng thành, những cô cậu học trò năm xưa giờ đây đã trở thành những người cha, người mẹ, những người đang tiếp tục viết nên câu chuyện cuộc đời mình.'),
+  P('Và có lẽ, niềm vui lớn nhất của người thầy chính là nhìn thấy học trò trưởng thành, sống tử tế và luôn nhớ về cội nguồn.'),
+  P('Ngay sau đây, xin trân trọng kính mời Thầy Phạm Úc – nguyên Hiệu trưởng Trường THPT Nguyễn Hiền, đại diện quý thầy cô, có đôi lời chia sẻ với tập thể cựu học sinh trong buổi hội ngộ đầy ý nghĩa hôm nay.'),
+  P('Xin trân trọng kính mời!'),
+  Sub('Thầy phát biểu xong – tặng quà luôn (thầy đứng lại trên sân khấu):'),
+  P('Xin chân thành cảm ơn thầy! Xin thầy nán lại sân khấu một chút – tập thể cựu học sinh niên khoá 2000 – 2003 có một món quà nhỏ muốn gửi tặng thầy. Xin trân trọng kính mời [[!anh/chị …………… (tên người tặng)!]], đại diện cựu học sinh, lên trao tặng món quà tri ân!'),
+  Moi('Trao quà + hoa – chụp ảnh – MC mời thầy về chỗ ngồi rồi đọc tiếp lời cảm ơn bên dưới.'),
+  ...Tho(['Trăm năm Kiều vẫn là Kiều,', 'Giọng thầy ấm áp là điều tất nhiên.']),
+  P('Chúng em xin trân trọng cảm ơn những lời chia sẻ đầy yêu thương của Thầy Phạm Úc.'),
+  P('Có những bài học đã theo chúng em suốt 23 năm, có những lời dặn dò đến tận hôm nay vẫn còn nguyên giá trị. Và chắc chắn rằng, dù thời gian tiếp tục trôi đi, tình thầy trò của niên khoá 2000 – 2003 với mái trường Nguyễn Hiền sẽ vẫn luôn được gìn giữ và trân trọng.'),
+  ...Tho(['Bụi phấn xưa có thể nhoà theo gió,', 'Nhưng nghĩa thầy trò còn mãi với thời gian.', 'Hai mươi ba năm – xin gửi một lời tri ân,', 'Về mái trường xưa, về thầy cô yêu dấu!']),
+]);
+
+muc('06', 'NGHI THỨC TRI ÂN THẦY CÔ', '17:38 – 17:53', [
   ['Màn LED', 'Trình chiếu "Chiếu hình thầy cô" (thiệp thầy cô + câu tri ân) suốt lúc tặng hoa.'],
   ['Âm thanh', 'Nhạc không lời: Người thầy, Bụi phấn.'],
   ['Hậu cần', 'Mời TOÀN BỘ thầy cô + cô Kha (giáo vụ) lên sân khấu – KHÔNG mời chú Phan Minh Sinh ở phần này (chú có phần riêng ở mục 07). Hoa + quà xếp sẵn sau cánh gà: quà 3 thầy cô nguyên BGH do bạn Quốc Thuyên 12/4 tặng; quà đại diện BGH, Thầy Phong, Thầy Vương và giáo viên khách mời do bạn Bích Thu 12/4 tặng. Đại diện mỗi lớp dẫn GVCN lớp mình lên. Thợ ảnh chờ sẵn; sân khấu đủ chỗ cho khoảng 32 thầy cô.'],
@@ -179,26 +198,6 @@ muc('05', 'NGHI THỨC TRI ÂN THẦY CÔ', '17:32 – 17:47', [
   P('Xin cả khán phòng dành một tràng pháo tay thật dài, thật nồng nhiệt gửi đến quý thầy cô kính yêu!'),
 ]);
 
-muc('06', 'ĐẠI DIỆN BGH NK 2000 – 2003 PHÁT BIỂU (TẶNG QUÀ LUÔN)', '17:47 – 17:53', [
-  ['Màn LED', 'Backdrop tĩnh.'],
-  ['Âm thanh', 'Nhạc nền nhẹ khi thầy/cô lên; nhạc ấm khi tặng quà.'],
-  ['Hậu cần', 'Báo trước cho thầy/cô phát biểu; mời ngồi hàng đầu để lên nhanh. Quà + hoa để sẵn; đại diện cựu học sinh tặng quà chờ ngay cạnh sân khấu – thầy/cô phát biểu xong là lên tặng luôn, thầy/cô đứng lại trên sân khấu.'],
-], [
-  P('Kính thưa quý vị!'),
-  P('Được gặp lại những người học trò sau 23 năm chắc hẳn cũng mang đến cho thầy cô thật nhiều cảm xúc. Những gương mặt ngày nào nay đã trưởng thành, những cô cậu học trò năm xưa giờ đây đã trở thành những người cha, người mẹ, những người đang tiếp tục viết nên câu chuyện cuộc đời mình.'),
-  P('Và có lẽ, niềm vui lớn nhất của người thầy chính là nhìn thấy học trò trưởng thành, sống tử tế và luôn nhớ về cội nguồn.'),
-  P('Ngay sau đây, xin trân trọng kính mời [[!Thầy/Cô ……………… (đại diện BGH niên khoá 2000 – 2003, BTC chọn)!]], đại diện quý thầy cô, có đôi lời chia sẻ với tập thể cựu học sinh trong buổi hội ngộ đầy ý nghĩa hôm nay.'),
-  P('Xin trân trọng kính mời!'),
-  Sub('Thầy/cô phát biểu xong – tặng quà luôn (thầy/cô đứng lại trên sân khấu):'),
-  P('Xin chân thành cảm ơn [[!thầy/cô!]]! Xin [[!thầy/cô!]] nán lại sân khấu một chút – tập thể cựu học sinh niên khoá 2000 – 2003 có một món quà nhỏ muốn gửi tặng [[!thầy/cô!]]. Xin trân trọng kính mời [[!anh/chị …………… (tên người tặng)!]], đại diện cựu học sinh, lên trao tặng món quà tri ân!'),
-  Moi('Trao quà + hoa – chụp ảnh – MC mời thầy/cô về chỗ ngồi rồi đọc tiếp lời cảm ơn bên dưới.'),
-  ...Tho(['Trăm năm Kiều vẫn là Kiều,', 'Giọng thầy ấm áp là điều tất nhiên.']),
-  Moi('Nếu người phát biểu là cô, MC đổi câu thứ hai thành: “Lời cô ấm áp là điều tất nhiên.”'),
-  P('Chúng em xin trân trọng cảm ơn những lời chia sẻ đầy yêu thương của [[!thầy/cô!]].'),
-  P('Có những bài học đã theo chúng em suốt 23 năm, có những lời dặn dò đến tận hôm nay vẫn còn nguyên giá trị. Và chắc chắn rằng, dù thời gian tiếp tục trôi đi, tình thầy trò của niên khoá 2000 – 2003 với mái trường Nguyễn Hiền sẽ vẫn luôn được gìn giữ và trân trọng.'),
-  ...Tho(['Bụi phấn xưa có thể nhoà theo gió,', 'Nhưng nghĩa thầy trò còn mãi với thời gian.', 'Hai mươi ba năm – xin gửi một lời tri ân,', 'Về mái trường xưa, về thầy cô yêu dấu!']),
-]);
-
 muc('07', 'ĐẠI DIỆN HỘI PHỤ HUYNH PHÁT BIỂU & NHẬN QUÀ', '17:53 – 17:58', [
   ['Màn LED', 'Slide “Tri ân Ban Đại diện cha mẹ học sinh niên khoá 2000 – 2003”.'],
   ['Âm thanh', 'Nhạc nền nhẹ khi chú lên/xuống; nhạc ấm khi tặng quà.'],
@@ -217,7 +216,21 @@ muc('07', 'ĐẠI DIỆN HỘI PHỤ HUYNH PHÁT BIỂU & NHẬN QUÀ', '17:53 �
   P('Xin một tràng pháo tay thật ấm áp gửi đến chú Phan Minh Sinh, và kính chúc chú luôn mạnh khoẻ, an vui, hạnh phúc bên gia đình!'),
 ], true);
 
-muc('08', 'TRAO TẶNG QUỸ KHUYẾN HỌC NHÀ TRƯỜNG', '17:58 – 18:05', [
+muc('08', 'TẶNG QUÀ KỶ NIỆM CÁC NHÀ TÀI TRỢ CHƯƠNG TRÌNH', '17:58 – 18:03', [
+  ['Màn LED', 'Trình chiếu "Chiếu nhà tài trợ" (menu Trình chiếu của trang web) – tên, logo từng nhà tài trợ.'],
+  ['Âm thanh', 'Nhạc nền trang trọng, tươi vui khi trao quà.'],
+  ['Hậu cần', 'Quà kỷ niệm + hoa theo số nhà tài trợ, xếp sẵn sau cánh gà; đại diện Ban liên lạc trao. [[!Danh sách nhà tài trợ có mặt + người trao – BTC chốt!]]'],
+], [
+  P('Kính thưa quý thầy cô và các anh chị em!'),
+  P('Để có được một đêm Gala trọn vẹn và ấm áp như hôm nay, bên cạnh tâm huyết của Ban liên lạc và các lớp, chương trình còn nhận được sự đồng hành, chung tay rất quý báu của các nhà tài trợ – phần lớn cũng chính là những người bạn, những anh chị em cựu học sinh Nguyễn Hiền của chúng ta.'),
+  P('Thay mặt Ban tổ chức, xin trân trọng kính mời đại diện các nhà tài trợ lên sân khấu để nhận món quà kỷ niệm của chương trình:'),
+  P('[[!Danh sách nhà tài trợ: ……………………………… (BTC bổ sung)!]]'),
+  P('Xin kính mời [[!anh/chị …………… – đại diện Ban liên lạc!]] lên trao quà kỷ niệm và hoa tri ân.'),
+  Moi('Trao quà + hoa – chụp ảnh chung với Ban liên lạc trước màn hình đang chiếu tên nhà tài trợ.'),
+  P('Xin cảm ơn những tấm lòng đã cùng chung tay cho ngày trở về hôm nay. Xin cả khán phòng dành một tràng pháo tay thật lớn gửi đến các nhà tài trợ!'),
+], true);
+
+muc('09', 'TRAO TẶNG QUỸ KHUYẾN HỌC NHÀ TRƯỜNG', '18:03 – 18:08', [
   ['Màn LED', 'Slide "Hướng về mái trường xưa – Quỹ khuyến học Trường THPT Nguyễn Hiền".'],
   ['Âm thanh', 'Nhạc nền hùng tráng nhẹ khi trao bảng.'],
   ['Hậu cần', '2 bảng trao tặng (in sẵn): Khoá 2000 – 2003 [[!10.000.000 VNĐ – xác nhận số tiền!]]; anh Trần Quốc Thuyên – lớp 12/4: 3.000.000 VNĐ. Phong bì kèm theo, 2 bó hoa tặng lại người trao.'],
@@ -233,7 +246,7 @@ muc('08', 'TRAO TẶNG QUỸ KHUYẾN HỌC NHÀ TRƯỜNG', '17:58 – 18:05', 
   P('Những tấm lòng nhỏ hôm nay mong sẽ trở thành những học bổng, những phần thưởng tiếp thêm động lực cho các em học sinh Nguyễn Hiền. Xin một tràng pháo tay thật lớn cảm ơn những tấm lòng hướng về mái trường!'),
 ], true);
 
-muc('09', 'NÂNG LY KHAI TIỆC', '18:05 – 18:12', [
+muc('10', 'NÂNG LY KHAI TIỆC', '18:08 – 18:14', [
   ['Màn LED', 'Backdrop "Ngày trở về".'],
   ['Âm thanh', 'Nhạc sôi động khi hô "Một, hai, ba"; sau đó nhạc nền nhẹ.'],
   ['Hậu cần', 'Nhà hàng rót sẵn đồ uống trước khi MC mời; đại diện 12 lớp lên sân khấu.'],
@@ -257,7 +270,7 @@ muc('09', 'NÂNG LY KHAI TIỆC', '18:05 – 18:12', [
   P('Xin trân trọng cảm ơn và kính mời quý vị cùng nhập tiệc!'),
 ]);
 
-muc('10', 'DÙNG TIỆC', '18:12 – 18:20', [
+muc('11', 'DÙNG TIỆC', '18:14 – 18:20', [
   ['Màn LED', 'Trình chiếu "Tất cả" (ảnh cả khoá xen lưu bút, thầy cô) – mã QR viết lưu bút luôn ở 2 bên màn.'],
   ['Âm thanh', 'Nhạc nền nhẹ; phục vụ món.'],
 ], [
@@ -265,26 +278,26 @@ muc('10', 'DÙNG TIỆC', '18:12 – 18:20', [
   P('Trong lúc thưởng thức bữa tiệc, xin mời các bạn nhìn lên màn hình: những tấm ảnh của 12 lớp đang lần lượt hiện lên. Bạn nào chưa viết lưu bút, hãy quét mã QR hai bên màn hình – lời nhắn của bạn sẽ được chiếu ngay trong đêm nay.'),
 ]);
 
-muc('11', 'GIAO LƯU VĂN NGHỆ – LỚP 12/1 ĐẾN 12/6', '18:20 – 18:45', [
+muc('12', 'GIAO LƯU VĂN NGHỆ – LỚP 12/1 ĐẾN 12/6', '18:20 – 18:45', [
   ['Hậu cần', 'Thứ tự tiết mục sắp xếp linh hoạt; mỗi lớp 1 tiết mục ≈ 4 phút. Các lớp nộp tên bài + nhạc nền (USB) cho kỹ thuật trước 16:30.'],
 ], [
   Moi('MC giới thiệu từng tiết mục: tên lớp – tên bài – người trình bày; sau mỗi tiết mục mời một tràng pháo tay.'),
 ]);
 
-muc('12', 'GAME SHOW 1 – “AI THÔNG MINH HƠN HỌC SINH NGUYỄN HIỀN”', '18:45 – 19:00', [
+muc('13', 'GAME SHOW 1 – “AI THÔNG MINH HƠN HỌC SINH NGUYỄN HIỀN”', '18:45 – 19:00', [
   ['Màn LED', 'Slide câu hỏi (nếu có).'],
   ['Hậu cần', 'Những câu hỏi “hại não” hài hước, vui nhộn; 05 phần quà.'],
 ], []);
 
-muc('13', 'GIAO LƯU VĂN NGHỆ – LỚP 12/7 ĐẾN 12/12', '19:00 – 19:25', [
+muc('14', 'GIAO LƯU VĂN NGHỆ – LỚP 12/7 ĐẾN 12/12', '19:00 – 19:25', [
   ['Hậu cần', 'Sắp xếp linh hoạt, mỗi lớp 1 tiết mục ≈ 4 phút.'],
 ], []);
 
-muc('14', 'GAME SHOW 2 – BONG BÓNG KHỔNG LỒ', '19:25 – 19:40', [
+muc('15', 'GAME SHOW 2 – BONG BÓNG KHỔNG LỒ', '19:25 – 19:40', [
   ['Hậu cần', '6 bộ bong bóng khổng lồ (2 lớp ghép 1 đội); 06 phần quà; chuẩn bị khu vực chơi an toàn, dọn bàn ghế gần sân khấu.'],
 ], []);
 
-muc('15', 'CHÚC MỪNG SINH NHẬT CÁC BẠN SINH THÁNG 11', '19:40 – 19:50', [
+muc('16', 'CHÚC MỪNG SINH NHẬT CÁC BẠN SINH THÁNG 11', '19:40 – 20:00', [
   ['Màn LED', 'Slide “Happy Birthday – Sinh nhật tháng 11 của Nguyễn Hiền 2000 – 2003” (tên các bạn sinh tháng 11; tên 4 bạn sinh 14/11 to hơn). Có thể chiếu clip bài “Tháng Mười Một Của Tụi Mình” khi các bạn lên sân khấu.'],
   ['Âm thanh', 'Nhạc dồn trống khi mời lên → tắt nhạc lúc tắt đèn → “Happy Birthday” / Khúc hát mừng sinh nhật cả khán phòng cùng hát → nhạc sôi động khi cắt bánh.'],
   ['Hậu cần', 'Bánh kem lớn (chữ “Happy Birthday · Tháng 11 · NH 2000 – 2003”), nến số + nến que, bật lửa, dao cắt bánh, đĩa; mũ/băng sinh nhật cho các bạn sinh tháng 11; pháo giấy cầm tay. Báo kỹ thuật tắt đèn khán phòng đúng lúc. Thợ ảnh đứng sẵn trước sân khấu. [[!Danh sách các bạn sinh tháng 11 – BTC chốt trước 13/11!]]'],
@@ -308,28 +321,6 @@ muc('15', 'CHÚC MỪNG SINH NHẬT CÁC BẠN SINH THÁNG 11', '19:40 – 19:50
   ...Tho(['Tháng Mười Một, ta về chung một mái,', 'Thổi nến hồng – thêm tuổi, chẳng thêm xa.', 'Hai mươi ba năm, bạn bè còn mãi,', 'Chúc nhau đời vui, rực rỡ như hoa.']),
   P('Xin một tràng pháo tay nữa cho các “nhân vật chính” của tháng 11! Bánh kem sẽ được nhà hàng chia về từng bàn để cả khoá cùng chung vui.'),
 ], true);
-
-muc('16', 'KHOẢNH KHẮC LẮNG ĐỌNG – NHỚ VỀ MÁI TRƯỜNG XƯA', '19:50 – 20:00', [
-  ['Màn LED', 'Trình chiếu ảnh cũ của lớp, thầy cô, mái trường. Phần “Một phút hoài niệm”: slide nền tối, ngọn nến.'],
-  ['Âm thanh', 'Mong ước kỷ niệm xưa hoặc piano nhẹ; tắt hẳn nhạc trong một phút hoài niệm.'],
-  ['Hậu cần', 'Giảm đèn khán phòng.'],
-], [
-  P('Kính thưa quý thầy cô và toàn thể các anh chị em!'),
-  P('Giữa những tiếng cười rộn ràng của đêm hội ngộ, xin mời tất cả chúng ta dành ít phút để cùng lắng lại.'),
-  P('Hai mươi ba năm – một quãng thời gian không ngắn trong cuộc đời mỗi người.'),
-  P('Có những người bạn ngày xưa từng ngồi cạnh nhau mỗi ngày, hôm nay phải nhờ những cuộc gọi, những dòng tin nhắn mới có thể hỏi thăm nhau. Có những người bạn đã lâu chưa gặp, nhưng chỉ cần một cái bắt tay, một nụ cười là bao nhiêu ký ức lại ùa về.'),
-  P('Có những thầy cô vẫn đang tiếp tục hành trình gieo chữ, cũng có những thầy cô đã nghỉ hưu, nhưng tình yêu thương dành cho học trò vẫn còn nguyên vẹn.'),
-  P('Và trong hành trình 23 năm ấy, có lẽ ai trong chúng ta cũng đã trải qua những niềm vui, những thành công, những mất mát và những thử thách của riêng mình.'),
-  Sub('Một phút hoài niệm (mới bổ sung):'),
-  P('Trong niềm vui hội ngộ hôm nay, chúng ta cũng không quên những thầy cô, những người bạn đã không còn có thể trở về cùng chúng ta. [[!(Nếu có danh sách, MC đọc tên tại đây.)!]]'),
-  P('Xin kính mời quý thầy cô và toàn thể các anh chị em cùng đứng lên, dành một phút tưởng nhớ – để những người đã đi xa biết rằng, trong ngày trở về này, mái trường và bạn bè vẫn luôn nhớ đến họ.'),
-  Moi('Một phút im lặng – không nhạc. Hết một phút: “Xin cảm ơn, kính mời quý vị an toạ.”'),
-  Sub('MC tiếp:'),
-  P('Hôm nay, khi trở về bên nhau, chúng ta có thể tự hào rằng mình đã từng có một thời thanh xuân đẹp đẽ dưới mái trường Nguyễn Hiền.'),
-  P('Nếu có một điều muốn nhắn gửi đến bạn bè sau 23 năm, có lẽ đó là: hãy luôn trân trọng những lần được gặp nhau, bởi thời gian không chờ đợi bất kỳ ai. Hãy giữ liên lạc, hãy quan tâm nhau nhiều hơn và đừng để những cuộc hội ngộ chỉ còn là lời hẹn trong tương lai.'),
-  P('Và nếu có một lời muốn gửi đến thầy cô, đó chính là lời cảm ơn từ tận đáy lòng vì đã cho chúng em những năm tháng học trò không thể nào quên.'),
-  P('Xin kính chúc quý thầy cô luôn mạnh khoẻ. Xin chúc tất cả những người bạn của niên khoá 2000 – 2003 luôn bình an, hạnh phúc và dù ở bất cứ nơi đâu, vẫn luôn nhớ về nhau bằng những tình cảm đẹp nhất.'),
-]);
 
 muc('17', 'VINH DANH TÌNH BẠN – CHỤP ẢNH LƯU NIỆM', '20:00 – 20:15', [
   ['Âm thanh', 'Nối vòng tay lớn (cả khán phòng nắm tay) → mời lên hết sân khấu hát “Nụ cười 18 – 20”.'],
@@ -418,14 +409,14 @@ MUC.forEach(m => {
 body.push(...tieuDe('✦', 'GHI CHÚ RÀ SOÁT', ''));
 body.push(Sub('Các mục cần Ban Tổ chức xác nhận:'));
 body.push(...Ds([
-  'Mục 06: thầy/cô đại diện BGH niên khoá 2000 – 2003 phát biểu (đề xuất: Thầy Phạm Úc – nguyên Hiệu trưởng) và tên người đại diện cựu học sinh tặng quà ngay sau phát biểu.',
+  'Mục 05: báo trước Thầy Phạm Úc phát biểu; tên người đại diện cựu học sinh tặng quà thầy ngay sau phát biểu.',
+  'Mục 08: danh sách nhà tài trợ có mặt, số phần quà kỷ niệm, người trao.',
   'Mục 07: tên người đại diện cựu học sinh tặng quà chú Phan Minh Sinh; báo trước để chú chuẩn bị phát biểu.',
   'Mục 03: đại diện Ban Giám hiệu (Cô Nguyễn Thị Thảo – cập nhật trong ngày 14/11); họ tên đầy đủ của “Thầy Dương”.',
-  'Mục 15: danh sách các bạn sinh tháng 11 (đọc tên); bánh kem, nến, mũ sinh nhật.',
+  'Mục 16: danh sách các bạn sinh tháng 11 (đọc tên); bánh kem, nến, mũ sinh nhật.',
   'Mục 18: có phát gậy phát sáng không; nhà hàng có đèn nháy/laser không; khoảng sàn trống trước sân khấu.',
-  'Mục 08: số tiền khoá trao Quỹ khuyến học (đang ghi 10.000.000 đ); danh sách khách mời KHÔNG có Cô Nguyễn Thị Minh Huệ – xác nhận người nhận bảng (Cô Hiệu trưởng hay đại diện BGH có mặt) và có đáp từ hay không.',
+  'Mục 09: số tiền khoá trao Quỹ khuyến học (đang ghi 10.000.000 đ); danh sách khách mời KHÔNG có Cô Nguyễn Thị Minh Huệ – xác nhận người nhận bảng (Cô Hiệu trưởng hay đại diện BGH có mặt) và có đáp từ hay không.',
   'Mục 03: họ đầy đủ của “Cô Ái Trang”.',
-  'Mục 16: danh sách thầy cô, bạn bè đã mất (nếu muốn đọc tên).',
   'Giờ: đón khách 16:00 – 17:00, khai mạc 17:05 (khớp giấy mời 17:00). Thư ngỏ đang ghi 17h30 – nên sửa lại cho thống nhất.',
 ]));
 body.push(Sub('Những chỗ đã sửa so với bản gốc:'));
@@ -433,9 +424,10 @@ body.push(...Ds([
   'Chính tả: “kĩ niềm/kĩ niệm” → “kỷ niệm”; “1 ngã” → “một ngả”; “lí do” → “lý do”; “kiều” → “Kiều”; “12c1…” → “12/1…”; bỏ ngoặc thừa “((”; “Thầy cô Nguyên BGH” → “nguyên Ban Giám hiệu”; thống nhất “niên khoá 2000 – 2003”.',
   'Mục 01: “kỷ niệm 23 năm ngày trở về” → “kỷ niệm 23 năm ngày ra trường”; thêm lời mời quét QR viết lưu bút.',
   'Các bài thơ tách đúng từng dòng (bản gốc dính liền một đoạn).',
-  'Bổ sung: mục 00 đón khách – check-in; clip mở đầu 15 giây (mục 02); mục 08 trao Quỹ khuyến học; nhắc lưu bút QR lúc dùng tiệc (mục 10); “Một phút hoài niệm” (mục 16); nhắc 30 năm thành lập trường (mục 02, 07).',
+  'Bổ sung: mục 00 đón khách – check-in; clip mở đầu 15 giây (mục 02); mục 09 trao Quỹ khuyến học; nhắc lưu bút QR lúc dùng tiệc (mục 11); nhắc 30 năm thành lập trường (mục 02, 09).',
   'Thêm giờ cho từng mục và khung chỉ dẫn Màn LED / Âm thanh / Hậu cần.',
-  'Đánh lại số mục 00 – 19 (thêm mục 00, 07, 08 và 18).',
+  'Đánh lại số mục 00 – 19.',
+  'Theo bản BTC sửa (12/11): đại biểu xếp lại (GVCN lớp 12 lên trước, nhóm “cựu giáo viên Trường THPT Nguyễn Hiền”); Thầy Phạm Úc phát biểu (mục 05) TRƯỚC nghi thức tri ân (mục 06), phát biểu xong tặng quà luôn; thêm mục 08 tặng quà kỷ niệm nhà tài trợ (dời mục 09 – 11, dùng tiệc vẫn xong 18:20); bỏ mục “Khoảnh khắc lắng đọng – Một phút hoài niệm”, sinh nhật tháng 11 kéo dài tới 20:00.',
   'Cập nhật 12/11 theo danh sách khách mời: mục 03 đủ 33 khách (thêm Thầy Ngô Ngọc Hoàng Vương, giáo viên khách mời, Cô Kha – giáo vụ, chú Phan Minh Sinh; mỗi lớp 1 GVCN); mục 05 mời toàn bộ thầy cô lên sân khấu (trừ chú Sinh), ghi rõ quà của bạn Quốc Thuyên và bạn Bích Thu 12/4; chia 2 mục: 06 đại diện BGH niên khoá 2000 – 2003 phát biểu, 07 (mới) MC Hải giới thiệu chú Phan Minh Sinh phát biểu + đại diện cựu học sinh tặng quà (dời giờ mục 08 – 10 thêm 3 phút, dùng tiệc vẫn xong 18:20); mục 15 sinh nhật tháng 11 đầy đủ lời dẫn; thêm mục 18 “Quẩy EDM” 20:15 – 20:30; bế mạc (mục 19) 20:30 – 20:35.',
 ]));
 
