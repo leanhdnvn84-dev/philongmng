@@ -29,6 +29,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     tbIds.length ? db.from('thiet_bi').select('id, ten_thiet_bi').in('id', tbIds) : Promise.resolve({ data: [] as any[] }),
   ])
   const vtMap = new Map((vt ?? []).map((x: any) => [x.id, x])), tbMap = new Map((tb ?? []).map((x: any) => [x.id, x]))
+  // old rows keep the supplier as a code (NCC0001): print the supplier's name
+  const nccIds = Array.from(new Set((lines ?? []).map((l: any) => String(l.nha_cung_cap ?? '').trim()).filter((x: string) => /^NCC\d+$/.test(x))))
+  const { data: ncc } = nccIds.length ? await db.from('nha_cung_cap').select('id, ten_nha_cung_cap').in('id', nccIds) : { data: [] as any[] }
+  const nccMap = new Map((ncc ?? []).map((x: any) => [x.id as string, x.ten_nha_cung_cap as string]))
 
   const { count: auditCount } = await db.from('audit_logs').select('id', { count: 'exact', head: true })
     .eq('table_name', 'de_xuat').eq('record_id', params.id).eq('action', 'in_phieu')
@@ -47,7 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       lines: (lines ?? []).map((l: any) => ({
         name: l.ten || vtMap.get(l.id_vat_tu)?.ten_vat_tu || tbMap.get(l.id_thiet_bi)?.ten_thiet_bi || l.id_vat_tu || l.id_thiet_bi || dx.noi_dung || '',
         unit: l.dvt || vtMap.get(l.id_vat_tu)?.dvt || '', qty: l.so_luong, price: l.don_gia, amount: l.thanh_tien,
-        supplier: l.nha_cung_cap || '', reason: l.muc_dich_ly_do || '', note: l.ghi_chu || '', extra: l.extra ?? {},
+        supplier: nccMap.get(String(l.nha_cung_cap ?? '').trim()) ?? l.nha_cung_cap ?? '', reason: l.muc_dich_ly_do || '', note: l.ghi_chu || '', extra: l.extra ?? {},
       })),
     },
   })

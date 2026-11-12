@@ -23,6 +23,8 @@ export interface Field {
   calc?: [string, string]
   refQuery?: string // for 'ref': extra list filter, e.g. 'gt_ton_hien_tai=0' (only in-stock items)
   place?: string // placeholder
+  /** free-text column that may hold codes of another resource (NCC0001…): shown as that record's name */
+  nameOf?: string
   chips?: boolean // 'select' drawn as a row of pill buttons (V191 "Giai đoạn")
 }
 
@@ -310,7 +312,7 @@ export const RESOURCES: Resource[] = [
       { name: 'ngay_de_xuat', label: 'Ngày đề xuất', type: 'date' },
       { name: 'id_nguoi_de_xuat', label: 'Người đề xuất', type: 'ref', ref: 'nhan_vien', required: true },
       { name: 'ds_ten', label: 'Tên vật tư / thiết bị', type: 'text', ro: true, multiline: true },
-      { name: 'ds_nha_cung_cap', label: 'Nhà cung cấp', type: 'text', ro: true, multiline: true },
+      { name: 'ds_nha_cung_cap', label: 'Nhà cung cấp', type: 'text', ro: true, multiline: true, nameOf: 'nha_cung_cap' },
       { name: 'ds_don_gia', label: 'Đơn giá', type: 'text', ro: true, multiline: true },
       { name: 'ds_so_luong', label: 'Số lượng', type: 'text', ro: true, multiline: true },
       { name: 'ds_dvt', label: 'ĐVT', type: 'text', ro: true, multiline: true },
@@ -343,7 +345,7 @@ export const RESOURCES: Resource[] = [
       { name: 'so_luong', label: 'Số lượng', type: 'number', required: true, default: 1 },
       { name: 'don_gia', label: 'Đơn giá', type: 'money', default: 0 },
       { name: 'thanh_tien', label: 'Thành tiền', type: 'money', ro: true },
-      { name: 'nha_cung_cap', label: 'Nhà cung cấp', type: 'text' },
+      { name: 'nha_cung_cap', label: 'Nhà cung cấp', type: 'text', nameOf: 'nha_cung_cap' },
       { name: 'ghi_chu', label: 'Ghi chú', type: 'text', inList: false },
     ],
     optionLabel: (r) => r.id,
@@ -761,7 +763,7 @@ export const RESOURCES: Resource[] = [
     fields: [
       { name: 'thoi_gian', label: 'Thời gian', type: 'datetime', ro: true },
       { name: 'email', label: 'Tài khoản', type: 'text', ro: true },
-      { name: 'id_nguoi_dung', label: 'Mã người dùng', type: 'text', ro: true, inList: false },
+      { name: 'id_nguoi_dung', label: 'Người dùng', type: 'text', ro: true, inList: false, nameOf: 'nhan_vien' },
       { name: 'ip_cong_cong', label: 'IP', type: 'text', ro: true },
       { name: 'trinh_duyet', label: 'Trình duyệt', type: 'text', ro: true },
       { name: 'he_dieu_hanh', label: 'Hệ điều hành', type: 'text', ro: true },

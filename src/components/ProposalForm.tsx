@@ -134,9 +134,11 @@ export default function ProposalForm({ kind: kindIn, row, onClose, onSaved }: { 
   useEffect(() => {
     if (!isEdit) return
     let dead = false
-    get(`/api/de_xuat_chi_tiet?id_de_xuat=${encodeURIComponent(row!.id)}&pageSize=200`).then((j) => {
+    Promise.all([get(`/api/de_xuat_chi_tiet?id_de_xuat=${encodeURIComponent(row!.id)}&pageSize=200`), get('/api/nha_cung_cap?options=1')]).then(([j, o]) => {
       if (dead) return
-      const ls = (j?.data ?? []) as Row[]
+      // old rows keep the supplier as a code (NCC0001): edit it as the supplier's name
+      const ncc = new Map(((o?.data ?? []) as { value: string; label: string }[]).map((x) => [x.value, x.label]))
+      const ls: Row[] = ((j?.data ?? []) as Row[]).map((l) => ({ ...l, nha_cung_cap: ncc.get(String(l.nha_cung_cap ?? '').trim()) ?? l.nha_cung_cap }))
       setLines(ls.length ? ls.map((l) => ({ id_vat_tu: l.id_vat_tu ?? null, id_thiet_bi: l.id_thiet_bi ?? null, ten: l.ten ?? '', dvt: l.dvt ?? '', so_luong: String(l.so_luong ?? 1), don_gia: String(l.don_gia ?? 0), nha_cung_cap: l.nha_cung_cap ?? '' })) : [blank()])
       setLoading(false)
     })

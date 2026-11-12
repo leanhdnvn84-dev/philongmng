@@ -83,7 +83,7 @@ const rk = (f: Field) => (f.refQuery ? `${f.ref}?${f.refQuery}` : f.ref!)
 function useRefOptions(fieldLists: Field[][]) {
   const [refs, setRefs] = useState<Record<string, Option[]>>({})
   const keys = useMemo(
-    () => Array.from(new Set(fieldLists.flat().filter((f) => f.type === 'ref').map((f) => rk(f)))).sort().join(','),
+    () => Array.from(new Set(fieldLists.flat().flatMap((f) => [f.type === 'ref' ? rk(f) : '', f.multiRef ?? '', f.nameOf ?? '']).filter(Boolean))).sort().join(','),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [fieldLists.map((l) => l.map((f) => f.name).join()).join('|')]
   )
@@ -108,6 +108,9 @@ function useRefOptions(fieldLists: Field[][]) {
   return { refs, labels }
 }
 
+/** codes kept in a text column → names, line by line (a line that is not a known code stays as typed) */
+const named = (f: Field, v: unknown, labels: Record<string, Map<string, string>>) => String(v ?? '').split('\n').map((l) => labels[f.nameOf!]?.get(l.trim()) ?? l).join('\n')
+
 function display(f: Field, v: any, labels: Record<string, Map<string, string>>) {
   if (v === null || v === undefined || v === '') return <span className="text-navy-300">—</span>
   if (f.type === 'ref') return labels[f.ref!]?.get(v) ?? v
@@ -115,6 +118,7 @@ function display(f: Field, v: any, labels: Record<string, Map<string, string>>) 
   // co-workers are stored as a list of staff / contractor codes (NV0010, NT0012…) or plain names: show names
   if (f.name === 'nguoi_lam_cung') return String(v).split(/\s*,\s*/).filter(Boolean).map((t) => labels.nhan_vien?.get(t) ?? labels.nha_thau?.get(t) ?? t).join(', ')
   if (f.multiRef) return String(v).split(/\s*,\s*/).filter(Boolean).map((t) => labels[f.multiRef!]?.get(t) ?? t).join(', ')
+  if (f.nameOf) return named(f, v, labels)
   if (f.name === 'action' && AUDIT_ACTIONS[String(v)]) return AUDIT_ACTIONS[String(v)]
   if (f.name === 'changes' && typeof v === 'object') return <span className="font-mono text-[11.5px]">{JSON.stringify(v)}</span>
   if (f.name === 'ma_canh_bao') return ALERT_CODES[String(v)] ?? String(v)
@@ -328,7 +332,7 @@ export default function ResourceManager({
     // any long text cell (clamped to 2-3 lines in the table) shows its full content on hover
     const long = f.type === 'textarea' || SOFT_TIP.has(f.name) || f.multiline
     if (!long) return null
-    const t = String(r[f.name] ?? '').trim()
+    const t = (f.nameOf ? named(f, r[f.name], labels) : String(r[f.name] ?? '')).trim()
     return t && (f.name === 'tien_do' || t.length > 40 || t.split('\n').length > 3) ? t : null
   }
   const showTip = (e: React.MouseEvent<HTMLElement>, f: Field, r: any) => {
@@ -759,7 +763,7 @@ export default function ResourceManager({
                     <td key={f.name} onMouseEnter={(e) => showTip(e, f, r)} onMouseLeave={() => setTip(null)} className={`${/^ds_(don_gia|so_luong|thanh_tien|dvt)$/.test(f.name) ? 'px-1.5' : pad} py-2 border-b border-l border-navy-200/70 align-middle ${right ? 'text-right' : STATUS_FIELDS.has(f.name) ? 'text-center' : ''} ${f.type === 'date' || f.type === 'datetime' || f.type === 'number' || f.type === 'money' || f.type === 'bool' || /^id_nguoi/.test(f.name) || res.noWrap ? 'whitespace-nowrap overflow-hidden text-ellipsis' : 'break-words'}`}>
                       {f.multiline && typeof r[f.name] === 'string' ? (() => {
                         // one line per item, never wrapped, so the name / price / quantity columns stay side by side; at most three lines, the rest is in the hover box
-                        const ls = String(r[f.name]).split('\n'), show = ls.length > 3 ? ls.slice(0, 2) : ls
+                        const ls = (f.nameOf ? named(f, r[f.name], labels) : String(r[f.name])).split('\n'), show = ls.length > 3 ? ls.slice(0, 2) : ls
                         return (<div className="leading-snug">
                           {show.map((l, k) => <div key={k} className={/^ds_(don_gia|so_luong|thanh_tien)$/.test(f.name) ? 'whitespace-nowrap tabular-nums' : 'truncate'}>{l || '—'}</div>)}
                           {ls.length > 3 && <div className="truncate text-[11.5px] font-semibold text-ink-mute">{f.name === 'ds_ten' ? `+${ls.length - 2} dòng nữa…` : '…'}</div>}
