@@ -33,7 +33,7 @@ export async function GET() {
   })())
 
   if (can(auth, 'DE_XUAT', 'approve')) jobs.push((async () => {
-    const { data } = await db.from('v_de_xuat').select('id,noi_dung,ngay_de_xuat,tong_tien,loai_de_xuat').eq('trang_thai', 'Chờ duyệt').order('ngay_de_xuat').limit(200)
+    const { data } = await db.from('v_de_xuat').select('id,noi_dung,ngay_de_xuat,tong_tien,loai_de_xuat').in('trang_thai', auth.superAdmin ? ['Chờ duyệt', 'Chờ duyệt cấp 2'] : ['Chờ duyệt']).order('ngay_de_xuat').limit(200)
     if (data?.length) out.push({ key: 'de_xuat_cho_duyet', title: 'Đề xuất chờ bạn duyệt', count: data.length, tone: 'amber', href: `/de_xuat?loai_de_xuat=${(data[0] as any).loai_de_xuat}`,
       lines: (data as any[]).slice(0, 4).map((r) => `${r.id} · ${cut(r.noi_dung, 50)} · ${dmy(r.ngay_de_xuat)}${Number(r.tong_tien) ? ` · ${new Intl.NumberFormat('vi-VN').format(Number(r.tong_tien))} đ` : ''}`) })
   })())

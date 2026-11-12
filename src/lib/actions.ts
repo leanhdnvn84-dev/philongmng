@@ -72,10 +72,30 @@ const huyLuot: Handler = async ({ auth, id, row }) => {
 }
 
 // ── Đề xuất ──
+export const LEVEL2 = 'Chờ duyệt cấp 2'
+/** Proposals above this amount (đ) need a second approval by a Super Admin; 0 = one level only. */
+export async function level2Threshold() {
+  const { data } = await supabaseAdmin().from('cau_hinh_he_thong').select('gia_tri').eq('khoa', 'nguong_duyet_2_cap').maybeSingle()
+  const n = Number(data?.gia_tri ?? 0); return Number.isFinite(n) && n > 0 ? n : 0
+}
+
 const duyet: Handler = async ({ auth, id, row }) => {
   const db = supabaseAdmin()
   const { data: lines } = await db.from('de_xuat_chi_tiet').select('*').eq('id_de_xuat', id)
   if (!lines?.length) bad('Đề xuất chưa có dòng chi tiết nào')
+  // two-level approval: above the threshold a non-Super-Admin approval only moves it to level 2
+  if (!auth.superAdmin) {
+    if (row.trang_thai === LEVEL2) bad('Đề xuất này đã qua duyệt cấp 1, cần Super Admin duyệt cấp 2', 403)
+    const limit = await level2Threshold()
+    const total = lines!.reduce((s, l: any) => s + (Number(l.so_luong) || 0) * (Number(l.don_gia) || 0), 0)
+    if (limit && total > limit) {
+      const { data: moved } = await db.from('de_xuat').update({ trang_thai: LEVEL2, extra: { ...(row.extra ?? {}), DUYET_CAP_1: { nguoi: auth.name, ngay: todayVN() } } })
+        .eq('id', id).eq('trang_thai', row.trang_thai ?? 'Chờ duyệt').select('id')
+      if (!moved?.length) bad('Đề xuất vừa được người khác xử lý, tải lại trang', 409)
+      await audit(auth, 'de_xuat', id, 'approve_level1', { total, limit })
+      return { message: `Đã duyệt cấp 1. Tổng ${new Intl.NumberFormat('vi-VN').format(total)} đ vượt ngưỡng ${new Intl.NumberFormat('vi-VN').format(limit)} đ nên chờ Super Admin duyệt cấp 2.` }
+    }
+  }
   // conditional update = only one approver wins; no double stock entry
   const { data: done } = await db.from('de_xuat')
     .update({ trang_thai: 'Đã duyệt', nguoi_duyet: auth.name, ngay_duyet: todayVN() })
@@ -109,6 +129,7 @@ const tuChoi: Handler = async ({ auth, id, row, input }) => {
   const reason = one(input.ly_do)
   if (!reason) bad('Nhập lý do từ chối')
   if (row.trang_thai === 'Đã duyệt') bad('Đề xuất đã duyệt', 409)
+  if (row.trang_thai === LEVEL2 && !auth.superAdmin) bad('Đề xuất đang chờ duyệt cấp 2, chỉ Super Admin được từ chối', 403)
   const ghi_chu = [row.ghi_chu, `Từ chối ${dayMonthVN()} bởi ${auth.name}: ${reason}`].filter(Boolean).join('\n')
   await supabaseAdmin().from('de_xuat').update({ trang_thai: 'Từ chối', nguoi_duyet: auth.name, ngay_duyet: todayVN(), ghi_chu }).eq('id', id)
   await audit(auth, 'de_xuat', id, 'reject', { reason })

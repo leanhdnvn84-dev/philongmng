@@ -2,7 +2,7 @@
 import { COMPANY, CSS, PRINT_CSS, esc, money, dmy, moneyWords } from '@/lib/proposalDoc'
 
 export interface MeterLine { code: string; name: string; floor: string; old: number | null; now: number | null; kwh: number; price: number; amount: number }
-export interface Invoice { id: string; customerId: string; customer: string; lines: MeterLine[]; sub: number; vatRate: number; vat: number; total: number }
+export interface Invoice { id: string; customerId: string; customer: string; lines: MeterLine[]; sub: number; vatRate: number; vat: number; total: number; paid?: number }
 
 const dec = (n: number | null) => (n == null ? '' : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'))
 const kyLabel = (ky: string) => `Tháng ${ky.slice(5, 7)}/${ky.slice(0, 4)}`
@@ -20,7 +20,9 @@ function page(inv: Invoice, ky: string, closeDate: string | null, logo: string) 
   <table class="grid" width="100%"><tr class="head"><th style="width:5%">TT</th><th>Công tơ</th><th style="width:12%">Chỉ số cũ</th><th style="width:12%">Chỉ số mới</th><th style="width:10%">Số kWh</th><th style="width:11%">Đơn giá</th><th style="width:15%">Thành tiền</th></tr>${rows}
     <tr><th class="num" colspan="6">Cộng tiền điện</th><th class="num">${money(inv.sub)}</th></tr>
     <tr><th class="num" colspan="6">VAT ${Math.round(inv.vatRate * 100)}%</th><th class="num">${money(inv.vat)}</th></tr>
-    <tr><th class="num" colspan="6">TỔNG THANH TOÁN</th><th class="num">${money(inv.total)}</th></tr></table>
+    <tr><th class="num" colspan="6">TỔNG THANH TOÁN</th><th class="num">${money(inv.total)}</th></tr>${inv.paid ? `
+    <tr><td class="num" colspan="6">Đã thanh toán</td><td class="num">${money(inv.paid)}</td></tr>
+    <tr><th class="num" colspan="6">CÒN PHẢI THANH TOÁN</th><th class="num">${money(Math.max(0, inv.total - inv.paid))}</th></tr>` : ''}</table>
   <div class="words"><b>Bằng chữ:</b> ${esc(moneyWords(inv.total))}</div>
   <p class="note">Đề nghị Quý khách thanh toán đúng hạn. Mọi thắc mắc xin liên hệ ${esc(COMPANY.phone)}.</p>
   <p style="text-align:right;font-size:10pt;margin:14px 0 0"><i>Đà Nẵng, ngày ${esc(dmy(d).slice(0, 2))} tháng ${esc(dmy(d).slice(3, 5))} năm ${esc(dmy(d).slice(6))}</i></p>

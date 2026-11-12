@@ -60,7 +60,7 @@ export async function GET() {
   }
   if (can(auth, 'DE_XUAT', 'view')) {
     tasks.dx = Promise.all([
-      db.from('v_de_xuat').select('id, noi_dung, ngay_de_xuat, tong_tien, loai_de_xuat').eq('trang_thai', 'Chờ duyệt').order('ngay_de_xuat', { ascending: false }).limit(5000),
+      db.from('v_de_xuat').select('id, noi_dung, ngay_de_xuat, tong_tien, loai_de_xuat').in('trang_thai', ['Chờ duyệt', 'Chờ duyệt cấp 2']).order('ngay_de_xuat', { ascending: false }).limit(5000),
       db.from('v_de_xuat').select('tong_tien, so_dong, trang_thai').gte('ngay_de_xuat', today.slice(0, 8) + '01').lte('ngay_de_xuat', today).limit(5000),
     ]).then(([p, m]) => {
       const mon = (m.data ?? []).filter((r: any) => r.trang_thai !== 'Từ chối' && Number(r.so_dong || 0) > 0)

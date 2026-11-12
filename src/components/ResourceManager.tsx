@@ -11,7 +11,7 @@ import { ProposalStats } from '@/components/ProposalExtras'
 import RecordHistory from '@/components/RecordHistory'
 import Attachments, { ATTACHABLE } from '@/components/Attachments'
 import { DeviceMaintenance, QrDialog, printQrLabels, type QrDevice } from '@/components/DeviceExtras'
-import { QrCode } from 'lucide-react'
+import { QrCode, Scale } from 'lucide-react'
 import { PackagePlus } from 'lucide-react'
 import StockSide, { StockBatches } from '@/components/StockSide'
 import { DailyWorkSummary } from '@/components/ProposalExtras'
@@ -249,6 +249,7 @@ export default function ResourceManager({
   const [side, setSide] = useState('')
   const [shortOpen, setShortOpen] = useState(false)
   const [qr, setQr] = useState<QrDevice | null>(null)
+  const [limitOpen, setLimitOpen] = useState<string | null>(null) // two-level approval threshold (Super Admin)
   // a QR label or a link (?xem=TB0001) opens that record straight away
   useEffect(() => {
     if (!initialView || compact) return
@@ -968,6 +969,8 @@ export default function ResourceManager({
         <Tile icon={RotateCw} label="Làm mới" color="blue" onClick={() => load()} />
         {res.key === 'cong_viec_hang_ngay' && !compact && <Tile icon={AlertTriangle} label="Chưa xong" color="amber" title="Chỉ hiện các việc chưa hoàn thành (mọi ngày)" onClick={() => { setUnfinished((u) => !u); setDay(null); setPage(1) }} />}
         {vtSide && <Tile icon={History} label="Lịch sử" color="slate" disabled={!selected} onClick={withRow((r) => setHistOpen(r))} />}
+        {res.key === 'de_xuat' && perms.admin && <Tile icon={Scale} label="Duyệt 2 cấp" color="violet" title="Ngưỡng tiền cần Super Admin duyệt cấp 2"
+          onClick={() => api('/api/he_thong/cau_hinh').then((j) => setLimitOpen(j.data?.nguong_duyet_2_cap?.gia_tri ?? '0')).catch((e) => flash(e.message, 'err'))} />}
         {res.key === 'de_xuat' && filters.loai_de_xuat === 'MUA_VAT_TU' && <Tile icon={PackagePlus} label="Thêm vật tư" color="amber" title="Thêm vật tư chưa có trong danh mục, để chọn được khi lập đề xuất" onClick={() => setShortOpen(true)} />}
         </div>
 
@@ -1164,6 +1167,15 @@ export default function ResourceManager({
         </Drawer>
       )}
       {qr && <QrDialog device={qr} onClose={() => setQr(null)} />}
+      {limitOpen !== null && (
+        <FormModal title="Duyệt đề xuất 2 cấp" subtitle="Đề xuất có tổng tiền lớn hơn ngưỡng này: người duyệt thường chỉ duyệt cấp 1, Super Admin duyệt cấp 2 mới hoàn tất (và mới nhập kho). Nhập 0 để tắt." isNew refs={refs}
+          initial={{ gia_tri: Number(limitOpen) || 0 }} fields={[{ name: 'gia_tri', label: 'Ngưỡng (đồng)', type: 'money' }]} submitLabel="Lưu ngưỡng"
+          onClose={() => setLimitOpen(null)}
+          onSubmit={async (payload) => {
+            await api('/api/he_thong/cau_hinh', { method: 'POST', body: JSON.stringify({ khoa: 'nguong_duyet_2_cap', gia_tri: String(Math.round(Number(payload.gia_tri) || 0)) }) })
+            setLimitOpen(null); flash(Number(payload.gia_tri) > 0 ? `Đã đặt ngưỡng duyệt 2 cấp: ${new Intl.NumberFormat('vi-VN').format(Number(payload.gia_tri))} đ` : 'Đã tắt duyệt 2 cấp')
+          }} />
+      )}
       {shortOpen && (
         <FormModal title="Thêm vật tư mới" subtitle="Vật tư chưa có trong danh mục. Lưu xong là chọn được khi lập đề xuất." isNew initial={{}} refs={refs}
           fields={(getResource('vat_tu')?.fields ?? []).filter((f) => !f.ro && f.inForm !== false && !f.createOnly)}

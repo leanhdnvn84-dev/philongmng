@@ -42,7 +42,7 @@ const RULES: Record<string, (cfg: { days: number }) => Promise<Found>> = {
     return { module: 'DM_LICH_BAO_TRI', items: (data ?? []).map((r: any) => ({ id: r.id, days: r.so_ngay_con_lai, line: `${r.id} · ${cut(r.ten_hang_muc)} · ${cut(r.ten_khu_vuc)} · hạn ${dmy(r.ngay_ke_tiep)} (${r.so_ngay_con_lai < 0 ? `trễ ${-r.so_ngay_con_lai} ngày` : 'đến hạn hôm nay'})` })) }
   },
   async DE_XUAT_CHO_DUYET() {
-    const { data } = await supabaseAdmin().from('v_de_xuat').select('id,noi_dung,ngay_de_xuat,tong_tien,loai_de_xuat').eq('trang_thai', 'Chờ duyệt').order('ngay_de_xuat').limit(200)
+    const { data } = await supabaseAdmin().from('v_de_xuat').select('id,noi_dung,ngay_de_xuat,tong_tien,loai_de_xuat').in('trang_thai', ['Chờ duyệt', 'Chờ duyệt cấp 2']).order('ngay_de_xuat').limit(200)
     return { module: 'DE_XUAT', items: (data ?? []).map((r: any) => ({ id: r.id, days: null, line: `${r.id} · ${cut(r.noi_dung)} · ngày ${dmy(r.ngay_de_xuat)}${Number(r.tong_tien) ? ` · ${new Intl.NumberFormat('vi-VN').format(Number(r.tong_tien))} đ` : ''}` })) }
   },
   async KHO_VAT_TU_SAP_HET() {

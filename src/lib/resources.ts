@@ -325,16 +325,16 @@ export const RESOURCES: Resource[] = [
       { name: 'muc_dich_ly_do', label: 'Mục đích / lý do', type: 'textarea', inList: true },
       { name: 'so_dong', label: 'Số dòng', type: 'number', ro: true, inList: false },
       { name: 'tong_tien', label: 'Tổng tiền', type: 'money', ro: true, inList: false },
-      { name: 'trang_thai', label: 'Trạng thái', type: 'select', ro: true, options: ['Chờ duyệt', 'Đã duyệt', 'Từ chối'] },
+      { name: 'trang_thai', label: 'Trạng thái', type: 'select', ro: true, options: ['Chờ duyệt', 'Chờ duyệt cấp 2', 'Đã duyệt', 'Từ chối'] },
       { name: 'nguoi_duyet', label: 'Người duyệt', type: 'text', ro: true, inList: false },
       { name: 'ngay_duyet', label: 'Ngày duyệt', type: 'date', ro: true, inList: false },
       { name: 'ghi_chu', label: 'Ghi chú', type: 'textarea', inList: true },
     ],
     optionLabel: (r) => `${r.id} · ${PROPOSAL_KINDS[r.loai_de_xuat] ?? r.loai_de_xuat} · ${String(r.noi_dung ?? '').slice(0, 40)}`,
-    locked: (r) => (r?.trang_thai === APPROVED ? 'Đề xuất đã duyệt, không thể sửa hoặc xóa' : null),
+    locked: (r) => (r?.trang_thai === APPROVED ? 'Đề xuất đã duyệt, không thể sửa hoặc xóa' : r?.trang_thai === 'Chờ duyệt cấp 2' ? 'Đề xuất đã duyệt cấp 1, không sửa được nữa' : null),
     actions: [
       { key: 'duyet', label: 'Duyệt', perm: 'approve', confirm: 'Duyệt đề xuất này? Đề xuất mua vật tư sẽ tự nhập kho.', show: (r) => r.trang_thai !== APPROVED },
-      { key: 'tu_choi', label: 'Từ chối', perm: 'approve', fields: [{ name: 'ly_do', label: 'Lý do', type: 'textarea', required: true }], show: (r) => r.trang_thai === 'Chờ duyệt' },
+      { key: 'tu_choi', label: 'Từ chối', perm: 'approve', fields: [{ name: 'ly_do', label: 'Lý do', type: 'textarea', required: true }], show: (r) => r.trang_thai === 'Chờ duyệt' || r.trang_thai === 'Chờ duyệt cấp 2' },
     ],
   },
   {
@@ -888,6 +888,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Lịch tổng', href: '/lich', module: 'CONG_VIEC' },
     { label: 'Báo cáo tiến độ', href: '/bao-cao-tien-do', module: 'BAO_CAO' },
     { label: 'Báo cáo công việc', href: '/bao-cao-cong-viec', module: 'BAO_CAO' },
+    { label: 'Báo cáo tháng', href: '/bao-cao-thang', module: 'BAO_CAO' },
   ] },
   { group: 'Bảo trì', items: [
     { label: 'Nhật ký bảo trì', href: '/nhat_ky_bao_tri', resource: 'nhat_ky_bao_tri', module: 'BAO_TRI' },

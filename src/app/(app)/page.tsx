@@ -7,6 +7,7 @@ import {
   ArrowUpRight, Plus, UserPlus, BarChart3, ListChecks, Inbox,
 } from 'lucide-react'
 import { formatDate, formatMoney } from '@/lib/resources'
+import CostChartCard from '@/components/CostChart'
 
 type Tone = 'red' | 'amber' | 'blue' | 'green'
 const BAR: Record<Tone, string> = { red: 'bg-red-500', amber: 'bg-amber-500', blue: 'bg-blue-500', green: 'bg-emerald-500' }
@@ -186,6 +187,7 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+          <CostChartCard />
           {dx && (
             <div className="bento px-5 py-4">
               <div className="text-[12.5px] font-bold text-ink-mute">Đề xuất trong tháng</div>

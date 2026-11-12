@@ -35,13 +35,13 @@ async function api(url: string, init?: RequestInit) {
 }
 const post = (body: object) => api('/api/dien', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: React.ReactNode; wide?: boolean }) {
   useEffect(() => { const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose(); document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k) }, [onClose])
   return (
     <Portal>
       <div className="fixed inset-0 z-[90] flex items-center justify-center p-3" role="dialog" aria-modal="true" aria-label={title}>
         <div className="absolute inset-0 bg-black/45" onClick={onClose} />
-        <div className="relative z-10 w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-pop">
+        <div className={`relative z-10 w-full max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-pop ${wide ? "max-w-3xl lg:w-[80vw] lg:max-w-[1100px]" : "max-w-md"}`}>
           <div className="mb-3 flex items-center"><h2 className="flex-1 text-[17px] font-extrabold text-navy-900">{title}</h2>
             <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full bg-navy-100"><X className="h-4 w-4" /></button></div>
           {children}
@@ -65,7 +65,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' } | { kind: 'pay' } | { kind: 'payhist' }>(null)
+  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' } | { kind: 'pay' } | { kind: 'debt' } | { kind: 'payhist' }>(null)
   const [hist, setHist] = useState<any[] | null>(null)
   const [form, setForm] = useState<Record<string, string>>({})
   const [confirm, dialog] = useConfirm()
@@ -158,6 +158,24 @@ export default function Electricity({ perms }: { perms: Perms }) {
       return { ky: p.ky, has: groups.size > 0, due, paid, list, closed: p.closed }
     }).filter((x) => x.has)
   }, [cur, periods, ky, payments, calc])
+  // receivables of every customer over the closed periods from a chosen start (older periods have no payment records from V191)
+  const [debtFrom, setDebtFrom] = useState('')
+  const debts = useMemo(() => {
+    const closed = periods.filter((p) => p.closed && (!debtFrom || p.ky >= debtFrom))
+    const m = new Map<string, { khach: string; name: string; due: number; paid: number; open: string[] }>()
+    for (const p of closed) {
+      const inv = new Map<string, Row[]>()
+      for (const r of p.rows) { const k = r.nhom_hoa_don ?? r.id; inv.set(k, [...(inv.get(k) ?? []), r]) }
+      for (const [nhom, rs] of inv) {
+        const vatRate = Number(rs.find((r) => r.vat != null)?.vat ?? 0), sub = rs.reduce((a, r) => a + calc(r).amount, 0), due = sub + Math.round(sub * vatRate)
+        const paid = payments.filter((x) => x.ky === p.ky && x.nhom_hoa_don === nhom).reduce((a, x) => a + Number(x.so_tien || 0), 0)
+        const key = rs[0].id_khach_thue || rs[0].ten_khach_thue || nhom
+        const e = m.get(key) ?? { khach: rs[0].id_khach_thue ?? '', name: rs[0].ten_khach_thue ?? '—', due: 0, paid: 0, open: [] }
+        e.due += due; e.paid += paid; if (due - paid > 0 && !e.open.includes(p.ky)) e.open.push(p.ky); m.set(key, e)
+      }
+    }
+    return [...m.values()].map((e) => ({ ...e, rest: Math.max(0, e.due - e.paid) })).sort((a, b) => b.rest - a.rest || a.name.localeCompare(b.name, 'vi'))
+  }, [periods, payments, calc, debtFrom])
   const curPaid = cur ? payments.filter((x) => x.ky === ky && x.nhom_hoa_don === cur.id).reduce((a, x) => a + Number(x.so_tien || 0), 0) : 0
   const unpay = async (x: Pay) => {
     if (!(await confirm(`Xóa lần thanh toán ${vnd(Number(x.so_tien))} đ ngày ${x.ngay_thanh_toan.split('-').reverse().join('/')}?`, { danger: true, okLabel: 'Xóa' }))) return
@@ -206,6 +224,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
 
   const toInvoice = (i: (typeof invoices)[number]): Invoice => ({
     id: i.id, customerId: i.khach, customer: i.name, sub: i.sub, vatRate: i.vatRate, vat: i.vat, total: i.total,
+    paid: payments.filter((x) => x.ky === ky && x.nhom_hoa_don === i.id).reduce((a, x) => a + Number(x.so_tien || 0), 0),
     lines: i.lines.map(({ r, c }) => ({ code: r.ma_cong_to, name: r.ten_cong_to ?? '', floor: r.tang ?? '', old: c.old, now: c.now ?? null, kwh: c.kwh, price: c.price, amount: c.amount })),
   })
   const print = (list: typeof invoices) => {
@@ -255,7 +274,10 @@ export default function Electricity({ perms }: { perms: Perms }) {
         <button onClick={() => print([cur])} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#e11d2e] text-[13.5px] font-bold text-white shadow-[0_4px_10px_rgba(225,29,46,.3)]"><Printer className="h-4 w-4" />In giấy báo này</button>
         <button onClick={() => print(invoices)} className="inline-flex h-10 items-center rounded-lg border border-[#e11d2e] px-4 text-[13.5px] font-bold text-[#e11d2e]">In cả kỳ</button>
       </div>
-      <button onClick={() => open({ kind: 'payhist' })} className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-green-300 bg-white text-[13.5px] font-bold text-green-700"><History className="h-4 w-4" />Lịch sử thanh toán</button>
+      <div className="flex gap-2">
+        <button onClick={() => open({ kind: 'payhist' })} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-green-300 bg-white text-[13.5px] font-bold text-green-700"><History className="h-4 w-4" />Lịch sử thanh toán</button>
+        <button onClick={() => { if (!debtFrom) setDebtFrom(periods.find((p) => p.closed)?.ky ?? ''); open({ kind: 'debt' }) }} className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-white text-[13.5px] font-bold text-amber-800">Công nợ các khách</button>
+      </div>
     </div>
   )
 
@@ -426,6 +448,34 @@ export default function Electricity({ perms }: { perms: Perms }) {
           </ul>
           <button disabled={!perms.edit || busy} onClick={() => open({ kind: 'pay' }, { tien: String(Math.max(0, cur.total - curPaid) || ''), ngay: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()), hinh_thuc: 'Chuyển khoản', ghi_chu: '' })}
             className="btn-primary mt-3 w-full"><Plus className="h-4 w-4" />Ghi nhận thanh toán kỳ {kyText(ky)}</button>
+        </Modal>
+      )}
+      {modal?.kind === 'debt' && (
+        <Modal wide title="Công nợ tiền điện theo khách" onClose={() => setModal(null)}>
+          <div className="mb-2 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
+            <span>Tính các kỳ đã chốt từ</span>
+            <select className="input h-9 w-auto" value={debtFrom} onChange={(e) => setDebtFrom(e.target.value)} aria-label="Tính từ kỳ">
+              {periods.filter((p) => p.closed).map((p) => <option key={p.ky} value={p.ky}>{kyText(p.ky)}</option>)}
+            </select>
+            <span>đến nay</span>
+          </div>
+          <p className="mb-2 text-[12px] text-ink-mute">Hệ thống cũ không có dữ liệu thanh toán, nên chọn kỳ bắt đầu ghi nhận thu tiền để số nợ đúng thực tế.</p>
+          <div className="overflow-hidden rounded-lg border border-navy-200">
+            <table className="w-full table-fixed text-[13px]">
+              <thead><tr className="bg-navy-50 text-left text-[12px] font-extrabold text-navy-800"><th className="px-3 py-2">Khách</th><th className="w-[16%] px-2 py-2 text-right">Phải thu</th><th className="w-[14%] px-2 py-2 text-right">Đã thu</th><th className="w-[16%] px-3 py-2 text-right">Còn nợ</th></tr></thead>
+              <tbody>
+                {debts.map((d) => (
+                  <tr key={d.khach || d.name} className="border-t border-navy-100 align-top">
+                    <td className="px-3 py-1.5"><div className="font-semibold leading-snug text-navy-900">{d.name}</div>{d.open.length > 0 && <div className="line-clamp-2 text-[11.5px] text-ink-mute">Chưa thu đủ: {d.open.map(kyText).join(', ')}</div>}</td>
+                    <td className="px-2 py-1.5 text-right tabular-nums">{vnd(d.due)}</td>
+                    <td className="px-2 py-1.5 text-right tabular-nums text-green-700">{vnd(d.paid)}</td>
+                    <td className={`px-3 py-1.5 text-right font-bold tabular-nums ${d.rest > 0 ? 'text-[#e11d2e]' : 'text-green-700'}`}>{d.rest > 0 ? vnd(d.rest) : 'Đã đủ'}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot><tr className="border-t-2 border-navy-200 bg-navy-50 font-extrabold"><td className="px-3 py-2">Tổng</td><td className="px-2 py-2 text-right tabular-nums">{vnd(debts.reduce((a, d) => a + d.due, 0))}</td><td className="px-2 py-2 text-right tabular-nums text-green-700">{vnd(debts.reduce((a, d) => a + d.paid, 0))}</td><td className="px-3 py-2 text-right tabular-nums text-[#e11d2e]">{vnd(debts.reduce((a, d) => a + d.rest, 0))}</td></tr></tfoot>
+            </table>
+          </div>
         </Modal>
       )}
       {modal?.kind === 'pay' && cur && (

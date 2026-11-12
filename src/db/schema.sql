@@ -685,3 +685,9 @@ CREATE TABLE IF NOT EXISTS public.dang_nhap_sai (
 CREATE INDEX IF NOT EXISTS ix_dns_ident ON public.dang_nhap_sai(ident, at DESC);
 ALTER TABLE public.dang_nhap_sai ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.dang_nhap_sai FROM anon, authenticated;
+
+-- ---------- Nhóm 4: cài đặt hệ thống (ngưỡng duyệt đề xuất 2 cấp, 0 = tắt) ----------
+CREATE TABLE IF NOT EXISTS public.cau_hinh_he_thong (khoa TEXT PRIMARY KEY, gia_tri TEXT, nguoi_sua TEXT, updated_at TIMESTAMPTZ DEFAULT now());
+ALTER TABLE public.cau_hinh_he_thong ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.cau_hinh_he_thong FROM anon, authenticated;
+INSERT INTO public.cau_hinh_he_thong (khoa, gia_tri, nguoi_sua) VALUES ('nguong_duyet_2_cap', '0', 'Hệ thống') ON CONFLICT (khoa) DO NOTHING;
