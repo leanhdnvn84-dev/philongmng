@@ -11,6 +11,8 @@ export const BACKUP_TABLES = [
   'data_audit_archive', 'hinh_anh_tien_do', 'tep_dinh_kem', 'cau_hinh_he_thong', 'tin_nhan', 'audit_logs',
 ]
 const NO_RESTORE = new Set(['users'])
+/** tables whose key column is not `id` */
+export const KEY_OF: Record<string, string> = { cau_hinh_he_thong: 'khoa' }
 export const KEEP_BACKUPS = 30
 
 async function fetchAll(table: string) {
@@ -63,7 +65,7 @@ export async function restoreBackup(id: string, only?: string[]) {
     const skip = new Set((cols ?? []).filter((c: any) => c.is_generated).map((c: any) => c.column_name))
     const clean = skip.size ? rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => !skip.has(k)))) : rows
     for (let i = 0; i < clean.length; i += 500) {
-      const { error } = await db.from(t).upsert(clean.slice(i, i + 500), { onConflict: 'id' })
+      const { error } = await db.from(t).upsert(clean.slice(i, i + 500), { onConflict: KEY_OF[t] ?? 'id' })
       if (error) throw new Error(`${t}: ${error.message}`)
     }
     report[t] = rows.length

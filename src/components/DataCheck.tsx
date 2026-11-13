@@ -16,7 +16,7 @@ const LABEL: Record<string, string> = {
   de_xuat: 'Đề xuất', de_xuat_chi_tiet: 'Chi tiết đề xuất', toa_nha: 'Toà nhà', tang: 'Tầng', khach_thue: 'Khách thuê',
   khach_hang_tiem_nang: 'Khách tiềm năng', tien_dien: 'Tiền điện', danh_muc: 'Danh mục giá trị', lich_su_in: 'Lịch sử in',
   lich_su_dang_nhap: 'Lịch sử đăng nhập', cau_hinh_email_canh_bao: 'Cấu hình email', nhat_ky_email_canh_bao: 'Nhật ký email',
-  data_audit_archive: 'Lưu trữ kiểm tra', hinh_anh_tien_do: 'Hình ảnh tiến độ', tin_nhan: 'Tin nhắn', audit_logs: 'Nhật ký thao tác',
+  data_audit_archive: 'Lưu trữ kiểm tra', hinh_anh_tien_do: 'Hình ảnh tiến độ', tin_nhan: 'Tin nhắn', audit_logs: 'Nhật ký thao tác', tep_dinh_kem: 'Tệp đính kèm', cau_hinh_he_thong: 'Cài đặt hệ thống',
 }
 const fmtTime = (iso: string) => new Date(iso).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 const fmtSize = (b: number) => (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB')

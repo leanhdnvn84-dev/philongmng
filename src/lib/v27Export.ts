@@ -1,7 +1,7 @@
 import 'server-only'
 import ExcelJS from 'exceljs'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { BACKUP_TABLES } from '@/lib/backup'
+import { BACKUP_TABLES, KEY_OF } from '@/lib/backup'
 import template from '@/lib/v27Template.json'
 
 /**
@@ -57,7 +57,7 @@ type Col = { column_name: string; data_type: string; is_generated: boolean }
 async function fetchAll(table: string) {
   const db = supabaseAdmin(), rows: any[] = []
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await db.from(table).select('*').order('id').range(from, from + 999)
+    const { data, error } = await db.from(table).select('*').order(KEY_OF[table] ?? 'id').range(from, from + 999)
     if (error) throw new Error(`${table}: ${error.message}`)
     rows.push(...(data ?? []))
     if (!data || data.length < 1000) break
