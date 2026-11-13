@@ -66,7 +66,7 @@ export default function MonthReport() {
           <button className="btn-primary h-9" disabled={!d || busy} onClick={pdf}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}Tải PDF</button>
         </div>
       </div>
-      <div className="no-scrollbar px-4 py-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:px-5 print:overflow-visible print:p-0">
+      <div className="relative px-4 py-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:px-5 print:overflow-visible print:p-0">
         {err && <p role="alert" className="mx-auto mb-3 max-w-[1100px] rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[13px] font-semibold text-red-800 print:hidden">{err}</p>}
         {!d && !err && <p className="py-16 text-center text-ink-mute"><Loader2 className="mr-2 inline h-4 w-4 animate-spin" />Đang tổng hợp…</p>}
         {d && (
