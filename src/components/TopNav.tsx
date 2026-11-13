@@ -50,7 +50,7 @@ const TILE = [
 
 function Brand() {
   return (
-    <Link href="/" className="shrink-0" aria-label="Trang tổng quan">
+    <Link href="/" className="shrink-0" aria-label="Lịch tổng">
       <Logo variant="white" height={40} />
     </Link>
   )
@@ -161,7 +161,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
     <header ref={ref} className="print:hidden sticky top-0 z-40 bg-[#d91828] shadow-[0_5px_0_#8f0f1b,0_14px_26px_rgba(143,15,27,.28)]">
       {/* phone: red bar with logo + page search (menu and filters live in the floating buttons) */}
       <div className="lg:hidden flex items-center gap-3 px-3 py-2">
-        <Link href="/" className="shrink-0" aria-label="Trang tổng quan"><Logo variant="white" height={40} /></Link>
+        <Link href="/" className="shrink-0" aria-label="Lịch tổng"><Logo variant="white" height={40} /></Link>
         <label className="relative flex-1 min-w-0">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-mute" />
           <input type="search" value={pageSearch} onChange={(e) => onPageSearch(e.target.value)} placeholder="Tìm trang này…" aria-label="Tìm trang này"
@@ -173,7 +173,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
         <Brand />
 
         <nav className="hidden lg:flex items-center gap-0.5 rounded-[14px] bg-[#6e0a12]/55 p-1 min-w-0 shadow-[inset_0_2px_4px_rgba(0,0,0,.28)]" aria-label="Menu chính">
-          <Link href="/" className={navBtn(pathname === '/' && !open)}>Tổng quan</Link>
+          <Link href="/" className={navBtn(pathname === '/' && !open)}>Lịch tổng</Link>
           {groups.map((g, gi) => (
             <div key={g.group} className="relative" onMouseEnter={() => setOpen(g.group)} onMouseLeave={() => setOpen((o) => (o === g.group ? null : o))}>
               <button type="button" aria-expanded={open === g.group} onClick={() => setOpen(open === g.group ? null : g.group)}
@@ -315,7 +315,7 @@ export default function TopNav({ groups, name, role }: { groups: NavGroup[]; nam
               <button onClick={() => setMobile(false)} className="grid h-10 w-10 place-items-center rounded-full bg-white text-navy-900 shadow-sm" aria-label="Đóng menu"><X className="h-5 w-5" /></button>
             </div>
             <nav className="overflow-y-auto overscroll-contain px-3 py-2">
-              <Link href="/" className={`flex items-center gap-3 rounded-[10px] px-3 py-3.5 text-[16px] font-extrabold uppercase ${pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-navy-900'}`}><span className="w-7 text-center text-[22px]">📊</span>Tổng quan</Link>
+              <Link href="/" className={`flex items-center gap-3 rounded-[10px] px-3 py-3.5 text-[16px] font-extrabold uppercase ${pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-navy-900'}`}><span className="w-7 text-center text-[22px]">📅</span>Lịch tổng</Link>
               <button type="button" onClick={() => { setMobile(false); setChatOpen(true) }} className="flex w-full items-center gap-3 rounded-[10px] px-3 py-3.5 text-left text-[16px] font-extrabold uppercase text-navy-900"><span className="w-7 text-center text-[22px]">💬</span><span className="flex-1">Trao đổi</span>{unread > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-brand-400 px-1.5 text-[12px] font-black text-white">{unread}</span>}</button>
               {groups.map((g) => {
                 const expanded = open === g.group || (open === null && groupActive(g))

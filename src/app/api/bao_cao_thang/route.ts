@@ -11,7 +11,7 @@ const shift = (y: number, m: number, n: number) => { const d = new Date(Date.UTC
 const ymKey = (y: number, m: number) => `${y}-${String(m).padStart(2, '0')}`
 async function all(q: () => any) { const out: any[] = []; for (let f = 0; ; f += 1000) { const { data, error } = await q().range(f, f + 999); if (error) throw error; out.push(...(data ?? [])); if (!data || data.length < 1000) break } return out }
 
-/** Monthly summary (one page) + 12-month cost chart. `?chart=1` returns only the chart (dashboard). */
+/** Monthly summary (one page) + 12-month cost chart. */
 export async function GET(req: NextRequest) {
   const auth = await getAuth().catch(() => null)
   if (!auth) return NextResponse.json({ success: false, error: 'Chưa đăng nhập' }, { status: 401 })
@@ -34,7 +34,6 @@ export async function GET(req: NextRequest) {
     const bt = await all(() => db.from('nhat_ky_bao_tri').select('id, ngay_thuc_hien, chi_phi').gt('chi_phi', 0).gte('ngay_thuc_hien', chartFrom).lte('ngay_thuc_hien', to).order('id'))
     for (const r of bt) put(String(r.ngay_thuc_hien).slice(0, 7), 'Chi phí bảo trì', Number(r.chi_phi) || 0)
   }
-  if (req.nextUrl.searchParams.get('chart')) return NextResponse.json({ success: true, chart })
 
   const out: Record<string, any> = { thang: ymKey(y, m), chart }
   const jobs: Promise<void>[] = []

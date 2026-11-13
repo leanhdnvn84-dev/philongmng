@@ -1,5 +1,4 @@
 'use client'
-import { useEffect, useState } from 'react'
 
 /** 12-month stacked bars of spending: approved proposals by kind + maintenance cost. */
 export type ChartRow = { thang: string; parts: Record<string, number> }
@@ -33,24 +32,6 @@ export function CostBars({ data, height = 150 }: { data: ChartRow[]; height?: nu
         {!keys.length && <span>Chưa có chi phí nào trong 12 tháng.</span>}
       </div>
       <div className="sr-only">{data.map((d, i) => `${d.thang}: ${short(totals[i])}`).join(', ')}</div>
-    </div>
-  )
-}
-
-/** Dashboard card: loads its own data. */
-export default function CostChartCard() {
-  const [data, setData] = useState<ChartRow[] | null>(null)
-  useEffect(() => {
-    const t = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()).slice(0, 7)
-    fetch(`/api/bao_cao_thang?thang=${t}&chart=1`).then((r) => r.json()).then((j) => j?.success && setData(j.chart)).catch(() => {})
-  }, [])
-  if (!data) return null
-  const sum = data.reduce((s, d) => s + Object.values(d.parts).reduce((a, b) => a + b, 0), 0)
-  return (
-    <div className="bento px-5 py-4">
-      <div className="flex items-baseline justify-between"><h2 className="text-[14px] font-extrabold text-navy-900">Chi phí 12 tháng</h2><a href="/bao-cao-thang" className="text-[12px] font-bold text-blue-700 hover:underline">Báo cáo tháng →</a></div>
-      <div className="mt-0.5 text-[22px] font-black leading-tight tabular-nums text-navy-900">{money(sum)} <span className="text-[12.5px] font-semibold text-ink-mute">đ</span></div>
-      <div className="mt-2"><CostBars data={data} height={110} /></div>
     </div>
   )
 }
