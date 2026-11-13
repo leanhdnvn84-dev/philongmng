@@ -36,6 +36,9 @@
 }
 
 * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+/* still scrolls with the wheel / touch, but shows no bar */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 /* list tables: the strip beside the sticky header is painted like the header (so the card's rounded corner shows a full header),
    and where the browser allows it the scrollbar itself only starts under the header */
 .tbl-scroll { background: linear-gradient(to bottom, #0b1b40 0, #0b1b40 var(--thh, 44px), #fff var(--thh, 44px)); }
