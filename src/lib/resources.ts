@@ -909,9 +909,8 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { label: 'Lịch sử chuyển', href: '/lich_su_chuyen_thiet_bi', resource: 'lich_su_chuyen_thiet_bi', module: 'THIET_BI' },
   ] },
   { group: 'Cho thuê', items: [
-    { label: 'Toà nhà', href: '/toa_nha', resource: 'toa_nha', module: 'QUAN_LY_TANG' },
-    { label: 'Tầng / khu cho thuê', href: '/tang', resource: 'tang', module: 'QUAN_LY_TANG' },
-    { label: 'Khách đang thuê', href: '/khach_thue', resource: 'khach_thue', module: 'KHACH_THUE' },
+    // buildings, floors and tenants on one screen (the three old lists still open by address: /toa_nha, /tang, /khach_thue)
+    { label: 'Mặt bằng cho thuê', href: '/mat-bang', module: 'KHACH_THUE' },
     { label: 'Khách hàng tiềm năng', href: '/khach_hang_tiem_nang', resource: 'khach_hang_tiem_nang', module: 'KHACH_HANG_TIEM_NANG' },
     { label: 'Tiền điện', href: '/tien_dien', resource: 'tien_dien', module: 'TIEN_DIEN' },
   ] },

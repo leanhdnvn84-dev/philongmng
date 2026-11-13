@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   })())
   if (can(auth, 'KHACH_THUE', 'view')) jobs.push((async () => {
     const { data } = await db.from('khach_thue').select('id,ten_khach_thue,ngay_ket_thuc,trang_thai').gte('ngay_ket_thuc', from).lte('ngay_ket_thuc', to).limit(500)
-    for (const r of (data ?? []) as any[]) out.push({ date: r.ngay_ket_thuc, kind: 'hop_dong', title: `Hết hạn thuê: ${cut(r.ten_khach_thue, 60)}`, sub: `${r.id} · ${r.trang_thai ?? ''}`, href: `/khach_thue?q=${r.id}`, done: r.trang_thai !== 'Đang thuê' })
+    for (const r of (data ?? []) as any[]) out.push({ date: r.ngay_ket_thuc, kind: 'hop_dong', title: `Hết hạn thuê: ${cut(r.ten_khach_thue, 60)}`, sub: `${r.id} · ${r.trang_thai ?? ''}`, href: '/mat-bang', done: r.trang_thai !== 'Đang thuê' })
   })())
   const errors: string[] = []
   await Promise.all(jobs.map((j) => j.catch((e) => { errors.push(String(e?.message ?? e)) })))

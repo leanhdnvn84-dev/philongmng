@@ -691,3 +691,16 @@ CREATE TABLE IF NOT EXISTS public.cau_hinh_he_thong (khoa TEXT PRIMARY KEY, gia_
 ALTER TABLE public.cau_hinh_he_thong ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.cau_hinh_he_thong FROM anon, authenticated;
 INSERT INTO public.cau_hinh_he_thong (khoa, gia_tri, nguoi_sua) VALUES ('nguong_duyet_2_cap', '0', 'Hệ thống') ON CONFLICT (khoa) DO NOTHING;
+
+-- ---------- Mặt bằng cho thuê: khách nào thuê tầng nào (một khách nhiều tầng, giữ lịch sử) ----------
+CREATE TABLE IF NOT EXISTS public.thue_mat_bang (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  id_tang TEXT NOT NULL REFERENCES public.tang(id),
+  id_khach_thue TEXT NOT NULL REFERENCES public.khach_thue(id),
+  ngay_bat_dau DATE, ngay_ket_thuc DATE, dien_tich NUMERIC, gia_thue TEXT,
+  trang_thai TEXT NOT NULL DEFAULT 'Đang thuê', ngay_tra DATE, ghi_chu TEXT, nguoi_tao TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(), updated_at TIMESTAMPTZ DEFAULT now());
+CREATE UNIQUE INDEX IF NOT EXISTS ux_thue_dang ON public.thue_mat_bang(id_tang, id_khach_thue) WHERE trang_thai = 'Đang thuê';
+CREATE INDEX IF NOT EXISTS ix_thue_khach ON public.thue_mat_bang(id_khach_thue);
+ALTER TABLE public.thue_mat_bang ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.thue_mat_bang FROM anon, authenticated;

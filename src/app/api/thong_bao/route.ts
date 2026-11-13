@@ -54,7 +54,7 @@ export async function GET() {
 
   if (can(auth, 'KHACH_THUE', 'view')) jobs.push((async () => {
     const { data } = await db.from('khach_thue').select('id,ten_khach_thue,ngay_ket_thuc').eq('trang_thai', 'Đang thuê').gte('ngay_ket_thuc', today).lte('ngay_ket_thuc', addDays(today, 30)).order('ngay_ket_thuc').limit(100)
-    if (data?.length) out.push({ key: 'hop_dong', title: 'Hợp đồng thuê hết hạn trong 30 ngày', count: data.length, tone: 'amber', href: '/khach_thue', lines: (data as any[]).slice(0, 4).map((r) => `${cut(r.ten_khach_thue, 46)} · ${dmy(r.ngay_ket_thuc)}`) })
+    if (data?.length) out.push({ key: 'hop_dong', title: 'Hợp đồng thuê hết hạn trong 30 ngày', count: data.length, tone: 'amber', href: '/mat-bang', lines: (data as any[]).slice(0, 4).map((r) => `${cut(r.ten_khach_thue, 46)} · ${dmy(r.ngay_ket_thuc)}`) })
   })())
 
   if (can(auth, 'KHO', 'view')) jobs.push((async () => {
