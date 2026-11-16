@@ -1,0 +1,38 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Fanpage</title>
+<!-- Ảnh fanpage: ?m=bia (1640×624) | ?m=dd (1080×1080 ảnh đại diện). node render.js -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Be+Vietnam+Pro:wght@600;700;800&family=Charm:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+body{overflow:hidden;font-family:'Be Vietnam Pro',sans-serif;color:#14325C;position:relative}
+.bia{width:1640px;height:624px;background:radial-gradient(ellipse at 40% 45%,#FFF9EE 0,#FBEFD9 55%,#F2DDBE 100%)}
+.tranh{position:absolute;right:0;top:0;bottom:0;width:820px;background:url(../../assets/giay-moi-nen.webp) 0 97.6%/133.4% no-repeat;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 38%);mask-image:linear-gradient(90deg,transparent 0,#000 38%);opacity:.95}
+.canh{position:absolute;pointer-events:none}
+.bia .c1{left:-60px;top:-70px;width:470px;transform:rotate(-8deg)}
+/* vùng an toàn điện thoại: giữa 1640 → ~1100px rộng; chữ đặt giữa 300–1200 */
+.nd{position:absolute;left:330px;top:0;bottom:0;width:820px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.ey{font:800 22px 'Be Vietnam Pro';letter-spacing:.22em;color:#A3221A}
+h1{font:400 128px/1.05 'Great Vibes',cursive;color:#A3221A;margin:8px 0 2px;text-shadow:0 3px 0 rgba(255,255,255,.75)}
+.nk{font:700 34px 'Be Vietnam Pro';color:#14325C;letter-spacing:.04em}
+.nk b{font-family:'Playfair Display',serif;font-variant-numeric:lining-nums;color:#A3221A}
+.cau{margin-top:12px;font:400 30px 'Charm',cursive;color:#6B4A2E}
+.lop{margin-top:16px;display:flex;gap:7px}.lop i{font:700 15px 'Be Vietnam Pro';font-style:normal;color:#fff;background:#A3221A;border-radius:20px;padding:4px 9px;opacity:.88}
+.vien{position:absolute;inset:14px;border:2px solid rgba(201,162,74,.7);border-radius:14px;pointer-events:none}
+/* ảnh đại diện */
+.dd{width:1080px;height:1080px;background:radial-gradient(circle at 50% 42%,#FFF9EE 0,#FBEFD9 60%,#EED6B2 100%);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dd .vong{position:absolute;inset:40px;border-radius:50%;border:10px solid #C9A24A;box-shadow:inset 0 0 0 10px #FFF9EE,inset 0 0 0 14px rgba(201,162,74,.5)}
+.dd .c1{left:-40px;top:-30px;width:520px;transform:rotate(-10deg);opacity:.95}
+.dd .c2{right:-60px;bottom:-40px;width:440px;transform:rotate(170deg);opacity:.9}
+.dd img.logo{width:330px;height:330px;object-fit:contain;position:relative;filter:drop-shadow(0 8px 18px rgba(120,60,30,.2))}
+.dd .ten{position:relative;margin-top:18px;font:800 64px 'Be Vietnam Pro';color:#A3221A;letter-spacing:.06em}
+.dd .so{position:relative;font:700 92px 'Playfair Display',serif;font-variant-numeric:lining-nums;color:#14325C;line-height:1}
+.dd .ntv{position:relative;font:400 76px 'Great Vibes',cursive;color:#A3221A;margin-top:6px}
+</style></head><body>
+<script>
+const m=new URLSearchParams(location.search).get('m')||'bia';document.body.className=m;
+const C='../tho-mot-thoi-de-nho/canh-phuong.webp',L='../../assets/logo-nguyen-hien.png';
+document.body.innerHTML+= m==='bia'?`<div class="tranh"></div><img class="canh c1" src="${C}"><div class="vien"></div>
+<div class="nd"><div class="ey">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</div><h1>Ngày Trở Về</h1>
+<div class="nk">Cựu học sinh niên khoá <b>2000 – 2003</b></div><div class="cau">Mười hai lớp · một sân trường · mãi một thời để nhớ</div>
+<div class="lop">${Array.from({length:12},(_,i)=>`<i>12/${i+1}</i>`).join('')}</div></div>`
+:`<img class="canh c1" src="${C}"><img class="canh c2" src="${C}"><div class="vong"></div><img class="logo" src="${L}"><div class="ten">NGUYỄN HIỀN</div><div class="so">2000 – 2003</div><div class="ntv">Ngày Trở Về</div>`;
+</script></body></html>
