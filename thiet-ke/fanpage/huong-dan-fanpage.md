@@ -1,11 +1,11 @@
-# Fanpage "Nguyễn Hiền 2000 – 2003 · Ngày Trở Về"
+# Fanpage "Cựu học sinh Nguyễn Hiền Đà Nẵng · Khoá 2000 – 2003"
 
 ## 1. Thông tin tạo trang
 
 | Mục | Điền |
 |---|---|
-| **Tên trang** | Nguyễn Hiền 2000 – 2003 · Ngày Trở Về |
-| **Tên người dùng (@)** | `nguyenhien0003` (dự phòng: `nguyenhien.2000.2003`, `ngaytrove.nh0003`) |
+| **Tên trang** | Cựu học sinh Nguyễn Hiền Đà Nẵng · Khoá 2000 – 2003 |
+| **Tên người dùng (@)** | `cuuhsnguyenhien0003` → facebook.com/cuuhsnguyenhien0003 (nếu đã có người dùng: `cuuhs.nguyenhien0003`, `cuuhsnguyenhien.dn`) |
 | **Hạng mục** | Cộng đồng · Tổ chức cựu học sinh (Alumni) |
 | **Ảnh đại diện** | `anh-dai-dien.png` (1080×1080, Facebook tự cắt tròn) |
 | **Ảnh bìa** | `anh-bia.png` (3280×1248 = tỉ lệ 1640×624; chữ nằm giữa nên điện thoại không bị cắt) |
@@ -41,7 +41,7 @@
 > 👉 Kỷ yếu online của khoá: nguyenhien.philong.cloud
 > 👉 Gửi ảnh cho trang: nhắn tin trực tiếp cho page hoặc admin lớp mình.
 >
-> #NguyenHien0003 #NgayTroVe
+> #CuuHSNguyenHien0003 #NgayTroVe
 
 ## 4. Bài đầu tiên nên đăng (sau Gala)
 
@@ -55,7 +55,7 @@
 > ✍️ Viết thêm lưu bút: mục Kỷ yếu → Viết lưu bút
 >
 > Hẹn gặp lại ở mốc 25 năm! 🌸
-> #NguyenHien0003 #NgayTroVe
+> #CuuHSNguyenHien0003 #NgayTroVe
 
 ## 5. Lịch đăng bài 4 tuần đầu (2–3 bài/tuần)
 
