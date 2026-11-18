@@ -4,26 +4,34 @@
 <style>
 *{margin:0;box-sizing:border-box}
 body{width:1066px;height:1333px;overflow:hidden;position:relative;font-family:'Be Vietnam Pro',sans-serif}
-.anh{position:absolute;left:-600px;top:0;width:2000px;height:1333px;background:url(goc.webp) 0 0/2000px 1333px}
-.dau{position:absolute;left:0;right:0;top:0;padding:26px 24px 70px;text-align:center;background:linear-gradient(180deg,rgba(90,10,10,.94),rgba(140,20,20,.7) 65%,transparent)}
+.anh{position:absolute;left:-600px;top:0;width:2000px;height:1333px;background:url(goc.webp) 0 0/2000px 1333px;filter:brightness(1.2) contrast(1.06) saturate(1.12)}
+.dau{position:absolute;left:0;right:0;top:0;padding:26px 24px 70px;text-align:center;background:linear-gradient(180deg,rgba(150,20,20,.92),rgba(190,40,30,.55) 60%,transparent)}
 .dau small{display:block;font:800 24px 'Be Vietnam Pro';letter-spacing:.18em;color:#F6D86B}
 .dau h1{font:400 104px/1.05 'Great Vibes',cursive;color:#fff;text-shadow:0 4px 12px rgba(0,0,0,.5)}
 .ve{position:absolute;left:0;top:0}
 .nhan{position:absolute;background:#FFE14D;color:#2B2420;font:800 22px/1.25 'Be Vietnam Pro';padding:9px 14px;border-radius:14px;box-shadow:0 8px 18px rgba(0,0,0,.35);border:3px solid #fff}
 .nhan b{color:#C8102E}
 .n1{left:70px;top:395px;transform:rotate(-4deg)}
-.n2{left:800px;top:610px;transform:rotate(4deg)}
-.n3{left:470px;top:955px;transform:rotate(-3deg);font-size:19px}
-.dau-do{position:absolute;left:805px;top:770px;width:200px;height:200px;border-radius:50%;border:6px double #E0262B;color:#E0262B;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font:900 26px/1.05 'Be Vietnam Pro';transform:rotate(-14deg);background:rgba(255,255,255,.55);letter-spacing:.06em}
+.n2{left:800px;top:672px;transform:rotate(4deg)}
+.n3{left:478px;top:948px;transform:rotate(-3deg);font-size:19px}
+.dau-do{position:absolute;left:830px;top:800px;width:200px;height:200px;border-radius:50%;border:6px double #E0262B;color:#E0262B;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font:900 26px/1.05 'Be Vietnam Pro';transform:rotate(-14deg);background:rgba(255,255,255,.55);letter-spacing:.06em}
 .dau-do b{font-size:52px}.dau-do small{font:800 13px/1.2 'Be Vietnam Pro';letter-spacing:0;margin-top:4px;width:150px}
+.live{position:absolute;left:22px;top:168px;display:flex;gap:8px;align-items:center;font:800 19px 'Be Vietnam Pro';color:#fff}
+.live b{background:#E0262B;padding:4px 10px;border-radius:6px;letter-spacing:.08em}.live span{background:rgba(0,0,0,.45);padding:4px 10px;border-radius:6px}
+.cmt{position:absolute;left:690px;width:360px;display:flex;flex-direction:column;gap:8px}
+.cmt p{background:rgba(255,255,255,.93);border-radius:16px;padding:7px 12px;font:600 17px/1.3 'Be Vietnam Pro';color:#2B2420;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.cmt p b{color:#1F7A6B}.cmt p::before{content:'💬 '}
+.gia{position:absolute;left:18px;top:835px;width:345px;background:#FFF8E6;border:3px dashed #C8102E;border-radius:14px;padding:10px 12px;transform:rotate(-3deg);box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.gia h4{font:900 18px 'Be Vietnam Pro';color:#C8102E;letter-spacing:.08em;text-align:center;margin-bottom:4px}
+.gia li{list-style:none;font:600 15px/1.4 'Be Vietnam Pro';color:#2B2420}.gia li b{color:#C8102E}
 .boi{position:absolute;left:675px;top:300px;width:370px;background:#FFF8E6;border:5px solid #C9A24A;border-radius:26px;padding:16px 18px;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.35);transform:rotate(3deg)}
 .boi::after{content:'';position:absolute;left:-30px;top:120px;border:16px solid transparent;border-right:26px solid #C9A24A}
 .boi p{font:700 29px/1.3 'Charm',cursive;color:#7A1A12}
-.que{position:absolute;left:26px;top:640px;width:330px;padding:22px 14px 26px;background:linear-gradient(160deg,#C8102E,#8E0F1F);border:6px solid #F6D86B;border-radius:24px;text-align:center;color:#fff;box-shadow:0 14px 30px rgba(0,0,0,.4);transform:rotate(-5deg)}
+.que{position:absolute;left:26px;top:600px;width:330px;padding:22px 14px 26px;background:linear-gradient(160deg,#C8102E,#8E0F1F);border:6px solid #F6D86B;border-radius:24px;text-align:center;color:#fff;box-shadow:0 14px 30px rgba(0,0,0,.4);transform:rotate(-5deg)}
 .que small{display:block;font:800 20px 'Be Vietnam Pro';letter-spacing:.14em;color:#F6D86B}
 .que b{display:block;font:800 70px/1 'Playfair Display',serif;font-variant-numeric:lining-nums;margin:8px 0 6px}
 .que em{font:700 25px 'Charm',cursive;font-style:normal}
-.chan{position:absolute;left:0;right:0;bottom:0;padding:90px 30px 30px;text-align:center;background:linear-gradient(0deg,rgba(20,50,92,.97),rgba(20,50,92,.85) 70%,transparent)}
+.chan{position:absolute;left:0;right:0;bottom:0;padding:90px 30px 30px;text-align:center;background:linear-gradient(0deg,rgba(25,70,130,.96),rgba(30,80,145,.78) 70%,transparent)}
 .chan .k{display:inline-block;font:900 30px 'Be Vietnam Pro';color:#14325C;background:#F6D86B;padding:8px 22px;border-radius:30px;letter-spacing:.02em}
 .chan .t{margin-top:12px;font:800 40px/1.25 'Be Vietnam Pro';color:#fff}
 .chan .t b{color:#F6D86B;font-family:'Playfair Display',serif;font-variant-numeric:lining-nums}
@@ -47,7 +55,7 @@ body{width:1066px;height:1333px;overflow:hidden;position:relative;font-family:'B
  <!-- mũi tên chú thích -->
  <path d="M300 445 C 410 430, 460 460, 500 488" fill="none" stroke="#FFE14D" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
  <path d="M488 474 L503 491 L479 495" fill="none" stroke="#FFE14D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
- <path d="M790 640 C 740 620, 700 600, 668 590" fill="none" stroke="#FFE14D" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
+ <path d="M795 700 C 745 660, 700 620, 668 594" fill="none" stroke="#FFE14D" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
  <path d="M684 580 L664 590 L680 604" fill="none" stroke="#FFE14D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
  <!-- quả cầu pha lê dưới tay -->
  <ellipse cx="400" cy="1046" rx="70" ry="14" fill="#5a2d0c"/><path d="M345 1040 L455 1040 L440 1070 L360 1070 Z" fill="#8B4A1C"/>
@@ -57,6 +65,9 @@ body{width:1066px;height:1333px;overflow:hidden;position:relative;font-family:'B
 </svg>
 <div class="dau"><small>PHÒNG XEM NGÀY · CÔ BÓI NGUYỄN HIỀN 2000 – 2003</small><h1>Cô đã phán!</h1></div>
 <div class="boi"><p>“Cô cười là quẻ đã ra: tháng 8/2028 – đại cát, đại lợi! Ngày cụ thể… cô phán sau 🤭”</p></div>
+<div class="live"><b>● LIVE</b><span>👁 2.003 người đang xem</span></div>
+<div class="cmt" style="top:505px"><p><b>12/9:</b> 1.000đ ghi nợ được không cô? 😂</p><p><b>12/4:</b> Cô xem giùm năm nay em giàu chưa?</p></div>
+<div class="gia"><h4>BẢNG GIÁ CÔ BÓI</h4><ul><li>🗓️ Xem ngày họp: <b>1.000đ/ngày</b></li><li>💘 Xem duyên: <b>miễn phí</b> (có gia đình rồi 😅)</li><li>🕵️ Xem ai trốn họp: <b>tặng kèm</b></li></ul></div>
 <div class="nhan n1">Kính chuyên dụng:<br>nhìn thấu… <b>ví tiền</b> 👀</div>
 <div class="nhan n2">Cười bí hiểm<br>= <b>quẻ đẹp</b> 🤭</div>
 <div class="nhan n3">Quả cầu chỉ hiện<br>đúng 1 con số 🔮</div>
