@@ -1,231 +1,185 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kết nối 2028 – demo</title>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,500&display=swap" rel="stylesheet">
+<title>Kết nối 2028</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
- --muc:#13294B;--muc2:#1E3A66;--bien:#0E8C8C;--bien2:#3CC4B5;--bac:#B7C1CD;--bac2:#E6EAF0;--bac3:#F3F5F8;
- --nen:#F7F6F2;--nang:#FFB547;--hong:#FF6F61;--chu:#22304A;--phu:#5D6B80}
+:root{--dem:#0E1828;--dem2:#16233A;--muc:#1B2740;--ngoc:#F1EFEA;--trang:#FAF9F6;--bac:#C3C9D2;--bac2:#8D96A4;--vien:#D9DCE1;--chu:#2A3346;--phu:#6B7487;--sap:#7E6A4E}
 *{box-sizing:border-box;margin:0}
-body{font-family:'Be Vietnam Pro',sans-serif;background:var(--nen);color:var(--chu);font-size:16px;line-height:1.55;overflow-x:hidden}
-h1,h2,h3,.so{font-family:'Fraunces',serif}
-.w{max-width:1180px;margin:0 auto;padding:0 24px}
-/* đầu trang web */
-.dau{background:#fff;border-bottom:1px solid var(--bac2);position:sticky;top:0;z-index:5}
-.dau .w{display:flex;align-items:center;gap:14px;height:60px}
-.dau .lg{width:34px;height:34px;border-radius:50%;background:conic-gradient(var(--bien),var(--muc),var(--bien));}
-.dau b{font-size:15px}.dau nav{margin-left:auto;display:flex;gap:4px;font-size:14px}
-.dau nav a{padding:7px 12px;border-radius:99px;color:var(--phu)}.dau nav a.on{background:var(--muc);color:#fff}
-@media(max-width:900px){.dau nav{display:none}}
-/* HERO */
-.hero{position:relative;overflow:hidden;color:#fff;background:
- radial-gradient(120% 90% at 85% 10%,rgba(255,181,71,.35),transparent 55%),
- linear-gradient(180deg,#13294B 0%,#1A4A6E 55%,#0E8C8C 100%)}
-.hero .song{position:absolute;left:0;right:0;bottom:-2px;height:120px}
-.hero .w{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;padding-top:64px;padding-bottom:150px}
-.ey{display:inline-flex;gap:8px;align-items:center;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--nang)}
-.ey:before{content:'';width:28px;height:2px;background:currentColor}
-.hero h1{font-size:clamp(44px,6vw,84px);line-height:1.02;font-weight:800;margin:14px 0 12px;letter-spacing:-.02em}
-.hero h1 i{font-style:italic;font-weight:500;color:var(--bien2)}
-.hero h1 .bac{background:linear-gradient(100deg,#fff 10%,#C9D3DF 40%,#fff 60%,#AEB9C7 90%);-webkit-background-clip:text;color:transparent}
-.hero p.l{font-size:19px;max-width:560px;color:#DCE6F0}
-.nut{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
-.b{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:99px;font-weight:700;font-size:15px;border:0;text-decoration:none}
-.b.c{background:var(--hong);color:#fff;box-shadow:0 10px 24px -8px rgba(255,111,97,.7)}
-.b.t{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35)}
-.b.d{background:var(--muc);color:#fff}.b.v{background:#fff;color:var(--muc);border:1.5px solid var(--bac)}
-.dem{display:flex;gap:10px;margin-top:30px}
-.dem div{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:16px;padding:12px 16px;min-width:84px;text-align:center;backdrop-filter:blur(6px)}
-.dem b{display:block;font-family:'Fraunces';font-size:36px;line-height:1;font-variant-numeric:lining-nums}
-.dem span{font-size:12px;color:#C8D6E4;letter-spacing:.08em;text-transform:uppercase}
-/* vòng 12 lớp */
-.vong{position:relative;aspect-ratio:1;max-width:420px;width:100%;justify-self:center}
-.vong svg{width:100%;height:100%}
-.vong .gi{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
-.vong .gi b{font-family:'Fraunces';font-size:92px;line-height:.9;background:linear-gradient(160deg,#fff,#B7C1CD 60%,#fff);-webkit-background-clip:text;color:transparent}
-.vong .gi small{display:block;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#CFE0EC}
-.vong .gi em{display:block;font-style:normal;margin-top:8px;font-size:15px;color:var(--nang);font-weight:700}
-/* phần */
-.sec{padding:72px 0}.sec.tr{background:#fff}
-.tt{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap}
-.tt .ey{color:var(--bien)}
-.tt h2{font-size:clamp(32px,3.6vw,46px);line-height:1.08;color:var(--muc);margin-top:8px;font-weight:700}
-.tt h2 i{color:var(--bien);font-weight:500}
-.tt p{color:var(--phu);max-width:440px}
-/* điểm danh */
-.dd{display:grid;grid-template-columns:380px 1fr;gap:28px}
-.the{background:#fff;border-radius:22px;border:1px solid var(--bac2);box-shadow:0 18px 40px -26px rgba(19,41,75,.35)}
-.form{padding:26px}
-.form h3{font-size:24px;color:var(--muc)}
-.form label{display:block;font-size:13px;font-weight:600;color:var(--phu);margin:14px 0 6px}
-.form .o{border:1.5px solid var(--bac2);border-radius:12px;padding:11px 14px;color:#98A3B3;background:var(--bac3)}
-.chon{display:flex;gap:8px}.chon span{flex:1;text-align:center;padding:10px;border-radius:12px;border:1.5px solid var(--bac2);font-weight:600;font-size:14px}
-.chon span.on{background:#E2F6F3;border-color:var(--bien);color:var(--bien)}
-.form .b{width:100%;justify-content:center;margin-top:18px}
-.dua{padding:26px}
-.dua .h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
-.dua .h b{font-family:'Fraunces';font-size:22px;color:var(--muc)}.dua .h span{font-size:14px;color:var(--phu)}
-.hang{display:grid;grid-template-columns:62px 1fr 56px;align-items:center;gap:12px;padding:7px 0}
-.hang .l{font-weight:700;color:var(--muc)}
-.hang .tr{height:14px;background:var(--bac3);border-radius:99px;overflow:hidden}
-.hang .tr i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--bien),var(--bien2))}
-.hang.n1 .tr i{background:linear-gradient(90deg,var(--nang),#FFD27F)}
-.hang .s{text-align:right;font-weight:700;font-size:14px;color:var(--phu)}
-.hang .l small{font-size:15px}
-/* còn thiếu */
-.thieu{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:26px}
-.thieu div{background:var(--muc);color:#fff;border-radius:16px;padding:14px;position:relative;overflow:hidden}
-.thieu div:after{content:'';position:absolute;right:-18px;bottom:-18px;width:60px;height:60px;border-radius:50%;border:10px solid rgba(255,255,255,.08)}
-.thieu b{font-family:'Fraunces';font-size:26px}.thieu span{display:block;font-size:13px;color:#B9C8DA}
-.thieu em{font-style:normal;font-size:13px;font-weight:700;color:var(--nang)}
+html{scroll-behavior:smooth}
+body{font-family:'Be Vietnam Pro',sans-serif;font-weight:300;background:var(--trang);color:var(--chu);font-size:16px;line-height:1.7;overflow-x:hidden}
+.cg{font-family:'Cormorant Garamond',serif}
+.w{max-width:1160px;margin:0 auto;padding:0 32px}
+a{color:inherit;text-decoration:none}
+.foil{background:linear-gradient(115deg,#8E97A5 0%,#F4F6F8 22%,#A9B1BD 40%,#E9ECF0 58%,#8D96A4 78%,#DDE1E6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* menu */
+.dau{position:absolute;top:0;left:0;right:0;z-index:4}
+.dau .w{display:flex;align-items:center;height:76px;color:#D5DAE1;font-size:14px;gap:28px}
+.dau .ten{font-family:'Cormorant Garamond';font-size:20px;color:#fff;letter-spacing:.02em}
+.dau nav{margin-left:auto;display:flex;gap:26px;color:#8F9AAB}.dau nav a.on{color:#fff;border-bottom:1px solid var(--bac);padding-bottom:3px}
+@media(max-width:960px){.dau nav{display:none}}
+/* hero */
+.hero{background:radial-gradient(90% 70% at 72% 45%,#1E2E4A 0%,var(--dem) 62%);color:#E9ECF0;position:relative;overflow:hidden}
+.hero .w{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px;min-height:min(820px,100vh);padding-top:96px;padding-bottom:70px}
+.hero .ngay{font-family:'Cormorant Garamond';font-style:italic;font-size:22px;color:var(--bac)}
+.hero h1{font-family:'Cormorant Garamond';font-weight:300;font-size:clamp(52px,6.4vw,96px);line-height:.98;margin:18px 0 26px;letter-spacing:-.01em}
+.hero p{max-width:440px;color:#AEB7C4;font-size:17px}
+.hanh{display:flex;align-items:center;gap:28px;margin-top:40px;flex-wrap:wrap}
+.nut{display:inline-block;padding:15px 34px;font-size:14px;font-weight:500;letter-spacing:.06em;background:linear-gradient(120deg,#D9DDE3,#F7F8FA 45%,#B9C0CA);color:var(--dem);border-radius:2px}
+.lk{font-size:14px;color:#C9D0DA;border-bottom:1px solid #4A5870;padding-bottom:3px}
+.con{margin-top:56px;display:flex;gap:40px;border-top:1px solid #2A3954;padding-top:22px;max-width:460px}
+.con div{font-size:13px;color:#7F8B9E}.con b{display:block;font-family:'Cormorant Garamond';font-weight:400;font-size:40px;line-height:1.1;color:#E9ECF0;font-variant-numeric:lining-nums}
+.mat{width:100%;max-width:520px;justify-self:end;filter:drop-shadow(0 40px 60px rgba(0,0,0,.55))}
+.mat svg{width:100%;height:auto;display:block}
+/* phần sáng */
+.sec{padding:120px 0}
+.sec h2{font-family:'Cormorant Garamond';font-weight:300;font-size:clamp(40px,4.4vw,64px);line-height:1.04;color:var(--muc)}
+.dan{color:var(--phu);max-width:520px;margin-top:18px;font-size:17px}
+.hai{display:grid;grid-template-columns:5fr 7fr;gap:80px;align-items:start}
+/* sổ điểm danh */
+.so{border-top:1px solid var(--muc)}
+.dong{display:grid;grid-template-columns:90px 1fr 70px;align-items:center;gap:20px;padding:15px 0;border-bottom:1px solid var(--vien)}
+.dong .l{font-family:'Cormorant Garamond';font-size:24px;color:var(--muc)}
+.dong .t{height:2px;background:var(--vien);position:relative}
+.dong .t i{position:absolute;left:0;top:-1px;height:4px;background:linear-gradient(90deg,#6E7889,#C9CED6)}
+.dong .s{text-align:right;font-size:14px;color:var(--phu);font-variant-numeric:tabular-nums}
+.dong.dau1 .l{font-style:italic}.dong.dau1 .t i{background:linear-gradient(90deg,var(--muc),#5B6A86)}
+.dk{margin-top:44px;padding:34px;background:var(--ngoc)}
+.dk h3{font-family:'Cormorant Garamond';font-weight:400;font-size:30px;color:var(--muc)}
+.o{border:0;border-bottom:1px solid #B5BBC5;padding:12px 0;margin-top:14px;color:#9AA2B0;font-size:15px}
+.ch{display:flex;gap:22px;margin:22px 0 26px;font-size:14px;color:var(--phu)}
+.ch span:before{content:'';display:inline-block;width:12px;height:12px;border:1px solid var(--bac2);border-radius:50%;margin-right:8px;vertical-align:-1px}
+.ch span.on{color:var(--muc)}.ch span.on:before{background:radial-gradient(circle,var(--muc) 45%,transparent 50%)}
+.nut.toi{background:var(--muc);color:#F1F3F6}
+.thieu{margin-top:30px;font-size:15px;color:var(--phu)}.thieu em{font-family:'Cormorant Garamond';font-size:20px;color:var(--muc)}
 /* bản đồ */
-.bd{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
-.map{background:linear-gradient(180deg,#E8F4F6,#F5FAFB);border-radius:26px;padding:20px;position:relative;border:1px solid var(--bac2)}
-.map svg{width:100%;height:auto;display:block}
-.nn{display:flex;flex-wrap:wrap;gap:8px}
-.nn span{background:#fff;border:1px solid var(--bac2);border-radius:99px;padding:8px 14px;font-weight:600;font-size:14px}
-.nn span b{color:var(--hong);margin-left:4px}
-.top3{display:grid;gap:12px;margin:18px 0}
-.top3 div{display:flex;align-items:center;gap:14px;background:#fff;border-radius:16px;padding:14px 18px;border:1px solid var(--bac2)}
-.top3 i{font-style:normal;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--bien);color:#fff;font-weight:800}
-.top3 b{font-size:18px;color:var(--muc)}.top3 small{display:block;color:var(--phu);font-size:14px}
-.top3 em{margin-left:auto;font-family:'Fraunces';font-size:28px;font-style:normal;color:var(--muc)}
-/* góp tay */
-.gt{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.viec{background:#fff;border-radius:20px;padding:22px;border:1px solid var(--bac2);position:relative}
-.viec .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:var(--bac3)}
-.viec h3{font-size:21px;color:var(--muc);margin:14px 0 6px}
-.viec p{color:var(--phu);font-size:15px}
-.viec .ft{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
-.av{display:flex}.av i{width:30px;height:30px;border-radius:50%;border:2px solid #fff;margin-left:-8px;font-style:normal;font-size:12px;font-weight:700;display:grid;place-items:center;color:#fff}
-.av i:first-child{margin-left:0}
-.nhan{font-size:13px;font-weight:700;padding:8px 14px;border-radius:99px;background:#E2F6F3;color:var(--bien)}
-.viec.can .nhan{background:#FFE9E6;color:var(--hong)}
-.viec .so{position:absolute;right:20px;top:18px;font-size:44px;color:var(--bac2);font-weight:800}
-/* thư 2028 */
-.thu{background:linear-gradient(135deg,#13294B,#1E3A66);color:#fff;border-radius:28px;padding:44px;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;position:relative;overflow:hidden}
-.thu h2{font-size:clamp(34px,3.8vw,50px);line-height:1.05}.thu h2 i{color:var(--nang);font-weight:500}
-.thu p{color:#C9D6E6;margin:14px 0 22px;font-size:17px}
-.bao{position:relative;height:280px}
-.bao .p{position:absolute;width:240px;height:150px;border-radius:10px;background:linear-gradient(160deg,#F4F6F9,#C9D2DD);box-shadow:0 20px 40px -14px rgba(0,0,0,.55)}
-.bao .p:before{content:'';position:absolute;inset:0;background:linear-gradient(155deg,transparent 49.5%,rgba(19,41,75,.18) 50%,transparent 51%),linear-gradient(-155deg,transparent 49.5%,rgba(19,41,75,.18) 50%,transparent 51%)}
-.bao .p:after{content:'25';position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FF8D7F,#D94A3D);color:#fff;font:800 18px 'Fraunces';display:grid;place-items:center;box-shadow:0 3px 8px rgba(0,0,0,.3)}
-.bao .p1{left:10%;top:70px;transform:rotate(-12deg)}.bao .p2{left:30%;top:20px;transform:rotate(6deg)}.bao .p3{left:20%;top:120px;transform:rotate(3deg)}
-.bao .dem2{position:absolute;right:0;bottom:6px;text-align:right}
-.bao .dem2 b{font-family:'Fraunces';font-size:64px;line-height:1;color:var(--nang)}.bao .dem2 span{display:block;color:#C9D6E6;font-size:14px}
+.bd{background:var(--ngoc)}
+.bd .hai{grid-template-columns:6fr 5fr;align-items:center}
+.bd svg{width:100%;max-width:470px;height:auto;display:block;margin:auto}
+.tp{margin-top:36px;border-top:1px solid var(--muc)}
+.tp div{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--vien)}
+.tp span{font-size:16px;color:var(--chu)}.tp b{font-family:'Cormorant Garamond';font-weight:400;font-size:32px;color:var(--muc);font-variant-numeric:lining-nums}
+.xa{margin-top:22px;font-size:15px;color:var(--phu)}
+/* thư */
+.thu{background:var(--dem);color:#E6EAF0;text-align:center;padding:130px 0;position:relative;overflow:hidden}
+.thu h2{font-family:'Cormorant Garamond';font-weight:300;font-size:clamp(40px,4.4vw,64px);line-height:1.04;color:#F1F3F6}.thu .dan{color:#9AA5B6;margin:20px auto 0}
+.phong{width:min(420px,84vw);margin:56px auto 46px;aspect-ratio:1.6;position:relative;background:linear-gradient(150deg,#E9ECEF,#BFC6CF 55%,#DDE1E6);box-shadow:0 40px 70px -30px rgba(0,0,0,.8)}
+.phong:before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49.6%,rgba(14,24,40,.22) 50%,transparent 50.6%),linear-gradient(to bottom left,transparent 49.6%,rgba(14,24,40,.22) 50%,transparent 50.6%);clip-path:polygon(0 0,100% 0,50% 58%)}
+.dau-sap{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#4A5B7A,#1B2740 70%);display:grid;place-items:center;box-shadow:0 6px 14px rgba(0,0,0,.45),inset 0 0 0 5px rgba(255,255,255,.06)}
+.dau-sap b{font-family:'Cormorant Garamond';font-size:30px;font-weight:500}
+.dem-thu{font-family:'Cormorant Garamond';font-size:20px;color:var(--bac);font-style:italic;margin-bottom:28px}
+.dem-thu b{font-style:normal;font-size:30px;color:#fff;font-weight:400}
+/* góp tay = thực đơn */
+.td{max-width:820px;margin:60px auto 0;border-top:1px solid var(--muc)}
+.mon{display:grid;grid-template-columns:1fr auto;gap:8px 30px;padding:24px 0;border-bottom:1px solid var(--vien)}
+.mon h3{font-family:'Cormorant Garamond';font-weight:400;font-size:28px;color:var(--muc);line-height:1.2}
+.mon p{color:var(--phu);font-size:15px;grid-column:1}
+.mon .ai{grid-column:2;grid-row:1/3;align-self:center;text-align:right;font-size:14px;color:var(--phu);white-space:nowrap}
+.mon .ai a{display:block;margin-top:6px;color:var(--muc);font-weight:500;border-bottom:1px solid var(--muc);padding-bottom:2px;display:inline-block}
+.mon .ai.trong{color:var(--sap)}
+.giua{text-align:center}.giua .dan{margin-left:auto;margin-right:auto}
 /* bình chọn + bll */
-.hai{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.bc{padding:28px}.bc h3{font-size:24px;color:var(--muc);margin-bottom:16px}
-.lc{position:relative;border:1.5px solid var(--bac2);border-radius:14px;padding:12px 16px;margin-bottom:10px;overflow:hidden;display:flex;justify-content:space-between;font-weight:600}
-.lc i{position:absolute;inset:0;right:auto;background:#E2F6F3;z-index:0}.lc span,.lc b{position:relative}
-.lc.top{border-color:var(--bien)}.lc.top i{background:linear-gradient(90deg,#CFF0EB,#E8F8F5)}
-.bll{padding:28px}
-.ng{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px dashed var(--bac2)}
-.ng:last-of-type{border:0}
-.ng .a{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--bac2),var(--bac));display:grid;place-items:center;font:700 20px 'Fraunces';color:var(--muc)}
-.ng b{display:block;color:var(--muc)}.ng small{color:var(--phu)}
-.ng .g{margin-left:auto;display:flex;gap:6px}.ng .g span{padding:7px 12px;border-radius:99px;font-size:13px;font-weight:700;color:#fff;background:var(--bien)}.ng .g span+span{background:#2F7BEF}
-/* bảng tin */
-.tin{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.tin div{background:#fff;border-radius:18px;padding:20px;border-left:5px solid var(--bien)}
-.tin div:nth-child(2){border-color:var(--nang)}.tin div:nth-child(3){border-color:var(--hong)}
-.tin small{color:var(--phu);font-weight:600}.tin b{display:block;font-size:18px;color:var(--muc);margin:6px 0}
-.tin p{font-size:15px;color:var(--phu)}
-.ket{text-align:center;padding:70px 20px;background:linear-gradient(180deg,var(--nen),#E3EEF2)}
-.ket h2{font-size:clamp(34px,4vw,54px);color:var(--muc)}.ket h2 i{color:var(--bien);font-weight:500}
-.ket p{color:var(--phu);margin-top:10px}
+.bc .lc{padding:18px 0;border-bottom:1px solid var(--vien)}
+.bc .lc div{display:flex;justify-content:space-between;font-size:16px}.bc .lc b{font-family:'Cormorant Garamond';font-size:24px;font-weight:400;color:var(--muc)}
+.bc .lc i{display:block;height:2px;margin-top:10px;background:linear-gradient(90deg,#6E7889,#C9CED6)}
+.bc .lc.dt i{background:var(--muc)}
+.nho{font-size:14px;color:var(--phu);margin-top:16px}
+.ng{padding:20px 0;border-bottom:1px solid var(--vien);display:flex;align-items:center;gap:20px}
+.ng .a{width:56px;height:56px;border-radius:50%;border:1px solid var(--bac);display:grid;place-items:center;font-family:'Cormorant Garamond';font-size:24px;color:var(--muc);flex:none}
+.ng b{font-family:'Cormorant Garamond';font-weight:500;font-size:23px;color:var(--muc);display:block;line-height:1.2}.ng small{font-size:14px;color:var(--phu)}
+.ng .g{margin-left:auto;display:flex;gap:18px;font-size:14px}.ng .g a{border-bottom:1px solid var(--bac2);padding-bottom:2px}
+/* tin */
+.tin{display:grid;grid-template-columns:repeat(3,1fr);gap:50px;margin-top:56px}
+.tin div{border-top:1px solid var(--muc);padding-top:20px}
+.tin small{font-size:13px;color:var(--phu)}.tin h3{font-family:'Cormorant Garamond';font-weight:400;font-size:27px;line-height:1.2;color:var(--muc);margin:8px 0}
+.tin p{color:var(--phu);font-size:15px}
+.cuoi{background:var(--dem);color:#E6EAF0;text-align:center;padding:110px 0 90px}
+.cuoi h2{font-family:'Cormorant Garamond';font-weight:300;font-size:clamp(44px,5vw,76px);line-height:1.05}
+.cuoi p{color:#8F9AAB;margin-top:16px;font-family:'Cormorant Garamond';font-style:italic;font-size:22px}
 /* bảng màu */
-.pal{padding:60px 0}.pal .o3{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.mau{border-radius:20px;overflow:hidden;background:#fff;border:1px solid var(--bac2)}
-.mau .c{height:150px;display:flex;align-items:end;padding:14px;color:#fff;font-weight:700}
-.mau .x{padding:14px 16px}.mau .x b{display:block;color:var(--muc);font-size:17px}.mau .x small{color:var(--phu);font-size:14px}
-.so2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px}
-.so2 .k{border-radius:20px;padding:28px;color:#fff}
-.so2 .k h3{font-size:30px}.so2 .k p{opacity:.85;margin-top:6px}
-.chu{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
-.chu div{background:#fff;border-radius:20px;padding:26px;border:1px solid var(--bac2)}
-/* điện thoại */
-@media(max-width:760px){
- .w{padding:0 16px}
- .hero .w{grid-template-columns:1fr;padding-top:36px;padding-bottom:110px;gap:10px}
- .hero h1{font-size:42px}.hero p.l{font-size:17px}
- .dem{gap:8px}.dem div{min-width:0;flex:1;padding:10px 6px}.dem b{font-size:28px}
- .vong{max-width:300px;order:-1}.vong .gi b{font-size:70px}
- .sec{padding:48px 0}
- .dd,.bd,.thu,.hai{grid-template-columns:1fr}
- .thieu{grid-template-columns:repeat(3,1fr)}
- .gt,.tin{grid-template-columns:1fr}
- .thu{padding:28px 22px}.bao{height:230px}.bao .p{width:190px;height:120px}
- .pal .o3{grid-template-columns:1fr 1fr}.so2,.chu{grid-template-columns:1fr}
+.pal{padding:80px 0;background:var(--trang)}
+.pal .mau{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-top:46px;border:1px solid var(--vien)}
+.pal .mau div{height:300px;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;font-size:13px}
+.pal .mau b{font-family:'Cormorant Garamond';font-size:24px;font-weight:500;display:block}
+.chu2{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px}
+.chu2>div{border-top:1px solid var(--muc);padding-top:22px}
+@media(max-width:820px){
+ .w{padding:0 22px}
+ .hero .w{grid-template-columns:1fr;min-height:0;padding-top:96px;gap:10px}
+ .mat{order:-1;max-width:330px;justify-self:center}
+ .hero h1{font-size:54px}
+ .con{gap:26px}.con b{font-size:34px}
+ .sec{padding:80px 0}.thu{padding:90px 0}
+ .hai,.bd .hai{grid-template-columns:1fr;gap:50px}
+ .dong{grid-template-columns:64px 1fr 56px;gap:14px}
+ .tin{grid-template-columns:1fr;gap:34px}
+ .mon h3{font-size:24px}
+ .ng{flex-wrap:wrap}.ng .g{margin-left:76px}
+ .pal .mau{grid-template-columns:repeat(2,1fr)}.pal .mau div{height:150px}.chu2{grid-template-columns:1fr}
 }
-</style></head><body>
-<div id="app"></div>
+</style></head><body><div id="app"></div>
 <script>
-var Q=new URLSearchParams(location.search),M=Q.get('m')||'pc';
-var LOP=[['12/1',38],['12/2',41],['12/3',29],['12/4',52],['12/5',33],['12/6',27],['12/7',36],['12/8',22],['12/9',31],['12/10',25],['12/11',30],['12/12',34]];
-var SI=45;
-function vong(){var s='<svg viewBox="0 0 400 400"><defs><linearGradient id="gb" x1="0" x2="1"><stop offset="0" stop-color="#3CC4B5"/><stop offset="1" stop-color="#FFB547"/></linearGradient></defs>';
- s+='<circle cx="200" cy="200" r="186" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1"/>';
- LOP.forEach(function(l,i){var a0=(i*30-90+2)*Math.PI/180,a1=((i+1)*30-90-2)*Math.PI/180,R=165,r=140,p=l[1]/SI;
-  var arc=function(R,a,b){return [200+R*Math.cos(a),200+R*Math.sin(a),200+R*Math.cos(b),200+R*Math.sin(b)]};
-  var o=arc(R,a0,a1),n=arc(r,a1,a0);
-  s+='<path d="M'+o[0]+' '+o[1]+' A'+R+' '+R+' 0 0 1 '+o[2]+' '+o[3]+' L'+n[0]+' '+n[1]+' A'+r+' '+r+' 0 0 0 '+n[2]+' '+n[3]+'Z" fill="rgba(255,255,255,'+(0.08+p*0.55).toFixed(2)+')" stroke="rgba(255,255,255,.35)"/>';
-  var am=(i*30-75)*Math.PI/180;s+='<text x="'+(200+152*Math.cos(am))+'" y="'+(200+152*Math.sin(am)+4)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#13294B" font-family="Be Vietnam Pro">'+l[0].slice(3)+'</text>';
-  var ab=(i*30-75)*Math.PI/180;s+='<circle cx="'+(200+182*Math.cos(ab))+'" cy="'+(200+182*Math.sin(ab))+'" r="'+(3+p*6)+'" fill="url(#gb)"/>';
- });
- return s+'</svg>';}
-function song(){return '<svg class="song" viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0 60 C240 10 420 110 720 60 S1200 10 1440 50 V120 H0Z" fill="rgba(255,255,255,.18)"/><path d="M0 80 C260 40 480 120 760 78 S1220 40 1440 72 V120 H0Z" fill="#F7F6F2"/></svg>';}
+var M=new URLSearchParams(location.search).get('m')||'pc';
+var LOP=[['12/4',52],['12/2',41],['12/1',38],['12/7',36],['12/12',34],['12/5',33],['12/9',31],['12/11',30],['12/3',29],['12/6',27],['12/10',25],['12/8',22]];
+function f(n){return n.toFixed(2)}
+function matDongHo(){var C=260,s='<svg viewBox="0 0 520 520"><defs>'+
+ '<linearGradient id="vo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3F5F7"/><stop offset=".3" stop-color="#9AA3B0"/><stop offset=".55" stop-color="#E6E9ED"/><stop offset=".8" stop-color="#7F8896"/><stop offset="1" stop-color="#D5DAE0"/></linearGradient>'+
+ '<radialGradient id="mt" cx=".45" cy=".4" r=".75"><stop offset="0" stop-color="#22324F"/><stop offset=".7" stop-color="#131F35"/><stop offset="1" stop-color="#0B1322"/></radialGradient>'+
+ '<linearGradient id="kim" x1="0" x2="1"><stop offset="0" stop-color="#B9C0CA"/><stop offset=".5" stop-color="#FFFFFF"/><stop offset="1" stop-color="#9AA3B0"/></linearGradient></defs>';
+ s+='<circle cx="260" cy="260" r="256" fill="url(#vo)"/><circle cx="260" cy="260" r="238" fill="#0B1322"/><circle cx="260" cy="260" r="234" fill="url(#mt)"/>';
+ /* hoa văn guilloché */
+ var g='';for(var i=0;i<72;i++){var a=i*5*Math.PI/180;g+='<circle cx="'+f(C+38*Math.cos(a))+'" cy="'+f(C+38*Math.sin(a))+'" r="120" fill="none" stroke="#9FB0C8" stroke-opacity=".13" stroke-width=".7"/>';}
+ s+='<g>'+g+'</g>';
+ var r='';for(var i=0;i<240;i++){var a=i*1.5*Math.PI/180;r+='<line x1="'+f(C+176*Math.cos(a))+'" y1="'+f(C+176*Math.sin(a))+'" x2="'+f(C+214*Math.cos(a))+'" y2="'+f(C+214*Math.sin(a))+'" stroke="#AEB9C9" stroke-opacity=".22" stroke-width=".6"/>';}
+ s+=r+'<circle cx="260" cy="260" r="176" fill="none" stroke="#C3C9D2" stroke-opacity=".35"/><circle cx="260" cy="260" r="214" fill="none" stroke="#C3C9D2" stroke-opacity=".35"/>';
+ /* vạch phút */
+ for(var i=0;i<60;i++){if(i%5==0)continue;var a=(i*6-90)*Math.PI/180;s+='<line x1="'+f(C+222*Math.cos(a))+'" y1="'+f(C+222*Math.sin(a))+'" x2="'+f(C+229*Math.cos(a))+'" y2="'+f(C+229*Math.sin(a))+'" stroke="#C3C9D2" stroke-width="1"/>';}
+ /* 12 lớp = 12 giờ */
+ for(var i=1;i<=12;i++){var a=(i*30-90)*Math.PI/180;
+  s+='<line x1="'+f(C+186*Math.cos(a))+'" y1="'+f(C+186*Math.sin(a))+'" x2="'+f(C+212*Math.cos(a))+'" y2="'+f(C+212*Math.sin(a))+'" stroke="url(#kim)" stroke-width="'+(i==8?5:3)+'" stroke-linecap="round"/>';
+  s+='<text x="'+f(C+156*Math.cos(a))+'" y="'+f(C+156*Math.sin(a)+6)+'" text-anchor="middle" font-family="Cormorant Garamond" font-size="'+(i==8?19:16)+'" fill="'+(i==8?'#FFFFFF':'#AEB7C4')+'" font-style="'+(i==8?'italic':'normal')+'">12/'+i+'</text>';}
+ /* kim chỉ số 8 = tháng 8 */
+ var a=(8*30-90)*Math.PI/180;
+ s+='<line x1="'+f(C-26*Math.cos(a))+'" y1="'+f(C-26*Math.sin(a))+'" x2="'+f(C+136*Math.cos(a))+'" y2="'+f(C+136*Math.sin(a))+'" stroke="url(#kim)" stroke-width="3" stroke-linecap="round"/>';
+ var b=(-60)*Math.PI/180;s+='<line x1="260" y1="260" x2="'+f(C+118*Math.cos(b))+'" y2="'+f(C+118*Math.sin(b))+'" stroke="url(#kim)" stroke-width="5" stroke-linecap="round" opacity=".85"/>';
+ s+='<circle cx="260" cy="260" r="74" fill="#15223A" stroke="#C3C9D2" stroke-opacity=".45"/><circle cx="260" cy="260" r="68" fill="none" stroke="#C3C9D2" stroke-opacity=".2"/>';
+ s+='<text x="260" y="232" text-anchor="middle" font-family="Cormorant Garamond" font-size="15" letter-spacing="3" fill="#8F9AAB">2003</text>';
+ s+='<text x="260" y="290" text-anchor="middle" font-family="Cormorant Garamond" font-weight="300" font-size="76" fill="url(#vo)">25</text>';
+ s+='<text x="260" y="320" text-anchor="middle" font-family="Cormorant Garamond" font-style="italic" font-size="14" fill="#AEB7C4">tháng Tám, 2028</text>';
+ s+='</svg>';return s;}
 function banDo(){
  var vn='M150 18 L178 30 L196 58 L214 72 L236 92 L222 110 L204 120 L196 146 L208 176 L226 206 L246 232 L262 256 L280 284 L296 316 L304 352 L300 390 L284 418 L258 438 L230 452 L202 472 L176 496 L150 512 L132 500 L146 476 L172 456 L200 436 L230 410 L246 380 L250 346 L240 312 L222 284 L204 258 L184 232 L166 206 L150 176 L138 150 L124 124 L104 100 L80 82 L66 60 L92 46 L122 36Z';
- var dd=[[188,120,8,'Hà Nội','14'],[262,262,22,'Đà Nẵng','186'],[284,300,5,'Quảng Ngãi','6'],[300,356,6,'Nha Trang','7'],[206,462,15,'TP.HCM','58'],[226,206,4,'Huế','5'],[166,500,4,'Cần Thơ','3'],[284,404,4,'Đà Lạt','4']];
- var s='<svg viewBox="0 0 520 540"><defs><radialGradient id="rd"><stop offset="0" stop-color="#FF6F61" stop-opacity=".55"/><stop offset="1" stop-color="#FF6F61" stop-opacity="0"/></radialGradient></defs>';
- s+='<path d="'+vn+'" fill="#fff" stroke="#9FB3C7" stroke-width="2" stroke-linejoin="round"/>';
- s+='<path d="M300 60 C340 140 360 300 420 380" stroke="#B7DDE3" stroke-dasharray="4 8" fill="none"/><text x="350" y="150" font-size="14" fill="#7FA9B5" font-style="italic" font-family="Fraunces">Biển Đông</text>';
- dd.forEach(function(d){s+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r="'+(d[2]*2.4)+'" fill="url(#rd)"/><circle cx="'+d[0]+'" cy="'+d[1]+'" r="'+Math.max(5,d[2]/2.2)+'" fill="'+(d[3]=='Đà Nẵng'?'#FF6F61':'#0E8C8C')+'" stroke="#fff" stroke-width="2.5"/>';
-  if(d[2]>=6)s+='<g font-family="Be Vietnam Pro"><rect x="'+(d[0]+18)+'" y="'+(d[1]-15)+'" rx="10" width="'+(d[3].length*8+44)+'" height="28" fill="#13294B"/><text x="'+(d[0]+30)+'" y="'+(d[1]+4)+'" fill="#fff" font-size="13" font-weight="700">'+d[3]+' · '+d[4]+'</text></g>';});
+ var dd=[[188,120,14,'Hà Nội'],[262,262,186,'Đà Nẵng'],[206,462,58,'TP. Hồ Chí Minh'],[300,356,7,''],[226,206,5,''],[284,300,6,''],[166,500,3,''],[284,404,4,'']];
+ var s='<svg viewBox="40 0 420 530"><path d="'+vn+'" fill="none" stroke="#1B2740" stroke-width="1.1" stroke-linejoin="round"/>';
+ dd.forEach(function(d){var r=Math.max(3,Math.sqrt(d[2])*1.6);s+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r="'+f(r)+'" fill="#1B2740" fill-opacity="'+(d[3]?'.9':'.5')+'"/>'+(d[2]>50?'<circle cx="'+d[0]+'" cy="'+d[1]+'" r="'+f(r+7)+'" fill="none" stroke="#1B2740" stroke-opacity=".35"/>':'');
+  if(d[3])s+='<line x1="'+(d[0]+r+4)+'" y1="'+d[1]+'" x2="'+(d[0]+r+34)+'" y2="'+d[1]+'" stroke="#8D96A4" stroke-width=".8"/><text x="'+(d[0]+r+40)+'" y="'+(d[1]+5)+'" font-family="Cormorant Garamond" font-style="italic" font-size="17" fill="#1B2740">'+d[3]+'</text>';});
  return s+'</svg>';}
-var AV=['#0E8C8C','#FF6F61','#FFB547','#13294B','#3CC4B5'];
-function av(n){var s='<span class="av">';for(var i=0;i<n;i++)s+='<i style="background:'+AV[i%5]+'">'+'HTMLAQ'[i]+'</i>';return s+'</span>';}
-var VIEC=[['📷','Gom ảnh xưa','Quét ảnh thời đi học, gửi về kho chung',4,1],['🎬','Làm phim 25 năm','Dựng phim ngắn "Ngày ấy – Bây giờ"',2,1],['🏫','Liên hệ nhà trường','Xin buổi chào cờ sáng thứ Hai',1,1],['🌳','Trồng cây phượng','Chọn chỗ, mua cây, gắn biển khoá',0,0],['🧭','Tìm bạn thất lạc','Mỗi lớp nhận tìm 3 bạn chưa liên lạc',5,1],['🎁','Kỷ vật lớp','Áo, huy hiệu, sổ đầu bài… kể chuyện',0,0],['🎤','Văn nghệ','Tập lại bài hát cuối cấp',3,1],['📒','Sổ vàng 25 năm','Mỗi người một trang viết tay',0,0],['🤝','Hậu cần','Địa điểm, âm thanh, đưa đón thầy cô',2,1]];
+var VIEC=[['Gom ảnh thời đi học','Quét ảnh cũ, gửi về kho ảnh chung của khoá.',4],['Phim "Hai mươi lăm năm"','Dựng một phim ngắn từ ảnh xưa và ảnh nay.',2],['Xin buổi chào cờ','Làm việc với nhà trường cho sáng thứ Hai tháng Tám.',1],['Trồng một cây phượng','Chọn chỗ, chọn cây, đặt biển khắc tên khoá.',0],['Tìm những bạn còn thiếu','Mỗi lớp nhận tìm ba người chưa liên lạc được.',5],['Sổ vàng viết tay','Mỗi người một trang, đóng thành một cuốn.',0]];
 function pc(){var h='';
-h+='<header class="dau"><div class="w"><span class="lg"></span><b>THPT Nguyễn Hiền · 2000–2003</b><nav><a>Trang chủ</a><a>Các lớp</a><a>Sinh nhật</a><a>Kỷ yếu</a><a>Hình ảnh</a><a>Hoạt động</a><a class="on">Kết nối</a></nav></div></header>';
-h+='<section class="hero"><div class="w"><div><span class="ey">Trạm hẹn · Bạc 25</span><h1>Hẹn nhau <i style="white-space:nowrap">tháng 8</i><br><span class="bac">năm 2028</span></h1>'+
- '<p class="l">25 năm ra trường – lần này về đúng sân trường: chào cờ sáng thứ Hai, ngồi lại chỗ cũ, gọi tên nhau như ngày ấy.</p>'+
- '<div class="nut"><a class="b c">✋ Mình sẽ về</a><a class="b t">🔎 Tìm bạn</a><a class="b t">🤝 Góp tay</a></div>'+
- '<div class="dem"><div><b>620</b><span>ngày</span></div><div><b>14</b><span>giờ</span></div><div><b>08</b><span>phút</span></div><div><b>418</b><span>đã điểm danh</span></div></div></div>'+
- '<div class="vong">'+vong()+'<div class="gi"><div><small>Năm ra trường</small><b>25</b><em>12 lớp · 418 / 540 bạn</em></div></div></div></div>'+song()+'</section>';
-// điểm danh
-var sx=LOP.slice().sort(function(a,b){return b[1]-a[1]});
-h+='<section class="sec"><div class="w"><div class="tt"><div><span class="ey">01 · Điểm danh 2028</span><h2>Lớp nào <i>về đông nhất?</i></h2></div><p>Bấm "Mình sẽ về" từ bây giờ – chưa cần chắc chắn. Mỗi lượt điểm danh làm vòng lớp mình sáng thêm một nấc.</p></div>'+
- '<div class="dd"><div class="the form"><h3>✋ Mình sẽ về</h3><label>Họ tên</label><div class="o">Nguyễn Văn A</div><label>Lớp</label><div class="o">12/4</div><label>Khả năng</label><div class="chon"><span class="on">Chắc chắn</span><span>Có thể</span><span>Ở xa, sẽ cố</span></div><a class="b c">Điểm danh</a></div>'+
- '<div class="the dua"><div class="h"><b>Bảng đua 12 lớp</b><span>cập nhật mỗi phút</span></div>';
-sx.forEach(function(l,i){h+='<div class="hang'+(i==0?' n1':'')+'"><span class="l">'+l[0]+(i<3?' <small>'+['🥇','🥈','🥉'][i]+'</small>':'')+'</span><span class="tr"><i style="width:'+Math.round(l[1]/SI*100)+'%"></i></span><span class="s">'+l[1]+'/'+SI+'</span></div>'});
-h+='</div></div><div class="thieu">';
-[['12/1',3],['12/2',2],['12/3',8],['12/4',1],['12/5',6],['12/6',9]].forEach(function(t){h+='<div><span>Lớp '+t[0]+' còn thiếu</span><b>'+t[1]+' bạn</b><br><em>Giúp tìm →</em></div>'});
+h+='<header class="dau"><div class="w"><span class="ten">Nguyễn Hiền 2000 – 2003</span><nav><a>Trang chủ</a><a>Các lớp</a><a>Kỷ yếu</a><a>Hình ảnh</a><a>Hoạt động</a><a class="on">Kết nối</a></nav></div></header>';
+h+='<section class="hero"><div class="w"><div><div class="ngay">Sáng thứ Hai, tháng Tám năm 2028</div><h1 class="foil">Hai mươi lăm năm, một buổi chào cờ.</h1>'+
+ '<p>Lần này mình về đúng sân trường cũ: đứng lại hàng của lớp, nghe trống đầu giờ, rồi ngồi vào chỗ mình đã ngồi năm 2003.</p>'+
+ '<div class="hanh"><a class="nut">Mình sẽ về</a><a class="lk">Tìm một người bạn</a></div>'+
+ '<div class="con"><div><b>621</b>ngày nữa</div><div><b>418</b>bạn đã hẹn</div><div><b>12</b>lớp</div></div></div>'+
+ '<div class="mat">'+matDongHo()+'</div></div></section>';
+h+='<section class="sec"><div class="w hai"><div><h2>Sổ điểm danh hai nghìn không trăm hai mươi tám</h2><p class="dan">Chưa cần chắc chắn. Bạn cứ hẹn trước, gần ngày Ban liên lạc sẽ hỏi lại.</p>'+
+ '<div class="dk"><h3>Mình sẽ về</h3><div class="o">Họ và tên</div><div class="o">Lớp</div><div class="ch"><span class="on">Chắc chắn</span><span>Có thể</span><span>Ở xa, sẽ cố</span></div><a class="nut toi">Ghi tên vào sổ</a></div></div>'+
+ '<div><div class="so">';
+LOP.forEach(function(l,i){h+='<div class="dong'+(i==0?' dau1':'')+'"><span class="l">'+l[0]+'</span><span class="t"><i style="width:'+Math.round(l[1]/45*100)+'%"></i></span><span class="s">'+l[1]+' / 45</span></div>'});
+h+='</div><p class="thieu">Lớp 12/6 còn <em>9</em> bạn chưa liên lạc được, lớp 12/3 còn <em>8</em>. <a style="border-bottom:1px solid;color:var(--muc)">Giúp tìm</a></p></div></div></section>';
+h+='<section class="sec bd"><div class="w hai"><div>'+banDo()+'</div><div><h2>Một khoá, nhiều nơi</h2><p class="dan">Bấm vào một chấm để xem ai đang sống ở đó, và ai ở gần bạn nhất.</p><div class="tp"><div><span>Đà Nẵng</span><b>186</b></div><div><span>TP. Hồ Chí Minh</span><b>58</b></div><div><span>Hà Nội</span><b>14</b></div><div><span>Các tỉnh khác</span><b>25</b></div></div><p class="xa">Ở nước ngoài: Úc 5, Mỹ 4, Nhật 3, Đức 2, Singapore 2.</p></div></div></section>';
+h+='<section class="thu"><div class="w"><h2>Một lá thư, mở vào năm 2028</h2><p class="dan">Viết cho chính mình hai năm sau. Thư được niêm phong, không ai đọc được, kể cả Ban liên lạc, cho tới đêm cả khoá cùng mở.</p>'+
+ '<div class="phong"><span class="dau-sap"><b class="foil">25</b></span></div><div class="dem-thu"><b>127</b> lá thư đang chờ</div><a class="nut">Viết thư</a></div></section>';
+h+='<section class="sec"><div class="w giua"><h2>Những việc cần người</h2><p class="dan">Không cần góp tiền. Chọn một việc vừa sức, Ban liên lạc sẽ nhắn khi tới lúc.</p></div><div class="w"><div class="td">';
+VIEC.forEach(function(v){h+='<div class="mon"><h3>'+v[0]+'</h3><p>'+v[1]+'</p><div class="ai'+(v[2]?'':' trong')+'">'+(v[2]?v[2]+' người đã nhận':'Chưa có ai')+'<br><a>'+(v[2]?'Nhận cùng':'Mình nhận')+'</a></div></div>'});
 h+='</div></div></section>';
-// bản đồ
-h+='<section class="sec tr"><div class="w bd"><div class="map">'+banDo()+'</div><div><span class="ey" style="color:var(--bien)">02 · Bạn bè đang ở đâu</span><h2 style="font-size:clamp(32px,3.6vw,46px);color:var(--muc);line-height:1.08;margin:8px 0 6px">Một khoá, <i style="color:var(--bien);font-weight:500">khắp nơi</i></h2><p style="color:var(--phu)">Bấm vào chấm để xem ai đang ở đó. Đến 2028, ai ở xa nhất sẽ được đón tận nơi.</p>'+
- '<div class="top3"><div><i>1</i><span><b>Đà Nẵng</b><small>"Người giữ nhà" của khoá</small></span><em>186</em></div><div><i style="background:var(--hong)">2</i><span><b>TP. Hồ Chí Minh</b><small>Hội phương Nam</small></span><em>58</em></div><div><i style="background:var(--nang)">3</i><span><b>Hà Nội</b><small>Hội phía Bắc</small></span><em>14</em></div></div>'+
- '<div class="nn"><span>🇦🇺 Úc<b>5</b></span><span>🇺🇸 Mỹ<b>4</b></span><span>🇯🇵 Nhật<b>3</b></span><span>🇩🇪 Đức<b>2</b></span><span>🇸🇬 Singapore<b>2</b></span></div></div></div></section>';
-// góp tay
-h+='<section class="sec"><div class="w"><div class="tt"><div><span class="ey">03 · Góp tay cho 2028</span><h2>9 việc <i>cần người</i></h2></div><p>Không cần tiền – cần người. Nhận một việc vừa sức, Ban liên lạc sẽ nhắn bạn khi tới lúc.</p></div><div class="gt">';
-VIEC.forEach(function(v,i){h+='<div class="viec'+(v[3]?'':' can')+'"><span class="so">0'+(i+1)+'</span><div class="ic">'+v[0]+'</div><h3>'+v[1]+'</h3><p>'+v[2]+'</p><div class="ft">'+(v[3]?av(v[3]):'<small style="color:var(--hong);font-weight:700">Chưa ai nhận</small>')+'<span class="nhan">'+(v[3]?'+ Nhận cùng':'Mình nhận')+'</span></div></div>'});
-h+='</div></div></section>';
-// thư
-h+='<section class="sec" style="padding-top:0"><div class="w"><div class="thu"><div><span class="ey">04 · Thư gửi 2028</span><h2>Viết cho <i>mình của 2 năm sau</i></h2><p>Niêm phong ngay hôm nay. Không ai đọc được – kể cả Ban liên lạc – cho đến đêm 25 năm, khi cả khoá cùng mở.</p><a class="b c">✉️ Viết thư niêm phong</a></div><div class="bao"><div class="p p1"></div><div class="p p2"></div><div class="p p3"></div><div class="dem2"><b>127</b><span>lá thư đang chờ mở</span></div></div></div></div></section>';
-// bình chọn + bll
-h+='<section class="sec tr"><div class="w hai"><div class="the bc"><span class="ey" style="color:var(--bien)">05 · Bình chọn tháng này</span><h3 style="margin-top:8px">Ngày nào hợp nhất?</h3>'+
- [['Sáng thứ Bảy 12/8/2028',46,1],['Chủ nhật 13/8/2028',31],['Thứ Bảy 19/8/2028',23]].map(function(x){return '<div class="lc'+(x[2]?' top':'')+'"><i style="width:'+x[1]+'%"></i><span>'+x[0]+'</span><b>'+x[1]+'%</b></div>'}).join('')+'<small style="color:var(--phu)">213 phiếu · đóng 30/11</small></div>'+
- '<div class="the bll"><span class="ey" style="color:var(--bien)">06 · Ban liên lạc</span><h3 style="font-size:24px;color:var(--muc);margin:8px 0 6px">Cần gì, nhắn ngay</h3>'+
- [['H','Lê Trung Hiếu','Trưởng ban'],['T','Hoàng Diệu Thúy','Thư ký'],['M','Nguyễn Thị Tuyết Mai','Liên lạc các lớp']].map(function(n){return '<div class="ng"><span class="a">'+n[0]+'</span><span><b>'+n[1]+'</b><small>'+n[2]+'</small></span><span class="g"><span>Gọi</span><span>Zalo</span></span></div>'}).join('')+'</div></div></section>';
-// bảng tin
-h+='<section class="sec"><div class="w"><div class="tt"><div><span class="ey">07 · Bảng tin</span><h2>Tin <i>mới nhất</i></h2></div></div><div class="tin">'+
- '<div><small>18/11/2026</small><b>Ảnh Gala đã lên đủ 12 lớp</b><p>Hơn 900 tấm – xem ở trang Hoạt động.</p></div><div><small>01/12/2026</small><b>Mở bình chọn ngày hẹn 2028</b><p>3 phương án, bỏ phiếu tới 30/11.</p></div><div><small>Đang tìm</small><b>Lớp 12/6 nhờ tìm 9 bạn</b><p>Bạn nào biết tin, bấm "Tôi biết bạn này".</p></div></div></div></section>';
-h+='<section class="ket"><h2>Hẹn gặp lại <i>dưới cột cờ</i></h2><p>Sáng tháng 8 năm 2028 · Sân trường Nguyễn Hiền</p></section>';
+h+='<section class="sec" style="background:var(--ngoc)"><div class="w hai" style="grid-template-columns:1fr 1fr"><div class="bc"><h2 style="font-size:clamp(34px,3.4vw,48px)">Chọn ngày hẹn</h2><p class="dan">Ngày nào bạn về được?</p><div style="margin-top:28px;border-top:1px solid var(--muc)">'+
+ [['Thứ Hai 14/8/2028, buổi chào cờ',46,1],['Chủ nhật 13/8/2028',31],['Thứ Bảy 19/8/2028',23]].map(function(x){return '<div class="lc'+(x[2]?' dt':'')+'"><div><span>'+x[0]+'</span><b>'+x[1]+'%</b></div><i style="width:'+x[1]+'%"></i></div>'}).join('')+'</div><p class="nho">213 người đã chọn. Bình chọn đóng ngày 30/11.</p></div>'+
+ '<div><h2 style="font-size:clamp(34px,3.4vw,48px)">Ban liên lạc</h2><p class="dan">Cần hỏi gì, gọi hoặc nhắn Zalo.</p><div style="margin-top:28px;border-top:1px solid var(--muc)">'+
+ [['H','Lê Trung Hiếu','Trưởng ban'],['T','Hoàng Diệu Thúy','Thư ký'],['M','Nguyễn Thị Tuyết Mai','Liên lạc các lớp']].map(function(n){return '<div class="ng"><span class="a">'+n[0]+'</span><span><b>'+n[1]+'</b><small>'+n[2]+'</small></span><span class="g"><a>Gọi</a><a>Zalo</a></span></div>'}).join('')+'</div></div></div></section>';
+h+='<section class="sec"><div class="w"><h2>Tin mới</h2><div class="tin"><div><small>18 tháng 11, 2026</small><h3>Ảnh Gala đã đủ 12 lớp</h3><p>Hơn 900 tấm, xem ở trang Hoạt động.</p></div><div><small>1 tháng 12, 2026</small><h3>Bắt đầu chọn ngày hẹn 2028</h3><p>Ba phương án, mỗi người một phiếu.</p></div><div><small>Đang tìm</small><h3>Lớp 12/6 nhờ tìm 9 bạn</h3><p>Bạn nào biết tin, bấm “Tôi biết bạn này”.</p></div></div></div></section>';
+h+='<section class="cuoi"><div class="w"><h2 class="foil">Hẹn gặp lại dưới cột cờ.</h2><p>Sân trường Nguyễn Hiền, tháng Tám năm 2028</p></div></section>';
 return h;}
-function bang(){var h='<div class="w pal"><span class="ey" style="color:var(--bien)">Bảng màu Kết nối 2028</span><h2 style="font-family:Fraunces;font-size:52px;color:var(--muc);line-height:1.05;margin:10px 0 8px">“Bạc 25 · <i style="color:var(--bien);font-weight:500">Biển tháng 8</i>”</h2><p style="color:var(--phu);max-width:760px;font-size:18px">25 năm là <b>kỷ niệm bạc</b>. Đà Nẵng tháng 8 là <b>biển xanh và nắng vàng</b>. Bảng màu bỏ hẳn đỏ phượng – kem giấy của mùa Gala 2026, chuyển sang xanh biển đêm, ngọc lam, bạc và hai điểm nóng là san hô + nắng.</p><div class="o3" style="margin-top:30px">';
-[['#13294B','Mực biển đêm','Chữ tiêu đề, nền hero, khối thư','#fff'],['#0E8C8C','Ngọc lam','Màu chính: nút phụ, thanh tiến độ, nhãn','#fff'],['#3CC4B5','Sóng sáng','Điểm nhấn trên nền tối, gradient','#13294B'],['#B7C1CD','Bạc 25','Vòng lớp, chữ số "25", viền thẻ','#13294B'],['#FF6F61','San hô bình minh','CHỈ nút hành động chính (Mình sẽ về, Viết thư)','#fff'],['#FFB547','Nắng tháng 8','Huy chương, đếm ngược, nhãn "mới"','#13294B'],['#F7F6F2','Cát trắng','Nền trang','#13294B'],['#FFFFFF','Trắng','Nền thẻ, xen kẽ phần','#13294B']].forEach(function(m){h+='<div class="mau"><div class="c" style="background:'+m[0]+';color:'+m[3]+(m[0]=='#FFFFFF'||m[0]=='#F7F6F2'?';box-shadow:inset 0 -1px 0 #E6EAF0':'')+'">'+m[0]+'</div><div class="x"><b>'+m[1]+'</b><small>'+m[2]+'</small></div></div>'});
-h+='</div><div class="so2"><div class="k" style="background:linear-gradient(135deg,#B83A2E,#E2574A 60%,#F6E7D3)"><h3>2026 · Ngày trở về</h3><p>Đỏ phượng · kem giấy · màu nước – hoài niệm, ấm, lễ hội</p></div><div class="k" style="background:linear-gradient(135deg,#13294B,#0E8C8C 60%,#B7C1CD)"><h3>2028 · Bạc 25</h3><p>Biển đêm · ngọc lam · bạc – trưởng thành, rộng mở, hướng tới</p></div></div>'+
- '<div class="chu"><div><small style="color:var(--phu);font-weight:700;letter-spacing:.1em">TIÊU ĐỀ · FRAUNCES</small><div style="font-family:Fraunces;font-size:46px;color:var(--muc);line-height:1.1;margin-top:8px">Hẹn nhau <i style="color:var(--bien);font-weight:500">tháng 8</i></div><p style="color:var(--phu);margin-top:8px">Serif hiện đại, nghiêng mềm – thay Great Vibes thư pháp của 2026.</p></div><div><small style="color:var(--phu);font-weight:700;letter-spacing:.1em">CHỮ THƯỜNG · BE VIETNAM PRO</small><div style="font-size:22px;font-weight:600;color:var(--muc);margin-top:8px">Mình sẽ về · Góp tay · Tìm bạn</div><p style="color:var(--phu);margin-top:8px">Giữ phông chữ thân thiện quen thuộc, nét gọn, đọc tốt trên điện thoại.</p><div style="display:flex;gap:10px;margin-top:14px"><a class="b c">✋ Mình sẽ về</a><a class="b d">Tìm bạn</a><a class="b v">Góp tay</a></div></div></div></div>';
-return h;}
+function bang(){var h='<section class="pal"><div class="w"><h2 style="max-width:760px">Bạc hai mươi lăm</h2><p class="dan" style="max-width:720px">Hai mươi lăm năm là kỷ niệm bạc. Bảng màu lấy từ một chiếc đồng hồ bạc mặt xanh đêm: nền tối sâu, ánh kim loại lạnh, giấy ngà. Không còn đỏ phượng, không màu rực, không biểu tượng cảm xúc.</p><div class="mau">';
+[['#0E1828','Đêm','Nền đầu trang, khối thư, cuối trang','#E6EAF0'],['#1B2740','Mực','Tiêu đề, đường kẻ, nút trên nền sáng','#E6EAF0'],['linear-gradient(120deg,#8E97A5,#F4F6F8 35%,#A9B1BD 60%,#E9ECF0)','Bạc','Chữ lớn ánh kim, mặt đồng hồ, nút trên nền tối','#1B2740'],['#8D96A4','Bạc xám','Chữ phụ trên nền tối, vạch','#fff'],['#F1EFEA','Ngà','Phần xen kẽ','#1B2740'],['#FAF9F6','Giấy','Nền trang','#1B2740']].forEach(function(m){h+='<div style="background:'+m[0]+';color:'+m[3]+'"><b>'+m[1]+'</b>'+(m[0][0]=='#'?m[0]+'<br>':'')+m[2]+'</div>'});
+h+='</div><div class="chu2"><div><div class="cg" style="font-size:64px;font-weight:300;color:var(--muc);line-height:1">Cormorant Garamond</div><p class="dan">Tiêu đề, con số, tên người. Nét mảnh, kiểu chữ khắc trên mặt đồng hồ và thiệp mời dạ tiệc. Thay chữ thư pháp Great Vibes của mùa 2026.</p></div><div><div style="font-size:30px;font-weight:300;color:var(--muc);line-height:1.3;margin-top:10px">Be Vietnam Pro, nét mảnh</div><p class="dan">Chữ thường, nút, chú thích. Giữ phông quen thuộc của web nhưng dùng nét 300 cho nhẹ. Nút chữ thường, không viết hoa, không biểu tượng.</p><div style="display:flex;gap:16px;margin-top:22px;flex-wrap:wrap"><a class="nut toi">Mình sẽ về</a><a class="lk" style="color:var(--muc);border-color:var(--muc);align-self:center">Tìm một người bạn</a></div></div></div></div></section>';return h;}
 document.getElementById('app').innerHTML=M=='bang'?bang():pc();
 </script></body></html>
