@@ -86,7 +86,8 @@ a{color:inherit;text-decoration:none}
 .lam{margin-top:18px;background:#FFF;border:2px solid #C9A24A;border-radius:16px;padding:14px 16px;position:relative}
 .lam b{display:block;font:800 13px 'Be Vietnam Pro';letter-spacing:.14em;color:#A3221A;margin-bottom:6px}
 .lam li{font:500 14.5px/1.5 'Be Vietnam Pro';margin-left:18px}
-.phan{padding:0;background:#14325C}.phan img{position:absolute;left:50%;top:0;height:862px;width:auto;transform:translateX(-50%)}.phan .cham{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);margin:0;white-space:nowrap;border:3px solid #F6D86B}
+.phan{padding:0;background:#14325C}.phan img{position:absolute;left:50%;top:0;height:862px;width:auto;transform:translateX(-50%)}.tr#co img{width:540px;height:auto;top:96px}
+.phan .cham{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);margin:0;white-space:nowrap;border:3px solid #F6D86B}
 .ket{text-align:center;margin-top:16px;font-size:30px;position:relative}
 </style></head><body><div id="goc"></div>
 <script>
@@ -138,7 +139,8 @@ h+=trang('bia','bia',`<img class="logo" src="${LOGO}"><div class="ey">TRƯỜNG 
 <a class="cham" href="#phan">👆 Chạm để bắt đầu<small>có 9 hộp quà bí mật bên trong</small></a>
 <div class="nho">Bản ý tưởng của Ban liên lạc · mời cả khoá góp ý</div>`);
 /* 1b. Thầy bói chọn ngày */
-h+=`<section class="tr phan" id="phan"><img src="thay-boi/thay-boi-chon-ngay-thang-8-2028.jpg" alt=""><a class="cham" href="#luat">🎁 Tháng đã chốt – mở hộp quà</a></section>`;
+h+=`<section class="tr phan" id="phan"><img src="thay-boi/thay-boi-chon-ngay-thang-8-2028.jpg" alt=""><a class="cham" href="#co">👉 Cô bói nói gì nữa?</a></section>`;
+h+=`<section class="tr phan" id="co"><img src="co-boi/co-boi-thang-8-2028.jpg" alt=""><a class="cham" href="#luat">🎁 Tháng đã chốt – mở hộp quà</a></section>`;
 /* 2. Luật chơi */
 h+=trang('luat','luat',`<div class="to">🎁</div><h2 class="gv">Luật chơi</h2>
 <p>Trang sau có <b>9 hộp quà</b>. Mỗi hộp là <b>một điều chưa từng có</b> ở Gala 2026.</p><p style="margin-top:14px"><b>Đừng cuộn!</b> Hãy <b>chạm vào từng hộp</b> để mở – mở xong bấm “Về hộp quà” để chọn hộp khác.</p>
@@ -163,7 +165,7 @@ ${L.map(x=>x[0]==='s'||x[0]==='t'?`<div class="buoi ${x[0]==='t'?'t':''}">${x[1]
 const S=[['Gặp ở nhà hàng','Sáng về trường, tối đêm kỷ niệm'],['Viết lưu bút tại chỗ','Mở thư đã viết từ 2 năm trước'],['Tặng hoa, tặng quỹ','Để lại một cây phượng'],['Chụp ảnh mới','Chụp lại đúng ảnh xưa'],['Chỉ thầy cô và bạn bè','Có thêm con cái và học sinh hiện tại'],['Ngồi theo lớp','Bốc thăm ghế, quen bạn lớp khác'],['Văn nghệ tập dượt','Karaoke hit 2000 – 2003 + EDM'],['Chiếu ảnh, clip rời','Công chiếu phim tài liệu của khoá']];
 h+=trang('ss','ss',`<div class="ey">VÌ SAO LẦN NÀY KHÁC</div><h2 class="gv">2026 → 2028</h2>
 <table><tr><th>GALA 2026</th><th>KỶ NIỆM 25 NĂM</th></tr>${S.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
-<div class="lam"><b>VIỆC LÀM NGAY TỪ BÂY GIỜ</b><ul><li>Viết “Thư gửi 2028” trên kỷ yếu online</li><li>Mỗi lớp gom ảnh xưa + kỷ vật thời đi học</li><li>Gửi clip, lời kể để làm phim</li><li>Góp ý: bạn thích hộp quà số mấy nhất?</li></ul></div>
+<div class="lam"><b>VIỆC LÀM NGAY TỪ BÂY GIỜ</b><ul><li><b style="display:inline;letter-spacing:0;font-size:14.5px">Góp từ bây giờ: mỗi ngày 1.000đ/người</b> – tới tháng 8/2028 ≈ 630.000đ</li><li>Viết “Thư gửi 2028” trên kỷ yếu online</li><li>Mỗi lớp gom ảnh xưa + kỷ vật thời đi học</li><li>Gửi clip, lời kể để làm phim</li><li>Góp ý: bạn thích hộp quà số mấy nhất?</li></ul></div>
 <div class="ket gv">Hẹn gặp lại dưới gốc phượng · tháng 8/2028</div>
 <div class="dieu"><div class="chan"><a href="#hop">🎁 Về hộp quà</a><a class="tiep" href="#bia">↺ Về trang đầu</a></div></div>`);
 document.getElementById('goc').outerHTML=h;
