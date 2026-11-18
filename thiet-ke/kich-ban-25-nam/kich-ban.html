@@ -86,6 +86,7 @@ a{color:inherit;text-decoration:none}
 .lam{margin-top:18px;background:#FFF;border:2px solid #C9A24A;border-radius:16px;padding:14px 16px;position:relative}
 .lam b{display:block;font:800 13px 'Be Vietnam Pro';letter-spacing:.14em;color:#A3221A;margin-bottom:6px}
 .lam li{font:500 14.5px/1.5 'Be Vietnam Pro';margin-left:18px}
+.phan{padding:0;background:#14325C}.phan img{position:absolute;left:50%;top:0;height:862px;width:auto;transform:translateX(-50%)}.phan .cham{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);margin:0;white-space:nowrap;border:3px solid #F6D86B}
 .ket{text-align:center;margin-top:16px;font-size:30px;position:relative}
 </style></head><body><div id="goc"></div>
 <script>
@@ -132,10 +133,12 @@ const D=[
 let h='';
 /* 1. Bìa */
 h+=trang('bia','bia',`<img class="logo" src="${LOGO}"><div class="ey">TRƯỜNG THPT NGUYỄN HIỀN · ĐÀ NẴNG</div>
-<h1 class="gv">Kịch bản kỷ niệm</h1><div class="s25">25<small>NĂM NGÀY RA TRƯỜNG</small></div><div class="nam">Niên khoá 2000 – 2003 · Hẹn nhau năm 2028</div>
+<h1 class="gv">Kịch bản kỷ niệm</h1><div class="s25">25<small>NĂM NGÀY RA TRƯỜNG</small></div><div class="nam">Niên khoá 2000 – 2003 · Thứ Sáu 18.8.2028</div>
 <div class="cau ch">Gala 2026 mình đã trở về.<br>Lần tới… sẽ khác lắm đấy!</div>
-<a class="cham" href="#luat">👆 Chạm để bắt đầu<small>có 9 hộp quà bí mật bên trong</small></a>
+<a class="cham" href="#phan">👆 Chạm để bắt đầu<small>có 9 hộp quà bí mật bên trong</small></a>
 <div class="nho">Bản ý tưởng của Ban liên lạc · mời cả khoá góp ý</div>`);
+/* 1b. Thầy bói chọn ngày */
+h+=`<section class="tr phan" id="phan"><img src="thay-boi/thay-boi-chon-ngay-18-8-2028.jpg" alt=""><a class="cham" href="#luat">🎁 Ngày đã chốt – mở hộp quà</a></section>`;
 /* 2. Luật chơi */
 h+=trang('luat','luat',`<div class="to">🎁</div><h2 class="gv">Luật chơi</h2>
 <p>Trang sau có <b>9 hộp quà</b>. Mỗi hộp là <b>một điều chưa từng có</b> ở Gala 2026.</p><p style="margin-top:14px"><b>Đừng cuộn!</b> Hãy <b>chạm vào từng hộp</b> để mở – mở xong bấm “Về hộp quà” để chọn hộp khác.</p>
@@ -153,7 +156,7 @@ D.forEach((d,i)=>{h+=trang('d'+(i+1),'dieu',`<div class="dau"><span class="the">
 <div class="chan"><a href="#hop">🎁 Về hộp quà</a><a class="tiep" href="${i<8?'#d'+(i+2):'#lich'}">${i<8?'Mở hộp '+(i+2)+' →':'Xem cả ngày →'}</a></div>`)});
 /* 5. Lịch một ngày */
 const L=[['s','BUỔI SÁNG · TẠI TRƯỜNG'],['07:30','Trống trường – tập trung dưới cột cờ','Nhận “thẻ học sinh 2028” có ảnh ngày ấy'],['08:00','Chào cờ · điểm danh','Hộp 2'],['08:20','Tiết sinh hoạt lớp ở phòng học cũ','Thầy cô chủ nhiệm · ngồi đúng chỗ cũ'],['09:00','Trồng cây phượng 25 năm','Hộp 3'],['09:30','Chụp lại “Ngày ấy – Bây giờ”','Hộp 4 · các bé đi “tìm lớp của bố mẹ” (hộp 5)'],['10:30','Trao học bổng khuyến học','Học sinh Nguyễn Hiền hiện tại cùng dự'],['t','BUỔI TỐI · ĐÊM KỶ NIỆM'],['17:00','Đón khách · triển lãm kỷ vật 12 lớp','Bốc thăm ghế bí mật (hộp 6, 8)'],['18:00','Công chiếu phim “Một thời để nhớ”','Hộp 7'],['18:30','Mở “Thư gửi 2028”','Hộp 1'],['19:00','Tiệc · bàn bốc thăm → về bàn lớp',''],['19:45','Đêm “Hát lại tuổi 18” + quẩy EDM','Hộp 9'],['21:00','Niêm phong hộp thời gian – hẹn 2033','Chụp ảnh toàn khoá']];
-h+=trang('lich','lich',`<div class="ey">KỊCH BẢN TRỌN MỘT NGÀY</div><h2 class="gv">Ngày trở về 2028</h2><div class="goi">Thời gian dự kiến · BTC chốt ngày cụ thể sau</div>
+h+=trang('lich','lich',`<div class="ey">KỊCH BẢN TRỌN MỘT NGÀY</div><h2 class="gv">Ngày trở về 2028</h2><div class="goi">Thứ Sáu 18.8.2028 · nghỉ hè, trường vắng · giờ dự kiến</div>
 ${L.map(x=>x[0]==='s'||x[0]==='t'?`<div class="buoi ${x[0]==='t'?'t':''}">${x[1]}</div>`:`<div class="dong"><span class="g">${x[0]}</span><span class="n">${x[1]}${x[2]?`<small>${x[2]}</small>`:''}</span></div>`).join('')}
 <div class="dieu"><div class="chan"><a href="#hop">🎁 Về hộp quà</a><a class="tiep" href="#ss">So với 2026 →</a></div></div>`);
 /* 6. So sánh + việc làm ngay */
@@ -161,7 +164,7 @@ const S=[['Gặp ở nhà hàng','Sáng về trường, tối đêm kỷ niệm'
 h+=trang('ss','ss',`<div class="ey">VÌ SAO LẦN NÀY KHÁC</div><h2 class="gv">2026 → 2028</h2>
 <table><tr><th>GALA 2026</th><th>KỶ NIỆM 25 NĂM</th></tr>${S.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
 <div class="lam"><b>VIỆC LÀM NGAY TỪ BÂY GIỜ</b><ul><li>Viết “Thư gửi 2028” trên kỷ yếu online</li><li>Mỗi lớp gom ảnh xưa + kỷ vật thời đi học</li><li>Gửi clip, lời kể để làm phim</li><li>Góp ý: bạn thích hộp quà số mấy nhất?</li></ul></div>
-<div class="ket gv">Hẹn gặp lại dưới gốc phượng 2028</div>
+<div class="ket gv">Hẹn gặp lại dưới gốc phượng 18.8.2028</div>
 <div class="dieu"><div class="chan"><a href="#hop">🎁 Về hộp quà</a><a class="tiep" href="#bia">↺ Về trang đầu</a></div></div>`);
 document.getElementById('goc').outerHTML=h;
 </script></body></html>

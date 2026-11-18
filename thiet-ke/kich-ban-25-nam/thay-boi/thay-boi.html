@@ -1,0 +1,41 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Thầy bói chọn ngày</title>
+<!-- Ảnh vui "Thầy bói xem ngày" họp 25 năm: goc.webp (921×2000) + kính thầy bói, biển phán ngày 18.8.2028. node render.js -->
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@700;800;900&family=Charm:wght@700&family=Great+Vibes&family=Playfair+Display:wght@800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;box-sizing:border-box}
+body{width:921px;height:1880px;overflow:hidden;position:relative;font-family:'Be Vietnam Pro',sans-serif}
+.anh{position:absolute;left:0;top:-110px;width:921px;height:2000px;background:url(goc.webp) 0 0/921px 2000px}
+/* kính thầy bói: 2 tròng đen viền vàng + cầu kính */
+.kinh{position:absolute;left:318px;top:533px;width:270px;height:96px}
+.kinh i{position:absolute;top:0;width:118px;height:96px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a4a52 0,#111 55%,#000 100%);border:7px solid #C9A24A;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+.kinh i::after{content:'';position:absolute;left:18px;top:12px;width:30px;height:16px;border-radius:50%;background:rgba(255,255,255,.35);transform:rotate(-20deg)}
+.kinh .t{left:0}.kinh .p{right:0}
+.kinh b{position:absolute;left:112px;top:30px;width:46px;height:10px;border-top:7px solid #C9A24A;border-radius:50% 50% 0 0}
+.kinh s{position:absolute;top:30px;width:60px;border-top:6px solid #C9A24A}.kinh .s1{left:-52px;transform:rotate(-8deg)}.kinh .s2{right:-52px;transform:rotate(8deg)}
+/* tiêu đề */
+.dau{position:absolute;left:0;right:0;top:0;padding:34px 30px 30px;text-align:center;background:linear-gradient(180deg,rgba(90,10,10,.92),rgba(140,20,20,.75) 70%,transparent)}
+.dau small{display:block;font:800 26px 'Be Vietnam Pro';letter-spacing:.2em;color:#F6D86B}
+.dau h1{font:400 112px/1.05 'Great Vibes',cursive;color:#fff;text-shadow:0 4px 12px rgba(0,0,0,.5)}
+/* bong bóng lời phán */
+.boi{position:absolute;left:520px;top:300px;width:380px;background:#FFF8E6;border:5px solid #C9A24A;border-radius:28px;padding:18px 20px;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.35);transform:rotate(3deg)}
+.boi::after{content:'';position:absolute;left:30px;bottom:-34px;border:18px solid transparent;border-top:24px solid #C9A24A;transform:rotate(20deg)}
+.boi p{font:700 30px/1.3 'Charm',cursive;color:#7A1A12}
+/* biển phán ngày (che biển cũ) */
+.bien{position:absolute;left:-12px;top:1170px;width:440px;padding:46px 18px 92px;background:linear-gradient(160deg,#C8102E,#8E0F1F);border:6px solid #F6D86B;border-radius:26px;text-align:center;color:#fff;box-shadow:0 14px 30px rgba(0,0,0,.4);transform:rotate(-6deg)}
+.bien small{display:block;font:800 22px 'Be Vietnam Pro';letter-spacing:.14em;color:#F6D86B}
+.bien b{display:block;font:800 92px/1 'Playfair Display',serif;font-variant-numeric:lining-nums;margin:8px 0 4px;letter-spacing:-.01em}
+.bien em{font:700 30px 'Charm',cursive;font-style:normal}
+.que{position:absolute;left:92px;top:1480px;width:40px;height:330px;border-radius:8px;background:linear-gradient(90deg,#D9B26A,#B88A3A);transform:rotate(-6deg);box-shadow:0 6px 14px rgba(0,0,0,.3)}
+/* chân */
+.chan{position:absolute;left:0;right:0;bottom:0;padding:70px 30px 34px;text-align:center;background:linear-gradient(0deg,rgba(20,50,92,.95),rgba(20,50,92,.7) 65%,transparent)}
+.chan b{display:block;font:800 40px 'Be Vietnam Pro';color:#fff}
+.chan span{font:700 26px 'Be Vietnam Pro';color:#F6D86B;letter-spacing:.06em}
+</style></head><body>
+<div class="anh"></div>
+<div class="kinh"><s class="s1"></s><i class="t"></i><b></b><i class="p"></i><s class="s2"></s></div>
+<div class="dau"><small>NGUYỄN HIỀN 2000 – 2003 · XEM NGÀY</small><h1>Thầy đã phán!</h1></div>
+<div class="boi"><p>“Ngày đẹp nhất để họp 25 năm là… Thứ Sáu 18.8.2028. Đại cát, đại lợi, vợ cho đi!”</p></div>
+<div class="que"></div>
+<div class="bien"><small>QUẺ ĐẠI CÁT</small><b>18.8.2028</b><em>Ai vắng – thầy bói biết hết!</em></div>
+<div class="chan"><b>Kỷ niệm 25 năm ngày ra trường</b><span>Thứ Sáu · 18.8.2028 · Hẹn nhau ở sân trường Nguyễn Hiền</span></div>
+</body></html>
