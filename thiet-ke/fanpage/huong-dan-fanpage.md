@@ -1,10 +1,10 @@
-# Fanpage "Cựu học sinh · THPT Nguyễn Hiền · Đà Nẵng · Niên khoá 2000 – 2003"
+# Fanpage "Cựu học sinh · THPT Nguyễn Hiền · Đà Nẵng · Niên khoá 2000 - 2003"
 
 ## 1. Thông tin tạo trang
 
 | Mục | Điền |
 |---|---|
-| **Tên trang** | Cựu học sinh · THPT Nguyễn Hiền · Đà Nẵng · Niên khoá 2000 – 2003 (Facebook không nhận tên viết HOA toàn bộ; nếu không nhận dấu "·" thì thay bằng "-": Cựu học sinh THPT Nguyễn Hiền Đà Nẵng - Niên khoá 2000 - 2003) |
+| **Tên trang** | Cựu học sinh · THPT Nguyễn Hiền · Đà Nẵng · Niên khoá 2000 - 2003 (gạch nối thường "-"; Facebook không nhận gạch dài "–" và tên viết HOA toàn bộ) |
 | **Tên người dùng (@)** | `cuuhsnguyenhien0003` → facebook.com/cuuhsnguyenhien0003 (nếu đã có người dùng: `cuuhs.nguyenhien0003`, `cuuhsnguyenhien.dn`) |
 | **Hạng mục** | Cộng đồng · Tổ chức cựu học sinh (Alumni) |
 | **Ảnh đại diện** | `anh-dai-dien.png` (1080×1080, Facebook tự cắt tròn) |
