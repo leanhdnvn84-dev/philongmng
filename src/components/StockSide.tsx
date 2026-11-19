@@ -20,7 +20,7 @@ export default function StockSide({ params, version, pf, setPf, search, setSearc
     getJson(`/api/vat_tu?${params}&pageSize=2000`).then((d) => { if (alive) setShown(d) }).catch(() => {})
     return () => { alive = false }
   }, [params, version])
-  const uniq = (k: string) => Array.from(new Set(all.map((r) => String(r[k] ?? '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'vi'))
+  const uniq = (k: string) => Array.from(new Set(all.map((r) => String(r[k] ?? '').normalize('NFC').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'vi'))
   const nhom = useMemo(() => uniq('nhom'), [all]) // eslint-disable-line react-hooks/exhaustive-deps
   const dvt = useMemo(() => uniq('dvt'), [all]) // eslint-disable-line react-hooks/exhaustive-deps
   const sum = (k: string) => shown.reduce((s, r) => s + (Number(r[k]) || 0), 0)

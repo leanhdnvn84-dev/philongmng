@@ -30,7 +30,7 @@ export function sanitize(res: Resource, body: any, creating: boolean) {
     }
     let v = body[f.name]
     if (f.type === 'bool') { out[f.name] = v === true || v === 'true' || v === 'on' || v === 1 || v === '1'; continue }
-    if (typeof v === 'string') v = v.trim()
+    if (typeof v === 'string') v = v.normalize('NFC').trim() // one spelling for Vietnamese text typed on different keyboards
     if (v === '' || v === undefined) v = null
     if (v === null) { if (f.required) errors.push(`${f.label} là bắt buộc`); else out[f.name] = null; continue }
     if (f.type === 'number' || f.type === 'money') {
