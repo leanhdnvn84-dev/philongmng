@@ -126,6 +126,28 @@ a{color:inherit;text-decoration:none}
  .ng{flex-wrap:wrap}.ng .g{margin-left:68px}
  .pal .mau{grid-template-columns:1fr 1fr}
 }
+
+.hero2{position:relative;min-height:min(820px,100vh);overflow:hidden;background:#F7EFE2}
+.hero2 .anh{position:absolute;inset:0;background:url(san-truong.jpg) left bottom/cover no-repeat}
+.hero2 .anh:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(247,239,226,0) 30%,rgba(247,239,226,.55) 52%,rgba(247,239,226,.92) 66%),linear-gradient(0deg,var(--dat) 0,rgba(243,250,238,0) 16%)}
+.hero2 .w{position:relative;z-index:2;min-height:min(820px,100vh);display:flex;justify-content:flex-end;align-items:center;padding-top:80px}
+.chu2{width:min(520px,46%)}
+.hero2 h1{font-size:clamp(50px,6vw,88px);line-height:1;font-weight:800;color:#17462E;margin:16px 0 14px}
+.hero2 h1 span{color:var(--la)}
+.hero2 p{font-size:18px;color:#3A4F44}
+.pol{position:absolute;background:#fff;padding:10px 10px 34px;box-shadow:0 18px 30px -12px rgba(40,50,30,.45);z-index:3}
+.pol img{display:block;width:100%;aspect-ratio:1.4;object-fit:cover}
+.pol span{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-family:'Baloo 2';font-weight:600;color:#3A4F44;font-size:15px}
+.p1{width:220px;left:14%;bottom:110px;transform:rotate(-6deg)}
+.p2{width:190px;left:30%;bottom:50px;transform:rotate(5deg)}
+.dau .ten{background:rgba(255,255,255,.88);padding:4px 14px;border-radius:99px}
+@media(max-width:1100px){.pol{display:none}}
+@media(max-width:820px){
+ .hero2 .anh{height:340px;bottom:auto;background-position:30% 100%}
+ .hero2 .anh:after{background:linear-gradient(0deg,#F7EFE2 0,rgba(247,239,226,0) 40%)}
+ .hero2 .w{display:block;padding-top:300px;padding-bottom:40px;min-height:0}
+ .chu2{width:auto}.hero2 h1{font-size:52px}
+}
 </style></head><body><div id="app"></div>
 <script>
 var M=new URLSearchParams(location.search).get('m')||'pc';
@@ -169,11 +191,11 @@ function banDo(){
 var VIEC=[['📷','Gom ảnh thời đi học','Quét ảnh cũ, gửi về kho ảnh chung.','4 bạn đã nhận','#FFE7C7'],['🎬','Làm phim 25 năm','Dựng phim ngắn “Ngày ấy – Bây giờ”.','2 bạn đã nhận','#E5DBFA'],['🏫','Xin buổi chào cờ','Làm việc với trường cho sáng thứ Hai.','1 bạn đã nhận','#D9F0FB'],['🌳','Trồng cây cho khoá','Chọn chỗ, chọn cây, gắn biển tên khoá.','Chưa ai nhận','#DFF3D6'],['🔎','Tìm bạn còn thiếu','Mỗi lớp nhận tìm 3 bạn chưa liên lạc.','5 bạn đã nhận','#FFE0E6'],['📒','Sổ vàng viết tay','Mỗi người một trang, đóng thành cuốn.','Chưa ai nhận','#FFF3C2']];
 function pc(){var h='';
 h+='<header class="dau"><div class="w"><span class="ten">🌳 Nguyễn Hiền 2000–2003</span><nav><a>Trang chủ</a><a>Các lớp</a><a>Kỷ yếu</a><a>Hình ảnh</a><a>Hoạt động</a><a class="on">Kết nối</a></nav></div></header>';
-h+='<section class="hero"><span class="mt"></span><span class="may m1"></span><span class="may m2"></span><div class="w"><div class="chu-hero"><span class="nhan">Hẹn tháng 8 · 2028</span><h1>25 năm,<br><span>cây đã lớn.</span></h1>'+
- '<p><b>Về ngồi dưới tán cây nhé!</b> Mỗi chiếc lá là một bạn đã hẹn về. Cây của khoá mình đang xanh dần lên – còn thiếu lá của bạn đấy.</p>'+
+h+='<section class="hero2"><div class="anh"></div><div class="w"><div class="chu2"><span class="nhan">Hẹn tháng 8 · 2028</span><h1>25 năm,<br><span>cây đã lớn.</span></h1>'+
+ '<p><b>Về ngồi dưới tán cây nhé!</b> Hàng cây trồng năm mình ra trường giờ đã che kín sân. Tháng 8/2028, cả khoá hẹn nhau về chào cờ, ngồi lại chỗ cũ.</p>'+
  '<div class="nuts"><a class="n xanh">🍃 Mình sẽ về</a><a class="n vang">🔎 Tìm bạn</a><a class="n trang">🤝 Góp tay</a></div>'+
- '<div class="so3"><div><b>621</b>ngày nữa</div><div><b>418</b>chiếc lá</div><div><b>12</b>nhánh lớp</div></div></div>'+
- '<div class="cay">'+cayLon()+'</div></div><div class="doi">'+doi()+'</div></section>';
+ '<div class="so3"><div><b>621</b>ngày nữa</div><div><b>418</b>bạn đã hẹn</div><div><b>12</b>lớp</div></div></div>'+
+ '<div class="pol p1"><img src="anh-1.jpg"><span>Lớp mình, ngày ấy</span></div><div class="pol p2"><img src="anh-2.jpg"><span>Hẹn 2028 nhé!</span></div></div></section>';
 h+='<section class="sec"><div class="w"><div class="td"><span class="nhan">🌱 Vườn 12 lớp</span><h2>Lớp nào cây cao nhất?</h2><p>Mỗi bạn ghi tên, cây của lớp mình mọc thêm một đốt. Chưa cần chắc chắn – cứ hẹn trước đã.</p></div><div class="vuon">';
 LOP.forEach(function(l,i){h+=chau(l,i)});
 h+='</div><div class="dk"><div class="o">Họ và tên</div><div class="o">Lớp</div><div class="chip"><span class="on">✅ Chắc chắn</span><span>🤔 Có thể</span><span>✈️ Ở xa, sẽ cố</span></div><a class="n xanh">Ghi tên</a></div>'+
