@@ -10,17 +10,21 @@ const ROOT = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'tai-ve', 'NguyenHien-iframe.html'), 'utf8');
 /* Nền giấy mời (assets/giay-moi-nen.webp) không còn nhúng trong web app: Worker trả ở /giay-moi-nen.webp (CORS cho html2canvas, cache 30 ngày) */
 const gm = fs.readFileSync(path.join(ROOT, 'assets', 'giay-moi-nen.webp')).toString('base64');
+/* Tranh sân trường lá xanh (trang Kết nối – chương 8.2028), /san-truong-xanh.webp */
+const stx = fs.readFileSync(path.join(ROOT, 'assets', 'san-truong-xanh.webp')).toString('base64');
 fs.mkdirSync(path.join(ROOT, 'cloudflare'), { recursive: true });
 fs.writeFileSync(path.join(ROOT, 'cloudflare', 'index.html'), html);
 fs.writeFileSync(path.join(ROOT, 'cloudflare', 'worker.js'), `/**
  * Cloudflare Worker: trang khung THPT Nguyễn Hiền · Khoá 2000 – 2003
  * Dán toàn bộ file này vào Workers & Pages → nguyenhien → Edit code → Deploy.
  * Mọi đường dẫn trả về trang khung gọn (iframe nhúng web app Apps Script /exec – thanh địa chỉ giữ tên miền gọn),
- * riêng /giay-moi-nen.webp trả ảnh nền giấy mời (web app tải khi mở giấy mời).
+ * riêng /giay-moi-nen.webp trả ảnh nền giấy mời (web app tải khi mở giấy mời), /san-truong-xanh.webp tranh sân trường lá xanh (trang Kết nối).
  */
 const HTML = ${JSON.stringify(html)};
 const GM_B64 = ${JSON.stringify(gm)};
 let GM = null;
+const STX_B64 = ${JSON.stringify(stx)};
+let STX = null;
 
 export default {
   async fetch(request) {
@@ -34,6 +38,10 @@ export default {
           'access-control-allow-origin': '*'
         }
       });
+    }
+    if (u.pathname === '/san-truong-xanh.webp') {
+      if (!STX) STX = Uint8Array.from(atob(STX_B64), function (c) { return c.charCodeAt(0); });
+      return new Response(STX, { headers: { 'content-type': 'image/webp', 'cache-control': 'public, max-age=2592000, immutable', 'access-control-allow-origin': '*' } });
     }
     if (u.pathname === '/favicon.ico') return new Response(null, { status: 204 });
     return new Response(HTML, {

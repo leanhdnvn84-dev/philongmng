@@ -23,10 +23,15 @@ const SHEETS = {
   TimBan:   ['id', 'nguoiTim', 'lopNguoiTim', 'lienHe', 'timAi', 'lopCanTim', 'manhMoi', 'trangThai', 'phanHoi', 'taoLuc', 'ghiChu'],
   NhatKy:   ['time', 'user', 'action'],
   LuotXem:  ['id', 'thoiGian', 'khach', 'moi', 'thietBi', 'nguon', 'loai', 'giaTri'],
+  /* Kết nối 2028 (hẹn 25 năm ra trường) */
+  HenGap:   ['id', 'lopId', 'hoTen', 'sdt', 'khaNang', 'loiNhan', 'trangThai', 'taoLuc'],
+  ThuGui:   ['id', 'nguoiGui', 'lopGui', 'guiCho', 'lopNhan', 'noiDung', 'sdt', 'trangThai', 'taoLuc'],
+  ViecCan:  ['id', 'icon', 'ten', 'moTa', 'nguoiNhan', 'lienHe', 'thuTu', 'trangThai'],
+  BinhChon: ['id', 'cauHoi', 'luaChon', 'khach', 'hoTen', 'taoLuc'],
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe', 'banQuyen', 'anhCong', 'media'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe', 'banQuyen', 'anhCong', 'media', 'hen2028', 'lich2028', 'binhChon', 'moThu2028'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
@@ -77,7 +82,7 @@ let _ss = null;
 let _cache = {};
 let _hdr = {};
 /** Cột chỉ admin xem được, không đưa ra trang công khai */
-const PRIVATE_COLS = { HocSinh: ['sdt'], TimBan: ['lienHe', 'phanHoi', 'ghiChu'] };
+const PRIVATE_COLS = { HocSinh: ['sdt'], TimBan: ['lienHe', 'phanHoi', 'ghiChu'], HenGap: ['sdt'], ThuGui: ['noiDung', 'sdt'], ViecCan: ['lienHe'], BinhChon: ['khach'] };
 
 /* ======================= WEB ======================= */
 function doGet(e) {
@@ -878,7 +883,8 @@ function taoPublicData_() {
     hoatDong: read_('HoatDong').filter(function (e) { return e.trangThai === 'published'; }).map(pubOf_('HoatDong')).map(function (h) { h.anhId = idAnh_(h.anhId); return h; }),
     thayCo: sort_(read_('ThayCo')).map(pubOf_('ThayCo')).map(function (t) { t.anhId = idAnh_(t.anhId); return t; }),
     luuBut: read_('LuuBut').filter(function (x) { return x.trangThai === 'approved'; }).map(pubOf_('LuuBut')).reverse(),
-    anh: read_('Anh').map(pubOf_('Anh')).map(function (a) { a.fileId = idAnh_(a.fileId); return a; }).reverse()
+    anh: read_('Anh').map(pubOf_('Anh')).map(function (a) { a.fileId = idAnh_(a.fileId); return a; }).reverse(),
+    ketNoi: ketNoiData_()
   };
   /* ảnh dán tay vào Sheet: tự mở quyền xem (mỗi ảnh một lần) */
   try {
@@ -950,6 +956,9 @@ function getAdminData(token) {
     tinTuc: isS ? sortNews_(read_('TinTuc')).map(pub_) : [],
     dangKy: read_('DangKy').filter(function (x) { return mine(x, 'lopId'); }).map(pub_).reverse(),
     timBan: read_('TimBan').filter(function (x) { return isS || x.lopCanTim === u.lopId || x.lopNguoiTim === u.lopId; }).map(pub_).reverse(),
+    henGap: read_('HenGap').filter(function (x) { return mine(x, 'lopId'); }).map(pub_).reverse(),
+    thuGui: read_('ThuGui').filter(function (x) { return isS || x.lopGui === u.lopId || x.lopNhan === u.lopId; }).map(function (x) { const o = pub_(x); o.noiDung = ''; o.dai = String(x.noiDung || '').length; return o; }).reverse(),
+    viecCan: isS ? sort_(read_('ViecCan')).map(pub_) : [],
     log: log
   };
 }
@@ -1634,6 +1643,157 @@ function deleteTimBan(token, id) {
   });
 }
 
+/* ======================= KẾT NỐI 2028 (hẹn 25 năm ra trường) =======================
+   HenGap: "Mình sẽ về" (điểm danh sớm, chưa cần chắc chắn) · ThuGui: thư gửi bạn cũ, niêm phong tới ngày gặp lại
+   (công khai chỉ đếm số thư; Ban liên lạc bật Cài đặt "moThu2028" = 1 thì mới hiện nội dung) ·
+   ViecCan: việc cần người, ai cũng bấm "Mình nhận" · BinhChon: câu hỏi ở Cài đặt binhChon (dòng 1 = câu hỏi, các dòng sau = lựa chọn). */
+const VIEC_MAC_DINH = [
+  ['📷', 'Gom ảnh thời đi học', 'Quét ảnh cũ, gửi về kho ảnh chung của khoá.'],
+  ['🎬', 'Làm phim 25 năm', 'Dựng phim ngắn “Ngày ấy – Bây giờ” từ ảnh các lớp.'],
+  ['🏫', 'Xin buổi chào cờ', 'Làm việc với nhà trường cho buổi chào cờ của khoá.'],
+  ['☕', 'Cà phê gặp mặt lớp', 'Hẹn một buổi gặp nhỏ của lớp trước ngày lớn.'],
+  ['🔎', 'Tìm bạn còn thiếu', 'Mỗi lớp nhận tìm những bạn chưa liên lạc được.'],
+  ['📒', 'Sổ vàng viết tay', 'Mỗi người một trang, đóng thành một cuốn.']
+];
+function binhChonCfg_(c) {
+  const d = String((c || cfg_()).binhChon || '').split('\n').map(function (x) { return x.trim(); }).filter(String);
+  return { cauHoi: d[0] || '', luaChon: d.slice(1, 9) };
+}
+function ketNoiData_() {
+  const c = cfg_();
+  if (!read_('ViecCan').length && !PropertiesService.getScriptProperties().getProperty('VIEC_SEED')) {
+    PropertiesService.getScriptProperties().setProperty('VIEC_SEED', '1');
+    appendMany_('ViecCan', VIEC_MAC_DINH.map(function (v, i) { return { id: uid_(), icon: v[0], ten: v[1], moTa: v[2], nguoiNhan: '', lienHe: '', thuTu: String(i + 1), trangThai: '' }; }));
+  }
+  const thu = read_('ThuGui').filter(function (x) { return x.trangThai !== 'an'; }), mo = c.moThu2028 === '1';
+  const bc = binhChonCfg_(c), dem = {};
+  let tong = 0;
+  if (bc.cauHoi) read_('BinhChon').forEach(function (v) { if (v.cauHoi === bc.cauHoi && bc.luaChon.indexOf(v.luaChon) >= 0) { dem[v.luaChon] = (dem[v.luaChon] || 0) + 1; tong++; } });
+  return {
+    henGap: read_('HenGap').filter(function (x) { return x.trangThai !== 'an'; }).map(pubOf_('HenGap')).reverse(),
+    thu: { tong: thu.length, mo: mo, ds: mo ? thu.map(function (x) { return { nguoiGui: x.nguoiGui, lopGui: x.lopGui, guiCho: x.guiCho, lopNhan: x.lopNhan, noiDung: x.noiDung }; }) : [] },
+    viec: sort_(read_('ViecCan').filter(function (x) { return x.trangThai !== 'an'; })).map(pubOf_('ViecCan')),
+    binhChon: { cauHoi: bc.cauHoi, luaChon: bc.luaChon, dem: dem, tong: tong }
+  };
+}
+function gioiHan_(k, n) {
+  const c = CacheService.getScriptCache(), cnt = Number(c.get(k) || 0);
+  if (cnt > n) throw new Error('Hệ thống đang bận, vui lòng thử lại sau ít phút.');
+  c.put(k, String(cnt + 1), 60);
+}
+function lopCo_(id) { id = String(id || ''); if (id && !find_('Lop', id)) throw new Error('Lớp không tồn tại.'); return id; }
+/** "Mình sẽ về" – gửi lại cùng họ tên + lớp thì cập nhật dòng cũ. */
+function henGap2028(hoTen, lopId, sdt, khaNang, loiNhan) {
+  gioiHan_('HG_RATE', 40);
+  hoTen = req_(hoTen, 'họ tên', 60);
+  lopId = lopCo_(req_(lopId, 'lớp', 40));
+  sdt = String(sdt || '').trim().slice(0, 60);
+  khaNang = ['chac', 'cothe', 'xa'].indexOf(khaNang) >= 0 ? khaNang : 'chac';
+  loiNhan = String(loiNhan || '').trim().slice(0, 300);
+  return lock_(function () {
+    const ex = read_('HenGap').find(function (x) { return x.lopId === lopId && boDau_(x.hoTen).trim() === boDau_(hoTen).trim(); });
+    if (ex) { ex.khaNang = khaNang; if (sdt) ex.sdt = sdt; if (loiNhan) ex.loiNhan = loiNhan; ex.trangThai = ''; update_('HenGap', ex); return 'capnhat'; }
+    append_('HenGap', { id: uid_(), lopId: lopId, hoTen: hoTen, sdt: sdt, khaNang: khaNang, loiNhan: loiNhan, trangThai: '', taoLuc: now_() });
+    return 'moi';
+  });
+}
+function guiThu2028(nguoiGui, lopGui, guiCho, lopNhan, noiDung, sdt) {
+  gioiHan_('TG_RATE', 30);
+  nguoiGui = req_(nguoiGui, 'tên của bạn', 60);
+  guiCho = req_(guiCho, 'tên người nhận', 80);
+  noiDung = req_(noiDung, 'nội dung thư', 3000);
+  lopGui = lopCo_(lopGui); lopNhan = lopCo_(lopNhan);
+  sdt = String(sdt || '').trim().slice(0, 60);
+  return lock_(function () {
+    append_('ThuGui', { id: uid_(), nguoiGui: nguoiGui, lopGui: lopGui, guiCho: guiCho, lopNhan: lopNhan, noiDung: noiDung, sdt: sdt, trangThai: '', taoLuc: now_() });
+    return read_('ThuGui').filter(function (x) { return x.trangThai !== 'an'; }).length;
+  });
+}
+function nhanViec(id, hoTen, lopId, lienHe) {
+  gioiHan_('NV_RATE', 30);
+  hoTen = req_(hoTen, 'họ tên', 60);
+  lopId = lopCo_(lopId);
+  lienHe = String(lienHe || '').trim().slice(0, 60);
+  return lock_(function () {
+    const v = find_('ViecCan', id);
+    if (!v || v.trangThai === 'an') throw new Error('Việc này không còn.');
+    const ten = hoTen + (lopId ? ' (' + ((find_('Lop', lopId) || {}).ten || '') + ')' : '');
+    const ds = String(v.nguoiNhan || '').split(';').map(function (x) { return x.trim(); }).filter(String);
+    if (ds.some(function (x) { return boDau_(x) === boDau_(ten); })) throw new Error('Bạn đã nhận việc này rồi. Cảm ơn bạn!');
+    ds.push(ten);
+    v.nguoiNhan = ds.join('; ');
+    if (lienHe) v.lienHe = (v.lienHe ? v.lienHe + '; ' : '') + hoTen + ': ' + lienHe;
+    update_('ViecCan', v);
+    return v.nguoiNhan;
+  });
+}
+/** Mỗi máy (mã khách ngẫu nhiên) một phiếu cho mỗi câu hỏi; chọn lại thì đổi phiếu. */
+function binhChon2028(luaChon, khach, hoTen) {
+  gioiHan_('BC_RATE', 120);
+  khach = String(khach || '');
+  if (!/^[a-z0-9]{8,24}$/.test(khach)) throw new Error('Không ghi nhận được phiếu, vui lòng tải lại trang.');
+  const bc = binhChonCfg_();
+  if (!bc.cauHoi || bc.luaChon.indexOf(String(luaChon)) < 0) throw new Error('Bình chọn đã đổi, vui lòng tải lại trang.');
+  return lock_(function () {
+    const ex = read_('BinhChon').find(function (x) { return x.cauHoi === bc.cauHoi && x.khach === khach; });
+    if (ex) { ex.luaChon = String(luaChon); ex.taoLuc = now_(); if (hoTen) ex.hoTen = String(hoTen).slice(0, 60); update_('BinhChon', ex); }
+    else append_('BinhChon', { id: uid_(), cauHoi: bc.cauHoi, luaChon: String(luaChon), khach: khach, hoTen: String(hoTen || '').slice(0, 60), taoLuc: now_() });
+    return ketNoiData_().binhChon;
+  });
+}
+function setHenGapStatus(token, id, an) {
+  return lock_(function () {
+    const u = auth_(token), x = find_('HenGap', id);
+    if (!x) throw new Error('Không tìm thấy.');
+    canLop_(u, x.lopId);
+    x.trangThai = an ? 'an' : '';
+    update_('HenGap', x);
+    log_(u, (an ? 'Ẩn' : 'Hiện lại') + ' điểm danh 2028: ' + x.hoTen);
+    return true;
+  });
+}
+function deleteHenGap(token, id) {
+  return lock_(function () {
+    const u = auth_(token), x = find_('HenGap', id);
+    if (!x) throw new Error('Không tìm thấy.');
+    canLop_(u, x.lopId);
+    remove_('HenGap', function (r) { return r.id === id; });
+    log_(u, 'Xoá điểm danh 2028: ' + x.hoTen);
+    return true;
+  });
+}
+function saveViec(token, v) {
+  return lock_(function () {
+    const u = auth_(token, true);
+    const o = pick_(v, ['id', 'icon', 'ten', 'moTa', 'nguoiNhan', 'thuTu', 'trangThai']);
+    o.ten = req_(o.ten, 'tên việc', 80);
+    o.moTa = String(o.moTa || '').slice(0, 300);
+    o.icon = String(o.icon || '').slice(0, 8);
+    o.trangThai = o.trangThai === 'an' ? 'an' : '';
+    const id = upsert_('ViecCan', o);
+    log_(u, 'Lưu việc cần người: ' + o.ten);
+    return id;
+  });
+}
+function deleteViec(token, id) {
+  return lock_(function () {
+    const u = auth_(token, true), x = find_('ViecCan', id);
+    if (!x) throw new Error('Không tìm thấy.');
+    remove_('ViecCan', function (r) { return r.id === id; });
+    log_(u, 'Xoá việc cần người: ' + x.ten);
+    return true;
+  });
+}
+function deleteThu(token, id) {
+  return lock_(function () {
+    const u = auth_(token, true), x = find_('ThuGui', id);
+    if (!x) throw new Error('Không tìm thấy.');
+    remove_('ThuGui', function (r) { return r.id === id; });
+    log_(u, 'Xoá thư gửi ' + x.guiCho);
+    return true;
+  });
+}
+
 /* ======================= LIÊN HỆ CỦA ADMIN ======================= */
 /** Số điện thoại / Zalo hiện trong danh bạ admin ở trang Kết nối (để trống thì ẩn). */
 function updateMyContact(token, lienHe) {
@@ -1801,6 +1961,9 @@ function napDuLieuMau_() {
     dk.push({ id: id('dk'), lopId: h.lopId, hoTen: h.hoTen, lienHe: '0900 000 ' + String(100 + i), ghiChu: GC[i % GC.length], trangThai: i % 3 === 0 ? 'xacnhan' : 'cho', taoLuc: t });
   }
   appendMany_('DangKy', dk);
+  /* Kết nối 2028: vài bạn đã bấm "Mình sẽ về" (lấy tên trong danh sách mẫu) */
+  const kn = ['chac', 'chac', 'cothe', 'chac', 'xa', 'chac', 'cothe', 'chac'];
+  appendMany_('HenGap', hs.filter(function (_, i) { return i % 5 === 1; }).slice(0, 40).map(function (h, i) { return { id: id('hg'), lopId: h.lopId, hoTen: h.hoTen, sdt: '', khaNang: kn[i % kn.length], loiNhan: '', trangThai: '', taoLuc: t }; }));
 
   return 'Đã nạp: ' + hs.length + ' học sinh, ' + EV.length + ' hoạt động, ' + LB.length + ' lưu bút, ' + anh.length + ' ảnh minh hoạ, ' + TT.length + ' tin, ' + dk.length + ' đăng ký.';
 }
@@ -1808,7 +1971,7 @@ function napDuLieuMau_() {
 function xoaDuLieuMau_() {
   let total = 0, giu = 0;
   const tenMau = MAU_TC.concat(MAU_GV);
-  ['HocSinh', 'HoatDong', 'ThayCo', 'LuuBut', 'TinTuc', 'Anh', 'DangKy'].forEach(function (s) {
+  ['HocSinh', 'HoatDong', 'ThayCo', 'LuuBut', 'TinTuc', 'Anh', 'DangKy', 'HenGap'].forEach(function (s) {
     const all = read_(s);
     const keep = all.filter(function (x) {
       if (String(x.id).indexOf('mau_') !== 0) return true;
