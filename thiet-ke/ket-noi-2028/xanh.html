@@ -1,0 +1,201 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kết nối 2028 – Tán cây</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--la:#2F8F4E;--la2:#5DB860;--non:#A9D86E;--troi:#BDE7F7;--troi2:#E9F7FD;--nang:#FFD34E;--cam:#FF9F43;--tim:#9B7FD4;--hong:#FF8FA3;--go:#7A5236;--dat:#F3FAEE;--chu:#1F3B2D;--phu:#557063}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--dat);color:var(--chu);line-height:1.6;overflow-x:hidden}
+h1,h2,h3,.bl{font-family:'Baloo 2',sans-serif}
+.w{max-width:1180px;margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+.dau{position:absolute;inset:0 0 auto;z-index:5}.dau .w{display:flex;align-items:center;height:72px;gap:12px}
+.dau .ten{font-family:'Baloo 2';font-weight:700;font-size:20px;color:var(--la)}
+.dau nav{margin-left:auto;display:flex;gap:6px;font-size:14px;font-weight:500}
+.dau nav a{padding:7px 14px;border-radius:99px;color:#33584A}.dau nav a.on{background:var(--la);color:#fff}
+@media(max-width:960px){.dau nav{display:none}}
+/* hero */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#9FDCF3 0%,#CBEFFB 45%,#EAF8FC 70%)}
+.hero .w{position:relative;z-index:2;display:grid;grid-template-columns:.95fr 1.05fr;align-items:end;min-height:min(800px,100vh);padding-top:100px}
+.chu-hero{padding-bottom:150px}
+.nhan{display:inline-block;background:#fff;color:var(--la);font-weight:700;font-size:14px;padding:6px 14px;border-radius:99px;box-shadow:0 4px 0 #D6EED8}
+.hero h1{font-size:clamp(50px,6.4vw,92px);line-height:1;font-weight:800;color:#17462E;margin:18px 0 16px;letter-spacing:-.01em}
+.hero h1 span{color:var(--la2)}
+.hero p{font-size:18px;color:#2E5444;max-width:470px}
+.nuts{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.n{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:16px;font-weight:700;font-size:16px}
+.n.xanh{background:var(--la);color:#fff;box-shadow:0 5px 0 #1E6A37}
+.n.vang{background:var(--nang);color:#5A4300;box-shadow:0 5px 0 #D9A91F}
+.n.trang{background:#fff;color:var(--la);box-shadow:0 5px 0 #CFE6D3}
+.so3{display:flex;gap:12px;margin-top:30px}
+.so3 div{background:rgba(255,255,255,.75);border-radius:18px;padding:10px 16px;font-size:13px;color:var(--phu);font-weight:500}
+.so3 b{display:block;font-family:'Baloo 2';font-size:32px;line-height:1.1;color:#17462E}
+.so3 div:nth-child(1) b{color:var(--cam)}.so3 div:nth-child(2) b{color:var(--la)}.so3 div:nth-child(3) b{color:var(--tim)}
+.cay{position:relative;align-self:end;margin-bottom:-6px}
+.cay svg{width:100%;height:auto;max-height:calc(100vh - 96px);display:block;margin:0 auto}
+.doi{position:absolute;left:0;right:0;bottom:0;z-index:1;height:230px}
+.doi svg{width:100%;height:100%;display:block}
+.may{position:absolute;z-index:1;background:#fff;border-radius:99px;opacity:.9}
+.may:before,.may:after{content:'';position:absolute;background:#fff;border-radius:50%}
+.m1{width:150px;height:40px;top:130px;left:46%}.m1:before{width:60px;height:60px;left:22px;top:-30px}.m1:after{width:46px;height:46px;left:70px;top:-20px}
+.m2{width:110px;height:30px;top:300px;left:52%;opacity:.7}.m2:before{width:44px;height:44px;left:18px;top:-22px}.m2:after{width:34px;height:34px;left:54px;top:-14px}
+.mt{position:absolute;right:7%;top:96px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,#FFF4B8 0,#FFD34E 55%,rgba(255,211,78,0) 72%);z-index:1}
+/* phần */
+.sec{padding:96px 0;position:relative}
+.td{text-align:center;max-width:680px;margin:0 auto 46px}
+.td .nhan{box-shadow:none;background:#E1F3DF}
+.td h2{font-size:clamp(36px,4vw,54px);line-height:1.05;color:#17462E;margin:12px 0 10px;font-weight:800}
+.td p{color:var(--phu);font-size:17px}
+/* điểm danh: vườn 12 lớp */
+.vuon{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;align-items:end}
+.chau{text-align:center}
+.chau .ca{position:relative;height:200px;display:flex;align-items:flex-end;justify-content:center}
+.chau svg{width:100%;height:100%;overflow:visible}
+.chau b{display:block;font-family:'Baloo 2';font-size:22px;color:#17462E;margin-top:6px;line-height:1}
+.chau small{color:var(--phu);font-weight:600}
+.dk{margin:50px auto 0;max-width:900px;background:#fff;border-radius:28px;padding:28px;display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:center;box-shadow:0 8px 0 #DDEFD9}
+.dk .o{background:var(--dat);border-radius:14px;padding:14px 16px;color:#8AA597;font-weight:500}
+.chip{display:flex;gap:8px;grid-column:1/3}.chip span{padding:8px 14px;border-radius:99px;background:var(--dat);font-weight:600;font-size:14px;color:var(--phu)}
+.chip span.on{background:#DFF3D6;color:var(--la)}
+.dk .n{grid-row:1/3;grid-column:3}
+.thieu{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:30px}
+.thieu span{background:#FFF1D2;color:#8A5B00;border-radius:99px;padding:8px 16px;font-weight:600;font-size:15px}
+/* bản đồ */
+.bd{background:linear-gradient(180deg,#E6F6FC,#D4EFF8)}
+.bd .w{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.bd svg{width:100%;max-width:460px;display:block;margin:auto}
+.bd .td{text-align:left;margin:0 0 26px}
+.tp{display:grid;gap:12px}
+.tp div{display:flex;align-items:center;gap:14px;background:#fff;border-radius:20px;padding:14px 18px}
+.tp i{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-style:normal;font-size:22px}
+.tp b{font-family:'Baloo 2';font-size:28px;margin-left:auto;color:#17462E}
+.tp span{font-weight:600}
+.xa{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.xa span{background:#fff;border-radius:99px;padding:7px 14px;font-weight:600;font-size:14px;color:#2E5A7A}
+/* việc */
+.viec{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.v{border-radius:26px;padding:24px;position:relative;overflow:hidden}
+.v .ic{font-size:34px}
+.v h3{font-size:24px;line-height:1.15;margin:10px 0 6px;color:#17462E}
+.v p{font-size:15px;color:#3D5A4C}
+.v .ft{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-weight:700;font-size:14px}
+.v .ft a{background:#fff;padding:8px 16px;border-radius:99px}
+.v:after{content:'';position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:0 60% 0 60%;background:rgba(255,255,255,.35);transform:rotate(20deg)}
+/* thư */
+.thu{background:linear-gradient(180deg,#FFF7DA,#FFEDB8)}
+.thu .w{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.thu .td{text-align:left;margin:0}
+.phong{position:relative;width:min(400px,80vw);aspect-ratio:1.55;margin:auto;background:#fff;border-radius:16px;box-shadow:0 18px 0 -6px #F3D98A,0 30px 50px -20px rgba(140,100,0,.35);transform:rotate(-4deg)}
+.phong:before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(to bottom right,transparent 49.5%,#EADFB8 50%,transparent 50.8%),linear-gradient(to bottom left,transparent 49.5%,#EADFB8 50%,transparent 50.8%);clip-path:polygon(0 0,100% 0,50% 60%)}
+.phong .tem{position:absolute;right:16px;top:14px;width:62px;height:74px;background:var(--la2);border:4px dotted #fff;outline:2px solid var(--la2);display:grid;place-items:center;color:#fff;font:800 22px 'Baloo 2'}
+.phong .la{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%)}
+.dem{font-family:'Baloo 2';font-size:22px;color:#7A5A00;margin:16px 0 22px}.dem b{font-size:44px;color:var(--cam)}
+/* hai cột */
+.hai{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.khung{background:#fff;border-radius:28px;padding:30px;box-shadow:0 8px 0 #DDEFD9}
+.khung h2{font-size:32px;color:#17462E;margin-bottom:16px}
+.lc{border-radius:16px;padding:14px 16px;margin-bottom:10px;position:relative;overflow:hidden;background:var(--dat);display:flex;justify-content:space-between;font-weight:600}
+.lc i{position:absolute;inset:0 auto 0 0}.lc span,.lc b{position:relative}
+.ng{display:flex;gap:14px;align-items:center;padding:12px 0}
+.ng .a{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;font:800 24px 'Baloo 2';color:#fff}
+.ng b{display:block;font-size:17px}.ng small{color:var(--phu)}
+.ng .g{margin-left:auto;display:flex;gap:6px}.ng .g a{padding:8px 14px;border-radius:12px;font-weight:700;font-size:14px;background:#DFF3D6;color:var(--la)}.ng .g a+a{background:#DCEBFF;color:#1F67D2}
+/* tin */
+.tin{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tin div{background:#fff;border-radius:24px;padding:22px;border-top:8px solid var(--la2)}
+.tin div:nth-child(2){border-color:var(--nang)}.tin div:nth-child(3){border-color:var(--tim)}
+.tin small{color:var(--phu);font-weight:600}.tin h3{font-size:22px;line-height:1.2;margin:6px 0;color:#17462E}.tin p{color:var(--phu);font-size:15px}
+.cuoi{position:relative;background:linear-gradient(180deg,var(--dat),#CFEBC5);text-align:center;padding:90px 0 0;overflow:hidden}
+.cuoi h2{font-size:clamp(38px,4.6vw,64px);color:#17462E;font-weight:800;line-height:1.05}
+.cuoi p{color:var(--phu);margin-top:8px;font-size:18px}
+.cuoi svg{display:block;width:100%;height:auto;margin-top:30px}
+/* bảng màu */
+.pal .mau{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pal .mau div{border-radius:24px;height:170px;padding:16px;display:flex;flex-direction:column;justify-content:flex-end;font-size:13px;font-weight:600}
+.pal .mau b{font-family:'Baloo 2';font-size:22px}
+@media(max-width:820px){
+ .w{padding:0 18px}
+ .hero .w{grid-template-columns:1fr;padding-top:84px;min-height:0}
+ .chu-hero{padding-bottom:10px}.hero h1{font-size:54px}.cay svg{max-height:none}
+ .cay{margin:0 -18px -6px}.may{display:none}.mt{width:80px;height:80px;top:14px;right:4%}
+ .doi{height:120px}
+ .so3{gap:8px}.so3 div{flex:1;padding:8px 10px}.so3 b{font-size:26px}
+ .sec{padding:64px 0}
+ .vuon{grid-template-columns:repeat(4,1fr);gap:10px}.chau .ca{height:140px}.chau b{font-size:18px}
+ .dk{grid-template-columns:1fr}.chip,.dk .n{grid-column:auto;grid-row:auto;flex-wrap:wrap}.dk .n{justify-content:center}
+ .bd .w,.thu .w,.hai{grid-template-columns:1fr}
+ .viec,.tin{grid-template-columns:1fr}
+ .ng{flex-wrap:wrap}.ng .g{margin-left:68px}
+ .pal .mau{grid-template-columns:1fr 1fr}
+}
+</style></head><body><div id="app"></div>
+<script>
+var M=new URLSearchParams(location.search).get('m')||'pc';
+var sd=7;function rd(){sd=(sd*9301+49297)%233280;return sd/233280}
+function f(n){return n.toFixed(1)}
+var XANH=['#2F8F4E','#3FA45B','#5DB860','#7CC66A','#A9D86E','#4BAE7C','#2C7F5C'];
+var LOP=[['12/1',38],['12/2',41],['12/3',29],['12/4',52],['12/5',33],['12/6',27],['12/7',36],['12/8',22],['12/9',31],['12/10',25],['12/11',30],['12/12',34]];
+var MAU12=['#FF9F43','#FFD34E','#9B7FD4','#FF8FA3','#4DB6E8','#5DB860','#FF9F43','#FFD34E','#9B7FD4','#FF8FA3','#4DB6E8','#5DB860'];
+function tan(cx,cy,r,n){var s='';for(var i=0;i<n;i++){var a=rd()*6.283,d=Math.sqrt(rd())*r,x=cx+d*Math.cos(a),y=cy+d*Math.sin(a)*.82;
+ s+='<ellipse cx="'+f(x)+'" cy="'+f(y)+'" rx="'+f(7+rd()*5)+'" ry="'+f(4+rd()*3)+'" transform="rotate('+f(rd()*180)+' '+f(x)+' '+f(y)+')" fill="'+XANH[Math.floor(rd()*XANH.length)]+'"/>';}return s;}
+function cayLon(){sd=7;var s='<svg viewBox="0 0 640 600">';
+ /* tán nền */
+ s+='<g opacity=".95">'+[[320,230,220,170],[170,260,120,110],[470,250,130,110],[320,120,140,110]].map(function(c){return '<ellipse cx="'+c[0]+'" cy="'+c[1]+'" rx="'+c[2]+'" ry="'+c[3]+'" fill="#3FA45B"/>'}).join('')+'</g>';
+ s+='<g>'+[[320,230,200,150],[180,260,110,95],[465,250,115,95],[320,125,125,95]].map(function(c){return '<ellipse cx="'+(c[0]-14)+'" cy="'+(c[1]-16)+'" rx="'+c[2]+'" ry="'+c[3]+'" fill="#5DB860"/>'}).join('')+'</g>';
+ /* thân + cành */
+ s+='<path d="M296 600 C300 520 296 450 290 400 C250 360 200 330 160 300 M304 600 C306 520 316 450 330 400 C380 360 430 330 480 300 M300 430 C300 360 310 300 320 200" stroke="#7A5236" stroke-width="14" fill="none" stroke-linecap="round"/>';
+ s+='<path d="M278 600 C286 520 282 470 284 420 L340 420 C336 470 334 520 344 600Z" fill="#7A5236"/><path d="M296 600 C300 540 298 480 300 430" stroke="#5E3E28" stroke-width="3" fill="none" opacity=".5"/>';
+ /* 12 chùm lá = 12 lớp, số lá theo số bạn điểm danh */
+ var vt=[[150,280],[205,200],[260,140],[320,95],[385,140],[440,200],[495,280],[230,300],[320,220],[410,300],[120,350],[525,350]];
+ LOP.forEach(function(l,i){var p=vt[i];s+='<g>'+tan(p[0],p[1],34+l[1]*.5,l[1]+10)+'</g>';
+  s+='<g font-family="Baloo 2"><rect x="'+(p[0]-26)+'" y="'+(p[1]-13)+'" width="52" height="26" rx="13" fill="#fff" opacity=".92"/><text x="'+p[0]+'" y="'+(p[1]+6)+'" text-anchor="middle" font-size="16" font-weight="800" fill="#17462E">'+l[0]+'</text></g>';
+  s+='<circle cx="'+(p[0]+22)+'" cy="'+(p[1]-16)+'" r="7" fill="'+MAU12[i]+'" stroke="#fff" stroke-width="2"/>';});
+ /* biển gỗ */
+ s+='<g transform="translate(232 470) rotate(-3)"><rect x="0" y="0" width="150" height="62" rx="10" fill="#C98B55" stroke="#8C5A33" stroke-width="3"/><text x="75" y="28" text-anchor="middle" font-family="Baloo 2" font-weight="800" font-size="19" fill="#4A2C16">Trồng 2003</text><text x="75" y="50" text-anchor="middle" font-family="Baloo 2" font-weight="700" font-size="15" fill="#4A2C16">Lớn 2028</text></g>';
+ return s+'</svg>';}
+function doi(){return '<svg viewBox="0 0 1440 230" preserveAspectRatio="none"><path d="M0 120 C220 60 420 150 700 110 S1180 50 1440 100 V230 H0Z" fill="#A9D86E"/><path d="M0 170 C260 120 520 200 820 160 S1260 120 1440 160 V230 H0Z" fill="#7CC66A"/><path d="M0 205 C300 180 620 225 940 200 S1300 185 1440 200 V230 H0Z" fill="#F3FAEE"/></svg>';}
+function chau(l,i){var h=40+l[1]*2.4,c=MAU12[i];sd=i*13+3;
+ var s='<svg viewBox="0 0 100 200" preserveAspectRatio="xMidYMax meet"><path d="M50 172 C50 '+(172-h*.6)+' 50 '+(172-h*.8)+' 50 '+(172-h)+'" stroke="#3E8A4A" stroke-width="4" fill="none"/>';
+ for(var k=0;k<Math.round(l[1]/8);k++){var y=172-h*(.25+k*.14),tr=k%2?1:-1;s+='<ellipse cx="'+(50+tr*14)+'" cy="'+f(y)+'" rx="15" ry="7" fill="'+XANH[k%XANH.length]+'" transform="rotate('+(tr*-28)+' '+(50+tr*14)+' '+f(y)+')"/>';}
+ s+='<circle cx="50" cy="'+(172-h-8)+'" r="11" fill="'+c+'"/><circle cx="50" cy="'+(172-h-8)+'" r="4.5" fill="#FFF4B8"/>';
+ s+='<path d="M24 168 H76 L70 200 H30Z" fill="'+c+'"/><rect x="20" y="162" width="60" height="10" rx="4" fill="'+c+'"/><rect x="20" y="162" width="60" height="10" rx="4" fill="#fff" opacity=".25"/></svg>';
+ return '<div class="chau"><div class="ca">'+s+'</div><b>'+l[0]+'</b><small>'+l[1]+' bạn</small></div>';}
+function banDo(){
+ var vn='M150 18 L178 30 L196 58 L214 72 L236 92 L222 110 L204 120 L196 146 L208 176 L226 206 L246 232 L262 256 L280 284 L296 316 L304 352 L300 390 L284 418 L258 438 L230 452 L202 472 L176 496 L150 512 L132 500 L146 476 L172 456 L200 436 L230 410 L246 380 L250 346 L240 312 L222 284 L204 258 L184 232 L166 206 L150 176 L138 150 L124 124 L104 100 L80 82 L66 60 L92 46 L122 36Z';
+ var dd=[[188,120,14,'#9B7FD4'],[262,262,186,'#FF9F43'],[206,462,58,'#FF8FA3'],[300,356,7,'#4DB6E8'],[226,206,5,'#4DB6E8'],[284,300,6,'#4DB6E8'],[166,500,3,'#4DB6E8'],[284,404,4,'#4DB6E8']];
+ var s='<svg viewBox="40 0 420 530"><path d="'+vn+'" fill="#A9D86E" stroke="#5DB860" stroke-width="5" stroke-linejoin="round"/><path d="'+vn+'" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 6"/>';
+ sd=5;for(var i=0;i<14;i++){var x=110+rd()*170,y=60+rd()*420;s+='<circle cx="'+f(x)+'" cy="'+f(y)+'" r="3" fill="#5DB860" opacity=".5"/>';}
+ dd.forEach(function(d){var r=Math.max(6,Math.sqrt(d[2])*1.8);s+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r="'+f(r)+'" fill="'+d[3]+'" stroke="#fff" stroke-width="4"/>';});
+ s+='<text x="350" y="200" font-family="Baloo 2" font-size="20" font-weight="700" fill="#4DA3C9">Biển Đông</text><path d="M340 230 q15 -8 30 0 t30 0 M350 250 q15 -8 30 0 t30 0" stroke="#7FC4E0" stroke-width="3" fill="none" stroke-linecap="round"/>';
+ return s+'</svg>';}
+var VIEC=[['📷','Gom ảnh thời đi học','Quét ảnh cũ, gửi về kho ảnh chung.','4 bạn đã nhận','#FFE7C7'],['🎬','Làm phim 25 năm','Dựng phim ngắn “Ngày ấy – Bây giờ”.','2 bạn đã nhận','#E5DBFA'],['🏫','Xin buổi chào cờ','Làm việc với trường cho sáng thứ Hai.','1 bạn đã nhận','#D9F0FB'],['🌳','Trồng cây cho khoá','Chọn chỗ, chọn cây, gắn biển tên khoá.','Chưa ai nhận','#DFF3D6'],['🔎','Tìm bạn còn thiếu','Mỗi lớp nhận tìm 3 bạn chưa liên lạc.','5 bạn đã nhận','#FFE0E6'],['📒','Sổ vàng viết tay','Mỗi người một trang, đóng thành cuốn.','Chưa ai nhận','#FFF3C2']];
+function pc(){var h='';
+h+='<header class="dau"><div class="w"><span class="ten">🌳 Nguyễn Hiền 2000–2003</span><nav><a>Trang chủ</a><a>Các lớp</a><a>Kỷ yếu</a><a>Hình ảnh</a><a>Hoạt động</a><a class="on">Kết nối</a></nav></div></header>';
+h+='<section class="hero"><span class="mt"></span><span class="may m1"></span><span class="may m2"></span><div class="w"><div class="chu-hero"><span class="nhan">Hẹn tháng 8 · 2028</span><h1>25 năm,<br><span>cây đã lớn.</span></h1>'+
+ '<p><b>Về ngồi dưới tán cây nhé!</b> Mỗi chiếc lá là một bạn đã hẹn về. Cây của khoá mình đang xanh dần lên – còn thiếu lá của bạn đấy.</p>'+
+ '<div class="nuts"><a class="n xanh">🍃 Mình sẽ về</a><a class="n vang">🔎 Tìm bạn</a><a class="n trang">🤝 Góp tay</a></div>'+
+ '<div class="so3"><div><b>621</b>ngày nữa</div><div><b>418</b>chiếc lá</div><div><b>12</b>nhánh lớp</div></div></div>'+
+ '<div class="cay">'+cayLon()+'</div></div><div class="doi">'+doi()+'</div></section>';
+h+='<section class="sec"><div class="w"><div class="td"><span class="nhan">🌱 Vườn 12 lớp</span><h2>Lớp nào cây cao nhất?</h2><p>Mỗi bạn ghi tên, cây của lớp mình mọc thêm một đốt. Chưa cần chắc chắn – cứ hẹn trước đã.</p></div><div class="vuon">';
+LOP.forEach(function(l,i){h+=chau(l,i)});
+h+='</div><div class="dk"><div class="o">Họ và tên</div><div class="o">Lớp</div><div class="chip"><span class="on">✅ Chắc chắn</span><span>🤔 Có thể</span><span>✈️ Ở xa, sẽ cố</span></div><a class="n xanh">Ghi tên</a></div>'+
+ '<div class="thieu"><span>12/6 còn thiếu 9 bạn</span><span>12/3 còn thiếu 8 bạn</span><span>12/5 còn thiếu 6 bạn</span><span style="background:#DFF3D6;color:var(--la)">Giúp tìm</span></div></div></section>';
+h+='<section class="sec bd"><div class="w"><div>'+banDo()+'</div><div><div class="td"><span class="nhan" style="color:#2E7FB0">🗺️ Bạn bè ở đâu</span><h2>Rễ ở Đà Nẵng, cành vươn khắp nơi</h2><p>Bấm một chấm để xem ai đang sống ở đó.</p></div>'+
+ '<div class="tp"><div><i style="background:#FFE7C7">🏖️</i><span>Đà Nẵng</span><b>186</b></div><div><i style="background:#FFE0E6">🌆</i><span>TP. Hồ Chí Minh</span><b>58</b></div><div><i style="background:#E5DBFA">🏯</i><span>Hà Nội</span><b>14</b></div></div>'+
+ '<div class="xa"><span>🇦🇺 Úc 5</span><span>🇺🇸 Mỹ 4</span><span>🇯🇵 Nhật 3</span><span>🇩🇪 Đức 2</span><span>🇸🇬 Singapore 2</span></div></div></div></section>';
+h+='<section class="sec"><div class="w"><div class="td"><span class="nhan">🤝 Góp tay</span><h2>Những việc cần người</h2><p>Không cần góp tiền – chọn một việc vừa sức, Ban liên lạc sẽ nhắn khi tới lúc.</p></div><div class="viec">';
+VIEC.forEach(function(v){h+='<div class="v" style="background:'+v[4]+'"><div class="ic">'+v[0]+'</div><h3>'+v[1]+'</h3><p>'+v[2]+'</p><div class="ft"><span>'+v[3]+'</span><a>'+(v[3][0]=='C'?'Mình nhận':'Nhận cùng')+'</a></div></div>'});
+h+='</div></div></section>';
+h+='<section class="sec thu"><div class="w"><div class="td"><span class="nhan" style="color:#B07800">✉️ Thư gửi 2028</span><h2>Viết cho mình của hai năm sau</h2><p>Thư được niêm phong, không ai đọc được cho tới ngày cả khoá cùng mở – dưới tán cây.</p><div class="dem"><b>127</b> lá thư đang chờ</div><a class="n xanh">Viết thư</a></div>'+
+ '<div><div class="phong"><span class="tem">25</span><svg class="la" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="#5DB860"/><path d="M26 52 C28 34 40 24 56 24 C56 40 46 52 28 54Z" fill="#fff"/><path d="M28 52 L48 32" stroke="#5DB860" stroke-width="2.5"/></svg></div></div></div></section>';
+h+='<section class="sec"><div class="w hai"><div class="khung"><h2>🗳️ Chọn ngày hẹn</h2>'+
+ [['Thứ Hai 14/8/2028 – chào cờ',46,'#C9EBC0'],['Chủ nhật 13/8/2028',31,'#FFE7A8'],['Thứ Bảy 19/8/2028',23,'#E5DBFA']].map(function(x){return '<div class="lc"><i style="width:'+x[1]+'%;background:'+x[2]+'"></i><span>'+x[0]+'</span><b>'+x[1]+'%</b></div>'}).join('')+'<p style="color:var(--phu);font-size:14px">213 bạn đã chọn · đóng ngày 30/11</p></div>'+
+ '<div class="khung"><h2>📞 Ban liên lạc</h2>'+[['H','Lê Trung Hiếu','Trưởng ban','#FF9F43'],['T','Hoàng Diệu Thúy','Thư ký','#9B7FD4'],['M','Nguyễn Thị Tuyết Mai','Liên lạc các lớp','#4DB6E8']].map(function(n){return '<div class="ng"><span class="a" style="background:'+n[3]+'">'+n[0]+'</span><span><b>'+n[1]+'</b><small>'+n[2]+'</small></span><span class="g"><a>Gọi</a><a>Zalo</a></span></div>'}).join('')+'</div></div></section>';
+h+='<section class="sec" style="padding-top:0"><div class="w"><div class="td"><span class="nhan">📌 Bảng tin</span><h2>Tin mới</h2></div><div class="tin"><div><small>18/11/2026</small><h3>Ảnh Gala đã đủ 12 lớp</h3><p>Hơn 900 tấm – xem ở trang Hoạt động.</p></div><div><small>01/12/2026</small><h3>Bắt đầu chọn ngày hẹn 2028</h3><p>Ba phương án, mỗi bạn một phiếu.</p></div><div><small>Đang tìm</small><h3>Lớp 12/6 nhờ tìm 9 bạn</h3><p>Bạn nào biết tin, bấm “Tôi biết bạn này”.</p></div></div></div></section>';
+h+='<section class="cuoi"><div class="w"><h2>Hẹn gặp lại dưới tán cây</h2><p>Sân trường Nguyễn Hiền · tháng 8/2028</p></div><svg viewBox="0 0 1440 200" preserveAspectRatio="none">'+
+ [[120,90,70],[300,110,55],[1150,95,65],[1320,115,50],[720,120,40]].map(function(t){return '<rect x="'+(t[0]-7)+'" y="'+(t[1]+30)+'" width="14" height="80" fill="#7A5236"/><circle cx="'+t[0]+'" cy="'+t[1]+'" r="'+t[2]+'" fill="#5DB860"/><circle cx="'+(t[0]-t[2]*.3)+'" cy="'+(t[1]-t[2]*.3)+'" r="'+(t[2]*.55)+'" fill="#7CC66A"/>'}).join('')+
+ '<path d="M0 150 C300 120 600 170 900 140 S1300 130 1440 150 V200 H0Z" fill="#5DB860"/></svg></section>';
+return h;}
+function bang(){var h='<section class="sec pal"><div class="w"><div class="td"><span class="nhan">🎨 Bảng màu</span><h2>Tán cây tháng Tám</h2><p>Xanh lá là màu chính – cây trồng năm 2003 nay đã thành bóng mát. Trời xanh, nắng vàng và những điểm hoa cam, tím, hồng cho tươi vui.</p></div><div class="mau">';
+[['#2F8F4E','Lá đậm','Nút chính, tiêu đề','#fff'],['#5DB860','Lá non','Tán cây, viền thẻ','#fff'],['#A9D86E','Cỏ','Đồi, bản đồ','#17462E'],['#BDE7F7','Trời','Nền đầu trang, bản đồ','#17462E'],['#FFD34E','Nắng','Nút phụ, mặt trời','#5A4300'],['#FF9F43','Cam','Số đếm, hoa','#fff'],['#9B7FD4','Tím bằng lăng','Hoa, điểm nhấn','#fff'],['#FF8FA3','Hồng','Hoa, điểm nhấn','#fff']].forEach(function(m){h+='<div style="background:'+m[0]+';color:'+m[3]+'"><b>'+m[1]+'</b>'+m[0]+' · '+m[2]+'</div>'});
+return h+'</div><p style="text-align:center;margin-top:30px;color:var(--phu)">Phông tiêu đề <b class="bl" style="font-size:22px;color:#17462E">Baloo 2</b> – tròn, thân thiện · chữ thường Be Vietnam Pro</p></div></section>';}
+document.getElementById('app').innerHTML=M=='bang'?bang():pc();
+</script></body></html>
