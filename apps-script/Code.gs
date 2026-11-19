@@ -28,10 +28,11 @@ const SHEETS = {
   ThuGui:   ['id', 'nguoiGui', 'lopGui', 'guiCho', 'lopNhan', 'noiDung', 'sdt', 'trangThai', 'taoLuc'],
   ViecCan:  ['id', 'icon', 'ten', 'moTa', 'nguoiNhan', 'lienHe', 'thuTu', 'trangThai'],
   BinhChon: ['id', 'cauHoi', 'luaChon', 'khach', 'hoTen', 'taoLuc'],
+  GoiNho:   ['id', 'cauHoi', 'hoTen', 'lopId', 'traLoi', 'trangThai', 'taoLuc'],
   CauHinh:  ['key', 'value']
 };
 
-const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe', 'banQuyen', 'anhCong', 'media', 'hen2028', 'lich2028', 'binhChon', 'moThu2028'];
+const CONFIG_KEYS = ['tenTruong', 'nienKhoa', 'namRaTruong', 'diaChi', 'cauMoDau', 'loiNgo', 'nguoiKy', 'trichDan', 'trichDanTacGia', 'banLienLac', 'doanMoDau', 'thuNgo', 'giayMoi', 'keHoach', 'tuDuyetLb', 'taiTro', 'anhien', 'ttLoiMoi', 'ttNguoiLienHe', 'ttSoLienHe', 'banQuyen', 'anhCong', 'media', 'hen2028', 'lich2028', 'binhChon', 'moThu2028', 'goiNho'];
 const CONFIG_DEFAULT = {
   tenTruong: 'THPT Nguyễn Hiền',
   nienKhoa: '2000 – 2003',
@@ -959,6 +960,7 @@ function getAdminData(token) {
     henGap: read_('HenGap').filter(function (x) { return mine(x, 'lopId'); }).map(pub_).reverse(),
     thuGui: read_('ThuGui').filter(function (x) { return isS || x.lopGui === u.lopId || x.lopNhan === u.lopId; }).map(function (x) { const o = pub_(x); o.noiDung = ''; o.dai = String(x.noiDung || '').length; return o; }).reverse(),
     viecCan: isS ? sort_(read_('ViecCan')).map(pub_) : [],
+    goiNho: isS ? read_('GoiNho').map(pub_).reverse().slice(0, 200) : [],
     log: log
   };
 }
@@ -1655,6 +1657,33 @@ const VIEC_MAC_DINH = [
   ['🔎', 'Tìm bạn còn thiếu', 'Mỗi lớp nhận tìm những bạn chưa liên lạc được.'],
   ['📒', 'Sổ vàng viết tay', 'Mỗi người một trang, đóng thành một cuốn.']
 ];
+/* Câu hỏi gợi nhớ đổi mỗi tuần (trang Kết nối, chương năm ra trường) – CauHinh goiNho mỗi dòng 1 câu, trống → mặc định */
+const GN_MAC_DINH = [
+  'Ai còn nhớ món ngon nhất ở căn tin trường mình?',
+  'Thầy cô nào từng làm bạn sợ nhất – mà giờ nhớ nhất?',
+  'Bạn ngồi cạnh bạn năm lớp 12 là ai?',
+  'Kỷ niệm nhớ đời nhất của lớp bạn trong ba năm?',
+  'Biệt danh của bạn hồi đó là gì?',
+  'Bài hát nào làm bạn nhớ tới năm cuối cấp?',
+  'Lần trốn học (hay suýt trốn) đáng nhớ nhất?',
+  'Hồi đó bạn hay ăn gì ở cổng trường?',
+  'Món quà lưu bút bạn còn giữ tới giờ?',
+  'Nếu gặp lại mình năm 2003, bạn sẽ dặn điều gì?',
+  'Buổi cắm trại, văn nghệ nào bạn nhớ nhất?',
+  'Câu nói nào của thầy cô bạn vẫn nhớ nguyên văn?'
+];
+function cauGoiNho_(c) {
+  const ds = String((c || cfg_()).goiNho || '').split('\n').map(function (x) { return x.trim(); }).filter(String);
+  const l = ds.length ? ds : GN_MAC_DINH, tuan = Math.floor((Date.now() / 864e5 + 3) / 7);
+  return l[tuan % l.length];
+}
+/** Mã của tên người nhận thư (bỏ dấu, bỏ khoảng trắng) – frontend băm giống hệt để báo "có thư đang chờ bạn" mà không lộ tên/nội dung. */
+function bamTen_(t) {
+  const s = boDau_(t).replace(/[^a-z0-9]/g, '');
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h).toString(36);
+}
 function binhChonCfg_(c) {
   const d = String((c || cfg_()).binhChon || '').split('\n').map(function (x) { return x.trim(); }).filter(String);
   return { cauHoi: d[0] || '', luaChon: d.slice(1, 9) };
@@ -1665,15 +1694,18 @@ function ketNoiData_() {
     PropertiesService.getScriptProperties().setProperty('VIEC_SEED', '1');
     appendMany_('ViecCan', VIEC_MAC_DINH.map(function (v, i) { return { id: uid_(), icon: v[0], ten: v[1], moTa: v[2], nguoiNhan: '', lienHe: '', thuTu: String(i + 1), trangThai: '' }; }));
   }
-  const thu = read_('ThuGui').filter(function (x) { return x.trangThai !== 'an'; }), mo = c.moThu2028 === '1';
+  const thu = read_('ThuGui').filter(function (x) { return x.trangThai !== 'an'; }), mo = c.moThu2028 === '1', nhan = {};
+  thu.forEach(function (x) { const k = bamTen_(x.guiCho); if (k !== '0') nhan[k] = (nhan[k] || 0) + 1; });
+  const gn = cauGoiNho_(c);
   const bc = binhChonCfg_(c), dem = {};
   let tong = 0;
   if (bc.cauHoi) read_('BinhChon').forEach(function (v) { if (v.cauHoi === bc.cauHoi && bc.luaChon.indexOf(v.luaChon) >= 0) { dem[v.luaChon] = (dem[v.luaChon] || 0) + 1; tong++; } });
   return {
     henGap: read_('HenGap').filter(function (x) { return x.trangThai !== 'an'; }).map(pubOf_('HenGap')).reverse(),
-    thu: { tong: thu.length, mo: mo, ds: mo ? thu.map(function (x) { return { nguoiGui: x.nguoiGui, lopGui: x.lopGui, guiCho: x.guiCho, lopNhan: x.lopNhan, noiDung: x.noiDung }; }) : [] },
+    thu: { tong: thu.length, mo: mo, nhan: nhan, ds: mo ? thu.map(function (x) { return { nguoiGui: x.nguoiGui, lopGui: x.lopGui, guiCho: x.guiCho, lopNhan: x.lopNhan, noiDung: x.noiDung }; }) : [] },
     viec: sort_(read_('ViecCan').filter(function (x) { return x.trangThai !== 'an'; })).map(pubOf_('ViecCan')),
-    binhChon: { cauHoi: bc.cauHoi, luaChon: bc.luaChon, dem: dem, tong: tong }
+    binhChon: { cauHoi: bc.cauHoi, luaChon: bc.luaChon, dem: dem, tong: tong },
+    goiNho: { cauHoi: gn, ds: read_('GoiNho').filter(function (x) { return x.cauHoi === gn && x.trangThai !== 'an'; }).map(pubOf_('GoiNho')).reverse().slice(0, 60) }
   };
 }
 function gioiHan_(k, n) {
@@ -1739,6 +1771,35 @@ function binhChon2028(luaChon, khach, hoTen) {
     if (ex) { ex.luaChon = String(luaChon); ex.taoLuc = now_(); if (hoTen) ex.hoTen = String(hoTen).slice(0, 60); update_('BinhChon', ex); }
     else append_('BinhChon', { id: uid_(), cauHoi: bc.cauHoi, luaChon: String(luaChon), khach: khach, hoTen: String(hoTen || '').slice(0, 60), taoLuc: now_() });
     return ketNoiData_().binhChon;
+  });
+}
+function traLoiGoiNho(hoTen, lopId, traLoi) {
+  gioiHan_('GN_RATE', 40);
+  hoTen = req_(hoTen, 'tên của bạn', 60);
+  lopId = lopCo_(lopId);
+  traLoi = req_(traLoi, 'câu trả lời', 500);
+  return lock_(function () {
+    append_('GoiNho', { id: uid_(), cauHoi: cauGoiNho_(), hoTen: hoTen, lopId: lopId, traLoi: traLoi, trangThai: '', taoLuc: now_() });
+    return ketNoiData_().goiNho;
+  });
+}
+function setGoiNhoStatus(token, id, an) {
+  return lock_(function () {
+    const u = auth_(token, true), x = find_('GoiNho', id);
+    if (!x) throw new Error('Không tìm thấy.');
+    x.trangThai = an ? 'an' : '';
+    update_('GoiNho', x);
+    log_(u, (an ? 'Ẩn' : 'Hiện lại') + ' trả lời gợi nhớ của ' + x.hoTen);
+    return true;
+  });
+}
+function deleteGoiNho(token, id) {
+  return lock_(function () {
+    const u = auth_(token, true), x = find_('GoiNho', id);
+    if (!x) throw new Error('Không tìm thấy.');
+    remove_('GoiNho', function (r) { return r.id === id; });
+    log_(u, 'Xoá trả lời gợi nhớ của ' + x.hoTen);
+    return true;
   });
 }
 function setHenGapStatus(token, id, an) {
@@ -1963,6 +2024,8 @@ function napDuLieuMau_() {
   appendMany_('DangKy', dk);
   /* Kết nối 2028: vài bạn đã bấm "Mình sẽ về" (lấy tên trong danh sách mẫu) */
   const kn = ['chac', 'chac', 'cothe', 'chac', 'xa', 'chac', 'cothe', 'chac'];
+  const gnc = cauGoiNho_(), GN = [['Hằng', 3, 'Bánh mì chả cá cô Ba – 2 nghìn một ổ, giờ tìm không ra vị đó nữa.'], ['Tuấn', 7, 'Ngồi bàn cuối, chuyên chép bài hộ cả dãy.'], ['Thảo', 0, 'Nhớ nhất buổi văn nghệ 20/11, cả lớp hát lạc tông mà vẫn được giải khuyến khích.'], ['Minh', 10, 'Câu “Các em im lặng cho cô nhờ” – nghe tới giờ vẫn giật mình.']];
+  appendMany_('GoiNho', GN.map(function (g) { return { id: id('gn'), cauHoi: gnc, hoTen: g[0], lopId: L(g[1]), traLoi: g[2], trangThai: '', taoLuc: t }; }));
   appendMany_('HenGap', hs.filter(function (_, i) { return i % 5 === 1; }).slice(0, 40).map(function (h, i) { return { id: id('hg'), lopId: h.lopId, hoTen: h.hoTen, sdt: '', khaNang: kn[i % kn.length], loiNhan: '', trangThai: '', taoLuc: t }; }));
 
   return 'Đã nạp: ' + hs.length + ' học sinh, ' + EV.length + ' hoạt động, ' + LB.length + ' lưu bút, ' + anh.length + ' ảnh minh hoạ, ' + TT.length + ' tin, ' + dk.length + ' đăng ký.';
@@ -1971,7 +2034,7 @@ function napDuLieuMau_() {
 function xoaDuLieuMau_() {
   let total = 0, giu = 0;
   const tenMau = MAU_TC.concat(MAU_GV);
-  ['HocSinh', 'HoatDong', 'ThayCo', 'LuuBut', 'TinTuc', 'Anh', 'DangKy', 'HenGap'].forEach(function (s) {
+  ['HocSinh', 'HoatDong', 'ThayCo', 'LuuBut', 'TinTuc', 'Anh', 'DangKy', 'HenGap', 'GoiNho'].forEach(function (s) {
     const all = read_(s);
     const keep = all.filter(function (x) {
       if (String(x.id).indexOf('mau_') !== 0) return true;
