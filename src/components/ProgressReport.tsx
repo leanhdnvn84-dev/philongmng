@@ -45,9 +45,12 @@ const levelCls = (l?: string | null) => /quan trọng|gấp/i.test(l ?? '') ? 't
 const stateCls = (w: Work) => isDone(w) ? 'text-green-700' : /đang/i.test(w.trang_thai ?? '') ? 'text-orange-600' : 'text-red-600'
 
 interface Photo { id: string; ngay: string | null; gio: string | null; giai_doan: string | null; dong_tien_do: string | null; file_id: string | null; thumb_id: string | null; nguoi_tai: string | null }
-const thumbUrl = (p: Photo, w = 240) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(p.thumb_id || p.file_id || '')}&sz=w${w}`
-const fullUrl = (p: Photo) => `https://drive.google.com/thumbnail?id=${encodeURIComponent(p.file_id || '')}&sz=w1600`
-const driveUrl = (p: Photo) => `https://drive.google.com/file/d/${encodeURIComponent(p.file_id || '')}/view`
+// photos kept in Cloudflare R2 (file_id "r2/…") are served by the app after a permission check; older ones stay on Google Drive
+const inR2 = (p: Photo) => !!p.file_id?.startsWith('r2/')
+const r2Url = (p: Photo) => `/api/anh_tien_do/tai?id=${encodeURIComponent(p.id)}`
+const thumbUrl = (p: Photo, w = 240) => inR2(p) ? r2Url(p) : `https://drive.google.com/thumbnail?id=${encodeURIComponent(p.thumb_id || p.file_id || '')}&sz=w${w}`
+const fullUrl = (p: Photo) => inR2(p) ? r2Url(p) : `https://drive.google.com/thumbnail?id=${encodeURIComponent(p.file_id || '')}&sz=w1600`
+const driveUrl = (p: Photo) => inR2(p) ? r2Url(p) : `https://drive.google.com/file/d/${encodeURIComponent(p.file_id || '')}/view`
 const batchOf = (id: string) => id.replace(/-\d+$/, '')
 const plain = (t: string | null | undefined) => String(t ?? '').toLowerCase().replace(/^\s*-?\s*\d{1,2}\/\d{1,2}\s*(\[[^\]]*\])?\s*:?\s*/, '').replace(/\(\s*\d+\s*ảnh\s*\)/g, '').replace(/\s+/g, ' ').trim()
 
@@ -62,7 +65,7 @@ function Lightbox({ list, index, onClose, onGo }: { list: Photo[]; index: number
     <div className="fixed inset-0 z-[110] flex flex-col bg-black/90" role="dialog" aria-modal="true" aria-label="Xem ảnh">
       <div className="flex shrink-0 items-center gap-3 px-4 py-3 text-white">
         <div className="min-w-0 flex-1 text-sm"><b>{index + 1} / {list.length}</b> · {p.giai_doan ?? 'Cập nhật'} · {formatDate(p.ngay)}{p.gio ? ` ${p.gio}` : ''}<div className="truncate text-xs opacity-80">{plain(p.dong_tien_do)}</div></div>
-        <a href={driveUrl(p)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-white/40 px-3 py-1.5 text-xs font-bold">Mở trên Drive</a>
+        <a href={driveUrl(p)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-white/40 px-3 py-1.5 text-xs font-bold">{inR2(p) ? 'Mở ảnh gốc' : 'Mở trên Drive'}</a>
         <button onClick={onClose} aria-label="Đóng" className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-xl">×</button>
       </div>
       <div className="relative flex min-h-0 flex-1 items-center justify-center" onClick={(e) => e.target === e.currentTarget && onClose()}>

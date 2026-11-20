@@ -7,6 +7,8 @@ import { useConfirm } from '@/components/ConfirmDialog'
 import DataMaint from '@/components/DataMaint'
 import MissingFields from '@/components/MissingFields'
 
+type R2Obj = { key: string; size: number; lastModified: string }
+type R2Status = { bat: boolean; loi?: string; soBan?: number; soV27?: number; dungLuong?: number; moiNhat?: R2Obj | null; v27MoiNhat?: R2Obj | null }
 interface Backup { id: string; thoi_gian: string; nguoi_tao: string | null; loai: string; ghi_chu: string | null; so_bang: number; so_dong: number; kich_thuoc: number; chi_tiet: Record<string, number> }
 
 const LABEL: Record<string, string> = {
@@ -33,6 +35,7 @@ export default function DataCheck({ isAdmin, editable }: { isAdmin: boolean; edi
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [sum, setSum] = useState<{ loi: number; canh_bao: number } | null>(null)
   const [backups, setBackups] = useState<Backup[]>([])
+  const [kho, setKho] = useState<{ drive: boolean; r2: R2Status } | null>(null)
   const [open, setOpen] = useState<string | null>(null)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
@@ -43,7 +46,7 @@ export default function DataCheck({ isAdmin, editable }: { isAdmin: boolean; edi
     try { const j = await api('/api/he_thong/kiem_tra'); setCounts(j.data.counts) } catch (e: any) { setMsg({ ok: false, text: e.message }) }
   }, [])
   const loadBackups = useCallback(async () => {
-    try { const j = await api('/api/he_thong/sao_luu'); setBackups(j.data) } catch (e: any) { setMsg({ ok: false, text: e.message }) }
+    try { const j = await api('/api/he_thong/sao_luu'); setBackups(j.data); setKho(j.kho ?? null) } catch (e: any) { setMsg({ ok: false, text: e.message }) }
   }, [])
   useEffect(() => { loadCheck(); loadBackups() }, [loadCheck, loadBackups])
 
@@ -53,9 +56,13 @@ export default function DataCheck({ isAdmin, editable }: { isAdmin: boolean; edi
   }
   const create = () => run('create', async () => {
     const j = await api('/api/he_thong/sao_luu', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ghi_chu: note }) })
-    setNote(''); await loadBackups(); return `Đã tạo bản sao lưu ${j.data.id} (${j.data.so_dong.toLocaleString('vi-VN')} dòng, ${fmtSize(j.data.kich_thuoc)}).`
+    setNote(''); await loadBackups()
+    const r2 = j.data.r2 ? (j.data.r2.ok ? ' Đã chép thêm lên Cloudflare R2.' : ` Chưa chép được lên R2 (${j.data.r2.error}); bản trong hệ thống vẫn an toàn.`) : ''
+    return `Đã tạo bản sao lưu ${j.data.id} (${j.data.so_dong.toLocaleString('vi-VN')} dòng, ${fmtSize(j.data.kich_thuoc)}).${r2}`
   })
-  const toDrive = () => run('drive', async () => (await api('/api/he_thong/sao_luu/v27', { method: 'POST' })).data.message)
+  const toDrive = () => run('drive', async () => { const m = (await api('/api/he_thong/sao_luu/v27', { method: 'POST' })).data.message; loadBackups(); return m })
+  const r2On = !!kho?.r2.bat
+  const stores = [kho?.drive !== false ? 'Drive' : '', r2On ? 'R2' : ''].filter(Boolean).join(' + ') || 'Drive'
   const restore = async (b: Backup, tables?: string[]) => {
     const what = tables ? `bảng "${LABEL[tables[0]] ?? tables[0]}"` : 'TẤT CẢ các bảng'
     const okay = await confirm(`Khôi phục ${what} từ bản ${b.id} (${fmtTime(b.thoi_gian)})?\n\nDữ liệu đã sửa hoặc xoá sau thời điểm đó sẽ được đưa về như lúc sao lưu. Dòng mới tạo sau đó được giữ nguyên. Hệ thống tự tạo thêm một bản sao lưu an toàn trước khi khôi phục.`, { danger: true, okLabel: 'Khôi phục' })
@@ -122,12 +129,13 @@ export default function DataCheck({ isAdmin, editable }: { isAdmin: boolean; edi
                   {busy === 'create' ? <Loader2 size={15} className="animate-spin" /> : <Database size={15} />}Tạo bản sao lưu
                 </button>
                 <a className="btn-secondary" href="/api/he_thong/sao_luu/v27" download title="Toàn bộ dữ liệu hiện tại, cùng sheet và cột như file Google Sheet V27"><Download size={15} />Tải file V27 (Excel)</a>
-                <button className="btn-secondary" onClick={toDrive} disabled={busy === 'drive'} title="Lưu file V27 vào thư mục sao lưu trên Google Drive (việc này cũng tự chạy mỗi đêm)">
-                  {busy === 'drive' ? <Loader2 size={15} className="animate-spin" /> : <Database size={15} />}Lưu file V27 lên Drive
+                <button className="btn-secondary" onClick={toDrive} disabled={busy === 'drive'} title={`Lưu file V27 vào ${stores === 'Drive' ? 'thư mục sao lưu trên Google Drive' : stores} (việc này cũng tự chạy mỗi đêm)`}>
+                  {busy === 'drive' ? <Loader2 size={15} className="animate-spin" /> : <Database size={15} />}Lưu file V27 lên {stores}
                 </button>
               </div>
             ) : <p className="text-sm text-ink-soft">Chỉ quản trị viên cao nhất được tạo, tải và khôi phục bản sao lưu.</p>}
-            <p className="text-xs text-ink-mute leading-relaxed">Bản sao lưu gồm toàn bộ bảng dữ liệu (không gồm mật khẩu). Khi khôi phục, hệ thống tự tạo thêm một bản an toàn trước đó. Tải về dưới dạng .json.gz để cất giữ riêng. Nút “Tải file V27” xuất dữ liệu hiện tại ra file Excel có cùng sheet và cột như file V27 của hệ thống cũ; mỗi đêm một bản như vậy cũng tự lưu lên Google Drive.</p>
+            <p className="text-xs text-ink-mute leading-relaxed">Bản sao lưu gồm toàn bộ bảng dữ liệu (không gồm mật khẩu). Khi khôi phục, hệ thống tự tạo thêm một bản an toàn trước đó. Tải về dưới dạng .json.gz để cất giữ riêng. Nút “Tải file V27” xuất dữ liệu hiện tại ra file Excel có cùng sheet và cột như file V27 của hệ thống cũ; mỗi đêm một bản như vậy cũng tự lưu lên Google Drive{r2On ? ' và Cloudflare R2' : ''}.</p>
+            {kho && <R2Line s={kho.r2} />}
             <ul className="divide-y divide-navy-100 border border-navy-100 rounded-lg">
               {backups.length === 0 && <li className="px-3 py-6 text-center text-sm text-ink-mute">Chưa có bản sao lưu nào.</li>}
               {backups.map((b) => (
@@ -170,5 +178,20 @@ export default function DataCheck({ isAdmin, editable }: { isAdmin: boolean; edi
         </div>
       </section>
     </div>
+  )
+}
+
+/** One line about the extra copy in Cloudflare R2 (off until the R2_* variables are set in Vercel). */
+function R2Line({ s }: { s: R2Status }) {
+  const box = 'rounded-lg border px-3 py-2 text-xs leading-relaxed'
+  if (!s.bat) return <p className={`${box} border-navy-100 bg-navy-50 text-ink-soft`}><b>Cloudflare R2:</b> đang tắt (chưa cấu hình). Sao lưu vẫn lưu trong hệ thống và Google Drive như bình thường.</p>
+  if (s.loi) return <p className={`${box} border-orange-200 bg-orange-50 text-orange-800`}><b>Cloudflare R2:</b> đã bật nhưng không đọc được kho ({s.loi}).</p>
+  const m = s.moiNhat, v = s.v27MoiNhat
+  return (
+    <p className={`${box} border-green-200 bg-green-50 text-green-800`}>
+      <b>Cloudflare R2:</b> đang bật · {s.soBan ?? 0} bản sao lưu, {s.soV27 ?? 0} file V27{s.dungLuong ? ` (${fmtSize(s.dungLuong)})` : ''}, giữ 30 bản mỗi loại.
+      {' '}Mới nhất: {m ? `${m.key.split('/').pop()} · ${fmtTime(m.lastModified)} · ${fmtSize(m.size)}` : 'chưa có'}
+      {v ? ` · V27: ${fmtTime(v.lastModified)}` : ''}
+    </p>
   )
 }

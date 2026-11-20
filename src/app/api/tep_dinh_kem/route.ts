@@ -3,11 +3,14 @@ import { guard, ok, fail } from '@/lib/http'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { uploadToDrive, driveConfigured } from '@/lib/driveUpload'
 import { audit } from '@/lib/crud'
+import { keyPart, r2Configured, r2Put, r2Ref } from '@/lib/r2'
+import crypto from 'node:crypto'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-/** Files attached to a record (photos, PDF, Word/Excel): stored in the Google Drive photo folder, only the Drive id is kept here. */
+/** Files attached to a record (photos, PDF, Word/Excel). New files go to Cloudflare R2 when it is configured (file_id = "r2/<key>",
+ *  served by /api/tep_dinh_kem/tai after a permission check), otherwise to the Google Drive photo folder (file_id = Drive id). */
 const ATTACH_TABLES = ['thiet_bi', 'nhat_ky_bao_tri', 'lich_bao_tri', 'de_xuat', 'khach_thue', 'cong_viec', 'cong_viec_hang_ngay', 'khach_hang_tiem_nang', 'vat_tu'] as const
 const ID = /^[A-Za-z0-9_.-]{1,64}$/
 const TYPES = /^(image\/|application\/pdf$|application\/vnd\.openxmlformats-officedocument\.|application\/msword$|application\/vnd\.ms-excel$|text\/plain$)/
@@ -30,7 +33,8 @@ export async function POST(req: NextRequest) {
   const bang = String(form.get('bang') ?? ''), id = String(form.get('id') ?? '')
   if (!target(bang, id)) return fail('Không hợp lệ')
   const g = await guard(bang, 'edit'); if (g instanceof Response) return g
-  if (!driveConfigured()) return fail('Chưa cấu hình Google Drive cho hệ thống', 503)
+  const useR2 = r2Configured()
+  if (!useR2 && !driveConfigured()) return fail('Chưa cấu hình Google Drive cho hệ thống', 503)
   const file = form.get('file')
   if (!(file instanceof File)) return fail('Chưa chọn tệp')
   if (!TYPES.test(file.type || '')) return fail('Chỉ nhận ảnh, PDF, Word, Excel hoặc tệp văn bản')
@@ -40,7 +44,13 @@ export async function POST(req: NextRequest) {
   const { data: row } = await db.from(g.res.table).select('id').eq('id', id).maybeSingle()
   if (!row) return fail('Không tìm thấy bản ghi', 404)
   try {
-    const fileId = await uploadToDrive(`${bang}_${id}_${Date.now()}_${name}`, file.type, Buffer.from(await file.arrayBuffer()))
+    const bytes = Buffer.from(await file.arrayBuffer())
+    let fileId: string
+    if (useR2) {
+      const key = `tep-dinh-kem/${bang}/${keyPart(id, 64)}/${Date.now()}-${crypto.randomBytes(4).toString('hex')}-${keyPart(name, 100)}`
+      await r2Put(key, bytes, file.type)
+      fileId = r2Ref(key)
+    } else fileId = await uploadToDrive(`${bang}_${id}_${Date.now()}_${name}`, file.type, bytes)
     const { data, error } = await db.from('tep_dinh_kem').insert({ bang, id_ban_ghi: id, ten: name, mime: file.type, kich_thuoc: file.size, file_id: fileId, nguoi_tai: g.auth.name })
       .select('id, ten, mime, kich_thuoc, file_id, nguoi_tai, created_at').single()
     if (error) throw error
@@ -56,7 +66,7 @@ export async function DELETE(req: NextRequest) {
   const { data: f } = await db.from('tep_dinh_kem').select('id, bang, id_ban_ghi, ten').eq('id', fid).maybeSingle()
   if (!f) return fail('Không tìm thấy tệp', 404)
   const g = await guard(f.bang, 'edit'); if (g instanceof Response) return g
-  // the file stays in Google Drive (nothing is lost by a wrong click); only the link to the record is removed
+  // the file stays in Google Drive / R2 (nothing is lost by a wrong click); only the link to the record is removed
   const { error } = await db.from('tep_dinh_kem').delete().eq('id', fid)
   if (error) return fail('Lỗi cơ sở dữ liệu', 500)
   await audit(g.auth, g.res.table, f.id_ban_ghi, 'detach', { ten: f.ten })

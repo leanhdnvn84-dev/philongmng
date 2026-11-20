@@ -1,6 +1,7 @@
 import 'server-only'
 import zlib from 'node:zlib'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { copyBackupToR2 } from '@/lib/r2Backup'
 
 /** Parents first, so a restore satisfies foreign keys. `users` is saved for reference only (it is tied to Supabase Auth). */
 export const BACKUP_TABLES = [
@@ -14,6 +15,9 @@ const NO_RESTORE = new Set(['users'])
 /** tables whose key column is not `id` */
 export const KEY_OF: Record<string, string> = { cau_hinh_he_thong: 'khoa' }
 export const KEEP_BACKUPS = 30
+
+/** File name used for downloads and for the copy kept in R2. */
+export const backupFileName = (id: string, thoiGian: string) => `philong-sao-luu-${id}-${thoiGian.slice(0, 19).replace(/[-:T]/g, '')}.json.gz`
 
 async function fetchAll(table: string) {
   const db = supabaseAdmin(), rows: any[] = []
@@ -42,7 +46,9 @@ export async function createBackup(by: string, kind: string, note: string | null
   // keep only the newest backups
   const { data: old } = await db.from('sao_luu').select('id').order('thoi_gian', { ascending: false }).range(KEEP_BACKUPS, KEEP_BACKUPS + 200)
   if (old?.length) await db.from('sao_luu').delete().in('id', old.map((o) => o.id))
-  return data
+  // extra copy outside the database when R2 is configured (null = R2 off); its failure never fails the backup
+  const r2 = await copyBackupToR2(backupFileName(data.id, data.thoi_gian), gz, 'application/gzip')
+  return { ...data, r2 }
 }
 
 export async function loadBackup(id: string) {

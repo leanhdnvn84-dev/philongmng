@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { createBackup, loadBackup, restoreBackup } from '@/lib/backup'
+import { backupFileName, createBackup, loadBackup, restoreBackup } from '@/lib/backup'
 import { sysGuard } from '@/lib/sysGuard'
 import { audit } from '@/lib/crud'
 
@@ -14,9 +14,8 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   if (!ID.test(params.id)) return NextResponse.json({ success: false, error: 'Mã không hợp lệ' }, { status: 400 })
   const b = await loadBackup(params.id)
   if (!b) return NextResponse.json({ success: false, error: 'Không tìm thấy bản sao lưu' }, { status: 404 })
-  const stamp = b.thoi_gian.slice(0, 19).replace(/[-:T]/g, '')
   await audit(a, 'sao_luu', params.id, 'tai_sao_luu', {})
-  return new NextResponse(b.gz, { headers: { 'Content-Type': 'application/gzip', 'Content-Disposition': `attachment; filename="philong-sao-luu-${params.id}-${stamp}.json.gz"`, 'Cache-Control': 'no-store' } })
+  return new NextResponse(b.gz, { headers: { 'Content-Type': 'application/gzip', 'Content-Disposition': `attachment; filename="${backupFileName(params.id, b.thoi_gian)}"`, 'Cache-Control': 'no-store' } })
 }
 
 /** Restore (all tables or the listed ones); a safety backup is taken first. */

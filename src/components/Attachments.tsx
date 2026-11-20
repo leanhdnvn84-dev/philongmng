@@ -2,12 +2,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Paperclip, Loader2, X, FileText, Image as ImageIcon, Upload } from 'lucide-react'
 
-/** "Tệp đính kèm" in a record's view popup: photos, PDF, Word/Excel stored in Google Drive. */
+/** "Tệp đính kèm" in a record's view popup: photos, PDF, Word/Excel stored in Google Drive or Cloudflare R2. */
 type Tep = { id: string; ten: string; mime: string | null; kich_thuoc: number | null; file_id: string; nguoi_tai: string | null; created_at: string }
 export const ATTACHABLE = new Set(['thiet_bi', 'nhat_ky_bao_tri', 'lich_bao_tri', 'de_xuat', 'khach_thue', 'cong_viec', 'cong_viec_hang_ngay', 'khach_hang_tiem_nang', 'vat_tu'])
 const size = (n: number | null) => (!n ? '' : n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`)
 const when = (iso: string) => new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(iso))
 const isImg = (t: Tep) => /^image\//.test(t.mime ?? '')
+// files kept in Cloudflare R2 (file_id "r2/…") are served by the app after a permission check; older ones stay on Google Drive
+const inR2 = (t: Tep) => t.file_id.startsWith('r2/')
+const openUrl = (t: Tep) => inR2(t) ? `/api/tep_dinh_kem/tai?id=${encodeURIComponent(t.id)}` : `https://drive.google.com/file/d/${encodeURIComponent(t.file_id)}/view`
+const thumbUrl = (t: Tep) => inR2(t) ? `/api/tep_dinh_kem/tai?id=${encodeURIComponent(t.id)}` : `https://drive.google.com/thumbnail?id=${encodeURIComponent(t.file_id)}&sz=w400`
 
 async function shrink(file: File, max = 1600): Promise<File> {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file
@@ -70,17 +74,17 @@ export default function Attachments({ resource, id, canEdit }: { resource: strin
         <div className="grid grid-cols-2 gap-2 p-2.5 sm:grid-cols-3 lg:grid-cols-4">
           {list.map((t) => (
             <div key={t.id} className="group relative overflow-hidden rounded-lg border border-navy-200 bg-white">
-              <a href={`https://drive.google.com/file/d/${encodeURIComponent(t.file_id)}/view`} target="_blank" rel="noopener noreferrer" className="block">
+              <a href={openUrl(t)} target="_blank" rel="noopener noreferrer" className="block">
                 {isImg(t)
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={`https://drive.google.com/thumbnail?id=${encodeURIComponent(t.file_id)}&sz=w400`} alt={t.ten} loading="lazy" className="h-28 w-full bg-navy-50 object-cover" />
+                  ? <img src={thumbUrl(t)} alt={t.ten} loading="lazy" className="h-28 w-full bg-navy-50 object-cover" />
                   : <div className="grid h-28 place-items-center bg-navy-50 text-navy-400"><FileText className="h-10 w-10" /></div>}
                 <div className="px-2 py-1.5">
                   <div className="flex items-center gap-1 truncate text-[12.5px] font-bold text-navy-900">{isImg(t) ? <ImageIcon className="h-3.5 w-3.5 shrink-0 text-navy-400" /> : <FileText className="h-3.5 w-3.5 shrink-0 text-navy-400" />}<span className="truncate">{t.ten}</span></div>
                   <div className="truncate text-[11px] text-ink-mute">{[size(t.kich_thuoc), when(t.created_at), t.nguoi_tai].filter(Boolean).join(' · ')}</div>
                 </div>
               </a>
-              {canEdit && <button type="button" onClick={() => remove(t)} aria-label={`Gỡ ${t.ten}`} title="Gỡ khỏi bản ghi (tệp vẫn còn trong Google Drive)"
+              {canEdit && <button type="button" onClick={() => remove(t)} aria-label={`Gỡ ${t.ten}`} title={`Gỡ khỏi bản ghi (tệp vẫn còn trong ${inR2(t) ? 'kho lưu trữ R2' : 'Google Drive'})`}
                 className="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-full bg-black/55 text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100 max-lg:opacity-100"><X className="h-4 w-4" /></button>}
             </div>
           ))}

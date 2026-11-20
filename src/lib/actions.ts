@@ -5,6 +5,7 @@ import type { AuthContext } from '@/lib/auth'
 import type { Resource } from '@/lib/resources'
 import { runAlerts, summarize } from '@/lib/alerts'
 import { audit, dayMonthVN, timeVN, todayVN } from '@/lib/crud'
+import { isProgressPhotoRef } from '@/lib/r2'
 
 export class ActionError extends Error { constructor(msg: string, public status = 400) { super(msg) } }
 const bad = (m: string, s = 400): never => { throw new ActionError(m, s) }
@@ -21,7 +22,9 @@ async function loadRow(res: Resource, id: string) {
 // ── Công việc: append "- dd/mm [Giai đoạn]: nội dung" (same format as the V191 sheet) ──
 const ghiTienDo: Handler = async ({ res, auth, id, row, input }) => {
   const stage = one(input.giai_doan)
-  const photoIds: string[] = (Array.isArray(input.anh) ? input.anh : []).map((x: unknown) => String(x)).filter((x: string) => /^[A-Za-z0-9_-]{10,100}$/.test(x)).slice(0, 12)
+  // Google Drive ids, or R2 photos uploaded for this very record (see /api/anh_tien_do)
+  const photoIds: string[] = (Array.isArray(input.anh) ? input.anh : []).map((x: unknown) => String(x))
+    .filter((x: string) => /^[A-Za-z0-9_-]{10,100}$/.test(x) || isProgressPhotoRef(x, res.table, id)).slice(0, 12)
   const text = one(input.noi_dung) || (photoIds.length ? `Cập nhật ${photoIds.length} hình ảnh` : '')
   if (!stage && !text) bad('Nhập nội dung, chọn giai đoạn hoặc thêm ảnh')
   const day = dayMonthVN()
