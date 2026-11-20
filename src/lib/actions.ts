@@ -104,8 +104,11 @@ const duyet: Handler = async ({ auth, id, row }) => {
   let stocked = 0
   if (row.loai_de_xuat === 'MUA_VAT_TU') {
     try {
+      // a line already in stock under this proposal (e.g. entered before an approval was reset) is never entered twice
+      const { data: had } = await db.from('nhap_xuat_kho').select('id_vat_tu').eq('id_chung_tu', id).eq('loai_giao_dich', 'NHAP')
+      const inStock = new Set((had ?? []).map((r: any) => r.id_vat_tu))
       for (const l of lines!) {
-        if (!l.id_vat_tu) continue
+        if (!l.id_vat_tu || inStock.has(l.id_vat_tu)) continue
         const { error } = await db.rpc('kho_giao_dich', {
           p_vat_tu: l.id_vat_tu, p_loai: 'NHAP', p_so_luong: l.so_luong, p_ngay: todayVN(),
           p_noi_dung: `Nhập theo đề xuất ${id}`, p_nguon: 'DE_XUAT', p_chung_tu: id, p_nguoi_tao: auth.name,

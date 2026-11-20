@@ -63,6 +63,14 @@ export async function GET() {
     if (low.length) out.push({ key: 'vat_tu', title: 'Vật tư dưới mức tồn tối thiểu', count: low.length, tone: 'amber', href: '/vat_tu', lines: low.slice(0, 4).map((r) => `${cut(r.ten_vat_tu, 40)} · tồn ${r.ton_hien_tai}/${r.ton_toi_thieu} ${r.dvt ?? ''}`) })
   })())
 
+  // last data-maintenance scan (nightly, or whenever the page is opened): only for people who look after the system
+  if (auth.superAdmin || can(auth, 'NGUOI_SU_DUNG', 'view')) jobs.push((async () => {
+    const { data } = await db.from('cau_hinh_he_thong').select('gia_tri').eq('khoa', 'bao_tri_du_lieu').maybeSingle()
+    const s = data?.gia_tri ? JSON.parse(data.gia_tri) : null
+    const n = s ? Number(s.loi || 0) + Number(s.canh_bao || 0) : 0
+    if (n) out.push({ key: 'bao_tri_du_lieu', title: 'Mục dữ liệu cần bảo trì', count: n, tone: s.loi ? 'red' : 'amber', href: '/kiem-tra-du-lieu', lines: (s.top ?? []).slice(0, 4) })
+  })())
+
   await Promise.all(jobs.map((j) => j.catch(() => {})))
   const rank = { red: 0, amber: 1, blue: 2 }
   out.sort((a, b) => rank[a.tone] - rank[b.tone] || b.count - a.count)

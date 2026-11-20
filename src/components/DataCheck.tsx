@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, CheckCircle2, Database, Download, History, Info, Loader2, RotateCcw, ShieldCheck, Trash2, XCircle } from 'lucide-react'
+import { Database, Download, History, Loader2, RotateCcw, Trash2 } from 'lucide-react'
 import { useConfirm } from '@/components/ConfirmDialog'
+import DataMaint from '@/components/DataMaint'
 
-interface Issue { key: string; title: string; level: 'loi' | 'canh_bao' | 'thong_tin'; count: number; samples: string[]; hint: string; href?: string }
 interface Backup { id: string; thoi_gian: string; nguoi_tao: string | null; loai: string; ghi_chu: string | null; so_bang: number; so_dong: number; kich_thuoc: number; chi_tiet: Record<string, number> }
 
 const LABEL: Record<string, string> = {
@@ -20,12 +20,6 @@ const LABEL: Record<string, string> = {
 }
 const fmtTime = (iso: string) => new Date(iso).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 const fmtSize = (b: number) => (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB')
-const LEVEL = {
-  loi: { icon: XCircle, cls: 'text-red-600 bg-red-50 border-red-200', label: 'Lỗi' },
-  canh_bao: { icon: AlertTriangle, cls: 'text-orange-600 bg-orange-50 border-orange-200', label: 'Cảnh báo' },
-  thong_tin: { icon: Info, cls: 'text-blue-600 bg-blue-50 border-blue-200', label: 'Lưu ý' },
-}
-
 async function api(url: string, init?: RequestInit) {
   const r = await fetch(url, init), j = await r.json().catch(() => ({ success: false, error: 'Lỗi mạng' }))
   if (!j.success) throw new Error(j.error || 'Có lỗi xảy ra')
@@ -34,8 +28,7 @@ async function api(url: string, init?: RequestInit) {
 
 export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
   const [counts, setCounts] = useState<Record<string, number>>({})
-  const [issues, setIssues] = useState<Issue[] | null>(null)
-  const [at, setAt] = useState('')
+  const [sum, setSum] = useState<{ loi: number; canh_bao: number } | null>(null)
   const [backups, setBackups] = useState<Backup[]>([])
   const [open, setOpen] = useState<string | null>(null)
   const [note, setNote] = useState('')
@@ -44,9 +37,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
   const [confirm, dialog] = useConfirm()
 
   const loadCheck = useCallback(async () => {
-    setBusy('check')
-    try { const j = await api('/api/he_thong/kiem_tra'); setCounts(j.data.counts); setIssues(j.data.issues); setAt(j.data.at) }
-    catch (e: any) { setMsg({ ok: false, text: e.message }) } finally { setBusy(null) }
+    try { const j = await api('/api/he_thong/kiem_tra'); setCounts(j.data.counts) } catch (e: any) { setMsg({ ok: false, text: e.message }) }
   }, [])
   const loadBackups = useCallback(async () => {
     try { const j = await api('/api/he_thong/sao_luu'); setBackups(j.data) } catch (e: any) { setMsg({ ok: false, text: e.message }) }
@@ -81,8 +72,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
   })
 
   const totalRows = Object.values(counts).reduce((a, b) => a + b, 0)
-  const problems = (issues ?? []).filter((i) => i.count > 0)
-  const errs = problems.filter((i) => i.level === 'loi').length, warns = problems.filter((i) => i.level === 'canh_bao').length
+  const errs = sum?.loi ?? 0, warns = sum?.canh_bao ?? 0
   const last = backups[0]
   const lastAge = last ? Math.floor((Date.now() - new Date(last.thoi_gian).getTime()) / 864e5) : null
 
@@ -90,11 +80,9 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
     <div className="space-y-4 px-4 lg:px-5 py-4">
       {dialog}
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-xl font-extrabold text-navy-900 flex-1 min-w-[200px]">Kiểm tra &amp; sao lưu dữ liệu</h1>
+        <h1 className="text-xl font-extrabold text-navy-900 flex-1 min-w-[200px]">Bảo trì dữ liệu &amp; sao lưu</h1>
+        {isAdmin && <button className="btn-secondary" onClick={archive} disabled={!!busy || !(errs + warns)} title="Lưu kết quả quét hiện tại vào Lưu trữ kiểm tra">Lưu kết quả quét</button>}
         <Link href="/data_audit_archive" className="btn-secondary"><History size={15} />Lưu trữ kiểm tra</Link>
-        <button className="btn-primary" onClick={loadCheck} disabled={busy === 'check'}>
-          {busy === 'check' ? <Loader2 size={15} className="animate-spin" /> : <ShieldCheck size={15} />}Kiểm tra lại
-        </button>
       </div>
 
       {msg && <p role="status" className={`rounded-lg border px-3 py-2 text-sm font-semibold ${msg.ok ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>{msg.text}</p>}
@@ -103,7 +91,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
         {[
           { l: 'Tổng số bảng', v: Object.keys(counts).length || '—', c: 'text-navy-900' },
           { l: 'Tổng số dòng dữ liệu', v: totalRows ? totalRows.toLocaleString('vi-VN') : '—', c: 'text-navy-900' },
-          { l: 'Vấn đề cần xử lý', v: issues ? `${errs + warns}` : '—', c: errs ? 'text-red-600' : warns ? 'text-orange-600' : 'text-green-600', n: issues ? `${errs} lỗi · ${warns} cảnh báo` : '' },
+          { l: 'Mục cần xử lý', v: sum ? `${errs + warns}` : '—', c: errs ? 'text-red-600' : warns ? 'text-orange-600' : 'text-green-600', n: sum ? `${errs} lỗi · ${warns} cảnh báo` : '' },
           { l: 'Sao lưu gần nhất', v: last ? (lastAge === 0 ? 'Hôm nay' : `${lastAge} ngày trước`) : 'Chưa có', c: last ? (lastAge! > 7 ? 'text-orange-600' : 'text-green-600') : 'text-red-600', n: last ? fmtTime(last.thoi_gian) : 'Nên tạo ngay' },
         ].map((k) => (
           <div key={k.l} className="card px-4 py-3">
@@ -114,7 +102,9 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4 items-start">
+      <DataMaint isAdmin={isAdmin} onSummary={setSum} onChanged={() => { loadBackups(); loadCheck() }} />
+
+      <div className="grid gap-4 items-start">
         {/* ── Backup ── */}
         <section className="card">
           <header className="flex items-center gap-2 px-4 py-3 border-b border-navy-100"><Database size={17} className="text-blue-600" /><h2 className="font-extrabold text-navy-900 flex-1">Sao lưu dữ liệu</h2>
@@ -164,31 +154,6 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
           </div>
         </section>
 
-        {/* ── Checks ── */}
-        <section className="card">
-          <header className="flex items-center gap-2 px-4 py-3 border-b border-navy-100"><ShieldCheck size={17} className="text-blue-600" /><h2 className="font-extrabold text-navy-900 flex-1">Kiểm tra dữ liệu</h2>
-            {isAdmin && <button className="btn-secondary btn-sm" onClick={archive} disabled={!!busy || !problems.length}>Lưu kết quả</button>}</header>
-          <div className="p-4 space-y-2">
-            {issues === null && <p className="py-6 text-center text-sm text-ink-mute"><Loader2 size={16} className="inline animate-spin mr-1" />Đang kiểm tra…</p>}
-            {issues && !problems.length && <p className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-3 text-sm font-bold text-green-700"><CheckCircle2 size={17} />Không phát hiện vấn đề nào.</p>}
-            {problems.sort((a, b) => (a.level === 'loi' ? 0 : a.level === 'canh_bao' ? 1 : 2) - (b.level === 'loi' ? 0 : b.level === 'canh_bao' ? 1 : 2)).map((i) => {
-              const L = LEVEL[i.level], Icon = L.icon
-              return (
-                <div key={i.key} className={`rounded-lg border px-3 py-2.5 ${L.cls}`}>
-                  <div className="flex items-start gap-2"><Icon size={16} className="mt-0.5 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-extrabold text-navy-900">{i.title} <span className="tabular-nums">({i.count})</span></div>
-                      <div className="text-xs text-ink-soft">{i.hint}</div>
-                      <div className="mt-1 text-xs font-mono text-ink-soft break-words">{i.samples.join(', ')}{i.count > i.samples.length ? ` … +${i.count - i.samples.length}` : ''}</div>
-                    </div>
-                    {i.href && <Link href={i.href} className="btn-secondary btn-sm shrink-0">Mở</Link>}
-                  </div>
-                </div>
-              )
-            })}
-            {at && <p className="text-xs text-ink-mute pt-1">Kiểm tra lúc {fmtTime(at)}</p>}
-          </div>
-        </section>
       </div>
 
       <section className="card">

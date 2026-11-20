@@ -39,7 +39,7 @@ const META: Record<string, [LucideIcon, string]> = {
   'Đội PCCC': [ShieldAlert, 'Nhân sự phòng cháy'], 'Danh bạ nhân viên': [Contact, 'Thông tin nhân viên'], 'Danh bạ nhà thầu': [HardHat, 'Nhà thầu thi công'], 'Danh bạ nhà cung cấp': [Truck, 'Nhà cung cấp'],
   'Chu kỳ bảo trì': [RefreshCw, 'Hạng mục và chu kỳ'], 'Khu vực tòa nhà': [MapPin, 'Danh sách khu vực'], 'Chi tiết vận hành': [ListChecks, 'Nội dung kiểm tra'], 'Danh mục giá trị': [Tags, 'Trạng thái, mức độ, loại'],
   'Người dùng': [User, 'Tài khoản đăng nhập'], 'Vai trò': [BadgeCheck, 'Nhóm quyền'], 'Phân quyền': [Lock, 'Quyền theo module'], 'Lịch sử đăng nhập': [LogIn, 'Ai đăng nhập, khi nào'],
-  'Cấu hình email cảnh báo': [Mail, 'Bật tắt, giờ gửi, người nhận'], 'Nhật ký email cảnh báo': [MailCheck, 'Email đã gửi'], 'Kiểm tra & sao lưu': [Database, 'Kiểm tra và sao lưu dữ liệu'],
+  'Cấu hình email cảnh báo': [Mail, 'Bật tắt, giờ gửi, người nhận'], 'Nhật ký email cảnh báo': [MailCheck, 'Email đã gửi'], 'Bảo trì dữ liệu & sao lưu': [Database, 'Quét, sửa, đồng bộ và sao lưu dữ liệu'],
 }
 
 // icon tile colours, cycled per entry so every dropdown reads at a glance
