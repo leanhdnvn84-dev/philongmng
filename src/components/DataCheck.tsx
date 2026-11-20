@@ -16,8 +16,10 @@ const LABEL: Record<string, string> = {
   de_xuat: 'Đề xuất', de_xuat_chi_tiet: 'Chi tiết đề xuất', toa_nha: 'Toà nhà', tang: 'Tầng', khach_thue: 'Khách thuê',
   khach_hang_tiem_nang: 'Khách tiềm năng', tien_dien: 'Tiền điện', danh_muc: 'Danh mục giá trị', lich_su_in: 'Lịch sử in',
   lich_su_dang_nhap: 'Lịch sử đăng nhập', cau_hinh_email_canh_bao: 'Cấu hình email', nhat_ky_email_canh_bao: 'Nhật ký email',
-  data_audit_archive: 'Lưu trữ kiểm tra', hinh_anh_tien_do: 'Hình ảnh tiến độ', tin_nhan: 'Tin nhắn', audit_logs: 'Nhật ký thao tác', tep_dinh_kem: 'Tệp đính kèm', thue_mat_bang: 'Thuê mặt bằng', cau_hinh_he_thong: 'Cài đặt hệ thống',
+  data_audit_archive: 'Lưu trữ kiểm tra', hinh_anh_tien_do: 'Hình ảnh tiến độ', tin_nhan: 'Tin nhắn', audit_logs: 'Nhật ký thao tác', tep_dinh_kem: 'Tệp đính kèm', thanh_toan_dien: 'Thanh toán tiền điện', thue_mat_bang: 'Thuê mặt bằng', cau_hinh_he_thong: 'Cài đặt hệ thống',
 }
+const KIND: Record<string, string> = { TU_DONG: 'Tự động', TRUOC_NHAP_V27: 'Trước khi nhập V27' }
+const kindOf = (k: string) => KIND[k] ?? k
 const fmtTime = (iso: string) => new Date(iso).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 const fmtSize = (b: number) => (b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB')
 async function api(url: string, init?: RequestInit) {
@@ -77,7 +79,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
   const lastAge = last ? Math.floor((Date.now() - new Date(last.thoi_gian).getTime()) / 864e5) : null
 
   return (
-    <div className="space-y-4 px-4 lg:px-5 py-4">
+    <div className="relative space-y-4 px-4 lg:px-5 py-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
       {dialog}
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="text-xl font-extrabold text-navy-900 flex-1 min-w-[200px]">Bảo trì dữ liệu &amp; sao lưu</h1>
@@ -129,7 +131,7 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
                 <li key={b.id}>
                   <div className="px-3 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                     <button className="flex-1 min-w-[170px] text-left" onClick={() => setOpen(open === b.id ? null : b.id)} aria-expanded={open === b.id}>
-                      <div className="text-sm font-bold text-navy-900">{b.id} · {fmtTime(b.thoi_gian)} <span className={b.loai === 'Tự động' ? 'pill-gray' : 'pill-blue'}>{b.loai}</span></div>
+                      <div className="text-sm font-bold text-navy-900">{b.id} · {fmtTime(b.thoi_gian)} <span className={kindOf(b.loai) === 'Thủ công' ? 'pill-blue' : 'pill-gray'}>{kindOf(b.loai)}</span></div>
                       <div className="text-xs text-ink-mute">{b.so_dong.toLocaleString('vi-VN')} dòng · {fmtSize(b.kich_thuoc)} · {b.nguoi_tao ?? '—'}{b.ghi_chu ? ` · ${b.ghi_chu}` : ''}</div>
                     </button>
                     {isAdmin && <div className="flex gap-1">
