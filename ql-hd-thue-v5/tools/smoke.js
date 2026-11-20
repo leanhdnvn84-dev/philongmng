@@ -10,15 +10,15 @@ const { chromium } = require('playwright') ;
   await page.goto('file://' + path.resolve(__dirname, '../dist/ql-hd-thue-v5.html'));
   const tabs = ['Tổng quan', 'Hợp đồng', 'Đối chiếu', 'Thanh toán', 'Kiểm tra'];
   for (const t of tabs) {
-    await page.click(`nav.tabs button:has-text("${t}")`);
+    await page.click(`#nav button:has-text("${t}")`);
     const txt = await page.textContent('main');
     console.log(t, '→ main chars:', txt.length);
   }
-  await page.click('nav.tabs button:has-text("Hợp đồng")');
+  await page.click('#nav button:has-text("Hợp đồng")');
   await page.click('tr.click[data-open="HDT021"]');
-  console.log('detail heading:', await page.textContent('main h2'));
+  console.log('detail heading:', await page.textContent('main h1'));
   await page.screenshot({ path: process.env.SHOT || '/tmp/claude-0/shot-detail.png', fullPage: false });
-  await page.click('nav.tabs button:has-text("Tổng quan")');
+  await page.click('#nav button:has-text("Tổng quan")');
   await page.screenshot({ path: process.env.SHOT2 || '/tmp/claude-0/shot-overview.png', fullPage: true });
   console.log('errors:', errors.length ? errors : 'none');
   await browser.close();
