@@ -10,7 +10,10 @@
     "create-admin": "node --env-file=.env.local scripts/create-admin.mjs",
     "typecheck": "tsc --noEmit",
     "import": "node --env-file=.env.local scripts/import-sheets.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -30,11 +33,13 @@
     "tailwindcss": "^3.3.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "1.15.1",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.3.1",
     "typescript": "^5.2.0",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "wrangler": "4.59.2"
   },
   "engines": {
     "node": ">=20"

@@ -63,7 +63,7 @@ describe('R2 on (fake fetch)', () => {
         return new Response(`<?xml version="1.0"?><ListBucketResult>${page.map((k) => `<Contents><Key>${k.replace(/&/g, '&amp;')}</Key><LastModified>${store.get(k)!.t}</LastModified><Size>${store.get(k)!.body.length}</Size></Contents>`).join('')}<IsTruncated>${more}</IsTruncated>${more ? `<NextContinuationToken>${start + 3}</NextContinuationToken>` : ''}</ListBucketResult>`)
       }
       const o = store.get(key)
-      return o ? new Response(o.body, { headers: { 'content-type': o.type, 'content-length': String(o.body.length) } }) : new Response('<Error><Code>NoSuchKey</Code></Error>', { status: 404 })
+      return o ? new Response(o.body as BodyInit, { headers: { 'content-type': o.type, 'content-length': String(o.body.length) } }) : new Response('<Error><Code>NoSuchKey</Code></Error>', { status: 404 })
     }))
   })
   afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals() })

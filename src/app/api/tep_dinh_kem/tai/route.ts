@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { guard, fail } from '@/lib/http'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { r2KeyOf, r2Serve } from '@/lib/r2'
+import { getAuth } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -11,6 +12,8 @@ export const maxDuration = 60
 export async function GET(req: NextRequest) {
   const fid = req.nextUrl.searchParams.get('id') ?? ''
   if (!/^[0-9a-f-]{36}$/.test(fid)) return fail('Không hợp lệ')
+  // signed in first, so nobody outside can probe which files exist
+  if (!(await getAuth().catch(() => null))) return fail('Chưa đăng nhập hoặc tài khoản bị khóa', 401)
   const { data: f } = await supabaseAdmin().from('tep_dinh_kem').select('bang, ten, mime, file_id').eq('id', fid).maybeSingle()
   if (!f) return fail('Không tìm thấy tệp', 404)
   const g = await guard(f.bang, 'view'); if (g instanceof Response) return g

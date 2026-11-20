@@ -1,0 +1,14 @@
+// Bản DEMO / dự phòng trên Cloudflare Workers (tài khoản Cloudflare riêng). Production vẫn chạy trên Vercel.
+// Build + deploy: npm run cf:deploy  (cần CLOUDFLARE_API_TOKEN và CLOUDFLARE_ACCOUNT_ID của tài khoản demo)
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "philong-demo",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-12-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "philong-demo" }],
+  "observability": { "enabled": true },
+  // Không đặt "triggers.crons": sao lưu và cảnh báo hằng đêm chỉ chạy ở Vercel, tránh chạy hai lần.
+  "workers_dev": true
+}
