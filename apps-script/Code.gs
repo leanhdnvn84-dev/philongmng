@@ -1705,6 +1705,7 @@ function ketNoiData_() {
     thu: { tong: thu.length, mo: mo, nhan: nhan, ds: mo ? thu.map(function (x) { return { nguoiGui: x.nguoiGui, lopGui: x.lopGui, guiCho: x.guiCho, lopNhan: x.lopNhan, noiDung: x.noiDung }; }) : [] },
     viec: sort_(read_('ViecCan').filter(function (x) { return x.trangThai !== 'an'; })).map(pubOf_('ViecCan')),
     binhChon: { cauHoi: bc.cauHoi, luaChon: bc.luaChon, dem: dem, tong: tong },
+    mong: read_('BinhChon').filter(function (v) { return v.cauHoi === MONG_K; }).length,
     goiNho: { cauHoi: gn, ds: read_('GoiNho').filter(function (x) { return x.cauHoi === gn && x.trangThai !== 'an'; }).map(pubOf_('GoiNho')).reverse().slice(0, 60) }
   };
 }
@@ -1757,6 +1758,18 @@ function nhanViec(id, hoTen, lopId, lienHe) {
     if (lienHe) v.lienHe = (v.lienHe ? v.lienHe + '; ' : '') + hoTen + ': ' + lienHe;
     update_('ViecCan', v);
     return v.nguoiNhan;
+  });
+}
+/* "💭 Mình cũng mong ngày ấy" (trang Kết nối, phần Câu chuyện còn tiếp): chỉ là lời ước, không hỏi tên/SĐT – mỗi máy 1 lần, lưu chung sheet BinhChon với câu hỏi MONG_K */
+const MONG_K = '__mong2028';
+function mongNgayAy(khach) {
+  gioiHan_('MG_RATE', 200);
+  khach = String(khach || '');
+  if (!/^[a-z0-9]{8,24}$/.test(khach)) throw new Error('Không ghi nhận được, vui lòng tải lại trang.');
+  return lock_(function () {
+    if (!read_('BinhChon').some(function (x) { return x.cauHoi === MONG_K && x.khach === khach; }))
+      append_('BinhChon', { id: uid_(), cauHoi: MONG_K, luaChon: 'mong', khach: khach, hoTen: '', taoLuc: now_() });
+    return read_('BinhChon').filter(function (v) { return v.cauHoi === MONG_K; }).length;
   });
 }
 /** Mỗi máy (mã khách ngẫu nhiên) một phiếu cho mỗi câu hỏi; chọn lại thì đổi phiếu. */
