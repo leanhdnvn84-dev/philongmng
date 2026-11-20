@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Database, Download, History, Loader2, RotateCcw, Trash2 } from 'lucide-react'
 import { useConfirm } from '@/components/ConfirmDialog'
 import DataMaint from '@/components/DataMaint'
+import MissingFields from '@/components/MissingFields'
 
 interface Backup { id: string; thoi_gian: string; nguoi_tao: string | null; loai: string; ghi_chu: string | null; so_bang: number; so_dong: number; kich_thuoc: number; chi_tiet: Record<string, number> }
 
@@ -28,7 +29,7 @@ async function api(url: string, init?: RequestInit) {
   return j
 }
 
-export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
+export default function DataCheck({ isAdmin, editable }: { isAdmin: boolean; editable: string[] }) {
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [sum, setSum] = useState<{ loi: number; canh_bao: number } | null>(null)
   const [backups, setBackups] = useState<Backup[]>([])
@@ -105,6 +106,8 @@ export default function DataCheck({ isAdmin }: { isAdmin: boolean }) {
       </div>
 
       <DataMaint isAdmin={isAdmin} onSummary={setSum} onChanged={() => { loadBackups(); loadCheck() }} />
+
+      <MissingFields editable={editable} />
 
       <div className="grid gap-4 items-start">
         {/* ── Backup ── */}
