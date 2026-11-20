@@ -1,5 +1,5 @@
 /* QL-HD-THUE v5 — giao diện. Chỉ đọc dữ liệu cũ; mọi kết quả là tính toán mới. */
-(function () {
+window.startApp = function () {
   const R = QLHD_RECON.run(window.__LEGACY__);
   const S = R.summary;
   const Q = QLHD;
@@ -177,4 +177,4 @@
   });
 
   render();
-})();
+};

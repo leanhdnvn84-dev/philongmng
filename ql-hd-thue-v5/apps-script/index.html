@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QL-HD-THUE v5 — Đối chiếu tiền thuê</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5f6f3; --surface:#ffffff; --ink:#17202a; --ink-2:#44505e; --muted:#6b7684;
+  --rule:#d9dcd5; --rule-2:#eceee8; --hover:#eef2ee;
+  --match:#1e7a54; --match-bg:#e4f2ea;
+  --diff:#a86200; --diff-bg:#fbefd9;
+  --old:#b3261e; --old-bg:#f9e1df;
+  --new:#2f5d9a; --new-bg:#e1ebf7;
+  --brand:#1d4f4a;
+  --radius:6px;
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111a1c; --surface:#18232a; --ink:#e6ecef; --ink-2:#b5c0c7; --muted:#8b98a1;
+    --rule:#2c3b43; --rule-2:#223039; --hover:#1f2d35;
+    --match:#5fcf9b; --match-bg:#16372a; --diff:#f0b35a; --diff-bg:#3a2d14;
+    --old:#ff8a82; --old-bg:#3d1f1d; --new:#8fb6ea; --new-bg:#1d2d44; --brand:#7fc4b8;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111a1c; --surface:#18232a; --ink:#e6ecef; --ink-2:#b5c0c7; --muted:#8b98a1;
+  --rule:#2c3b43; --rule-2:#223039; --hover:#1f2d35;
+  --match:#5fcf9b; --match-bg:#16372a; --diff:#f0b35a; --diff-bg:#3a2d14;
+  --old:#ff8a82; --old-bg:#3d1f1d; --new:#8fb6ea; --new-bg:#1d2d44; --brand:#7fc4b8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5}
+:focus-visible{outline:2px solid var(--new);outline-offset:2px}
+
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+aside{border-right:1px solid var(--rule);padding:22px 16px;background:var(--surface);position:sticky;top:0;height:100vh}
+.brand{font-weight:700;font-size:16px;color:var(--brand);letter-spacing:-.01em}
+.brand small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+nav{display:flex;flex-direction:column;gap:2px;margin-top:26px}
+nav button{all:unset;cursor:pointer;padding:8px 10px;border-radius:var(--radius);color:var(--ink-2);display:flex;justify-content:space-between;align-items:center;gap:8px}
+nav button:hover{background:var(--hover);color:var(--ink)}
+nav button[aria-current="page"]{background:var(--hover);color:var(--ink);font-weight:600;box-shadow:inset 2px 0 0 var(--brand)}
+nav .count{font-size:12px;color:var(--muted)}
+.aside-foot{position:absolute;bottom:18px;left:16px;right:16px;font-size:12px;color:var(--muted);line-height:1.45}
+.theme{all:unset;cursor:pointer;color:var(--ink-2);text-decoration:underline;margin-top:8px;display:inline-block}
+
+#app{min-width:0}
+main{padding:28px 36px 56px;min-width:0;max-width:1200px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+h1{font-size:22px;margin:0;font-weight:600;letter-spacing:-.01em}
+h2{font-size:17px;margin:0 0 4px;font-weight:600}
+h3{font-size:14px;margin:26px 0 8px;font-weight:600;color:var(--ink-2)}
+.lede{color:var(--ink-2);margin:0 0 18px;max-width:68ch}
+.muted{color:var(--muted)}
+
+.balance{display:grid;grid-template-columns:1fr;gap:10px;margin:18px 0 26px;padding:18px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius)}
+.bar{display:flex;height:14px;border-radius:4px;overflow:hidden;background:var(--rule-2)}
+.bar span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:13px;color:var(--ink-2)}
+.legend b{font-size:20px;font-weight:600;color:var(--ink);display:block;line-height:1.1;margin-top:2px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0;border:1px solid var(--rule);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.facts div{padding:14px 16px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.facts div:nth-child(n){margin:-1px 0 0 -1px}
+.facts strong{display:block;font-size:20px;font-weight:600}
+.facts span{color:var(--muted);font-size:12.5px}
+
+.tag{display:inline-flex;align-items:center;gap:6px;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;background:var(--rule-2);color:var(--ink-2);white-space:nowrap}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.tag.ok{background:var(--match-bg);color:var(--match)}
+.tag.warn{background:var(--diff-bg);color:var(--diff)}
+.tag.bad{background:var(--old-bg);color:var(--old)}
+.tag.mid{background:var(--new-bg);color:var(--new)}
+.tag.plain::before{display:none}
+
+.scroll{overflow:auto;background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;min-width:620px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--rule-2);text-align:left;vertical-align:top;font-size:13px}
+th{font-weight:600;color:var(--ink-2);background:var(--surface);position:sticky;top:0;border-bottom:1px solid var(--rule)}
+td.r,th.r{text-align:right;white-space:nowrap}
+td.num{font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--hover)}
+tr.click:focus-visible{outline-offset:-2px}
+td.ok{color:var(--match)}td.warn{color:var(--diff)}td.bad{color:var(--old)}
+td.flag{width:1%}
+
+.note{color:var(--muted);font-size:12.5px;margin:6px 0 12px;max-width:72ch}
+.alert{padding:11px 14px;border-radius:var(--radius);border-left:3px solid var(--old);background:var(--old-bg);color:var(--ink);margin:12px 0;font-size:13px}
+.back{all:unset;cursor:pointer;color:var(--brand);font-weight:600;font-size:13px;margin-bottom:12px;display:inline-block}
+.back:hover{text-decoration:underline}
+.meta{display:flex;flex-wrap:wrap;gap:4px 20px;color:var(--ink-2);margin:4px 0 6px;font-size:13px}
+.meta b{color:var(--ink)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 12px}
+select,.btn{font:inherit;font-size:13px;padding:7px 11px;border-radius:var(--radius);border:1px solid var(--rule);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover,select:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--surface)}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  aside{min-width:0}
+  aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule);padding:14px 16px}
+  nav{flex-direction:row;overflow-x:auto;margin-top:12px;gap:4px}
+  nav button{white-space:nowrap}
+  .aside-foot{position:static;margin-top:10px}
+  main{padding:20px 16px 40px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside>
+    <div class="brand">QL-HD-THUE v5<small>Đối chiếu tiền thuê</small></div>
+    <nav id="nav"></nav>
+    <div class="aside-foot">Chỉ đọc. Dữ liệu cũ không bị thay đổi.<br><button class="theme" id="themeBtn" type="button">Đổi giao diện sáng/tối</button></div>
+  </aside>
+  <div id="app"></div>
+</div>
+<noscript>Cần bật JavaScript để chạy ứng dụng.</noscript>
+<script>/*
+ * QL-HD-THUE v5 — lõi tính toán (không phụ thuộc trình duyệt).
+ * Dùng chung cho app (trình duyệt) và kiểm thử (Node).
+ *
+ * Quy ước:
+ *  - Ngày được biểu diễn bằng "số ngày" tính từ 1970-01-01 (UTC) để tránh lệch múi giờ.
+ *  - Tiền là số đồng nguyên, thuế suất là tỷ lệ (0.1 = 10%).
+ *  - Mọi hàm đều thuần (không ghi dữ liệu nguồn).
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.QLHD = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  const DAY = 86400000;
+
+  // ---------- Ngày ----------
+  function toDay(iso) {
+    if (iso === null || iso === undefined || iso === '') return null;
+    const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return null;
+    const t = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+    return Number.isFinite(t) ? t / DAY : null;
+  }
+  function toIso(day) {
+    if (day === null || day === undefined) return null;
+    const d = new Date(day * DAY);
+    return d.toISOString().slice(0, 10);
+  }
+  function ymd(day) {
+    const d = new Date(day * DAY);
+    return { y: d.getUTCFullYear(), m: d.getUTCMonth(), d: d.getUTCDate() };
+  }
+  function daysInMonth(y, m) { return new Date(Date.UTC(y, m + 1, 0)).getUTCDate(); }
+  function mk(y, m, d) { return Date.UTC(y, m, d) / DAY; }
+  function addMonthsSafe(day, months) {
+    const { y, m, d } = ymd(day);
+    const first = new Date(Date.UTC(y, m + months, 1));
+    const ny = first.getUTCFullYear(), nm = first.getUTCMonth();
+    return mk(ny, nm, Math.min(d, daysInMonth(ny, nm)));
+  }
+  // Ngày đến hạn trong tháng của periodStart, không sớm hơn periodStart.
+  function dueDateFor(dueDay, periodStart) {
+    const { y, m } = ymd(periodStart);
+    let due = mk(y, m, Math.min(dueDay, daysInMonth(y, m)));
+    if (due < periodStart) {
+      const nd = new Date(Date.UTC(y, m + 1, 1));
+      const ny = nd.getUTCFullYear(), nm = nd.getUTCMonth();
+      due = mk(ny, nm, Math.min(dueDay, daysInMonth(ny, nm)));
+    }
+    return due;
+  }
+  function monthFraction(start, end) {
+    let cur = start, total = 0;
+    while (cur <= end) {
+      const { y, m } = ymd(cur);
+      const dim = daysInMonth(y, m);
+      const monthEnd = mk(y, m, dim);
+      const segEnd = monthEnd < end ? monthEnd : end;
+      total += (segEnd - cur + 1) / dim;
+      cur = segEnd + 1;
+    }
+    return Math.round(total * 1e6) / 1e6;
+  }
+
+  // ---------- Chuẩn hóa ----------
+  function num(v) {
+    if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+    if (v === null || v === undefined || v === '') return 0;
+    const n = Number(String(v).replace(/\s/g, '').replace(/\./g, '').replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  }
+  function taxRate(v) {
+    if (v === null || v === undefined || v === '') return 0.1;
+    let r = Number(v);
+    if (!Number.isFinite(r)) return 0.1;
+    if (r > 1) r /= 100;
+    return r;
+  }
+  function cycleMonths(v) {
+    const m = String(v || '').match(/[1-6]/);
+    return m ? Number(m[0]) : 3;
+  }
+  function noticeDays(v) {
+    const n = Number(v);
+    return Number.isFinite(n) && v !== '' && v !== null ? Math.round(n) : 15;
+  }
+
+  // ---------- Hiệu lực hợp đồng ----------
+  // Hạn hiệu lực = max(Ngày kết thúc gốc, Đến ngày của mọi phụ lục "Gia hạn hợp đồng" chưa hủy).
+  // Không phụ thuộc ngày hôm nay, nên sinh kỳ có thể tái lập.
+  function effectiveEnd(contract, appendices) {
+    let end = toDay(contract['Ngày kết thúc']);
+    (appendices || []).forEach(a => {
+      if (a['Loại thay đổi'] !== 'Gia hạn hợp đồng') return;
+      if (a['Trạng thái'] === 'Hủy') return;
+      const to = toDay(a['Đến ngày hiệu lực']);
+      if (to !== null && (end === null || to > end)) end = to;
+    });
+    return end;
+  }
+
+  // ---------- Sinh kỳ ----------
+  function paymentPeriodWindow(contract, periodStart, cycle, rents) {
+    const dueDay = contract._dueDay || ymd(periodStart).d;
+    const anchors = (rents || []).filter(r => r._from !== null && r._from <= periodStart &&
+      (r['Nguồn giá'] === 'Phụ lục' || r['Mã phụ lục'])).map(r => r._from).sort((a, b) => b - a);
+    const inAppendixCycle = anchors.length > 0;
+    const aligned = ymd(periodStart).d === dueDay;
+    const nextDue = dueDateFor(dueDay, periodStart);
+    // Kỳ đầu lệch: kết thúc ngay trước ngày đến hạn kế tiếp.
+    const end = (inAppendixCycle || aligned)
+      ? addMonthsSafe(periodStart, cycle) - 1
+      : (nextDue > periodStart ? nextDue - 1 : addMonthsSafe(periodStart, cycle) - 1);
+    const dueDate = inAppendixCycle ? periodStart : dueDateFor(dueDay, periodStart);
+    return { end, dueDate };
+  }
+
+  function earliestBoundary(rows, periodStart, proposedEnd) {
+    let end = proposedEnd;
+    rows.forEach(r => {
+      const from = r._from;
+      if (from === null || from <= periodStart || from > proposedEnd) return;
+      if (from - 1 < end) end = from - 1;
+    });
+    return end;
+  }
+
+  function buildDetails(rows, contractId, pStart, pEnd, type, cycle) {
+    const out = [];
+    rows.forEach(r => {
+      const from = r._from !== null ? r._from : pStart;
+      const to = r._to !== null ? r._to : pEnd;
+      const start = Math.max(from, pStart);
+      const end = Math.min(to, pEnd);
+      if (start > end) return;
+      const full = cycle && start === pStart && end === pEnd && end === addMonthsSafe(pStart, cycle) - 1;
+      const factor = full ? cycle : monthFraction(start, end);
+      out.push({
+        'Mã HĐ': contractId, 'Loại': type,
+        'Từ ngày': start, 'Đến ngày': end,
+        'Số tháng': factor, 'Số ngày': end - start + 1,
+        'Đơn giá trước thuế': r._price, 'Thuế suất': r._tax,
+        'Mã nguồn': r._id, 'Ghi chú': type === 'Phí dịch vụ' ? (r['Loại phí'] || '') : ''
+      });
+    });
+    return out;
+  }
+
+  function covered(details, pStart, pEnd) {
+    if (!details.length) return false;
+    const ranges = details.map(d => [d['Từ ngày'], d['Đến ngày']]).sort((a, b) => a[0] - b[0]);
+    let cursor = pStart;
+    for (const [f, t] of ranges) {
+      if (f > cursor) return false;
+      if (t >= cursor) cursor = t + 1;
+      if (cursor > pEnd) return true;
+    }
+    return cursor > pEnd;
+  }
+
+  function sumDetails(details) {
+    return details.reduce((s, d) => {
+      const before = d['Đơn giá trước thuế'] * d['Số tháng'];
+      const tax = before * d['Thuế suất'];
+      s.before += before; s.tax += tax; s.after += before + tax;
+      return s;
+    }, { before: 0, tax: 0, after: 0 });
+  }
+
+  // Chuẩn hóa dòng giá/phí đầu vào: thêm _from, _to, _price, _tax, _id.
+  function prepRows(rows, priceField, idField) {
+    return rows.map(r => ({
+      ...r,
+      _from: toDay(r['Từ ngày']),
+      _to: toDay(r['Đến ngày']),
+      _price: num(r[priceField]),
+      _tax: taxRate(r['Thuế suất']),
+      _id: r[idField] || ''
+    }));
+  }
+
+  /**
+   * Sinh kỳ thanh toán cho một hợp đồng.
+   * @param contract  bản ghi hopdong (chuỗi ISO)
+   * @param appendices phụ lục của hợp đồng
+   * @param rents     giá thuê (giathue) của hợp đồng
+   * @param fees      phí dịch vụ của hợp đồng
+   * @returns {periods, details, requests, errors}
+   */
+  function generatePeriods(contract, appendices, rents, fees) {
+    const id = contract['Mã HĐ'];
+    const errors = [];
+    const start = toDay(contract['Ngày bắt đầu']);
+    const end = effectiveEnd(contract, appendices);
+    if (start === null || end === null) {
+      return { periods: [], details: [], requests: [], errors: [{ type: 'thiếu-ngày', message: 'Hợp đồng thiếu Ngày bắt đầu hoặc Ngày kết thúc.' }] };
+    }
+    if (end < start) {
+      return { periods: [], details: [], requests: [], errors: [{ type: 'ngày-sai', message: 'Ngày kết thúc trước Ngày bắt đầu.' }] };
+    }
+    const activeRents = prepRows(rents.filter(r => r['Trạng thái'] !== 'Hủy'), 'Giá trước thuế', 'Mã giá');
+    const activeFees = prepRows(fees.filter(r => r['Trạng thái'] !== 'Hủy'), 'Đơn giá trước thuế', 'Mã phí');
+    if (!activeRents.length) {
+      return { periods: [], details: [], requests: [], errors: [{ type: 'thiếu-giá', message: 'Hợp đồng chưa có giá thuê đang áp dụng.' }] };
+    }
+    const cycle = cycleMonths(contract['Chu kỳ thanh toán (tháng)']);
+    const dueDay = contract['Ngày đến hạn'] ? ymd(toDay(contract['Ngày đến hạn'])).d : null;
+    const ctx = { ...contract, _dueDay: dueDay };
+
+    const periods = [];
+    const details = [];
+    let pStart = start;
+    let no = 1;
+    // Ngày kết thúc là ngày cuối cùng được tính tiền (bao gồm), nên vòng lặp chạy khi còn ít nhất một ngày.
+    while (no <= 240 && pStart <= end) {
+      const win = paymentPeriodWindow(ctx, pStart, cycle, activeRents);
+      const nominal = earliestBoundary(activeRents.concat(activeFees), pStart, win.end);
+      let pEnd = nominal > end ? end : nominal;
+      const rentD = buildDetails(activeRents, id, pStart, pEnd, 'Tiền thuê', cycle);
+      const feeD = buildDetails(activeFees, id, pStart, pEnd, 'Phí dịch vụ', cycle);
+      if (!covered(rentD, pStart, pEnd)) {
+        errors.push({ type: 'thiếu-phủ-giá', message: `Lịch giá chưa phủ kỳ ${toIso(pStart)} – ${toIso(pEnd)}.` });
+        break;
+      }
+      const rt = sumDetails(rentD), ft = sumDetails(feeD);
+      periods.push({
+        'Mã HĐ': id, 'Kỳ số': no,
+        'Từ ngày': pStart, 'Đến ngày': pEnd, 'Ngày đến hạn': win.dueDate,
+        'Tiền thuê trước thuế': rt.before, 'Thuế tiền thuê': rt.tax, 'Tiền thuê sau thuế': rt.after,
+        'Phí dịch vụ trước thuế': ft.before, 'Thuế phí dịch vụ': ft.tax, 'Phí dịch vụ sau thuế': ft.after,
+        'Tổng trước thuế': rt.before + ft.before, 'Tổng thuế': rt.tax + ft.tax, 'Tổng sau thuế': rt.after + ft.after,
+        'Ghi chú': pEnd < nominal ? 'Kỳ lẻ cuối theo ngày kết thúc' : ''
+      });
+      details.push(...rentD, ...feeD);
+      pStart = pEnd + 1;
+      no++;
+    }
+    // Đề nghị thanh toán: một đề nghị Nháp cho mỗi kỳ.
+    const lead = noticeDays(contract['Báo trước (ngày)']);
+    const requests = periods.map(p => ({
+      'Mã HĐ': id, 'Từ ngày': p['Từ ngày'], 'Đến ngày': p['Đến ngày'],
+      'Ngày đề nghị': p['Ngày đến hạn'] !== null ? p['Ngày đến hạn'] - lead : null,
+      'Tổng đề nghị': p['Tổng sau thuế'], 'Trạng thái': 'Nháp'
+    }));
+    return { periods, details, requests, errors };
+  }
+
+  return {
+    DAY, toDay, toIso, ymd, addMonthsSafe, monthFraction, num, taxRate, cycleMonths, noticeDays,
+    effectiveEnd, generatePeriods
+  };
+});
+</script>
+<script>/*
+ * Đối chiếu: so kết quả sinh kỳ của lõi mới (engine.js) với dữ liệu cũ (legacy.json)
+ * và chạy bộ kiểm tra dữ liệu. Chỉ đọc, không sửa dữ liệu cũ.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./engine.js'));
+  else root.QLHD_RECON = factory(root.QLHD);
+})(typeof self !== 'undefined' ? self : this, function (Q) {
+  const TOL_MONEY = 5;        // đồng: sai số làm tròn cho phép
+  const TODAY = Q.toDay(new Date().toISOString().slice(0, 10));
+
+  const by = (rows, key) => { const m = {}; rows.forEach(r => { const k = r[key]; if (k === undefined || k === null) return; (m[k] = m[k] || []).push(r); }); return m; };
+  const iso = v => (v ? String(v).slice(0, 10) : null);
+
+  function run(L) {
+    const H = L.hopdong.rows, PL = L.phuluc.rows, GT = L.giathue.rows, PD = (L.phidichvu || {}).rows || [];
+    const KT = L.kythanhtoan.rows, CT = L.chitietky.rows, DN = L.denghithanhtoan.rows, TT = L.thanhtoan.rows, HD = L.hoadon.rows;
+    const TP = L.tang_phong.rows, TN = L.toanha.rows, KH = L.khach_khachthue.rows;
+    const rentsBy = by(GT, 'Mã HĐ'), appBy = by(PL, 'Mã HĐ'), feeBy = by(PD, 'Mã HĐ');
+    const legBy = by(KT, 'Mã HĐ'), ctByPeriod = by(CT, 'Mã kỳ'), kByPeriod = {};
+    KT.forEach(p => { kByPeriod[p['Mã kỳ']] = p; });
+    const issues = [];
+    const add = (code, sev, sheet, key, message, fix) => issues.push({ code, sev, sheet, key, message, fix });
+
+    // ---- Hợp đồng: sinh kỳ mới và đối chiếu ----
+    const contracts = H.map(c => {
+      const id = c['Mã HĐ'];
+      const gen = Q.generatePeriods(c, appBy[id] || [], rentsBy[id] || [], feeBy[id] || []);
+      const leg = (legBy[id] || []).slice().sort((a, b) => (a['Từ ngày'] < b['Từ ngày'] ? -1 : 1));
+      const newBy = new Map(gen.periods.map(p => [Q.toIso(p['Từ ngày']), p]));
+      const legBy2 = new Map(leg.map(p => [iso(p['Từ ngày']), p]));
+      const rows = [];
+      let same = 0, diffTotal = 0, onlyNew = 0, onlyLeg = 0, dueDiff = 0;
+      for (const [s, p] of newBy) {
+        const l = legBy2.get(s);
+        if (!l) { onlyNew++; rows.push({ kind: 'chỉ mới', from: s, to: Q.toIso(p['Đến ngày']), newTotal: p['Tổng sau thuế'], legTotal: null, diff: p['Tổng sau thuế'] }); continue; }
+        const d = p['Tổng sau thuế'] - l['Tổng sau thuế'];
+        const dateSame = iso(l['Đến ngày']) === Q.toIso(p['Đến ngày']);
+        if (!dateSame) dueDiff++;
+        if (Math.abs(d) <= TOL_MONEY && dateSame) same++;
+        else { diffTotal++; rows.push({ kind: dateSame ? 'lệch tiền' : 'lệch ngày kết thúc', from: s, to: Q.toIso(p['Đến ngày']), legTo: iso(l['Đến ngày']), newTotal: p['Tổng sau thuế'], legTotal: l['Tổng sau thuế'], diff: d }); }
+      }
+      for (const [s, l] of legBy2) if (!newBy.has(s)) { onlyLeg++; rows.push({ kind: 'chỉ cũ', from: s, to: iso(l['Đến ngày']), newTotal: null, legTotal: l['Tổng sau thuế'], diff: -l['Tổng sau thuế'] }); }
+      rows.sort((a, b) => (a.from < b.from ? -1 : 1));
+
+      // Chi tiết cũ phải khớp tổng kỳ cũ (kiểm tra C03).
+      let detailMismatch = 0;
+      leg.forEach(p => {
+        const det = ctByPeriod[p['Mã kỳ']] || [];
+        const sum = det.reduce((s, d) => s + Number(d['Tiền trước thuế'] || 0), 0);
+        if (Math.abs(sum - Number(p['Tổng trước thuế'] || 0)) > TOL_MONEY) detailMismatch++;
+      });
+
+      const status = contractStatus(c, appBy[id] || [], gen);
+      const lastLeg = leg.length ? iso(leg[leg.length - 1]['Đến ngày']) : null;
+      const cur = { id, customer: c['Tên khách thuê'] || c['Mã khách thuê'], office: c['Mã văn phòng'], status, effectiveEnd: Q.toIso(Q.effectiveEnd(c, appBy[id] || [])),
+        legacyCount: leg.length, newCount: gen.periods.length, same, diffTotal, onlyNew, onlyLeg, detailMismatch,
+        newTotal: gen.periods.reduce((s, p) => s + p['Tổng sau thuế'], 0),
+        legacyTotal: leg.reduce((s, p) => s + Number(p['Tổng sau thuế'] || 0), 0),
+        lastNew: gen.periods.length ? Q.toIso(gen.periods[gen.periods.length - 1]['Đến ngày']) : null, lastLeg,
+        errors: gen.errors.map(e => e.message), rows, periods: gen.periods, requests: gen.requests, details: gen.details };
+      return cur;
+    });
+
+    // ---- Bộ kiểm tra dữ liệu ----
+    const custIds = new Set(KH.map(k => k['Mã khách thuê']));
+    const hdIds = new Set(H.map(h => h['Mã HĐ']));
+    const spaceCodes = new Set(TP.map(s => s['Mã văn phòng']));
+    const bldIds = new Set(TN.map(t => t['Mã tòa nhà']));
+    const periodIds = new Set(KT.map(p => p['Mã kỳ']));
+
+    // C01: thanh toán không có chứng từ
+    const unverified = TT.filter(t => !t['Số chứng từ']);
+    if (unverified.length) add('C01', 'Nghiêm trọng', 'thanhtoan', `${unverified.length} giao dịch`, `${unverified.length}/${TT.length} giao dịch thanh toán không có Số chứng từ; đều ghi bằng chức năng xác nhận hàng loạt (${[...new Set(unverified.map(t => t['Ngày thanh toán']))].map(iso).join(', ')}).`, 'Đối chiếu sao kê ngân hàng; giao dịch chưa có chứng từ không được tính là đã thu.');
+    // C02: giao dịch/chi tiết/đề nghị mồ côi
+    const orphanTT = TT.filter(t => !periodIds.has(t['Mã kỳ']));
+    if (orphanTT.length) add('C02', 'Nghiêm trọng', 'thanhtoan', orphanTT.map(t => t['Mã thanh toán']).join(', '), `${orphanTT.length} giao dịch trỏ tới kỳ không tồn tại trong kythanhtoan, tổng ${orphanTT.reduce((s, t) => s + Number(t['Số tiền'] || 0), 0).toLocaleString('vi-VN')} đ.`, 'Xác định kỳ bị mất hay giao dịch sai; không xóa khi chưa đối chiếu.');
+    const orphanCT = Object.keys(ctByPeriod).filter(k => !periodIds.has(k));
+    if (orphanCT.length) add('C02', 'Nghiêm trọng', 'chitietky', orphanCT.join(', '), `Chi tiết kỳ còn lại cho ${orphanCT.length} kỳ không tồn tại (đơn giá tham chiếu GT0022 không có trong giathue).`, 'Xóa hoặc gắn lại kỳ đúng sau khi xác định nguyên nhân.');
+    const orphanDN = DN.filter(d => !periodIds.has(d['Mã kỳ']));
+    if (orphanDN.length) add('C02', 'Nghiêm trọng', 'denghithanhtoan', orphanDN.map(d => d['Mã đề nghị']).join(', '), `${orphanDN.length} đề nghị trỏ tới kỳ không tồn tại.`, 'Như trên.');
+    // C03: chi tiết kỳ lệch tổng
+    const detailBad = contracts.filter(c => c.detailMismatch > 0);
+    detailBad.forEach(c => add('C03', 'Nghiêm trọng', 'chitietky / kythanhtoan', c.id, `${c.detailMismatch} kỳ có chi tiết cũ không khớp tổng kỳ cũ.`, 'Sinh lại kỳ và chi tiết từ giathue bằng lõi mới.'));
+    // C04: hóa đơn gắn sai
+    HD.forEach(h => {
+      const p = KT.find(k => k['Mã kỳ'] === h['Mã kỳ']);
+      if (p && p['Mã HĐ'] !== h['Mã HĐ']) add('C04', 'Nghiêm trọng', 'hoadon', h['Mã hóa đơn'], `Hóa đơn ghi ${h['Mã HĐ']} nhưng kỳ ${h['Mã kỳ']} thuộc ${p['Mã HĐ']}; tổng hóa đơn ${Math.round(h['Tổng tiền']).toLocaleString('vi-VN')} đ, tổng kỳ ${Math.round(p['Tổng sau thuế']).toLocaleString('vi-VN')} đ.`, 'Xác định hóa đơn đúng; không tự gắn lại.');
+    });
+    // C05: giá bằng 0 còn áp dụng
+    GT.filter(g => g['Giá trước thuế'] === 0 && g['Trạng thái'] !== 'Hủy').forEach(g => add('C05', 'Cao', 'giathue', g['Mã giá'], `Giá 0 cho ${g['Mã HĐ']} (${iso(g['Từ ngày'])} – ${iso(g['Đến ngày'])}).`, 'Xác nhận miễn giảm hay thiếu dữ liệu.'));
+    // C06: mặt bằng dùng chung / liên kết hỏng
+    TP.forEach(s => {
+      const refs = String(s['Mã HĐ liên kết'] || '').split(/;\s*/).filter(Boolean);
+      const missing = refs.filter(r => !hdIds.has(r));
+      if (missing.length) add('C06', 'Trung bình', 'tang_phong', s['Mã mặt bằng'], `Liên kết tới hợp đồng không tồn tại: ${missing.join(', ')}.`, 'Sửa hoặc tạo hợp đồng còn thiếu.');
+      if (refs.length > 1) add('C06', 'Cao', 'tang_phong', s['Mã mặt bằng'], `Mặt bằng liên kết nhiều hợp đồng cùng lúc (${refs.join(', ')}).`, 'Xác định hợp đồng đang hiệu lực.');
+    });
+    // C07: gộp theo mã tòa nhà lạ (không có trong toanha)
+    const badBld = {};
+    TP.forEach(s => { const b = s['Mã tòa nhà']; if (b && !bldIds.has(b)) (badBld[b] = badBld[b] || []).push(s['Mã mặt bằng']); });
+    Object.entries(badBld).forEach(([b, sp]) => add('C07', 'Cao', 'tang_phong', sp.join(', '), `${sp.length} mặt bằng có Mã tòa nhà "${b}" không có trong toanha (toanha chỉ có: ${[...bldIds].join(', ')}).`, 'Chốt mã tòa nhà đúng và đồng bộ hai sheet.'));
+    // C08: hợp đồng hết hạn nhưng còn "Đang thuê"
+    contracts.filter(c => c.status === 'Đã hết hạn' && H.find(h => h['Mã HĐ'] === c.id)['Trạng thái'] === 'Đang thuê')
+      .forEach(c => add('C08', 'Cao', 'hopdong', c.id, `Đang ghi "Đang thuê" nhưng hết hạn hiệu lực ${c.effectiveEnd}.`, 'Đổi trạng thái hoặc gia hạn bằng phụ lục.'));
+    // C09: hợp đồng không có giá
+    contracts.filter(c => c.errors.length).forEach(c => c.errors.forEach(msg => add('C09', 'Trung bình', 'hopdong', c.id, msg, 'Nhập lịch giá hoặc xác nhận hợp đồng không hiệu lực.')));
+    // C10: phụ lục lỗi
+    const badFmt = [];
+    PL.forEach(a => {
+      const sign = iso(a['Ngày ký']);
+      if (sign && sign < '1990-01-01') add('C10', 'Trung bình', 'phuluc', a['Mã phụ lục'], `Ngày ký ${sign} không hợp lý.`, 'Sửa ngày ký.');
+      if (sign && iso(a['Từ ngày hiệu lực']) && sign > iso(a['Từ ngày hiệu lực'])) add('C12', 'Thấp', 'phuluc', a['Mã phụ lục'], `Ngày ký ${sign} sau Từ ngày hiệu lực ${iso(a['Từ ngày hiệu lực'])} (ký bổ sung?).`, 'Xác nhận hoặc ghi chú.');
+      if (!a['Số phụ lục'] || typeof a['Số phụ lục'] === 'number') badFmt.push(a['Mã phụ lục']);
+    });
+    if (badFmt.length) add('C13', 'Thấp', 'phuluc', badFmt.join(', '), `${badFmt.length} phụ lục có Số phụ lục là số (1, 2, 3...) thay vì mã văn bản; không phân biệt được giữa các hợp đồng.`, 'Chuẩn hóa thành chuỗi có mã văn bản.');
+    const dupKey = {};
+    PL.forEach(a => { const k = [a['Mã HĐ'], a['Loại thay đổi'], a['Từ ngày hiệu lực'], a['Đến ngày hiệu lực']].join('|'); (dupKey[k] = dupKey[k] || []).push(a['Mã phụ lục']); });
+    Object.values(dupKey).filter(v => v.length > 1).forEach(v => add('C11', 'Trung bình', 'phuluc', v.join(', '), `${v.length} phụ lục trùng nội dung (cùng HĐ, loại và thời hạn).`, 'Gộp và giữ một bản.'));
+    // C14/C15: liên kết hợp đồng và mặt bằng
+    TP.forEach(s => { const cc = s['Mã khách thuê liên kết']; if (cc && String(cc).split(/;\s*/).some(x => !custIds.has(x))) add('C06', 'Thấp', 'tang_phong', s['Mã mặt bằng'], `Mã khách liên kết không tồn tại: ${cc}.`, 'Sửa liên kết.'); });
+    H.forEach(h => { if (h['Cảnh báo'] && String(h['Cảnh báo']).includes('REF')) add('C15', 'Thấp', 'hopdong', h['Mã HĐ'], 'Ô Cảnh báo chứa công thức lỗi #REF!.', 'Thay bằng giá trị đúng.'); });
+    // C16: cột trùng/thừa trong hopdong
+    const legacyCols = ['Báo trước', 'Hình thức thuê', 'Nguyên tầng', 'Diện tích thuê (m²)', 'Cảnh báo'];
+    add('C16', 'Thấp', 'hopdong', 'cột thừa', `Có cột trùng/thừa: ${legacyCols.join(', ')}; "Báo trước" trống ở nhiều dòng trong khi "Báo trước (ngày)" đã đầy đủ.`, 'Bỏ khi không còn ứng dụng nào đọc.');
+    // C17: thiếu mã mặt bằng/tiền cọc
+    H.forEach(h => { if (!h['Tiền cọc'] || !h['Mã mặt bằng']) { const miss = [!h['Mã mặt bằng'] ? 'Mã mặt bằng' : null, !h['Tiền cọc'] ? 'Tiền cọc' : null].filter(Boolean).join(' và '); add('C17', 'Thấp', 'hopdong', h['Mã HĐ'], `Thiếu ${miss}.`, 'Bổ sung.'); } });
+    // C18: khách thiếu MST/liên hệ
+    const noTax = KH.filter(k => !k['Mã số thuế']).length;
+    if (noTax) add('C18', 'Thấp', 'khach_khachthue', `${noTax} khách`, `${noTax}/${KH.length} khách không có Mã số thuế; hóa đơn cần MST.`, 'Bổ sung trước khi xuất hóa đơn.');
+    // Hợp đồng không có kỳ dù đang thuê
+    contracts.filter(c => c.legacyCount === 0 && c.newCount === 0 && H.find(h => h['Mã HĐ'] === c.id)['Trạng thái'] === 'Đang thuê' && !c.errors.length)
+      .forEach(c => add('C19', 'Trung bình', 'kythanhtoan', c.id, 'Hợp đồng đang thuê nhưng không có kỳ thanh toán.', 'Kiểm tra lịch giá.'));
+    // Giá thuê: đối chiếu lịch giá với thời hạn hợp đồng (phát hiện khoảng trống giá)
+    // Đối chiếu tổng thanh toán với tổng kỳ theo kỳ đã "Đã thanh toán" (cũ)
+    const paidLegacy = {};
+    TT.forEach(t => { paidLegacy[t['Mã kỳ']] = (paidLegacy[t['Mã kỳ']] || 0) + Number(t['Số tiền'] || 0); });
+    const verifiedPaid = {};
+    TT.filter(t => t['Số chứng từ']).forEach(t => { verifiedPaid[t['Mã kỳ']] = (verifiedPaid[t['Mã kỳ']] || 0) + Number(t['Số tiền'] || 0); });
+
+    // C20: kỳ cũ bao trùm ngày bắt đầu của mốc giá khác (cắt kỳ sai so với quy tắc đổi giá)
+    KT.forEach(p => {
+      const from = Q.toDay(iso(p['Từ ngày'])), to = Q.toDay(iso(p['Đến ngày']));
+      const cut = (rentsBy[p['Mã HĐ']] || []).filter(r => r['Trạng thái'] !== 'Hủy')
+        .map(r => Q.toDay(iso(r['Từ ngày']))).filter(d => d !== null && d > from && d <= to);
+      if (cut.length) add('C20', 'Cao', 'kythanhtoan', p['Mã kỳ'], `Kỳ ${iso(p['Từ ngày'])} – ${iso(p['Đến ngày'])} (${p['Mã HĐ']}) bao trùm ngày đổi giá ${cut.map(Q.toIso).join(', ')}; quy tắc là phải cắt kỳ trước ngày đổi giá.`, 'Sinh lại kỳ bằng lõi mới; kỳ sau ngày đổi giá sẽ được tính lại.');
+    });
+    // C22: sheet trống (chỉ có tiêu đề)
+    Object.entries(L).forEach(([name, t]) => { if (t.rows && t.rows.length === 0) add('C22', 'Thông tin', name, name, 'Sheet chưa có dữ liệu, chỉ có tiêu đề.', 'Không cần sửa nếu chưa dùng.'); });
+
+    // Thanh toán theo kỳ: cũ (ghi nhận) và mới (chỉ tính giao dịch có chứng từ)
+    const payment = KT.map(p => {
+      const total = Number(p['Tổng sau thuế'] || 0);
+      const legPaid = paidLegacy[p['Mã kỳ']] || 0;
+      const verPaid = verifiedPaid[p['Mã kỳ']] || 0;
+      return { periodId: p['Mã kỳ'], contract: p['Mã HĐ'], from: iso(p['Từ ngày']), to: iso(p['Đến ngày']), due: iso(p['Ngày đến hạn']), total,
+        legacyStatus: p['Trạng thái'], legacyPaid: legPaid, verifiedPaid: verPaid, outstanding: Math.max(0, total - verPaid),
+        newStatus: verPaid >= total - TOL_MONEY && total > 0 ? 'Đã thu (có chứng từ)' : (verPaid > 0 ? 'Thu một phần' : (Q.toDay(iso(p['Ngày đến hạn'])) < TODAY ? 'Quá hạn' : 'Chưa thu')) };
+    });
+    // Trạng thái cũ "Đã thanh toán" mà không có chứng từ
+    const claimedNoProof = payment.filter(p => p.legacyStatus === 'Đã thanh toán' && p.verifiedPaid === 0);
+    if (claimedNoProof.length) add('C01', 'Nghiêm trọng', 'kythanhtoan', `${claimedNoProof.length} kỳ`, `${claimedNoProof.length} kỳ ghi "Đã thanh toán" nhưng không có giao dịch có chứng từ.`, 'Chuyển về trạng thái đã kiểm chứng.');
+
+    const summary = {
+      contracts: contracts.length,
+      contractsActive: contracts.filter(c => c.status === 'Đang hiệu lực').length,
+      legacyPeriods: KT.length, newPeriods: contracts.reduce((s, c) => s + c.newCount, 0),
+      same: contracts.reduce((s, c) => s + c.same, 0),
+      diffTotal: contracts.reduce((s, c) => s + c.diffTotal, 0),
+      onlyNew: contracts.reduce((s, c) => s + c.onlyNew, 0),
+      onlyLeg: contracts.reduce((s, c) => s + c.onlyLeg, 0),
+      legacyPaidTotal: TT.reduce((s, t) => s + Number(t['Số tiền'] || 0), 0),
+      verifiedPaidTotal: TT.filter(t => t['Số chứng từ']).reduce((s, t) => s + Number(t['Số tiền'] || 0), 0),
+      issueCount: issues.length
+    };
+    return { contracts, issues, payment, summary, legacy: L, TOL_MONEY };
+  }
+
+  function contractStatus(c, appendices, gen) {
+    if (c['Trạng thái'] === 'Hủy') return 'Hủy';
+    const end = Q.effectiveEnd(c, appendices);
+    const start = Q.toDay(c['Ngày bắt đầu']);
+    if (end === null) return 'Thiếu ngày';
+    if (start !== null && TODAY < start) return 'Chưa hiệu lực';
+    if (TODAY > end) return 'Đã hết hạn';
+    return 'Đang hiệu lực';
+  }
+
+  return { run, TOL_MONEY, TODAY };
+});
+</script>
+<script>/* QL-HD-THUE v5 — giao diện. Chỉ đọc dữ liệu cũ; mọi kết quả là tính toán mới. */
+window.startApp = function () {
+  const R = QLHD_RECON.run(window.__LEGACY__);
+  const S = R.summary;
+  const Q = QLHD;
+  const app = document.getElementById('app');
+  const navEl = document.getElementById('nav');
+
+  const money = v => (v === null || v === undefined || v === '' ? '—' : Math.round(Number(v)).toLocaleString('vi-VN') + ' đ');
+  const fdate = v => { if (!v) return '—'; const [y, m, d] = String(v).slice(0, 10).split('-'); return `${d}/${m}/${y}`; };
+  const esc = v => String(v === null || v === undefined ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const SEV = ['Nghiêm trọng', 'Cao', 'Trung bình', 'Thấp', 'Thông tin'];
+  const sevTone = s => ({ 'Nghiêm trọng': 'bad', 'Cao': 'warn', 'Trung bình': 'mid', 'Thấp': 'plain', 'Thông tin': 'plain' }[s] || 'plain');
+  const statusTone = s => ({ 'Đang hiệu lực': 'ok', 'Đã hết hạn': 'bad', 'Chưa hiệu lực': 'mid', 'Hủy': 'plain' }[s] || 'warn');
+
+  const TABS = [['overview', 'Tổng quan'], ['contracts', 'Hợp đồng'], ['compare', 'Đối chiếu'], ['payments', 'Thanh toán'], ['issues', 'Kiểm tra dữ liệu']];
+  const COUNTS = { contracts: R.contracts.length, issues: R.issues.length };
+  let current = 'overview';
+  let detailId = null;
+  let payFilter = '';
+  let sevFilter = '';
+
+  function renderNav() {
+    navEl.innerHTML = TABS.map(([k, l]) => {
+      const cnt = COUNTS[k] !== undefined ? `<span class="count">${COUNTS[k]}</span>` : '';
+      return `<button type="button" data-tab="${k}" ${current === k ? 'aria-current="page"' : ''}><span>${esc(l)}</span>${cnt}</button>`;
+    }).join('');
+  }
+
+  function balance() {
+    const parts = [
+      ['Khớp', S.same, 'var(--match)'],
+      ['Lệch số tiền hoặc ngày', S.diffTotal, 'var(--diff)'],
+      ['Chỉ có trong dữ liệu cũ', S.onlyLeg, 'var(--old)'],
+      ['Chỉ có khi tính lại', S.onlyNew, 'var(--new)']
+    ];
+    const total = parts.reduce((s, p) => s + p[1], 0) || 1;
+    return `<div class="balance" role="img" aria-label="${parts.map(p => p[0] + ' ' + p[1]).join(', ')}">
+      <div class="bar">${parts.map(p => `<span style="width:${(p[1] / total * 100).toFixed(2)}%;background:${p[2]}"></span>`).join('')}</div>
+      <div class="legend">${parts.map(p => `<div><span class="sw" style="background:${p[2]}"></span>${esc(p[0])}<b>${p[1]}</b></div>`).join('')}</div>
+    </div>`;
+  }
+
+  function overview() {
+    const sev = {};
+    R.issues.forEach(i => { sev[i.sev] = (sev[i.sev] || 0) + 1; });
+    return `<header class="top"><h1>Tổng quan</h1></header>
+      <p class="lede">Kỳ thanh toán được tính lại từ hợp đồng, phụ lục và giá thuê, sau đó so với dữ liệu cũ theo ngày bắt đầu của từng kỳ.</p>
+      ${balance()}
+      <div class="facts">
+        <div><strong>${S.contracts}</strong><span>Hợp đồng</span></div>
+        <div><strong>${S.contractsActive}</strong><span>Đang hiệu lực theo ngày hôm nay</span></div>
+        <div><strong>${S.legacyPeriods}</strong><span>Kỳ trong dữ liệu cũ</span></div>
+        <div><strong>${S.newPeriods}</strong><span>Kỳ khi tính lại</span></div>
+      </div>
+      <h3>Thanh toán</h3>
+      <div class="facts">
+        <div><strong>${money(S.legacyPaidTotal)}</strong><span>Giao dịch ghi trong dữ liệu cũ</span></div>
+        <div><strong class="${S.verifiedPaidTotal ? '' : 'bad'}">${money(S.verifiedPaidTotal)}</strong><span>Có số chứng từ</span></div>
+      </div>
+      <h3>Vấn đề theo mức độ</h3>
+      <div class="facts">${SEV.map(s => `<div><strong class="${sevTone(s) === 'bad' ? 'bad' : (sevTone(s) === 'warn' ? 'warn' : '')}">${sev[s] || 0}</strong><span>${esc(s)}</span></div>`).join('')}</div>
+      <p class="note">Chi tiết từng mục nằm ở tab "Kiểm tra dữ liệu", có mã C01–C22 và đề xuất sửa.</p>`;
+  }
+
+  function contracts() {
+    if (detailId) return contractDetail(detailId);
+    const rows = R.contracts.map(c => `<tr class="click" tabindex="0" data-open="${esc(c.id)}">
+      <td><b>${esc(c.id)}</b></td><td>${esc(c.customer)}</td><td>${esc(c.office || '—')}</td>
+      <td><span class="tag ${statusTone(c.status)}">${esc(c.status)}</span></td>
+      <td>${fdate(c.effectiveEnd)}</td><td class="r">${c.newCount}</td><td class="r">${c.legacyCount}</td>
+      <td class="r">${money(c.newTotal)}</td><td class="flag">${c.errors.length ? '<span class="tag bad">Thiếu giá</span>' : ''}</td></tr>`).join('');
+    return `<header class="top"><h1>Hợp đồng</h1></header>
+      <p class="lede">Hạn hiệu lực là ngày kết thúc hoặc ngày gia hạn bằng phụ lục, lấy mốc muộn hơn. Bấm một dòng để xem kỳ, đề nghị và chi tiết.</p>
+      <div class="scroll"><table><thead><tr><th>Mã HĐ</th><th>Khách thuê</th><th>Văn phòng</th><th>Trạng thái</th><th>Hết hạn hiệu lực</th><th class="r">Kỳ mới</th><th class="r">Kỳ cũ</th><th class="r">Tổng phải thu (mới)</th><th></th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+  }
+
+  function contractDetail(id) {
+    const c = R.contracts.find(x => x.id === id);
+    const kp = c.periods.map(p => `<tr><td class="num">${p['Kỳ số']}</td><td>${fdate(Q.toIso(p['Từ ngày']))} – ${fdate(Q.toIso(p['Đến ngày']))}</td><td>${fdate(Q.toIso(p['Ngày đến hạn']))}</td>
+      <td class="r">${money(p['Tiền thuê sau thuế'])}</td><td class="r">${money(p['Phí dịch vụ sau thuế'])}</td><td class="r"><b>${money(p['Tổng sau thuế'])}</b></td><td class="muted">${esc(p['Ghi chú'])}</td></tr>`).join('');
+    const rq = c.requests.map(r => `<tr><td>${fdate(Q.toIso(r['Ngày đề nghị']))}</td><td>${fdate(Q.toIso(r['Từ ngày']))} – ${fdate(Q.toIso(r['Đến ngày']))}</td><td class="r">${money(r['Tổng đề nghị'])}</td><td><span class="tag plain">${esc(r['Trạng thái'])}</span></td></tr>`).join('');
+    const dt = c.details.map(d => `<tr><td>${esc(d['Loại'])}</td><td>${fdate(Q.toIso(d['Từ ngày']))} – ${fdate(Q.toIso(d['Đến ngày']))}</td><td class="r num">${d['Số tháng'].toFixed(4)}</td><td class="r">${money(d['Đơn giá trước thuế'])}</td><td>${esc(d['Mã nguồn'])}</td></tr>`).join('');
+    return `<button class="back" type="button" data-back>← Tất cả hợp đồng</button>
+      <header class="top"><h1>${esc(c.id)} · ${esc(c.customer)}</h1></header>
+      <div class="meta"><span>Văn phòng <b>${esc(c.office || '—')}</b></span><span>Trạng thái <b>${esc(c.status)}</b></span><span>Hết hạn hiệu lực <b>${fdate(c.effectiveEnd)}</b></span><span>Kỳ mới <b>${c.newCount}</b> / cũ <b>${c.legacyCount}</b></span></div>
+      ${c.errors.length ? `<div class="alert">${c.errors.map(esc).join('<br>')}</div>` : ''}
+      <h3>Kỳ thanh toán (tính lại)</h3>
+      <div class="scroll"><table><thead><tr><th>Kỳ</th><th>Khoảng</th><th>Đến hạn</th><th class="r">Tiền thuê</th><th class="r">Phí DV</th><th class="r">Tổng</th><th>Ghi chú</th></tr></thead><tbody>${kp || '<tr><td colspan="7" class="muted">Không có kỳ.</td></tr>'}</tbody></table></div>
+      <h3>Đề nghị thanh toán</h3>
+      <div class="scroll"><table><thead><tr><th>Ngày lập</th><th>Kỳ</th><th class="r">Tổng</th><th>Trạng thái</th></tr></thead><tbody>${rq || '<tr><td colspan="4" class="muted">Không có.</td></tr>'}</tbody></table></div>
+      <h3>Chi tiết kỳ (tính lại)</h3>
+      <div class="scroll"><table><thead><tr><th>Loại</th><th>Khoảng</th><th class="r">Số tháng</th><th class="r">Đơn giá</th><th>Nguồn giá</th></tr></thead><tbody>${dt || '<tr><td colspan="5" class="muted">Không có.</td></tr>'}</tbody></table></div>`;
+  }
+
+  function compare() {
+    const rows = R.contracts.map(c => {
+      const ok = c.diffTotal === 0 && c.onlyNew === 0 && c.onlyLeg === 0 && c.detailMismatch === 0 && !c.errors.length;
+      const cell = (n, tone) => `<td class="r ${n ? tone : ''}">${n}</td>`;
+      return `<tr class="click" tabindex="0" data-open="${esc(c.id)}">
+        <td><b>${esc(c.id)}</b></td><td class="r">${c.legacyCount}</td><td class="r">${c.newCount}</td>
+        <td class="r ok">${c.same}</td>${cell(c.diffTotal, 'warn')}${cell(c.onlyLeg, 'bad')}${cell(c.onlyNew, 'warn')}${cell(c.detailMismatch, 'bad')}
+        <td class="r">${money(c.legacyTotal)}</td><td class="r">${money(c.newTotal)}</td>
+        <td><span class="tag ${ok ? 'ok' : 'warn'}">${ok ? 'Khớp' : 'Có khác biệt'}</span></td></tr>`;
+    }).join('');
+    const diffs = R.contracts.filter(c => c.rows.length).map(c => `<h3>${esc(c.id)} · khác biệt</h3>
+      <div class="scroll"><table><thead><tr><th>Loại</th><th>Từ</th><th>Đến (cũ)</th><th>Đến (mới)</th><th class="r">Tổng cũ</th><th class="r">Tổng mới</th><th class="r">Chênh</th></tr></thead><tbody>
+      ${c.rows.map(r => `<tr><td><span class="tag ${r.kind === 'chỉ cũ' ? 'bad' : (r.kind === 'chỉ mới' ? 'mid' : 'warn')}">${esc(r.kind)}</span></td><td>${fdate(r.from)}</td><td>${fdate(r.legTo)}</td><td>${fdate(r.to)}</td><td class="r">${money(r.legTotal)}</td><td class="r">${money(r.newTotal)}</td><td class="r"><b>${money(r.diff)}</b></td></tr>`).join('')}
+      </tbody></table></div>`).join('');
+    return `<header class="top"><h1>Đối chiếu</h1></header>
+      <p class="lede">Kỳ được ghép theo ngày bắt đầu. "Chênh" là tổng mới trừ tổng cũ. Chênh lệch làm tròn từ ${R.TOL_MONEY} đ trở xuống được coi là khớp.</p>
+      <div class="scroll"><table><thead><tr><th>Mã HĐ</th><th class="r">Kỳ cũ</th><th class="r">Kỳ mới</th><th class="r">Khớp</th><th class="r">Lệch</th><th class="r">Chỉ cũ</th><th class="r">Chỉ mới</th><th class="r">Chi tiết lệch</th><th class="r">Tổng cũ</th><th class="r">Tổng mới</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${diffs || '<p class="note">Không có khác biệt.</p>'}`;
+  }
+
+  function payments() {
+    const list = R.payment.filter(p => !payFilter || p.newStatus === payFilter);
+    const statuses = [...new Set(R.payment.map(p => p.newStatus))];
+    const rows = list.slice(0, 400).map(p => `<tr><td class="num">${esc(p.periodId)}</td><td>${esc(p.contract)}</td><td>${fdate(p.from)} – ${fdate(p.to)}</td><td>${fdate(p.due)}</td>
+      <td class="r">${money(p.total)}</td><td><span class="tag plain">${esc(p.legacyStatus)}</span></td><td class="r">${money(p.legacyPaid)}</td>
+      <td class="r">${money(p.verifiedPaid)}</td><td class="r"><b>${money(p.outstanding)}</b></td><td><span class="tag ${p.newStatus.startsWith('Đã thu') ? 'ok' : (p.newStatus === 'Quá hạn' ? 'bad' : 'mid')}">${esc(p.newStatus)}</span></td></tr>`).join('');
+    return `<header class="top"><h1>Thanh toán</h1></header>
+      <p class="lede">Chỉ giao dịch có số chứng từ mới được tính là đã thu. Giao dịch không có chứng từ được ghi riêng, không tính vào số đã thu.</p>
+      <div class="toolbar"><label>Trạng thái mới <select id="payFilter"><option value="">Tất cả</option>${statuses.map(s => `<option ${s === payFilter ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select></label>
+      <span class="muted">${list.length} kỳ${list.length > 400 ? ' · hiển thị 400 dòng đầu' : ''}</span></div>
+      <div class="scroll"><table><thead><tr><th>Kỳ</th><th>HĐ</th><th>Khoảng</th><th>Đến hạn</th><th class="r">Tổng kỳ</th><th>Trạng thái cũ</th><th class="r">Đã ghi (cũ)</th><th class="r">Có chứng từ</th><th class="r">Còn phải thu</th><th>Trạng thái mới</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  function issues() {
+    const list = R.issues.filter(i => !sevFilter || i.sev === sevFilter);
+    const rows = list.map(i => `<tr><td class="num">${esc(i.code)}</td><td><span class="tag ${sevTone(i.sev)}">${esc(i.sev)}</span></td><td>${esc(i.sheet)}</td><td>${esc(i.key)}</td><td>${esc(i.message)}</td><td class="muted">${esc(i.fix)}</td></tr>`).join('');
+    return `<header class="top"><h1>Kiểm tra dữ liệu</h1></header>
+      <div class="toolbar"><label>Mức độ <select id="sevFilter"><option value="">Tất cả</option>${SEV.map(s => `<option ${s === sevFilter ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
+      <button class="btn" id="exportIssues" type="button">Xuất CSV vấn đề</button><button class="btn" id="exportCompare" type="button">Xuất CSV đối chiếu</button></div>
+      <div class="scroll"><table><thead><tr><th>Mã</th><th>Mức độ</th><th>Sheet</th><th>Khóa / dòng</th><th>Mô tả</th><th>Đề xuất</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  function csv(name, header, rows) {
+    const body = [header, ...rows].map(r => r.map(v => `"${String(v === null || v === undefined ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob(['﻿' + body], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  }
+
+  function render() {
+    renderNav();
+    const body = { overview, contracts, compare, payments, issues }[current]();
+    app.innerHTML = `<main>${body}</main>`;
+    app.querySelector('main').focus?.({ preventScroll: true });
+  }
+
+  function go(tab, id) { current = tab; detailId = id || null; render(); window.scrollTo(0, 0); }
+
+  navEl.addEventListener('click', e => { const t = e.target.closest('[data-tab]'); if (t) go(t.dataset.tab); });
+  app.addEventListener('click', e => {
+    const o = e.target.closest('[data-open]');
+    if (o) return go('contracts', o.dataset.open);
+    if (e.target.closest('[data-back]')) return go('contracts');
+    if (e.target.id === 'exportIssues') return csv('vi-pham-du-lieu.csv', ['Mã', 'Mức độ', 'Sheet', 'Khóa', 'Mô tả', 'Đề xuất'], R.issues.map(i => [i.code, i.sev, i.sheet, i.key, i.message, i.fix]));
+    if (e.target.id === 'exportCompare') return csv('doi-chieu-ky.csv', ['Mã HĐ', 'Loại', 'Từ', 'Đến cũ', 'Đến mới', 'Tổng cũ', 'Tổng mới', 'Chênh'],
+      R.contracts.flatMap(c => c.rows.map(r => [c.id, r.kind, r.from, r.legTo || '', r.to || '', r.legTotal ?? '', r.newTotal ?? '', r.diff])));
+  });
+  app.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('tr[data-open]')) go('contracts', e.target.dataset.open); });
+  app.addEventListener('change', e => {
+    if (e.target.id === 'payFilter') { payFilter = e.target.value; render(); }
+    if (e.target.id === 'sevFilter') { sevFilter = e.target.value; render(); }
+  });
+
+  // Chuyển giao diện sáng/tối, nhớ lựa chọn trong trình duyệt (không ảnh hưởng dữ liệu).
+  const root = document.documentElement;
+  const KEY = 'qlhd5-theme';
+  try { const saved = localStorage.getItem(KEY); if (saved) root.dataset.theme = saved; } catch (e) {}
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const dark = root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem(KEY, root.dataset.theme); } catch (e) {}
+  });
+
+  render();
+};
+</script>
+<script>(function () {
+  var box = document.getElementById('app');
+  function fail(msg) { box.innerHTML = '<main><h1>Không đọc được dữ liệu</h1><p class="lede">' + String(msg).replace(/[<>&]/g, '') + '</p></main>'; }
+  if (!window.google || !google.script) { fail('Trang này cần chạy trong Apps Script (Web App).'); return; }
+  google.script.run
+    .withSuccessHandler(function (data) { window.__LEGACY__ = data; startApp(); })
+    .withFailureHandler(function (e) { fail(e && e.message ? e.message : e); })
+    .getLegacyData();
+})();</script>
+</body>
+</html>
