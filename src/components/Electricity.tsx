@@ -13,7 +13,7 @@ interface Row {
   ma_cong_to: string; ten_cong_to: string | null; nhom_hoa_don: string | null; chi_so_cu: number | null; chi_so_moi: number | null
   so_kwh: number | null; don_gia: number | null; thanh_tien: number | null; vat: number | null; trang_thai: string | null
 }
-interface Customer { id: string; ten_khach_thue: string; id_tang: string | null; trang_thai: string | null }
+interface Customer { id: string; ten_khach_thue: string; id_tang: string | null; trang_thai: string | null; dia_chi?: string | null }
 interface Pay { id: string; ky: string; nhom_hoa_don: string; id_khach_thue: string | null; ngay_thanh_toan: string; so_tien: number; hinh_thuc: string | null; ghi_chu: string | null; nguoi_ghi: string | null }
 interface Perms { create: boolean; edit: boolean; delete: boolean; approve: boolean; admin?: boolean }
 
@@ -223,7 +223,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const openHistory = () => { setModal({ kind: 'history' }); setHist(null); api('/api/dien?history=1').then((j) => setHist(j.data)).catch((e) => flash(false, e.message)) }
 
   const toInvoice = (i: (typeof invoices)[number]): Invoice => ({
-    id: i.id, customerId: i.khach, customer: i.name, sub: i.sub, vatRate: i.vatRate, vat: i.vat, total: i.total,
+    id: i.id, customerId: i.khach, customer: i.name, address: customers.find((c) => c.id === i.khach)?.dia_chi ?? '', sub: i.sub, vatRate: i.vatRate, vat: i.vat, total: i.total,
     paid: payments.filter((x) => x.ky === ky && x.nhom_hoa_don === i.id).reduce((a, x) => a + Number(x.so_tien || 0), 0),
     lines: i.lines.map(({ r, c }) => ({ code: r.ma_cong_to, name: r.ten_cong_to ?? '', floor: r.tang ?? '', old: c.old, now: c.now ?? null, kwh: c.kwh, price: c.price, amount: c.amount })),
   })
@@ -231,7 +231,10 @@ export default function Electricity({ perms }: { perms: Perms }) {
     if (!list.length) return
     const hasMissing = list.some((i) => i.lines.some((l) => l.c.now == null))
     if (hasMissing) flash(false, 'Có công tơ chưa nhập chỉ số mới: giấy báo sẽ để trống phần đó')
-    printHtml(giayBaoHtml(list.map(toInvoice), ky, closeDateOf(period?.rows ?? []), window.location.origin))
+    // period start = the day after the previous period's close date (e.g. 23/09 → 22/10)
+    const prev = periods[periods.findIndex((p) => p.ky === ky) + 1], prevClose = prev ? closeDateOf(prev.rows) : null
+    const from = prevClose ? new Date(Date.parse(prevClose + 'T00:00:00Z') + 864e5).toISOString().slice(0, 10) : null
+    printHtml(giayBaoHtml(list.map(toInvoice), ky, closeDateOf(period?.rows ?? []), window.location.origin, from))
   }
 
   const editMeter = (r: Row) => open({ kind: 'edit' }, { id: r.id, ma: r.ma_cong_to, ten: r.ten_cong_to ?? '', tang: r.tang ?? '', cu: r.chi_so_cu == null ? '' : String(r.chi_so_cu), khach: r.id_khach_thue ?? '', khach0: r.id_khach_thue ?? '' })

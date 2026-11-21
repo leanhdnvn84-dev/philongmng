@@ -1,36 +1,72 @@
-// "Giấy báo tiền điện": one printable page per invoice (hoá đơn = a tenant's meters of one period).
-import { COMPANY, CSS, PRINT_CSS, esc, money, dmy, moneyWords } from '@/lib/proposalDoc'
+// "Giấy báo tiền điện": one printable A4 page per invoice (hoá đơn = a tenant's meters of one period),
+// laid out like the company's DNTT_Dien form (title left, logo + contact right, cost table, two signatures, print date at the bottom).
+import { esc, money, dmy, moneyWords } from '@/lib/proposalDoc'
 
 export interface MeterLine { code: string; name: string; floor: string; old: number | null; now: number | null; kwh: number; price: number; amount: number }
-export interface Invoice { id: string; customerId: string; customer: string; lines: MeterLine[]; sub: number; vatRate: number; vat: number; total: number; paid?: number }
+export interface Invoice { id: string; customerId: string; customer: string; address?: string; lines: MeterLine[]; sub: number; vatRate: number; vat: number; total: number; paid?: number }
 
-const dec = (n: number | null) => (n == null ? '' : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'))
 const kyLabel = (ky: string) => `Tháng ${ky.slice(5, 7)}/${ky.slice(0, 4)}`
-
-function page(inv: Invoice, ky: string, closeDate: string | null, logo: string) {
-  const rows = inv.lines.map((l, i) => `<tr><td class="ctr">${i + 1}</td><td>${esc([l.floor, l.name].filter(Boolean).join(' · '))}<br><span style="font-size:8.5pt;color:#555">${esc(l.code)}</span></td><td class="num">${dec(l.old)}</td><td class="num">${dec(l.now)}</td><td class="num">${l.now == null ? '' : dec(l.kwh)}</td><td class="num">${money(l.price)}</td><td class="num">${l.now == null ? '' : money(l.amount)}</td></tr>`).join('')
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
-  const d = (closeDate || today)
-  return `<section style="page-break-after:always">
-  <table class="hd" width="100%"><tr><td style="vertical-align:bottom"><h1>GIẤY BÁO TIỀN ĐIỆN</h1><div class="code">${esc(kyLabel(ky))} · Mã hoá đơn: ${esc(inv.id)}</div></td>
-    <td width="200" style="width:200px"><table width="100%"><tr><td align="left" style="text-align:left;border:0;padding:0">${logo}</td></tr></table><table class="contact" width="100%"><tr><td width="26%" style="width:26%"><b>Địa chỉ</b></td><td>: ${esc(COMPANY.address)}</td></tr><tr><td><b>Điện thoại</b></td><td>: ${esc(COMPANY.phone)}</td></tr><tr><td><b>Email</b></td><td>: ${esc(COMPANY.email)}</td></tr></table></td></tr></table>
-  <hr>
-  <table class="to" width="100%"><tr><td width="12%" style="width:12%">Kính gửi:</td><td>${esc(inv.customer)}</td></tr></table>
-  <p style="font-size:10pt;margin:8px 0">Công ty TNHH Công Nghệ Tin Học Phi Long xin thông báo tiền điện ${esc(kyLabel(ky).toLowerCase())} của Quý khách như sau:</p>
-  <table class="grid" width="100%"><tr class="head"><th style="width:5%">TT</th><th>Công tơ</th><th style="width:12%">Chỉ số cũ</th><th style="width:12%">Chỉ số mới</th><th style="width:10%">Số kWh</th><th style="width:11%">Đơn giá</th><th style="width:15%">Thành tiền</th></tr>${rows}
-    <tr><th class="num" colspan="6">Cộng tiền điện</th><th class="num">${money(inv.sub)}</th></tr>
-    <tr><th class="num" colspan="6">VAT ${Math.round(inv.vatRate * 100)}%</th><th class="num">${money(inv.vat)}</th></tr>
-    <tr><th class="num" colspan="6">TỔNG THANH TOÁN</th><th class="num">${money(inv.total)}</th></tr>${inv.paid ? `
-    <tr><td class="num" colspan="6">Đã thanh toán</td><td class="num">${money(inv.paid)}</td></tr>
-    <tr><th class="num" colspan="6">CÒN PHẢI THANH TOÁN</th><th class="num">${money(Math.max(0, inv.total - inv.paid))}</th></tr>` : ''}</table>
-  <div class="words"><b>Bằng chữ:</b> ${esc(moneyWords(inv.total))}</div>
-  <p class="note">Đề nghị Quý khách thanh toán đúng hạn. Mọi thắc mắc xin liên hệ ${esc(COMPANY.phone)}.</p>
-  <p style="text-align:right;font-size:10pt;margin:14px 0 0"><i>Đà Nẵng, ngày ${esc(dmy(d).slice(0, 2))} tháng ${esc(dmy(d).slice(3, 5))} năm ${esc(dmy(d).slice(6))}</i></p>
-  <table class="sign" width="100%"><tr><td width="50%" style="width:50%">NGƯỜI LẬP<br><br><br><br><br></td><td width="50%" style="width:50%">XÁC NHẬN CỦA QUẢN LÝ</td></tr></table></section>`
+/** meter readings and kWh: thousands with ",", up to 3 decimals (same style as the amounts) */
+const reading = (n: number | null) => {
+  if (n == null || !Number.isFinite(n)) return ''
+  const [i, f] = String(Math.round(n * 1000) / 1000).split('.')
+  return i.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (f ? '.' + f : '')
 }
 
-export function giayBaoHtml(invoices: Invoice[], ky: string, closeDate: string | null, origin = '') {
-  const logo = origin ? `<img src="${origin}/brand/philong-logo.png" alt="Phi Long Technology" width="200" height="62" style="width:200px;height:62px;margin-bottom:2px">` : '<b style="color:#d71920;font-size:15pt">PHI LONG TECHNOLOGY</b>'
+const CSS = `
+@page{size:A4;margin:12mm 12mm 14mm}
+*{box-sizing:border-box}
+body{font-family:"Segoe UI","Noto Sans",Arial,sans-serif;color:#111;font-size:10pt;margin:0}
+table{border-collapse:collapse;width:100%}
+section{position:relative;min-height:268mm;page-break-after:always}
+section:last-of-type{page-break-after:auto}
+.hd td{border:0;padding:0;vertical-align:bottom}
+h1{margin:0 0 4px;font-size:17pt;font-weight:700;letter-spacing:.2px}
+.co{text-align:right;font-size:9pt;line-height:1.55}
+.co img{display:block;margin:0 0 6px auto}
+.to{margin:26px 0 0;font-size:10pt;line-height:1.6}.to small{font-size:9pt}
+.grid{margin-top:14px}
+.grid td,.grid th{border:.75pt solid #222;padding:6px 6px;font-size:9.5pt;vertical-align:middle}
+.grid th{font-weight:700;font-size:8.5pt;text-align:center;white-space:nowrap}
+.num{text-align:right}.ctr{text-align:center}.b{font-weight:700}
+.per{font-style:italic;font-size:8pt;margin-bottom:3px}
+.sum td{padding:9px 6px}
+.words td{font-style:italic;padding:10px 12px}
+.sign{margin-top:22px}.sign td{border:0;font-weight:700;font-size:10pt;padding:0 8px;vertical-align:top}
+.date{position:absolute;right:0;bottom:0;font-size:9pt}
+`
+
+function page(inv: Invoice, ky: string, from: string | null, to: string | null, printed: string, logo: string) {
+  const period = from && to ? `Tiêu thụ điện năng từ ${dmy(from)} đến ${dmy(to)}`
+    : to ? `Tiêu thụ điện năng ${kyLabel(ky).toLowerCase()} (đến ${dmy(to)})` : `Tiêu thụ điện năng ${kyLabel(ky).toLowerCase()}`
+  const rows = inv.lines.map((l, i) => {
+    const where = [l.floor, l.name && l.name !== l.floor ? l.name : ''].filter(Boolean).join(' · ') || l.code
+    return `<tr><td class="ctr">${i + 1}</td><td><div class="per">${esc(period)}</div>${esc(where)}</td>`
+      + `<td class="num">${reading(l.now)}</td><td class="num">${reading(l.old)}</td><td class="num b">${l.now == null ? '' : reading(l.kwh)}</td>`
+      + `<td class="num">${money(l.price)}</td><td class="num b">${l.now == null ? '' : money(l.amount)}</td></tr>`
+  }).join('')
+  const paid = inv.paid && inv.paid > 0 ? `
+    <tr class="sum"><td class="num" colspan="6">Đã thanh toán</td><td class="num">${money(inv.paid)}</td></tr>
+    <tr class="sum"><td class="num" colspan="6">Còn phải thanh toán</td><td class="num b">${money(Math.max(0, inv.total - inv.paid)) || '0'}</td></tr>` : ''
+  return `<section>
+  <table class="hd"><tr><td><h1>GIẤY BÁO TIỀN ĐIỆN</h1></td>
+    <td class="co" style="width:52%">${logo}52 Nguyễn Văn Linh, Đà Nẵng<br>Tel : 3888000&nbsp;&nbsp;&nbsp;Email : philong@philong.com.vn</td></tr></table>
+  <div class="to">Kính gửi: <b>${esc(inv.customer)}</b>${inv.address ? `<br><small>Địa chỉ: ${esc(inv.address)}</small>` : ''}</div>
+  <table class="grid">
+    <tr><th style="width:5%">STT</th><th>Nội dung chi phí</th><th style="width:10%">Chỉ số mới</th><th style="width:10%">Chỉ số cũ</th><th style="width:10%">Điện năng<br>tiêu thụ</th><th style="width:10%">Đơn giá</th><th style="width:13%">Thành tiền</th></tr>
+    ${rows}
+    <tr class="sum"><td class="num" colspan="6">Thuế GTGT ${Math.round(inv.vatRate * 100)}%</td><td class="num b">${money(inv.vat) || '0'}</td></tr>
+    <tr class="sum"><td class="num" colspan="6" style="font-size:10pt">Tổng cộng tiền thanh toán</td><td class="num b" style="font-size:10pt">${money(inv.total) || '0'}</td></tr>${paid}
+    <tr class="words"><td colspan="7">Bằng chữ : ${esc(moneyWords(inv.total))}</td></tr>
+  </table>
+  <table class="sign"><tr><td>Đại diện công ty Phi Long</td><td style="text-align:right;padding-right:60px">Xác nhận của Khách Hàng</td></tr></table>
+  <div class="date">${esc(dmy(printed))}</div></section>`
+}
+
+/** `from` = first day of the period (day after the previous close), `to` = close date; both optional. */
+export function giayBaoHtml(invoices: Invoice[], ky: string, closeDate: string | null, origin = '', from: string | null = null) {
+  const logo = origin ? `<img src="${origin}/brand/philong-logo.png" alt="Phi Long Technology" width="210" height="65" style="width:210px;height:65px">` : '<b style="color:#d71920;font-size:16pt;display:block;margin-bottom:6px">Phi Long TECHNOLOGY</b>'
+  const printed = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
   const title = invoices.length === 1 ? `Giấy báo tiền điện ${kyLabel(ky)} - ${invoices[0].customer}` : `Giấy báo tiền điện ${kyLabel(ky)}`
-  return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${CSS}${PRINT_CSS}section:last-of-type{page-break-after:auto!important}</style></head><body>${invoices.map((i) => page(i, ky, closeDate, logo)).join('')}<div class="foot pfoot">Giấy báo có giá trị khi có xác nhận.</div></body></html>`
+  return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${CSS}</style></head><body>${invoices.map((i) => page(i, ky, from, closeDate, printed, logo)).join('')}</body></html>`
 }

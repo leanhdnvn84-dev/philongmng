@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     rows.push(...(data ?? []))
     if (!data || data.length < 1000) break
   }
-  const { data: kt } = await db.from('khach_thue').select('id, ten_khach_thue, id_tang, trang_thai').order('ten_khach_thue')
+  const { data: kt } = await db.from('khach_thue').select('id, ten_khach_thue, id_tang, trang_thai, dia_chi').order('ten_khach_thue')
   const { data: pays } = await db.from('thanh_toan_dien').select('id, ky, nhom_hoa_don, id_khach_thue, ngay_thanh_toan, so_tien, hinh_thuc, ghi_chu, nguoi_ghi').order('ngay_thanh_toan', { ascending: false }).limit(5000)
   return NextResponse.json({ success: true, data: rows, customers: kt ?? [], payments: pays ?? [], at: new Date().toISOString() })
 }
