@@ -8,7 +8,7 @@ name: Deploy Cloudflare (philong)
 
 on:
   push:
-    branches: [claude/r2-storage]
+    branches: [claude/cloudflare-nguyen-ban]
   workflow_dispatch:
 
 concurrency:
