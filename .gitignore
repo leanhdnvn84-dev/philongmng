@@ -9,3 +9,8 @@ build
 .env.*.local
 .vercel
 dist
+
+# Cloudflare demo build
+.open-next/
+.wrangler/
+.dev.vars
