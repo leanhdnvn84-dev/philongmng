@@ -1,14 +1,16 @@
-// Bản DEMO / dự phòng trên Cloudflare Workers (tài khoản Cloudflare riêng). Production vẫn chạy trên Vercel.
-// Build + deploy: npm run cf:deploy  (cần CLOUDFLARE_API_TOKEN và CLOUDFLARE_ACCOUNT_ID của tài khoản demo)
+// Bản dự phòng trên Cloudflare Workers (worker "philong"). Production vẫn chạy trên Vercel.
+// Build + deploy: npm run cf:deploy  (cần CLOUDFLARE_API_TOKEN và CLOUDFLARE_ACCOUNT_ID)
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "philong-demo",
+  "name": "philong",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-12-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
-  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "philong-demo" }],
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "philong" }],
   "observability": { "enabled": true },
+  // biến/khóa nhập trong Cloudflare Dashboard được giữ nguyên mỗi lần deploy
+  "keep_vars": true,
   // Không đặt "triggers.crons": sao lưu và cảnh báo hằng đêm chỉ chạy ở Vercel, tránh chạy hai lần.
   "workers_dev": true
 }
