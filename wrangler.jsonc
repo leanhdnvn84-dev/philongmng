@@ -3,7 +3,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "philong",
-  "main": ".open-next/worker.js",
+  "main": "cloudflare/worker.js",
   "compatibility_date": "2025-12-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
@@ -11,6 +11,9 @@
   "observability": { "enabled": true },
   // biến/khóa nhập trong Cloudflare Dashboard được giữ nguyên mỗi lần deploy
   "keep_vars": true,
-  // Không đặt "triggers.crons": sao lưu và cảnh báo hằng đêm chỉ chạy ở Vercel, tránh chạy hai lần.
+  // Sao lưu 01:00 và email cảnh báo 08:00 (giờ VN). Chỉ thực sự chạy khi biến CRON_ENABLED = "1" (xem cloudflare/worker.js).
+  "triggers": { "crons": ["0 18 * * *", "0 1 * * *"] },
+  // tối đa 5 phút CPU mỗi lượt (gói Workers Paid) cho sao lưu và xuất V27
+  "limits": { "cpu_ms": 300000 },
   "workers_dev": true
 }
