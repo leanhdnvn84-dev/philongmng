@@ -14,11 +14,12 @@ const reading = (n: number | null) => {
 }
 
 const CSS = `
-@page{size:A4;margin:12mm 12mm 14mm}
+/* page margin 0: the browser then has no room to print its own title / web address; the margins are inside each page */
+@page{size:A4;margin:0}
 *{box-sizing:border-box}
 body{font-family:"Segoe UI","Noto Sans",Arial,sans-serif;color:#111;font-size:10pt;margin:0}
 table{border-collapse:collapse;width:100%}
-section{position:relative;min-height:268mm;page-break-after:always}
+section{position:relative;min-height:296mm;padding:12mm 12mm 14mm;page-break-after:always}
 section:last-of-type{page-break-after:auto}
 .hd td{border:0;padding:0;vertical-align:bottom}
 h1{margin:0 0 4px;font-size:17pt;font-weight:700;letter-spacing:.2px}
@@ -33,7 +34,7 @@ h1{margin:0 0 4px;font-size:17pt;font-weight:700;letter-spacing:.2px}
 .sum td{padding:9px 6px}
 .words td{font-style:italic;padding:10px 12px}
 .sign{margin-top:22px}.sign td{border:0;font-weight:700;font-size:10pt;padding:0 8px;vertical-align:top}
-.date{position:absolute;right:0;bottom:0;font-size:9pt}
+.date{position:absolute;right:12mm;bottom:12mm;font-size:9pt}
 `
 
 function page(inv: Invoice, ky: string, from: string | null, to: string | null, printed: string, logo: string) {
