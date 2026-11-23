@@ -104,7 +104,9 @@ export default function Electricity({ perms }: { perms: Perms }) {
     const idx = periods.findIndex((p) => p.ky === ky), prev = idx >= 0 ? periods[idx + 1] : undefined
     const prevClose = prev ? closeDateOf(prev.rows) : null
     const from = prevClose ? new Date(Date.parse(prevClose + 'T00:00:00Z') + 864e5).toISOString().slice(0, 10) : null
-    const to = closeDateOf(period?.rows ?? []) ?? new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
+    // an open period is counted up to today (Chốt kỳ then records today as its close date); a closed one keeps its close date
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
+    const to = period?.closed ? closeDateOf(period.rows) ?? today : today
     return { from, to }
   }, [periods, period, ky])
   const saveDates = (r: Row, tu: string, den: string) => run(async () => { await post({ op: 'set_dates', id: r.id, tu_ngay: tu, den_ngay: den }); return `Đã lưu ngày của ${r.ma_cong_to}` })
@@ -345,7 +347,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
       <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-navy-200 bg-white px-4 py-2.5 lg:px-5">
         <div className="min-w-0">
           <h1 className="inline text-[22px] font-extrabold text-navy-900">Tiền điện</h1>
-          {period && <span className="ml-2 text-[12.5px] text-ink-mute">{kyText(ky)}{closeDateOf(period.rows) ? ` · chốt ngày ${dmy(closeDateOf(period.rows))}` : ''} · {period.closed ? 'Đã chốt' : 'Đang nhập chỉ số'}</span>}
+          {period && <span className="ml-2 text-[12.5px] text-ink-mute">{kyText(ky)}{period.closed ? (closeDateOf(period.rows) ? ` · chốt ngày ${dmy(closeDateOf(period.rows))}` : '') : ` · tính đến hôm nay ${dmy(defDates.to)}`} · {period.closed ? 'Đã chốt' : 'Đang nhập chỉ số'}</span>}
         </div>
         <div className="-mx-1 flex max-w-full flex-1 gap-1.5 lg:justify-end overflow-x-auto px-1 pb-0.5 lg:flex-none">
           <button className={`${btn} ${plain}`} disabled={!canNew || busy} title={perms.admin ? (latest && !latest.closed ? 'Chốt kỳ hiện tại trước khi tạo kỳ mới' : undefined) : 'Chỉ Super Admin'} onClick={() => open({ kind: 'ky' }, { ky: nextPeriod, don_gia: '' })}><Plus className="h-4 w-4" />Tạo kỳ mới</button>
