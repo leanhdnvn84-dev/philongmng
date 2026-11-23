@@ -2,7 +2,7 @@
 // laid out like the company's DNTT_Dien form (title left, logo + contact right, cost table, two signatures, print date at the bottom).
 import { esc, money, dmy, moneyWords } from '@/lib/proposalDoc'
 
-export interface MeterLine { code: string; name: string; floor: string; old: number | null; now: number | null; kwh: number; price: number; amount: number }
+export interface MeterLine { code: string; name: string; floor: string; old: number | null; now: number | null; kwh: number; price: number; amount: number; from?: string | null; to?: string | null }
 export interface Invoice { id: string; customerId: string; customer: string; address?: string; lines: MeterLine[]; sub: number; vatRate: number; vat: number; total: number; paid?: number }
 
 const kyLabel = (ky: string) => `Tháng ${ky.slice(5, 7)}/${ky.slice(0, 4)}`
@@ -38,9 +38,10 @@ h1{margin:0 0 4px;font-size:17pt;font-weight:700;letter-spacing:.2px}
 `
 
 function page(inv: Invoice, ky: string, from: string | null, to: string | null, printed: string, logo: string) {
-  const period = from && to ? `Tiêu thụ điện năng từ ${dmy(from)} đến ${dmy(to)}`
-    : to ? `Tiêu thụ điện năng ${kyLabel(ky).toLowerCase()} (đến ${dmy(to)})` : `Tiêu thụ điện năng ${kyLabel(ky).toLowerCase()}`
+  const periodOf = (f: string | null, t: string | null) => f && t ? `Tiêu thụ điện năng từ ${dmy(f)} đến ${dmy(t)}`
+    : t ? `Tiêu thụ điện năng ${kyLabel(ky).toLowerCase()} (đến ${dmy(t)})` : `Tiêu thụ điện năng ${kyLabel(ky).toLowerCase()}`
   const rows = inv.lines.map((l, i) => {
+    const period = periodOf(l.from ?? from, l.to ?? to)
     const where = [l.floor, l.name && l.name !== l.floor ? l.name : ''].filter(Boolean).join(' · ') || l.code
     return `<tr><td class="ctr">${i + 1}</td><td><div class="per">${esc(period)}</div>${esc(where)}</td>`
       + `<td class="num">${reading(l.now)}</td><td class="num">${reading(l.old)}</td><td class="num b">${l.now == null ? '' : reading(l.kwh)}</td>`

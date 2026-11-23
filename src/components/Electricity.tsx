@@ -13,6 +13,7 @@ interface Row {
   id: string; ky: string; ngay_chot: string | null; id_khach_thue: string | null; ten_khach_thue: string | null; id_tang: string | null; tang: string | null
   ma_cong_to: string; ten_cong_to: string | null; nhom_hoa_don: string | null; chi_so_cu: number | null; chi_so_moi: number | null
   so_kwh: number | null; don_gia: number | null; thanh_tien: number | null; vat: number | null; trang_thai: string | null
+  tu_ngay?: string | null; den_ngay?: string | null
 }
 interface Customer { id: string; ten_khach_thue: string; id_tang: string | null; trang_thai: string | null; dia_chi?: string | null }
 interface Pay { id: string; ky: string; nhom_hoa_don: string; id_khach_thue: string | null; ngay_thanh_toan: string; so_tien: number; hinh_thuc: string | null; ghi_chu: string | null; nguoi_ghi: string | null }
@@ -98,6 +99,15 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const period = periods.find((p) => p.ky === ky)
   const latest = periods[0]
   const locked = !period || period.closed
+  // default "từ ngày – đến ngày": day after the previous period's close → this period's close (today while it is open)
+  const defDates = useMemo(() => {
+    const idx = periods.findIndex((p) => p.ky === ky), prev = idx >= 0 ? periods[idx + 1] : undefined
+    const prevClose = prev ? closeDateOf(prev.rows) : null
+    const from = prevClose ? new Date(Date.parse(prevClose + 'T00:00:00Z') + 864e5).toISOString().slice(0, 10) : null
+    const to = closeDateOf(period?.rows ?? []) ?? new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' })
+    return { from, to }
+  }, [periods, period, ky])
+  const saveDates = (r: Row, tu: string, den: string) => run(async () => { await post({ op: 'set_dates', id: r.id, tu_ngay: tu, den_ngay: den }); return `Đã lưu ngày của ${r.ma_cong_to}` })
   const [missingSel, setMissingSel] = useState<string[]>([])
   const missing = useMemo(() => {
     const idx = periods.findIndex((p) => p.ky === ky), prev = idx >= 0 ? periods[idx + 1] : undefined
@@ -269,16 +279,13 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const toInvoice = (i: (typeof invoices)[number]): Invoice => ({
     id: i.id, customerId: i.khach, customer: i.name, address: customers.find((c) => c.id === i.khach)?.dia_chi ?? '', sub: i.sub, vatRate: i.vatRate, vat: i.vat, total: i.total,
     paid: payments.filter((x) => x.ky === ky && x.nhom_hoa_don === i.id).reduce((a, x) => a + Number(x.so_tien || 0), 0),
-    lines: i.lines.map(({ r, c }) => ({ code: r.ma_cong_to, name: r.ten_cong_to ?? '', floor: r.tang ?? '', old: c.old, now: c.now ?? null, kwh: c.kwh, price: c.price, amount: c.amount })),
+    lines: i.lines.map(({ r, c }) => ({ code: r.ma_cong_to, name: r.ten_cong_to ?? '', floor: r.tang ?? '', old: c.old, now: c.now ?? null, kwh: c.kwh, price: c.price, amount: c.amount, from: r.tu_ngay || defDates.from, to: r.den_ngay || defDates.to })),
   })
   const print = (list: typeof invoices) => {
     if (!list.length) return
     const hasMissing = list.some((i) => i.lines.some((l) => l.c.now == null))
     if (hasMissing) flash(false, 'Có công tơ chưa nhập chỉ số mới: giấy báo sẽ để trống phần đó')
-    // period start = the day after the previous period's close date (e.g. 23/09 → 22/10)
-    const prev = periods[periods.findIndex((p) => p.ky === ky) + 1], prevClose = prev ? closeDateOf(prev.rows) : null
-    const from = prevClose ? new Date(Date.parse(prevClose + 'T00:00:00Z') + 864e5).toISOString().slice(0, 10) : null
-    printHtml(giayBaoHtml(list.map(toInvoice), ky, closeDateOf(period?.rows ?? []), window.location.origin, from))
+    printHtml(giayBaoHtml(list.map(toInvoice), ky, defDates.to, window.location.origin, defDates.from))
   }
 
   const editMeter = (r: Row) => open({ kind: 'edit' }, { id: r.id, ma: r.ma_cong_to, ten: r.ten_cong_to ?? '', tang: r.tang ?? '', cu: r.chi_so_cu == null ? '' : String(r.chi_so_cu), khach: r.id_khach_thue ?? '', khach0: r.id_khach_thue ?? '' })
@@ -396,7 +403,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
                     {invoices.map((inv) => (
                       <GroupRows key={inv.id} inv={inv} active={inv.id === sel} onSelect={() => setSel(inv.id)} locked={locked} perms={perms}
                         onAdd={() => open({ kind: 'meter', nhom: inv.id }, { nhom: inv.id, ma: '', ten: '', tang: '', cu: '' })}
-                        edits={edits} setEdit={setEdit} commit={commit} boxCls={boxCls} boxTitle={boxTitle} check={check} remove={removeMeter} editMeter={editMeter} inputs={inputs} />
+                        edits={edits} setEdit={setEdit} commit={commit} def={defDates} saveDates={saveDates} boxCls={boxCls} boxTitle={boxTitle} check={check} remove={removeMeter} editMeter={editMeter} inputs={inputs} />
                     ))}
                   </tbody>
                 </table>
@@ -408,6 +415,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
                       {inv.lines.map(({ r, c }) => { const k = check(r); return (
                         <div key={r.id} className="border-t border-navy-100 px-3 py-2">
                           <div className="flex items-center gap-2"><span className="flex-1 text-[13.5px] font-semibold">{[r.tang, r.ten_cong_to].filter(Boolean).join(' · ')}</span><span className="font-mono text-[11.5px] text-ink-mute">{r.ma_cong_to}</span></div>
+                          <DateRange r={r} def={defDates} editable={!locked && perms.edit} onSave={saveDates} />
                           <div className="mt-1.5 grid grid-cols-[1fr_1.3fr] items-end gap-2.5">
                             <div><div className="text-[11.5px] text-ink-mute">Chỉ số cũ</div><div className="flex h-11 items-center text-[15px] font-semibold tabular-nums">{c.old == null ? '—' : num3(c.old)}</div></div>
                             <div><div className="text-[11.5px] text-ink-mute">Chỉ số mới</div>
@@ -569,7 +577,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <ul className="divide-y divide-navy-100">
             {hist?.map((h, i) => (
               <li key={i} className="py-2 text-[13px]"><div className="flex gap-2"><b className="flex-1 text-navy-900">{ACTION_LABEL[h.action] ?? h.action}</b><span className="text-ink-mute">{new Date(h.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span></div>
-                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}{h.action === 'edit_meter' ? Object.entries(h.changes ?? {}).filter(([k]) => k.startsWith('doi_')).map(([, v]) => ` · ${v}`).join('') : ''}{h.action === 'pay' || h.action === 'unpay' ? ` · ${h.changes?.khach ?? ''} · ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.so_tien ?? 0))} đ` : ''}{h.action === 'set_price' ? ` · ${h.changes?.tu} → ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.den))} đ/kWh · ${h.changes?.pham_vi}${h.changes?.ly_do ? ` · ${h.changes.ly_do}` : ''}` : ''}</div></li>
+                <div className="text-ink-soft">{h.user_email}{h.changes?.ky ? ` · kỳ ${h.changes.ky}` : ''}{h.changes?.count ? ` · ${h.changes.count} chỉ số` : ''}{h.changes?.ma_cong_to ? ` · ${h.changes.ma_cong_to}` : ''}{h.action === 'set_dates' ? ` · ${h.changes?.tu_ngay} → ${h.changes?.den_ngay}` : ''}{h.action === 'edit_meter' ? Object.entries(h.changes ?? {}).filter(([k]) => k.startsWith('doi_')).map(([, v]) => ` · ${v}`).join('') : ''}{h.action === 'pay' || h.action === 'unpay' ? ` · ${h.changes?.khach ?? ''} · ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.so_tien ?? 0))} đ` : ''}{h.action === 'set_price' ? ` · ${h.changes?.tu} → ${new Intl.NumberFormat('vi-VN').format(Number(h.changes?.den))} đ/kWh · ${h.changes?.pham_vi}${h.changes?.ly_do ? ` · ${h.changes.ly_do}` : ''}` : ''}</div></li>
             ))}
           </ul>
         </Modal>
@@ -580,12 +588,13 @@ export default function Electricity({ perms }: { perms: Perms }) {
 
 const ACTION_LABEL: Record<string, string> = {
   create_period: 'Tạo kỳ mới', lock_period: 'Chốt kỳ', reopen_period: 'Mở lại kỳ', save_readings: 'Lưu chỉ số', add_meter: 'Thêm công tơ',
-  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', add_missing: 'Thêm lại công tơ còn thiếu', restore: 'Khôi phục từ thùng rác', set_price: 'Đổi giá điện', pay: 'Ghi nhận thanh toán', unpay: 'Xóa lần thanh toán', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa công tơ (vào thùng rác)',
+  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', add_missing: 'Thêm lại công tơ còn thiếu', set_dates: 'Sửa từ ngày – đến ngày', restore: 'Khôi phục từ thùng rác', set_price: 'Đổi giá điện', pay: 'Ghi nhận thanh toán', unpay: 'Xóa lần thanh toán', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa công tơ (vào thùng rác)',
 }
 
-function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, commit, boxCls, boxTitle, check, remove, editMeter, inputs }: {
+function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, commit, boxCls, boxTitle, check, remove, editMeter, inputs, def, saveDates }: {
   inv: { id: string; name: string; khach: string; lines: { r: Row; c: { now: number | null; old: number | null; price: number; kwh: number; amount: number } }[]; total: number; vatRate: number }
   active: boolean; onSelect: () => void; locked: boolean; perms: Perms; onAdd: () => void; editMeter: (r: Row) => void; edits: Record<string, string>
+  def: { from: string | null; to: string }; saveDates: (r: Row, tu: string, den: string) => void
   setEdit: (r: Row, v: string) => void; commit: (id: string) => void; boxCls: (id: string) => string; boxTitle: (id: string) => string | undefined; check: (r: Row) => Check; remove: (r: Row) => void; inputs: React.MutableRefObject<Record<string, HTMLInputElement | null>>
 }) {
   const focusNext = (i: number) => { const nx = inv.lines[i + 1]?.r.id; if (nx) inputs.current[nx]?.focus() }
@@ -599,7 +608,8 @@ function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit
       </tr>
       {inv.lines.map(({ r, c }, i) => { const k = check(r); return (
         <tr key={r.id} onClick={onSelect} className="border-b border-navy-100 hover:bg-navy-50/60">
-          <td className="px-2 py-2"><span className="font-semibold">{[r.tang, r.ten_cong_to].filter(Boolean).join(' · ')}</span> <span className="font-mono text-[11.5px] text-ink-mute">{r.ma_cong_to}</span></td>
+          <td className="px-2 py-2"><span className="font-semibold">{[r.tang, r.ten_cong_to].filter(Boolean).join(' · ')}</span> <span className="font-mono text-[11.5px] text-ink-mute">{r.ma_cong_to}</span>
+            <DateRange r={r} def={def} editable={!locked && perms.edit} onSave={saveDates} /></td>
           <td className="px-2 py-2 text-right tabular-nums">{c.old == null ? '—' : num3(c.old)}</td>
           <td className="px-2 py-1.5 text-right">
             {locked ? <span className="tabular-nums">{c.now == null ? '—' : num3(c.now)}</span> : (
@@ -617,5 +627,27 @@ function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit
         </tr>
       ) })}
     </>
+  )
+}
+
+/** "từ ngày → đến ngày" under a meter: the period's dates by default, editable per meter while the period is open. */
+function DateRange({ r, def, editable, onSave }: { r: Row; def: { from: string | null; to: string }; editable: boolean; onSave: (r: Row, tu: string, den: string) => void }) {
+  const [edit, setEdit] = useState<{ tu: string; den: string } | null>(null)
+  const from = r.tu_ngay || def.from, to = r.den_ngay || def.to, custom = !!(r.tu_ngay || r.den_ngay)
+  if (edit) return (
+    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[12px]" onClick={(e) => e.stopPropagation()}>
+      <span className="text-ink-mute">Từ</span><input type="date" aria-label={`Từ ngày ${r.ma_cong_to}`} className="h-8 rounded-md border border-navy-200 px-1.5" value={edit.tu} onChange={(e) => setEdit({ ...edit, tu: e.target.value })} />
+      <span className="text-ink-mute">đến</span><input type="date" aria-label={`Đến ngày ${r.ma_cong_to}`} className="h-8 rounded-md border border-navy-200 px-1.5" value={edit.den} onChange={(e) => setEdit({ ...edit, den: e.target.value })} />
+      <button type="button" className="h-8 rounded-md bg-blue-600 px-2.5 font-bold text-white hover:bg-blue-700" onClick={() => { onSave(r, edit.tu === (def.from ?? '') ? '' : edit.tu, edit.den === def.to ? '' : edit.den); setEdit(null) }}>Lưu</button>
+      {custom && <button type="button" className="h-8 rounded-md border border-navy-200 bg-white px-2.5 font-bold text-navy-900 hover:bg-navy-50" onClick={() => { onSave(r, '', ''); setEdit(null) }}>Về mặc định</button>}
+      <button type="button" className="h-8 rounded-md px-2 font-bold text-ink-mute hover:bg-navy-100" onClick={() => setEdit(null)}>Hủy</button>
+    </div>
+  )
+  return (
+    <div className={`mt-0.5 flex items-center gap-1 text-[12px] ${custom ? 'font-bold text-blue-700' : 'text-ink-mute'}`}>
+      <span>{from ? dmy(from) : '…'} → {dmy(to)}</span>
+      {editable && <button type="button" aria-label={`Sửa từ ngày đến ngày ${r.ma_cong_to}`} title={custom ? 'Ngày riêng của công tơ này (bấm để sửa)' : 'Mặc định theo kỳ (bấm để sửa riêng công tơ này)'}
+        onClick={(e) => { e.stopPropagation(); setEdit({ tu: from ?? '', den: to }) }} className="grid h-6 w-6 place-items-center rounded-full text-ink-mute hover:bg-blue-50 hover:text-blue-700"><Pencil className="h-3 w-3" /></button>}
+    </div>
   )
 }

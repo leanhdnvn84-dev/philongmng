@@ -8,7 +8,7 @@ import { runAction, ActionError } from '@/lib/actions'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const COLS = 'id, ky, ngay_chot, id_khach_thue, ten_khach_thue, id_tang, tang, ma_cong_to, ten_cong_to, nhom_hoa_don, chi_so_cu, chi_so_moi, so_kwh, don_gia, thanh_tien, vat, trang_thai, ghi_chu'
+const COLS = 'id, ky, ngay_chot, id_khach_thue, ten_khach_thue, id_tang, tang, ma_cong_to, ten_cong_to, nhom_hoa_don, chi_so_cu, chi_so_moi, so_kwh, don_gia, thanh_tien, vat, trang_thai, ghi_chu, tu_ngay:extra->>tu_ngay, den_ngay:extra->>den_ngay'
 const err = (m: string, s = 400) => NextResponse.json({ success: false, error: m }, { status: s })
 const ID = /^[A-Za-z0-9_.-]{1,64}$/
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
@@ -57,6 +57,25 @@ export async function POST(req: NextRequest) {
   const db = supabaseAdmin()
   try {
     switch (op) {
+      case 'set_dates': {
+        // "từ ngày – đến ngày" of one meter (kept in extra; empty = the period's default dates)
+        const a = await who('edit'); if (a instanceof NextResponse) return a
+        const id = String(body.id ?? ''); if (!ID.test(id)) return err('Mã không hợp lệ')
+        const DAY = /^\d{4}-\d{2}-\d{2}$/
+        const tu = String(body.tu_ngay ?? ''), den = String(body.den_ngay ?? '')
+        if ((tu && !DAY.test(tu)) || (den && !DAY.test(den))) return err('Ngày không hợp lệ')
+        if (tu && den && tu > den) return err('Từ ngày phải trước hoặc bằng đến ngày')
+        const { data: r } = await db.from('tien_dien').select('id, ky, ma_cong_to, trang_thai, extra').eq('id', id).maybeSingle()
+        if (!r) return err('Công tơ không tồn tại', 404)
+        if (r.trang_thai === 'Đã chốt') return err('Kỳ đã chốt, hãy mở lại kỳ để sửa')
+        const extra = { ...(r.extra ?? {}) } as Record<string, unknown>
+        if (tu) extra.tu_ngay = tu; else delete extra.tu_ngay
+        if (den) extra.den_ngay = den; else delete extra.den_ngay
+        const { error } = await db.from('tien_dien').update({ extra, nguoi_cap_nhat: a.name, updated_at: new Date().toISOString() }).eq('id', id)
+        if (error) return err('Lỗi cơ sở dữ liệu', 500)
+        await audit(a, 'tien_dien', id, 'set_dates', { ky: r.ky, ma_cong_to: r.ma_cong_to, tu_ngay: tu || 'mặc định', den_ngay: den || 'mặc định' })
+        return NextResponse.json({ success: true })
+      }
       case 'save': {
         const a = await who('edit'); if (a instanceof NextResponse) return a
         const items = Array.isArray(body.items) ? body.items.slice(0, 500) : []
