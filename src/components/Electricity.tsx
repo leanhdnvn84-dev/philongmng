@@ -283,7 +283,9 @@ export default function Electricity({ perms }: { perms: Perms }) {
   }
   const open = (m: NonNullable<typeof modal>, init: Record<string, string> = {}) => { setForm(init); setModal(m); setMsg(null) }
 
-  const btn = 'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border bg-white px-3 text-[12.5px] font-bold transition disabled:cursor-not-allowed disabled:opacity-40'
+  const btn = 'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-[12.5px] font-bold transition disabled:cursor-not-allowed disabled:opacity-40'
+  // each button sets its own background (base has none), so a coloured button never ends up white text on white
+  const plain = 'bg-white border-navy-200 text-navy-900 hover:bg-navy-50'
   const nextPeriod = latest ? nextKy(latest.ky) : ''
   const canNew = perms.create && !!latest && latest.closed
 
@@ -328,16 +330,16 @@ export default function Electricity({ perms }: { perms: Perms }) {
           {period && <span className="ml-2 text-[12.5px] text-ink-mute">{kyText(ky)}{closeDateOf(period.rows) ? ` · chốt ngày ${dmy(closeDateOf(period.rows))}` : ''} · {period.closed ? 'Đã chốt' : 'Đang nhập chỉ số'}</span>}
         </div>
         <div className="-mx-1 flex max-w-full flex-1 gap-1.5 lg:justify-end overflow-x-auto px-1 pb-0.5 lg:flex-none">
-          <button className={`${btn} border-navy-200 text-navy-900`} disabled={!canNew || busy} onClick={() => open({ kind: 'ky' }, { ky: nextPeriod, don_gia: '' })}><Plus className="h-4 w-4" />Tạo kỳ mới</button>
-          <button className={`${btn} border-navy-200 text-navy-900`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'customer' }, { khach: '', ma: '', ten: '', tang: '', cu: '' })}><User className="h-4 w-4" />Thêm khách</button>
-          <button className={`${btn} border-amber-300 text-amber-700`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'meter' }, { nhom: cur?.id ?? '', ma: '', ten: '', tang: '', cu: '' })}><Zap className="h-4 w-4" />Thêm công tơ</button>
-          <button className={`${btn} border-teal-300 text-teal-700`} disabled={locked || !perms.edit || busy || !period} onClick={() => open({ kind: 'price' }, { gia: price != null ? String(price) : '', pham_vi: 'ky', ly_do: '' })}><Coins className="h-4 w-4" />Giá điện</button>
-          <button className={`${btn} ${dirty ? 'border-blue-600 bg-blue-600 text-white' : 'border-navy-200 text-navy-900'}`} disabled={!dirty || busy || !perms.edit} onClick={save}><Save className="h-4 w-4" />Lưu chỉ số{dirty ? ` (${dirty})` : ''}</button>
-          <button className={`${btn} border-[#e11d2e] text-[#e11d2e]`} disabled={locked || !perms.approve || busy} onClick={chot}><Lock className="h-4 w-4" />Chốt kỳ</button>
-          <button className={`${btn} border-navy-200 text-navy-900`} disabled={!period?.closed || ky !== latest?.ky || !perms.approve || busy} onClick={reopen}><LockOpen className="h-4 w-4" />Mở lại kỳ</button>
-          <button className={`${btn} border-violet-300 text-violet-700`} disabled={!period} onClick={() => print(invoices)}><Printer className="h-4 w-4" />In giấy báo</button>
-          <button className={`${btn} border-green-300 text-green-700`} onClick={openHistory}><History className="h-4 w-4" />Lịch sử</button>
-          <button className={`${btn} border-navy-200 text-navy-900`} disabled={busy} onClick={() => load()}><RefreshCw className={`h-4 w-4 ${busy ? 'animate-spin' : ''}`} />Làm mới</button>
+          <button className={`${btn} ${plain}`} disabled={!canNew || busy} onClick={() => open({ kind: 'ky' }, { ky: nextPeriod, don_gia: '' })}><Plus className="h-4 w-4" />Tạo kỳ mới</button>
+          <button className={`${btn} ${plain}`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'customer' }, { khach: '', ma: '', ten: '', tang: '', cu: '' })}><User className="h-4 w-4" />Thêm khách</button>
+          <button className={`${btn} bg-white border-amber-300 text-amber-700 hover:bg-amber-50`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'meter' }, { nhom: cur?.id ?? '', ma: '', ten: '', tang: '', cu: '' })}><Zap className="h-4 w-4" />Thêm công tơ</button>
+          <button className={`${btn} bg-white border-teal-300 text-teal-700 hover:bg-teal-50`} disabled={locked || !perms.edit || busy || !period} onClick={() => open({ kind: 'price' }, { gia: price != null ? String(price) : '', pham_vi: 'ky', ly_do: '' })}><Coins className="h-4 w-4" />Giá điện</button>
+          <button className={`${btn} ${dirty ? 'border-blue-700 bg-blue-600 text-white shadow-[0_3px_0_#1e3a8a] ring-2 ring-blue-300 hover:bg-blue-700' : 'border-green-700 bg-green-600 text-white disabled:!opacity-100 disabled:!cursor-default'}`} disabled={!dirty || busy || !perms.edit} onClick={save} title={dirty ? 'Lưu ngay các chỉ số đang chờ (chúng cũng tự lưu)' : 'Chỉ số mới tự lưu sau khi nhập'}><Save className="h-4 w-4" />{dirty ? `Lưu chỉ số (${dirty})` : 'Đã lưu chỉ số'}</button>
+          <button className={`${btn} bg-white border-[#e11d2e] text-[#e11d2e] hover:bg-red-50`} disabled={locked || !perms.approve || busy} onClick={chot}><Lock className="h-4 w-4" />Chốt kỳ</button>
+          <button className={`${btn} ${plain}`} disabled={!period?.closed || ky !== latest?.ky || !perms.approve || busy} onClick={reopen}><LockOpen className="h-4 w-4" />Mở lại kỳ</button>
+          <button className={`${btn} bg-white border-violet-300 text-violet-700 hover:bg-violet-50`} disabled={!period} onClick={() => print(invoices)}><Printer className="h-4 w-4" />In giấy báo</button>
+          <button className={`${btn} bg-white border-green-300 text-green-700 hover:bg-green-50`} onClick={openHistory}><History className="h-4 w-4" />Lịch sử</button>
+          <button className={`${btn} ${plain}`} disabled={busy} onClick={() => load()}><RefreshCw className={`h-4 w-4 ${busy ? 'animate-spin' : ''}`} />Làm mới</button>
         </div>
       </div>
       {msg && <p role="status" className={`shrink-0 border-b px-4 py-2 text-sm font-semibold lg:px-5 ${msg.ok ? 'border-green-200 bg-green-50 text-green-700' : 'border-red-200 bg-red-50 text-red-700'}`}>{msg.text}</p>}
