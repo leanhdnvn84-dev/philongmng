@@ -197,11 +197,45 @@ export default function Electricity({ perms }: { perms: Perms }) {
     try { const t = await fn(); if (after) await load(); if (t) flash(true, t) } catch (e: any) { flash(false, e.message) } finally { setBusy(false) }
   }
 
-  const setEdit = (r: Row, v: string) => setEdits((e) => {
-    const n = { ...e }; const orig = r.chi_so_moi == null ? '' : String(r.chi_so_moi)
-    if (v.trim() === orig) delete n[r.id]; else n[r.id] = v
-    return n
-  })
+  // new readings save themselves: when the box loses focus, on Enter, or 1.5 s after the last keystroke
+  const [saveState, setSaveState] = useState<Record<string, 'saving' | 'saved' | 'error'>>({})
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+  const editsRef = useRef(edits); editsRef.current = edits
+  const commit = useCallback(async (id: string) => {
+    clearTimeout(timers.current[id]); delete timers.current[id]
+    const v = editsRef.current[id]; if (v === undefined) return
+    const n = v.trim() === '' ? null : toNum(v)
+    const mark = (st: 'saving' | 'saved' | 'error') => setSaveState((s) => ({ ...s, [id]: st }))
+    if (n !== null && !Number.isFinite(n)) { mark('error'); flash(false, `"${v}" không phải số`); return }
+    mark('saving')
+    try {
+      // keepalive: the request still completes if the page is being closed
+      await api('/api/dien', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'save', items: [{ id, chi_so_moi: n }] }), keepalive: true })
+      setRows((rs) => rs.map((r) => (r.id === id ? { ...r, chi_so_moi: n } : r)))
+      // keep a value typed while this one was being saved
+      setEdits((e) => { if (e[id] !== v) return e; const x = { ...e }; delete x[id]; return x })
+      mark('saved')
+    } catch (e: any) { mark('error'); flash(false, e.message) }
+  }, [])
+  const setEdit = (r: Row, v: string) => {
+    setEdits((e) => {
+      const n = { ...e }; const orig = r.chi_so_moi == null ? '' : String(r.chi_so_moi)
+      if (v.trim() === orig) delete n[r.id]; else n[r.id] = v
+      return n
+    })
+    setSaveState((s) => { if (!s[r.id]) return s; const x = { ...s }; delete x[r.id]; return x })
+    clearTimeout(timers.current[r.id]); timers.current[r.id] = setTimeout(() => commit(r.id), 1500)
+  }
+  // leaving the page or switching tab: save whatever is still pending
+  useEffect(() => {
+    const flush = () => { for (const id of Object.keys(editsRef.current)) commit(id) }
+    const onHide = () => { if (document.visibilityState === 'hidden') flush() }
+    document.addEventListener('visibilitychange', onHide); window.addEventListener('pagehide', flush)
+    return () => { document.removeEventListener('visibilitychange', onHide); window.removeEventListener('pagehide', flush); flush() }
+  }, [commit])
+  const boxCls = (id: string) => saveState[id] === 'error' ? 'border-red-500 bg-red-50' : saveState[id] === 'saving' ? 'border-amber-400 bg-amber-50'
+    : edits[id] !== undefined ? 'border-blue-400 bg-blue-50' : saveState[id] === 'saved' ? 'border-green-500 bg-green-50' : 'border-navy-200 bg-white'
+  const boxTitle = (id: string) => saveState[id] === 'error' ? 'Chưa lưu được, sửa lại số rồi rời ô để lưu lại' : saveState[id] === 'saving' ? 'Đang lưu…' : saveState[id] === 'saved' ? 'Đã lưu' : edits[id] !== undefined ? 'Sẽ tự lưu' : undefined
   const save = () => run(async () => {
     const items = Object.entries(edits).map(([id, v]) => ({ id, chi_so_moi: v.trim() === '' ? null : toNum(v) }))
     if (items.some((i) => i.chi_so_moi !== null && !Number.isFinite(i.chi_so_moi))) throw new Error('Có chỉ số không phải số')
@@ -348,7 +382,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
                     {invoices.map((inv) => (
                       <GroupRows key={inv.id} inv={inv} active={inv.id === sel} onSelect={() => setSel(inv.id)} locked={locked} perms={perms}
                         onAdd={() => open({ kind: 'meter', nhom: inv.id }, { nhom: inv.id, ma: '', ten: '', tang: '', cu: '' })}
-                        edits={edits} setEdit={setEdit} check={check} remove={removeMeter} editMeter={editMeter} inputs={inputs} />
+                        edits={edits} setEdit={setEdit} commit={commit} boxCls={boxCls} boxTitle={boxTitle} check={check} remove={removeMeter} editMeter={editMeter} inputs={inputs} />
                     ))}
                   </tbody>
                 </table>
@@ -364,7 +398,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
                             <div><div className="text-[11.5px] text-ink-mute">Chỉ số cũ</div><div className="flex h-11 items-center text-[15px] font-semibold tabular-nums">{c.old == null ? '—' : num3(c.old)}</div></div>
                             <div><div className="text-[11.5px] text-ink-mute">Chỉ số mới</div>
                               {locked ? <div className="flex h-11 items-center justify-end text-[15px] font-bold tabular-nums">{c.now == null ? '—' : num3(c.now)}</div>
-                                : <input aria-label={`Chỉ số mới ${r.ma_cong_to}`} inputMode="decimal" placeholder="Nhập…" value={edits[r.id] ?? (r.chi_so_moi ?? '')} onChange={(e) => setEdit(r, e.target.value)} className="h-11 w-full rounded-[10px] border-[1.5px] border-navy-200 px-3 text-right text-[17px] font-bold text-navy-900 focus:border-blue-500 focus:outline-none" />}</div>
+                                : <input aria-label={`Chỉ số mới ${r.ma_cong_to}`} inputMode="decimal" placeholder="Nhập…" value={edits[r.id] ?? (r.chi_so_moi ?? '')} onChange={(e) => setEdit(r, e.target.value)} onBlur={() => commit(r.id)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); commit(r.id) } }} title={boxTitle(r.id)} className={`h-11 w-full rounded-[10px] border-[1.5px] px-3 text-right text-[17px] font-bold text-navy-900 focus:border-blue-500 focus:outline-none ${boxCls(r.id)}`} />}</div>
                           </div>
                           <div className="mt-1.5 flex items-center gap-2 text-[12.5px]"><span className={`rounded-full px-2 py-0.5 font-bold ${k.cls}`}>{k.text}</span><span className="text-ink-mute">{c.now == null ? '' : `${num3(c.kwh)} kWh · ${vnd(c.amount)} đ`}</span>
                             {!locked && perms.admin && <span className="ml-auto flex gap-1.5"><button onClick={(e) => { e.stopPropagation(); editMeter(r) }} aria-label={`Sửa ${r.ma_cong_to}`} className="grid h-8 w-8 place-items-center rounded-full border border-navy-200 text-ink-mute"><Pencil className="h-3.5 w-3.5" /></button><button onClick={(e) => { e.stopPropagation(); removeMeter(r) }} aria-label={`Xóa ${r.ma_cong_to}`} className="grid h-8 w-8 place-items-center rounded-full border border-navy-200 text-ink-mute"><X className="h-3.5 w-3.5" /></button></span>}</div>
@@ -521,10 +555,10 @@ const ACTION_LABEL: Record<string, string> = {
   add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', set_price: 'Đổi giá điện', pay: 'Ghi nhận thanh toán', unpay: 'Xóa lần thanh toán', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
 }
 
-function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, check, remove, editMeter, inputs }: {
+function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, commit, boxCls, boxTitle, check, remove, editMeter, inputs }: {
   inv: { id: string; name: string; khach: string; lines: { r: Row; c: { now: number | null; old: number | null; price: number; kwh: number; amount: number } }[]; total: number; vatRate: number }
   active: boolean; onSelect: () => void; locked: boolean; perms: Perms; onAdd: () => void; editMeter: (r: Row) => void; edits: Record<string, string>
-  setEdit: (r: Row, v: string) => void; check: (r: Row) => Check; remove: (r: Row) => void; inputs: React.MutableRefObject<Record<string, HTMLInputElement | null>>
+  setEdit: (r: Row, v: string) => void; commit: (id: string) => void; boxCls: (id: string) => string; boxTitle: (id: string) => string | undefined; check: (r: Row) => Check; remove: (r: Row) => void; inputs: React.MutableRefObject<Record<string, HTMLInputElement | null>>
 }) {
   const focusNext = (i: number) => { const nx = inv.lines[i + 1]?.r.id; if (nx) inputs.current[nx]?.focus() }
   return (
@@ -542,8 +576,8 @@ function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit
           <td className="px-2 py-1.5 text-right">
             {locked ? <span className="tabular-nums">{c.now == null ? '—' : num3(c.now)}</span> : (
               <input ref={(el) => { inputs.current[r.id] = el }} aria-label={`Chỉ số mới ${r.ma_cong_to}`} inputMode="decimal" placeholder="Nhập…" value={edits[r.id] ?? (r.chi_so_moi ?? '')} disabled={!perms.edit}
-                onChange={(e) => setEdit(r, e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); focusNext(i) } }}
-                className={`h-9 w-full rounded-lg border px-2.5 text-right font-semibold tabular-nums text-navy-900 focus:border-blue-500 focus:outline-none ${edits[r.id] !== undefined ? 'border-blue-400 bg-blue-50' : 'border-navy-200 bg-white'}`} />
+                onChange={(e) => setEdit(r, e.target.value)} onBlur={() => commit(r.id)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); commit(r.id); focusNext(i) } }}
+                title={boxTitle(r.id)} className={`h-9 w-full rounded-lg border px-2.5 text-right font-semibold tabular-nums text-navy-900 focus:border-blue-500 focus:outline-none ${boxCls(r.id)}`} />
             )}
           </td>
           <td className="px-2 py-2 text-right tabular-nums">{c.now == null ? '–' : num3(c.kwh)}</td>
