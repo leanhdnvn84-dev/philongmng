@@ -4,6 +4,7 @@ import { Building2, DoorOpen, Handshake, CalendarClock, Pencil, Plus, RotateCw, 
 import Portal from '@/components/Portal'
 import Attachments from '@/components/Attachments'
 import { useConfirm } from '@/components/ConfirmDialog'
+import { useAutoRefresh } from '@/lib/useAutoRefresh'
 
 /** "Mặt bằng cho thuê": buildings, floors, tenants and leases on one screen (one row per floor, one line per tenant on it). */
 type Building = { id: string; ten_toa_nha: string; dia_chi_toa_nha: string | null }
@@ -31,15 +32,17 @@ export default function RentalPage() {
   const [busy, setBusy] = useState(false)
   const [confirm, dialog] = useConfirm()
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (q?: unknown) => {
+    const quiet = q === true
+    if (!quiet) setLoading(true)
     try {
       const j = await fetch('/api/mat_bang').then((r) => r.json())
       if (!j?.success) throw new Error(j?.error || 'Không tải được')
       setD(j)
-    } catch (e: any) { setMsg({ ok: false, text: e.message }) } finally { setLoading(false) }
+    } catch (e: any) { if (!quiet) setMsg({ ok: false, text: e.message }) } finally { if (!quiet) setLoading(false) }
   }, [])
   useEffect(() => { load() }, [load])
+  useAutoRefresh(() => load(true))
   useEffect(() => { if (msg?.ok) { const t = setTimeout(() => setMsg(null), 4000); return () => clearTimeout(t) } }, [msg])
 
   const today = d?.today ?? ''

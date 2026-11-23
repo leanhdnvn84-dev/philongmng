@@ -7,6 +7,7 @@ import Portal from '@/components/Portal'
 import { useConfirm } from '@/components/ConfirmDialog'
 import { printHtml } from '@/lib/proposalDoc'
 import { giayBaoHtml, type Invoice } from '@/lib/electricityDoc'
+import { useAutoRefresh } from '@/lib/useAutoRefresh'
 
 interface Row {
   id: string; ky: string; ngay_chot: string | null; id_khach_thue: string | null; ten_khach_thue: string | null; id_tang: string | null; tang: string | null
@@ -71,14 +72,16 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const [confirm, dialog] = useConfirm()
   const inputs = useRef<Record<string, HTMLInputElement | null>>({})
 
-  const load = useCallback(async (keep = true) => {
+  const load = useCallback(async (keep = true, quiet = false) => {
     try {
       const j = await api('/api/dien', { cache: 'no-store' })
       setRows(j.data); setCustomers(j.customers ?? []); setPayments(j.payments ?? []); setSyncAt(new Date(j.at)); setLoaded(true)
       setKy((cur) => (keep && cur && j.data.some((r: Row) => r.ky === cur) ? cur : j.data[0]?.ky ?? ''))
-    } catch (e: any) { setMsg({ ok: false, text: e.message }); setLoaded(true) }
+    } catch (e: any) { if (!quiet) setMsg({ ok: false, text: e.message }); setLoaded(true) }
   }, [])
   useEffect(() => { load(false) }, [load])
+  // readings typed on another computer appear by themselves; a box being typed in keeps its own value (edits)
+  useAutoRefresh(() => load(true, true))
 
   // ── derived data ──
   const periods = useMemo(() => {

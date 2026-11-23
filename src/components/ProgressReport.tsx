@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { STAGES, formatDate } from '@/lib/resources'
+import { useAutoRefresh } from '@/lib/useAutoRefresh'
 
 interface Work {
   id: string; muc_do?: string | null; id_nguoi_thuc_hien?: string | null; noi_dung: string; ngay_giao: string | null; deadline: string | null; ngay_hoan_thanh: string | null
@@ -94,6 +95,7 @@ export default function ProgressReport({ canEdit }: { canEdit: boolean }) {
     setPeople(Object.fromEntries((pj.data ?? []).map((n: any) => [n.id, n.ho_ten])))
   }, [])
   useEffect(() => { load() }, [load])
+  useAutoRefresh(load)
 
   const name = (w: Work) => (w.id_nguoi_thuc_hien && people[w.id_nguoi_thuc_hien]) || '—'
   const levels = useMemo(() => Array.from(new Set(works.map((w) => w.muc_do).filter(Boolean))) as string[], [works])

@@ -20,6 +20,7 @@ import { useConfirm } from '@/components/ConfirmDialog'
 import FilterTab from '@/components/FilterTab'
 import { phieuHtml, printHtml, downloadWord, downloadPdf, fileName, type Phieu } from '@/lib/proposalDoc'
 import { ALERT_CODES, ALERT_MODULES, Action, Field, getResource, visibleInList, formatDate, PROPOSAL_KINDS } from '@/lib/resources'
+import { useAutoRefresh } from '@/lib/useAutoRefresh'
 
 type Row = Record<string, any>
 type Option = { value: string; label: string }
@@ -390,17 +391,20 @@ export default function ResourceManager({
     return sp
   }, [filterKey, query, status, alertSel, res.urgency, res.quick, quickSel, compact, side, sideName, pf, day, calField, isDev, devF, unfinished])
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (q?: unknown) => {
+    const quiet = q === true
+    if (!quiet) setLoading(true)
     try {
       const sp = baseParams(); sp.set('page', String(page)); sp.set('pageSize', String(pageSize))
       const j = await api(`/api/${res.key}?${sp}`)
       setRows(j.data); setTotal(j.total); setVersion((v) => v + 1)
       // opened on today but nothing recorded yet: show the whole list instead of an empty table
       if (res.openToday && !todayTried.current) { todayTried.current = true; if (!j.total && day === todayVn()) setDay(null) }
-    } catch (e: any) { setMsg({ type: 'err', text: e.message }) } finally { setLoading(false) }
+    } catch (e: any) { if (!quiet) setMsg({ type: 'err', text: e.message }) } finally { if (!quiet) setLoading(false) }
   }, [res.key, baseParams, page, pageSize]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { load() }, [load])
+  // other people's changes show up by themselves (quietly, every 30 s and when coming back to the tab)
+  useAutoRefresh(() => load(true))
 
   // status tab counts
   useEffect(() => {
