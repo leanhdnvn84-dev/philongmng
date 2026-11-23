@@ -12,7 +12,7 @@ const COLS = 'id, ky, ngay_chot, id_khach_thue, ten_khach_thue, id_tang, tang, m
 const err = (m: string, s = 400) => NextResponse.json({ success: false, error: m }, { status: s })
 const ID = /^[A-Za-z0-9_.-]{1,64}$/
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
-const ADMIN_ONLY = 'Chỉ quản trị viên (Super Admin) mới được thêm, sửa, xóa công tơ và khách hàng của kỳ điện'
+const ADMIN_ONLY = 'Chỉ quản trị viên (Super Admin) mới được tạo kỳ, thêm, sửa, xóa công tơ và khách hàng của kỳ điện'
 const seqOf = (n: string | null) => Number(/-(\d+)$/.exec(n ?? '')?.[1] ?? 0)
 
 async function who(perm: 'view' | 'create' | 'edit' | 'delete' | 'approve'): Promise<AuthContext | NextResponse> {
@@ -197,12 +197,13 @@ export async function POST(req: NextRequest) {
         const a = await who('delete'); if (a instanceof NextResponse) return a
         if (!a.superAdmin) return err(ADMIN_ONLY, 403)
         const id = String(body.id ?? ''); if (!ID.test(id)) return err('Mã không hợp lệ')
-        const { data: r } = await db.from('tien_dien').select('id, ky, ma_cong_to, trang_thai').eq('id', id).maybeSingle()
+        const { data: r } = await db.from('tien_dien').select('*').eq('id', id).maybeSingle()
         if (!r) return err('Công tơ không tồn tại', 404)
         if (r.trang_thai === 'Đã chốt') return err('Kỳ đã chốt, không thể xóa')
         const { error } = await db.from('tien_dien').delete().eq('id', id)
         if (error) return err('Không xóa được', 500)
-        await audit(a, 'tien_dien', id, 'remove_meter', { ky: r.ky, ma_cong_to: r.ma_cong_to })
+        // the whole row is kept in the audit log as a 'delete': the meter appears in Thùng rác and can be restored there
+        await audit(a, 'tien_dien', id, 'delete', r)
         return NextResponse.json({ success: true })
       }
       case 'reopen': {
@@ -216,9 +217,44 @@ export async function POST(req: NextRequest) {
         await audit(a, 'tien_dien', null, 'reopen_period', { ky, rows: data.length })
         return NextResponse.json({ success: true, data: { message: `Đã mở lại kỳ ${ky}` } })
       }
+      case 'add_missing': {
+        // meters of the previous period that are missing from this one (e.g. removed by mistake): added back, reading continues
+        const a = await who('create'); if (a instanceof NextResponse) return a
+        if (!a.superAdmin) return err(ADMIN_ONLY, 403)
+        const ky = String(body.ky ?? ''); if (!MONTH.test(ky)) return err('Kỳ không hợp lệ')
+        const want = new Set((Array.isArray(body.ma) ? body.ma : []).map((m: unknown) => String(m)).slice(0, 500))
+        if (!want.size) return err('Chọn công tơ cần thêm lại')
+        const p = await periodOpen(ky); if (p.error) return err(p.error)
+        const { data: last } = await db.from('tien_dien').select('ky').lt('ky', ky).order('ky', { ascending: false }).limit(1)
+        if (!last?.length) return err('Không có kỳ trước để lấy công tơ')
+        const [{ data: prev }, { data: curRows }] = await Promise.all([
+          db.from('tien_dien').select('*').eq('ky', last[0].ky),
+          db.from('tien_dien').select('ma_cong_to, id_khach_thue, nhom_hoa_don, don_gia, vat').eq('ky', ky),
+        ])
+        const latest = new Map<string, any>()
+        for (const r of prev ?? []) { const c = latest.get(r.ma_cong_to); if (!c || String(r.ngay_chot ?? '') > String(c.ngay_chot ?? '') || Number(r.chi_so_moi ?? 0) > Number(c.chi_so_moi ?? 0)) latest.set(r.ma_cong_to, r) }
+        const have = new Set((curRows ?? []).map((r) => String(r.ma_cong_to).toUpperCase()))
+        const groupOf = new Map<string, string>(); for (const r of curRows ?? []) if (r.id_khach_thue && r.nhom_hoa_don && !groupOf.has(r.id_khach_thue)) groupOf.set(r.id_khach_thue, r.nhom_hoa_don)
+        const day = (p.rows.map((r) => String(r.nhom_hoa_don ?? '')).find((n) => /^\d{8}-/.test(n)) ?? '').slice(0, 8) || (ky.replace('-', '') + '22')
+        let next = Math.max(0, ...p.rows.map((r) => seqOf(r.nhom_hoa_don))) + 1
+        const price = p.rows[0]?.don_gia ?? null, vat = p.rows[0]?.vat ?? 0.08
+        const rows = [...latest.values()].filter((r) => want.has(r.ma_cong_to) && !have.has(String(r.ma_cong_to).toUpperCase())).map((r) => {
+          const k = r.id_khach_thue ?? ''
+          if (!groupOf.has(k)) groupOf.set(k, `${day}-${k || 'KT'}-${next++}`)
+          return { ky, id_khach_thue: r.id_khach_thue, ten_khach_thue: r.ten_khach_thue, id_tang: r.id_tang, tang: r.tang, ma_cong_to: r.ma_cong_to, ten_cong_to: r.ten_cong_to,
+            nhom_hoa_don: groupOf.get(k)!, chi_so_cu: r.chi_so_moi, chi_so_moi: null, don_gia: price ?? r.don_gia, vat: vat ?? r.vat, chu_ky_thang: r.chu_ky_thang,
+            trang_thai: 'Nháp', nguon: `Thêm lại từ kỳ ${r.ky}`, nguoi_cap_nhat: a.name }
+        })
+        if (!rows.length) return err('Các công tơ đã chọn đều đã có trong kỳ')
+        const { data, error } = await db.from('tien_dien').insert(rows).select('id')
+        if (error) return err('Không thêm được công tơ', 500)
+        await audit(a, 'tien_dien', null, 'add_missing', { ky, from: last[0].ky, count: data?.length ?? 0, ma_cong_to: rows.map((r) => r.ma_cong_to).join(', ') })
+        return NextResponse.json({ success: true, data: { message: `Đã thêm lại ${data?.length ?? 0} công tơ từ kỳ ${last[0].ky}: ${rows.map((r) => r.ma_cong_to).join(', ')}` } })
+      }
       case 'tao_ky':
       case 'chot_ky': {
         const a = await who(op === 'chot_ky' ? 'approve' : 'create'); if (a instanceof NextResponse) return a
+        if (op === 'tao_ky' && !a.superAdmin) return err(ADMIN_ONLY, 403)
         const res = getResource('tien_dien')!
         const r = await runAction(res, op, '_', a, body)
         return NextResponse.json({ success: true, data: r })

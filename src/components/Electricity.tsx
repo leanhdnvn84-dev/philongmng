@@ -65,7 +65,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const [edits, setEdits] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' } | { kind: 'pay' } | { kind: 'debt' } | { kind: 'payhist' }>(null)
+  const [modal, setModal] = useState<null | { kind: 'ky' } | { kind: 'meter'; nhom?: string } | { kind: 'customer' } | { kind: 'history' } | { kind: 'price' } | { kind: 'edit' } | { kind: 'pay' } | { kind: 'debt' } | { kind: 'payhist' } | { kind: 'missing' }>(null)
   const [hist, setHist] = useState<any[] | null>(null)
   const [form, setForm] = useState<Record<string, string>>({})
   const [confirm, dialog] = useConfirm()
@@ -95,6 +95,13 @@ export default function Electricity({ perms }: { perms: Perms }) {
   const period = periods.find((p) => p.ky === ky)
   const latest = periods[0]
   const locked = !period || period.closed
+  const [missingSel, setMissingSel] = useState<string[]>([])
+  const missing = useMemo(() => {
+    const idx = periods.findIndex((p) => p.ky === ky), prev = idx >= 0 ? periods[idx + 1] : undefined
+    if (!period || !prev) return [] as Row[]
+    const have = new Set(period.rows.map((r) => r.ma_cong_to.toUpperCase())), seen = new Set<string>()
+    return prev.rows.filter((r) => !have.has(r.ma_cong_to.toUpperCase()) && !seen.has(r.ma_cong_to) && seen.add(r.ma_cong_to))
+  }, [periods, period, ky])
   const prevOf = useMemo(() => {
     // kWh of the same meter in the nearest earlier period
     const idx = periods.findIndex((p) => p.ky === ky)
@@ -251,7 +258,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
     run(async () => (await post({ op: 'reopen', ky })).data.message)
   }
   const removeMeter = async (r: Row) => {
-    if (!(await confirm(`Xóa công tơ ${r.ma_cong_to} khỏi ${kyText(r.ky)}?`, { danger: true, okLabel: 'Xóa' }))) return
+    if (!(await confirm(`Xóa công tơ ${r.ma_cong_to} khỏi ${kyText(r.ky)}?\n\nNếu xóa nhầm: khôi phục trong Thùng rác (30 ngày) hoặc dùng nút "Công tơ còn thiếu".`, { danger: true, okLabel: 'Xóa' }))) return
     run(async () => { await post({ op: 'remove_meter', id: r.id }); setEdits((e) => { const n = { ...e }; delete n[r.id]; return n }); return `Đã xóa ${r.ma_cong_to}` })
   }
   const openHistory = () => { setModal({ kind: 'history' }); setHist(null); api('/api/dien?history=1').then((j) => setHist(j.data)).catch((e) => flash(false, e.message)) }
@@ -276,6 +283,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
     if (!modal) return
     if (modal.kind === 'edit') return run(async () => { await post({ op: 'edit_meter', id: form.id, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu, id_khach_thue: form.khach !== form.khach0 ? form.khach : '' }); setModal(null); return `Đã lưu công tơ ${form.ma}` })
     if (modal.kind === 'ky') return run(async () => { const j = await post({ op: 'tao_ky', ky: form.ky, don_gia: form.don_gia ?? '' }); setModal(null); const k = form.ky; setTimeout(() => setKy(k), 400); return j.data?.message })
+    if (modal.kind === 'missing') return run(async () => { const j = await post({ op: 'add_missing', ky, ma: missingSel }); setModal(null); return j.data?.message })
     if (modal.kind === 'meter') return run(async () => { await post({ op: 'add_meter', ky, nhom_hoa_don: form.nhom, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); return 'Đã thêm công tơ' })
     if (modal.kind === 'customer') return run(async () => { const j = await post({ op: 'add_customer', ky, id_khach_thue: form.khach, ma_cong_to: form.ma, ten_cong_to: form.ten, tang: form.tang, chi_so_cu: form.cu }); setModal(null); if (j.data?.nhom_hoa_don) setTimeout(() => setSel(j.data.nhom_hoa_don), 600); return `Đã thêm khách và công tơ ${j.data?.ma_cong_to ?? ''}` })
     if (modal.kind === 'pay') return run(async () => { await post({ op: 'pay', ky, nhom_hoa_don: cur?.id, so_tien: form.tien, ngay: form.ngay, hinh_thuc: form.hinh_thuc, ghi_chu: form.ghi_chu }); setModal({ kind: 'payhist' }); return 'Đã ghi nhận thanh toán' })
@@ -287,7 +295,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
   // each button sets its own background (base has none), so a coloured button never ends up white text on white
   const plain = 'bg-white border-navy-200 text-navy-900 hover:bg-navy-50'
   const nextPeriod = latest ? nextKy(latest.ky) : ''
-  const canNew = perms.create && !!latest && latest.closed
+  const canNew = !!perms.admin && !!latest && latest.closed
 
   const panel = cur && (
     <div className="space-y-3">
@@ -330,9 +338,10 @@ export default function Electricity({ perms }: { perms: Perms }) {
           {period && <span className="ml-2 text-[12.5px] text-ink-mute">{kyText(ky)}{closeDateOf(period.rows) ? ` · chốt ngày ${dmy(closeDateOf(period.rows))}` : ''} · {period.closed ? 'Đã chốt' : 'Đang nhập chỉ số'}</span>}
         </div>
         <div className="-mx-1 flex max-w-full flex-1 gap-1.5 lg:justify-end overflow-x-auto px-1 pb-0.5 lg:flex-none">
-          <button className={`${btn} ${plain}`} disabled={!canNew || busy} onClick={() => open({ kind: 'ky' }, { ky: nextPeriod, don_gia: '' })}><Plus className="h-4 w-4" />Tạo kỳ mới</button>
-          <button className={`${btn} ${plain}`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'customer' }, { khach: '', ma: '', ten: '', tang: '', cu: '' })}><User className="h-4 w-4" />Thêm khách</button>
-          <button className={`${btn} bg-white border-amber-300 text-amber-700 hover:bg-amber-50`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ quản trị viên'} onClick={() => open({ kind: 'meter' }, { nhom: cur?.id ?? '', ma: '', ten: '', tang: '', cu: '' })}><Zap className="h-4 w-4" />Thêm công tơ</button>
+          <button className={`${btn} ${plain}`} disabled={!canNew || busy} title={perms.admin ? (latest && !latest.closed ? 'Chốt kỳ hiện tại trước khi tạo kỳ mới' : undefined) : 'Chỉ Super Admin'} onClick={() => open({ kind: 'ky' }, { ky: nextPeriod, don_gia: '' })}><Plus className="h-4 w-4" />Tạo kỳ mới</button>
+          <button className={`${btn} ${plain}`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ Super Admin'} onClick={() => open({ kind: 'customer' }, { khach: '', ma: '', ten: '', tang: '', cu: '' })}><User className="h-4 w-4" />Thêm khách</button>
+          <button className={`${btn} bg-white border-amber-300 text-amber-700 hover:bg-amber-50`} disabled={locked || !perms.admin || busy} title={perms.admin ? undefined : 'Chỉ Super Admin'} onClick={() => open({ kind: 'meter' }, { nhom: cur?.id ?? '', ma: '', ten: '', tang: '', cu: '' })}><Zap className="h-4 w-4" />Thêm công tơ</button>
+          {perms.admin && <button className={`${btn} ${missing.length ? 'bg-amber-500 border-amber-600 text-white hover:bg-amber-600' : plain}`} disabled={locked || busy || !missing.length} title={locked ? 'Kỳ đã chốt' : missing.length ? 'Công tơ có ở kỳ trước nhưng không có ở kỳ này (có thể bị xóa nhầm)' : 'Kỳ này đủ công tơ so với kỳ trước'} onClick={() => { setMissingSel(missing.map((m) => m.ma_cong_to)); setModal({ kind: 'missing' }) }}><Plus className="h-4 w-4" />Công tơ còn thiếu{missing.length ? ` (${missing.length})` : ''}</button>}
           <button className={`${btn} bg-white border-teal-300 text-teal-700 hover:bg-teal-50`} disabled={locked || !perms.edit || busy || !period} onClick={() => open({ kind: 'price' }, { gia: price != null ? String(price) : '', pham_vi: 'ky', ly_do: '' })}><Coins className="h-4 w-4" />Giá điện</button>
           <button className={`${btn} ${dirty ? 'border-blue-700 bg-blue-600 text-white shadow-[0_3px_0_#1e3a8a] ring-2 ring-blue-300 hover:bg-blue-700' : 'border-green-700 bg-green-600 text-white disabled:!opacity-100 disabled:!cursor-default'}`} disabled={!dirty || busy || !perms.edit} onClick={save} title={dirty ? 'Lưu ngay các chỉ số đang chờ (chúng cũng tự lưu)' : 'Chỉ số mới tự lưu sau khi nhập'}><Save className="h-4 w-4" />{dirty ? `Lưu chỉ số (${dirty})` : 'Đã lưu chỉ số'}</button>
           <button className={`${btn} bg-white border-[#e11d2e] text-[#e11d2e] hover:bg-red-50`} disabled={locked || !perms.approve || busy} onClick={chot}><Lock className="h-4 w-4" />Chốt kỳ</button>
@@ -431,6 +440,20 @@ export default function Electricity({ perms }: { perms: Perms }) {
           <Field label="Kỳ mới (YYYY-MM)"><input className="input" value={form.ky ?? ''} onChange={(e) => setForm({ ...form, ky: e.target.value })} placeholder="2026-12" /></Field>
           <Field label="Đơn giá (để trống = giữ như kỳ trước)"><input className="input" inputMode="decimal" value={form.don_gia ?? ''} onChange={(e) => setForm({ ...form, don_gia: e.target.value })} /></Field>
           <button className="btn-primary w-full" disabled={busy} onClick={submitModal}>Tạo kỳ</button>
+        </Modal>
+      )}
+      {modal?.kind === 'missing' && (
+        <Modal title={`Công tơ còn thiếu · ${kyText(ky)}`} onClose={() => setModal(null)}>
+          <p className="mb-3 text-[13px] text-ink-soft">Các công tơ có ở kỳ trước nhưng không có ở kỳ này (ví dụ bị xóa nhầm). Thêm lại vào đúng hóa đơn của khách; chỉ số cũ = chỉ số mới của kỳ trước. Công tơ xóa trong 30 ngày cũng khôi phục được ở Thùng rác.</p>
+          <ul className="mb-3 max-h-[50dvh] divide-y divide-navy-100 overflow-y-auto rounded-lg border border-navy-200">
+            {missing.map((m) => (
+              <li key={m.id}><label className="flex cursor-pointer items-center gap-2.5 px-3 py-2 text-[13.5px]">
+                <input type="checkbox" className="h-4 w-4" checked={missingSel.includes(m.ma_cong_to)} onChange={(e) => setMissingSel((s) => e.target.checked ? [...s, m.ma_cong_to] : s.filter((x) => x !== m.ma_cong_to))} />
+                <span className="font-mono font-bold">{m.ma_cong_to}</span><span className="min-w-0 flex-1 truncate">{[m.ten_khach_thue, m.tang, m.ten_cong_to].filter(Boolean).join(' · ')}</span>
+                <span className="tabular-nums text-ink-mute">{m.chi_so_moi == null ? '—' : num3(m.chi_so_moi)}</span></label></li>
+            ))}
+          </ul>
+          <button className="btn-primary w-full" disabled={busy || !missingSel.length} onClick={submitModal}>Thêm lại {missingSel.length} công tơ</button>
         </Modal>
       )}
       {modal?.kind === 'meter' && (
@@ -554,7 +577,7 @@ export default function Electricity({ perms }: { perms: Perms }) {
 
 const ACTION_LABEL: Record<string, string> = {
   create_period: 'Tạo kỳ mới', lock_period: 'Chốt kỳ', reopen_period: 'Mở lại kỳ', save_readings: 'Lưu chỉ số', add_meter: 'Thêm công tơ',
-  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', set_price: 'Đổi giá điện', pay: 'Ghi nhận thanh toán', unpay: 'Xóa lần thanh toán', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa',
+  add_customer: 'Thêm khách', remove_meter: 'Xóa công tơ', add_missing: 'Thêm lại công tơ còn thiếu', restore: 'Khôi phục từ thùng rác', set_price: 'Đổi giá điện', pay: 'Ghi nhận thanh toán', unpay: 'Xóa lần thanh toán', edit_meter: 'Sửa công tơ / khách hàng', create: 'Thêm', update: 'Sửa', delete: 'Xóa công tơ (vào thùng rác)',
 }
 
 function GroupRows({ inv, active, onSelect, locked, perms, onAdd, edits, setEdit, commit, boxCls, boxTitle, check, remove, editMeter, inputs }: {

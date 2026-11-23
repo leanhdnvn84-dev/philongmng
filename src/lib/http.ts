@@ -45,6 +45,8 @@ export async function guard(
   }
   if (!auth) return fail('Chưa đăng nhập hoặc tài khoản bị khóa', 401)
   if (!opts.skipPermission && !can(auth, res.module, perm)) return fail('Bạn không có quyền thực hiện thao tác này', 403)
+  // electricity meters: only a Super Admin adds or removes them (same rule as the Tiền điện screen)
+  if (res.key === 'tien_dien' && (perm === 'create' || perm === 'delete') && !auth.superAdmin) return fail('Chỉ Super Admin mới được tạo kỳ, thêm hoặc xóa công tơ điện', 403)
   if ((perm === 'create' && res.noCreate) || (perm === 'edit' && res.noEdit) || (perm === 'delete' && res.noDelete))
     return fail('Thao tác này không được phép trên mục này', 405)
   return { auth, res }

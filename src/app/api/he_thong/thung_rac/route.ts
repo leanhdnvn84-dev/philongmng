@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 const DAYS = 30
 const NO_RESTORE = new Set(['users', 'audit_logs', 'sao_luu'])
 const title = (table: string) => RESOURCES.find((r) => r.table === table)?.title ?? table
-const summary = (row: any) => String(row?.ten_thiet_bi ?? row?.ten_vat_tu ?? row?.noi_dung ?? row?.noi_dung_thuc_hien ?? row?.ho_ten ?? row?.ten_khach_thue ?? row?.ten_cong_ty ?? row?.ten_nha_cung_cap ?? row?.ten_khu_vuc ?? row?.ten_hang_muc ?? row?.ten ?? row?.ghi_chu ?? '').replace(/\s+/g, ' ').slice(0, 140)
+const summary = (row: any) => row?.ma_cong_to && row?.ky ? `Công tơ ${row.ma_cong_to} · ${row.ten_khach_thue ?? ''} · kỳ ${row.ky}${row.chi_so_moi != null ? ` · chỉ số mới ${row.chi_so_moi}` : ''}` : String(row?.ten_thiet_bi ?? row?.ten_vat_tu ?? row?.noi_dung ?? row?.noi_dung_thuc_hien ?? row?.ho_ten ?? row?.ten_khach_thue ?? row?.ten_cong_ty ?? row?.ten_nha_cung_cap ?? row?.ten_khu_vuc ?? row?.ten_hang_muc ?? row?.ten ?? row?.ghi_chu ?? '').replace(/\s+/g, ' ').slice(0, 140)
 
 /** Recycle bin: records deleted in the last 30 days (taken from the audit log, which keeps the whole row). Super Admin only. */
 export async function GET() {
@@ -48,6 +48,12 @@ export async function POST(req: NextRequest) {
     return Object.fromEntries(Object.entries(row).filter(([k]) => ok.has(k)))
   }
   const { _con, ...row } = log.changes as any
+  // an electricity meter goes back only into a period that is still open and does not have that meter again
+  if (log.table_name === 'tien_dien') {
+    const { data: same } = await db.from('tien_dien').select('ma_cong_to, trang_thai').eq('ky', row.ky)
+    if ((same ?? []).some((r: any) => r.trang_thai === 'Đã chốt')) return NextResponse.json({ success: false, error: `Kỳ ${row.ky} đã chốt: mở lại kỳ rồi khôi phục công tơ` }, { status: 409 })
+    if ((same ?? []).some((r: any) => String(r.ma_cong_to).toUpperCase() === String(row.ma_cong_to).toUpperCase())) return NextResponse.json({ success: false, error: `Kỳ ${row.ky} đã có công tơ ${row.ma_cong_to} (có thể đã thêm lại)` }, { status: 409 })
+  }
   const { error } = await db.from(log.table_name).insert(await clean(log.table_name, row))
   if (error) return NextResponse.json({ success: false, error: /foreign key/i.test(error.message) ? 'Không khôi phục được: bản ghi liên quan (người, khu vực…) đã bị xóa' : 'Không khôi phục được: ' + error.message.slice(0, 120) }, { status: 409 })
   let kids = 0

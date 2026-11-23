@@ -315,6 +315,7 @@ const ghiNhanBaoTri: Handler = async ({ auth, id, row, input }) => {
 // ── Tiền điện ──
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/
 const taoKy: Handler = async ({ auth, input }) => {
+  if (!auth.superAdmin) bad('Chỉ Super Admin mới được tạo kỳ điện mới', 403)
   const ky = String(input.ky ?? '')
   if (!MONTH.test(ky)) bad('Kỳ phải có dạng YYYY-MM')
   const price = input.don_gia === '' || input.don_gia == null ? null : Number(input.don_gia)
