@@ -1,0 +1,6 @@
+# Chép file này thành .dev.vars để chạy thử trên máy (không commit .dev.vars).
+TELEGRAM_BOT_TOKEN=123456:ABC-your-bot-token
+TELEGRAM_CHAT_ID=-1001234567890
+# Không bắt buộc: ghi đơn vào Google Sheet qua Apps Script (gas/Code.gs)
+SHEET_WEBHOOK_URL=
+SHEET_SECRET=

@@ -1,0 +1,12 @@
+{
+  "name": "jiejie-kitchen",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.168.0"
+  }
+}
